@@ -78,7 +78,7 @@
         #world.admin-active .admin-spawn-marker { display: flex !important; justify-content: center; align-items: center; font-weight: bold; color: white;}
         
         #admin-panel { position: absolute; top: 20px; left: 290px; width: 450px; background: rgba(10, 10, 40, 0.95); padding: 15px; border-radius: 8px; border: 2px solid #55f; z-index: 2000; display: none; color: #fff; box-shadow: 0 0 15px rgba(0,0,255,0.5); overflow-y: auto; max-height: 90vh; }
-        #admin-output { width: 100%; height: 100px; margin-top: 10px; margin-bottom: 10px; background: #111; color: #0f0; font-family: monospace; border: 1px solid #444; resize: none; font-size: 12px; box-sizing: border-box; padding: 5px; white-space: pre; overflow-x: auto; }
+        #admin-output { width: 100%; height: 100px; margin-top: 10px; margin-bottom: 10px; background: #111; color: #0f0; border: 1px solid #444; resize: none; font-size: 12px; box-sizing: border-box; padding: 5px; white-space: pre; overflow-x: auto; }
         .admin-tool-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
         .admin-tool-row input[type="number"] { margin-bottom: 0; width: 80px; padding: 5px; }
 
@@ -247,7 +247,7 @@
             <div class="bar-container"><div id="ui-hp-bar" class="hp-fill"></div></div>
             <div class="stat-row"><span>EXP</span> <span id="ui-exp-text">0 / 100</span></div>
             <div class="bar-container" style="height: 6px;"><div id="ui-exp-bar" class="exp-fill"></div></div>
-            <div style="font-size: 11px; color: #aaa; margin-top: 8px; font-weight: bold;">[O] Toggle Admin Mode</div>
+            <div style="font-size: 14px; color: #aaa; margin-top: 8px; font-weight: bold;">[O] Toggle Admin Mode</div>
         </div>
 
         <div id="combat-log">Welcome to Exonie. WASD to move. Left click to attack.</div>
@@ -353,7 +353,22 @@
 <script>
     const socket = io(); 
 
-    // --- RESTORED GLOBAL AVATAR VARIABLE ---
+    // --- RESTORED COLOR FILTERS ---
+    const skinFilters = { 
+        'flesh': 'sepia(1) hue-rotate(-25deg) saturate(2.5) brightness(1.1)', 
+        'yellow': 'sepia(1) hue-rotate(15deg) saturate(3) brightness(1.2)', 
+        'green': 'sepia(1) hue-rotate(75deg) saturate(2) brightness(1)', 
+        'blue': 'sepia(1) hue-rotate(180deg) saturate(2) brightness(1)', 
+        'white': 'grayscale(1) brightness(1.8) contrast(0.9)' 
+    };
+    const hairFilters = { 
+        'black': 'brightness(0.2)', 
+        'blonde': 'sepia(1) hue-rotate(15deg) saturate(3) brightness(1.5)', 
+        'brown': 'sepia(1) hue-rotate(330deg) saturate(2) brightness(0.6)', 
+        'blue': 'sepia(1) hue-rotate(180deg) saturate(2) brightness(1)', 
+        'white': 'grayscale(1) brightness(1.8) contrast(0.9)' 
+    };
+
     window.charData = { skinColor: 'flesh', hairColor: 'black', hairStyle: '1' };
 
     // --- DYNAMIC AUDIO ENGINE ---
