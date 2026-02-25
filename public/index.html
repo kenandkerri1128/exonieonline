@@ -14,7 +14,7 @@
         /* --- GLOBAL STYLES --- */
         body { 
             margin: 0; 
-            font-family: 'MedievalSharp', cursive; /* FANTASY FONT APPLIED */
+            font-family: 'MedievalSharp', cursive; 
             background-color: #121212; 
             color: #e0e0e0; 
             display: flex; justify-content: center; align-items: center; 
@@ -32,7 +32,7 @@
 
         /* --- UI COMPONENTS --- */
         input[type="text"], input[type="password"], input[type="number"], select, button, textarea { 
-            font-family: 'MedievalSharp', cursive; /* INHERIT FONT FOR INPUTS */
+            font-family: 'MedievalSharp', cursive; 
         }
         input[type="text"], input[type="password"], input[type="number"] { background: #111; color: #0f0; border: 1px solid #4CAF50; padding: 10px; border-radius: 4px; font-size: 18px; width: calc(100% - 22px); outline: none; margin-bottom: 15px; box-sizing: border-box; }
         input:read-only { color: #888; border-color: #555; background: #222; }
@@ -51,7 +51,6 @@
         .color-swatch.selected { border-color: white; }
 
         /* --- AUTH SCREENS --- */
-        /* FIXED: Added position relative and z-index so it sits above the background overlay! */
         .auth-container { position: relative; z-index: 10; width: 400px; padding: 30px; background: #1e1e1e; border-radius: 8px; border: 2px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: center; margin: auto; }
         .auth-container h1 { margin-top: 0; color: #4CAF50; font-size: 40px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .auth-link { color: #4CAF50; cursor: pointer; font-size: 16px; text-decoration: underline; margin-top: 15px; display: inline-block; }
@@ -79,7 +78,7 @@
         #world.admin-active .admin-spawn-marker { display: flex !important; justify-content: center; align-items: center; font-weight: bold; color: white;}
         
         #admin-panel { position: absolute; top: 20px; left: 290px; width: 450px; background: rgba(10, 10, 40, 0.95); padding: 15px; border-radius: 8px; border: 2px solid #55f; z-index: 2000; display: none; color: #fff; box-shadow: 0 0 15px rgba(0,0,255,0.5); overflow-y: auto; max-height: 90vh; }
-        #admin-output { width: 100%; height: 100px; margin-top: 10px; margin-bottom: 10px; background: #111; color: #0f0; border: 1px solid #444; resize: none; font-size: 12px; box-sizing: border-box; padding: 5px; white-space: pre; overflow-x: auto; }
+        #admin-output { width: 100%; height: 100px; margin-top: 10px; margin-bottom: 10px; background: #111; color: #0f0; font-family: monospace; border: 1px solid #444; resize: none; font-size: 12px; box-sizing: border-box; padding: 5px; white-space: pre; overflow-x: auto; }
         .admin-tool-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
         .admin-tool-row input[type="number"] { margin-bottom: 0; width: 80px; padding: 5px; }
 
@@ -122,7 +121,7 @@
         .inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
         .inv-slot { width: 100%; aspect-ratio: 1; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 13px; text-align: center; cursor: pointer; user-select: none; color: white; padding: 4px; box-sizing: border-box; font-weight: bold; position: relative; }
         .inv-slot:hover { border-color: #4CAF50; background: #333; }
-        .inv-qty { position: absolute; bottom: 2px; right: 4px; font-size: 12px; color: #fff; text-shadow: 1px 1px 0 #000; }
+        .inv-qty { position: absolute; bottom: 2px; right: 4px; font-size: 11px; color: #fff; text-shadow: 1px 1px 0 #000; }
         .tooltip { visibility: hidden; position: absolute; bottom: 105%; left: 50%; transform: translateX(-50%); background-color: #111; color: #fff; text-align: center; padding: 8px 10px; border-radius: 4px; border: 1px solid #777; width: max-content; z-index: 100; font-size: 14px; line-height: 1.4; pointer-events: none; }
         .inv-slot:hover .tooltip { visibility: visible; }
         .equip-container { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px;}
@@ -130,7 +129,7 @@
         .equip-box:hover { background: #333; border-color: #f44336; }
         .equip-box:hover .tooltip { visibility: visible; }
         #inv-context-menu { display: none; position: absolute; background: #222; border: 1px solid #777; border-radius: 4px; z-index: 3000; flex-direction: column; width: 120px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
-        .ctx-btn { background: none; border: none; color: white; padding: 10px; cursor: pointer; text-align: left; font-weight: bold; font-size: 16px; }
+        .ctx-btn { background: none; border: none; color: white; padding: 10px; cursor: pointer; text-align: left; font-weight: bold; font-size: 16px; font-family: 'MedievalSharp', cursive; }
         .ctx-btn:hover { background: #444; }
 
         #stat-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; background-color: rgba(30, 30, 30, 0.98); border: 2px solid #555; border-radius: 8px; padding: 20px; z-index: 1000; display: none; box-shadow: 0 0 20px black; }
@@ -248,7 +247,7 @@
             <div class="bar-container"><div id="ui-hp-bar" class="hp-fill"></div></div>
             <div class="stat-row"><span>EXP</span> <span id="ui-exp-text">0 / 100</span></div>
             <div class="bar-container" style="height: 6px;"><div id="ui-exp-bar" class="exp-fill"></div></div>
-            <div style="font-size: 14px; color: #aaa; margin-top: 8px; font-weight: bold;">[O] Toggle Admin Mode</div>
+            <div style="font-size: 11px; color: #aaa; margin-top: 8px; font-weight: bold;">[O] Toggle Admin Mode</div>
         </div>
 
         <div id="combat-log">Welcome to Exonie. WASD to move. Left click to attack.</div>
@@ -353,6 +352,9 @@
 
 <script>
     const socket = io(); 
+
+    // --- RESTORED GLOBAL AVATAR VARIABLE ---
+    window.charData = { skinColor: 'flesh', hairColor: 'black', hairStyle: '1' };
 
     // --- DYNAMIC AUDIO ENGINE ---
     let currentBGM = null;
@@ -499,7 +501,7 @@
         document.getElementById('loading-screen').style.display = 'none';
         document.getElementById('creation-screen').classList.remove('active');
         
-        document.getElementById('select-name-display').innerText = userData.username;
+        document.getElementById('select-name-display').innerText = userData.character_name;
         document.getElementById('select-level-display').innerText = `Level ${userData.level}`;
 
         document.getElementById('select-body').style.filter = skinFilters[userData.skin_color] || skinFilters['flesh'];
@@ -522,7 +524,7 @@
         document.getElementById('creation-screen').classList.remove('active');
         document.getElementById('loading-text').innerText = "Forging Avatar...";
         document.getElementById('loading-screen').style.display = 'flex';
-        socket.emit('createCharacter', { username, charData });
+        socket.emit('createCharacter', { username, charData: window.charData });
     }
 
     window.enterGameWorld = function() {
@@ -533,8 +535,8 @@
     }
 
     socket.on('authSuccess', (userData) => {
-        game.player.id = userData.username;
-        game.player.name = userData.username;
+        game.player.id = userData.character_name;
+        game.player.name = userData.character_name;
         document.getElementById('player-name-tag').innerText = game.player.name;
         document.getElementById('ui-name-display').innerText = game.player.name;
 
@@ -545,9 +547,9 @@
         window.safeMapData = window.MapDatabase[userData.map_id] || window.MapDatabase['town'];
         game.player.x = userData.pos_x; game.player.y = userData.pos_y;
 
-        charData.skinColor = userData.skin_color || 'flesh';
-        charData.hairColor = userData.hair_color || 'black';
-        charData.hairStyle = userData.hair_style || '1';
+        window.charData.skinColor = userData.skin_color || 'flesh';
+        window.charData.hairColor = userData.hair_color || 'black';
+        window.charData.hairStyle = userData.hair_style || '1';
 
         document.getElementById('loading-screen').style.display = 'none';
         dom.game.classList.add('active');
@@ -559,12 +561,11 @@
         dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`;
 
         dom.world.style.backgroundImage = `url('${window.safeMapData.image}')`;
-        dom.playerBody.style.filter = skinFilters[charData.skinColor]; dom.playerHead.style.filter = skinFilters[charData.skinColor]; dom.playerHair.style.filter = hairFilters[charData.hairColor];
-        if (charData.hairStyle === 'none') { dom.playerHair.style.display = 'none'; } else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${charData.hairStyle}.png`; }
+        dom.playerBody.style.filter = skinFilters[window.charData.skinColor]; dom.playerHead.style.filter = skinFilters[window.charData.skinColor]; dom.playerHair.style.filter = hairFilters[window.charData.hairColor];
+        if (window.charData.hairStyle === 'none') { dom.playerHair.style.display = 'none'; } else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${window.charData.hairStyle}.png`; }
 
         window.buildCollisionLayers(); updateEquipmentDisplay(); if (typeof window.respawnMonster === 'function') window.respawnMonster(); window.updateUI();
         
-        // Initial Music Hook
         let mapType = (window.safeMapData.id || "").includes('floor') ? 'floor' : 'town';
         playBGM(mapType);
 
@@ -572,7 +573,6 @@
         requestAnimationFrame(gameLoop);
     });
 
-    // --- ITEM GENERATION ENGINE (Dynamic Sprites) ---
     window.RARITY_COLORS = { "Starter": "#aaaaaa", "Basic": "#8B4513", "Rare": "#2196F3", "Unique": "#9c27b0", "Legend": "#f44336", "Godly": "#e0ffff" };
     window.ITEM_TEMPLATES = {
         sword: { slot: 'weapon', statKey: 'attack', baseName: 'Sword', spriteName: 'sword' },
@@ -633,7 +633,6 @@
         return html;
     }
 
-    // --- PURE KEYBOARD LISTENER ---
     function movementKeyFromEvent(e) {
         switch (e.code) {
             case 'KeyW': return 'w'; case 'KeyA': return 'a'; case 'KeyS': return 's'; case 'KeyD': return 'd';
@@ -709,7 +708,6 @@
         return false;
     }
     
-    // --- MULTIPLAYER RENDERING ENGINE ---
     function addRemotePlayer(p) {
         if(game.remotePlayers[p.id]) return;
         game.remotePlayers[p.id] = p;
@@ -770,21 +768,34 @@
         }
     });
 
-    window.setSkinColor = function(color, element) { charData.skinColor = color; document.getElementById('preview-body').style.filter = skinFilters[color]; document.getElementById('preview-head').style.filter = skinFilters[color]; document.getElementById('skin-color-group').querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); element.classList.add('selected'); }
-    window.setHairColor = function(color, element) { charData.hairColor = color; document.getElementById('preview-hair').style.filter = hairFilters[color]; document.getElementById('hair-color-group').querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); element.classList.add('selected'); }
+    let hairIndexToTest = 1; 
+    function loadHairStyles() {
+        let img = new Image();
+        img.onload = function() {
+            const container = document.getElementById('hair-button-container'); const btn = document.createElement('button');
+            btn.className = hairIndexToTest.toString() === window.charData.hairStyle ? 'btn selected' : 'btn';
+            btn.id = `btn-hair-${hairIndexToTest}`; btn.innerText = `Style ${hairIndexToTest}`;
+            let currentIndex = hairIndexToTest; btn.onclick = () => window.setHairStyle(currentIndex.toString());
+            container.appendChild(btn); hairIndexToTest++; loadHairStyles();
+        };
+        img.onerror = function() {}; img.src = `animation/avatar_hair${hairIndexToTest}.png`;
+    }
+    loadHairStyles();
+
+    window.setSkinColor = function(color, element) { window.charData.skinColor = color; document.getElementById('preview-body').style.filter = skinFilters[color]; document.getElementById('preview-head').style.filter = skinFilters[color]; document.getElementById('skin-color-group').querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); element.classList.add('selected'); }
+    window.setHairColor = function(color, element) { window.charData.hairColor = color; document.getElementById('preview-hair').style.filter = hairFilters[color]; document.getElementById('hair-color-group').querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); element.classList.add('selected'); }
     window.setHairStyle = function(style) {
-        charData.hairStyle = style; const hairLayer = document.getElementById('preview-hair');
+        window.charData.hairStyle = style; const hairLayer = document.getElementById('preview-hair');
         if (style === 'none') { hairLayer.style.display = 'none'; } else { hairLayer.style.display = 'block'; hairLayer.src = `animation/avatar_hair${style}.png`; }
         const container = document.getElementById('hair-button-container');
         if (container) { container.querySelectorAll('.btn').forEach(btn => btn.classList.remove('selected')); const activeBtn = document.getElementById(`btn-hair-${style}`); if(activeBtn) activeBtn.classList.add('selected'); }
     }
     
-    // Auto-select starting style
     setTimeout(() => {
         let firstSkin = document.querySelector('#skin-color-group .color-swatch.selected');
         let firstHair = document.querySelector('#hair-color-group .color-swatch.selected');
-        if (firstSkin) setSkinColor('flesh', firstSkin);
-        if (firstHair) setHairColor('black', firstHair);
+        if (firstSkin) window.setSkinColor('flesh', firstSkin);
+        if (firstHair) window.setHairColor('black', firstHair);
     }, 100);
 
     function getPlayerById(id) { if (!id) return null; if (id === game.player.id) return game.player; return game.remotePlayers[id] || null; }
@@ -830,8 +841,7 @@
         
         if (window.safeMapData.floorBossSpawns && window.safeMapData.floorBossSpawns.length > 0) {
             spawnX = window.safeMapData.floorBossSpawns[0].x; spawnY = window.safeMapData.floorBossSpawns[0].y;
-            isBossSpawn = true;
-            game.monster.respawnTimer = 99999999; 
+            isBossSpawn = true; game.monster.respawnTimer = 99999999; 
         } else if (window.safeMapData.miniBossSpawns && window.safeMapData.miniBossSpawns.length > 0) {
             spawnX = window.safeMapData.miniBossSpawns[0].x; spawnY = window.safeMapData.miniBossSpawns[0].y;
             game.monster.respawnTimer = 300000; 
