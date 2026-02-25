@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exonie Online - Alpha Engine</title>
+    
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script src="townmap.js"></script>
+    <style>
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #e0e0e0; display: flex; justify-content: center; align-items: center; height: 100vh; user-select: none; overflow: hidden; }
+        #game-container { width: 100vw; height: 100vh; background-color: #1e1e1e; position: relative; overflow: hidden; image-rendering: pixelated; }
+        .screen { width: 100%; height: 100%; display: none; }
+        .screen.active { display: flex; }
+
+        #loading-screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #111; color: #fff; z-index: 5000; flex-direction: column; justify-content: center; align-items: center; }
+        .loader-title { font-size: 28px; font-weight: bold; margin-bottom: 20px; color: #4CAF50; letter-spacing: 2px;}
+        .loader-bar-bg { width: 400px; height: 12px; background: #333; border-radius: 6px; overflow: hidden; border: 2px solid #555;}
+        .loader-bar-fill { width: 0%; height: 100%; background: #4CAF50; transition: width 0.8s ease-out; }
+
+        input[type="text"], input[type="number"] { background: #111; color: #0f0; border: 1px solid #4CAF50; padding: 10px; border-radius: 4px; font-size: 16px; width: calc(100% - 22px); font-family: monospace; font-weight: bold; outline: none; margin-bottom: 15px; box-sizing: border-box; }
+        select { background: #111; color: #fff; border: 1px solid #4CAF50; padding: 5px; border-radius: 4px; outline: none; }
+        .btn { background-color: #3a3a3a; color: white; border: 1px solid #555; padding: 8px 12px; cursor: pointer; border-radius: 4px; transition: background 0.2s; }
+        .btn:hover { background-color: #555; }
+        .btn.selected { background-color: #4CAF50; border-color: #4CAF50; }
+        .btn-large { background-color: #4CAF50; font-size: 16px; font-weight: bold; padding: 15px; margin-top: 20px; width: 100%; }
+        .btn-large:hover { background-color: #45a049; }
+        .panel-section { background-color: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #333; }
+        .panel-section h4 { margin: 0 0 10px 0; color: #aaa; text-transform: uppercase; font-size: 12px;}
+        .button-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .color-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .color-swatch { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+        .color-swatch:hover { transform: scale(1.1); }
+        .color-swatch.selected { border-color: white; }
+
+        #creation-screen { flex-direction: row; }
+        .stage-area { width: 45%; height: 100%; background: radial-gradient(circle, #444 0%, #222 100%); display: flex; justify-content: center; align-items: center; border-right: 2px solid #333; }
+        .controls-area { width: 55%; height: 100%; padding: 40px; overflow-y: auto; box-sizing: border-box; }
+
+        .avatar-rig { position: relative; display: flex; justify-content: center; filter: drop-shadow(1px 0px 0px #000) drop-shadow(-1px 0px 0px #000) drop-shadow(0px 1px 0px #000) drop-shadow(0px -1px 0px #000) drop-shadow(2px 2px 0px rgba(0,0,0,0.5)); }
+        #preview-rig { width: 128px; height: 256px; transform: scale(1.5); transform-origin: center center; }
+        .avatar-layer { position: absolute; left: 50%; transform: translateX(-50%); width: auto; max-width: none; object-fit: contain; image-rendering: pixelated; }
+
+        .layer-hair { height: 65%; top: 27%; z-index: 2; } .layer-head { height: 65%; top: 27%; z-index: 3; }
+        .layer-body { height: 120%; bottom: -45%; z-index: 4; } .layer-leggings { height: 120%; bottom: -45%; z-index: 5; }
+        .layer-armor { height: 120%; bottom: -45%; z-index: 6; } .layer-weapon { height: 120%; bottom: -45%; z-index: 7; }
+
+        #game-screen { position: relative; width: 100%; height: 100%; background-color: #000; }
+        #world { position: absolute; width: 2000px; height: 1333px; background-size: 100% 100%; transform-origin: top left; transition: background-image 0.5s; }
+        .collision-box { position: absolute; background: transparent; z-index: 900; pointer-events: none; }
+        #world.admin-active .collision-box { background: rgba(255, 0, 0, 0.4) !important; border: 1px solid red; }
+        
+        .admin-spawn-marker { position: absolute; width: 48px; height: 48px; border: 3px solid cyan; border-radius: 50%; background: rgba(0, 255, 255, 0.3); z-index: 800; pointer-events: none; transform: translate(-50%, -100%); display: none; }
+        #world.admin-active .admin-spawn-marker { display: flex !important; justify-content: center; align-items: center; font-weight: bold; color: white;}
+        
+        #admin-panel { position: absolute; top: 20px; left: 290px; width: 450px; background: rgba(10, 10, 40, 0.95); padding: 15px; border-radius: 8px; border: 2px solid #55f; z-index: 2000; display: none; color: #fff; box-shadow: 0 0 15px rgba(0,0,255,0.5); overflow-y: auto; max-height: 90vh; }
+        #admin-output { width: 100%; height: 100px; margin-top: 10px; margin-bottom: 10px; background: #111; color: #0f0; font-family: monospace; border: 1px solid #444; resize: none; font-size: 10px; box-sizing: border-box; padding: 5px; white-space: pre; overflow-x: auto; }
+        .admin-tool-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .admin-tool-row input[type="number"] { margin-bottom: 0; width: 80px; padding: 5px; }
+
+        .entity { position: absolute; transition: filter 0.1s; z-index: 100;}
+        #player-container { z-index: 105; }
+        .name-tag { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 12px; font-weight: bold; white-space: nowrap; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 1px 1px 0 #000; z-index: 20; pointer-events: none; }
+        .mob-name { color: #f44336; top: -30px; font-size: 10px;}
+
+        .player-avatar-container { pointer-events: none; transform-origin: center bottom; position: relative; width: 48px; height: 96px; }
+        .player-avatar-container::after { content: ''; position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); width: 30px; height: 8px; background: rgba(0, 0, 0, 0.4); border-radius: 50%; z-index: -2; }
+
+        #monster { position: absolute; transition: filter 0.1s, transform 0.15s ease-out; width: 40px; height: 40px; cursor: crosshair; display: flex; justify-content: center; align-items: flex-end; z-index: 50; }
+        #monster-sprite { width: 100%; height: 100%; background-color: #ff69b4; border: 2px solid #c71585; border-radius: 50% 50% 40% 40%; box-shadow: 0 4px 4px rgba(0,0,0,0.3); box-sizing: border-box; animation: slime-bounce 0.5s infinite alternate; }
+        @keyframes slime-bounce { 0% { transform: translateY(0) scaleY(0.9); } 100% { transform: translateY(-12px) scaleY(1.1); } }
+        #monster.hit-flash #monster-sprite { filter: brightness(2) drop-shadow(0 0 5px red) !important; }
+        #monster-ui { position: absolute; top: -20px; left: 0px; width: 40px; pointer-events: none; display: none; }
+        
+        #hud { position: absolute; top: 20px; left: 20px; width: 250px; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #555; z-index: 1000; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 16px; font-weight: bold;}
+        .level-row { font-size: 14px; color: #ffd700; margin-bottom: 10px; display: flex; justify-content: space-between;}
+        .bar-container { width: 100%; height: 15px; background-color: #333; border-radius: 3px; overflow: hidden; border: 1px solid #000; margin-bottom: 10px;}
+        .hp-fill { height: 100%; background-color: #4CAF50; width: 100%; transition: width 0.2s ease-out; }
+        .mana-fill { height: 100%; background-color: #2196F3; width: 100%; }
+        .exp-fill { height: 100%; background-color: #9c27b0; width: 0%; transition: width 0.3s ease-out; }
+        #combat-log { position: absolute; bottom: 20px; left: 20px; color: #fff; font-size: 16px; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 5px; z-index: 1000; }
+        
+        .spark { position: absolute; width: 16px; height: 16px; background-color: #fff; border-radius: 50%; box-shadow: 0 0 8px #ffeb3b, 0 0 15px #ff9800; pointer-events: none; z-index: 300; animation: spark-pop 0.3s ease-out forwards; }
+        @keyframes spark-pop { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 50% { background-color: #ffeb3b; } 100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; } }
+        .white-splash { position: absolute; width: 30px; height: 30px; background-color: #fff; border-radius: 50%; box-shadow: 0 0 15px #fff, 0 0 25px #e0ffff; pointer-events: none; z-index: 300; transform: translate(-50%, -50%); animation: white-splash-pop 0.3s ease-out forwards; }
+        @keyframes white-splash-pop { 0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; } }
+        .magic-orb { position: absolute; width: 12px; height: 12px; background-color: #e0ffff; border-radius: 50%; box-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff, 0 0 20px #ffffff; pointer-events: none; z-index: 250; transform: translate(-50%, -50%); }
+
+        .damage-text { position: absolute; color: white; font-weight: bold; font-size: 14px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; pointer-events: none; animation: floatUp 1s forwards; z-index: 200; }
+        .level-up-text { position: absolute; color: #ffd700; font-weight: bold; font-size: 24px; text-shadow: 0 0 10px #ff9800; pointer-events: none; animation: floatUp 2s forwards; z-index: 500; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(1.5); } }
+
+        .rarity-godly { animation: godly-sparkle 1.5s infinite alternate; }
+        @keyframes godly-sparkle { 0% { text-shadow: 0 0 2px #fff, 0 0 5px #e0ffff; } 100% { text-shadow: 0 0 8px #fff, 0 0 15px #00ffff, 0 0 20px #00ffff; } }
+
+        #inventory-screen { position: absolute; top: 0; right: 0; width: 350px; height: 100%; background-color: rgba(25, 25, 25, 0.98); border-left: 2px solid #555; padding: 20px; z-index: 1000; display: none; box-sizing: border-box; box-shadow: -5px 0 20px rgba(0,0,0,0.8); overflow-y: auto; }
+        #inventory-screen h2 { margin-top: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+        .inv-slot { width: 100%; aspect-ratio: 1; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 11px; text-align: center; cursor: pointer; user-select: none; color: white; padding: 4px; box-sizing: border-box; font-weight: bold; position: relative; }
+        .inv-slot:hover { border-color: #4CAF50; background: #333; }
+        .inv-qty { position: absolute; bottom: 2px; right: 4px; font-size: 11px; color: #fff; text-shadow: 1px 1px 0 #000; }
+        
+        .tooltip { visibility: hidden; position: absolute; bottom: 105%; left: 50%; transform: translateX(-50%); background-color: #111; color: #fff; text-align: center; padding: 8px 10px; border-radius: 4px; border: 1px solid #777; width: max-content; z-index: 100; font-size: 11px; line-height: 1.4; pointer-events: none; }
+        .inv-slot:hover .tooltip { visibility: visible; }
+        .equip-container { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px;}
+        .equip-box { flex: 1; background: #1e1e1e; border: 1px solid #444; border-radius: 4px; padding: 10px 5px; text-align: center; font-size: 12px; position: relative; cursor: pointer; transition: background 0.2s;}
+        .equip-box:hover { background: #333; border-color: #f44336; }
+        .equip-box:hover .tooltip { visibility: visible; }
+
+        #inv-context-menu { display: none; position: absolute; background: #222; border: 1px solid #777; border-radius: 4px; z-index: 3000; flex-direction: column; width: 100px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
+        .ctx-btn { background: none; border: none; color: white; padding: 10px; cursor: pointer; text-align: left; font-weight: bold; font-size: 12px; }
+        .ctx-btn:hover { background: #444; }
+
+        #stat-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; background-color: rgba(30, 30, 30, 0.98); border: 2px solid #555; border-radius: 8px; padding: 20px; z-index: 1000; display: none; box-shadow: 0 0 20px black; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 16px; margin-bottom: 20px;}
+        .stat-grid div span { color: #4CAF50; float: right; font-weight: bold;}
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    
+    <div id="inv-context-menu">
+        <button class="ctx-btn" id="ctx-btn-equip" style="border-bottom: 1px solid #444;" onclick="window.actionEquip(event)">Equip</button>
+        <button class="ctx-btn" id="ctx-btn-throw" style="color: #f44336;" onclick="window.actionThrow(event)">Throw</button>
+    </div>
+
+    <div id="creation-screen" class="screen active">
+        <div class="stage-area">
+            <div id="preview-rig" class="avatar-rig">
+                <img id="preview-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" onerror="this.style.display='none'">
+                <img id="preview-head" class="avatar-layer layer-head" src="animation/avatar_head.png" onerror="this.style.display='none'">
+                <img id="preview-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png" onerror="this.style.display='none'">
+            </div>
+        </div>
+
+        <div class="controls-area">
+            <h1 style="margin-top: 0; font-size: 36px;">Exonie Online</h1>
+            <p style="color: #888; margin-bottom: 20px; font-size: 18px;">Customize Your Avatar / Login</p>
+
+            <div class="panel-section">
+                <h4>Character Username</h4>
+                <input type="text" id="char-name-input" placeholder="Enter username..." maxlength="16">
+            </div>
+
+            <div class="panel-section">
+                <h4>Skin Color</h4>
+                <div class="color-group" id="skin-color-group">
+                    <div class="color-swatch selected" style="background:#f1c27d" onclick="setSkinColor('flesh', this)"></div>
+                    <div class="color-swatch" style="background:#f1c40f" onclick="setSkinColor('yellow', this)"></div>
+                    <div class="color-swatch" style="background:#2ecc71" onclick="setSkinColor('green', this)"></div>
+                    <div class="color-swatch" style="background:#2980b9" onclick="setSkinColor('blue', this)"></div>
+                    <div class="color-swatch" style="background:#ffffff" onclick="setSkinColor('white', this)"></div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h4>Hair Color</h4>
+                <div class="color-group" id="hair-color-group">
+                    <div class="color-swatch selected" style="background:#333" onclick="setHairColor('black', this)"></div>
+                    <div class="color-swatch" style="background:#f1c40f" onclick="setHairColor('blonde', this)"></div>
+                    <div class="color-swatch" style="background:#8B4513" onclick="setHairColor('brown', this)"></div>
+                    <div class="color-swatch" style="background:#2980b9" onclick="setHairColor('blue', this)"></div>
+                    <div class="color-swatch" style="background:#ffffff" onclick="setHairColor('white', this)"></div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h4>Hair Style</h4>
+                <div class="button-group" id="hair-button-container">
+                    <button class="btn" onclick="setHairStyle('none')" id="btn-hair-none">None</button>
+                </div>
+            </div>
+            
+            <button class="btn btn-large" onclick="saveAndEnterWorld()" style="margin-top: 10px;">ENTER EXONIE</button>
+        </div>
+    </div>
+
+    <div id="loading-screen" class="screen">
+        <div class="loader-title">Connecting to Server...</div>
+        <div class="loader-bar-bg"><div id="loader-fill" class="loader-bar-fill"></div></div>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div id="hud">
+            <div class="level-row">
+                <span id="ui-name-display" style="color:#fff;">Player</span>
+                <span>Lv. <span id="ui-level-text">1</span></span>
+            </div>
+            <div class="stat-row"><span>HP</span> <span id="ui-hp-text">100 / 100</span></div>
+            <div class="bar-container"><div id="ui-hp-bar" class="hp-fill"></div></div>
+            <div class="stat-row"><span>EXP</span> <span id="ui-exp-text">0 / 100</span></div>
+            <div class="bar-container" style="height: 6px;"><div id="ui-exp-bar" class="exp-fill"></div></div>
+            <div style="font-size: 11px; color: #aaa; margin-top: 8px; font-weight: bold;">[O] Toggle Admin Mode</div>
+        </div>
+
+        <div id="combat-log">Welcome to Exonie. WASD to move. Left click to attack.</div>
+
+        <div id="admin-panel">
+            <h3 style="margin-top: 0; color: #fff;">Admin Tools & Map Designer</h3>
+            <div class="panel-section" style="padding: 10px;">
+                <h4 style="color:#ffeb3b;">Power Testing</h4>
+                <div class="admin-tool-row">
+                    <span>Player Lvl:</span><input type="number" id="admin-player-level" value="50" min="1" max="50">
+                    <button class="btn" onclick="window.adminSetPlayerLevel()">Apply</button>
+                </div>
+                <div class="admin-tool-row">
+                    <span>Give Item: Lv</span><input type="number" id="admin-item-level" value="5" min="1" max="50" style="width:50px;">
+                    <span>+</span><input type="number" id="admin-item-enhance" value="0" min="0" max="20" style="width:50px;">
+                </div>
+                <div class="admin-tool-row">
+                    <select id="admin-item-rarity">
+                        <option value="Basic">Basic</option><option value="Rare">Rare</option><option value="Unique">Unique</option><option value="Legend">Legend</option><option value="Godly" selected>Godly</option>
+                    </select>
+                    <select id="admin-item-type">
+                        <option value="sword">Sword</option><option value="staff">Staff</option><option value="pendant">Pendant</option><option value="armor">Armor</option>
+                    </select>
+                    <button class="btn selected" onclick="window.adminGiveCustomItem()">Spawn</button>
+                </div>
+            </div>
+            
+            <p style="font-size: 12px; color: #aaa; margin-bottom: 5px;"><b>Alt + Left Click & Drag</b>: Draw Collision Box</p>
+            <p style="font-size: 12px; color: #00ff00; margin-bottom: 5px;"><b>Shift + Alt + Left Click & Drag</b>: Draw Teleport Box</p>
+            <p style="font-size: 12px; color: #0ff; margin-top: 0; margin-bottom: 5px;"><b>Tab + Left Click</b>: Set Safe Spawn Point</p>
+            
+            <p style="font-size: 12px; color: #ff9800; margin-bottom: 2px;"><b>Z + Left Click</b>: Normal Mob Spawn Point</p>
+            <p style="font-size: 12px; color: #ff9800; margin-top: 0; margin-bottom: 2px;"><b>X + Left Click</b>: Mini Boss Spawn Point</p>
+            <p style="font-size: 12px; color: #ff9800; margin-top: 0;"><b>C + Left Click</b>: Floor Boss Spawn Point</p>
+
+            <p style="font-size: 12px; color: #ffeb3b; font-weight: bold;">Admin Mode Active: Wall Collision Disabled</p>
+            
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" style="flex: 1;" onclick="window.undoLastBox()">Undo Box</button>
+                <button class="btn" style="flex: 1; background-color: #f44336;" onclick="window.clearAllBoxes()">Clear Map</button>
+            </div>
+            <textarea id="admin-output" readonly></textarea>
+            <button class="btn btn-large" style="margin-top: 0; padding: 10px;" onclick="window.copyAdminData()">Copy Code for map.js</button>
+        </div>
+
+        <div id="world">
+            <div id="collision-layers"></div>
+
+            <div id="player-container" class="entity" style="left: 960px; top: 1000px;">
+                <div id="player-name-tag" class="name-tag">Player</div>
+                <div id="player-avatar-container" class="player-avatar-container avatar-rig">
+                    <img id="player-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" onerror="this.style.display='none'">
+                    <img id="player-head" class="avatar-layer layer-head" src="animation/avatar_head.png" onerror="this.style.display='none'">
+                    <img id="player-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png" onerror="this.style.display='none'">
+                    <img id="player-leggings" class="avatar-layer layer-leggings" style="display:none;" onerror="this.style.display='none'">
+                    <img id="player-armor" class="avatar-layer layer-armor" style="display:none;" onerror="this.style.display='none'">
+                    <img id="player-weapon" class="avatar-layer layer-weapon" style="display:none;" onerror="this.style.display='none'">
+                </div>
+            </div>
+
+            <div id="monster" class="entity" style="left: 900px; top: 800px;" onclick="attemptAttack()">
+                <div class="name-tag mob-name">Slime Lv.5</div>
+                <div id="monster-sprite"></div>
+                <div id="monster-ui">
+                    <div class="bar-container" style="height: 5px; border-radius: 0; margin-bottom: 0;">
+                        <div id="ui-monster-hp-bar" class="hp-fill monster-hp-fill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="inventory-screen">
+            <h2>Inventory</h2>
+            <h3 style="margin: 10px 0 5px 0; font-size: 14px; text-align: center; color: #ccc;">Equipped Gear (Click to Unequip)</h3>
+            <div class="equip-container">
+                <div class="equip-box" id="eq-box-weapon" onclick="window.unequipItem('weapon')"><strong style="color:#aaa;">Weapon</strong><br><span id="eq-weapon-slot">None</span></div>
+                <div class="equip-box" id="eq-box-armor" onclick="window.unequipItem('armor')"><strong style="color:#aaa;">Armor</strong><br><span id="eq-armor-slot">None</span></div>
+                <div class="equip-box" id="eq-box-leggings" onclick="window.unequipItem('leggings')"><strong style="color:#aaa;">Leggings</strong><br><span id="eq-leggings-slot">None</span></div>
+            </div>
+            <h3 style="margin: 10px 0 5px 0; font-size: 14px; text-align: center; color: #ccc;">Backpack</h3>
+            <div class="inv-grid" id="inventory-grid"></div>
+            <button class="btn btn-large" style="margin-top: auto; padding: 15px;" onclick="toggleInventory()">Close Inventory (I)</button>
+        </div>
+
+        <div id="stat-screen" class="window-panel">
+            <h2 style="margin-top: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px;">Player Stats</h2>
+            <div class="stat-grid">
+                <div>Level: <span id="stat-lvl" style="color:#ffd700;">1</span></div>
+                <div>Max HP: <span id="stat-maxhp">100</span></div>
+                <div>Attack Power: <span id="stat-atk">0</span></div>
+                <div>Magic Attack: <span id="stat-matk">0</span></div>
+                <div>Defense: <span id="stat-def">0</span></div>
+                <div>Speed: <span id="stat-spd">0</span></div>
+                <div>Strength (STR): <span id="stat-str">0</span></div>
+                <div>Intelligence (INT): <span id="stat-int">0</span></div>
+            </div>
+            <button class="btn btn-large" style="margin-top: 10px; padding: 10px;" onclick="toggleStats()">Close (P)</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- SERVER SOCKET INITIALIZATION ---
+    const socket = io(); 
+
+    window.adminMode = false;
+    document.querySelectorAll('.avatar-layer').forEach(img => { img.onerror = function() { this.style.display = 'none'; }; });
+
+    const CAMERA_ZOOM = 1.8;
+
+    // --- MAP DATABASE READY ---
+    window.MapDatabase = window.MapDatabase || {};
+    if (typeof townMapData !== 'undefined') {
+        window.MapDatabase[townMapData.id || 'town'] = townMapData;
+    }
+    
+    window.safeMapData = window.MapDatabase['town'] || {
+        id: "town", name: "Town of Exonie", image: "town_map.png",
+        spawnX: 960, spawnY: 1000,
+        monsterSpawnArea: { minX: 200, maxX: 1600, minY: 300, maxY: 900 },
+        collisions: [], teleports: [],
+        normalSpawns: [], miniBossSpawns: [], floorBossSpawns: []
+    };
+
+    let isInventoryOpen = false; let walkTimer = 0; let walkState = 0; const walkSpeed = 10; 
+    let isAttacking = false; let facingRight = false; let attackCooldownActive = false;
+    let activeInvIndex = -1; let isEnhancing = false; 
+
+    const STAT_TYPES = ['attack', 'magic', 'defense', 'speed', 'int', 'str', 'hp'];
+
+    window.game = {
+        isRunning: false,
+        keys: { w: false, a: false, s: false, d: false, tab: false, z: false, x: false, c: false }, 
+        player: { 
+            id: 'local_player', name: "Adventurer", level: 1, exp: 0, maxExp: 200, 
+            x: window.safeMapData.spawnX, y: window.safeMapData.spawnY, width: 48, height: 96, w: 24, h: 20, 
+            teleportCooldown: 0,
+            baseStats: { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10 },
+            currentHp: 100, inventory: new Array(20).fill(null), equips: { weapon: null, armor: null, leggings: null }
+        },
+        monster: { 
+            x: 700, y: 800, width: 40, height: 40, maxHp: 100, currentHp: 100, atk: 25, def: 0,            
+            expYield: 25, alive: true, speed: 2.5, aggroRadius: 250, chaseRadius: 400, attackRange: 55, lastAttack: 0, threatTable: {},
+            respawnTimer: 10000 
+        },
+        remotePlayers: {} 
+    };
+
+    // --- SECURE DATABASE MANAGER (Socket Events instead of local save) ---
+    const DatabaseManager = {
+        savePlayerData: function(playerObj) { 
+            playerObj.mapId = window.safeMapData.id || 'town';
+            socket.emit('saveData', playerObj);
+        }
+    };
+
+    function getTotalStat(statName) {
+        let total = game.player.baseStats[statName] || 0;
+        ['weapon', 'armor', 'leggings'].forEach(slot => {
+            let eq = game.player.equips[slot];
+            if(eq) {
+                if(eq.fixedStat && typeof eq.fixedStat[statName] === 'number') total += eq.fixedStat[statName];
+                if(eq.randomStat && typeof eq.randomStat[statName] === 'number') total += eq.randomStat[statName];
+            }
+        }); return total;
+    }
+
+    function getMaxHp() { return getTotalStat('hp'); }
+    function getAttackPower() { return getTotalStat('attack') + Math.floor(getTotalStat('str') / 2); }
+    function getMagicAttack() { return getTotalStat('magic') + Math.floor(getTotalStat('int') / 2); }
+    function getDefense() { return getTotalStat('defense'); }
+    function getSpeed() { return getTotalStat('speed'); }
+
+    // --- ITEM GENERATION ENGINE (Dynamic Sprites) ---
+    window.RARITY_COLORS = { "Starter": "#aaaaaa", "Basic": "#8B4513", "Rare": "#2196F3", "Unique": "#9c27b0", "Legend": "#f44336", "Godly": "#e0ffff" };
+    
+    window.ITEM_TEMPLATES = {
+        sword: { slot: 'weapon', statKey: 'attack', baseName: 'Sword', spriteName: 'sword' },
+        staff: { slot: 'weapon', statKey: 'magic', baseName: 'Staff', spriteName: 'staff' },
+        pendant: { slot: 'weapon', statKey: 'magic', baseName: 'Pendant', spriteName: 'pendant' },
+        armor: { slot: 'armor', statKey: 'defense', baseName: 'Armor', spriteName: 'armor' },
+        leggings: { slot: 'leggings', statKey: 'hp', baseName: 'Leggings', spriteName: 'leggings' }
+    };
+
+    function getBaseStat(lvl) {
+        if (lvl >= 50) return 100; if (lvl >= 45) return 45; if (lvl >= 40) return 40;
+        if (lvl >= 35) return 30; if (lvl >= 30) return 27; if (lvl >= 25) return 22;
+        if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12;
+        if (lvl >= 5) return 8; return 5;
+    }
+
+    function generateLoot() {
+        let roll = Math.random();
+        if (roll < 0.50) { return { id: Date.now() + Math.random(), name: "Refinement Stone Lv.5", type: "material", level: 5, rarity: "Basic", color: "#e0e0e0", description: "Enhances equipment.", quantity: 1 }; }
+        
+        let gearRoll = Math.random(); let rarity = gearRoll < 0.05 ? "Rare" : "Basic"; let level = 5;
+        let keys = Object.keys(ITEM_TEMPLATES); let typeKey = keys[Math.floor(Math.random() * keys.length)];
+        let template = ITEM_TEMPLATES[typeKey]; let name = `${rarity === "Rare" ? "Slime" : "Basic"} ${template.baseName}`;
+
+        let spriteName = rarity.toLowerCase() + template.spriteName; 
+
+        let item = { id: Date.now() + Math.random(), name: name, type: template.slot, sprite: spriteName, level: level, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 };
+        
+        let baseScaling = getBaseStat(level);
+        let rarityBonus = { "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legend": 8, "Godly": 12 }[rarity] || 0;
+        let statVal = baseScaling + rarityBonus; 
+        
+        if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); 
+        item.fixedStat[template.statKey] = statVal;
+
+        item.randomStat = {}; let rStat = STAT_TYPES[Math.floor(Math.random() * STAT_TYPES.length)]; 
+        item.randomStat[rStat] = Math.floor(Math.random() * baseScaling) + 1; 
+        return item;
+    }
+
+    window.addLoot = function(item) {
+        item.quantity = item.quantity || 1;
+        if (item.type === 'potion' || item.type === 'material') {
+            let existingIndex = game.player.inventory.findIndex(i => i && i.name === item.name);
+            if (existingIndex !== -1) { game.player.inventory[existingIndex].quantity += item.quantity; dom.log.innerText = `Looted: ${item.name} (x${game.player.inventory[existingIndex].quantity})! (Press I)`; if (isInventoryOpen) renderInventory(); return; }
+        }
+        const emptySlot = game.player.inventory.findIndex(i => i === null);
+        if (emptySlot !== -1) { game.player.inventory[emptySlot] = item; dom.log.innerText = `Looted: ${item.name}! (Press I)`; if (isInventoryOpen) renderInventory(); } 
+        else { dom.log.innerText = `Inventory full! Lost ${item.name}.`; }
+    }
+
+    function getItemTooltip(item) {
+        if(!item) return "";
+        let nameClass = item.rarity === "Godly" ? "rarity-godly" : "";
+        let displayName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name;
+        let html = `<strong class="${nameClass}" style="color:${item.color}; font-size: 13px;">${displayName}</strong><br>`;
+        html += `<span style="color:#888;">Lv. ${item.level || 1} ${item.rarity || 'Normal'}</span><br><br>`;
+        if(item.type === 'material') { html += `<span style="color:#aaa;"><em>${item.description}</em></span>`; return html; }
+        if(item.type === 'potion') { html += `Heals ${item.fixedStat.hpHeal} HP`; return html; }
+        if(item.fixedStat) { let key = Object.keys(item.fixedStat)[0]; html += `+${item.fixedStat[key]} ${key.toUpperCase()}<br>`; }
+        if(item.randomStat) { let key = Object.keys(item.randomStat)[0]; html += `<span style="color:#4CAF50;">+${item.randomStat[key]} ${key.toUpperCase()} (Bonus)</span>`; }
+        return html;
+    }
+
+    const dom = {
+        creation: document.getElementById('creation-screen'), game: document.getElementById('game-screen'),
+        playerContainer: document.getElementById('player-container'), playerAvatarContainer: document.getElementById('player-avatar-container'),
+        playerBody: document.getElementById('player-body'), playerHead: document.getElementById('player-head'),
+        playerHair: document.getElementById('player-hair'), playerWeapon: document.getElementById('player-weapon'),
+        playerArmor: document.getElementById('player-armor'), playerLeggings: document.getElementById('player-leggings'),
+        monster: document.getElementById('monster'), log: document.getElementById('combat-log'), statScreen: document.getElementById('stat-screen'),
+        invScreen: document.getElementById('inventory-screen'), world: document.getElementById('world')
+    };
+
+    // --- PURE, BASIC KEYBOARD LISTENER ---
+    function movementKeyFromEvent(e) {
+        switch (e.code) {
+            case 'KeyW': return 'w'; case 'KeyA': return 'a'; case 'KeyS': return 's'; case 'KeyD': return 'd';
+            case 'KeyZ': return 'z'; case 'KeyX': return 'x'; case 'KeyC': return 'c';
+            default: return (e.key || "").toLowerCase();
+        }
+    }
+
+    function setKeyState(e, isDown) {
+        if (e.target && e.target.tagName === 'INPUT') return; 
+        if (e.key === 'Tab' || e.code === 'Tab') { if (isDown) e.preventDefault(); game.keys['tab'] = isDown; return; }
+        const moveKey = movementKeyFromEvent(e);
+        if (game.keys.hasOwnProperty(moveKey)) game.keys[moveKey] = isDown;
+
+        if (isDown) {
+            const key = (e.key || "").toLowerCase();
+            if (key === 'p') toggleStats();
+            if (key === 'i') toggleInventory();
+            if (key === 'o' && typeof window.toggleAdminMode === 'function') window.toggleAdminMode();
+        }
+    }
+
+    window.addEventListener('keydown', (e) => setKeyState(e, true), { capture: true });
+    window.addEventListener('keyup', (e) => setKeyState(e, false), { capture: true });
+    window.addEventListener('blur', () => { game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false; game.keys.tab = false; game.keys.z = false; game.keys.x = false; game.keys.c = false; });
+
+    window.addEventListener('click', (e) => { 
+        document.getElementById('inv-context-menu').style.display = 'none'; 
+        if(isEnhancing && !e.target.closest('#inventory-screen') && !e.target.closest('#inv-context-menu')) { 
+            isEnhancing = false; dom.log.innerText = "Enhancement mode cancelled."; renderInventory(); 
+        }
+    });
+
+    window.buildCollisionLayers = function() {
+        const layer = document.getElementById('collision-layers'); layer.innerHTML = ''; 
+        
+        window.safeMapData.collisions.forEach(box => {
+            const div = document.createElement('div'); div.className = 'collision-box';
+            div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px'; layer.appendChild(div);
+        });
+        
+        window.safeMapData.teleports.forEach(box => {
+            const div = document.createElement('div'); div.className = 'collision-box';
+            div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px'; 
+            if (window.adminMode) { 
+                div.style.background = 'rgba(0, 0, 255, 0.4)'; div.style.border = '2px dashed #00f'; 
+                div.innerText = box.portalId || '?'; div.style.color = 'white'; div.style.display = 'flex';
+                div.style.justifyContent = 'center'; div.style.alignItems = 'center'; div.style.fontSize = '24px'; div.style.fontWeight = 'bold';
+            }
+            layer.appendChild(div);
+        });
+
+        if (window.adminMode) { 
+            if (window.safeMapData.spawnX !== undefined) {
+                const sm = document.createElement('div'); sm.className = 'admin-spawn-marker';
+                sm.style.left = window.safeMapData.spawnX + 'px'; sm.style.top = window.safeMapData.spawnY + 'px'; 
+                sm.innerText = 'S'; layer.appendChild(sm);
+            }
+            (window.safeMapData.normalSpawns || []).forEach(sp => {
+                const sm = document.createElement('div'); sm.className = 'admin-spawn-marker';
+                sm.style.left = sp.x + 'px'; sm.style.top = sp.y + 'px'; sm.style.borderColor = '#0f0'; sm.innerText = 'M'; layer.appendChild(sm);
+            });
+            (window.safeMapData.miniBossSpawns || []).forEach(sp => {
+                const sm = document.createElement('div'); sm.className = 'admin-spawn-marker';
+                sm.style.left = sp.x + 'px'; sm.style.top = sp.y + 'px'; sm.style.borderColor = '#ff9800'; sm.innerText = 'MB'; layer.appendChild(sm);
+            });
+            (window.safeMapData.floorBossSpawns || []).forEach(sp => {
+                const sm = document.createElement('div'); sm.className = 'admin-spawn-marker';
+                sm.style.left = sp.x + 'px'; sm.style.top = sp.y + 'px'; sm.style.borderColor = '#9c27b0'; sm.innerText = 'FB'; layer.appendChild(sm);
+            });
+        }
+    }
+
+    function isColliding(targetX, targetY) {
+        const hitX = targetX + (game.player.width - game.player.w) / 2; const hitY = targetY + game.player.height - game.player.h;
+        for (let box of window.safeMapData.collisions) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; }
+        return false;
+    }
+    
+    // --- MULTIPLAYER RENDERING ENGINE ---
+    function addRemotePlayer(p) {
+        if(game.remotePlayers[p.id]) return;
+        game.remotePlayers[p.id] = p;
+
+        let container = document.createElement('div');
+        container.className = 'entity';
+        container.id = 'remote_' + p.id;
+        container.style.left = p.x + 'px'; container.style.top = p.y + 'px';
+
+        let nameTag = document.createElement('div');
+        nameTag.className = 'name-tag'; nameTag.innerText = p.name;
+        container.appendChild(nameTag);
+
+        let rig = document.createElement('div');
+        rig.className = 'player-avatar-container avatar-rig';
+        
+        let hair = new Image(); hair.className = 'avatar-layer layer-hair'; 
+        if(p.spriteData.style === 'none') hair.style.display = 'none'; else hair.src = `animation/avatar_hair${p.spriteData.style}.png`;
+        hair.style.filter = hairFilters[p.spriteData.hair] || hairFilters['black'];
+        
+        let head = new Image(); head.className = 'avatar-layer layer-head'; head.src = 'animation/avatar_head.png';
+        head.style.filter = skinFilters[p.spriteData.skin] || skinFilters['flesh'];
+        
+        let body = new Image(); body.className = 'avatar-layer layer-body'; body.src = 'animation/avatar_idlefront.png';
+        body.style.filter = skinFilters[p.spriteData.skin] || skinFilters['flesh'];
+
+        let weapon = new Image(); weapon.className = 'avatar-layer layer-weapon'; weapon.style.display = 'none';
+        if(p.spriteData.weapon) { weapon.src = `weapon/${p.spriteData.weapon}.png`; weapon.style.display = 'block'; }
+
+        rig.appendChild(hair); rig.appendChild(head); rig.appendChild(body); rig.appendChild(weapon);
+        container.appendChild(rig);
+        document.getElementById('world').appendChild(container);
+
+        p.dom = container; p.rig = rig; p.body = body; p.weapon = weapon;
+    }
+
+    function removeRemotePlayer(id) {
+        if(game.remotePlayers[id]) {
+            game.remotePlayers[id].dom.remove();
+            delete game.remotePlayers[id];
+        }
+    }
+
+    // MULTIPLAYER SOCKET LISTENERS
+    socket.on('mapPlayersList', (players) => { players.forEach(p => addRemotePlayer(p)); });
+    socket.on('remotePlayerJoined', (p) => { addRemotePlayer(p); });
+    socket.on('remotePlayerLeft', (id) => { removeRemotePlayer(id); });
+    socket.on('remotePlayerMoved', (data) => {
+        if(game.remotePlayers[data.id]) {
+            let p = game.remotePlayers[data.id];
+            p.x = data.x; p.y = data.y;
+            p.dom.style.left = p.x + 'px'; p.dom.style.top = p.y + 'px';
+            p.rig.style.transform = data.facingRight ? 'scaleX(-1)' : 'scaleX(1)';
+            p.body.src = data.state === 'attack' ? 'animation/avatar_attack.png' : (data.state === 'walk' ? 'animation/avatar_walk.png' : 'animation/avatar_idlefront.png');
+            if(data.weaponSprite) {
+                p.weapon.style.display = 'block';
+                p.weapon.src = data.state === 'attack' && !data.weaponSprite.includes('pendant') ? `weapon/${data.weaponSprite}_attack.png` : `weapon/${data.weaponSprite}.png`;
+            } else { p.weapon.style.display = 'none'; }
+        }
+    });
+
+
+    let hairIndexToTest = 1; let charData = { skinColor: 'flesh', hairColor: 'black', hairStyle: '1' };
+    function loadHairStyles() {
+        let img = new Image();
+        img.onload = function() {
+            const container = document.getElementById('hair-button-container'); const btn = document.createElement('button');
+            btn.className = hairIndexToTest.toString() === charData.hairStyle ? 'btn selected' : 'btn';
+            btn.id = `btn-hair-${hairIndexToTest}`; btn.innerText = `Style ${hairIndexToTest}`;
+            let currentIndex = hairIndexToTest; btn.onclick = () => setHairStyle(currentIndex.toString());
+            container.appendChild(btn); hairIndexToTest++; loadHairStyles();
+        };
+        img.onerror = function() {}; img.src = `animation/avatar_hair${hairIndexToTest}.png`;
+    }
+    loadHairStyles();
+
+    const skinFilters = { 'flesh': 'sepia(1) hue-rotate(-25deg) saturate(2.5) brightness(1.1)', 'yellow': 'sepia(1) hue-rotate(15deg) saturate(3) brightness(1.2)', 'green': 'sepia(1) hue-rotate(75deg) saturate(2) brightness(1)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2) brightness(1)', 'white': 'grayscale(1) brightness(1.8) contrast(0.9)' };
+    const hairFilters = { 'black': 'brightness(0.2)', 'blonde': 'sepia(1) hue-rotate(15deg) saturate(3) brightness(1.5)', 'brown': 'sepia(1) hue-rotate(330deg) saturate(2) brightness(0.6)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2) brightness(1)', 'white': 'grayscale(1) brightness(1.8) contrast(0.9)' };
+
+    function setSkinColor(color, element) { charData.skinColor = color; document.getElementById('preview-body').style.filter = skinFilters[color]; document.getElementById('preview-head').style.filter = skinFilters[color]; document.getElementById('skin-color-group').querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); element.classList.add('selected'); }
+    function setHairColor(color, element) { charData.hairColor = color; document.getElementById('preview-hair').style.filter = hairFilters[color]; document.getElementById('hair-color-group').querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); element.classList.add('selected'); }
+    function setHairStyle(style) {
+        charData.hairStyle = style; const hairLayer = document.getElementById('preview-hair');
+        if (style === 'none') { hairLayer.style.display = 'none'; } else { hairLayer.style.display = 'block'; hairLayer.src = `animation/avatar_hair${style}.png`; }
+        const container = document.getElementById('hair-button-container');
+        if (container) { container.querySelectorAll('.btn').forEach(btn => btn.classList.remove('selected')); const activeBtn = document.getElementById(`btn-hair-${style}`); if(activeBtn) activeBtn.classList.add('selected'); }
+    }
+    setSkinColor('flesh', document.querySelector('#skin-color-group .color-swatch.selected')); setHairColor('black', document.querySelector('#hair-color-group .color-swatch.selected'));
+
+    function saveAndEnterWorld() {
+        let nameInput = document.getElementById('char-name-input');
+        let nameVal = nameInput.value.trim();
+        if(!nameVal) return;
+        
+        nameInput.blur(); 
+        
+        dom.creation.classList.remove('active'); document.getElementById('loading-screen').style.display = 'flex'; 
+        
+        // Tells the backend to fetch or create the player in Supabase
+        socket.emit('login', { username: nameVal, charData: charData });
+    }
+
+    // SERVER LOGIN RESPONSE
+    socket.on('authSuccess', (userData) => {
+        game.player.id = userData.username || userData.character_name;
+        game.player.name = userData.username || userData.character_name;
+        document.getElementById('player-name-tag').innerText = game.player.name;
+        document.getElementById('ui-name-display').innerText = game.player.name;
+
+        // Load data from Backend
+        game.player.level = userData.level;
+        game.player.exp = userData.exp;
+        game.player.maxExp = userData.max_exp;
+        game.player.currentHp = userData.current_hp;
+        game.player.baseStats = userData.base_stats;
+        game.player.inventory = userData.inventory;
+        game.player.equips = userData.equips;
+        
+        window.safeMapData = window.MapDatabase[userData.map_id] || window.MapDatabase['town'];
+        game.player.x = userData.pos_x;
+        game.player.y = userData.pos_y;
+
+        // Apply saved visual filters
+        charData.skinColor = userData.skin_color || 'flesh';
+        charData.hairColor = userData.hair_color || 'black';
+        charData.hairStyle = userData.hair_style || '1';
+
+        startGame();
+    });
+
+    socket.on('authError', (msg) => {
+        alert(msg);
+        document.getElementById('loading-screen').style.display = 'none';
+        dom.creation.classList.add('active');
+    });
+
+    function startGame() {
+        document.getElementById('loading-screen').style.display = 'none';
+        dom.game.classList.add('active');
+        game.keys = { w: false, a: false, s: false, d: false, tab: false, z: false, x: false, c: false };
+
+        dom.playerContainer.style.left = game.player.x + 'px'; dom.playerContainer.style.top = game.player.y + 'px';
+
+        const cameraX = Math.floor((window.innerWidth / 2) - (game.player.x * CAMERA_ZOOM) - (game.player.width * CAMERA_ZOOM / 2));
+        const cameraY = Math.floor((window.innerHeight / 2) - (game.player.y * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2));
+        dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`;
+
+        dom.world.style.backgroundImage = `url('${window.safeMapData.image}')`;
+        dom.playerBody.style.filter = skinFilters[charData.skinColor]; dom.playerHead.style.filter = skinFilters[charData.skinColor]; dom.playerHair.style.filter = hairFilters[charData.hairColor];
+        if (charData.hairStyle === 'none') { dom.playerHair.style.display = 'none'; } else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${charData.hairStyle}.png`; }
+
+        window.buildCollisionLayers(); updateEquipmentDisplay(); if (typeof respawnMonster === 'function') respawnMonster(); window.updateUI();
+        
+        game.isRunning = true; 
+        requestAnimationFrame(gameLoop);
+    }
+
+    // --- ENHANCEMENT ENGINE ---
+    window.attemptEnhance = function(targetIndex, e) {
+        if(e) e.stopPropagation();
+        let stone = game.player.inventory[activeInvIndex]; let targetItem = game.player.inventory[targetIndex];
+        if (!targetItem || targetItem.type === 'material' || targetItem.type === 'potion') { dom.log.innerText = "You can only enhance equipment!"; isEnhancing = false; renderInventory(); return; }
+        if (stone.level < targetItem.level) { dom.log.innerText = `Stone Lv.${stone.level} is too low for Lv.${targetItem.level} equipment!`; isEnhancing = false; renderInventory(); return; }
+        let currentEnhance = targetItem.enhanceLevel || 0;
+        if (currentEnhance >= 20) { dom.log.innerText = "Item is at maximum enhancement (+20)!"; isEnhancing = false; renderInventory(); return; }
+
+        stone.quantity--; if (stone.quantity <= 0) game.player.inventory[activeInvIndex] = null;
+        let targetLvl = currentEnhance + 1; let successRate = 100; let destroyRate = 0;
+        if (targetLvl > 6) { let steps = targetLvl - 6; successRate = Math.max(1, 95 - ((steps - 1) * 10)); destroyRate = Math.min(99, 5 + ((steps - 1) * 5)); }
+
+        let roll = Math.random() * 100;
+        if (roll <= successRate) {
+            targetItem.enhanceLevel = targetLvl;
+            let bonus = { "Starter": 1, "Basic": 2, "Rare": 5, "Unique": 7, "Legend": 10, "Godly": 15 }[targetItem.rarity] || 2;
+            let fKey = Object.keys(targetItem.fixedStat)[0]; targetItem.fixedStat[fKey] += bonus;
+            if (targetItem.randomStat) { let rKey = Object.keys(targetItem.randomStat)[0]; targetItem.randomStat[rKey] += bonus; }
+            dom.log.innerText = `SUCCESS! ${targetItem.name} is now +${targetLvl}!`; spawnSpark(game.player.x + 24, game.player.y); 
+        } else if (roll <= successRate + destroyRate) { dom.log.innerText = `FAILED! ${targetItem.name} was DESTROYED!`; game.player.inventory[targetIndex] = null; 
+        } else { dom.log.innerText = `Enhancement Failed. ${targetItem.name} was unharmed.`; }
+        isEnhancing = false; updateEquipmentDisplay(); renderInventory(); DatabaseManager.savePlayerData(game.player);
+    }
+
+    window.openItemAction = function(index, e) {
+        if(e) e.stopPropagation(); activeInvIndex = index; const menu = document.getElementById('inv-context-menu'); const item = game.player.inventory[index]; const equipBtn = document.getElementById('ctx-btn-equip');
+        if (item.type === 'potion') equipBtn.innerText = "Use"; else if (item.type === 'material') equipBtn.innerText = "Enhance"; else equipBtn.innerText = "Equip";
+        menu.style.display = 'flex'; menu.style.left = (e.clientX) + 'px'; menu.style.top = (e.clientY) + 'px';
+    }
+
+    window.actionEquip = function(e) {
+        if(e) e.stopPropagation();
+        if(activeInvIndex === -1) return; let item = game.player.inventory[activeInvIndex];
+        if (item.type === 'material') { isEnhancing = true; dom.log.innerText = `Select equipment to enhance with ${item.name}!`; } else { useItem(activeInvIndex); }
+        document.getElementById('inv-context-menu').style.display = 'none'; renderInventory(); 
+    }
+
+    window.actionThrow = function(e) {
+        if(e) e.stopPropagation();
+        if(activeInvIndex === -1) return; let item = game.player.inventory[activeInvIndex]; dom.log.innerText = `Threw away ${item.name}.`;
+        game.player.inventory[activeInvIndex] = null; renderInventory(); DatabaseManager.savePlayerData(game.player); document.getElementById('inv-context-menu').style.display = 'none';
+    }
+
+    window.unequipItem = function(slot) {
+        if (!game.player.equips[slot]) return;
+        const emptySlot = game.player.inventory.findIndex(i => i === null);
+        if (emptySlot === -1) { dom.log.innerText = "Inventory full! Cannot unequip."; return; }
+        game.player.inventory[emptySlot] = game.player.equips[slot];
+        game.player.equips[slot] = null;
+        dom.log.innerText = `Unequipped ${slot}.`;
+        updateEquipmentDisplay(); renderInventory(); DatabaseManager.savePlayerData(game.player);
+    }
+
+    function updateEquipmentDisplay() {
+        const buildDisplayStr = (item) => item ? (item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name) : 'None';
+        document.getElementById('eq-weapon-slot').innerText = buildDisplayStr(game.player.equips.weapon); if(game.player.equips.weapon) document.getElementById('eq-weapon-slot').style.color = game.player.equips.weapon.color;
+        document.getElementById('eq-armor-slot').innerText = buildDisplayStr(game.player.equips.armor); if(game.player.equips.armor) document.getElementById('eq-armor-slot').style.color = game.player.equips.armor.color;
+        document.getElementById('eq-leggings-slot').innerText = buildDisplayStr(game.player.equips.leggings); if(game.player.equips.leggings) document.getElementById('eq-leggings-slot').style.color = game.player.equips.leggings.color;
+
+        dom.playerWeapon.style.display = game.player.equips.weapon ? 'block' : 'none'; dom.playerArmor.style.display = 'none'; dom.playerLeggings.style.display = 'none'; 
+        if (game.player.equips.weapon) dom.playerWeapon.src = `weapon/${game.player.equips.weapon.sprite}.png`;
+
+        const createTip = (item, boxId) => { let box = document.getElementById(boxId); let tip = box.querySelector('.tooltip'); if(!tip) { tip = document.createElement('div'); tip.className = 'tooltip'; box.appendChild(tip); } if(item) tip.innerHTML = getItemTooltip(item); else tip.remove(); };
+        createTip(game.player.equips.weapon, 'eq-box-weapon'); createTip(game.player.equips.armor, 'eq-box-armor'); createTip(game.player.equips.leggings, 'eq-box-leggings');
+        let newMax = getMaxHp(); if(game.player.currentHp > newMax) game.player.currentHp = newMax; window.updateUI();
+    }
+
+    function updateAnimationFrames(state) { 
+        dom.playerAvatarContainer.style.transform = facingRight ? 'scaleX(-1)' : 'scaleX(1)';
+        let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : null;
+        if (state === 'attack') { dom.playerBody.src = `animation/avatar_attack.png`; if (weaponSprite) { if(weaponSprite.includes('pendant')) dom.playerWeapon.src = `weapon/${weaponSprite}.png`; else dom.playerWeapon.src = `weapon/${weaponSprite}_attack.png`; } } 
+        else if (state === 'walk') { dom.playerBody.src = `animation/avatar_walk.png`; if (weaponSprite) dom.playerWeapon.src = `weapon/${weaponSprite}.png`; } 
+        else { dom.playerBody.src = `animation/avatar_idlefront.png`; if (weaponSprite) dom.playerWeapon.src = `weapon/${weaponSprite}.png`; }
+    }
+
+    function toggleStats() {
+        if (dom.statScreen.style.display === 'block') { dom.statScreen.style.display = 'none'; } 
+        else {
+            document.getElementById('stat-lvl').innerText = game.player.level; document.getElementById('stat-maxhp').innerText = getMaxHp();
+            document.getElementById('stat-atk').innerText = getAttackPower(); document.getElementById('stat-matk').innerText = getMagicAttack();
+            document.getElementById('stat-def').innerText = getDefense(); document.getElementById('stat-spd').innerText = getSpeed();
+            document.getElementById('stat-str').innerText = getTotalStat('str'); document.getElementById('stat-int').innerText = getTotalStat('int');
+            dom.statScreen.style.display = 'block';
+        }
+    }
+
+    function toggleInventory() { isInventoryOpen = !isInventoryOpen; if (isInventoryOpen) { renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.invScreen.style.display = 'none'; } }
+
+    function renderInventory() {
+        const grid = document.getElementById('inventory-grid'); grid.innerHTML = '';
+        for(let i=0; i < game.player.inventory.length; i++) {
+            const slot = document.createElement('div'); slot.className = 'inv-slot'; const item = game.player.inventory[i];
+            if(item) {
+                if(isEnhancing) { slot.style.border = "1px dashed #ffeb3b"; slot.onclick = (e) => window.attemptEnhance(i, e); } 
+                else { slot.style.borderBottom = `3px solid ${item.color}`; slot.onclick = (e) => window.openItemAction(i, e); }
+                
+                let nameNode = document.createTextNode(item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name); slot.appendChild(nameNode);
+                let tip = document.createElement('div'); tip.className = 'tooltip'; tip.innerHTML = getItemTooltip(item); slot.appendChild(tip);
+                if (item.quantity && item.quantity > 1) { let qtyLabel = document.createElement('span'); qtyLabel.className = 'inv-qty'; qtyLabel.innerText = 'x' + item.quantity; slot.appendChild(qtyLabel); }
+            }
+            grid.appendChild(slot);
+        }
+        updateEquipmentDisplay();
+    }
+
+    function useItem(index) {
+        const item = game.player.inventory[index]; if(!item) return;
+        if (item.level && item.level > game.player.level) { dom.log.innerText = `Level ${item.level} required to equip ${item.name}!`; return; }
+
+        if (item.type === 'potion') {
+            game.player.currentHp = Math.min(getMaxHp(), game.player.currentHp + item.fixedStat.hpHeal);
+            item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null;
+            spawnDamageText(game.player.x + game.player.width/2, game.player.y - 20, `+${item.fixedStat.hpHeal} HP`, '#4CAF50');
+            dom.log.innerText = `Used ${item.name}!`;
+        } else {
+            const currentEquip = game.player.equips[item.type]; game.player.equips[item.type] = item; game.player.inventory[index] = currentEquip; 
+            dom.log.innerText = `Equipped ${item.name}!`;
+        }
+        updateEquipmentDisplay(); renderInventory(); DatabaseManager.savePlayerData(game.player);
+    }
+
+    // --- EXP TIER ENGINE ---
+    function getExpAdded(level) {
+        if (level >= 41) return 1500; if (level >= 31) return 1000;
+        if (level >= 21) return 750; if (level >= 11) return 500; return 200; 
+    }
+
+    function checkLevelUp() {
+        if(game.player.level >= 50) return;
+        while(game.player.exp >= game.player.maxExp && game.player.level < 50) {
+            game.player.exp -= game.player.maxExp; 
+            game.player.level++; 
+            game.player.maxExp += getExpAdded(game.player.level); 
+            game.player.baseStats.hp += 10; game.player.baseStats.str += 2; game.player.baseStats.int += 2; game.player.currentHp = getMaxHp(); 
+            const txt = document.createElement('div'); txt.className = 'level-up-text'; txt.innerText = "LEVEL UP!";
+            txt.style.left = (game.player.x - 20) + 'px'; txt.style.top = (game.player.y - 40) + 'px'; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 2000);
+            dom.log.innerText = `Congratulations! You reached Level ${game.player.level}!`;
+        }
+        window.updateUI(); DatabaseManager.savePlayerData(game.player); 
+    }
+
+    // --- TELEPORT PAIRING ENGINE ---
+    function executeTeleport(tpData) {
+        if (!tpData.portalId) return;
+        
+        let targetMap = window.MapDatabase[tpData.targetMapId || 'town'];
+        if (targetMap) {
+            window.safeMapData = targetMap;
+        }
+
+        let targetId = tpData.portalId % 2 === 1 ? tpData.portalId + 1 : tpData.portalId - 1;
+        let targetPortal = window.safeMapData.teleports.find(p => p.portalId === targetId);
+        
+        if (targetPortal) {
+            dom.log.innerText = `Teleporting to Portal ${targetId}...`;
+            game.player.x = targetPortal.x + (targetPortal.w / 2) - (game.player.width / 2);
+            game.player.y = targetPortal.y + targetPortal.h - game.player.height + 5; 
+            game.player.teleportCooldown = Date.now() + 2000; 
+            
+            dom.playerContainer.style.left = game.player.x + 'px';
+            dom.playerContainer.style.top = game.player.y + 'px';
+            dom.world.style.backgroundImage = `url('${window.safeMapData.image}')`;
+            window.buildCollisionLayers();
+
+            // Clear remote players visually and tell Server we jumped Maps!
+            for(let id in game.remotePlayers) removeRemotePlayer(id);
+            socket.emit('playerTeleported', { mapId: window.safeMapData.id, x: game.player.x, y: game.player.y });
+            DatabaseManager.savePlayerData(game.player);
+
+        } else {
+            dom.log.innerText = `Paired Portal ${targetId} not found on this map.`;
+            game.player.teleportCooldown = Date.now() + 2000; 
+        }
+    }
+
+    let lastServerSync = 0;
+
+    function gameLoop() {
+        if (!game.isRunning) return;
+        let nextX = game.player.x; let nextY = game.player.y; let isMoving = false; let moveSpeed = 4 + getSpeed(); 
+
+        if (!isInventoryOpen) {
+            if (game.keys.w) { nextY -= moveSpeed; isMoving = true; } if (game.keys.s) { nextY += moveSpeed; isMoving = true; }
+            if (game.keys.a) { nextX -= moveSpeed; isMoving = true; facingRight = false; } if (game.keys.d) { nextX += moveSpeed; isMoving = true; facingRight = true; }
+        }
+
+        if (nextX < 0) nextX = 0; if (nextY < 0) nextY = 0;
+        if (nextX > 2000 - game.player.width) nextX = 2000 - game.player.width; if (nextY > 1333 - game.player.height) nextY = 1333 - game.player.height;
+
+        if (isMoving) {
+            if (!isColliding(nextX, game.player.y) || window.adminMode) game.player.x = nextX;
+            if (!isColliding(game.player.x, nextY) || window.adminMode) game.player.y = nextY;
+            
+            if (game.player.teleportCooldown < Date.now()) {
+                let pCenterX = game.player.x + (game.player.width / 2); let pBottomY = game.player.y + game.player.height; 
+                for (let tp of window.safeMapData.teleports) {
+                    if (pCenterX >= tp.x && pCenterX <= tp.x + tp.w && pBottomY >= tp.y && pBottomY <= tp.y + tp.h) {
+                        executeTeleport(tp); return; 
+                    }
+                }
+            }
+        }
+
+        if (isAttacking) { updateAnimationFrames('attack'); } 
+        else if (isMoving) { walkTimer++; if (walkTimer >= walkSpeed) { walkState = walkState === 0 ? 1 : 0; walkTimer = 0; } updateAnimationFrames(walkState === 0 ? 'walk' : 'idle'); } 
+        else { updateAnimationFrames('idle'); walkTimer = 0; walkState = 0; }
+
+        dom.playerContainer.style.left = game.player.x + 'px'; dom.playerContainer.style.top = game.player.y + 'px';
+        const cameraX = Math.floor((window.innerWidth / 2) - (game.player.x * CAMERA_ZOOM) - (game.player.width * CAMERA_ZOOM / 2));
+        const cameraY = Math.floor((window.innerHeight / 2) - (game.player.y * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2));
+        dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`;
+
+        // --- NETWORK SYNC (Broadcast 20 times a second max to prevent lag) ---
+        if (Date.now() - lastServerSync > 50 && (isMoving || isAttacking)) {
+            let pState = isAttacking ? 'attack' : (isMoving ? 'walk' : 'idle');
+            socket.emit('playerMoved', { 
+                x: game.player.x, y: game.player.y, state: pState, 
+                facingRight: facingRight, weaponSprite: game.player.equips.weapon?.sprite || null 
+            });
+            lastServerSync = Date.now();
+        }
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    function spawnSpark(x, y) { const spark = document.createElement('div'); spark.className = 'spark'; spark.style.left = (x + (Math.random()*20-10)) + 'px'; spark.style.top = (y + (Math.random()*20-10)) + 'px'; dom.world.appendChild(spark); }
+    function spawnWhiteSplash(x, y) { const splash = document.createElement('div'); splash.className = 'white-splash'; splash.style.left = x + 'px'; splash.style.top = y + 'px'; dom.world.appendChild(splash); }
+    function shootOrb(startX, startY, endX, endY) { const orb = document.createElement('div'); orb.className = 'magic-orb'; orb.style.left = startX + 'px'; orb.style.top = startY + 'px'; dom.world.appendChild(orb); const animation = orb.animate([ { left: startX + 'px', top: startY + 'px' }, { left: endX + 'px', top: endY + 'px' } ], { duration: 500, easing: 'ease-in' }); animation.onfinish = () => orb.remove(); }
+
+    function attemptAttack() {
+        if (game.player.currentHp <= 0 || attackCooldownActive || isInventoryOpen || window.adminMode) return;
+
+        // Sync attack animation online instantly
+        socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
+
+        // Placeholder logic until full Backend mob sync is written
+        const pCenterX = game.player.x + (game.player.width / 2); const pCenterY = game.player.y + (game.player.height / 2) - 15; 
+        
+        let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : '';
+        const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant');
+        const isPendant = weaponSprite.includes('pendant');
+        
+        isAttacking = true; attackCooldownActive = true; let cooldownMs = Math.max(200, 800 - (getSpeed() * 50)); 
+        
+        // Visual effects for now (Requires mob engine connection)
+        if (isRanged) { shootOrb(pCenterX, pCenterY, pCenterX + 50, pCenterY); setTimeout(() => { isAttacking = false; }, 300);  } 
+        else { setTimeout(() => { isAttacking = false; }, 300); }
+        
+        setTimeout(() => { attackCooldownActive = false; }, cooldownMs);
+    }
+
+    window.updateUI = function() {
+        document.getElementById('ui-hp-text').innerText = `${game.player.currentHp} / ${getMaxHp()}`;
+        document.getElementById('ui-hp-bar').style.width = (game.player.currentHp / getMaxHp()) * 100 + '%';
+        document.getElementById('ui-hp-bar').style.backgroundColor = (game.player.currentHp < (getMaxHp()*0.3)) ? '#f44336' : '#4CAF50';
+        document.getElementById('ui-level-text').innerText = game.player.level;
+        document.getElementById('ui-exp-text').innerText = `${game.player.exp} / ${game.player.maxExp}`;
+        document.getElementById('ui-exp-bar').style.width = (game.player.exp / game.player.maxExp) * 100 + '%';
+    }
+
+    function spawnDamageText(x, y, amount, color) {
+        const txt = document.createElement('div'); txt.className = 'damage-text'; txt.innerText = amount;
+        txt.style.left = (x - 10) + 'px'; txt.style.top = y + 'px'; txt.style.color = color; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 1000);
+    }
+</script>
+<script src="admin.js"></script>
+</body>
+</html>
