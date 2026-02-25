@@ -4,22 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exonie Online - Alpha Engine</title>
-    
     <script src="/socket.io/socket.io.js"></script>
-
     <script src="townmap.js"></script>
     <style>
+        /* --- GLOBAL STYLES --- */
         body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #e0e0e0; display: flex; justify-content: center; align-items: center; height: 100vh; user-select: none; overflow: hidden; }
         #game-container { width: 100vw; height: 100vh; background-color: #1e1e1e; position: relative; overflow: hidden; image-rendering: pixelated; }
         .screen { width: 100%; height: 100%; display: none; }
         .screen.active { display: flex; }
 
+        /* --- LOADING SCREEN --- */
         #loading-screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #111; color: #fff; z-index: 5000; flex-direction: column; justify-content: center; align-items: center; }
         .loader-title { font-size: 28px; font-weight: bold; margin-bottom: 20px; color: #4CAF50; letter-spacing: 2px;}
         .loader-bar-bg { width: 400px; height: 12px; background: #333; border-radius: 6px; overflow: hidden; border: 2px solid #555;}
         .loader-bar-fill { width: 0%; height: 100%; background: #4CAF50; transition: width 0.8s ease-out; }
 
-        input[type="text"], input[type="number"] { background: #111; color: #0f0; border: 1px solid #4CAF50; padding: 10px; border-radius: 4px; font-size: 16px; width: calc(100% - 22px); font-family: monospace; font-weight: bold; outline: none; margin-bottom: 15px; box-sizing: border-box; }
+        /* --- UI COMPONENTS --- */
+        input[type="text"], input[type="password"], input[type="number"] { background: #111; color: #0f0; border: 1px solid #4CAF50; padding: 10px; border-radius: 4px; font-size: 16px; width: calc(100% - 22px); font-family: monospace; font-weight: bold; outline: none; margin-bottom: 15px; box-sizing: border-box; }
+        input:read-only { color: #888; border-color: #555; background: #222; }
         select { background: #111; color: #fff; border: 1px solid #4CAF50; padding: 5px; border-radius: 4px; outline: none; }
         .btn { background-color: #3a3a3a; color: white; border: 1px solid #555; padding: 8px 12px; cursor: pointer; border-radius: 4px; transition: background 0.2s; }
         .btn:hover { background-color: #555; }
@@ -34,23 +36,29 @@
         .color-swatch:hover { transform: scale(1.1); }
         .color-swatch.selected { border-color: white; }
 
-        #creation-screen { flex-direction: row; }
+        /* --- AUTH SCREENS --- */
+        .auth-container { width: 400px; padding: 30px; background: #1e1e1e; border-radius: 8px; border: 2px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: center; margin: auto; }
+        .auth-container h1 { margin-top: 0; color: #4CAF50; font-size: 32px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .auth-link { color: #2196F3; cursor: pointer; font-size: 14px; text-decoration: underline; margin-top: 15px; display: inline-block; }
+
+        /* --- CREATION / SELECT STAGE --- */
+        #creation-screen, #select-screen { flex-direction: row; }
         .stage-area { width: 45%; height: 100%; background: radial-gradient(circle, #444 0%, #222 100%); display: flex; justify-content: center; align-items: center; border-right: 2px solid #333; }
         .controls-area { width: 55%; height: 100%; padding: 40px; overflow-y: auto; box-sizing: border-box; }
 
         .avatar-rig { position: relative; display: flex; justify-content: center; filter: drop-shadow(1px 0px 0px #000) drop-shadow(-1px 0px 0px #000) drop-shadow(0px 1px 0px #000) drop-shadow(0px -1px 0px #000) drop-shadow(2px 2px 0px rgba(0,0,0,0.5)); }
-        #preview-rig { width: 128px; height: 256px; transform: scale(1.5); transform-origin: center center; }
+        #preview-rig, #select-rig { width: 128px; height: 256px; transform: scale(1.5); transform-origin: center center; }
         .avatar-layer { position: absolute; left: 50%; transform: translateX(-50%); width: auto; max-width: none; object-fit: contain; image-rendering: pixelated; }
 
         .layer-hair { height: 65%; top: 27%; z-index: 2; } .layer-head { height: 65%; top: 27%; z-index: 3; }
         .layer-body { height: 120%; bottom: -45%; z-index: 4; } .layer-leggings { height: 120%; bottom: -45%; z-index: 5; }
         .layer-armor { height: 120%; bottom: -45%; z-index: 6; } .layer-weapon { height: 120%; bottom: -45%; z-index: 7; }
 
+        /* --- GAME WORLD --- */
         #game-screen { position: relative; width: 100%; height: 100%; background-color: #000; }
         #world { position: absolute; width: 2000px; height: 1333px; background-size: 100% 100%; transform-origin: top left; transition: background-image 0.5s; }
         .collision-box { position: absolute; background: transparent; z-index: 900; pointer-events: none; }
         #world.admin-active .collision-box { background: rgba(255, 0, 0, 0.4) !important; border: 1px solid red; }
-        
         .admin-spawn-marker { position: absolute; width: 48px; height: 48px; border: 3px solid cyan; border-radius: 50%; background: rgba(0, 255, 255, 0.3); z-index: 800; pointer-events: none; transform: translate(-50%, -100%); display: none; }
         #world.admin-active .admin-spawn-marker { display: flex !important; justify-content: center; align-items: center; font-weight: bold; color: white;}
         
@@ -87,11 +95,9 @@
         .white-splash { position: absolute; width: 30px; height: 30px; background-color: #fff; border-radius: 50%; box-shadow: 0 0 15px #fff, 0 0 25px #e0ffff; pointer-events: none; z-index: 300; transform: translate(-50%, -50%); animation: white-splash-pop 0.3s ease-out forwards; }
         @keyframes white-splash-pop { 0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; } }
         .magic-orb { position: absolute; width: 12px; height: 12px; background-color: #e0ffff; border-radius: 50%; box-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff, 0 0 20px #ffffff; pointer-events: none; z-index: 250; transform: translate(-50%, -50%); }
-
         .damage-text { position: absolute; color: white; font-weight: bold; font-size: 14px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; pointer-events: none; animation: floatUp 1s forwards; z-index: 200; }
         .level-up-text { position: absolute; color: #ffd700; font-weight: bold; font-size: 24px; text-shadow: 0 0 10px #ff9800; pointer-events: none; animation: floatUp 2s forwards; z-index: 500; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(1.5); } }
-
         .rarity-godly { animation: godly-sparkle 1.5s infinite alternate; }
         @keyframes godly-sparkle { 0% { text-shadow: 0 0 2px #fff, 0 0 5px #e0ffff; } 100% { text-shadow: 0 0 8px #fff, 0 0 15px #00ffff, 0 0 20px #00ffff; } }
 
@@ -101,14 +107,12 @@
         .inv-slot { width: 100%; aspect-ratio: 1; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 11px; text-align: center; cursor: pointer; user-select: none; color: white; padding: 4px; box-sizing: border-box; font-weight: bold; position: relative; }
         .inv-slot:hover { border-color: #4CAF50; background: #333; }
         .inv-qty { position: absolute; bottom: 2px; right: 4px; font-size: 11px; color: #fff; text-shadow: 1px 1px 0 #000; }
-        
         .tooltip { visibility: hidden; position: absolute; bottom: 105%; left: 50%; transform: translateX(-50%); background-color: #111; color: #fff; text-align: center; padding: 8px 10px; border-radius: 4px; border: 1px solid #777; width: max-content; z-index: 100; font-size: 11px; line-height: 1.4; pointer-events: none; }
         .inv-slot:hover .tooltip { visibility: visible; }
         .equip-container { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px;}
         .equip-box { flex: 1; background: #1e1e1e; border: 1px solid #444; border-radius: 4px; padding: 10px 5px; text-align: center; font-size: 12px; position: relative; cursor: pointer; transition: background 0.2s;}
         .equip-box:hover { background: #333; border-color: #f44336; }
         .equip-box:hover .tooltip { visibility: visible; }
-
         #inv-context-menu { display: none; position: absolute; background: #222; border: 1px solid #777; border-radius: 4px; z-index: 3000; flex-direction: column; width: 100px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
         .ctx-btn { background: none; border: none; color: white; padding: 10px; cursor: pointer; text-align: left; font-weight: bold; font-size: 12px; }
         .ctx-btn:hover { background: #444; }
@@ -127,7 +131,25 @@
         <button class="ctx-btn" id="ctx-btn-throw" style="color: #f44336;" onclick="window.actionThrow(event)">Throw</button>
     </div>
 
-    <div id="creation-screen" class="screen active">
+    <div id="auth-screen" class="screen active" style="background: url('town_map.png') center/cover; position: relative;">
+        <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7);"></div>
+        <div class="auth-container" id="login-form">
+            <h1>Exonie Online</h1>
+            <input type="text" id="login-user" placeholder="Username" maxlength="16">
+            <input type="password" id="login-pass" placeholder="Password">
+            <button class="btn btn-large" onclick="attemptLogin()">LOGIN</button>
+            <span class="auth-link" onclick="switchAuth('register')">Create an Account</span>
+        </div>
+        <div class="auth-container" id="register-form" style="display: none;">
+            <h1>Join Exonie</h1>
+            <input type="text" id="reg-user" placeholder="Username" maxlength="16">
+            <input type="password" id="reg-pass" placeholder="Password">
+            <button class="btn btn-large" onclick="attemptRegister()">CREATE ACCOUNT</button>
+            <span class="auth-link" onclick="switchAuth('login')">Back to Login</span>
+        </div>
+    </div>
+
+    <div id="creation-screen" class="screen">
         <div class="stage-area">
             <div id="preview-rig" class="avatar-rig">
                 <img id="preview-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" onerror="this.style.display='none'">
@@ -135,14 +157,12 @@
                 <img id="preview-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png" onerror="this.style.display='none'">
             </div>
         </div>
-
         <div class="controls-area">
-            <h1 style="margin-top: 0; font-size: 36px;">Exonie Online</h1>
-            <p style="color: #888; margin-bottom: 20px; font-size: 18px;">Customize Your Avatar / Login</p>
-
+            <h1 style="margin-top: 0; font-size: 36px;">Create Character</h1>
+            
             <div class="panel-section">
-                <h4>Character Username</h4>
-                <input type="text" id="char-name-input" placeholder="Enter username..." maxlength="16">
+                <h4>Character Name (Bound to Account)</h4>
+                <input type="text" id="char-name-input" readonly>
             </div>
 
             <div class="panel-section">
@@ -155,7 +175,6 @@
                     <div class="color-swatch" style="background:#ffffff" onclick="setSkinColor('white', this)"></div>
                 </div>
             </div>
-
             <div class="panel-section">
                 <h4>Hair Color</h4>
                 <div class="color-group" id="hair-color-group">
@@ -166,20 +185,36 @@
                     <div class="color-swatch" style="background:#ffffff" onclick="setHairColor('white', this)"></div>
                 </div>
             </div>
-
             <div class="panel-section">
                 <h4>Hair Style</h4>
                 <div class="button-group" id="hair-button-container">
                     <button class="btn" onclick="setHairStyle('none')" id="btn-hair-none">None</button>
                 </div>
             </div>
-            
-            <button class="btn btn-large" onclick="saveAndEnterWorld()" style="margin-top: 10px;">ENTER EXONIE</button>
+            <button class="btn btn-large" onclick="submitCharacterCreation()" style="margin-top: 10px;">FINISH CREATION</button>
+        </div>
+    </div>
+
+    <div id="select-screen" class="screen">
+        <div class="stage-area" style="width: 100%;">
+            <div style="text-align: center;">
+                <h1 id="select-name-display" style="color: #4CAF50; font-size: 40px; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.8);">Player</h1>
+                <p id="select-level-display" style="color: #ffd700; margin-top:0; margin-bottom: 40px; font-weight: bold;">Level 1</p>
+                
+                <div id="select-rig" class="avatar-rig" style="margin: auto; margin-bottom: 60px;">
+                    <img id="select-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" onerror="this.style.display='none'">
+                    <img id="select-head" class="avatar-layer layer-head" src="animation/avatar_head.png" onerror="this.style.display='none'">
+                    <img id="select-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png" onerror="this.style.display='none'">
+                    <img id="select-weapon" class="avatar-layer layer-weapon" style="display:none;" onerror="this.style.display='none'">
+                </div>
+
+                <button class="btn btn-large" onclick="enterGameWorld()" style="width: 300px; font-size: 24px;">START GAME</button>
+            </div>
         </div>
     </div>
 
     <div id="loading-screen" class="screen">
-        <div class="loader-title">Connecting to Server...</div>
+        <div class="loader-title" id="loading-text">Loading...</div>
         <div class="loader-bar-bg"><div id="loader-fill" class="loader-bar-fill"></div></div>
     </div>
 
@@ -297,26 +332,46 @@
 </div>
 
 <script>
-    // --- SERVER SOCKET INITIALIZATION ---
     const socket = io(); 
+
+    // --- DYNAMIC AUDIO ENGINE ---
+    let currentBGM = null;
+    let currentTrackName = "";
+
+    function playBGM(trackName) {
+        if (currentTrackName === trackName) return;
+        if (currentBGM) {
+            currentBGM.pause();
+            currentBGM.currentTime = 0;
+        }
+        currentTrackName = trackName;
+        currentBGM = new Audio(`music/${trackName}.mp3`);
+        currentBGM.loop = true;
+        currentBGM.volume = 0.4;
+        currentBGM.play().catch(e => console.log("Audio autoplay restricted. Awaiting interaction."));
+    }
+
+    // Start menu music on first click
+    document.body.addEventListener('click', function initiateAudio() {
+        if (!currentBGM && document.getElementById('auth-screen').classList.contains('active')) {
+            playBGM('loginmenu');
+        }
+        document.body.removeEventListener('click', initiateAudio);
+    }, { once: true });
+
 
     window.adminMode = false;
     document.querySelectorAll('.avatar-layer').forEach(img => { img.onerror = function() { this.style.display = 'none'; }; });
 
     const CAMERA_ZOOM = 1.8;
 
-    // --- MAP DATABASE READY ---
     window.MapDatabase = window.MapDatabase || {};
-    if (typeof townMapData !== 'undefined') {
-        window.MapDatabase[townMapData.id || 'town'] = townMapData;
-    }
+    if (typeof townMapData !== 'undefined') { window.MapDatabase[townMapData.id || 'town'] = townMapData; }
     
     window.safeMapData = window.MapDatabase['town'] || {
-        id: "town", name: "Town of Exonie", image: "town_map.png",
-        spawnX: 960, spawnY: 1000,
+        id: "town", name: "Town of Exonie", image: "town_map.png", spawnX: 960, spawnY: 1000,
         monsterSpawnArea: { minX: 200, maxX: 1600, minY: 300, maxY: 900 },
-        collisions: [], teleports: [],
-        normalSpawns: [], miniBossSpawns: [], floorBossSpawns: []
+        collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: []
     };
 
     let isInventoryOpen = false; let walkTimer = 0; let walkState = 0; const walkSpeed = 10; 
@@ -338,12 +393,12 @@
         monster: { 
             x: 700, y: 800, width: 40, height: 40, maxHp: 100, currentHp: 100, atk: 25, def: 0,            
             expYield: 25, alive: true, speed: 2.5, aggroRadius: 250, chaseRadius: 400, attackRange: 55, lastAttack: 0, threatTable: {},
-            respawnTimer: 10000 
+            respawnTimer: 10000, isFloorBoss: false 
         },
-        remotePlayers: {} 
+        remotePlayers: {},
+        cachedUserData: null 
     };
 
-    // --- SECURE DATABASE MANAGER (Socket Events instead of local save) ---
     const DatabaseManager = {
         savePlayerData: function(playerObj) { 
             playerObj.mapId = window.safeMapData.id || 'town';
@@ -368,9 +423,138 @@
     function getDefense() { return getTotalStat('defense'); }
     function getSpeed() { return getTotalStat('speed'); }
 
+    // --- AUTHENTICATION FLOW ---
+    function switchAuth(target) {
+        document.getElementById('login-form').style.display = target === 'login' ? 'block' : 'none';
+        document.getElementById('register-form').style.display = target === 'register' ? 'block' : 'none';
+        playBGM('loginmenu');
+    }
+
+    function attemptLogin() {
+        const u = document.getElementById('login-user').value.trim();
+        const p = document.getElementById('login-pass').value;
+        if(!u || !p) return alert("Enter username and password!");
+        
+        document.getElementById('loading-text').innerText = "Logging in...";
+        document.getElementById('auth-screen').classList.remove('active');
+        document.getElementById('loading-screen').style.display = 'flex';
+        playBGM('loginmenu');
+        
+        socket.emit('login', { username: u, password: p });
+    }
+
+    function attemptRegister() {
+        const u = document.getElementById('reg-user').value.trim();
+        const p = document.getElementById('reg-pass').value;
+        if(!u || !p) return alert("Enter username and password!");
+        if(u.length < 3) return alert("Username too short!");
+
+        document.getElementById('loading-text').innerText = "Registering...";
+        document.getElementById('auth-screen').classList.remove('active');
+        document.getElementById('loading-screen').style.display = 'flex';
+        playBGM('loginmenu');
+
+        socket.emit('register', { username: u, password: p });
+    }
+
+    socket.on('registerSuccess', (username) => {
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('char-name-input').value = username;
+        document.getElementById('creation-screen').classList.add('active');
+    });
+
+    socket.on('needsCharacterCreation', (username) => {
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('char-name-input').value = username;
+        document.getElementById('creation-screen').classList.add('active');
+    });
+
+    socket.on('authError', (msg) => {
+        alert(msg);
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('auth-screen').classList.add('active');
+    });
+
+    socket.on('characterSelect', (userData) => {
+        game.cachedUserData = userData;
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('creation-screen').classList.remove('active');
+        
+        document.getElementById('select-name-display').innerText = userData.username;
+        document.getElementById('select-level-display').innerText = `Level ${userData.level}`;
+
+        document.getElementById('select-body').style.filter = skinFilters[userData.skin_color] || skinFilters['flesh'];
+        document.getElementById('select-head').style.filter = skinFilters[userData.skin_color] || skinFilters['flesh'];
+        
+        const hStyle = userData.hair_style || '1';
+        const hLayer = document.getElementById('select-hair');
+        if (hStyle === 'none') { hLayer.style.display = 'none'; } else { hLayer.style.display = 'block'; hLayer.src = `animation/avatar_hair${hStyle}.png`; }
+        hLayer.style.filter = hairFilters[userData.hair_color] || hairFilters['black'];
+
+        const wep = userData.equips?.weapon?.sprite;
+        const wLayer = document.getElementById('select-weapon');
+        if (wep) { wLayer.src = `weapon/${wep}.png`; wLayer.style.display = 'block'; } else { wLayer.style.display = 'none'; }
+
+        document.getElementById('select-screen').classList.add('active');
+    });
+
+    function submitCharacterCreation() {
+        const username = document.getElementById('char-name-input').value;
+        document.getElementById('creation-screen').classList.remove('active');
+        document.getElementById('loading-text').innerText = "Forging Avatar...";
+        document.getElementById('loading-screen').style.display = 'flex';
+        socket.emit('createCharacter', { username, charData });
+    }
+
+    function enterGameWorld() {
+        document.getElementById('select-screen').classList.remove('active');
+        document.getElementById('loading-text').innerText = "Entering Exonie...";
+        document.getElementById('loading-screen').style.display = 'flex';
+        socket.emit('enterWorld', game.cachedUserData);
+    }
+
+    socket.on('authSuccess', (userData) => {
+        game.player.id = userData.username;
+        game.player.name = userData.username;
+        document.getElementById('player-name-tag').innerText = game.player.name;
+        document.getElementById('ui-name-display').innerText = game.player.name;
+
+        game.player.level = userData.level; game.player.exp = userData.exp; game.player.maxExp = userData.max_exp;
+        game.player.currentHp = userData.current_hp; game.player.baseStats = userData.base_stats;
+        game.player.inventory = userData.inventory; game.player.equips = userData.equips;
+        
+        window.safeMapData = window.MapDatabase[userData.map_id] || window.MapDatabase['town'];
+        game.player.x = userData.pos_x; game.player.y = userData.pos_y;
+
+        charData.skinColor = userData.skin_color || 'flesh';
+        charData.hairColor = userData.hair_color || 'black';
+        charData.hairStyle = userData.hair_style || '1';
+
+        document.getElementById('loading-screen').style.display = 'none';
+        dom.game.classList.add('active');
+        game.keys = { w: false, a: false, s: false, d: false, tab: false, z: false, x: false, c: false };
+
+        dom.playerContainer.style.left = game.player.x + 'px'; dom.playerContainer.style.top = game.player.y + 'px';
+        const cameraX = Math.floor((window.innerWidth / 2) - (game.player.x * CAMERA_ZOOM) - (game.player.width * CAMERA_ZOOM / 2));
+        const cameraY = Math.floor((window.innerHeight / 2) - (game.player.y * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2));
+        dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`;
+
+        dom.world.style.backgroundImage = `url('${window.safeMapData.image}')`;
+        dom.playerBody.style.filter = skinFilters[charData.skinColor]; dom.playerHead.style.filter = skinFilters[charData.skinColor]; dom.playerHair.style.filter = hairFilters[charData.hairColor];
+        if (charData.hairStyle === 'none') { dom.playerHair.style.display = 'none'; } else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${charData.hairStyle}.png`; }
+
+        window.buildCollisionLayers(); updateEquipmentDisplay(); if (typeof window.respawnMonster === 'function') window.respawnMonster(); window.updateUI();
+        
+        // Initial Music Hook
+        let mapType = (window.safeMapData.id || "").includes('floor') ? 'floor' : 'town';
+        playBGM(mapType);
+
+        game.isRunning = true; 
+        requestAnimationFrame(gameLoop);
+    });
+
     // --- ITEM GENERATION ENGINE (Dynamic Sprites) ---
     window.RARITY_COLORS = { "Starter": "#aaaaaa", "Basic": "#8B4513", "Rare": "#2196F3", "Unique": "#9c27b0", "Legend": "#f44336", "Godly": "#e0ffff" };
-    
     window.ITEM_TEMPLATES = {
         sword: { slot: 'weapon', statKey: 'attack', baseName: 'Sword', spriteName: 'sword' },
         staff: { slot: 'weapon', statKey: 'magic', baseName: 'Staff', spriteName: 'staff' },
@@ -393,18 +577,14 @@
         let gearRoll = Math.random(); let rarity = gearRoll < 0.05 ? "Rare" : "Basic"; let level = 5;
         let keys = Object.keys(ITEM_TEMPLATES); let typeKey = keys[Math.floor(Math.random() * keys.length)];
         let template = ITEM_TEMPLATES[typeKey]; let name = `${rarity === "Rare" ? "Slime" : "Basic"} ${template.baseName}`;
-
         let spriteName = rarity.toLowerCase() + template.spriteName; 
 
         let item = { id: Date.now() + Math.random(), name: name, type: template.slot, sprite: spriteName, level: level, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 };
-        
-        let baseScaling = getBaseStat(level);
-        let rarityBonus = { "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legend": 8, "Godly": 12 }[rarity] || 0;
+        let baseScaling = getBaseStat(level); let rarityBonus = { "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legend": 8, "Godly": 12 }[rarity] || 0;
         let statVal = baseScaling + rarityBonus; 
         
         if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); 
         item.fixedStat[template.statKey] = statVal;
-
         item.randomStat = {}; let rStat = STAT_TYPES[Math.floor(Math.random() * STAT_TYPES.length)]; 
         item.randomStat[rStat] = Math.floor(Math.random() * baseScaling) + 1; 
         return item;
@@ -434,17 +614,7 @@
         return html;
     }
 
-    const dom = {
-        creation: document.getElementById('creation-screen'), game: document.getElementById('game-screen'),
-        playerContainer: document.getElementById('player-container'), playerAvatarContainer: document.getElementById('player-avatar-container'),
-        playerBody: document.getElementById('player-body'), playerHead: document.getElementById('player-head'),
-        playerHair: document.getElementById('player-hair'), playerWeapon: document.getElementById('player-weapon'),
-        playerArmor: document.getElementById('player-armor'), playerLeggings: document.getElementById('player-leggings'),
-        monster: document.getElementById('monster'), log: document.getElementById('combat-log'), statScreen: document.getElementById('stat-screen'),
-        invScreen: document.getElementById('inventory-screen'), world: document.getElementById('world')
-    };
-
-    // --- PURE, BASIC KEYBOARD LISTENER ---
+    // --- PURE KEYBOARD LISTENER ---
     function movementKeyFromEvent(e) {
         switch (e.code) {
             case 'KeyW': return 'w'; case 'KeyA': return 'a'; case 'KeyS': return 's'; case 'KeyD': return 'd';
@@ -470,7 +640,6 @@
     window.addEventListener('keydown', (e) => setKeyState(e, true), { capture: true });
     window.addEventListener('keyup', (e) => setKeyState(e, false), { capture: true });
     window.addEventListener('blur', () => { game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false; game.keys.tab = false; game.keys.z = false; game.keys.x = false; game.keys.c = false; });
-
     window.addEventListener('click', (e) => { 
         document.getElementById('inv-context-menu').style.display = 'none'; 
         if(isEnhancing && !e.target.closest('#inventory-screen') && !e.target.closest('#inv-context-menu')) { 
@@ -480,12 +649,10 @@
 
     window.buildCollisionLayers = function() {
         const layer = document.getElementById('collision-layers'); layer.innerHTML = ''; 
-        
         window.safeMapData.collisions.forEach(box => {
             const div = document.createElement('div'); div.className = 'collision-box';
             div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px'; layer.appendChild(div);
         });
-        
         window.safeMapData.teleports.forEach(box => {
             const div = document.createElement('div'); div.className = 'collision-box';
             div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px'; 
@@ -496,7 +663,6 @@
             }
             layer.appendChild(div);
         });
-
         if (window.adminMode) { 
             if (window.safeMapData.spawnX !== undefined) {
                 const sm = document.createElement('div'); sm.className = 'admin-spawn-marker';
@@ -523,7 +689,11 @@
         for (let box of window.safeMapData.collisions) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; }
         return false;
     }
-    
+    function isMonsterColliding(mx, my) {
+        for (let box of window.safeMapData.collisions) { if (mx < box.x + box.w && mx + game.monster.width > box.x && my < box.y + box.h && my + game.monster.height > box.y) return true; }
+        return false;
+    }
+
     // --- MULTIPLAYER RENDERING ENGINE ---
     function addRemotePlayer(p) {
         if(game.remotePlayers[p.id]) return;
@@ -568,7 +738,6 @@
         }
     }
 
-    // MULTIPLAYER SOCKET LISTENERS
     socket.on('mapPlayersList', (players) => { players.forEach(p => addRemotePlayer(p)); });
     socket.on('remotePlayerJoined', (p) => { addRemotePlayer(p); });
     socket.on('remotePlayerLeft', (id) => { removeRemotePlayer(id); });
@@ -587,7 +756,7 @@
     });
 
 
-    let hairIndexToTest = 1; let charData = { skinColor: 'flesh', hairColor: 'black', hairStyle: '1' };
+    let hairIndexToTest = 1; 
     function loadHairStyles() {
         let img = new Image();
         img.onload = function() {
@@ -601,88 +770,117 @@
     }
     loadHairStyles();
 
-    const skinFilters = { 'flesh': 'sepia(1) hue-rotate(-25deg) saturate(2.5) brightness(1.1)', 'yellow': 'sepia(1) hue-rotate(15deg) saturate(3) brightness(1.2)', 'green': 'sepia(1) hue-rotate(75deg) saturate(2) brightness(1)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2) brightness(1)', 'white': 'grayscale(1) brightness(1.8) contrast(0.9)' };
-    const hairFilters = { 'black': 'brightness(0.2)', 'blonde': 'sepia(1) hue-rotate(15deg) saturate(3) brightness(1.5)', 'brown': 'sepia(1) hue-rotate(330deg) saturate(2) brightness(0.6)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2) brightness(1)', 'white': 'grayscale(1) brightness(1.8) contrast(0.9)' };
+    function getPlayerById(id) { if (!id) return null; if (id === game.player.id) return game.player; return game.remotePlayers[id] || null; }
+    function getAllPlayers() { const list = [game.player]; for (const id in game.remotePlayers) { if (game.remotePlayers[id]) list.push(game.remotePlayers[id]); } return list; }
+    function getEntityCenter(ent) { const w = Number(ent.width) || 48; const h = Number(ent.height) || 96; return { x: ent.x + (w / 2), y: ent.y + (h / 2) }; }
+    function getMonsterCenter() { return { x: game.monster.x + (game.monster.width / 2), y: game.monster.y + (game.monster.height / 2) }; }
+    function distanceToMonster(player) { const pc = getEntityCenter(player); const mc = getMonsterCenter(); return Math.hypot(pc.x - mc.x, pc.y - mc.y); }
 
-    function setSkinColor(color, element) { charData.skinColor = color; document.getElementById('preview-body').style.filter = skinFilters[color]; document.getElementById('preview-head').style.filter = skinFilters[color]; document.getElementById('skin-color-group').querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); element.classList.add('selected'); }
-    function setHairColor(color, element) { charData.hairColor = color; document.getElementById('preview-hair').style.filter = hairFilters[color]; document.getElementById('hair-color-group').querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); element.classList.add('selected'); }
-    function setHairStyle(style) {
-        charData.hairStyle = style; const hairLayer = document.getElementById('preview-hair');
-        if (style === 'none') { hairLayer.style.display = 'none'; } else { hairLayer.style.display = 'block'; hairLayer.src = `animation/avatar_hair${style}.png`; }
-        const container = document.getElementById('hair-button-container');
-        if (container) { container.querySelectorAll('.btn').forEach(btn => btn.classList.remove('selected')); const activeBtn = document.getElementById(`btn-hair-${style}`); if(activeBtn) activeBtn.classList.add('selected'); }
-    }
-    setSkinColor('flesh', document.querySelector('#skin-color-group .color-swatch.selected')); setHairColor('black', document.querySelector('#hair-color-group .color-swatch.selected'));
+    function selectMonsterTarget() {
+        const now = Date.now();
+        if (game.monster.forcedTargetId && now >= game.monster.forcedUntil) { game.monster.forcedTargetId = null; game.monster.forcedUntil = 0; }
+        if (game.monster.forcedTargetId) { const forced = getPlayerById(game.monster.forcedTargetId); if (forced) return forced; game.monster.forcedTargetId = null; game.monster.forcedUntil = 0; }
 
-    function saveAndEnterWorld() {
-        let nameInput = document.getElementById('char-name-input');
-        let nameVal = nameInput.value.trim();
-        if(!nameVal) return;
-        
-        nameInput.blur(); 
-        
-        dom.creation.classList.remove('active'); document.getElementById('loading-screen').style.display = 'flex'; 
-        
-        // Tells the backend to fetch or create the player in Supabase
-        socket.emit('login', { username: nameVal, charData: charData });
-    }
+        for (const id in game.monster.threatTable) { if (!getPlayerById(id)) delete game.monster.threatTable[id]; }
 
-    // SERVER LOGIN RESPONSE
-    socket.on('authSuccess', (userData) => {
-        game.player.id = userData.username || userData.character_name;
-        game.player.name = userData.username || userData.character_name;
-        document.getElementById('player-name-tag').innerText = game.player.name;
-        document.getElementById('ui-name-display').innerText = game.player.name;
+        let bestId = null; let bestThreat = -1; let bestDist = Infinity;
+        for (const id in game.monster.threatTable) {
+            const t = game.monster.threatTable[id] || 0; if (t <= 0) continue;
+            const p = getPlayerById(id); if (!p) continue;
+            const dist = distanceToMonster(p); if (dist > game.monster.chaseRadius) continue;
+            if (t > bestThreat || (t === bestThreat && dist < bestDist)) { bestThreat = t; bestId = id; bestDist = dist; }
+        }
+        if (bestId) return getPlayerById(bestId);
 
-        // Load data from Backend
-        game.player.level = userData.level;
-        game.player.exp = userData.exp;
-        game.player.maxExp = userData.max_exp;
-        game.player.currentHp = userData.current_hp;
-        game.player.baseStats = userData.base_stats;
-        game.player.inventory = userData.inventory;
-        game.player.equips = userData.equips;
-        
-        window.safeMapData = window.MapDatabase[userData.map_id] || window.MapDatabase['town'];
-        game.player.x = userData.pos_x;
-        game.player.y = userData.pos_y;
-
-        // Apply saved visual filters
-        charData.skinColor = userData.skin_color || 'flesh';
-        charData.hairColor = userData.hair_color || 'black';
-        charData.hairStyle = userData.hair_style || '1';
-
-        startGame();
-    });
-
-    socket.on('authError', (msg) => {
-        alert(msg);
-        document.getElementById('loading-screen').style.display = 'none';
-        dom.creation.classList.add('active');
-    });
-
-    function startGame() {
-        document.getElementById('loading-screen').style.display = 'none';
-        dom.game.classList.add('active');
-        game.keys = { w: false, a: false, s: false, d: false, tab: false, z: false, x: false, c: false };
-
-        dom.playerContainer.style.left = game.player.x + 'px'; dom.playerContainer.style.top = game.player.y + 'px';
-
-        const cameraX = Math.floor((window.innerWidth / 2) - (game.player.x * CAMERA_ZOOM) - (game.player.width * CAMERA_ZOOM / 2));
-        const cameraY = Math.floor((window.innerHeight / 2) - (game.player.y * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2));
-        dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`;
-
-        dom.world.style.backgroundImage = `url('${window.safeMapData.image}')`;
-        dom.playerBody.style.filter = skinFilters[charData.skinColor]; dom.playerHead.style.filter = skinFilters[charData.skinColor]; dom.playerHair.style.filter = hairFilters[charData.hairColor];
-        if (charData.hairStyle === 'none') { dom.playerHair.style.display = 'none'; } else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${charData.hairStyle}.png`; }
-
-        window.buildCollisionLayers(); updateEquipmentDisplay(); if (typeof respawnMonster === 'function') respawnMonster(); window.updateUI();
-        
-        game.isRunning = true; 
-        requestAnimationFrame(gameLoop);
+        let nearest = null; let nearestDist = Infinity; const players = getAllPlayers();
+        for (const p of players) {
+            if (!p) continue; if (p.id !== game.player.id && typeof p.currentHp === 'number' && p.currentHp <= 0) continue;
+            const dist = distanceToMonster(p); if (dist <= game.monster.aggroRadius && dist < nearestDist) { nearest = p; nearestDist = dist; }
+        }
+        if (nearest) { game.monster.threatTable[nearest.id] = Math.max(1, game.monster.threatTable[nearest.id] || 0); return nearest; }
+        return null;
     }
 
-    // --- ENHANCEMENT ENGINE ---
+    window.respawnMonster = function() {
+        const area = window.safeMapData.monsterSpawnArea || { minX: 200, maxX: 1600, minY: 300, maxY: 900 };
+        const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
+        game.monster.alive = true; game.monster.currentHp = game.monster.maxHp; game.monster.lastAttack = 0;
+        game.monster.threatTable = {}; game.monster.forcedTargetId = null; game.monster.forcedUntil = 0; game.monster.pendingAttackTargetId = null;
+
+        let spawnX = game.monster.x; let spawnY = game.monster.y;
+        let isBossSpawn = false;
+        
+        // Priority: Floor Boss -> Mini Boss -> Normal
+        if (window.safeMapData.floorBossSpawns && window.safeMapData.floorBossSpawns.length > 0) {
+            spawnX = window.safeMapData.floorBossSpawns[0].x; spawnY = window.safeMapData.floorBossSpawns[0].y;
+            isBossSpawn = true;
+            game.monster.respawnTimer = 99999999; // Never
+        } else if (window.safeMapData.miniBossSpawns && window.safeMapData.miniBossSpawns.length > 0) {
+            spawnX = window.safeMapData.miniBossSpawns[0].x; spawnY = window.safeMapData.miniBossSpawns[0].y;
+            game.monster.respawnTimer = 300000; // 5 mins
+        } else if (window.safeMapData.normalSpawns && window.safeMapData.normalSpawns.length > 0) {
+            spawnX = window.safeMapData.normalSpawns[0].x; spawnY = window.safeMapData.normalSpawns[0].y;
+            game.monster.respawnTimer = 10000; // 10s
+        } else {
+            for (let i = 0; i < 40; i++) {
+                const rx = Math.floor(area.minX + Math.random() * (area.maxX - area.minX));
+                const ry = Math.floor(area.minY + Math.random() * (area.maxY - area.minY));
+                const x = clamp(rx, 0, 2000 - game.monster.width); const y = clamp(ry, 0, 1333 - game.monster.height);
+                if (!isMonsterColliding(x, y)) { spawnX = x; spawnY = y; break; }
+            }
+            game.monster.respawnTimer = 10000; // 10s default
+        }
+
+        game.monster.isFloorBoss = isBossSpawn;
+        game.monster.x = spawnX; game.monster.y = spawnY; game.monster.homeX = spawnX; game.monster.homeY = spawnY;
+        dom.monster.style.display = 'flex'; dom.monster.style.left = game.monster.x + 'px'; dom.monster.style.top = game.monster.y + 'px';
+        document.getElementById('monster-ui').style.display = 'none'; window.updateUI();
+    }
+
+    function updateMonsterAI() {
+        if (!game.monster.alive) return;
+        dom.monster.style.left = game.monster.x + 'px'; dom.monster.style.top = game.monster.y + 'px';
+
+        const target = selectMonsterTarget(); const now = Date.now();
+
+        if (!target) {
+            const homeDx = (game.monster.homeX - game.monster.x); const homeDy = (game.monster.homeY - game.monster.y); const homeDist = Math.hypot(homeDx, homeDy);
+            if (homeDist > 2) {
+                const angle = Math.atan2(homeDy, homeDx);
+                let nextMx = game.monster.x + Math.cos(angle) * game.monster.speed; let nextMy = game.monster.y + Math.sin(angle) * game.monster.speed;
+                if (!isMonsterColliding(nextMx, game.monster.y)) game.monster.x = nextMx;
+                if (!isMonsterColliding(game.monster.x, nextMy)) game.monster.y = nextMy;
+                dom.monster.style.left = game.monster.x + 'px'; dom.monster.style.top = game.monster.y + 'px';
+            }
+            return;
+        }
+
+        const pW = Number(target.width) || 48; const pH = Number(target.height) || 96;
+        const pCenterX = target.x + (pW / 2); const pCenterY = target.y + (pH / 2);
+        const mCenterX = game.monster.x + (game.monster.width / 2); const mCenterY = game.monster.y + (game.monster.height / 2);
+        const dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY);
+
+        if (dist > game.monster.chaseRadius) {
+            if (!game.monster.forcedTargetId || game.monster.forcedTargetId !== target.id) { game.monster.threatTable[target.id] = 0; }
+            if (game.monster.forcedTargetId === target.id) { game.monster.forcedTargetId = null; game.monster.forcedUntil = 0; }
+            return;
+        }
+
+        if (dist > game.monster.attackRange) {
+            const angle = Math.atan2(pCenterY - mCenterY, pCenterX - mCenterX);
+            let nextMx = game.monster.x + Math.cos(angle) * game.monster.speed; let nextMy = game.monster.y + Math.sin(angle) * game.monster.speed;
+            if (!isMonsterColliding(nextMx, game.monster.y)) game.monster.x = nextMx;
+            if (!isMonsterColliding(game.monster.x, nextMy)) game.monster.y = nextMy;
+            dom.monster.style.left = game.monster.x + 'px'; dom.monster.style.top = game.monster.y + 'px';
+        } else {
+            if (now - game.monster.lastAttack > 1500) {
+                game.monster.lastAttack = now; game.monster.pendingAttackTargetId = target.id;
+                executeMonsterAttack(pCenterX, pCenterY);
+            }
+        }
+    }
+
     window.attemptEnhance = function(targetIndex, e) {
         if(e) e.stopPropagation();
         let stone = game.player.inventory[activeInvIndex]; let targetItem = game.player.inventory[targetIndex];
@@ -695,14 +893,13 @@
         let targetLvl = currentEnhance + 1; let successRate = 100; let destroyRate = 0;
         if (targetLvl > 6) { let steps = targetLvl - 6; successRate = Math.max(1, 95 - ((steps - 1) * 10)); destroyRate = Math.min(99, 5 + ((steps - 1) * 5)); }
 
-        let roll = Math.random() * 100;
-        if (roll <= successRate) {
+        if (Math.random() * 100 <= successRate) {
             targetItem.enhanceLevel = targetLvl;
             let bonus = { "Starter": 1, "Basic": 2, "Rare": 5, "Unique": 7, "Legend": 10, "Godly": 15 }[targetItem.rarity] || 2;
             let fKey = Object.keys(targetItem.fixedStat)[0]; targetItem.fixedStat[fKey] += bonus;
             if (targetItem.randomStat) { let rKey = Object.keys(targetItem.randomStat)[0]; targetItem.randomStat[rKey] += bonus; }
             dom.log.innerText = `SUCCESS! ${targetItem.name} is now +${targetLvl}!`; spawnSpark(game.player.x + 24, game.player.y); 
-        } else if (roll <= successRate + destroyRate) { dom.log.innerText = `FAILED! ${targetItem.name} was DESTROYED!`; game.player.inventory[targetIndex] = null; 
+        } else if (Math.random() * 100 <= successRate + destroyRate) { dom.log.innerText = `FAILED! ${targetItem.name} was DESTROYED!`; game.player.inventory[targetIndex] = null; 
         } else { dom.log.innerText = `Enhancement Failed. ${targetItem.name} was unharmed.`; }
         isEnhancing = false; updateEquipmentDisplay(); renderInventory(); DatabaseManager.savePlayerData(game.player);
     }
@@ -778,7 +975,6 @@
             if(item) {
                 if(isEnhancing) { slot.style.border = "1px dashed #ffeb3b"; slot.onclick = (e) => window.attemptEnhance(i, e); } 
                 else { slot.style.borderBottom = `3px solid ${item.color}`; slot.onclick = (e) => window.openItemAction(i, e); }
-                
                 let nameNode = document.createTextNode(item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name); slot.appendChild(nameNode);
                 let tip = document.createElement('div'); tip.className = 'tooltip'; tip.innerHTML = getItemTooltip(item); slot.appendChild(tip);
                 if (item.quantity && item.quantity > 1) { let qtyLabel = document.createElement('span'); qtyLabel.className = 'inv-qty'; qtyLabel.innerText = 'x' + item.quantity; slot.appendChild(qtyLabel); }
@@ -804,7 +1000,6 @@
         updateEquipmentDisplay(); renderInventory(); DatabaseManager.savePlayerData(game.player);
     }
 
-    // --- EXP TIER ENGINE ---
     function getExpAdded(level) {
         if (level >= 41) return 1500; if (level >= 31) return 1000;
         if (level >= 21) return 750; if (level >= 11) return 500; return 200; 
@@ -813,9 +1008,7 @@
     function checkLevelUp() {
         if(game.player.level >= 50) return;
         while(game.player.exp >= game.player.maxExp && game.player.level < 50) {
-            game.player.exp -= game.player.maxExp; 
-            game.player.level++; 
-            game.player.maxExp += getExpAdded(game.player.level); 
+            game.player.exp -= game.player.maxExp; game.player.level++; game.player.maxExp += getExpAdded(game.player.level); 
             game.player.baseStats.hp += 10; game.player.baseStats.str += 2; game.player.baseStats.int += 2; game.player.currentHp = getMaxHp(); 
             const txt = document.createElement('div'); txt.className = 'level-up-text'; txt.innerText = "LEVEL UP!";
             txt.style.left = (game.player.x - 20) + 'px'; txt.style.top = (game.player.y - 40) + 'px'; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 2000);
@@ -824,14 +1017,11 @@
         window.updateUI(); DatabaseManager.savePlayerData(game.player); 
     }
 
-    // --- TELEPORT PAIRING ENGINE ---
     function executeTeleport(tpData) {
         if (!tpData.portalId) return;
         
         let targetMap = window.MapDatabase[tpData.targetMapId || 'town'];
-        if (targetMap) {
-            window.safeMapData = targetMap;
-        }
+        if (targetMap) { window.safeMapData = targetMap; }
 
         let targetId = tpData.portalId % 2 === 1 ? tpData.portalId + 1 : tpData.portalId - 1;
         let targetPortal = window.safeMapData.teleports.find(p => p.portalId === targetId);
@@ -842,15 +1032,17 @@
             game.player.y = targetPortal.y + targetPortal.h - game.player.height + 5; 
             game.player.teleportCooldown = Date.now() + 2000; 
             
-            dom.playerContainer.style.left = game.player.x + 'px';
-            dom.playerContainer.style.top = game.player.y + 'px';
+            dom.playerContainer.style.left = game.player.x + 'px'; dom.playerContainer.style.top = game.player.y + 'px';
             dom.world.style.backgroundImage = `url('${window.safeMapData.image}')`;
             window.buildCollisionLayers();
 
-            // Clear remote players visually and tell Server we jumped Maps!
             for(let id in game.remotePlayers) removeRemotePlayer(id);
             socket.emit('playerTeleported', { mapId: window.safeMapData.id, x: game.player.x, y: game.player.y });
             DatabaseManager.savePlayerData(game.player);
+
+            // Audio Hook for new maps
+            let mapType = (window.safeMapData.id || "").includes('floor') ? 'floor' : 'town';
+            playBGM(mapType);
 
         } else {
             dom.log.innerText = `Paired Portal ${targetId} not found on this map.`;
@@ -895,58 +1087,127 @@
         const cameraY = Math.floor((window.innerHeight / 2) - (game.player.y * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2));
         dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`;
 
-        // --- NETWORK SYNC (Broadcast 20 times a second max to prevent lag) ---
         if (Date.now() - lastServerSync > 50 && (isMoving || isAttacking)) {
             let pState = isAttacking ? 'attack' : (isMoving ? 'walk' : 'idle');
-            socket.emit('playerMoved', { 
-                x: game.player.x, y: game.player.y, state: pState, 
-                facingRight: facingRight, weaponSprite: game.player.equips.weapon?.sprite || null 
-            });
+            socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: pState, facingRight: facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
             lastServerSync = Date.now();
+        }
+
+        // --- DYNAMIC MUSIC CHECK FOR BOSS AGGRO ---
+        if (game.monster.alive) {
+            updateMonsterAI();
+            
+            // Check Boss Threat
+            let targetId = null; let maxThreat = 0;
+            for (let id in game.monster.threatTable) { if (game.monster.threatTable[id] > maxThreat) { maxThreat = game.monster.threatTable[id]; targetId = id; } }
+            
+            let isTargetingMe = (targetId === game.player.id || game.monster.forcedTargetId === game.player.id);
+            if (game.monster.isFloorBoss && isTargetingMe && maxThreat > 0) {
+                playBGM('bossfight');
+            } else {
+                let mapType = (window.safeMapData.id || "").includes('floor') ? 'floor' : 'town';
+                playBGM(mapType);
+            }
+        } else {
+            // Revert to map music if monster dies
+            let mapType = (window.safeMapData.id || "").includes('floor') ? 'floor' : 'town';
+            playBGM(mapType);
         }
 
         requestAnimationFrame(gameLoop);
     }
 
-    function spawnSpark(x, y) { const spark = document.createElement('div'); spark.className = 'spark'; spark.style.left = (x + (Math.random()*20-10)) + 'px'; spark.style.top = (y + (Math.random()*20-10)) + 'px'; dom.world.appendChild(spark); }
-    function spawnWhiteSplash(x, y) { const splash = document.createElement('div'); splash.className = 'white-splash'; splash.style.left = x + 'px'; splash.style.top = y + 'px'; dom.world.appendChild(splash); }
-    function shootOrb(startX, startY, endX, endY) { const orb = document.createElement('div'); orb.className = 'magic-orb'; orb.style.left = startX + 'px'; orb.style.top = startY + 'px'; dom.world.appendChild(orb); const animation = orb.animate([ { left: startX + 'px', top: startY + 'px' }, { left: endX + 'px', top: endY + 'px' } ], { duration: 500, easing: 'ease-in' }); animation.onfinish = () => orb.remove(); }
-
     function attemptAttack() {
         if (game.player.currentHp <= 0 || attackCooldownActive || isInventoryOpen || window.adminMode) return;
 
-        // Sync attack animation online instantly
         socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
 
-        // Placeholder logic until full Backend mob sync is written
+        if(!game.monster.alive) {
+            isAttacking = true; attackCooldownActive = true; 
+            setTimeout(() => { isAttacking = false; attackCooldownActive = false; }, 300);
+            return;
+        }
+
         const pCenterX = game.player.x + (game.player.width / 2); const pCenterY = game.player.y + (game.player.height / 2) - 15; 
+        const mCenterX = game.monster.x + (game.monster.width / 2); const mCenterY = game.monster.y + (game.monster.height / 2);
+        const dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY);
         
         let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : '';
         const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant');
         const isPendant = weaponSprite.includes('pendant');
         
+        if (dist > (isRanged ? 250 : 80)) { dom.log.innerText = `Too far! Move closer.`; return; }
+
         isAttacking = true; attackCooldownActive = true; let cooldownMs = Math.max(200, 800 - (getSpeed() * 50)); 
-        
-        // Visual effects for now (Requires mob engine connection)
-        if (isRanged) { shootOrb(pCenterX, pCenterY, pCenterX + 50, pCenterY); setTimeout(() => { isAttacking = false; }, 300);  } 
-        else { setTimeout(() => { isAttacking = false; }, 300); }
-        
+
+        if (isRanged) { shootOrb(pCenterX, pCenterY, mCenterX, mCenterY); setTimeout(() => { isAttacking = false; }, 300); setTimeout(() => { applyDamageToMonster(mCenterX, mCenterY, isRanged, isPendant); }, 500); } 
+        else { setTimeout(() => { isAttacking = false; applyDamageToMonster(mCenterX, mCenterY, isRanged, isPendant); }, 300); }
         setTimeout(() => { attackCooldownActive = false; }, cooldownMs);
     }
 
-    window.updateUI = function() {
-        document.getElementById('ui-hp-text').innerText = `${game.player.currentHp} / ${getMaxHp()}`;
-        document.getElementById('ui-hp-bar').style.width = (game.player.currentHp / getMaxHp()) * 100 + '%';
-        document.getElementById('ui-hp-bar').style.backgroundColor = (game.player.currentHp < (getMaxHp()*0.3)) ? '#f44336' : '#4CAF50';
-        document.getElementById('ui-level-text').innerText = game.player.level;
-        document.getElementById('ui-exp-text').innerText = `${game.player.exp} / ${game.player.maxExp}`;
-        document.getElementById('ui-exp-bar').style.width = (game.player.exp / game.player.maxExp) * 100 + '%';
+    function applyDamageToMonster(mCenterX, mCenterY, isRanged, isPendant) {
+        if (!game.monster.alive) return;
+        document.getElementById('monster-ui').style.display = 'block';
+        
+        let rawDmg = isRanged ? (getMagicAttack() * 0.75) : getAttackPower();
+        let dmg = Math.floor(rawDmg * (0.9 + Math.random() * 0.2)) - game.monster.def;
+        if(dmg < 1) dmg = 1; 
+        game.monster.currentHp -= dmg; if(game.monster.currentHp < 0) game.monster.currentHp = 0;
+        
+        game.monster.threatTable[game.player.id] = (game.monster.threatTable[game.player.id] || 0) + dmg;
+
+        spawnDamageText(mCenterX, game.monster.y - 10, dmg, '#fff'); 
+        if (isPendant) spawnWhiteSplash(mCenterX, mCenterY); else spawnSpark(mCenterX, mCenterY);
+        
+        document.getElementById('monster').classList.add('hit-flash'); setTimeout(() => document.getElementById('monster').classList.remove('hit-flash'), 100);
+        window.updateUI();
+
+        if (game.monster.currentHp <= 0) {
+            game.monster.alive = false; document.getElementById('monster').style.display = 'none'; game.player.exp += game.monster.expYield; checkLevelUp();
+            game.monster.threatTable = {}; const droppedItem = generateLoot(); window.addLoot(droppedItem);
+            
+            setTimeout(window.respawnMonster, game.monster.respawnTimer || 10000); 
+        } 
     }
 
-    function spawnDamageText(x, y, amount, color) {
-        const txt = document.createElement('div'); txt.className = 'damage-text'; txt.innerText = amount;
-        txt.style.left = (x - 10) + 'px'; txt.style.top = y + 'px'; txt.style.color = color; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 1000);
+    function executeMonsterAttack(pCenterX, pCenterY) {
+        let slimeEl = document.getElementById('monster');
+        let mCenterX = game.monster.x + (game.monster.width / 2); let mCenterY = game.monster.y + (game.monster.height / 2);
+        let dx = pCenterX - mCenterX; let dy = pCenterY - mCenterY; let dist = Math.hypot(dx, dy); if (dist === 0) dist = 1;
+        
+        let moveX = (dx / dist) * 20; let moveY = (dy / dist) * 20;
+        slimeEl.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`;
+        setTimeout(() => { slimeEl.style.transform = `translate(0px, 0px) scale(1)`; monsterDealDamage(); }, 150);
     }
+
+    function monsterDealDamage() {
+        if(!game.monster.alive) return;
+
+        const targetId = game.monster.pendingAttackTargetId || game.player.id;
+        const target = getPlayerById(targetId);
+        if (!target) return;
+
+        if (targetId === game.player.id) {
+            if (game.player.currentHp <= 0) return;
+            let mobDmg = game.monster.atk - getDefense(); if(mobDmg < 1) mobDmg = 1;
+            game.player.currentHp -= mobDmg; if(game.player.currentHp < 0) game.player.currentHp = 0;
+
+            const pCenterX = game.player.x + (game.player.width / 2); const pCenterY = game.player.y + (game.player.height / 2);
+            spawnDamageText(pCenterX, game.player.y - 10, mobDmg, '#f44336'); spawnSpark(pCenterX, pCenterY); window.updateUI();
+
+            if(game.player.currentHp <= 0) { dom.log.innerText = "YOU DIED. Refresh to Restart."; game.isRunning = false; dom.playerContainer.style.opacity = "0.5"; game.monster.threatTable = {}; }
+            return;
+        }
+
+        if (typeof target.currentHp === 'number') {
+            let mobDmg = game.monster.atk; if(mobDmg < 1) mobDmg = 1;
+            target.currentHp -= mobDmg; if(target.currentHp < 0) target.currentHp = 0;
+            const pW = Number(target.width) || 48;
+            spawnDamageText(target.x + (pW / 2), target.y - 10, mobDmg, '#f44336');
+            window.updateUI();
+        }
+    }
+
 </script>
 <script src="admin.js"></script>
 </body>
