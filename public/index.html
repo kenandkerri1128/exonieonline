@@ -462,7 +462,9 @@
     };
 
     function getTotalStat(statName) {
+        if (!game.player || !game.player.baseStats) return 0;
         let total = game.player.baseStats[statName] || 0;
+        if (!game.player.equips) return total;
         ['weapon', 'armor', 'leggings'].forEach(slot => {
             let eq = game.player.equips[slot];
             if(eq) {
@@ -535,8 +537,8 @@
         document.getElementById('loading-screen').style.display = 'none';
         document.getElementById('creation-screen').classList.remove('active');
         
-        document.getElementById('select-name-display').innerText = userData.character_name;
-        document.getElementById('select-level-display').innerText = `Level ${userData.level}`;
+        document.getElementById('select-name-display').innerText = userData.character_name || "Unknown";
+        document.getElementById('select-level-display').innerText = `Level ${userData.level || 1}`;
 
         document.getElementById('select-body').style.filter = skinFilters[userData.skin_color] || skinFilters['flesh'];
         document.getElementById('select-head').style.filter = skinFilters[userData.skin_color] || skinFilters['flesh'];
@@ -561,50 +563,75 @@
         socket.emit('createCharacter', { username, charData: window.charData });
     }
 
+    // --- BULLETPROOF ENTER WORLD FUNCTION ---
     window.enterGameWorld = function() {
-        document.getElementById('select-screen').classList.remove('active');
-        document.getElementById('loading-text').innerText = "Entering Exonie...";
-        document.getElementById('loading-screen').style.display = 'flex';
-        socket.emit('enterWorld', game.cachedUserData);
+        try {
+            if (!game.cachedUserData) {
+                alert("Character data lost. Please refresh the page and log in again.");
+                return;
+            }
+            document.getElementById('select-screen').classList.remove('active');
+            document.getElementById('loading-text').innerText = "Entering Exonie...";
+            document.getElementById('loading-screen').style.display = 'flex';
+            socket.emit('enterWorld', game.cachedUserData);
+        } catch (err) {
+            alert("Enter World Error: " + err.message);
+        }
     }
 
     socket.on('authSuccess', (userData) => {
-        game.player.id = userData.character_name;
-        game.player.name = userData.character_name;
-        document.getElementById('player-name-tag').innerText = game.player.name;
-        document.getElementById('ui-name-display').innerText = game.player.name;
+        try {
+            game.player.id = userData.character_name || "Unknown";
+            game.player.name = userData.character_name || "Unknown";
+            document.getElementById('player-name-tag').innerText = game.player.name;
+            document.getElementById('ui-name-display').innerText = game.player.name;
 
-        game.player.level = userData.level; game.player.exp = userData.exp; game.player.maxExp = userData.max_exp;
-        game.player.currentHp = userData.current_hp; game.player.baseStats = userData.base_stats;
-        game.player.inventory = userData.inventory; game.player.equips = userData.equips;
-        
-        window.safeMapData = window.MapDatabase[userData.map_id] || window.MapDatabase['town'];
-        game.player.x = userData.pos_x; game.player.y = userData.pos_y;
+            // Strict Null Fallbacks to prevent silent crashes
+            game.player.level = userData.level || 1; 
+            game.player.exp = userData.exp || 0; 
+            game.player.maxExp = userData.max_exp || 200;
+            game.player.currentHp = userData.current_hp || 100; 
+            
+            game.player.baseStats = userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10 };
+            game.player.inventory = userData.inventory || new Array(20).fill(null); 
+            game.player.equips = userData.equips || { weapon: null, armor: null, leggings: null };
 
-        window.charData.skinColor = userData.skin_color || 'flesh';
-        window.charData.hairColor = userData.hair_color || 'black';
-        window.charData.hairStyle = userData.hair_style || '1';
+            window.safeMapData = window.MapDatabase[userData.map_id] || window.MapDatabase['town'];
+            game.player.x = userData.pos_x || 960; 
+            game.player.y = userData.pos_y || 1000;
 
-        document.getElementById('loading-screen').style.display = 'none';
-        dom.game.classList.add('active');
-        game.keys = { w: false, a: false, s: false, d: false, tab: false, z: false, x: false, c: false };
+            window.charData.skinColor = userData.skin_color || 'flesh';
+            window.charData.hairColor = userData.hair_color || 'black';
+            window.charData.hairStyle = userData.hair_style || '1';
 
-        dom.playerContainer.style.left = game.player.x + 'px'; dom.playerContainer.style.top = game.player.y + 'px';
-        const cameraX = Math.floor((window.innerWidth / 2) - (game.player.x * CAMERA_ZOOM) - (game.player.width * CAMERA_ZOOM / 2));
-        const cameraY = Math.floor((window.innerHeight / 2) - (game.player.y * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2));
-        dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`;
+            document.getElementById('loading-screen').style.display = 'none';
+            dom.game.classList.add('active');
+            game.keys = { w: false, a: false, s: false, d: false, tab: false, z: false, x: false, c: false };
 
-        dom.world.style.backgroundImage = `url('${window.safeMapData.image}')`;
-        dom.playerBody.style.filter = skinFilters[window.charData.skinColor]; dom.playerHead.style.filter = skinFilters[window.charData.skinColor]; dom.playerHair.style.filter = hairFilters[window.charData.hairColor];
-        if (window.charData.hairStyle === 'none') { dom.playerHair.style.display = 'none'; } else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${window.charData.hairStyle}.png`; }
+            dom.playerContainer.style.left = game.player.x + 'px'; dom.playerContainer.style.top = game.player.y + 'px';
+            const cameraX = Math.floor((window.innerWidth / 2) - (game.player.x * CAMERA_ZOOM) - (game.player.width * CAMERA_ZOOM / 2));
+            const cameraY = Math.floor((window.innerHeight / 2) - (game.player.y * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2));
+            dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`;
 
-        window.buildCollisionLayers(); updateEquipmentDisplay(); if (typeof window.respawnMonster === 'function') window.respawnMonster(); window.updateUI();
-        
-        let mapType = (window.safeMapData.id || "").includes('floor') ? 'floor' : 'town';
-        playBGM(mapType);
+            dom.world.style.backgroundImage = `url('${window.safeMapData.image}')`;
+            dom.playerBody.style.filter = skinFilters[window.charData.skinColor]; dom.playerHead.style.filter = skinFilters[window.charData.skinColor]; dom.playerHair.style.filter = hairFilters[window.charData.hairColor];
+            if (window.charData.hairStyle === 'none') { dom.playerHair.style.display = 'none'; } else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${window.charData.hairStyle}.png`; }
 
-        game.isRunning = true; 
-        requestAnimationFrame(gameLoop);
+            window.buildCollisionLayers(); 
+            updateEquipmentDisplay(); 
+            if (typeof window.respawnMonster === 'function') window.respawnMonster(); 
+            window.updateUI();
+            
+            let mapType = (window.safeMapData.id || "").includes('floor') ? 'floor' : 'town';
+            playBGM(mapType);
+
+            game.isRunning = true; 
+            requestAnimationFrame(gameLoop);
+            
+        } catch (err) {
+            alert("Game Boot Error: " + err.message);
+            console.error("Critical Boot Error:", err);
+        }
     });
 
     window.RARITY_COLORS = { "Starter": "#aaaaaa", "Basic": "#8B4513", "Rare": "#2196F3", "Unique": "#9c27b0", "Legend": "#f44336", "Godly": "#e0ffff" };
@@ -1030,6 +1057,30 @@
             spawnDamageText(target.x + (pW / 2), target.y - 10, mobDmg, '#f44336');
             window.updateUI();
         }
+    }
+
+    window.updateEquipmentDisplay = function() {
+        try {
+            const buildDisplayStr = (item) => item ? (item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name) : 'None';
+            let w = game.player.equips.weapon; let a = game.player.equips.armor; let l = game.player.equips.leggings;
+            
+            document.getElementById('eq-weapon-slot').innerText = buildDisplayStr(w);
+            if(w) document.getElementById('eq-weapon-slot').style.color = w.color;
+            document.getElementById('eq-armor-slot').innerText = buildDisplayStr(a);
+            if(a) document.getElementById('eq-armor-slot').style.color = a.color;
+            document.getElementById('eq-leggings-slot').innerText = buildDisplayStr(l);
+            if(l) document.getElementById('eq-leggings-slot').style.color = l.color;
+
+            dom.playerWeapon.style.display = w ? 'block' : 'none';
+            dom.playerArmor.style.display = 'none'; dom.playerLeggings.style.display = 'none'; 
+            if (w) dom.playerWeapon.src = `weapon/${w.sprite}.png`;
+
+            const createTip = (item, boxId) => { let box = document.getElementById(boxId); let tip = box.querySelector('.tooltip'); if(!tip) { tip = document.createElement('div'); tip.className = 'tooltip'; box.appendChild(tip); } if(item) tip.innerHTML = getItemTooltip(item); else tip.remove(); };
+            createTip(w, 'eq-box-weapon'); createTip(a, 'eq-box-armor'); createTip(l, 'eq-box-leggings');
+            
+            let newMax = getMaxHp(); if(game.player.currentHp > newMax) game.player.currentHp = newMax; 
+            window.updateUI();
+        } catch(err) { console.error(err); }
     }
 
     window.updateUI = function() {
