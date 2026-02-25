@@ -11,6 +11,7 @@ const io = new Server(server);
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
+// When using the service_role key, Supabase bypasses RLS automatically for the server!
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -25,15 +26,19 @@ io.on('connection', (socket) => {
     socket.on('register', async (data) => {
         const { username, password } = data;
         
-        // Check for duplicates
-        const { data: existingUser } = await supabase.from('Exonians').select('username').eq('username', username).single();
+        // Check for duplicates using character_name
+        const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', username).single();
         if (existingUser) {
             return socket.emit('authError', 'Username is already taken!');
         }
 
-        // Create base account (No character data yet)
-        const { error } = await supabase.from('Exonians').insert([{ username, password }]);
-        if (error) return socket.emit('authError', 'Database error during registration.');
+        // Create base account (Targeting character_name)
+        const { error } = await supabase.from('Exonians').insert([{ character_name: username, password: password }]);
+        
+        if (error) {
+            console.error("Supabase Registration Error:", error);
+            return socket.emit('authError', `Database Error: ${error.message}`);
+        }
 
         socket.emit('registerSuccess', username);
     });
@@ -42,9 +47,11 @@ io.on('connection', (socket) => {
     socket.on('login', async (data) => {
         const { username, password } = data;
         
-        const { data: user, error } = await supabase.from('Exonians').select('*').eq('username', username).eq('password', password).single();
+        // Login check using character_name
+        const { data: user, error } = await supabase.from('Exonians').select('*').eq('character_name', username).eq('password', password).single();
         
         if (error || !user) {
+            console.error("Supabase Login Error:", error);
             return socket.emit('authError', 'Invalid username or password.');
         }
 
@@ -69,6 +76,7 @@ io.on('connection', (socket) => {
         starterInv[1] = { name: "Starter Pendant", type: "weapon", sprite: "starterpendant", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 2 }, enhanceLevel: 0 };
         starterInv[2] = { name: "Starter Health Potion", type: "potion", fixedStat: { hpHeal: 50 }, color: "#f44336", quantity: 5 };
 
+        // Update using character_name
         const { data: updatedUser, error } = await supabase.from('Exonians').update({
             skin_color: charData.skinColor,
             hair_color: charData.hairColor,
@@ -78,9 +86,12 @@ io.on('connection', (socket) => {
             base_stats: { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10 },
             inventory: starterInv,
             equips: { weapon: starterGear, armor: null, leggings: null }
-        }).eq('username', username).select().single();
+        }).eq('character_name', username).select().single();
 
-        if (error) return socket.emit('authError', 'Failed to create character.');
+        if (error) {
+            console.error("Supabase Creation Error:", error);
+            return socket.emit('authError', `Failed to create character: ${error.message}`);
+        }
         
         socket.emit('characterSelect', updatedUser);
     });
@@ -88,7 +99,7 @@ io.on('connection', (socket) => {
     // --- 4. ENTER WORLD ---
     socket.on('enterWorld', (userData) => {
         onlinePlayers[socket.id] = {
-            id: userData.username, name: userData.username, mapId: userData.map_id || 'town', x: userData.pos_x, y: userData.pos_y,
+            id: userData.character_name, name: userData.character_name, mapId: userData.map_id || 'town', x: userData.pos_x, y: userData.pos_y,
             spriteData: { skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, weapon: userData.equips?.weapon?.sprite }
         };
 
@@ -96,7 +107,7 @@ io.on('connection', (socket) => {
         socket.emit('authSuccess', userData);
         socket.to(onlinePlayers[socket.id].mapId).emit('remotePlayerJoined', onlinePlayers[socket.id]);
         
-        const playersInMap = Object.values(onlinePlayers).filter(p => p.mapId === onlinePlayers[socket.id].mapId && p.id !== userData.username);
+        const playersInMap = Object.values(onlinePlayers).filter(p => p.mapId === onlinePlayers[socket.id].mapId && p.id !== userData.character_name);
         socket.emit('mapPlayersList', playersInMap);
     });
 
@@ -107,7 +118,7 @@ io.on('connection', (socket) => {
             level: playerData.level, exp: playerData.exp, max_exp: playerData.maxExp, current_hp: playerData.currentHp,
             pos_x: playerData.x, pos_y: playerData.y, map_id: playerData.mapId,
             base_stats: playerData.baseStats, inventory: playerData.inventory, equips: playerData.equips
-        }).eq('username', currentUser);
+        }).eq('character_name', currentUser);
     });
 
     // Multiplayer Real-time Movement
@@ -137,14 +148,14 @@ io.on('connection', (socket) => {
         const playersInMap = Object.values(onlinePlayers).filter(remote => remote.mapId === p.mapId && remote.id !== p.id);
         socket.emit('mapPlayersList', playersInMap);
         
-        await supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('username', currentUser);
+        await supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', currentUser);
     });
 
     socket.on('disconnect', async () => {
         if (onlinePlayers[socket.id]) {
             const p = onlinePlayers[socket.id];
             socket.to(p.mapId).emit('remotePlayerLeft', p.id);
-            await supabase.from('Exonians').update({ pos_x: p.x, pos_y: p.y }).eq('username', p.id);
+            await supabase.from('Exonians').update({ pos_x: p.x, pos_y: p.y }).eq('character_name', p.id);
             delete onlinePlayers[socket.id];
         }
     });
