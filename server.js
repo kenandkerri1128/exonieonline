@@ -8,185 +8,147 @@ const { createClient } = require('@supabase/supabase-js');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-const port = process.env.PORT || 3000;
 
-// --- Supabase Connection ---
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Middleware
-app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Server Memory for Real-Time Syncing
-const onlinePlayers = {}; // { socketId: { id, name, mapId, x, y, hp, maxHp, speed, spriteData } }
+// Server memory for real-time multiplayer sync
+const onlinePlayers = {};
 
-// --- REST API Fallbacks (Optional for saving/loading) ---
-app.post('/api/save-character', async (req, res) => {
-    const charData = req.body;
-    
-    // Upsert to Supabase
-    const { error } = await supabase.from('Exonians').upsert({
-        id: charData.id || charData.name, 
-        character_name: charData.name,
-        skin_color: charData.skinColor,
-        hair_color: charData.hairColor,
-        hair_style: charData.hairStyle,
-        level: charData.level || 1,
-        exp: charData.exp || 0,
-        max_exp: charData.maxExp || 200,
-        current_hp: charData.currentHp || 100,
-        pos_x: charData.x || 960,
-        pos_y: charData.y || 1000,
-        map_id: charData.mapId || 'town',
-        base_stats: charData.baseStats || {},
-        inventory: charData.inventory || [],
-        equips: charData.equips || {}
-    });
-
-    if (error) {
-        console.error("Supabase Save Error:", error);
-        return res.status(500).json({ success: false, message: error.message });
-    }
-    console.log("Character saved to Supabase:", charData.name);
-    res.json({ success: true, message: 'Character saved successfully to Exonie Online.' });
-});
-
-app.get('/api/load-character', async (req, res) => {
-    const username = req.query.name;
-    const { data, error } = await supabase.from('Exonians').select('*').eq('character_name', username).single();
-    
-    if (data) {
-        res.json({ success: true, data: data });
-    } else {
-        res.json({ success: false, message: 'No character found.' });
-    }
-});
-
-// --- REAL-TIME MULTIPLAYER SYSTEM (Socket.IO) ---
 io.on('connection', (socket) => {
-    console.log(`Player connected: ${socket.id}`);
+    let currentUser = null;
 
-    // Authentication / Login via Socket
-    socket.on('login', async (credentials) => {
-        const { data: user, error } = await supabase
-            .from('Exonians')
-            .select('*')
-            .eq('character_name', credentials.name) // Using name as identifier for prototype
-            .single();
-
-        if (error || !user) {
-            socket.emit('authError', "Player not found. Please register or create avatar.");
-            return;
+    // --- 1. REGISTRATION ---
+    socket.on('register', async (data) => {
+        const { username, password } = data;
+        
+        // Check for duplicates
+        const { data: existingUser } = await supabase.from('Exonians').select('username').eq('username', username).single();
+        if (existingUser) {
+            return socket.emit('authError', 'Username is already taken!');
         }
 
-        // Load player into server memory
+        // Create base account (No character data yet)
+        const { error } = await supabase.from('Exonians').insert([{ username, password }]);
+        if (error) return socket.emit('authError', 'Database error during registration.');
+
+        socket.emit('registerSuccess', username);
+    });
+
+    // --- 2. LOGIN ---
+    socket.on('login', async (data) => {
+        const { username, password } = data;
+        
+        const { data: user, error } = await supabase.from('Exonians').select('*').eq('username', username).eq('password', password).single();
+        
+        if (error || !user) {
+            return socket.emit('authError', 'Invalid username or password.');
+        }
+
+        currentUser = username;
+
+        // If skin_color is null, they haven't created a character yet
+        if (!user.skin_color) {
+            socket.emit('needsCharacterCreation', username);
+        } else {
+            // They have a character, send them to Character Select
+            socket.emit('characterSelect', user);
+        }
+    });
+
+    // --- 3. CHARACTER CREATION ---
+    socket.on('createCharacter', async (data) => {
+        const { username, charData } = data;
+
+        const starterGear = { name: "Starter Sword", type: "weapon", sprite: "startersword", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { attack: 5 }, enhanceLevel: 0 };
+        const starterInv = new Array(20).fill(null);
+        starterInv[0] = { name: "Starter Staff", type: "weapon", sprite: "starterstaff", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 5 }, enhanceLevel: 0 };
+        starterInv[1] = { name: "Starter Pendant", type: "weapon", sprite: "starterpendant", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 2 }, enhanceLevel: 0 };
+        starterInv[2] = { name: "Starter Health Potion", type: "potion", fixedStat: { hpHeal: 50 }, color: "#f44336", quantity: 5 };
+
+        const { data: updatedUser, error } = await supabase.from('Exonians').update({
+            skin_color: charData.skinColor,
+            hair_color: charData.hairColor,
+            hair_style: charData.hairStyle,
+            level: 1, exp: 0, max_exp: 200, current_hp: 100,
+            map_id: 'town', pos_x: 960, pos_y: 1000,
+            base_stats: { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10 },
+            inventory: starterInv,
+            equips: { weapon: starterGear, armor: null, leggings: null }
+        }).eq('username', username).select().single();
+
+        if (error) return socket.emit('authError', 'Failed to create character.');
+        
+        socket.emit('characterSelect', updatedUser);
+    });
+
+    // --- 4. ENTER WORLD ---
+    socket.on('enterWorld', (userData) => {
         onlinePlayers[socket.id] = {
-            id: user.id,
-            name: user.character_name,
-            mapId: user.map_id || 'town',
-            x: user.pos_x || 960,
-            y: user.pos_y || 1000,
-            hp: user.current_hp || 100,
-            maxHp: user.base_stats?.hp || 100,
-            speed: 4, 
-            spriteData: {
-                skin: user.skin_color || 'flesh',
-                hair: user.hair_color || 'black',
-                style: user.hair_style || '1',
-                weapon: user.equips?.weapon?.sprite || null
-            }
+            id: userData.username, name: userData.username, mapId: userData.map_id || 'town', x: userData.pos_x, y: userData.pos_y,
+            spriteData: { skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, weapon: userData.equips?.weapon?.sprite }
         };
 
-        // Group players by map ID
         socket.join(onlinePlayers[socket.id].mapId);
-
-        // Confirm login to the connecting client
-        socket.emit('authSuccess', user);
-
-        // Broadcast to everyone else on the map that someone spawned
+        socket.emit('authSuccess', userData);
         socket.to(onlinePlayers[socket.id].mapId).emit('remotePlayerJoined', onlinePlayers[socket.id]);
-
-        // Send the connecting player a list of everyone currently on the map
-        const playersInMap = Object.values(onlinePlayers).filter(p => p.mapId === onlinePlayers[socket.id].mapId && p.id !== user.id);
+        
+        const playersInMap = Object.values(onlinePlayers).filter(p => p.mapId === onlinePlayers[socket.id].mapId && p.id !== userData.username);
         socket.emit('mapPlayersList', playersInMap);
     });
 
-    // Movement Broadcast (Client sends this during their game loop)
-    socket.on('playerMoved', (positionData) => {
+    // Save Data to Supabase
+    socket.on('saveData', async (playerData) => {
+        if (!currentUser) return;
+        await supabase.from('Exonians').update({
+            level: playerData.level, exp: playerData.exp, max_exp: playerData.maxExp, current_hp: playerData.currentHp,
+            pos_x: playerData.x, pos_y: playerData.y, map_id: playerData.mapId,
+            base_stats: playerData.baseStats, inventory: playerData.inventory, equips: playerData.equips
+        }).eq('username', currentUser);
+    });
+
+    // Multiplayer Real-time Movement
+    socket.on('playerMoved', (data) => {
         if (!onlinePlayers[socket.id]) return;
+        onlinePlayers[socket.id].x = data.x;
+        onlinePlayers[socket.id].y = data.y;
+        onlinePlayers[socket.id].spriteData.weapon = data.weaponSprite;
         
-        // Update server authority
-        onlinePlayers[socket.id].x = positionData.x;
-        onlinePlayers[socket.id].y = positionData.y;
-        
-        // Relay to other players in the same map instance
         socket.to(onlinePlayers[socket.id].mapId).emit('remotePlayerMoved', {
-            id: onlinePlayers[socket.id].id,
-            x: positionData.x,
-            y: positionData.y,
-            isMoving: positionData.isMoving,
-            facingRight: positionData.facingRight
+            id: currentUser, x: data.x, y: data.y, state: data.state, facingRight: data.facingRight, weaponSprite: data.weaponSprite
         });
     });
 
-    // Teleport Engine Synchronization
-    socket.on('playerTeleported', async (teleportData) => {
+    // Map Teleportation Engine
+    socket.on('playerTeleported', async (data) => {
         if (!onlinePlayers[socket.id]) return;
-
-        const player = onlinePlayers[socket.id];
-        const oldMap = player.mapId;
+        const p = onlinePlayers[socket.id];
         
-        // Leave the old map's socket channel
-        socket.leave(oldMap);
+        socket.leave(p.mapId);
+        socket.to(p.mapId).emit('remotePlayerLeft', p.id);
         
-        // Update player data
-        player.mapId = teleportData.newMapId;
-        player.x = teleportData.x;
-        player.y = teleportData.y;
+        p.mapId = data.mapId; p.x = data.x; p.y = data.y;
+        socket.join(p.mapId);
+        socket.to(p.mapId).emit('remotePlayerJoined', p);
         
-        // Join the new map's socket channel
-        socket.join(player.mapId);
-
-        // Remove them from old map screens
-        socket.to(oldMap).emit('remotePlayerLeft', player.id);
-
-        // Spawn them on new map screens
-        socket.to(player.mapId).emit('remotePlayerJoined', player);
-
-        // Fetch existing players on the new map for the teleporter
-        const playersInMap = Object.values(onlinePlayers).filter(p => p.mapId === player.mapId && p.id !== player.id);
+        const playersInMap = Object.values(onlinePlayers).filter(remote => remote.mapId === p.mapId && remote.id !== p.id);
         socket.emit('mapPlayersList', playersInMap);
-
-        // Save backend transition securely
-        await supabase.from('Exonians').update({ 
-            map_id: player.mapId, pos_x: player.x, pos_y: player.y 
-        }).eq('character_name', player.name);
+        
+        await supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('username', currentUser);
     });
 
-    // Handle Disconnections
     socket.on('disconnect', async () => {
-        console.log(`Player disconnected: ${socket.id}`);
         if (onlinePlayers[socket.id]) {
-            const player = onlinePlayers[socket.id];
-            
-            // Secure final save to Supabase before garbage collection
-            try {
-                await supabase.from('Exonians').update({ 
-                    pos_x: player.x, pos_y: player.y, map_id: player.mapId 
-                }).eq('character_name', player.name);
-            } catch(e) {
-                console.error("Failed to save on disconnect", e);
-            }
-
-            // Remove player sprite for everyone else
-            socket.to(player.mapId).emit('remotePlayerLeft', player.id);
+            const p = onlinePlayers[socket.id];
+            socket.to(p.mapId).emit('remotePlayerLeft', p.id);
+            await supabase.from('Exonians').update({ pos_x: p.x, pos_y: p.y }).eq('username', p.id);
             delete onlinePlayers[socket.id];
         }
     });
 });
 
-server.listen(port, () => {
-    console.log(`Exonie Online server is running! Open http://localhost:${port} in your browser.`);
-});
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Exonie Online server running on port ${PORT}`));
