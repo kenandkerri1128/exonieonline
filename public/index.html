@@ -353,6 +353,25 @@
 <script>
     const socket = io(); 
 
+    // --- RESTORED DOM CONNECTOR ---
+    const dom = {
+        creation: document.getElementById('creation-screen'), 
+        game: document.getElementById('game-screen'),
+        playerContainer: document.getElementById('player-container'), 
+        playerAvatarContainer: document.getElementById('player-avatar-container'),
+        playerBody: document.getElementById('player-body'), 
+        playerHead: document.getElementById('player-head'),
+        playerHair: document.getElementById('player-hair'), 
+        playerWeapon: document.getElementById('player-weapon'),
+        playerArmor: document.getElementById('player-armor'), 
+        playerLeggings: document.getElementById('player-leggings'),
+        monster: document.getElementById('monster'), 
+        log: document.getElementById('combat-log'), 
+        statScreen: document.getElementById('stat-screen'),
+        invScreen: document.getElementById('inventory-screen'), 
+        world: document.getElementById('world')
+    };
+
     // --- RESTORED COLOR FILTERS ---
     const skinFilters = { 
         'flesh': 'sepia(1) hue-rotate(-25deg) saturate(2.5) brightness(1.1)', 
@@ -1011,6 +1030,24 @@
             spawnDamageText(target.x + (pW / 2), target.y - 10, mobDmg, '#f44336');
             window.updateUI();
         }
+    }
+
+    window.updateUI = function() {
+        document.getElementById('ui-hp-text').innerText = `${game.player.currentHp} / ${getMaxHp()}`;
+        document.getElementById('ui-hp-bar').style.width = (game.player.currentHp / getMaxHp()) * 100 + '%';
+        document.getElementById('ui-hp-bar').style.backgroundColor = (game.player.currentHp < (getMaxHp()*0.3)) ? '#f44336' : '#4CAF50';
+        document.getElementById('ui-level-text').innerText = game.player.level;
+        document.getElementById('ui-exp-text').innerText = `${game.player.exp} / ${game.player.maxExp}`;
+        document.getElementById('ui-exp-bar').style.width = (game.player.exp / game.player.maxExp) * 100 + '%';
+        
+        if(game.monster.maxHp > 0) {
+            document.getElementById('ui-monster-hp-bar').style.width = (game.monster.currentHp / game.monster.maxHp) * 100 + '%';
+        }
+    }
+
+    window.spawnDamageText = function(x, y, amount, color) {
+        const txt = document.createElement('div'); txt.className = 'damage-text'; txt.innerText = amount;
+        txt.style.left = (x - 10) + 'px'; txt.style.top = y + 'px'; txt.style.color = color; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 1000);
     }
 
 </script>
