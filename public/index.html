@@ -4,32 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exonie Online - Alpha Engine</title>
+    
     <script src="/socket.io/socket.io.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+
     <script src="townmap.js"></script>
     <style>
         /* --- GLOBAL STYLES --- */
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #e0e0e0; display: flex; justify-content: center; align-items: center; height: 100vh; user-select: none; overflow: hidden; }
+        body { 
+            margin: 0; 
+            font-family: 'MedievalSharp', cursive; /* FANTASY FONT APPLIED */
+            background-color: #121212; 
+            color: #e0e0e0; 
+            display: flex; justify-content: center; align-items: center; 
+            height: 100vh; user-select: none; overflow: hidden; 
+        }
         #game-container { width: 100vw; height: 100vh; background-color: #1e1e1e; position: relative; overflow: hidden; image-rendering: pixelated; }
         .screen { width: 100%; height: 100%; display: none; }
         .screen.active { display: flex; }
 
         /* --- LOADING SCREEN --- */
         #loading-screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #111; color: #fff; z-index: 5000; flex-direction: column; justify-content: center; align-items: center; }
-        .loader-title { font-size: 28px; font-weight: bold; margin-bottom: 20px; color: #4CAF50; letter-spacing: 2px;}
+        .loader-title { font-size: 32px; font-weight: bold; margin-bottom: 20px; color: #4CAF50; letter-spacing: 2px;}
         .loader-bar-bg { width: 400px; height: 12px; background: #333; border-radius: 6px; overflow: hidden; border: 2px solid #555;}
         .loader-bar-fill { width: 0%; height: 100%; background: #4CAF50; transition: width 0.8s ease-out; }
 
         /* --- UI COMPONENTS --- */
-        input[type="text"], input[type="password"], input[type="number"] { background: #111; color: #0f0; border: 1px solid #4CAF50; padding: 10px; border-radius: 4px; font-size: 16px; width: calc(100% - 22px); font-family: monospace; font-weight: bold; outline: none; margin-bottom: 15px; box-sizing: border-box; }
+        input[type="text"], input[type="password"], input[type="number"], select, button, textarea { 
+            font-family: 'MedievalSharp', cursive; /* INHERIT FONT FOR INPUTS */
+        }
+        input[type="text"], input[type="password"], input[type="number"] { background: #111; color: #0f0; border: 1px solid #4CAF50; padding: 10px; border-radius: 4px; font-size: 18px; width: calc(100% - 22px); outline: none; margin-bottom: 15px; box-sizing: border-box; }
         input:read-only { color: #888; border-color: #555; background: #222; }
-        select { background: #111; color: #fff; border: 1px solid #4CAF50; padding: 5px; border-radius: 4px; outline: none; }
-        .btn { background-color: #3a3a3a; color: white; border: 1px solid #555; padding: 8px 12px; cursor: pointer; border-radius: 4px; transition: background 0.2s; }
+        select { background: #111; color: #fff; border: 1px solid #4CAF50; padding: 5px; border-radius: 4px; outline: none; font-size: 16px; }
+        .btn { background-color: #3a3a3a; color: white; border: 1px solid #555; padding: 8px 12px; cursor: pointer; border-radius: 4px; transition: background 0.2s; font-size: 16px; }
         .btn:hover { background-color: #555; }
         .btn.selected { background-color: #4CAF50; border-color: #4CAF50; }
-        .btn-large { background-color: #4CAF50; font-size: 16px; font-weight: bold; padding: 15px; margin-top: 20px; width: 100%; }
+        .btn-large { background-color: #4CAF50; font-size: 20px; font-weight: bold; padding: 15px; margin-top: 20px; width: 100%; }
         .btn-large:hover { background-color: #45a049; }
         .panel-section { background-color: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #333; }
-        .panel-section h4 { margin: 0 0 10px 0; color: #aaa; text-transform: uppercase; font-size: 12px;}
+        .panel-section h4 { margin: 0 0 10px 0; color: #aaa; text-transform: uppercase; font-size: 14px;}
         .button-group { display: flex; gap: 10px; flex-wrap: wrap; }
         .color-group { display: flex; gap: 8px; flex-wrap: wrap; }
         .color-swatch { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
@@ -37,9 +51,11 @@
         .color-swatch.selected { border-color: white; }
 
         /* --- AUTH SCREENS --- */
-        .auth-container { width: 400px; padding: 30px; background: #1e1e1e; border-radius: 8px; border: 2px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: center; margin: auto; }
-        .auth-container h1 { margin-top: 0; color: #4CAF50; font-size: 32px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .auth-link { color: #2196F3; cursor: pointer; font-size: 14px; text-decoration: underline; margin-top: 15px; display: inline-block; }
+        /* FIXED: Added position relative and z-index so it sits above the background overlay! */
+        .auth-container { position: relative; z-index: 10; width: 400px; padding: 30px; background: #1e1e1e; border-radius: 8px; border: 2px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: center; margin: auto; }
+        .auth-container h1 { margin-top: 0; color: #4CAF50; font-size: 40px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .auth-link { color: #4CAF50; cursor: pointer; font-size: 16px; text-decoration: underline; margin-top: 15px; display: inline-block; }
+        .auth-link:hover { color: #fff; }
 
         /* --- CREATION / SELECT STAGE --- */
         #creation-screen, #select-screen { flex-direction: row; }
@@ -63,14 +79,14 @@
         #world.admin-active .admin-spawn-marker { display: flex !important; justify-content: center; align-items: center; font-weight: bold; color: white;}
         
         #admin-panel { position: absolute; top: 20px; left: 290px; width: 450px; background: rgba(10, 10, 40, 0.95); padding: 15px; border-radius: 8px; border: 2px solid #55f; z-index: 2000; display: none; color: #fff; box-shadow: 0 0 15px rgba(0,0,255,0.5); overflow-y: auto; max-height: 90vh; }
-        #admin-output { width: 100%; height: 100px; margin-top: 10px; margin-bottom: 10px; background: #111; color: #0f0; font-family: monospace; border: 1px solid #444; resize: none; font-size: 10px; box-sizing: border-box; padding: 5px; white-space: pre; overflow-x: auto; }
+        #admin-output { width: 100%; height: 100px; margin-top: 10px; margin-bottom: 10px; background: #111; color: #0f0; border: 1px solid #444; resize: none; font-size: 12px; box-sizing: border-box; padding: 5px; white-space: pre; overflow-x: auto; }
         .admin-tool-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
         .admin-tool-row input[type="number"] { margin-bottom: 0; width: 80px; padding: 5px; }
 
         .entity { position: absolute; transition: filter 0.1s; z-index: 100;}
         #player-container { z-index: 105; }
-        .name-tag { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 12px; font-weight: bold; white-space: nowrap; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 1px 1px 0 #000; z-index: 20; pointer-events: none; }
-        .mob-name { color: #f44336; top: -30px; font-size: 10px;}
+        .name-tag { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 1px 1px 0 #000; z-index: 20; pointer-events: none; }
+        .mob-name { color: #f44336; top: -30px; font-size: 12px;}
 
         .player-avatar-container { pointer-events: none; transform-origin: center bottom; position: relative; width: 48px; height: 96px; }
         .player-avatar-container::after { content: ''; position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); width: 30px; height: 8px; background: rgba(0, 0, 0, 0.4); border-radius: 50%; z-index: -2; }
@@ -82,43 +98,43 @@
         #monster-ui { position: absolute; top: -20px; left: 0px; width: 40px; pointer-events: none; display: none; }
         
         #hud { position: absolute; top: 20px; left: 20px; width: 250px; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #555; z-index: 1000; }
-        .stat-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 16px; font-weight: bold;}
-        .level-row { font-size: 14px; color: #ffd700; margin-bottom: 10px; display: flex; justify-content: space-between;}
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 18px; font-weight: bold;}
+        .level-row { font-size: 16px; color: #ffd700; margin-bottom: 10px; display: flex; justify-content: space-between;}
         .bar-container { width: 100%; height: 15px; background-color: #333; border-radius: 3px; overflow: hidden; border: 1px solid #000; margin-bottom: 10px;}
         .hp-fill { height: 100%; background-color: #4CAF50; width: 100%; transition: width 0.2s ease-out; }
         .mana-fill { height: 100%; background-color: #2196F3; width: 100%; }
         .exp-fill { height: 100%; background-color: #9c27b0; width: 0%; transition: width 0.3s ease-out; }
-        #combat-log { position: absolute; bottom: 20px; left: 20px; color: #fff; font-size: 16px; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 5px; z-index: 1000; }
+        #combat-log { position: absolute; bottom: 20px; left: 20px; color: #fff; font-size: 18px; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 5px; z-index: 1000; }
         
         .spark { position: absolute; width: 16px; height: 16px; background-color: #fff; border-radius: 50%; box-shadow: 0 0 8px #ffeb3b, 0 0 15px #ff9800; pointer-events: none; z-index: 300; animation: spark-pop 0.3s ease-out forwards; }
         @keyframes spark-pop { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 50% { background-color: #ffeb3b; } 100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; } }
         .white-splash { position: absolute; width: 30px; height: 30px; background-color: #fff; border-radius: 50%; box-shadow: 0 0 15px #fff, 0 0 25px #e0ffff; pointer-events: none; z-index: 300; transform: translate(-50%, -50%); animation: white-splash-pop 0.3s ease-out forwards; }
         @keyframes white-splash-pop { 0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; } }
         .magic-orb { position: absolute; width: 12px; height: 12px; background-color: #e0ffff; border-radius: 50%; box-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff, 0 0 20px #ffffff; pointer-events: none; z-index: 250; transform: translate(-50%, -50%); }
-        .damage-text { position: absolute; color: white; font-weight: bold; font-size: 14px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; pointer-events: none; animation: floatUp 1s forwards; z-index: 200; }
-        .level-up-text { position: absolute; color: #ffd700; font-weight: bold; font-size: 24px; text-shadow: 0 0 10px #ff9800; pointer-events: none; animation: floatUp 2s forwards; z-index: 500; }
+        .damage-text { position: absolute; color: white; font-weight: bold; font-size: 16px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; pointer-events: none; animation: floatUp 1s forwards; z-index: 200; }
+        .level-up-text { position: absolute; color: #ffd700; font-weight: bold; font-size: 28px; text-shadow: 0 0 10px #ff9800; pointer-events: none; animation: floatUp 2s forwards; z-index: 500; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(1.5); } }
         .rarity-godly { animation: godly-sparkle 1.5s infinite alternate; }
         @keyframes godly-sparkle { 0% { text-shadow: 0 0 2px #fff, 0 0 5px #e0ffff; } 100% { text-shadow: 0 0 8px #fff, 0 0 15px #00ffff, 0 0 20px #00ffff; } }
 
         #inventory-screen { position: absolute; top: 0; right: 0; width: 350px; height: 100%; background-color: rgba(25, 25, 25, 0.98); border-left: 2px solid #555; padding: 20px; z-index: 1000; display: none; box-sizing: border-box; box-shadow: -5px 0 20px rgba(0,0,0,0.8); overflow-y: auto; }
-        #inventory-screen h2 { margin-top: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        #inventory-screen h2 { margin-top: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; font-size: 28px; }
         .inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
-        .inv-slot { width: 100%; aspect-ratio: 1; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 11px; text-align: center; cursor: pointer; user-select: none; color: white; padding: 4px; box-sizing: border-box; font-weight: bold; position: relative; }
+        .inv-slot { width: 100%; aspect-ratio: 1; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 13px; text-align: center; cursor: pointer; user-select: none; color: white; padding: 4px; box-sizing: border-box; font-weight: bold; position: relative; }
         .inv-slot:hover { border-color: #4CAF50; background: #333; }
-        .inv-qty { position: absolute; bottom: 2px; right: 4px; font-size: 11px; color: #fff; text-shadow: 1px 1px 0 #000; }
-        .tooltip { visibility: hidden; position: absolute; bottom: 105%; left: 50%; transform: translateX(-50%); background-color: #111; color: #fff; text-align: center; padding: 8px 10px; border-radius: 4px; border: 1px solid #777; width: max-content; z-index: 100; font-size: 11px; line-height: 1.4; pointer-events: none; }
+        .inv-qty { position: absolute; bottom: 2px; right: 4px; font-size: 12px; color: #fff; text-shadow: 1px 1px 0 #000; }
+        .tooltip { visibility: hidden; position: absolute; bottom: 105%; left: 50%; transform: translateX(-50%); background-color: #111; color: #fff; text-align: center; padding: 8px 10px; border-radius: 4px; border: 1px solid #777; width: max-content; z-index: 100; font-size: 14px; line-height: 1.4; pointer-events: none; }
         .inv-slot:hover .tooltip { visibility: visible; }
         .equip-container { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px;}
-        .equip-box { flex: 1; background: #1e1e1e; border: 1px solid #444; border-radius: 4px; padding: 10px 5px; text-align: center; font-size: 12px; position: relative; cursor: pointer; transition: background 0.2s;}
+        .equip-box { flex: 1; background: #1e1e1e; border: 1px solid #444; border-radius: 4px; padding: 10px 5px; text-align: center; font-size: 14px; position: relative; cursor: pointer; transition: background 0.2s;}
         .equip-box:hover { background: #333; border-color: #f44336; }
         .equip-box:hover .tooltip { visibility: visible; }
-        #inv-context-menu { display: none; position: absolute; background: #222; border: 1px solid #777; border-radius: 4px; z-index: 3000; flex-direction: column; width: 100px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
-        .ctx-btn { background: none; border: none; color: white; padding: 10px; cursor: pointer; text-align: left; font-weight: bold; font-size: 12px; }
+        #inv-context-menu { display: none; position: absolute; background: #222; border: 1px solid #777; border-radius: 4px; z-index: 3000; flex-direction: column; width: 120px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
+        .ctx-btn { background: none; border: none; color: white; padding: 10px; cursor: pointer; text-align: left; font-weight: bold; font-size: 16px; }
         .ctx-btn:hover { background: #444; }
 
         #stat-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; background-color: rgba(30, 30, 30, 0.98); border: 2px solid #555; border-radius: 8px; padding: 20px; z-index: 1000; display: none; box-shadow: 0 0 20px black; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 16px; margin-bottom: 20px;}
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 18px; margin-bottom: 20px;}
         .stat-grid div span { color: #4CAF50; float: right; font-weight: bold;}
     </style>
 </head>
@@ -132,7 +148,8 @@
     </div>
 
     <div id="auth-screen" class="screen active" style="background: url('town_map.png') center/cover; position: relative;">
-        <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7);"></div>
+        <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); z-index: 1;"></div>
+        
         <div class="auth-container" id="login-form">
             <h1>Exonie Online</h1>
             <input type="text" id="login-user" placeholder="Username" maxlength="16">
@@ -140,6 +157,7 @@
             <button class="btn btn-large" onclick="attemptLogin()">LOGIN</button>
             <span class="auth-link" onclick="switchAuth('register')">Create an Account</span>
         </div>
+        
         <div class="auth-container" id="register-form" style="display: none;">
             <h1>Join Exonie</h1>
             <input type="text" id="reg-user" placeholder="Username" maxlength="16">
@@ -158,7 +176,7 @@
             </div>
         </div>
         <div class="controls-area">
-            <h1 style="margin-top: 0; font-size: 36px;">Create Character</h1>
+            <h1 style="margin-top: 0; font-size: 40px; color:#4CAF50;">Forging Avatar</h1>
             
             <div class="panel-section">
                 <h4>Character Name (Bound to Account)</h4>
@@ -196,10 +214,12 @@
     </div>
 
     <div id="select-screen" class="screen">
-        <div class="stage-area" style="width: 100%;">
-            <div style="text-align: center;">
-                <h1 id="select-name-display" style="color: #4CAF50; font-size: 40px; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.8);">Player</h1>
-                <p id="select-level-display" style="color: #ffd700; margin-top:0; margin-bottom: 40px; font-weight: bold;">Level 1</p>
+        <div class="stage-area" style="width: 100%; background: url('town_map.png') center/cover; position: relative;">
+            <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 1;"></div>
+            
+            <div style="text-align: center; position: relative; z-index: 10;">
+                <h1 id="select-name-display" style="color: #4CAF50; font-size: 50px; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.8);">Player</h1>
+                <p id="select-level-display" style="color: #ffd700; margin-top:0; margin-bottom: 40px; font-size: 24px; font-weight: bold;">Level 1</p>
                 
                 <div id="select-rig" class="avatar-rig" style="margin: auto; margin-bottom: 60px;">
                     <img id="select-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" onerror="this.style.display='none'">
@@ -208,7 +228,7 @@
                     <img id="select-weapon" class="avatar-layer layer-weapon" style="display:none;" onerror="this.style.display='none'">
                 </div>
 
-                <button class="btn btn-large" onclick="enterGameWorld()" style="width: 300px; font-size: 24px;">START GAME</button>
+                <button class="btn btn-large" onclick="enterGameWorld()" style="width: 300px; font-size: 28px;">ENTER WORLD</button>
             </div>
         </div>
     </div>
@@ -228,7 +248,7 @@
             <div class="bar-container"><div id="ui-hp-bar" class="hp-fill"></div></div>
             <div class="stat-row"><span>EXP</span> <span id="ui-exp-text">0 / 100</span></div>
             <div class="bar-container" style="height: 6px;"><div id="ui-exp-bar" class="exp-fill"></div></div>
-            <div style="font-size: 11px; color: #aaa; margin-top: 8px; font-weight: bold;">[O] Toggle Admin Mode</div>
+            <div style="font-size: 14px; color: #aaa; margin-top: 8px; font-weight: bold;">[O] Toggle Admin Mode</div>
         </div>
 
         <div id="combat-log">Welcome to Exonie. WASD to move. Left click to attack.</div>
@@ -256,15 +276,15 @@
                 </div>
             </div>
             
-            <p style="font-size: 12px; color: #aaa; margin-bottom: 5px;"><b>Alt + Left Click & Drag</b>: Draw Collision Box</p>
-            <p style="font-size: 12px; color: #00ff00; margin-bottom: 5px;"><b>Shift + Alt + Left Click & Drag</b>: Draw Teleport Box</p>
-            <p style="font-size: 12px; color: #0ff; margin-top: 0; margin-bottom: 5px;"><b>Tab + Left Click</b>: Set Safe Spawn Point</p>
+            <p style="font-size: 14px; color: #aaa; margin-bottom: 5px;"><b>Alt + Left Click & Drag</b>: Draw Collision Box</p>
+            <p style="font-size: 14px; color: #00ff00; margin-bottom: 5px;"><b>Shift + Alt + Left Click & Drag</b>: Draw Teleport Box</p>
+            <p style="font-size: 14px; color: #0ff; margin-top: 0; margin-bottom: 5px;"><b>Tab + Left Click</b>: Set Safe Spawn Point</p>
             
-            <p style="font-size: 12px; color: #ff9800; margin-bottom: 2px;"><b>Z + Left Click</b>: Normal Mob Spawn Point</p>
-            <p style="font-size: 12px; color: #ff9800; margin-top: 0; margin-bottom: 2px;"><b>X + Left Click</b>: Mini Boss Spawn Point</p>
-            <p style="font-size: 12px; color: #ff9800; margin-top: 0;"><b>C + Left Click</b>: Floor Boss Spawn Point</p>
+            <p style="font-size: 14px; color: #ff9800; margin-bottom: 2px;"><b>Z + Left Click</b>: Normal Mob Spawn Point</p>
+            <p style="font-size: 14px; color: #ff9800; margin-top: 0; margin-bottom: 2px;"><b>X + Left Click</b>: Mini Boss Spawn Point</p>
+            <p style="font-size: 14px; color: #ff9800; margin-top: 0;"><b>C + Left Click</b>: Floor Boss Spawn Point</p>
 
-            <p style="font-size: 12px; color: #ffeb3b; font-weight: bold;">Admin Mode Active: Wall Collision Disabled</p>
+            <p style="font-size: 14px; color: #ffeb3b; font-weight: bold;">Admin Mode Active: Wall Collision Disabled</p>
             
             <div style="display: flex; gap: 10px;">
                 <button class="btn" style="flex: 1;" onclick="window.undoLastBox()">Undo Box</button>
@@ -302,13 +322,13 @@
         
         <div id="inventory-screen">
             <h2>Inventory</h2>
-            <h3 style="margin: 10px 0 5px 0; font-size: 14px; text-align: center; color: #ccc;">Equipped Gear (Click to Unequip)</h3>
+            <h3 style="margin: 10px 0 5px 0; font-size: 16px; text-align: center; color: #ccc;">Equipped Gear (Click to Unequip)</h3>
             <div class="equip-container">
                 <div class="equip-box" id="eq-box-weapon" onclick="window.unequipItem('weapon')"><strong style="color:#aaa;">Weapon</strong><br><span id="eq-weapon-slot">None</span></div>
                 <div class="equip-box" id="eq-box-armor" onclick="window.unequipItem('armor')"><strong style="color:#aaa;">Armor</strong><br><span id="eq-armor-slot">None</span></div>
                 <div class="equip-box" id="eq-box-leggings" onclick="window.unequipItem('leggings')"><strong style="color:#aaa;">Leggings</strong><br><span id="eq-leggings-slot">None</span></div>
             </div>
-            <h3 style="margin: 10px 0 5px 0; font-size: 14px; text-align: center; color: #ccc;">Backpack</h3>
+            <h3 style="margin: 10px 0 5px 0; font-size: 16px; text-align: center; color: #ccc;">Backpack</h3>
             <div class="inv-grid" id="inventory-grid"></div>
             <button class="btn btn-large" style="margin-top: auto; padding: 15px;" onclick="toggleInventory()">Close Inventory (I)</button>
         </div>
@@ -351,7 +371,6 @@
         currentBGM.play().catch(e => console.log("Audio autoplay restricted. Awaiting interaction."));
     }
 
-    // Start menu music on first click
     document.body.addEventListener('click', function initiateAudio() {
         if (!currentBGM && document.getElementById('auth-screen').classList.contains('active')) {
             playBGM('loginmenu');
@@ -424,13 +443,13 @@
     function getSpeed() { return getTotalStat('speed'); }
 
     // --- AUTHENTICATION FLOW ---
-    function switchAuth(target) {
+    window.switchAuth = function(target) {
         document.getElementById('login-form').style.display = target === 'login' ? 'block' : 'none';
         document.getElementById('register-form').style.display = target === 'register' ? 'block' : 'none';
         playBGM('loginmenu');
     }
 
-    function attemptLogin() {
+    window.attemptLogin = function() {
         const u = document.getElementById('login-user').value.trim();
         const p = document.getElementById('login-pass').value;
         if(!u || !p) return alert("Enter username and password!");
@@ -443,7 +462,7 @@
         socket.emit('login', { username: u, password: p });
     }
 
-    function attemptRegister() {
+    window.attemptRegister = function() {
         const u = document.getElementById('reg-user').value.trim();
         const p = document.getElementById('reg-pass').value;
         if(!u || !p) return alert("Enter username and password!");
@@ -498,7 +517,7 @@
         document.getElementById('select-screen').classList.add('active');
     });
 
-    function submitCharacterCreation() {
+    window.submitCharacterCreation = function() {
         const username = document.getElementById('char-name-input').value;
         document.getElementById('creation-screen').classList.remove('active');
         document.getElementById('loading-text').innerText = "Forging Avatar...";
@@ -506,7 +525,7 @@
         socket.emit('createCharacter', { username, charData });
     }
 
-    function enterGameWorld() {
+    window.enterGameWorld = function() {
         document.getElementById('select-screen').classList.remove('active');
         document.getElementById('loading-text').innerText = "Entering Exonie...";
         document.getElementById('loading-screen').style.display = 'flex';
@@ -689,11 +708,7 @@
         for (let box of window.safeMapData.collisions) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; }
         return false;
     }
-    function isMonsterColliding(mx, my) {
-        for (let box of window.safeMapData.collisions) { if (mx < box.x + box.w && mx + game.monster.width > box.x && my < box.y + box.h && my + game.monster.height > box.y) return true; }
-        return false;
-    }
-
+    
     // --- MULTIPLAYER RENDERING ENGINE ---
     function addRemotePlayer(p) {
         if(game.remotePlayers[p.id]) return;
@@ -755,20 +770,22 @@
         }
     });
 
-
-    let hairIndexToTest = 1; 
-    function loadHairStyles() {
-        let img = new Image();
-        img.onload = function() {
-            const container = document.getElementById('hair-button-container'); const btn = document.createElement('button');
-            btn.className = hairIndexToTest.toString() === charData.hairStyle ? 'btn selected' : 'btn';
-            btn.id = `btn-hair-${hairIndexToTest}`; btn.innerText = `Style ${hairIndexToTest}`;
-            let currentIndex = hairIndexToTest; btn.onclick = () => setHairStyle(currentIndex.toString());
-            container.appendChild(btn); hairIndexToTest++; loadHairStyles();
-        };
-        img.onerror = function() {}; img.src = `animation/avatar_hair${hairIndexToTest}.png`;
+    window.setSkinColor = function(color, element) { charData.skinColor = color; document.getElementById('preview-body').style.filter = skinFilters[color]; document.getElementById('preview-head').style.filter = skinFilters[color]; document.getElementById('skin-color-group').querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); element.classList.add('selected'); }
+    window.setHairColor = function(color, element) { charData.hairColor = color; document.getElementById('preview-hair').style.filter = hairFilters[color]; document.getElementById('hair-color-group').querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); element.classList.add('selected'); }
+    window.setHairStyle = function(style) {
+        charData.hairStyle = style; const hairLayer = document.getElementById('preview-hair');
+        if (style === 'none') { hairLayer.style.display = 'none'; } else { hairLayer.style.display = 'block'; hairLayer.src = `animation/avatar_hair${style}.png`; }
+        const container = document.getElementById('hair-button-container');
+        if (container) { container.querySelectorAll('.btn').forEach(btn => btn.classList.remove('selected')); const activeBtn = document.getElementById(`btn-hair-${style}`); if(activeBtn) activeBtn.classList.add('selected'); }
     }
-    loadHairStyles();
+    
+    // Auto-select starting style
+    setTimeout(() => {
+        let firstSkin = document.querySelector('#skin-color-group .color-swatch.selected');
+        let firstHair = document.querySelector('#hair-color-group .color-swatch.selected');
+        if (firstSkin) setSkinColor('flesh', firstSkin);
+        if (firstHair) setHairColor('black', firstHair);
+    }, 100);
 
     function getPlayerById(id) { if (!id) return null; if (id === game.player.id) return game.player; return game.remotePlayers[id] || null; }
     function getAllPlayers() { const list = [game.player]; for (const id in game.remotePlayers) { if (game.remotePlayers[id]) list.push(game.remotePlayers[id]); } return list; }
@@ -811,17 +828,16 @@
         let spawnX = game.monster.x; let spawnY = game.monster.y;
         let isBossSpawn = false;
         
-        // Priority: Floor Boss -> Mini Boss -> Normal
         if (window.safeMapData.floorBossSpawns && window.safeMapData.floorBossSpawns.length > 0) {
             spawnX = window.safeMapData.floorBossSpawns[0].x; spawnY = window.safeMapData.floorBossSpawns[0].y;
             isBossSpawn = true;
-            game.monster.respawnTimer = 99999999; // Never
+            game.monster.respawnTimer = 99999999; 
         } else if (window.safeMapData.miniBossSpawns && window.safeMapData.miniBossSpawns.length > 0) {
             spawnX = window.safeMapData.miniBossSpawns[0].x; spawnY = window.safeMapData.miniBossSpawns[0].y;
-            game.monster.respawnTimer = 300000; // 5 mins
+            game.monster.respawnTimer = 300000; 
         } else if (window.safeMapData.normalSpawns && window.safeMapData.normalSpawns.length > 0) {
             spawnX = window.safeMapData.normalSpawns[0].x; spawnY = window.safeMapData.normalSpawns[0].y;
-            game.monster.respawnTimer = 10000; // 10s
+            game.monster.respawnTimer = 10000; 
         } else {
             for (let i = 0; i < 40; i++) {
                 const rx = Math.floor(area.minX + Math.random() * (area.maxX - area.minX));
@@ -829,7 +845,7 @@
                 const x = clamp(rx, 0, 2000 - game.monster.width); const y = clamp(ry, 0, 1333 - game.monster.height);
                 if (!isMonsterColliding(x, y)) { spawnX = x; spawnY = y; break; }
             }
-            game.monster.respawnTimer = 10000; // 10s default
+            game.monster.respawnTimer = 10000; 
         }
 
         game.monster.isFloorBoss = isBossSpawn;
@@ -881,243 +897,7 @@
         }
     }
 
-    window.attemptEnhance = function(targetIndex, e) {
-        if(e) e.stopPropagation();
-        let stone = game.player.inventory[activeInvIndex]; let targetItem = game.player.inventory[targetIndex];
-        if (!targetItem || targetItem.type === 'material' || targetItem.type === 'potion') { dom.log.innerText = "You can only enhance equipment!"; isEnhancing = false; renderInventory(); return; }
-        if (stone.level < targetItem.level) { dom.log.innerText = `Stone Lv.${stone.level} is too low for Lv.${targetItem.level} equipment!`; isEnhancing = false; renderInventory(); return; }
-        let currentEnhance = targetItem.enhanceLevel || 0;
-        if (currentEnhance >= 20) { dom.log.innerText = "Item is at maximum enhancement (+20)!"; isEnhancing = false; renderInventory(); return; }
-
-        stone.quantity--; if (stone.quantity <= 0) game.player.inventory[activeInvIndex] = null;
-        let targetLvl = currentEnhance + 1; let successRate = 100; let destroyRate = 0;
-        if (targetLvl > 6) { let steps = targetLvl - 6; successRate = Math.max(1, 95 - ((steps - 1) * 10)); destroyRate = Math.min(99, 5 + ((steps - 1) * 5)); }
-
-        if (Math.random() * 100 <= successRate) {
-            targetItem.enhanceLevel = targetLvl;
-            let bonus = { "Starter": 1, "Basic": 2, "Rare": 5, "Unique": 7, "Legend": 10, "Godly": 15 }[targetItem.rarity] || 2;
-            let fKey = Object.keys(targetItem.fixedStat)[0]; targetItem.fixedStat[fKey] += bonus;
-            if (targetItem.randomStat) { let rKey = Object.keys(targetItem.randomStat)[0]; targetItem.randomStat[rKey] += bonus; }
-            dom.log.innerText = `SUCCESS! ${targetItem.name} is now +${targetLvl}!`; spawnSpark(game.player.x + 24, game.player.y); 
-        } else if (Math.random() * 100 <= successRate + destroyRate) { dom.log.innerText = `FAILED! ${targetItem.name} was DESTROYED!`; game.player.inventory[targetIndex] = null; 
-        } else { dom.log.innerText = `Enhancement Failed. ${targetItem.name} was unharmed.`; }
-        isEnhancing = false; updateEquipmentDisplay(); renderInventory(); DatabaseManager.savePlayerData(game.player);
-    }
-
-    window.openItemAction = function(index, e) {
-        if(e) e.stopPropagation(); activeInvIndex = index; const menu = document.getElementById('inv-context-menu'); const item = game.player.inventory[index]; const equipBtn = document.getElementById('ctx-btn-equip');
-        if (item.type === 'potion') equipBtn.innerText = "Use"; else if (item.type === 'material') equipBtn.innerText = "Enhance"; else equipBtn.innerText = "Equip";
-        menu.style.display = 'flex'; menu.style.left = (e.clientX) + 'px'; menu.style.top = (e.clientY) + 'px';
-    }
-
-    window.actionEquip = function(e) {
-        if(e) e.stopPropagation();
-        if(activeInvIndex === -1) return; let item = game.player.inventory[activeInvIndex];
-        if (item.type === 'material') { isEnhancing = true; dom.log.innerText = `Select equipment to enhance with ${item.name}!`; } else { useItem(activeInvIndex); }
-        document.getElementById('inv-context-menu').style.display = 'none'; renderInventory(); 
-    }
-
-    window.actionThrow = function(e) {
-        if(e) e.stopPropagation();
-        if(activeInvIndex === -1) return; let item = game.player.inventory[activeInvIndex]; dom.log.innerText = `Threw away ${item.name}.`;
-        game.player.inventory[activeInvIndex] = null; renderInventory(); DatabaseManager.savePlayerData(game.player); document.getElementById('inv-context-menu').style.display = 'none';
-    }
-
-    window.unequipItem = function(slot) {
-        if (!game.player.equips[slot]) return;
-        const emptySlot = game.player.inventory.findIndex(i => i === null);
-        if (emptySlot === -1) { dom.log.innerText = "Inventory full! Cannot unequip."; return; }
-        game.player.inventory[emptySlot] = game.player.equips[slot];
-        game.player.equips[slot] = null;
-        dom.log.innerText = `Unequipped ${slot}.`;
-        updateEquipmentDisplay(); renderInventory(); DatabaseManager.savePlayerData(game.player);
-    }
-
-    function updateEquipmentDisplay() {
-        const buildDisplayStr = (item) => item ? (item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name) : 'None';
-        document.getElementById('eq-weapon-slot').innerText = buildDisplayStr(game.player.equips.weapon); if(game.player.equips.weapon) document.getElementById('eq-weapon-slot').style.color = game.player.equips.weapon.color;
-        document.getElementById('eq-armor-slot').innerText = buildDisplayStr(game.player.equips.armor); if(game.player.equips.armor) document.getElementById('eq-armor-slot').style.color = game.player.equips.armor.color;
-        document.getElementById('eq-leggings-slot').innerText = buildDisplayStr(game.player.equips.leggings); if(game.player.equips.leggings) document.getElementById('eq-leggings-slot').style.color = game.player.equips.leggings.color;
-
-        dom.playerWeapon.style.display = game.player.equips.weapon ? 'block' : 'none'; dom.playerArmor.style.display = 'none'; dom.playerLeggings.style.display = 'none'; 
-        if (game.player.equips.weapon) dom.playerWeapon.src = `weapon/${game.player.equips.weapon.sprite}.png`;
-
-        const createTip = (item, boxId) => { let box = document.getElementById(boxId); let tip = box.querySelector('.tooltip'); if(!tip) { tip = document.createElement('div'); tip.className = 'tooltip'; box.appendChild(tip); } if(item) tip.innerHTML = getItemTooltip(item); else tip.remove(); };
-        createTip(game.player.equips.weapon, 'eq-box-weapon'); createTip(game.player.equips.armor, 'eq-box-armor'); createTip(game.player.equips.leggings, 'eq-box-leggings');
-        let newMax = getMaxHp(); if(game.player.currentHp > newMax) game.player.currentHp = newMax; window.updateUI();
-    }
-
-    function updateAnimationFrames(state) { 
-        dom.playerAvatarContainer.style.transform = facingRight ? 'scaleX(-1)' : 'scaleX(1)';
-        let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : null;
-        if (state === 'attack') { dom.playerBody.src = `animation/avatar_attack.png`; if (weaponSprite) { if(weaponSprite.includes('pendant')) dom.playerWeapon.src = `weapon/${weaponSprite}.png`; else dom.playerWeapon.src = `weapon/${weaponSprite}_attack.png`; } } 
-        else if (state === 'walk') { dom.playerBody.src = `animation/avatar_walk.png`; if (weaponSprite) dom.playerWeapon.src = `weapon/${weaponSprite}.png`; } 
-        else { dom.playerBody.src = `animation/avatar_idlefront.png`; if (weaponSprite) dom.playerWeapon.src = `weapon/${weaponSprite}.png`; }
-    }
-
-    function toggleStats() {
-        if (dom.statScreen.style.display === 'block') { dom.statScreen.style.display = 'none'; } 
-        else {
-            document.getElementById('stat-lvl').innerText = game.player.level; document.getElementById('stat-maxhp').innerText = getMaxHp();
-            document.getElementById('stat-atk').innerText = getAttackPower(); document.getElementById('stat-matk').innerText = getMagicAttack();
-            document.getElementById('stat-def').innerText = getDefense(); document.getElementById('stat-spd').innerText = getSpeed();
-            document.getElementById('stat-str').innerText = getTotalStat('str'); document.getElementById('stat-int').innerText = getTotalStat('int');
-            dom.statScreen.style.display = 'block';
-        }
-    }
-
-    function toggleInventory() { isInventoryOpen = !isInventoryOpen; if (isInventoryOpen) { renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.invScreen.style.display = 'none'; } }
-
-    function renderInventory() {
-        const grid = document.getElementById('inventory-grid'); grid.innerHTML = '';
-        for(let i=0; i < game.player.inventory.length; i++) {
-            const slot = document.createElement('div'); slot.className = 'inv-slot'; const item = game.player.inventory[i];
-            if(item) {
-                if(isEnhancing) { slot.style.border = "1px dashed #ffeb3b"; slot.onclick = (e) => window.attemptEnhance(i, e); } 
-                else { slot.style.borderBottom = `3px solid ${item.color}`; slot.onclick = (e) => window.openItemAction(i, e); }
-                let nameNode = document.createTextNode(item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name); slot.appendChild(nameNode);
-                let tip = document.createElement('div'); tip.className = 'tooltip'; tip.innerHTML = getItemTooltip(item); slot.appendChild(tip);
-                if (item.quantity && item.quantity > 1) { let qtyLabel = document.createElement('span'); qtyLabel.className = 'inv-qty'; qtyLabel.innerText = 'x' + item.quantity; slot.appendChild(qtyLabel); }
-            }
-            grid.appendChild(slot);
-        }
-        updateEquipmentDisplay();
-    }
-
-    function useItem(index) {
-        const item = game.player.inventory[index]; if(!item) return;
-        if (item.level && item.level > game.player.level) { dom.log.innerText = `Level ${item.level} required to equip ${item.name}!`; return; }
-
-        if (item.type === 'potion') {
-            game.player.currentHp = Math.min(getMaxHp(), game.player.currentHp + item.fixedStat.hpHeal);
-            item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null;
-            spawnDamageText(game.player.x + game.player.width/2, game.player.y - 20, `+${item.fixedStat.hpHeal} HP`, '#4CAF50');
-            dom.log.innerText = `Used ${item.name}!`;
-        } else {
-            const currentEquip = game.player.equips[item.type]; game.player.equips[item.type] = item; game.player.inventory[index] = currentEquip; 
-            dom.log.innerText = `Equipped ${item.name}!`;
-        }
-        updateEquipmentDisplay(); renderInventory(); DatabaseManager.savePlayerData(game.player);
-    }
-
-    function getExpAdded(level) {
-        if (level >= 41) return 1500; if (level >= 31) return 1000;
-        if (level >= 21) return 750; if (level >= 11) return 500; return 200; 
-    }
-
-    function checkLevelUp() {
-        if(game.player.level >= 50) return;
-        while(game.player.exp >= game.player.maxExp && game.player.level < 50) {
-            game.player.exp -= game.player.maxExp; game.player.level++; game.player.maxExp += getExpAdded(game.player.level); 
-            game.player.baseStats.hp += 10; game.player.baseStats.str += 2; game.player.baseStats.int += 2; game.player.currentHp = getMaxHp(); 
-            const txt = document.createElement('div'); txt.className = 'level-up-text'; txt.innerText = "LEVEL UP!";
-            txt.style.left = (game.player.x - 20) + 'px'; txt.style.top = (game.player.y - 40) + 'px'; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 2000);
-            dom.log.innerText = `Congratulations! You reached Level ${game.player.level}!`;
-        }
-        window.updateUI(); DatabaseManager.savePlayerData(game.player); 
-    }
-
-    function executeTeleport(tpData) {
-        if (!tpData.portalId) return;
-        
-        let targetMap = window.MapDatabase[tpData.targetMapId || 'town'];
-        if (targetMap) { window.safeMapData = targetMap; }
-
-        let targetId = tpData.portalId % 2 === 1 ? tpData.portalId + 1 : tpData.portalId - 1;
-        let targetPortal = window.safeMapData.teleports.find(p => p.portalId === targetId);
-        
-        if (targetPortal) {
-            dom.log.innerText = `Teleporting to Portal ${targetId}...`;
-            game.player.x = targetPortal.x + (targetPortal.w / 2) - (game.player.width / 2);
-            game.player.y = targetPortal.y + targetPortal.h - game.player.height + 5; 
-            game.player.teleportCooldown = Date.now() + 2000; 
-            
-            dom.playerContainer.style.left = game.player.x + 'px'; dom.playerContainer.style.top = game.player.y + 'px';
-            dom.world.style.backgroundImage = `url('${window.safeMapData.image}')`;
-            window.buildCollisionLayers();
-
-            for(let id in game.remotePlayers) removeRemotePlayer(id);
-            socket.emit('playerTeleported', { mapId: window.safeMapData.id, x: game.player.x, y: game.player.y });
-            DatabaseManager.savePlayerData(game.player);
-
-            // Audio Hook for new maps
-            let mapType = (window.safeMapData.id || "").includes('floor') ? 'floor' : 'town';
-            playBGM(mapType);
-
-        } else {
-            dom.log.innerText = `Paired Portal ${targetId} not found on this map.`;
-            game.player.teleportCooldown = Date.now() + 2000; 
-        }
-    }
-
-    let lastServerSync = 0;
-
-    function gameLoop() {
-        if (!game.isRunning) return;
-        let nextX = game.player.x; let nextY = game.player.y; let isMoving = false; let moveSpeed = 4 + getSpeed(); 
-
-        if (!isInventoryOpen) {
-            if (game.keys.w) { nextY -= moveSpeed; isMoving = true; } if (game.keys.s) { nextY += moveSpeed; isMoving = true; }
-            if (game.keys.a) { nextX -= moveSpeed; isMoving = true; facingRight = false; } if (game.keys.d) { nextX += moveSpeed; isMoving = true; facingRight = true; }
-        }
-
-        if (nextX < 0) nextX = 0; if (nextY < 0) nextY = 0;
-        if (nextX > 2000 - game.player.width) nextX = 2000 - game.player.width; if (nextY > 1333 - game.player.height) nextY = 1333 - game.player.height;
-
-        if (isMoving) {
-            if (!isColliding(nextX, game.player.y) || window.adminMode) game.player.x = nextX;
-            if (!isColliding(game.player.x, nextY) || window.adminMode) game.player.y = nextY;
-            
-            if (game.player.teleportCooldown < Date.now()) {
-                let pCenterX = game.player.x + (game.player.width / 2); let pBottomY = game.player.y + game.player.height; 
-                for (let tp of window.safeMapData.teleports) {
-                    if (pCenterX >= tp.x && pCenterX <= tp.x + tp.w && pBottomY >= tp.y && pBottomY <= tp.y + tp.h) {
-                        executeTeleport(tp); return; 
-                    }
-                }
-            }
-        }
-
-        if (isAttacking) { updateAnimationFrames('attack'); } 
-        else if (isMoving) { walkTimer++; if (walkTimer >= walkSpeed) { walkState = walkState === 0 ? 1 : 0; walkTimer = 0; } updateAnimationFrames(walkState === 0 ? 'walk' : 'idle'); } 
-        else { updateAnimationFrames('idle'); walkTimer = 0; walkState = 0; }
-
-        dom.playerContainer.style.left = game.player.x + 'px'; dom.playerContainer.style.top = game.player.y + 'px';
-        const cameraX = Math.floor((window.innerWidth / 2) - (game.player.x * CAMERA_ZOOM) - (game.player.width * CAMERA_ZOOM / 2));
-        const cameraY = Math.floor((window.innerHeight / 2) - (game.player.y * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2));
-        dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`;
-
-        if (Date.now() - lastServerSync > 50 && (isMoving || isAttacking)) {
-            let pState = isAttacking ? 'attack' : (isMoving ? 'walk' : 'idle');
-            socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: pState, facingRight: facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
-            lastServerSync = Date.now();
-        }
-
-        // --- DYNAMIC MUSIC CHECK FOR BOSS AGGRO ---
-        if (game.monster.alive) {
-            updateMonsterAI();
-            
-            // Check Boss Threat
-            let targetId = null; let maxThreat = 0;
-            for (let id in game.monster.threatTable) { if (game.monster.threatTable[id] > maxThreat) { maxThreat = game.monster.threatTable[id]; targetId = id; } }
-            
-            let isTargetingMe = (targetId === game.player.id || game.monster.forcedTargetId === game.player.id);
-            if (game.monster.isFloorBoss && isTargetingMe && maxThreat > 0) {
-                playBGM('bossfight');
-            } else {
-                let mapType = (window.safeMapData.id || "").includes('floor') ? 'floor' : 'town';
-                playBGM(mapType);
-            }
-        } else {
-            // Revert to map music if monster dies
-            let mapType = (window.safeMapData.id || "").includes('floor') ? 'floor' : 'town';
-            playBGM(mapType);
-        }
-
-        requestAnimationFrame(gameLoop);
-    }
-
-    function attemptAttack() {
+    window.attemptAttack = function() {
         if (game.player.currentHp <= 0 || attackCooldownActive || isInventoryOpen || window.adminMode) return;
 
         socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
