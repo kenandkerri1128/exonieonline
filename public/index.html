@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -138,28 +137,26 @@
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 18px; margin-bottom: 20px;}
         .stat-grid div span { color: #4CAF50; float: right; font-weight: bold;}
 
-        /* --- PROXIMITY CHAT (Bubble + Input) --- */
+        /* --- NEW: CHAT BUBBLES (PROXIMITY CHAT) --- */
         .chat-bubble {
             position: absolute;
-            top: -60px;
+            top: -62px;
             left: 50%;
             transform: translateX(-50%);
-            max-width: 220px;
-            background: rgba(0,0,0,0.75);
-            border: 1px solid rgba(255,255,255,0.85);
-            border-radius: 10px;
-            padding: 6px 10px;
+            background: rgba(0,0,0,0.85);
+            border: 1px solid #777;
             color: #fff;
+            padding: 6px 10px;
+            border-radius: 12px;
             font-size: 14px;
-            line-height: 1.2;
+            max-width: 220px;
             text-align: center;
+            display: none;
             pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.15s ease-out;
-            z-index: 30;
-            word-wrap: break-word;
+            z-index: 40;
+            white-space: normal;
+            word-break: break-word;
         }
-        .chat-bubble.show { opacity: 1; }
         .chat-bubble::after {
             content: '';
             position: absolute;
@@ -168,27 +165,82 @@
             transform: translateX(-50%);
             border-width: 6px 6px 0 6px;
             border-style: solid;
-            border-color: rgba(0,0,0,0.75) transparent transparent transparent;
+            border-color: rgba(0,0,0,0.85) transparent transparent transparent;
         }
-        #chat-input-container {
+        #chat-input-bar {
             position: absolute;
-            bottom: 25px;
+            bottom: 18px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 3500;
+            width: 520px;
+            z-index: 2000;
             display: none;
         }
         #chat-input {
-            width: 450px;
-            max-width: 80vw;
-            padding: 10px;
-            font-size: 18px;
-            background: #111;
-            color: #fff;
-            border: 1px solid #4CAF50;
-            border-radius: 6px;
-            outline: none;
+            width: 100%;
             box-sizing: border-box;
+            background: rgba(0,0,0,0.85);
+            border: 1px solid #4CAF50;
+            color: #fff;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 18px;
+            outline: none;
+        }
+        #chat-hint {
+            position: absolute;
+            bottom: 55px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.75);
+            font-size: 14px;
+            z-index: 2000;
+            pointer-events: none;
+        }
+
+        /* --- NEW: PLAYER CONTEXT MENU (INSPECT OPTION) --- */
+        #player-context-menu {
+            display: none;
+            position: absolute;
+            background: #222;
+            border: 1px solid #777;
+            border-radius: 4px;
+            z-index: 4000;
+            flex-direction: column;
+            width: 140px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+        }
+
+        /* --- NEW: INSPECT WINDOW --- */
+        #inspect-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 420px;
+            background-color: rgba(30, 30, 30, 0.98);
+            border: 2px solid #555;
+            border-radius: 8px;
+            padding: 18px;
+            z-index: 2500;
+            display: none;
+            box-shadow: 0 0 20px black;
+        }
+        #inspect-screen h2 {
+            margin: 0 0 12px 0;
+            text-align: center;
+            border-bottom: 1px solid #444;
+            padding-bottom: 8px;
+        }
+        .inspect-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            font-size: 16px;
+        }
+        .inspect-row span {
+            font-weight: bold;
         }
     </style>
 </head>
@@ -201,10 +253,9 @@
         <button class="ctx-btn" id="ctx-btn-throw" style="color: #f44336;" onclick="window.actionThrow(event)">Throw</button>
     </div>
 
-    <!-- Proximity Chat Input (Press Enter to open) -->
-    <div id="chat-input-container">
-        <input id="chat-input" type="text" maxlength="80" autocomplete="off"
-               placeholder="Proximity Chat: type message... (Enter=Send / Esc=Cancel)">
+    <!-- NEW: Player Context Menu (Inspect) -->
+    <div id="player-context-menu">
+        <button class="ctx-btn" id="ctx-btn-inspect" onclick="window.inspectSelectedPlayer(event)">Inspect</button>
     </div>
 
     <div id="auth-screen" class="screen active" style="background: url('town_map.png') center/cover; position: relative;">
@@ -308,10 +359,10 @@
             <div class="bar-container"><div id="ui-hp-bar" class="hp-fill"></div></div>
             <div class="stat-row"><span>EXP</span> <span id="ui-exp-text">0 / 100</span></div>
             <div class="bar-container" style="height: 6px;"><div id="ui-exp-bar" class="exp-fill"></div></div>
-            <div style="font-size: 14px; color: #aaa; margin-top: 8px; font-weight: bold;">[O] Toggle Admin Mode</div>
+            <div id="admin-hint" style="font-size: 14px; color: #aaa; margin-top: 8px; font-weight: bold;">[O] Toggle Admin Mode</div>
         </div>
 
-        <div id="combat-log">Welcome to Exonie. WASD to move. Left click to attack. (Press ENTER to chat)</div>
+        <div id="combat-log">Welcome to Exonie. WASD to move. Left click to attack. Press Enter to chat.</div>
 
         <div id="admin-panel">
             <h3 style="margin-top: 0; color: #fff;">Admin Tools & Map Designer</h3>
@@ -359,6 +410,7 @@
 
             <div id="player-container" class="entity" style="left: 960px; top: 1000px;">
                 <div id="player-name-tag" class="name-tag">Player</div>
+                <div class="chat-bubble"></div>
                 <div id="player-avatar-container" class="player-avatar-container avatar-rig">
                     <img id="player-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" onerror="this.style.display='none'">
                     <img id="player-head" class="avatar-layer layer-head" src="animation/avatar_head.png" onerror="this.style.display='none'">
@@ -407,6 +459,21 @@
             </div>
             <button class="btn btn-large" style="margin-top: 10px; padding: 10px;" onclick="toggleStats()">Close (P)</button>
         </div>
+
+        <!-- NEW: Inspect Window -->
+        <div id="inspect-screen">
+            <h2>Inspect: <span id="inspect-name">Player</span></h2>
+            <div class="inspect-row"><div>Weapon</div><span id="inspect-weapon">None</span></div>
+            <div class="inspect-row"><div>Armor</div><span id="inspect-armor">None</span></div>
+            <div class="inspect-row"><div>Leggings</div><span id="inspect-leggings">None</span></div>
+            <button class="btn btn-large" style="margin-top: 12px; padding: 10px;" onclick="window.closeInspect()">Close</button>
+        </div>
+
+        <!-- NEW: Chat Input (Press Enter) -->
+        <div id="chat-hint">Press Enter to chat (local/proximity)</div>
+        <div id="chat-input-bar">
+            <input id="chat-input" type="text" maxlength="80" placeholder="Type message... (Enter to send, Esc to cancel)">
+        </div>
     </div>
 
 </div>
@@ -431,9 +498,15 @@
         statScreen: document.getElementById('stat-screen'),
         invScreen: document.getElementById('inventory-screen'), 
         world: document.getElementById('world'),
-        chatInputContainer: document.getElementById('chat-input-container'),
-        chatInput: document.getElementById('chat-input')
+        inspectScreen: document.getElementById('inspect-screen'),
+        adminHint: document.getElementById('admin-hint'),
+        chatInputBar: document.getElementById('chat-input-bar'),
+        chatInput: document.getElementById('chat-input'),
+        chatHint: document.getElementById('chat-hint')
     };
+
+    const invMenu = document.getElementById('inv-context-menu');
+    const playerMenu = document.getElementById('player-context-menu');
 
     // --- RESTORED COLOR FILTERS ---
     const skinFilters = { 
@@ -458,6 +531,7 @@
     let currentTrackName = "";
 
     function playBGM(trackName) {
+        if (!trackName) return;
         if (currentTrackName === trackName) return;
         if (currentBGM) {
             currentBGM.pause();
@@ -471,39 +545,38 @@
     }
 
     document.body.addEventListener('click', function initiateAudio() {
-        if (!currentBGM && document.getElementById('auth-screen').classList.contains('active')) {
-            playBGM('loginmenu');
-        }
+        // Ensure loginmenu plays once user interacts (browser autoplay)
+        playBGM('loginmenu');
         document.body.removeEventListener('click', initiateAudio);
     }, { once: true });
 
-
     window.adminMode = false;
-    window.isAdminAccount = false; // Will be set on authSuccess
+    window.isAdminAccount = false;
+
     document.querySelectorAll('.avatar-layer').forEach(img => { img.onerror = function() { this.style.display = 'none'; }; });
 
     const CAMERA_ZOOM = 1.8;
 
-    // --- MAP DATABASE + NORMALIZER (FIXES forEach crashes) ---
+    // --- SAFE MAP NORMALIZER (Fixes forEach crash) ---
+    function normalizeMapData(map) {
+        map = map || {};
+        map.id = map.id || "town";
+        map.name = map.name || "Town of Exonie";
+        map.image = map.image || "town_map.png";
+        map.spawnX = (typeof map.spawnX === 'number') ? map.spawnX : 960;
+        map.spawnY = (typeof map.spawnY === 'number') ? map.spawnY : 1000;
+
+        map.monsterSpawnArea = map.monsterSpawnArea || { minX: 200, maxX: 1600, minY: 300, maxY: 900 };
+        map.collisions = Array.isArray(map.collisions) ? map.collisions : [];
+        map.teleports = Array.isArray(map.teleports) ? map.teleports : [];
+        map.normalSpawns = Array.isArray(map.normalSpawns) ? map.normalSpawns : [];
+        map.miniBossSpawns = Array.isArray(map.miniBossSpawns) ? map.miniBossSpawns : [];
+        map.floorBossSpawns = Array.isArray(map.floorBossSpawns) ? map.floorBossSpawns : [];
+        return map;
+    }
+
     window.MapDatabase = window.MapDatabase || {};
     if (typeof townMapData !== 'undefined') { window.MapDatabase[townMapData.id || 'town'] = townMapData; }
-
-    function normalizeMapData(mapObj) {
-        const base = mapObj || {};
-        return {
-            id: base.id || 'town',
-            name: base.name || "Town of Exonie",
-            image: base.image || "town_map.png",
-            spawnX: Number(base.spawnX) || 960,
-            spawnY: Number(base.spawnY) || 1000,
-            monsterSpawnArea: base.monsterSpawnArea || { minX: 200, maxX: 1600, minY: 300, maxY: 900 },
-            collisions: Array.isArray(base.collisions) ? base.collisions : [],
-            teleports: Array.isArray(base.teleports) ? base.teleports : [],
-            normalSpawns: Array.isArray(base.normalSpawns) ? base.normalSpawns : [],
-            miniBossSpawns: Array.isArray(base.miniBossSpawns) ? base.miniBossSpawns : [],
-            floorBossSpawns: Array.isArray(base.floorBossSpawns) ? base.floorBossSpawns : [],
-        };
-    }
     
     window.safeMapData = normalizeMapData(window.MapDatabase['town'] || {
         id: "town", name: "Town of Exonie", image: "town_map.png", spawnX: 960, spawnY: 1000,
@@ -512,7 +585,6 @@
     });
 
     let isInventoryOpen = false; 
-    let isChatOpen = false;
     let walkTimer = 0; 
     let walkState = 0; 
     const walkSpeed = 10; 
@@ -520,8 +592,10 @@
     let facingRight = false; 
     let attackCooldownActive = false;
     let activeInvIndex = -1; 
-    let isEnhancing = false; 
-    let lastLocalAnimState = 'idle';
+    let isEnhancing = false;
+
+    let isChatOpen = false;
+    let inspectTargetId = null;
 
     const STAT_TYPES = ['attack', 'magic', 'defense', 'speed', 'int', 'str', 'hp'];
 
@@ -536,15 +610,21 @@
             currentHp: 100, inventory: new Array(20).fill(null), equips: { weapon: null, armor: null, leggings: null }
         },
         monster: { 
-            x: 700, y: 800, width: 40, height: 40, maxHp: 100, currentHp: 100, atk: 25, def: 0,            
-            expYield: 25, alive: true, speed: 2.5, aggroRadius: 250, chaseRadius: 400, attackRange: 55, lastAttack: 0, threatTable: {},
-            respawnTimer: 3000, isFloorBoss: false,
-            homeX: 700, homeY: 800,
-            forcedTargetId: null, forcedUntil: 0,
+            x: 700, y: 800, width: 40, height: 40, maxHp: 100, currentHp: 100, atk: 25, def: 0,
+            expYield: 25, alive: true, speed: 2.5, aggroRadius: 250, chaseRadius: 400, attackRange: 55, lastAttack: 0, 
+            threatTable: {},
+            respawnTimer: 10000, 
+            isFloorBoss: false,
+            isMiniBoss: false,
+            tier: "normal",
+            homeX: 700,
+            homeY: 800,
+            forcedTargetId: null,
+            forcedUntil: 0,
             pendingAttackTargetId: null
         },
         remotePlayers: {},
-        cachedUserData: null 
+        cachedUserData: null
     };
 
     const DatabaseManager = {
@@ -614,18 +694,21 @@
         document.getElementById('loading-screen').style.display = 'none';
         document.getElementById('char-name-input').value = username;
         document.getElementById('creation-screen').classList.add('active');
+        playBGM('loginmenu');
     });
 
     socket.on('needsCharacterCreation', (username) => {
         document.getElementById('loading-screen').style.display = 'none';
         document.getElementById('char-name-input').value = username;
         document.getElementById('creation-screen').classList.add('active');
+        playBGM('loginmenu');
     });
 
     socket.on('authError', (msg) => {
         alert(msg);
         document.getElementById('loading-screen').style.display = 'none';
         document.getElementById('auth-screen').classList.add('active');
+        playBGM('loginmenu');
     });
 
     socket.on('characterSelect', (userData) => {
@@ -646,14 +729,10 @@
 
         const wep = userData.equips?.weapon?.sprite;
         const wLayer = document.getElementById('select-weapon');
-        if (wep) { 
-            wLayer.src = `weapon/${wep}.png`; 
-            wLayer.style.display = 'block'; 
-        } else { 
-            wLayer.style.display = 'none'; 
-        }
+        if (wep) { wLayer.src = `weapon/${wep}.png`; wLayer.style.display = 'block'; } else { wLayer.style.display = 'none'; }
 
         document.getElementById('select-screen').classList.add('active');
+        playBGM('loginmenu');
     });
 
     window.submitCharacterCreation = function() {
@@ -661,6 +740,7 @@
         document.getElementById('creation-screen').classList.remove('active');
         document.getElementById('loading-text').innerText = "Forging Avatar...";
         document.getElementById('loading-screen').style.display = 'flex';
+        playBGM('loginmenu');
         socket.emit('createCharacter', { username, charData: window.charData });
     }
 
@@ -680,81 +760,10 @@
         }
     }
 
-    // --- SAFE SPRITE FALLBACK SYSTEM (prevents missing rare sprites from hiding weapon) ---
-    function stripRarityPrefix(sprite) {
-        return String(sprite || '').replace(/^(starter|basic|rare|unique|legend|godly)/i, '');
-    }
-
-    function applyWeaponSpriteWithFallback(imgEl, spriteName) {
-        if (!imgEl) return;
-        const primary = String(spriteName || '');
-        if (!primary) { imgEl.style.display = 'none'; return; }
-
-        const base = stripRarityPrefix(primary);
-        const fallbacks = [];
-
-        if (base) {
-            if (!primary.toLowerCase().startsWith('basic')) fallbacks.push('basic' + base);
-            if (!primary.toLowerCase().startsWith('starter')) fallbacks.push('starter' + base);
-        }
-
-        let idx = -1;
-        const tryNext = () => {
-            idx++;
-            if (idx === 0) {
-                imgEl.src = `weapon/${primary}.png`;
-                imgEl.style.display = 'block';
-                return;
-            }
-            const fb = fallbacks[idx - 1];
-            if (fb) {
-                imgEl.src = `weapon/${fb}.png`;
-                imgEl.style.display = 'block';
-                return;
-            }
-            imgEl.style.display = 'none';
-            imgEl.onerror = null;
-        };
-
-        imgEl.onerror = () => { tryNext(); };
-        tryNext();
-    }
-
-    function applyWeaponAttackSpriteWithFallback(imgEl, spriteName) {
-        if (!imgEl) return;
-        const primary = String(spriteName || '');
-        if (!primary) { imgEl.style.display = 'none'; return; }
-
-        const base = stripRarityPrefix(primary);
-        const fallbacks = [];
-
-        // Try attack version first, then normal version, then basic attack, then basic normal
-        fallbacks.push(primary); // normal
-        if (base && !primary.toLowerCase().startsWith('basic')) fallbacks.push('basic' + base + '_attack');
-        if (base && !primary.toLowerCase().startsWith('basic')) fallbacks.push('basic' + base);
-
-        let tried = -1;
-        const tryNext = () => {
-            tried++;
-            if (tried === 0) {
-                imgEl.src = `weapon/${primary}_attack.png`;
-                imgEl.style.display = 'block';
-                return;
-            }
-            const fb = fallbacks[tried - 1];
-            if (fb) {
-                // if fb already ends with _attack, use as-is; else normal sprite
-                if (fb.endsWith('_attack')) imgEl.src = `weapon/${fb}.png`;
-                else imgEl.src = `weapon/${fb}.png`;
-                imgEl.style.display = 'block';
-                return;
-            }
-            imgEl.style.display = 'none';
-            imgEl.onerror = null;
-        };
-
-        imgEl.onerror = () => { tryNext(); };
-        tryNext();
+    function getMapBaseMusic() {
+        const id = (window.safeMapData.id || "").toLowerCase();
+        if (id.includes('floor') || id.includes('dungeon') || id.includes('maze')) return 'floor';
+        return 'town';
     }
 
     socket.on('authSuccess', (userData) => {
@@ -765,6 +774,14 @@
             document.getElementById('ui-name-display').innerText = game.player.name;
 
             window.isAdminAccount = (game.player.name === "Kei");
+            if (!window.isAdminAccount) {
+                window.adminMode = false;
+                if (dom.adminHint) dom.adminHint.style.display = 'none';
+                const adminPanel = document.getElementById('admin-panel');
+                if (adminPanel) adminPanel.style.display = 'none';
+            } else {
+                if (dom.adminHint) dom.adminHint.style.display = 'block';
+            }
 
             // Strict Null Fallbacks to prevent silent crashes
             game.player.level = userData.level || 1; 
@@ -776,11 +793,9 @@
             game.player.inventory = userData.inventory || new Array(20).fill(null); 
             game.player.equips = userData.equips || { weapon: null, armor: null, leggings: null };
 
-            const nextMapRaw = window.MapDatabase[userData.map_id] || window.MapDatabase['town'] || window.safeMapData;
-            window.safeMapData = normalizeMapData(nextMapRaw);
-
-            game.player.x = userData.pos_x || window.safeMapData.spawnX || 960; 
-            game.player.y = userData.pos_y || window.safeMapData.spawnY || 1000;
+            window.safeMapData = normalizeMapData(window.MapDatabase[userData.map_id] || window.MapDatabase['town'] || window.safeMapData);
+            game.player.x = (typeof userData.pos_x === 'number') ? userData.pos_x : window.safeMapData.spawnX; 
+            game.player.y = (typeof userData.pos_y === 'number') ? userData.pos_y : window.safeMapData.spawnY;
 
             window.charData.skinColor = userData.skin_color || 'flesh';
             window.charData.hairColor = userData.hair_color || 'black';
@@ -788,7 +803,6 @@
 
             document.getElementById('loading-screen').style.display = 'none';
             dom.game.classList.add('active');
-
             game.keys = { w: false, a: false, s: false, d: false, tab: false, z: false, x: false, c: false };
 
             dom.playerContainer.style.left = game.player.x + 'px'; 
@@ -799,9 +813,9 @@
             dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`;
 
             dom.world.style.backgroundImage = `url('${window.safeMapData.image}')`;
-            dom.playerBody.style.filter = skinFilters[window.charData.skinColor]; 
-            dom.playerHead.style.filter = skinFilters[window.charData.skinColor]; 
-            dom.playerHair.style.filter = hairFilters[window.charData.hairColor];
+            dom.playerBody.style.filter = skinFilters[window.charData.skinColor] || skinFilters['flesh']; 
+            dom.playerHead.style.filter = skinFilters[window.charData.skinColor] || skinFilters['flesh']; 
+            dom.playerHair.style.filter = hairFilters[window.charData.hairColor] || hairFilters['black'];
 
             if (window.charData.hairStyle === 'none') { 
                 dom.playerHair.style.display = 'none'; 
@@ -812,19 +826,11 @@
 
             window.buildCollisionLayers(); 
             updateEquipmentDisplay(); 
-            if (typeof window.respawnMonster === 'function') window.respawnMonster(); 
+            window.respawnMonster(); 
             window.updateUI();
-            
-            let mapType = (window.safeMapData.id || "").includes('floor') ? 'floor' : 'town';
-            playBGM(mapType);
 
-            // Enforce Admin Mode restriction at runtime
-            if (!window.isAdminAccount) {
-                window.adminMode = false;
-                dom.world.classList.remove('admin-active');
-                const ap = document.getElementById('admin-panel');
-                if (ap) ap.style.display = 'none';
-            }
+            // Music: town or floor after entering world
+            playBGM(getMapBaseMusic());
 
             game.isRunning = true; 
             requestAnimationFrame(gameLoop);
@@ -835,7 +841,7 @@
         }
     });
 
-    // --- LOOT / ITEMS ---
+    // --- RARITY COLORS / TEMPLATES ---
     window.RARITY_COLORS = { "Starter": "#aaaaaa", "Basic": "#8B4513", "Rare": "#2196F3", "Unique": "#9c27b0", "Legend": "#f44336", "Godly": "#e0ffff" };
     window.ITEM_TEMPLATES = {
         sword: { slot: 'weapon', statKey: 'attack', baseName: 'Sword', spriteName: 'sword' },
@@ -852,20 +858,32 @@
         if (lvl >= 5) return 8; return 5;
     }
 
-    function generateLoot() {
-        let roll = Math.random();
-        if (roll < 0.50) { 
-            return { id: Date.now() + Math.random(), name: "Refinement Stone Lv.5", type: "material", level: 5, rarity: "Basic", color: "#e0e0e0", description: "Enhances equipment.", quantity: 1 }; 
-        }
-        
-        let gearRoll = Math.random(); 
-        let rarity = gearRoll < 0.05 ? "Rare" : "Basic"; 
-        let level = 5;
-        let keys = Object.keys(ITEM_TEMPLATES); 
-        let typeKey = keys[Math.floor(Math.random() * keys.length)];
-        let template = ITEM_TEMPLATES[typeKey]; 
-        let name = `${rarity === "Rare" ? "Slime" : "Basic"} ${template.baseName}`;
-        let spriteName = rarity.toLowerCase() + template.spriteName; 
+    function enhanceClass(rarity) {
+        // Starter treated as Basic so starter gear can still be enhanced
+        if (rarity === "Starter") return "Basic";
+        return rarity || "Basic";
+    }
+
+    function createEnhanceStone(level, rarity) {
+        const r = enhanceClass(rarity);
+        return { 
+            id: Date.now() + Math.random(),
+            name: `${r} Enhancement Stone Lv.${level}`, 
+            type: "material", 
+            level: level, 
+            rarity: r, 
+            color: RARITY_COLORS[r] || "#e0e0e0", 
+            description: `Enhances ${r} equipment of the SAME level.`,
+            quantity: 1 
+        };
+    }
+
+    function generateGear(rarity, level) {
+        const keys = Object.keys(ITEM_TEMPLATES); 
+        const typeKey = keys[Math.floor(Math.random() * keys.length)];
+        const template = ITEM_TEMPLATES[typeKey];
+        const name = `${rarity} ${template.baseName}`;
+        const spriteName = rarity.toLowerCase() + template.spriteName;
 
         let item = { 
             id: Date.now() + Math.random(), 
@@ -874,7 +892,7 @@
             sprite: spriteName, 
             level: level, 
             rarity: rarity, 
-            color: RARITY_COLORS[rarity], 
+            color: RARITY_COLORS[rarity] || "#fff", 
             fixedStat: {}, 
             enhanceLevel: 0 
         };
@@ -882,7 +900,6 @@
         let baseScaling = getBaseStat(level); 
         let rarityBonus = { "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legend": 8, "Godly": 12 }[rarity] || 0;
         let statVal = baseScaling + rarityBonus; 
-        
         if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); 
         item.fixedStat[template.statKey] = statVal;
 
@@ -890,6 +907,38 @@
         let rStat = STAT_TYPES[Math.floor(Math.random() * STAT_TYPES.length)]; 
         item.randomStat[rStat] = Math.floor(Math.random() * baseScaling) + 1; 
         return item;
+    }
+
+    // --- UPDATED LOOT TABLES (Your exact rules) ---
+    function generateLoot() {
+        const lvl = 5; // current slime testing level
+        const tier = game.monster.tier || "normal";
+
+        const roll = Math.random();
+
+        if (tier === "normal") {
+            // Normal mobs: only Basic/Rare gear, rest stones
+            if (roll < 0.50) return createEnhanceStone(lvl, "Basic");
+            const gearRoll = Math.random();
+            const rarity = (gearRoll < 0.10) ? "Rare" : "Basic"; // rare chance (adjustable but still "only basic/rare")
+            return generateGear(rarity, lvl);
+        }
+
+        if (tier === "miniBoss") {
+            // Mini boss: Unique 1%, rest stones
+            if (roll < 0.01) return generateGear("Unique", lvl);
+            return createEnhanceStone(lvl, "Unique");
+        }
+
+        if (tier === "floorBoss") {
+            // Floor boss: Legend 3%, Godly 0.5%, rest stones
+            if (roll < 0.005) return generateGear("Godly", lvl);
+            if (roll < 0.035) return generateGear("Legend", lvl);
+            return createEnhanceStone(lvl, "Legend");
+        }
+
+        // fallback
+        return createEnhanceStone(lvl, "Basic");
     }
 
     window.addLoot = function(item) {
@@ -900,6 +949,7 @@
                 game.player.inventory[existingIndex].quantity += item.quantity; 
                 dom.log.innerText = `Looted: ${item.name} (x${game.player.inventory[existingIndex].quantity})! (Press I)`; 
                 if (isInventoryOpen) renderInventory(); 
+                DatabaseManager.savePlayerData(game.player);
                 return; 
             }
         }
@@ -908,6 +958,7 @@
             game.player.inventory[emptySlot] = item; 
             dom.log.innerText = `Looted: ${item.name}! (Press I)`; 
             if (isInventoryOpen) renderInventory(); 
+            DatabaseManager.savePlayerData(game.player);
         } else { 
             dom.log.innerText = `Inventory full! Lost ${item.name}.`; 
         }
@@ -919,14 +970,13 @@
         let displayName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name;
         let html = `<strong class="${nameClass}" style="color:${item.color}; font-size: 13px;">${displayName}</strong><br>`;
         html += `<span style="color:#888;">Lv. ${item.level || 1} ${item.rarity || 'Normal'}</span><br><br>`;
-        if(item.type === 'material') { html += `<span style="color:#aaa;"><em>${item.description}</em></span>`; return html; }
+        if(item.type === 'material') { html += `<span style="color:#aaa;"><em>${item.description || ''}</em></span>`; return html; }
         if(item.type === 'potion') { html += `Heals ${item.fixedStat.hpHeal} HP`; return html; }
         if(item.fixedStat) { let key = Object.keys(item.fixedStat)[0]; html += `+${item.fixedStat[key]} ${key.toUpperCase()}<br>`; }
         if(item.randomStat) { let key = Object.keys(item.randomStat)[0]; html += `<span style="color:#4CAF50;">+${item.randomStat[key]} ${key.toUpperCase()} (Bonus)</span>`; }
         return html;
     }
 
-    // --- INPUT / MOVEMENT HANDLING ---
     function movementKeyFromEvent(e) {
         switch (e.code) {
             case 'KeyW': return 'w'; case 'KeyA': return 'a'; case 'KeyS': return 's'; case 'KeyD': return 'd';
@@ -935,36 +985,17 @@
         }
     }
 
-    function openChat() {
-        if (!game.isRunning) return;
-        if (isInventoryOpen) return;
-        if (dom.statScreen && dom.statScreen.style.display === 'block') return;
-        isChatOpen = true;
-        dom.chatInputContainer.style.display = 'block';
-        dom.chatInput.value = '';
-        dom.chatInput.focus();
-    }
-
-    function closeChat() {
-        isChatOpen = false;
-        dom.chatInputContainer.style.display = 'none';
-        dom.chatInput.blur();
+    window.tryToggleAdminMode = function() {
+        if (!window.isAdminAccount) {
+            dom.log.innerText = "Admin Mode is restricted to Kei.";
+            return;
+        }
+        if (typeof window.toggleAdminMode === 'function') window.toggleAdminMode();
     }
 
     function setKeyState(e, isDown) {
         if (e.target && e.target.tagName === 'INPUT') return; 
-
-        // ENTER opens chat
-        if (isDown && (e.key === 'Enter' || e.code === 'Enter')) {
-            if (!isChatOpen && game.isRunning) {
-                e.preventDefault();
-                openChat();
-                return;
-            }
-        }
-
         if (e.key === 'Tab' || e.code === 'Tab') { if (isDown) e.preventDefault(); game.keys['tab'] = isDown; return; }
-
         const moveKey = movementKeyFromEvent(e);
         if (game.keys.hasOwnProperty(moveKey)) game.keys[moveKey] = isDown;
 
@@ -972,187 +1003,357 @@
             const key = (e.key || "").toLowerCase();
             if (key === 'p') toggleStats();
             if (key === 'i') toggleInventory();
-
-            // Admin mode ONLY for Kei
-            if (key === 'o' && typeof window.toggleAdminMode === 'function') {
-                if (window.isAdminAccount) window.toggleAdminMode();
-            }
+            if (key === 'o') window.tryToggleAdminMode();
         }
     }
 
     window.addEventListener('keydown', (e) => setKeyState(e, true), { capture: true });
     window.addEventListener('keyup', (e) => setKeyState(e, false), { capture: true });
     window.addEventListener('blur', () => { 
-        game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false; game.keys.tab = false; game.keys.z = false; game.keys.x = false; game.keys.c = false; 
+        game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false; 
+        game.keys.tab = false; game.keys.z = false; game.keys.x = false; game.keys.c = false; 
     });
+
     window.addEventListener('click', (e) => { 
-        document.getElementById('inv-context-menu').style.display = 'none'; 
+        invMenu.style.display = 'none'; 
+        playerMenu.style.display = 'none';
         if(isEnhancing && !e.target.closest('#inventory-screen') && !e.target.closest('#inv-context-menu')) { 
             isEnhancing = false; dom.log.innerText = "Enhancement mode cancelled."; renderInventory(); 
         }
     });
 
-    // Chat input behavior
+    // --- CHAT INPUT (Enter) ---
+    function openChat() {
+        if (!game.isRunning) return;
+        isChatOpen = true;
+        dom.chatHint.style.display = 'none';
+        dom.chatInputBar.style.display = 'block';
+        dom.chatInput.value = '';
+        dom.chatInput.focus();
+
+        // Clear movement to prevent stuck walking
+        game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false;
+    }
+    function closeChat() {
+        isChatOpen = false;
+        dom.chatInputBar.style.display = 'none';
+        dom.chatInput.blur();
+        dom.chatHint.style.display = 'block';
+    }
+    function sendChat(msg) {
+        msg = (msg || "").toString().trim();
+        if (!msg) return;
+        socket.emit('localChat', { message: msg });
+        closeChat();
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (!game.isRunning) return;
+        if (e.code === 'Enter' && !isChatOpen && !(e.target && e.target.tagName === 'INPUT')) {
+            e.preventDefault();
+            openChat();
+        }
+    }, { capture: true });
+
     dom.chatInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            e.preventDefault();
-            closeChat();
-            return;
-        }
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const msg = (dom.chatInput.value || '').trim();
-            if (msg.length > 0) socket.emit('chatMessage', { text: msg });
-            closeChat();
-        }
+        if (e.code === 'Enter') { e.preventDefault(); sendChat(dom.chatInput.value); }
+        if (e.code === 'Escape') { e.preventDefault(); closeChat(); }
     });
 
-    // --- COLLISION LAYERS (fixed forEach crash) ---
+    function showChatBubble(playerId, message) {
+        const targetEl = (playerId === game.player.id)
+            ? dom.playerContainer
+            : (game.remotePlayers[playerId]?.dom || null);
+
+        if (!targetEl) return;
+        let bubble = targetEl.querySelector('.chat-bubble');
+        if (!bubble) {
+            bubble = document.createElement('div');
+            bubble.className = 'chat-bubble';
+            targetEl.appendChild(bubble);
+        }
+
+        bubble.innerText = message;
+        bubble.style.display = 'block';
+
+        clearTimeout(bubble.__hideTimer);
+        bubble.__hideTimer = setTimeout(() => {
+            bubble.style.display = 'none';
+        }, 3500);
+    }
+
+    socket.on('localChatMessage', (data) => {
+        showChatBubble(data.id, data.message);
+    });
+
+    // --- INSPECT SYSTEM ---
+    function openPlayerMenu(e, targetId) {
+        e.preventDefault();
+        e.stopPropagation();
+        inspectTargetId = targetId;
+        playerMenu.style.display = 'flex';
+        playerMenu.style.left = e.clientX + 'px';
+        playerMenu.style.top = e.clientY + 'px';
+    }
+
+    window.inspectSelectedPlayer = function(e) {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        if (!inspectTargetId) return;
+        playerMenu.style.display = 'none';
+        socket.emit('inspectPlayer', { targetId: inspectTargetId });
+    }
+
+    socket.on('inspectPlayerData', (payload) => {
+        const equips = payload.equips || { weapon: null, armor: null, leggings: null };
+
+        document.getElementById('inspect-name').innerText = payload.name || payload.id || "Unknown";
+
+        const fmt = (item) => {
+            if (!item) return "None";
+            const plus = item.enhanceLevel ? ` +${item.enhanceLevel}` : "";
+            return `${item.name || "Item"}${plus} (${item.rarity || "Basic"})`;
+        };
+
+        document.getElementById('inspect-weapon').innerText = fmt(equips.weapon);
+        document.getElementById('inspect-armor').innerText = fmt(equips.armor);
+        document.getElementById('inspect-leggings').innerText = fmt(equips.leggings);
+
+        dom.inspectScreen.style.display = 'block';
+    });
+
+    socket.on('inspectPlayerError', (msg) => {
+        dom.log.innerText = msg || "Inspect failed.";
+    });
+
+    window.closeInspect = function() {
+        dom.inspectScreen.style.display = 'none';
+    }
+
+    // --- COLLISION LAYERS (CRASH-PROOF) ---
     window.buildCollisionLayers = function() {
         const layer = document.getElementById('collision-layers'); 
-        if (!layer) return;
-        layer.innerHTML = ''; 
+        layer.innerHTML = '';
 
-        const cols = (window.safeMapData && Array.isArray(window.safeMapData.collisions)) ? window.safeMapData.collisions : [];
-        const teles = (window.safeMapData && Array.isArray(window.safeMapData.teleports)) ? window.safeMapData.teleports : [];
-
-        cols.forEach(box => {
-            const div = document.createElement('div'); div.className = 'collision-box';
-            div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px'; 
+        (window.safeMapData.collisions || []).forEach(box => {
+            const div = document.createElement('div'); 
+            div.className = 'collision-box';
+            div.style.left = box.x + 'px'; 
+            div.style.top = box.y + 'px'; 
+            div.style.width = box.w + 'px'; 
+            div.style.height = box.h + 'px'; 
             layer.appendChild(div);
         });
 
-        teles.forEach(box => {
-            const div = document.createElement('div'); div.className = 'collision-box';
-            div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px'; 
+        (window.safeMapData.teleports || []).forEach(box => {
+            const div = document.createElement('div'); 
+            div.className = 'collision-box';
+            div.style.left = box.x + 'px'; 
+            div.style.top = box.y + 'px'; 
+            div.style.width = box.w + 'px'; 
+            div.style.height = box.h + 'px'; 
             if (window.adminMode) { 
-                div.style.background = 'rgba(0, 0, 255, 0.4)'; div.style.border = '2px dashed #00f'; 
-                div.innerText = box.portalId || '?'; div.style.color = 'white'; div.style.display = 'flex';
-                div.style.justifyContent = 'center'; div.style.alignItems = 'center'; div.style.fontSize = '24px'; div.style.fontWeight = 'bold';
+                div.style.background = 'rgba(0, 0, 255, 0.4)'; 
+                div.style.border = '2px dashed #00f'; 
+                div.innerText = box.portalId || '?'; 
+                div.style.color = 'white'; 
+                div.style.display = 'flex';
+                div.style.justifyContent = 'center'; 
+                div.style.alignItems = 'center'; 
+                div.style.fontSize = '24px'; 
+                div.style.fontWeight = 'bold';
             }
             layer.appendChild(div);
         });
 
         if (window.adminMode) { 
             if (window.safeMapData.spawnX !== undefined) {
-                const sm = document.createElement('div'); sm.className = 'admin-spawn-marker';
-                sm.style.left = window.safeMapData.spawnX + 'px'; sm.style.top = window.safeMapData.spawnY + 'px'; 
-                sm.innerText = 'S'; layer.appendChild(sm);
+                const sm = document.createElement('div'); 
+                sm.className = 'admin-spawn-marker';
+                sm.style.left = window.safeMapData.spawnX + 'px'; 
+                sm.style.top = window.safeMapData.spawnY + 'px'; 
+                sm.innerText = 'S'; 
+                layer.appendChild(sm);
             }
-
             (window.safeMapData.normalSpawns || []).forEach(sp => {
-                const sm = document.createElement('div'); sm.className = 'admin-spawn-marker';
-                sm.style.left = sp.x + 'px'; sm.style.top = sp.y + 'px'; sm.style.borderColor = '#0f0'; sm.innerText = 'M'; layer.appendChild(sm);
+                const sm = document.createElement('div'); 
+                sm.className = 'admin-spawn-marker';
+                sm.style.left = sp.x + 'px'; 
+                sm.style.top = sp.y + 'px'; 
+                sm.style.borderColor = '#0f0'; 
+                sm.innerText = 'M'; 
+                layer.appendChild(sm);
             });
             (window.safeMapData.miniBossSpawns || []).forEach(sp => {
-                const sm = document.createElement('div'); sm.className = 'admin-spawn-marker';
-                sm.style.left = sp.x + 'px'; sm.style.top = sp.y + 'px'; sm.style.borderColor = '#ff9800'; sm.innerText = 'MB'; layer.appendChild(sm);
+                const sm = document.createElement('div'); 
+                sm.className = 'admin-spawn-marker';
+                sm.style.left = sp.x + 'px'; 
+                sm.style.top = sp.y + 'px'; 
+                sm.style.borderColor = '#ff9800'; 
+                sm.innerText = 'MB'; 
+                layer.appendChild(sm);
             });
             (window.safeMapData.floorBossSpawns || []).forEach(sp => {
-                const sm = document.createElement('div'); sm.className = 'admin-spawn-marker';
-                sm.style.left = sp.x + 'px'; sm.style.top = sp.y + 'px'; sm.style.borderColor = '#9c27b0'; sm.innerText = 'FB'; layer.appendChild(sm);
+                const sm = document.createElement('div'); 
+                sm.className = 'admin-spawn-marker';
+                sm.style.left = sp.x + 'px'; 
+                sm.style.top = sp.y + 'px'; 
+                sm.style.borderColor = '#9c27b0'; 
+                sm.innerText = 'FB'; 
+                layer.appendChild(sm);
             });
         }
     }
 
     function isColliding(targetX, targetY) {
-        const cols = (window.safeMapData && Array.isArray(window.safeMapData.collisions)) ? window.safeMapData.collisions : [];
         const hitX = targetX + (game.player.width - game.player.w) / 2; 
         const hitY = targetY + game.player.height - game.player.h;
-        for (let box of cols) { 
+        for (let box of (window.safeMapData.collisions || [])) { 
             if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; 
         }
         return false;
     }
 
     function isMonsterColliding(mx, my) {
-        const cols = (window.safeMapData && Array.isArray(window.safeMapData.collisions)) ? window.safeMapData.collisions : [];
-        for (let box of cols) { 
-            if (mx < box.x + box.w && mx + game.monster.width > box.x && my < box.y + box.h && my + game.monster.height > box.y) return true; 
+        for (let box of (window.safeMapData.collisions || [])) {
+            if (mx < box.x + box.w && mx + game.monster.width > box.x && my < box.y + box.h && my + game.monster.height > box.y) return true;
         }
         return false;
     }
 
     // --- REMOTE PLAYERS ---
     function addRemotePlayer(p) {
-        if(!p || !p.id) return;
         if(game.remotePlayers[p.id]) return;
         game.remotePlayers[p.id] = p;
 
         let container = document.createElement('div');
         container.className = 'entity';
         container.id = 'remote_' + p.id;
-        container.style.left = (p.x || 0) + 'px'; 
-        container.style.top = (p.y || 0) + 'px';
+        container.style.left = p.x + 'px'; 
+        container.style.top = p.y + 'px';
 
         let nameTag = document.createElement('div');
-        nameTag.className = 'name-tag'; nameTag.innerText = p.name || p.id;
+        nameTag.className = 'name-tag'; 
+        nameTag.innerText = p.name;
         container.appendChild(nameTag);
+
+        // chat bubble
+        const bubble = document.createElement('div');
+        bubble.className = 'chat-bubble';
+        container.appendChild(bubble);
 
         let rig = document.createElement('div');
         rig.className = 'player-avatar-container avatar-rig';
         
-        const sd = p.spriteData || { skin:'flesh', hair:'black', style:'1', weapon:null };
-
-        let hair = new Image(); hair.className = 'avatar-layer layer-hair'; 
-        if(sd.style === 'none') hair.style.display = 'none'; else hair.src = `animation/avatar_hair${sd.style}.png`;
-        hair.style.filter = hairFilters[sd.hair] || hairFilters['black'];
+        let hair = new Image(); 
+        hair.className = 'avatar-layer layer-hair'; 
+        if(p.spriteData.style === 'none') hair.style.display = 'none'; 
+        else hair.src = `animation/avatar_hair${p.spriteData.style}.png`;
+        hair.style.filter = hairFilters[p.spriteData.hair] || hairFilters['black'];
         
-        let head = new Image(); head.className = 'avatar-layer layer-head'; head.src = 'animation/avatar_head.png';
-        head.style.filter = skinFilters[sd.skin] || skinFilters['flesh'];
+        let head = new Image(); 
+        head.className = 'avatar-layer layer-head'; 
+        head.src = 'animation/avatar_head.png';
+        head.style.filter = skinFilters[p.spriteData.skin] || skinFilters['flesh'];
         
-        let body = new Image(); body.className = 'avatar-layer layer-body'; body.src = 'animation/avatar_idlefront.png';
-        body.style.filter = skinFilters[sd.skin] || skinFilters['flesh'];
+        let body = new Image(); 
+        body.className = 'avatar-layer layer-body'; 
+        body.src = 'animation/avatar_idlefront.png';
+        body.style.filter = skinFilters[p.spriteData.skin] || skinFilters['flesh'];
 
-        let weapon = new Image(); weapon.className = 'avatar-layer layer-weapon'; weapon.style.display = 'none';
-        if(sd.weapon) { 
-            applyWeaponSpriteWithFallback(weapon, sd.weapon);
-            weapon.style.display = 'block'; 
-        }
+        let weapon = new Image(); 
+        weapon.className = 'avatar-layer layer-weapon'; 
+        weapon.style.display = 'none';
+        if(p.spriteData.weapon) { weapon.style.display = 'block'; weapon.src = `weapon/${p.spriteData.weapon}.png`; }
 
-        rig.appendChild(hair); rig.appendChild(head); rig.appendChild(body); rig.appendChild(weapon);
+        rig.appendChild(hair); 
+        rig.appendChild(head); 
+        rig.appendChild(body); 
+        rig.appendChild(weapon);
         container.appendChild(rig);
+
+        // click -> inspect option
+        container.addEventListener('click', (e) => openPlayerMenu(e, p.id));
+
         document.getElementById('world').appendChild(container);
 
-        p.dom = container; p.rig = rig; p.body = body; p.weapon = weapon;
+        p.dom = container; 
+        p.rig = rig; 
+        p.body = body; 
+        p.weapon = weapon;
     }
 
     function removeRemotePlayer(id) {
         if(game.remotePlayers[id]) {
-            try { game.remotePlayers[id].dom.remove(); } catch(e) {}
+            game.remotePlayers[id].dom.remove();
             delete game.remotePlayers[id];
         }
     }
 
-    socket.on('mapPlayersList', (players) => { 
-        if (!Array.isArray(players)) return;
-        players.forEach(p => addRemotePlayer(p)); 
-    });
+    socket.on('mapPlayersList', (players) => { (players || []).forEach(p => addRemotePlayer(p)); });
     socket.on('remotePlayerJoined', (p) => { addRemotePlayer(p); });
     socket.on('remotePlayerLeft', (id) => { removeRemotePlayer(id); });
+
+    // --- WEAPON SPRITE FALLBACK CHAIN (rarity -> basic) ---
+    function getWeaponKindFromSprite(sprite) {
+        if (!sprite) return null;
+        const kinds = ['sword','staff','pendant'];
+        for (const k of kinds) if (sprite.endsWith(k)) return k;
+        for (const k of kinds) if (sprite.includes(k)) return k;
+        return null;
+    }
+    function getBasicSpriteFromAny(sprite) {
+        const kind = getWeaponKindFromSprite(sprite);
+        if (!kind) return sprite;
+        return 'basic' + kind;
+    }
+    function setImgFallbackChain(imgEl, paths) {
+        if (!imgEl) return;
+        const chain = (paths || []).filter(Boolean);
+        if (!chain.length) { imgEl.style.display = 'none'; return; }
+
+        let idx = 0;
+        imgEl.style.display = 'block';
+
+        imgEl.onerror = function() {
+            idx++;
+            if (idx >= chain.length) {
+                imgEl.style.display = 'none';
+                imgEl.onerror = null;
+                return;
+            }
+            imgEl.src = chain[idx];
+        };
+
+        imgEl.src = chain[0];
+    }
+
     socket.on('remotePlayerMoved', (data) => {
-        if(!data || !data.id) return;
         if(game.remotePlayers[data.id]) {
             let p = game.remotePlayers[data.id];
             p.x = data.x; p.y = data.y;
-            p.dom.style.left = p.x + 'px'; p.dom.style.top = p.y + 'px';
+            p.dom.style.left = p.x + 'px'; 
+            p.dom.style.top = p.y + 'px';
             p.rig.style.transform = data.facingRight ? 'scaleX(-1)' : 'scaleX(1)';
             p.body.src = data.state === 'attack' ? 'animation/avatar_attack.png' : (data.state === 'walk' ? 'animation/avatar_walk.png' : 'animation/avatar_idlefront.png');
 
             if(data.weaponSprite) {
+                const base = data.weaponSprite;
+                const basic = getBasicSpriteFromAny(base);
+                const isAtk = (data.state === 'attack');
+
+                const chain = isAtk
+                    ? [`weapon/${base}_attack.png`, `weapon/${base}.png`, `weapon/${basic}_attack.png`, `weapon/${basic}.png`]
+                    : [`weapon/${base}.png`, `weapon/${basic}.png`];
+
                 p.weapon.style.display = 'block';
-                if (data.state === 'attack' && !String(data.weaponSprite).includes('pendant')) {
-                    applyWeaponAttackSpriteWithFallback(p.weapon, data.weaponSprite);
-                } else {
-                    applyWeaponSpriteWithFallback(p.weapon, data.weaponSprite);
-                }
+                setImgFallbackChain(p.weapon, chain);
             } else { 
                 p.weapon.style.display = 'none'; 
             }
         }
     });
 
-    // --- HAIR STYLES ---
+    // --- HAIR STYLES LOADER ---
     let hairIndexToTest = 1; 
     function loadHairStyles() {
         let img = new Image();
@@ -1210,23 +1411,44 @@
         if (firstHair) window.setHairColor('black', firstHair);
     }, 100);
 
-    // --- MONSTER AI (Aggro + Threat + Provoke-ready) ---
-    function getPlayerById(id) { if (!id) return null; if (id === game.player.id) return game.player; return game.remotePlayers[id] || null; }
-    function getAllPlayers() { const list = [game.player]; for (const id in game.remotePlayers) { if (game.remotePlayers[id]) list.push(game.remotePlayers[id]); } return list; }
-    function getEntityCenter(ent) { const w = Number(ent.width) || 48; const h = Number(ent.height) || 96; return { x: ent.x + (w / 2), y: ent.y + (h / 2) }; }
-    function getMonsterCenter() { return { x: game.monster.x + (game.monster.width / 2), y: game.monster.y + (game.monster.height / 2) }; }
-    function distanceToMonster(player) { const pc = getEntityCenter(player); const mc = getMonsterCenter(); return Math.hypot(pc.x - mc.x, pc.y - mc.y); }
+    // --- MONSTER AGGRO / PROVOKE SUPPORT ---
+    function getPlayerById(id) { 
+        if (!id) return null; 
+        if (id === game.player.id) return game.player; 
+        return game.remotePlayers[id] || null; 
+    }
+    function getAllPlayers() { 
+        const list = [game.player]; 
+        for (const id in game.remotePlayers) { 
+            if (game.remotePlayers[id]) list.push(game.remotePlayers[id]); 
+        } 
+        return list; 
+    }
+    function getEntityCenter(ent) { 
+        const w = Number(ent.width) || 48; 
+        const h = Number(ent.height) || 96; 
+        return { x: ent.x + (w / 2), y: ent.y + (h / 2) }; 
+    }
+    function getMonsterCenter() { 
+        return { x: game.monster.x + (game.monster.width / 2), y: game.monster.y + (game.monster.height / 2) }; 
+    }
+    function distanceToMonster(player) { 
+        const pc = getEntityCenter(player); 
+        const mc = getMonsterCenter(); 
+        return Math.hypot(pc.x - mc.x, pc.y - mc.y); 
+    }
 
-    // Exposed provoke hook for future skill usage
-    window.provokeMonster = function(playerId = game.player.id, durationMs = 3000) {
-        game.monster.forcedTargetId = playerId;
-        game.monster.forcedUntil = Date.now() + Math.max(200, Number(durationMs) || 3000);
-        game.monster.threatTable[playerId] = Math.max(1, game.monster.threatTable[playerId] || 0);
-    };
+    // Provoke skill hook (call window.provokeMonster("playerId", seconds))
+    window.provokeMonster = function(targetPlayerId, seconds) {
+        if (!targetPlayerId) return;
+        const dur = Math.max(1, Number(seconds) || 3) * 1000;
+        game.monster.forcedTargetId = targetPlayerId;
+        game.monster.forcedUntil = Date.now() + dur;
+        game.monster.threatTable[targetPlayerId] = Math.max(game.monster.threatTable[targetPlayerId] || 0, 999999);
+    }
 
     function selectMonsterTarget() {
         const now = Date.now();
-
         if (game.monster.forcedTargetId && now >= game.monster.forcedUntil) { 
             game.monster.forcedTargetId = null; 
             game.monster.forcedUntil = 0; 
@@ -1254,20 +1476,24 @@
             const dist = distanceToMonster(p); 
             if (dist > game.monster.chaseRadius) continue;
             if (t > bestThreat || (t === bestThreat && dist < bestDist)) { 
-                bestThreat = t; bestId = id; bestDist = dist; 
+                bestThreat = t; 
+                bestId = id; 
+                bestDist = dist; 
             }
         }
-
         if (bestId) return getPlayerById(bestId);
 
         let nearest = null; 
         let nearestDist = Infinity; 
         const players = getAllPlayers();
+
         for (const p of players) {
             if (!p) continue; 
-            if (p.id !== game.player.id && typeof p.currentHp === 'number' && p.currentHp <= 0) continue;
             const dist = distanceToMonster(p); 
-            if (dist <= game.monster.aggroRadius && dist < nearestDist) { nearest = p; nearestDist = dist; }
+            if (dist <= game.monster.aggroRadius && dist < nearestDist) { 
+                nearest = p; 
+                nearestDist = dist; 
+            }
         }
         if (nearest) { 
             game.monster.threatTable[nearest.id] = Math.max(1, game.monster.threatTable[nearest.id] || 0); 
@@ -1276,6 +1502,7 @@
         return null;
     }
 
+    // --- RESPAWN MONSTER (tier detection: normal / miniBoss / floorBoss) ---
     window.respawnMonster = function() {
         const area = window.safeMapData.monsterSpawnArea || { minX: 200, maxX: 1600, minY: 300, maxY: 900 };
         const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
@@ -1288,21 +1515,26 @@
         game.monster.forcedUntil = 0; 
         game.monster.pendingAttackTargetId = null;
 
-        // Unlimited respawns for testing (always)
-        game.monster.respawnTimer = 3000;
-
         let spawnX = game.monster.x; 
         let spawnY = game.monster.y;
 
-        // Prefer spawn points if present, otherwise random safe spawn
-        const allSpawns = []
-            .concat(window.safeMapData.floorBossSpawns || [])
-            .concat(window.safeMapData.miniBossSpawns || [])
-            .concat(window.safeMapData.normalSpawns || []);
-
-        if (allSpawns.length > 0) {
-            spawnX = allSpawns[0].x;
-            spawnY = allSpawns[0].y;
+        let isBossSpawn = false;
+        let isMiniBossSpawn = false;
+        
+        if ((window.safeMapData.floorBossSpawns || []).length > 0) {
+            spawnX = window.safeMapData.floorBossSpawns[0].x; 
+            spawnY = window.safeMapData.floorBossSpawns[0].y;
+            isBossSpawn = true; 
+            game.monster.respawnTimer = 99999999; 
+        } else if ((window.safeMapData.miniBossSpawns || []).length > 0) {
+            spawnX = window.safeMapData.miniBossSpawns[0].x; 
+            spawnY = window.safeMapData.miniBossSpawns[0].y;
+            isMiniBossSpawn = true;
+            game.monster.respawnTimer = 300000; 
+        } else if ((window.safeMapData.normalSpawns || []).length > 0) {
+            spawnX = window.safeMapData.normalSpawns[0].x; 
+            spawnY = window.safeMapData.normalSpawns[0].y;
+            game.monster.respawnTimer = 10000; 
         } else {
             for (let i = 0; i < 40; i++) {
                 const rx = Math.floor(area.minX + Math.random() * (area.maxX - area.minX));
@@ -1311,7 +1543,12 @@
                 const y = clamp(ry, 0, 1333 - game.monster.height);
                 if (!isMonsterColliding(x, y)) { spawnX = x; spawnY = y; break; }
             }
+            game.monster.respawnTimer = 10000; 
         }
+
+        game.monster.isFloorBoss = isBossSpawn;
+        game.monster.isMiniBoss = isMiniBossSpawn;
+        game.monster.tier = isBossSpawn ? "floorBoss" : (isMiniBossSpawn ? "miniBoss" : "normal");
 
         game.monster.x = spawnX; 
         game.monster.y = spawnY; 
@@ -1321,33 +1558,42 @@
         dom.monster.style.display = 'flex'; 
         dom.monster.style.left = game.monster.x + 'px'; 
         dom.monster.style.top = game.monster.y + 'px';
+
         document.getElementById('monster-ui').style.display = 'none'; 
         window.updateUI();
+
+        // If monster respawns / no aggro, return to base map track
+        playBGM(getMapBaseMusic());
     }
 
     function updateMonsterAI() {
         if (!game.monster.alive) return;
+        dom.monster.style.left = game.monster.x + 'px'; 
+        dom.monster.style.top = game.monster.y + 'px';
 
         const target = selectMonsterTarget(); 
         const now = Date.now();
 
+        // Music: bossfight only if floor boss is aggroed to YOU
+        if (game.monster.isFloorBoss && target && target.id === game.player.id) {
+            playBGM('bossfight');
+        } else {
+            playBGM(getMapBaseMusic());
+        }
+
         if (!target) {
-            // Return to home smoothly
             const homeDx = (game.monster.homeX - game.monster.x); 
             const homeDy = (game.monster.homeY - game.monster.y); 
             const homeDist = Math.hypot(homeDx, homeDy);
-
             if (homeDist > 2) {
                 const angle = Math.atan2(homeDy, homeDx);
                 let nextMx = game.monster.x + Math.cos(angle) * game.monster.speed; 
                 let nextMy = game.monster.y + Math.sin(angle) * game.monster.speed;
-
                 if (!isMonsterColliding(nextMx, game.monster.y)) game.monster.x = nextMx;
                 if (!isMonsterColliding(game.monster.x, nextMy)) game.monster.y = nextMy;
+                dom.monster.style.left = game.monster.x + 'px'; 
+                dom.monster.style.top = game.monster.y + 'px';
             }
-
-            dom.monster.style.left = game.monster.x + 'px'; 
-            dom.monster.style.top = game.monster.y + 'px';
             return;
         }
 
@@ -1374,10 +1620,8 @@
             const angle = Math.atan2(pCenterY - mCenterY, pCenterX - mCenterX);
             let nextMx = game.monster.x + Math.cos(angle) * game.monster.speed; 
             let nextMy = game.monster.y + Math.sin(angle) * game.monster.speed;
-
             if (!isMonsterColliding(nextMx, game.monster.y)) game.monster.x = nextMx;
             if (!isMonsterColliding(game.monster.x, nextMy)) game.monster.y = nextMy;
-
             dom.monster.style.left = game.monster.x + 'px'; 
             dom.monster.style.top = game.monster.y + 'px';
         } else {
@@ -1389,14 +1633,14 @@
         }
     }
 
-    // --- COMBAT EFFECTS ---
+    // --- COMBAT EFFECTS (restored) ---
     function spawnSpark(x, y) { 
         const spark = document.createElement('div'); 
         spark.className = 'spark'; 
         spark.style.left = (x + (Math.random()*20-10)) + 'px'; 
         spark.style.top = (y + (Math.random()*20-10)) + 'px'; 
         dom.world.appendChild(spark); 
-        setTimeout(() => { try { spark.remove(); } catch(e) {} }, 400);
+        setTimeout(() => spark.remove(), 350);
     }
     function spawnWhiteSplash(x, y) { 
         const splash = document.createElement('div'); 
@@ -1404,7 +1648,7 @@
         splash.style.left = x + 'px'; 
         splash.style.top = y + 'px'; 
         dom.world.appendChild(splash); 
-        setTimeout(() => { try { splash.remove(); } catch(e) {} }, 400);
+        setTimeout(() => splash.remove(), 350);
     }
     function shootOrb(startX, startY, endX, endY) { 
         const orb = document.createElement('div'); 
@@ -1412,343 +1656,22 @@
         orb.style.left = startX + 'px'; 
         orb.style.top = startY + 'px'; 
         dom.world.appendChild(orb); 
-        const animation = orb.animate(
-            [ { left: startX + 'px', top: startY + 'px' }, { left: endX + 'px', top: endY + 'px' } ],
-            { duration: 500, easing: 'ease-in' }
-        ); 
-        animation.onfinish = () => { try { orb.remove(); } catch(e) {} };
+        const animation = orb.animate([ 
+            { left: startX + 'px', top: startY + 'px' }, 
+            { left: endX + 'px', top: endY + 'px' } 
+        ], { duration: 500, easing: 'ease-in' }); 
+        animation.onfinish = () => orb.remove(); 
     }
 
-    function updateAnimationFrames(state) {
-        dom.playerAvatarContainer.style.transform = facingRight ? 'scaleX(-1)' : 'scaleX(1)';
-        const weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : null;
-
-        if (state === 'attack') {
-            dom.playerBody.src = `animation/avatar_attack.png`;
-            if (weaponSprite) {
-                if (String(weaponSprite).includes('pendant')) {
-                    applyWeaponSpriteWithFallback(dom.playerWeapon, weaponSprite);
-                } else {
-                    applyWeaponAttackSpriteWithFallback(dom.playerWeapon, weaponSprite);
-                }
-            }
-        } else if (state === 'walk') {
-            dom.playerBody.src = `animation/avatar_walk.png`;
-            if (weaponSprite) applyWeaponSpriteWithFallback(dom.playerWeapon, weaponSprite);
-        } else {
-            dom.playerBody.src = `animation/avatar_idlefront.png`;
-            if (weaponSprite) applyWeaponSpriteWithFallback(dom.playerWeapon, weaponSprite);
-        }
-    }
-
-    // --- INVENTORY / STATS (RESTORED) ---
-    function toggleStats() {
-        if (dom.statScreen.style.display === 'block') { 
-            dom.statScreen.style.display = 'none'; 
-        } else {
-            document.getElementById('stat-lvl').innerText = game.player.level; 
-            document.getElementById('stat-maxhp').innerText = getMaxHp();
-            document.getElementById('stat-atk').innerText = getAttackPower(); 
-            document.getElementById('stat-matk').innerText = getMagicAttack();
-            document.getElementById('stat-def').innerText = getDefense(); 
-            document.getElementById('stat-spd').innerText = getSpeed();
-            document.getElementById('stat-str').innerText = getTotalStat('str'); 
-            document.getElementById('stat-int').innerText = getTotalStat('int');
-            dom.statScreen.style.display = 'block';
-        }
-    }
-    window.toggleStats = toggleStats;
-
-    function toggleInventory() { 
-        isInventoryOpen = !isInventoryOpen; 
-        if (isInventoryOpen) { 
-            renderInventory(); 
-            dom.invScreen.style.display = 'block'; 
-        } else { 
-            dom.invScreen.style.display = 'none'; 
-            isEnhancing = false;
-        } 
-    }
-    window.toggleInventory = toggleInventory;
-
-    function renderInventory() {
-        const grid = document.getElementById('inventory-grid'); 
-        grid.innerHTML = '';
-
-        for(let i=0; i < game.player.inventory.length; i++) {
-            const slot = document.createElement('div'); 
-            slot.className = 'inv-slot'; 
-            const item = game.player.inventory[i];
-
-            if(item) {
-                if(isEnhancing) { 
-                    slot.style.border = "1px dashed #ffeb3b"; 
-                    slot.onclick = (e) => attemptEnhance(i, e); 
-                } else { 
-                    slot.style.borderBottom = `3px solid ${item.color || '#888'}`; 
-                    slot.onclick = (e) => openItemAction(i, e); 
-                }
-
-                let nameNode = document.createTextNode(item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name); 
-                slot.appendChild(nameNode);
-
-                let tip = document.createElement('div'); 
-                tip.className = 'tooltip'; 
-                tip.innerHTML = getItemTooltip(item); 
-                slot.appendChild(tip);
-
-                if (item.quantity && item.quantity > 1) { 
-                    let qtyLabel = document.createElement('span'); 
-                    qtyLabel.className = 'inv-qty'; 
-                    qtyLabel.innerText = 'x' + item.quantity; 
-                    slot.appendChild(qtyLabel); 
-                }
-            }
-
-            grid.appendChild(slot);
-        }
-
-        updateEquipmentDisplay();
-    }
-
-    function openItemAction(index, e) {
-        e.stopPropagation(); 
-        activeInvIndex = index; 
-        const menu = document.getElementById('inv-context-menu'); 
-        const item = game.player.inventory[index]; 
-        if (!item) return;
-
-        const equipBtn = document.getElementById('ctx-btn-equip');
-        if (item.type === 'potion') equipBtn.innerText = "Use"; 
-        else if (item.type === 'material') equipBtn.innerText = "Enhance"; 
-        else equipBtn.innerText = "Equip";
-
-        menu.style.display = 'flex'; 
-        menu.style.left = (e.clientX) + 'px'; 
-        menu.style.top = (e.clientY) + 'px';
-    }
-
-    function useItem(index) {
-        const item = game.player.inventory[index]; 
-        if(!item) return;
-
-        if (item.level && item.level > game.player.level) { 
-            dom.log.innerText = `Level ${item.level} required to equip ${item.name}!`; 
-            return; 
-        }
-
-        if (item.type === 'potion') {
-            game.player.currentHp = Math.min(getMaxHp(), game.player.currentHp + item.fixedStat.hpHeal);
-            item.quantity--; 
-            if (item.quantity <= 0) game.player.inventory[index] = null;
-            spawnDamageText(game.player.x + game.player.width/2, game.player.y - 20, `+${item.fixedStat.hpHeal} HP`, '#4CAF50');
-            dom.log.innerText = `Used ${item.name}!`;
-        } else if (item.type === 'weapon' || item.type === 'armor' || item.type === 'leggings') {
-            const currentEquip = game.player.equips[item.type]; 
-            game.player.equips[item.type] = item; 
-            game.player.inventory[index] = currentEquip || null; 
-            dom.log.innerText = `Equipped ${item.name}!`;
-        } else {
-            dom.log.innerText = `Cannot use ${item.name}.`;
-        }
-
-        updateEquipmentDisplay(); 
-        renderInventory(); 
-        DatabaseManager.savePlayerData(game.player);
-    }
-
-    function attemptEnhance(targetIndex, e) {
-        e.stopPropagation();
-        let stone = game.player.inventory[activeInvIndex]; 
-        let targetItem = game.player.inventory[targetIndex];
-
-        if (!stone || stone.type !== 'material') { 
-            dom.log.innerText = "No enhancement stone selected."; 
-            isEnhancing = false; 
-            renderInventory(); 
-            return; 
-        }
-        if (!targetItem || targetItem.type === 'material' || targetItem.type === 'potion') { 
-            dom.log.innerText = "You can only enhance equipment!"; 
-            isEnhancing = false; 
-            renderInventory(); 
-            return; 
-        }
-        if (stone.level < (targetItem.level || 1)) { 
-            dom.log.innerText = `Stone Lv.${stone.level} is too low for Lv.${targetItem.level} equipment!`; 
-            isEnhancing = false; 
-            renderInventory(); 
-            return; 
-        }
-
-        let currentEnhance = targetItem.enhanceLevel || 0;
-        if (currentEnhance >= 20) { 
-            dom.log.innerText = "Item is at maximum enhancement (+20)!"; 
-            isEnhancing = false; 
-            renderInventory(); 
-            return; 
-        }
-
-        stone.quantity--; 
-        if (stone.quantity <= 0) game.player.inventory[activeInvIndex] = null;
-
-        let targetLvl = currentEnhance + 1; 
-        let successRate = 100; 
-        let destroyRate = 0;
-        if (targetLvl > 6) { 
-            let steps = targetLvl - 6; 
-            successRate = Math.max(1, 95 - ((steps - 1) * 10)); 
-            destroyRate = Math.min(99, 5 + ((steps - 1) * 5)); 
-        }
-
-        let roll = Math.random() * 100;
-
-        if (roll <= successRate) {
-            targetItem.enhanceLevel = targetLvl;
-
-            let bonus = { "Starter": 1, "Basic": 2, "Rare": 5, "Unique": 7, "Legend": 10, "Godly": 15 }[targetItem.rarity] || 2;
-            let fKey = Object.keys(targetItem.fixedStat)[0]; 
-            targetItem.fixedStat[fKey] += bonus;
-
-            if (targetItem.randomStat) { 
-                let rKey = Object.keys(targetItem.randomStat)[0]; 
-                targetItem.randomStat[rKey] += bonus; 
-            }
-
-            dom.log.innerText = `SUCCESS! ${targetItem.name} is now +${targetLvl}!`; 
-            spawnSpark(game.player.x + 24, game.player.y); 
-        } else if (roll <= successRate + destroyRate) { 
-            dom.log.innerText = `FAILED! ${targetItem.name} was DESTROYED!`; 
-            game.player.inventory[targetIndex] = null; 
-        } else { 
-            dom.log.innerText = `Enhancement Failed. ${targetItem.name} was unharmed.`; 
-        }
-
-        isEnhancing = false; 
-        updateEquipmentDisplay(); 
-        renderInventory(); 
-        DatabaseManager.savePlayerData(game.player);
-    }
-
-    window.actionEquip = function(e) {
-        if (e) e.stopPropagation();
-        if(activeInvIndex === -1) return; 
-        let item = game.player.inventory[activeInvIndex];
-        if (!item) return;
-
-        if (item.type === 'material') { 
-            isEnhancing = true; 
-            dom.log.innerText = `Select equipment to enhance with ${item.name}!`; 
-        } else { 
-            useItem(activeInvIndex); 
-        }
-
-        document.getElementById('inv-context-menu').style.display = 'none'; 
-        renderInventory(); 
-    }
-
-    window.actionThrow = function(e) {
-        if (e) e.stopPropagation();
-        if(activeInvIndex === -1) return; 
-        let item = game.player.inventory[activeInvIndex]; 
-        if (!item) return;
-
-        dom.log.innerText = `Threw away ${item.name}.`;
-        game.player.inventory[activeInvIndex] = null; 
-        renderInventory(); 
-        DatabaseManager.savePlayerData(game.player); 
-        document.getElementById('inv-context-menu').style.display = 'none';
-    }
-
-    window.unequipItem = function(slot) {
-        if (!slot) return;
-        const item = game.player.equips[slot];
-        if (!item) return;
-
-        const emptySlot = game.player.inventory.findIndex(i => i === null);
-        if (emptySlot === -1) {
-            dom.log.innerText = "Inventory full! Cannot unequip.";
-            return;
-        }
-
-        game.player.inventory[emptySlot] = item;
-        game.player.equips[slot] = null;
-
-        dom.log.innerText = `Unequipped ${item.name}.`;
-        updateEquipmentDisplay();
-        renderInventory();
-        DatabaseManager.savePlayerData(game.player);
-    };
-
-    window.updateEquipmentDisplay = function() {
-        try {
-            const buildDisplayStr = (item) => item ? (item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name) : 'None';
-            let w = game.player.equips.weapon; 
-            let a = game.player.equips.armor; 
-            let l = game.player.equips.leggings;
-            
-            document.getElementById('eq-weapon-slot').innerText = buildDisplayStr(w);
-            if(w) document.getElementById('eq-weapon-slot').style.color = w.color;
-            document.getElementById('eq-armor-slot').innerText = buildDisplayStr(a);
-            if(a) document.getElementById('eq-armor-slot').style.color = a.color;
-            document.getElementById('eq-leggings-slot').innerText = buildDisplayStr(l);
-            if(l) document.getElementById('eq-leggings-slot').style.color = l.color;
-
-            dom.playerWeapon.style.display = w ? 'block' : 'none';
-            dom.playerArmor.style.display = 'none'; 
-            dom.playerLeggings.style.display = 'none'; 
-
-            if (w) applyWeaponSpriteWithFallback(dom.playerWeapon, w.sprite);
-
-            const createTip = (item, boxId) => { 
-                let box = document.getElementById(boxId); 
-                let tip = box.querySelector('.tooltip'); 
-                if(!tip) { tip = document.createElement('div'); tip.className = 'tooltip'; box.appendChild(tip); } 
-                if(item) tip.innerHTML = getItemTooltip(item); 
-                else { try { tip.remove(); } catch(e) {} } 
-            };
-
-            createTip(w, 'eq-box-weapon'); 
-            createTip(a, 'eq-box-armor'); 
-            createTip(l, 'eq-box-leggings');
-            
-            let newMax = getMaxHp(); 
-            if(game.player.currentHp > newMax) game.player.currentHp = newMax; 
-            window.updateUI();
-        } catch(err) { console.error(err); }
-    }
-
-    // --- LEVEL UP ---
-    function checkLevelUp() {
-        if(game.player.level >= 50) return;
-        while(game.player.exp >= game.player.maxExp && game.player.level < 50) {
-            game.player.exp -= game.player.maxExp; 
-            game.player.level++; 
-            game.player.maxExp *= 2; 
-            game.player.baseStats.hp += 10; 
-            game.player.baseStats.str += 2; 
-            game.player.baseStats.int += 2; 
-            game.player.currentHp = getMaxHp(); 
-
-            const txt = document.createElement('div'); 
-            txt.className = 'level-up-text'; 
-            txt.innerText = "LEVEL UP!";
-            txt.style.left = (game.player.x - 20) + 'px'; 
-            txt.style.top = (game.player.y - 40) + 'px'; 
-            dom.world.appendChild(txt); 
-            setTimeout(() => { try { txt.remove(); } catch(e) {} }, 2000);
-
-            dom.log.innerText = `Congratulations! You reached Level ${game.player.level}!`;
-        }
-        window.updateUI(); 
-        DatabaseManager.savePlayerData(game.player);
-    }
-
-    // --- COMBAT ---
+    // --- PLAYER ATTACK ---
     window.attemptAttack = function() {
-        if (game.player.currentHp <= 0 || attackCooldownActive || isInventoryOpen || window.adminMode) return;
+        if (game.player.currentHp <= 0 || attackCooldownActive || isInventoryOpen || window.adminMode || isChatOpen) return;
 
-        socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
+        socket.emit('playerMoved', { 
+            x: game.player.x, y: game.player.y, 
+            state: 'attack', facingRight: facingRight, 
+            weaponSprite: game.player.equips.weapon?.sprite || null 
+        });
 
         if(!game.monster.alive) {
             isAttacking = true; 
@@ -1765,7 +1688,6 @@
         
         let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : '';
         const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant');
-        const isPendant = weaponSprite.includes('pendant');
         
         if (dist > (isRanged ? 250 : 80)) { dom.log.innerText = `Too far! Move closer.`; return; }
 
@@ -1776,17 +1698,14 @@
         if (isRanged) { 
             shootOrb(pCenterX, pCenterY, mCenterX, mCenterY); 
             setTimeout(() => { isAttacking = false; }, 300); 
-            setTimeout(() => { applyDamageToMonster(mCenterX, mCenterY, isRanged, isPendant); }, 500); 
+            setTimeout(() => { applyDamageToMonster(mCenterX, mCenterY, isRanged); }, 500); 
         } else { 
-            setTimeout(() => { 
-                isAttacking = false; 
-                applyDamageToMonster(mCenterX, mCenterY, isRanged, isPendant); 
-            }, 300); 
+            setTimeout(() => { isAttacking = false; applyDamageToMonster(mCenterX, mCenterY, isRanged); }, 300); 
         }
         setTimeout(() => { attackCooldownActive = false; }, cooldownMs);
     }
 
-    function applyDamageToMonster(mCenterX, mCenterY, isRanged, isPendant) {
+    function applyDamageToMonster(mCenterX, mCenterY, isRanged) {
         if (!game.monster.alive) return;
         document.getElementById('monster-ui').style.display = 'block';
         
@@ -1797,12 +1716,10 @@
         game.monster.currentHp -= dmg; 
         if(game.monster.currentHp < 0) game.monster.currentHp = 0;
         
-        // Threat = damage
         game.monster.threatTable[game.player.id] = (game.monster.threatTable[game.player.id] || 0) + dmg;
 
-        spawnDamageText(mCenterX, game.monster.y - 10, dmg, '#fff'); 
-        if (isPendant) spawnWhiteSplash(mCenterX, mCenterY); 
-        else spawnSpark(mCenterX, mCenterY);
+        window.spawnDamageText(mCenterX, game.monster.y - 10, dmg, '#fff'); 
+        spawnSpark(mCenterX, mCenterY);
         
         document.getElementById('monster').classList.add('hit-flash'); 
         setTimeout(() => document.getElementById('monster').classList.remove('hit-flash'), 100);
@@ -1818,7 +1735,7 @@
             const droppedItem = generateLoot(); 
             window.addLoot(droppedItem);
             
-            setTimeout(window.respawnMonster, game.monster.respawnTimer || 3000); 
+            setTimeout(window.respawnMonster, game.monster.respawnTimer || 10000); 
         } 
     }
 
@@ -1848,13 +1765,12 @@
             if (game.player.currentHp <= 0) return;
             let mobDmg = game.monster.atk - getDefense(); 
             if(mobDmg < 1) mobDmg = 1;
-
             game.player.currentHp -= mobDmg; 
             if(game.player.currentHp < 0) game.player.currentHp = 0;
 
             const pCenterX = game.player.x + (game.player.width / 2); 
             const pCenterY = game.player.y + (game.player.height / 2);
-            spawnDamageText(pCenterX, game.player.y - 10, mobDmg, '#f44336'); 
+            window.spawnDamageText(pCenterX, game.player.y - 10, mobDmg, '#f44336'); 
             spawnSpark(pCenterX, pCenterY); 
             window.updateUI();
 
@@ -1864,10 +1780,70 @@
                 dom.playerContainer.style.opacity = "0.5"; 
                 game.monster.threatTable = {}; 
             }
+            return;
+        }
+
+        if (typeof target.currentHp === 'number') {
+            let mobDmg = game.monster.atk; 
+            if(mobDmg < 1) mobDmg = 1;
+            target.currentHp -= mobDmg; 
+            if(target.currentHp < 0) target.currentHp = 0;
+            const pW = Number(target.width) || 48;
+            window.spawnDamageText(target.x + (pW / 2), target.y - 10, mobDmg, '#f44336');
+            window.updateUI();
         }
     }
 
-    // --- UI ---
+    // --- WEAPON DISPLAY + RARITY FALLBACKS ---
+    function getWeaponSpritePaths(spriteBase, isAttack) {
+        if (!spriteBase) return [];
+        const basic = getBasicSpriteFromAny(spriteBase);
+        return isAttack
+            ? [`weapon/${spriteBase}_attack.png`, `weapon/${spriteBase}.png`, `weapon/${basic}_attack.png`, `weapon/${basic}.png`]
+            : [`weapon/${spriteBase}.png`, `weapon/${basic}.png`];
+    }
+
+    window.updateEquipmentDisplay = function() {
+        try {
+            const buildDisplayStr = (item) => item ? (item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name) : 'None';
+            let w = game.player.equips.weapon; 
+            let a = game.player.equips.armor; 
+            let l = game.player.equips.leggings;
+            
+            document.getElementById('eq-weapon-slot').innerText = buildDisplayStr(w);
+            if(w) document.getElementById('eq-weapon-slot').style.color = w.color;
+            document.getElementById('eq-armor-slot').innerText = buildDisplayStr(a);
+            if(a) document.getElementById('eq-armor-slot').style.color = a.color;
+            document.getElementById('eq-leggings-slot').innerText = buildDisplayStr(l);
+            if(l) document.getElementById('eq-leggings-slot').style.color = l.color;
+
+            dom.playerWeapon.style.display = w ? 'block' : 'none';
+            dom.playerArmor.style.display = 'none'; 
+            dom.playerLeggings.style.display = 'none'; 
+
+            if (w && w.sprite) {
+                setImgFallbackChain(dom.playerWeapon, getWeaponSpritePaths(w.sprite, false));
+            }
+
+            const createTip = (item, boxId) => { 
+                let box = document.getElementById(boxId); 
+                let tip = box.querySelector('.tooltip'); 
+                if(!tip) { tip = document.createElement('div'); tip.className = 'tooltip'; box.appendChild(tip); } 
+                if(item) tip.innerHTML = getItemTooltip(item); 
+                else tip.remove(); 
+            };
+
+            createTip(w, 'eq-box-weapon'); 
+            createTip(a, 'eq-box-armor'); 
+            createTip(l, 'eq-box-leggings');
+            
+            let newMax = getMaxHp(); 
+            if(game.player.currentHp > newMax) game.player.currentHp = newMax; 
+            window.updateUI();
+        } catch(err) { console.error(err); }
+    }
+
+    // --- UI UPDATE ---
     window.updateUI = function() {
         document.getElementById('ui-hp-text').innerText = `${game.player.currentHp} / ${getMaxHp()}`;
         document.getElementById('ui-hp-bar').style.width = (game.player.currentHp / getMaxHp()) * 100 + '%';
@@ -1889,59 +1865,308 @@
         txt.style.top = y + 'px'; 
         txt.style.color = color; 
         dom.world.appendChild(txt); 
-        setTimeout(() => { try { txt.remove(); } catch(e) {} }, 1000);
+        setTimeout(() => txt.remove(), 1000);
     }
 
-    // --- PROXIMITY CHAT (Bubble Rendering) ---
-    const CHAT_LOCAL_RADIUS_GUARD = 320; // extra client-side guard (server also filters)
-
-    function getEntityContainerById(playerId) {
-        if (!playerId) return null;
-        if (playerId === game.player.id) return dom.playerContainer;
-        const rp = game.remotePlayers[playerId];
-        if (rp && rp.dom) return rp.dom;
-        const el = document.getElementById('remote_' + playerId);
-        return el || null;
+    // --- STATS WINDOW (restored) ---
+    window.toggleStats = function() {
+        if (dom.statScreen.style.display === 'block') { 
+            dom.statScreen.style.display = 'none'; 
+        } else {
+            document.getElementById('stat-lvl').innerText = game.player.level; 
+            document.getElementById('stat-maxhp').innerText = getMaxHp();
+            document.getElementById('stat-atk').innerText = getAttackPower(); 
+            document.getElementById('stat-matk').innerText = getMagicAttack();
+            document.getElementById('stat-def').innerText = getDefense(); 
+            document.getElementById('stat-spd').innerText = getSpeed();
+            document.getElementById('stat-str').innerText = getTotalStat('str'); 
+            document.getElementById('stat-int').innerText = getTotalStat('int');
+            dom.statScreen.style.display = 'block';
+        }
     }
 
-    function showChatBubble(playerId, text) {
-        const container = getEntityContainerById(playerId);
-        if (!container) return;
+    // --- INVENTORY (restored) ---
+    window.toggleInventory = function() { 
+        isInventoryOpen = !isInventoryOpen; 
+        if (isInventoryOpen) { 
+            renderInventory(); 
+            dom.invScreen.style.display = 'block'; 
+        } else { 
+            dom.invScreen.style.display = 'none'; 
+        } 
+    }
 
-        let bubble = container.querySelector('.chat-bubble');
-        if (!bubble) {
-            bubble = document.createElement('div');
-            bubble.className = 'chat-bubble';
-            container.appendChild(bubble);
+    function renderInventory() {
+        const grid = document.getElementById('inventory-grid'); 
+        grid.innerHTML = '';
+        for(let i=0; i < game.player.inventory.length; i++) {
+            const slot = document.createElement('div'); 
+            slot.className = 'inv-slot'; 
+            const item = game.player.inventory[i];
+            if(item) {
+                if(isEnhancing) { 
+                    slot.style.border = "1px dashed #ffeb3b"; 
+                    slot.onclick = (e) => attemptEnhance(i, e); 
+                } else { 
+                    slot.style.borderBottom = `3px solid ${item.color || '#fff'}`; 
+                    slot.onclick = (e) => openItemAction(i, e); 
+                }
+                
+                let nameNode = document.createTextNode(item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name); 
+                slot.appendChild(nameNode);
+
+                let tip = document.createElement('div'); 
+                tip.className = 'tooltip'; 
+                tip.innerHTML = getItemTooltip(item); 
+                slot.appendChild(tip);
+
+                if (item.quantity && item.quantity > 1) { 
+                    let qtyLabel = document.createElement('span'); 
+                    qtyLabel.className = 'inv-qty'; 
+                    qtyLabel.innerText = 'x' + item.quantity; 
+                    slot.appendChild(qtyLabel); 
+                }
+            }
+            grid.appendChild(slot);
+        }
+        updateEquipmentDisplay();
+    }
+
+    function openItemAction(index, e) {
+        e.stopPropagation(); 
+        activeInvIndex = index; 
+        const item = game.player.inventory[index]; 
+        const equipBtn = document.getElementById('ctx-btn-equip');
+        if (!item) return;
+
+        if (item.type === 'potion') equipBtn.innerText = "Use"; 
+        else if (item.type === 'material') equipBtn.innerText = "Enhance"; 
+        else equipBtn.innerText = "Equip";
+
+        invMenu.style.display = 'flex'; 
+        invMenu.style.left = (e.clientX) + 'px'; 
+        invMenu.style.top = (e.clientY) + 'px';
+    }
+
+    window.actionEquip = function(e) {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        if(activeInvIndex === -1) return; 
+        let item = game.player.inventory[activeInvIndex];
+        if (!item) return;
+
+        if (item.type === 'material') { 
+            isEnhancing = true; 
+            dom.log.innerText = `Select equipment to enhance with ${item.name}!`; 
+        } else { 
+            useItem(activeInvIndex); 
+        }
+        invMenu.style.display = 'none'; 
+        renderInventory(); 
+    }
+
+    window.actionThrow = function(e) {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        if(activeInvIndex === -1) return; 
+        let item = game.player.inventory[activeInvIndex]; 
+        if (!item) return;
+
+        dom.log.innerText = `Threw away ${item.name}.`;
+        game.player.inventory[activeInvIndex] = null; 
+        renderInventory(); 
+        DatabaseManager.savePlayerData(game.player); 
+        invMenu.style.display = 'none';
+    }
+
+    window.unequipItem = function(slot) {
+        const eq = game.player.equips[slot];
+        if (!eq) return;
+
+        const empty = game.player.inventory.findIndex(i => i === null);
+        if (empty === -1) { dom.log.innerText = "Inventory full!"; return; }
+
+        game.player.inventory[empty] = eq;
+        game.player.equips[slot] = null;
+        dom.log.innerText = `Unequipped ${eq.name}.`;
+        updateEquipmentDisplay();
+        renderInventory();
+        DatabaseManager.savePlayerData(game.player);
+    }
+
+    function useItem(index) {
+        const item = game.player.inventory[index]; 
+        if(!item) return;
+
+        if (item.level && item.level > game.player.level) { 
+            dom.log.innerText = `Level ${item.level} required to equip ${item.name}!`; 
+            return; 
         }
 
-        bubble.textContent = String(text || '').slice(0, 80);
-        bubble.classList.add('show');
+        if (item.type === 'potion') {
+            game.player.currentHp = Math.min(getMaxHp(), game.player.currentHp + (item.fixedStat?.hpHeal || 0));
+            item.quantity--; 
+            if (item.quantity <= 0) game.player.inventory[index] = null;
+            window.spawnDamageText(game.player.x + game.player.width/2, game.player.y - 20, `+${item.fixedStat?.hpHeal || 0} HP`, '#4CAF50');
+            dom.log.innerText = `Used ${item.name}!`;
+        } else {
+            const currentEquip = game.player.equips[item.type]; 
+            game.player.equips[item.type] = item; 
+            game.player.inventory[index] = currentEquip; 
+            dom.log.innerText = `Equipped ${item.name}!`;
+        }
 
-        // Reset timeout
-        if (bubble._hideTimer) clearTimeout(bubble._hideTimer);
-        bubble._hideTimer = setTimeout(() => {
-            bubble.classList.remove('show');
-        }, 3200);
+        updateEquipmentDisplay(); 
+        renderInventory(); 
+        DatabaseManager.savePlayerData(game.player);
     }
 
-    socket.on('chatBubble', (data) => {
-        if (!data || !data.id || !data.text) return;
+    // --- ENHANCEMENT (rarity-class stones + SAME level rule) ---
+    function attemptEnhance(targetIndex, e) {
+        e.stopPropagation();
+        let stone = game.player.inventory[activeInvIndex]; 
+        let targetItem = game.player.inventory[targetIndex];
 
-        // Client-side distance guard (in case of stale server positions)
-        const speaker = getPlayerById(data.id);
-        if (speaker && speaker.id !== game.player.id) {
-            const dx = (speaker.x || 0) - (game.player.x || 0);
-            const dy = (speaker.y || 0) - (game.player.y || 0);
-            const dist = Math.hypot(dx, dy);
-            if (dist > CHAT_LOCAL_RADIUS_GUARD) return;
+        if (!stone || stone.type !== 'material') { 
+            dom.log.innerText = "No enhancement stone selected."; 
+            isEnhancing = false; 
+            renderInventory(); 
+            return; 
         }
-        showChatBubble(data.id, data.text);
-    });
 
-    // --- GAME LOOP (RESTORED Movement + Camera + Networking + Monster AI) ---
-    let lastMoveEmitAt = 0;
-    let lastSentMove = { x: null, y: null, state: null, facingRight: null, weaponSprite: null };
+        if (!targetItem || targetItem.type === 'material' || targetItem.type === 'potion') { 
+            dom.log.innerText = "You can only enhance equipment!"; 
+            isEnhancing = false; 
+            renderInventory(); 
+            return; 
+        }
+
+        const stoneClass = enhanceClass(stone.rarity);
+        const itemClass = enhanceClass(targetItem.rarity);
+
+        if (stoneClass !== itemClass) {
+            dom.log.innerText = `Stone (${stoneClass}) can only enhance ${stoneClass} items!`;
+            isEnhancing = false; 
+            renderInventory(); 
+            return;
+        }
+
+        if ((stone.level || 1) !== (targetItem.level || 1)) {
+            dom.log.innerText = `Stone must match item level! Stone Lv.${stone.level} vs Item Lv.${targetItem.level}`;
+            isEnhancing = false; 
+            renderInventory(); 
+            return;
+        }
+
+        let currentEnhance = targetItem.enhanceLevel || 0;
+        if (currentEnhance >= 20) { 
+            dom.log.innerText = "Item is at maximum enhancement (+20)!"; 
+            isEnhancing = false; 
+            renderInventory(); 
+            return; 
+        }
+
+        stone.quantity--; 
+        if (stone.quantity <= 0) game.player.inventory[activeInvIndex] = null;
+
+        let targetLvl = currentEnhance + 1; 
+        let successRate = 100; 
+        let destroyRate = 0;
+
+        if (targetLvl > 6) { 
+            let steps = targetLvl - 6; 
+            successRate = Math.max(1, 95 - ((steps - 1) * 10)); 
+            destroyRate = Math.min(99, 5 + ((steps - 1) * 5)); 
+        }
+
+        let roll = Math.random() * 100;
+        if (roll <= successRate) {
+            targetItem.enhanceLevel = targetLvl;
+
+            let bonus = { "Basic": 2, "Rare": 5, "Unique": 7, "Legend": 10, "Godly": 15 }[itemClass] || 2;
+            let fKey = Object.keys(targetItem.fixedStat || { attack: 0 })[0]; 
+            targetItem.fixedStat[fKey] = (targetItem.fixedStat[fKey] || 0) + bonus;
+
+            if (targetItem.randomStat) { 
+                let rKey = Object.keys(targetItem.randomStat)[0]; 
+                targetItem.randomStat[rKey] = (targetItem.randomStat[rKey] || 0) + bonus; 
+            }
+
+            dom.log.innerText = `SUCCESS! ${targetItem.name} is now +${targetLvl}!`; 
+            spawnSpark(game.player.x + 24, game.player.y); 
+        } else if (roll <= successRate + destroyRate) { 
+            dom.log.innerText = `FAILED! ${targetItem.name} was DESTROYED!`; 
+            game.player.inventory[targetIndex] = null; 
+        } else { 
+            dom.log.innerText = `Enhancement Failed. ${targetItem.name} was unharmed.`; 
+        }
+
+        isEnhancing = false; 
+        updateEquipmentDisplay(); 
+        renderInventory(); 
+        DatabaseManager.savePlayerData(game.player);
+    }
+
+    // --- LEVEL UP (restored) ---
+    function checkLevelUp() {
+        if(game.player.level >= 50) return;
+        while(game.player.exp >= game.player.maxExp && game.player.level < 50) {
+            game.player.exp -= game.player.maxExp; 
+            game.player.level++; 
+            game.player.maxExp *= 2; 
+            game.player.baseStats.hp += 10; 
+            game.player.baseStats.str += 2; 
+            game.player.baseStats.int += 2; 
+            game.player.currentHp = getMaxHp(); 
+
+            const txt = document.createElement('div'); 
+            txt.className = 'level-up-text'; 
+            txt.innerText = "LEVEL UP!";
+            txt.style.left = (game.player.x - 20) + 'px'; 
+            txt.style.top = (game.player.y - 40) + 'px'; 
+            dom.world.appendChild(txt); 
+            setTimeout(() => txt.remove(), 2000);
+
+            dom.log.innerText = `Congratulations! You reached Level ${game.player.level}!`;
+        }
+        window.updateUI(); 
+        DatabaseManager.savePlayerData(game.player);
+    }
+
+    // --- PLAYER ANIMATION (restored + rarity weapon attack) ---
+    function updateAnimationFrames(state) { 
+        dom.playerAvatarContainer.style.transform = facingRight ? 'scaleX(-1)' : 'scaleX(1)';
+        const weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : null;
+
+        if (state === 'attack') { 
+            dom.playerBody.src = `animation/avatar_attack.png`; 
+            if (weaponSprite) setImgFallbackChain(dom.playerWeapon, getWeaponSpritePaths(weaponSprite, true));
+        } else if (state === 'walk') { 
+            dom.playerBody.src = `animation/avatar_walk.png`; 
+            if (weaponSprite) setImgFallbackChain(dom.playerWeapon, getWeaponSpritePaths(weaponSprite, false));
+        } else { 
+            dom.playerBody.src = `animation/avatar_idlefront.png`; 
+            if (weaponSprite) setImgFallbackChain(dom.playerWeapon, getWeaponSpritePaths(weaponSprite, false));
+        }
+    }
+
+    // --- GAME LOOP (restored, stable) ---
+    let lastMoveSentAt = 0;
+    let lastSentX = null, lastSentY = null, lastSentState = null, lastSentFace = null, lastSentWeapon = null;
+
+    function sendMovementNet(state) {
+        const now = Date.now();
+        if (now - lastMoveSentAt < 60) return;
+
+        const wep = game.player.equips.weapon?.sprite || null;
+        const x = Math.round(game.player.x);
+        const y = Math.round(game.player.y);
+
+        if (x === lastSentX && y === lastSentY && state === lastSentState && facingRight === lastSentFace && wep === lastSentWeapon) return;
+
+        lastMoveSentAt = now;
+        lastSentX = x; lastSentY = y; lastSentState = state; lastSentFace = facingRight; lastSentWeapon = wep;
+
+        socket.emit('playerMoved', { x, y, state, facingRight, weaponSprite: wep });
+    }
 
     function gameLoop() {
         if (!game.isRunning) return;
@@ -1968,26 +2193,22 @@
             if (!isColliding(game.player.x, nextY) || window.adminMode) game.player.y = nextY;
         }
 
-        // Animation state
-        let animState = 'idle';
-        if (isAttacking) animState = 'attack';
-        else if (isMoving) animState = (walkState === 0 ? 'walk' : 'idle');
+        let state = 'idle';
+        if (isAttacking) state = 'attack';
+        else if (isMoving) state = 'walk';
 
+        // simple walk/idle rhythm preserved
         if (!isAttacking && isMoving) {
             walkTimer++; 
             if (walkTimer >= walkSpeed) { 
                 walkState = walkState === 0 ? 1 : 0; 
                 walkTimer = 0; 
             }
-        } else if (!isMoving) {
-            walkTimer = 0; walkState = 0;
+            updateAnimationFrames(walkState === 0 ? 'walk' : 'idle');
+        } else {
+            updateAnimationFrames(state);
+            if (!isMoving) { walkTimer = 0; walkState = 0; }
         }
-
-        if (animState !== lastLocalAnimState) {
-            lastLocalAnimState = animState;
-        }
-
-        updateAnimationFrames(isAttacking ? 'attack' : (isMoving ? 'walk' : 'idle'));
 
         dom.playerContainer.style.left = game.player.x + 'px'; 
         dom.playerContainer.style.top = game.player.y + 'px';
@@ -1996,49 +2217,11 @@
         const cameraY = Math.floor((window.innerHeight / 2) - (game.player.y * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2));
         dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`;
 
-        // Monster AI
-        if (game.monster.alive) updateMonsterAI();
-
-        // Network movement throttle
-        const now = Date.now();
-        const weaponSprite = game.player.equips.weapon?.sprite || null;
-        const netState = isAttacking ? 'attack' : (isMoving ? 'walk' : 'idle');
-
-        const changed = (
-            lastSentMove.x !== game.player.x ||
-            lastSentMove.y !== game.player.y ||
-            lastSentMove.state !== netState ||
-            lastSentMove.facingRight !== facingRight ||
-            lastSentMove.weaponSprite !== weaponSprite
-        );
-
-        if ((changed && now - lastMoveEmitAt > 60) || (now - lastMoveEmitAt > 400)) {
-            lastMoveEmitAt = now;
-            lastSentMove = { x: game.player.x, y: game.player.y, state: netState, facingRight: facingRight, weaponSprite: weaponSprite };
-
-            socket.emit('playerMoved', {
-                x: game.player.x,
-                y: game.player.y,
-                state: netState,
-                facingRight: facingRight,
-                weaponSprite: weaponSprite
-            });
-        }
+        updateMonsterAI();
+        sendMovementNet(state);
 
         requestAnimationFrame(gameLoop);
     }
-
-    // Wrap Admin toggle again after admin.js loads (safety)
-    window.addEventListener('load', () => {
-        if (typeof window.toggleAdminMode === 'function') {
-            const original = window.toggleAdminMode;
-            window.toggleAdminMode = function() {
-                if (window.isAdminAccount) return original();
-                return; // no-op for non-admin
-            };
-        }
-    });
-
 </script>
 <script src="admin.js"></script>
 </body>
