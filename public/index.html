@@ -8,6 +8,8 @@
     <script src="/socket.io/socket.io.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
     
+    <script src="townmap.js"></script>
+
     <style>
         /* --- GLOBAL STYLES --- */
         body { margin: 0; font-family: 'MedievalSharp', cursive; background-color: #121212; color: #e0e0e0; display: flex; justify-content: center; align-items: center; height: 100vh; user-select: none; overflow: hidden; }
@@ -29,11 +31,9 @@
         .btn-large:hover { background-color: #45a049; }
         .panel-section { background-color: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #333; }
         .panel-section h4 { margin: 0 0 10px 0; color: #aaa; text-transform: uppercase; font-size: 14px;}
-        .button-group { display: flex; gap: 10px; flex-wrap: wrap; } .color-group { display: flex; gap: 8px; flex-wrap: wrap; }
-        .color-swatch { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
-        .color-swatch:hover { transform: scale(1.1); } .color-swatch.selected { border-color: white; }
+        .button-group, .color-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .color-swatch { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; } .color-swatch:hover { transform: scale(1.1); } .color-swatch.selected { border-color: white; }
 
-        /* --- AUTH SCREENS --- */
         .auth-container { position: relative; z-index: 10; width: 400px; padding: 30px; background: #1e1e1e; border-radius: 8px; border: 2px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: center; margin: auto; }
         .auth-container h1 { margin-top: 0; color: #4CAF50; font-size: 40px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .auth-link { color: #4CAF50; cursor: pointer; font-size: 16px; text-decoration: underline; margin-top: 15px; display: inline-block; } .auth-link:hover { color: #fff; }
@@ -50,7 +50,6 @@
         .layer-body { height: 120%; bottom: -45%; z-index: 4; } .layer-leggings { height: 120%; bottom: -45%; z-index: 5; }
         .layer-armor { height: 120%; bottom: -45%; z-index: 6; } .layer-weapon { height: 120%; bottom: -45%; z-index: 7; }
 
-        /* --- GAME WORLD --- */
         #game-screen { position: relative; width: 100%; height: 100%; background-color: #000; }
         #world { position: absolute; width: 2000px; height: 1333px; background-size: 100% 100%; transform-origin: top left; transition: background-image 0.5s; }
 
@@ -131,14 +130,13 @@
         .inspect-item-name { font-weight: bold; font-size: 16px; } .inspect-sub { color: #aaa; font-size: 13px; }
         .inspect-stat { font-size: 13px; color: #e0e0e0; margin-top: 6px; line-height: 1.3; } .inspect-stat b { color: #4CAF50; } .inspect-empty { color: #888; font-style: italic; }
 
-        /* --- BUBBLE CHAT UI --- */
         #chat-input-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 3000; display: none; }
         #chat-input { background: rgba(0,0,0,0.8); border: 1px solid #4CAF50; color: white; padding: 10px 20px; width: 400px; border-radius: 25px; outline: none; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
         .chat-bubble { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.9); color: #111; padding: 6px 14px; border-radius: 12px; font-size: 14px; font-weight: bold; white-space: nowrap; pointer-events: none; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 200; animation: fadeInOut 4s forwards; }
-        @keyframes fadeInOut { 0% { opacity: 0; transform: translate(-50%, 10px); } 10% { opacity: 1; transform: translate(-50%, 0); } 80% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -10px); } }
 
         .popup-dialog { position: absolute; top: 30%; left: 50%; transform: translateX(-50%); background: rgba(20,20,20,0.95); border-radius: 8px; padding: 25px; z-index: 4000; display: none; text-align: center; box-shadow: 0 0 20px #000; }
         #invite-dialog { border: 2px solid #4CAF50; } #trade-dialog { border: 2px solid #2196F3; } .popup-dialog button { margin: 0 10px; width: 100px; }
+
         #trade-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 550px; background: rgba(20,20,20,0.98); border: 2px solid #2196F3; z-index: 4500; padding: 20px; box-shadow: 0 0 30px black; display: none; border-radius: 8px; }
         .trade-side { flex: 1; background: #111; padding: 10px; border: 1px solid #444; border-radius: 5px; }
     </style>
@@ -203,9 +201,9 @@
     <div id="creation-screen" class="screen">
         <div class="stage-area">
             <div id="preview-rig" class="avatar-rig" style="pointer-events: none;">
-                <img id="preview-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" style="opacity:0">
-                <img id="preview-head" class="avatar-layer layer-head" src="animation/avatar_head.png" style="opacity:0">
-                <img id="preview-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png" style="opacity:0">
+                <img id="preview-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" onerror="this.style.opacity='0'" onload="this.style.opacity='1'">
+                <img id="preview-head" class="avatar-layer layer-head" src="animation/avatar_head.png" onerror="this.style.opacity='0'" onload="this.style.opacity='1'">
+                <img id="preview-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png" onerror="this.style.opacity='0'" onload="this.style.opacity='1'">
             </div>
         </div>
         <div class="controls-area">
@@ -243,10 +241,10 @@
                 <h1 id="select-name-display" style="color: #4CAF50; font-size: 50px; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.8);">Player</h1>
                 <p id="select-level-display" style="color: #ffd700; margin-top:0; margin-bottom: 40px; font-size: 24px; font-weight: bold;">Level 1</p>
                 <div id="select-rig" class="avatar-rig" style="margin: auto; margin-bottom: 60px; pointer-events: none;">
-                    <img id="select-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" style="opacity:0">
-                    <img id="select-head" class="avatar-layer layer-head" src="animation/avatar_head.png" style="opacity:0">
-                    <img id="select-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png" style="opacity:0">
-                    <img id="select-weapon" class="avatar-layer layer-weapon" style="display:none; opacity:0">
+                    <img id="select-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" onerror="this.style.opacity='0'" onload="this.style.opacity='1'">
+                    <img id="select-head" class="avatar-layer layer-head" src="animation/avatar_head.png" onerror="this.style.opacity='0'" onload="this.style.opacity='1'">
+                    <img id="select-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png" onerror="this.style.opacity='0'" onload="this.style.opacity='1'">
+                    <img id="select-weapon" class="avatar-layer layer-weapon" style="display:none;" onerror="this.style.opacity='0'" onload="this.style.opacity='1'">
                 </div>
                 <button class="btn btn-large" onclick="window.enterGameWorld()" style="width: 300px; font-size: 28px; position: relative; z-index: 9999; pointer-events: auto; cursor: pointer;">ENTER WORLD</button>
             </div>
@@ -277,7 +275,8 @@
                 <div class="admin-tool-row"><span>Give Item: Lv</span><input type="number" id="admin-item-level" value="5" min="1" max="50" style="width:50px;"><span>+</span><input type="number" id="admin-item-enhance" value="0" min="0" max="20" style="width:50px;"></div>
                 <div class="admin-tool-row"><select id="admin-item-rarity"><option value="Basic">Basic</option><option value="Rare">Rare</option><option value="Unique">Unique</option><option value="Legendary">Legendary</option><option value="Godly" selected>Godly</option></select><select id="admin-item-type"><option value="sword">Sword</option><option value="staff">Staff</option><option value="pendant">Pendant</option><option value="armor">Armor</option></select><button class="btn selected" onclick="window.adminGiveCustomItem()">Spawn</button></div>
             </div>
-            <p style="font-size: 14px; color: #aaa; margin-bottom: 5px;"><b>Alt + Drag</b>: Block <span style="color:#00ff00;">| <b>Shift+Alt+Drag</b>: Portal</span> <span style="color:#0ff;">| <b>Tab+Click</b>: Spawn</span></p>
+            
+            <p style="font-size: 14px; color: #aaa; margin-bottom: 5px;"><b>Alt + Drag</b>: Block <span style="color:#00ff00;">| <b>Shift+Alt+Drag</b>: Portal</span> <span style="color:#0ff;">| <b>Tab+Click</b>: Safe Spawn</span></p>
             <div class="admin-tool-row" style="margin-bottom: 5px;">
                 <span style="color: #ff9800; font-weight:bold; font-size:12px;">Z, X, C + Click to Spawn:</span>
                 <select id="admin-monster-key">
@@ -286,8 +285,13 @@
                     <option value="floor_boss1">Dragon</option>
                 </select>
             </div>
-            <div style="display: flex; gap: 10px; margin-top:10px;"><button class="btn" style="flex: 1;" onclick="window.undoLastBox()">Undo Box</button><button class="btn" style="flex: 1; background-color: #f44336;" onclick="window.clearAllBoxes()">Clear Map</button></div>
+            
+            <div style="display: flex; gap: 10px; margin-top:10px;">
+                <button class="btn" style="flex: 1;" onclick="window.undoLastBox()">Undo Box</button>
+                <button class="btn" style="flex: 1; background-color: #f44336;" onclick="window.clearAllBoxes()">Clear Map</button>
+            </div>
             <textarea id="admin-output" readonly></textarea>
+            
             <button class="btn btn-large" style="margin-top: 0; padding: 10px; background-color: #4CAF50;" onclick="window.saveMapToServer()">Save Map to Server</button>
         </div>
 
@@ -298,12 +302,13 @@
             <div id="player-container" class="entity" style="left: 960px; top: 1000px;">
                 <div id="player-name-tag" class="name-tag">Player</div>
                 <div id="player-avatar-container" class="player-avatar-container avatar-rig">
-                    <img id="player-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" style="opacity:0">
-                    <img id="player-head" class="avatar-layer layer-head" src="animation/avatar_head.png" style="opacity:0">
-                    <img id="player-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png" style="opacity:0">
-                    <img id="player-leggings" class="avatar-layer layer-leggings" style="display:none; opacity:0">
-                    <img id="player-armor" class="avatar-layer layer-armor" style="display:none; opacity:0">
-                    <img id="player-weapon" class="avatar-layer layer-weapon" style="display:none; opacity:0">
+                    <img id="player-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" onerror="this.style.opacity='0'" onload="this.style.opacity='1'">
+                    <img id="player-head" class="avatar-layer layer-head" src="animation/avatar_head.png" onerror="this.style.opacity='0'" onload="this.style.opacity='1'">
+                    <img id="player-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png" onerror="this.style.opacity='0'" onload="this.style.opacity='1'">
+                    <img id="player-leggings" class="avatar-layer layer-leggings" style="display:none;" onerror="this.style.opacity='0'" onload="this.style.opacity='1'">
+                    <img id="player-armor" class="avatar-layer layer-armor" style="display:none;" onerror="this.style.opacity='0'" onload="this.style.opacity='1'">
+                    
+                    <img id="player-weapon" class="avatar-layer layer-weapon" style="display:none;" onerror="if(this.src.includes('_attack.png')){this.src=this.src.replace('_attack.png','.png');}else{this.style.display='none';}">
                 </div>
             </div>
         </div>
@@ -337,18 +342,7 @@
 
 <script>
 // ==========================================
-// 1. GLOBAL IMAGE ERROR HANDLER (NO BROKEN ICONS)
-// ==========================================
-document.querySelectorAll('.avatar-layer').forEach(img => {
-    img.onerror = function() {
-        if (this.src.includes('_attack.png')) this.src = this.src.replace('_attack.png', '.png');
-        else this.style.opacity = '0';
-    };
-    img.onload = function() { this.style.opacity = '1'; };
-});
-
-// ==========================================
-// 2. TOP-LEVEL VARIABLES
+// 1. TOP-LEVEL VARIABLES
 // ==========================================
 let socket;
 try { socket = io(); } catch(e) { console.warn("Socket disconnected."); }
@@ -365,8 +359,10 @@ window.adminMode = false; const CAMERA_ZOOM = 1.8; const STAT_TYPES = ['attack',
 window.RARITY_COLORS = { "Starter": "#aaaaaa", "Basic": "#8B4513", "Rare": "#2196F3", "Unique": "#9c27b0", "Legendary": "#f44336", "Godly": "#e0ffff" };
 window.ITEM_TEMPLATES = { sword: { slot: 'weapon', statKey: 'attack', baseName: 'Sword', spriteName: 'sword' }, staff: { slot: 'weapon', statKey: 'magic', baseName: 'Staff', spriteName: 'staff' }, pendant: { slot: 'weapon', statKey: 'magic', baseName: 'Pendant', spriteName: 'pendant' }, armor: { slot: 'armor', statKey: 'defense', baseName: 'Armor', spriteName: 'armor' }, leggings: { slot: 'leggings', statKey: 'hp', baseName: 'Leggings', spriteName: 'leggings' } };
 
+// MAP DATABASE & DEFAULT FALLBACK
 window.MapDatabase = window.MapDatabase || {};
-let safeMapData = { id: "town", name: "Town of Exonie", image: "town_map.png", spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
+if (typeof townMapData !== 'undefined') window.MapDatabase['town'] = townMapData;
+let safeMapData = window.MapDatabase['town'] || { id: "town", name: "Town of Exonie", image: "town_map.png", spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
 
 let isInventoryOpen = false; let isEnhancing = false; let activeInvIndex = -1; let facingRight = false; let attackCooldownActive = false; let isAttacking = false;
 let walkTimer = 0; let walkState = 0; const walkSpeed = 10; let attackAnimTimer = 0; let attackState = 0; let attackHeld = false; let isChatting = false; window.attemptAttackTarget = null;
@@ -384,15 +380,19 @@ window.game = {
 const DatabaseManager = { savePlayerData: function(playerObj) { playerObj.mapId = safeMapData.id || 'town'; if(socket) socket.emit('saveData', playerObj); if(socket) socket.emit('playerEquipUpdate', { equips: playerObj.equips }); } };
 
 // ==========================================
-// 3. DYNAMIC MAP SCRIPT LOADER (CACHE BUSTER FIX)
+// 2. DYNAMIC MAP SCRIPT LOADER
 // ==========================================
 window.loadMapScript = function(mapId, callback) {
-    // Force a fresh fetch so collisions update instantly after saving!
+    let varName = mapId === 'town' ? 'townMapData' : mapId + 'MapData';
+    if (window[varName]) {
+        window.MapDatabase[mapId] = window[varName];
+        return callback();
+    }
+    
     let scriptName = (mapId === 'town' ? 'townmap.js' : mapId + '.js') + '?v=' + Date.now();
     let script = document.createElement('script');
     script.src = scriptName;
     script.onload = () => {
-        let varName = mapId === 'town' ? 'townMapData' : mapId + 'MapData';
         if (window[varName]) { window.MapDatabase[mapId] = window[varName]; }
         callback();
     };
@@ -405,11 +405,43 @@ window.loadMapScript = function(mapId, callback) {
 }
 
 // ==========================================
+// 3. ADMIN SPAWN HOTKEYS (Z, X, C)
+// ==========================================
+dom.world.addEventListener('pointerdown', (e) => {
+    if (window.adminMode && e.target.id === 'world') {
+        const clickX = e.offsetX; const clickY = e.offsetY;
+        let mKey = document.getElementById('admin-monster-key').value;
+
+        if (game.keys.tab) {
+            safeMapData.spawnX = clickX; safeMapData.spawnY = clickY;
+            window.buildCollisionLayers(); dom.log.innerText = `Set Spawn Point at ${clickX}, ${clickY}`;
+        } else if (game.keys.z) {
+            if (!safeMapData.normalSpawns) safeMapData.normalSpawns = [];
+            safeMapData.normalSpawns.push({ x: clickX, y: clickY, monsterKey: mKey });
+            window.buildCollisionLayers(); dom.log.innerText = `Added Common Mob at ${clickX}, ${clickY}`;
+        } else if (game.keys.x) {
+            if (!safeMapData.miniBossSpawns) safeMapData.miniBossSpawns = [];
+            safeMapData.miniBossSpawns.push({ x: clickX, y: clickY, monsterKey: mKey });
+            window.buildCollisionLayers(); dom.log.innerText = `Added Mini Boss at ${clickX}, ${clickY}`;
+        } else if (game.keys.c) {
+            if (!safeMapData.floorBossSpawns) safeMapData.floorBossSpawns = [];
+            safeMapData.floorBossSpawns.push({ x: clickX, y: clickY, monsterKey: mKey });
+            window.buildCollisionLayers(); dom.log.innerText = `Added Floor Boss at ${clickX}, ${clickY}`;
+        }
+        return;
+    }
+    
+    // Normal attack logic
+    if(!window.adminMode && e.target.id === 'world') {
+        attackHeld = true; window.attemptAttack();
+    }
+});
+
+
+// ==========================================
 // 4. CORE FUNCTIONS
 // ==========================================
 window.playBGM = function(trackName) { if (currentTrackName === trackName) return; if (currentBGM) { currentBGM.pause(); currentBGM.currentTime = 0; } currentTrackName = trackName; currentBGM = new Audio(`music/${trackName}.mp3`); currentBGM.loop = true; currentBGM.volume = 0.4; currentBGM.play().catch(e => console.log("Audio waiting")); }
-document.addEventListener('click', function() { if (!currentBGM && document.getElementById('auth-screen').classList.contains('active')) { window.playBGM('loginmenu'); } });
-document.addEventListener('keydown', function() { if (!currentBGM && document.getElementById('auth-screen').classList.contains('active')) { window.playBGM('loginmenu'); } });
 
 window.getTotalStat = function(statName) { if (!game.player || !game.player.baseStats) return 0; let total = game.player.baseStats[statName] || 0; ['weapon', 'armor', 'leggings'].forEach(slot => { let eq = game.player.equips?.[slot]; if (eq) { if (eq.fixedStat && typeof eq.fixedStat[statName] === 'number') total += eq.fixedStat[statName]; if (eq.randomStat && typeof eq.randomStat[statName] === 'number') total += eq.randomStat[statName]; } }); return total; }
 window.getMaxHp = function() { return window.getTotalStat('hp'); }
@@ -420,7 +452,7 @@ window.getSpeed = function() { return window.getTotalStat('speed'); }
 window.getBaseStat = function(lvl) { if (lvl >= 50) return 100; if (lvl >= 45) return 45; if (lvl >= 40) return 40; if (lvl >= 35) return 30; if (lvl >= 30) return 27; if (lvl >= 25) return 22; if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; if (lvl >= 5) return 8; return 5; }
 
 window.generateLoot = function() {
-    if (Math.random() < 0.50) return { id: Date.now() + Math.random(), name: "Refinement Stone Lv.5", type: "material", level: 5, rarity: "Basic", color: "#e0e0e0", description: "Enhances equipment.", quantity: 1 };
+    if (Math.random() < 0.50) { return { id: Date.now() + Math.random(), name: "Refinement Stone Lv.5", type: "material", level: 5, rarity: "Basic", color: "#e0e0e0", description: "Enhances equipment.", quantity: 1 }; }
     let keys = Object.keys(window.ITEM_TEMPLATES); let typeKey = keys[Math.floor(Math.random() * keys.length)];
     let rarity = Math.random() < 0.05 ? "Rare" : "Basic"; let level = 5; let template = window.ITEM_TEMPLATES[typeKey];
     let rarityPrefix = rarity === "Starter" ? "basic" : rarity.toLowerCase(); let spriteName = rarityPrefix + template.spriteName; 
@@ -534,6 +566,13 @@ window.buildCollisionLayers = function() {
     const tps = safeMapData.teleports || [];
     tps.forEach(box => { const div = document.createElement('div'); div.className = 'collision-box'; div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px'; if (window.adminMode) { div.style.background = 'rgba(0, 0, 255, 0.4)'; div.style.border = '2px dashed #00f'; div.innerText = box.portalId || '?'; div.style.color = 'white'; div.style.display = 'flex'; div.style.justifyContent = 'center'; div.style.alignItems = 'center'; div.style.fontSize = '24px'; div.style.fontWeight = 'bold'; } layer.appendChild(div); });
     if (window.adminMode && safeMapData.spawnX !== undefined) { const sm = document.createElement('div'); sm.className = 'admin-spawn-marker'; sm.style.left = safeMapData.spawnX + 'px'; sm.style.top = safeMapData.spawnY + 'px'; sm.innerText = 'S'; layer.appendChild(sm); }
+    
+    // Draw spawns for admin visually
+    if (window.adminMode) {
+        (safeMapData.normalSpawns || []).forEach(sp => { const sm = document.createElement('div'); sm.className = 'admin-spawn-marker'; sm.style.left = sp.x + 'px'; sm.style.top = sp.y + 'px'; sm.style.borderColor = '#0f0'; sm.innerText = 'M'; layer.appendChild(sm); });
+        (safeMapData.miniBossSpawns || []).forEach(sp => { const sm = document.createElement('div'); sm.className = 'admin-spawn-marker'; sm.style.left = sp.x + 'px'; sm.style.top = sp.y + 'px'; sm.style.borderColor = '#ff9800'; sm.innerText = 'MB'; layer.appendChild(sm); });
+        (safeMapData.floorBossSpawns || []).forEach(sp => { const sm = document.createElement('div'); sm.className = 'admin-spawn-marker'; sm.style.left = sp.x + 'px'; sm.style.top = sp.y + 'px'; sm.style.borderColor = '#9c27b0'; sm.innerText = 'FB'; layer.appendChild(sm); });
+    }
 }
 
 window.isColliding = function(targetX, targetY) { const hitX = targetX + (game.player.width - game.player.w) / 2; const hitY = targetY + game.player.height - game.player.h; const cols = safeMapData.collisions || []; for (let box of cols) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; } return false; }
@@ -641,8 +680,7 @@ window.addEventListener('keydown', (e) => {
                 let msg = chatInputDom.value.trim();
                 if (msg !== '' && socket) { 
                     socket.emit('chatMessage', { text: msg }); 
-                    // INSTANTLY SHOW BUBBLE LOCALLY (THIS WAS MISSING!)
-                    window.showBubble(game.player, msg);
+                    window.showBubble(game.player, msg); // Fix: Shows bubble on sender's screen!
                 }
                 chatInputDom.value = ''; chatContainerDom.style.display = 'none'; chatInputDom.blur(); isChatting = false;
             } else { chatContainerDom.style.display = 'block'; chatInputDom.focus(); isChatting = true; game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false; }
@@ -659,7 +697,7 @@ function setKeyState(e, isDown) {
 }
 window.addEventListener('keydown', (e) => setKeyState(e, true), { capture: true }); window.addEventListener('keyup', (e) => setKeyState(e, false), { capture: true }); window.addEventListener('blur', () => { for (const k in game.keys) game.keys[k] = false; attackHeld = false; isChatting = false; });
 
-// STOPS CONTEXT MENUS FROM VANISHING BEFORE BUTTON CLICK REGISTERS
+// FIX FOR BUTTONS NOT CLICKING
 window.addEventListener('mousedown', (e) => { 
     if (!e.target.closest('#inv-context-menu')) document.getElementById('inv-context-menu').style.display = 'none'; 
     if (!e.target.closest('#player-context-menu')) document.getElementById('player-context-menu').style.display = 'none'; 
@@ -671,11 +709,11 @@ window.saveMapToServer = function() {
     if (!window.adminMode) return;
     let mapId = safeMapData.id || 'town';
     let varName = mapId === 'town' ? 'townMapData' : mapId + 'MapData';
-    // WE USE 'var' SO IT DOES NOT CRASH IF RELOADED!
+    // Using var prevents the 'Identifier already declared' browser crash
     let jsStr = `var ${varName} = ${JSON.stringify(safeMapData, null, 4)};\nif(typeof window !== 'undefined') window['${varName}'] = ${varName};`;
     socket.emit('saveMapFile', { mapId: mapId, content: jsStr });
     socket.emit('syncMapData', safeMapData);
-    dom.log.innerText = "Map data sent to server for saving!";
+    dom.log.innerText = "Map saved! (Press Ctrl+F5 if collisions don't update instantly)";
 };
 
 // --- CONTEXT MENUS & TRADE UI ---
@@ -793,7 +831,7 @@ if(socket) {
                     
                     if(socket) socket.emit('syncMapData', safeMapData);
                     
-                    window.playBGM((safeMapData.id || "").includes('floor') ? 'floor' : 'town');
+                    window.playBGM((safeMapData.id || "").includes('floor') ? 'floors' : 'town');
 
                     game.isRunning = true; requestAnimationFrame(gameLoop); window.emitVitalsIfNeeded(true);
                 }, 4000);
@@ -818,14 +856,14 @@ if(socket) {
         p.x = data.x; p.y = data.y; p.dom.style.left = p.x + 'px'; p.dom.style.top = p.y + 'px'; p.rig.style.transform = data.facingRight ? 'scaleX(-1)' : 'scaleX(1)';
         
         let bodySrc = data.state === 'attack' ? 'animation/avatar_attack.png' : data.state === 'walk' ? 'animation/avatar_walk.png' : 'animation/avatar_idlefront.png';
-        if (!p.body.src.endsWith(bodySrc)) p.body.src = bodySrc;
+        if (p.body.getAttribute('src') !== bodySrc) p.body.setAttribute('src', bodySrc);
 
         if (data.weaponSprite) {
             p.weapon.style.display = 'block';
             let fixedWpn = data.weaponSprite.replace('starter', 'basic');
             const isAtk = data.state === 'attack' && !fixedWpn.includes('pendant');
             let wpnSrc = `weapon/${fixedWpn}${isAtk ? '_attack' : ''}.png`;
-            if (!p.weapon.src.endsWith(wpnSrc)) p.weapon.src = wpnSrc;
+            if (p.weapon.getAttribute('src') !== wpnSrc) p.weapon.setAttribute('src', wpnSrc);
         } else {
             p.weapon.style.display = 'none';
         }
@@ -993,11 +1031,6 @@ window.attemptAttack = function() {
     setTimeout(() => { attackCooldownActive = false; }, cooldownMs);
 }
 
-dom.world.addEventListener('pointerdown', (e) => { 
-    if(!window.adminMode && e.target.id === 'world') { attackHeld = true; window.attemptAttack(); }
-});
-window.addEventListener('pointerup', () => { attackHeld = false; });
-
 function gameLoop(ts) {
     if (!game.isRunning) return;
 
@@ -1038,7 +1071,7 @@ function gameLoop(ts) {
                     socket.emit('syncMapData', safeMapData);
                     socket.emit('playerTeleported', { mapId: nextMapId, x: game.player.x, y: game.player.y });
                 }
-                game.player.teleportCooldown = 2000; window.playBGM(nextMapId.includes('floor') ? 'floor' : 'town');
+                game.player.teleportCooldown = 2000; window.playBGM(nextMapId.includes('floor') ? 'floors' : 'town');
             });
         }
     }
@@ -1054,8 +1087,6 @@ function gameLoop(ts) {
     } else {
         walkTimer = 0; walkState = 0; window.updateAnimationFrames('idle');
     }
-
-    if (attackHeld && !isInventoryOpen && !window.adminMode && !isChatting) { window.attemptAttack(); }
 
     const desiredState = isAttacking ? 'attack' : (isMoving ? 'walk' : 'idle');
     const netNow = Date.now();
