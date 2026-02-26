@@ -7,11 +7,8 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
-    
-    <script src="townmap.js"></script>
 
     <style>
-        /* --- GLOBAL STYLES --- */
         body { margin: 0; font-family: 'MedievalSharp', cursive; background-color: #121212; color: #e0e0e0; display: flex; justify-content: center; align-items: center; height: 100vh; user-select: none; overflow: hidden; }
         #game-container { width: 100vw; height: 100vh; background-color: #1e1e1e; position: relative; overflow: hidden; image-rendering: pixelated; }
         .screen { width: 100%; height: 100%; display: none; } .screen.active { display: flex; }
@@ -31,12 +28,9 @@
         .btn-large:hover { background-color: #45a049; }
         .panel-section { background-color: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #333; }
         .panel-section h4 { margin: 0 0 10px 0; color: #aaa; text-transform: uppercase; font-size: 14px;}
-        .button-group { display: flex; gap: 10px; flex-wrap: wrap; }
-        .color-group { display: flex; gap: 8px; flex-wrap: wrap; }
-        .color-swatch { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
-        .color-swatch:hover { transform: scale(1.1); } .color-swatch.selected { border-color: white; }
+        .button-group, .color-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .color-swatch { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; } .color-swatch:hover { transform: scale(1.1); } .color-swatch.selected { border-color: white; }
 
-        /* --- AUTH SCREENS --- */
         .auth-container { position: relative; z-index: 10; width: 400px; padding: 30px; background: #1e1e1e; border-radius: 8px; border: 2px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: center; margin: auto; }
         .auth-container h1 { margin-top: 0; color: #4CAF50; font-size: 40px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .auth-link { color: #4CAF50; cursor: pointer; font-size: 16px; text-decoration: underline; margin-top: 15px; display: inline-block; } .auth-link:hover { color: #fff; }
@@ -53,7 +47,6 @@
         .layer-body { height: 120%; bottom: -45%; z-index: 4; } .layer-leggings { height: 120%; bottom: -45%; z-index: 5; }
         .layer-armor { height: 120%; bottom: -45%; z-index: 6; } .layer-weapon { height: 120%; bottom: -45%; z-index: 7; }
 
-        /* --- GAME WORLD --- */
         #game-screen { position: relative; width: 100%; height: 100%; background-color: #000; }
         #world { position: absolute; width: 2000px; height: 1333px; background-size: 100% 100%; transform-origin: top left; transition: background-image 0.5s; }
 
@@ -66,19 +59,17 @@
         #admin-output { width: 100%; height: 100px; margin-top: 10px; margin-bottom: 10px; background: #111; color: #0f0; border: 1px solid #444; resize: none; font-size: 12px; box-sizing: border-box; padding: 5px; white-space: pre; overflow-x: auto; }
         .admin-tool-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; } .admin-tool-row input[type="number"] { margin-bottom: 0; width: 80px; padding: 5px; }
 
-        .entity { position: absolute; transition: filter 0.1s; z-index: 100;}
-        #player-container { z-index: 105; }
+        .entity { position: absolute; transition: filter 0.1s; z-index: 100;} #player-container { z-index: 105; }
         .name-tag { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 1px 1px 0 #000; z-index: 20; pointer-events: none; }
         .mob-name { color: #f44336; top: -30px; font-size: 12px;}
 
         .player-avatar-container { pointer-events: none; transform-origin: center bottom; position: relative; width: 48px; height: 96px; }
         .player-avatar-container::after { content: ''; position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); width: 30px; height: 8px; background: rgba(0, 0, 0, 0.4); border-radius: 50%; z-index: -2; }
 
-        #monster { position: absolute; transition: filter 0.1s, transform 0.15s ease-out; cursor: crosshair; display: flex; justify-content: center; align-items: flex-end; z-index: 50; }
-        #monster-sprite { width: 100%; height: 100%; background-color: #ff69b4; border: 2px solid #c71585; border-radius: 50% 50% 40% 40%; box-shadow: 0 4px 4px rgba(0,0,0,0.3); box-sizing: border-box; background-size: contain; background-repeat: no-repeat; background-position: bottom; animation: slime-bounce 0.5s infinite alternate; }
+        /* --- MULTI-MONSTER CONTAINER CSS --- */
+        .monster-container { transition: filter 0.1s, transform 0.15s ease-out; }
+        .hit-flash .monster-sprite-layer { filter: brightness(2) drop-shadow(0 0 5px red) !important; }
         @keyframes slime-bounce { 0% { transform: translateY(0) scaleY(0.9); } 100% { transform: translateY(-12px) scaleY(1.1); } }
-        #monster.hit-flash #monster-sprite { filter: brightness(2) drop-shadow(0 0 5px red) !important; }
-        #monster-ui { position: absolute; top: -20px; left: 0px; width: 100%; pointer-events: none; display: none; }
 
         /* --- HUD & PANELS --- */
         #hud { position: absolute; top: 20px; left: 20px; width: 250px; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #555; z-index: 1000; }
@@ -91,10 +82,9 @@
 
         #party-panel { margin-top: 10px; padding-top: 10px; border-top: 1px solid #444; display: none; }
         #party-title { font-size: 14px; font-weight: bold; color: #4CAF50; margin-bottom: 6px; }
-        .party-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; color: #ddd; }
-        .party-row span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; display: inline-block; }
-        .party-hp { color: #ffeb3b; }
+        .party-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; color: #ddd; } .party-hp { color: #ffeb3b; }
 
+        /* --- EFFECTS --- */
         .spark { position: absolute; width: 16px; height: 16px; background-color: #fff; border-radius: 50%; box-shadow: 0 0 8px #ffeb3b, 0 0 15px #ff9800; pointer-events: none; z-index: 300; animation: spark-pop 0.3s ease-out forwards; }
         @keyframes spark-pop { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 50% { background-color: #ffeb3b; } 100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; } }
         .white-splash { position: absolute; width: 30px; height: 30px; background-color: #fff; border-radius: 50%; box-shadow: 0 0 15px #fff, 0 0 25px #e0ffff; pointer-events: none; z-index: 300; transform: translate(-50%, -50%); animation: white-splash-pop 0.3s ease-out forwards; }
@@ -103,7 +93,6 @@
         .damage-text { position: absolute; color: white; font-weight: bold; font-size: 16px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; pointer-events: none; animation: floatUp 1s forwards; z-index: 200; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(1.5); } }
         .level-up-text { position: absolute; color: #ffd700; font-weight: bold; font-size: 28px; text-shadow: 0 0 10px #ff9800; pointer-events: none; animation: floatUp 2s forwards; z-index: 500; }
-
         .rarity-godly { animation: godly-sparkle 1.5s infinite alternate; }
         @keyframes godly-sparkle { 0% { text-shadow: 0 0 2px #fff, 0 0 5px #e0ffff; } 100% { text-shadow: 0 0 8px #fff, 0 0 15px #00ffff, 0 0 20px #00ffff; } }
 
@@ -119,6 +108,7 @@
         .equip-container { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px;}
         .equip-box { flex: 1; background: #1e1e1e; border: 1px solid #444; border-radius: 4px; padding: 10px 5px; text-align: center; font-size: 14px; position: relative; cursor: pointer; transition: background 0.2s;}
         .equip-box:hover { background: #333; border-color: #f44336; } .equip-box:hover .tooltip { visibility: visible; }
+        
         #inv-context-menu { display: none; position: absolute; background: #222; border: 1px solid #777; border-radius: 4px; z-index: 3000; flex-direction: column; width: 120px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
         .ctx-btn { background: none; border: none; color: white; padding: 10px; cursor: pointer; text-align: left; font-weight: bold; font-size: 16px; font-family: 'MedievalSharp', cursive; } .ctx-btn:hover { background: #444; }
 
@@ -136,14 +126,13 @@
         .inspect-item-name { font-weight: bold; font-size: 16px; } .inspect-sub { color: #aaa; font-size: 13px; }
         .inspect-stat { font-size: 13px; color: #e0e0e0; margin-top: 6px; line-height: 1.3; } .inspect-stat b { color: #4CAF50; } .inspect-empty { color: #888; font-style: italic; }
 
+        /* --- BUBBLE CHAT UI --- */
         #chat-input-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 3000; display: none; }
         #chat-input { background: rgba(0,0,0,0.8); border: 1px solid #4CAF50; color: white; padding: 10px 20px; width: 400px; border-radius: 25px; outline: none; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
         .chat-bubble { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.9); color: #111; padding: 6px 14px; border-radius: 12px; font-size: 14px; font-weight: bold; white-space: nowrap; pointer-events: none; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 200; animation: fadeInOut 4s forwards; }
-        @keyframes fadeInOut { 0% { opacity: 0; transform: translate(-50%, 10px); } 10% { opacity: 1; transform: translate(-50%, 0); } 80% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -10px); } }
 
         .popup-dialog { position: absolute; top: 30%; left: 50%; transform: translateX(-50%); background: rgba(20,20,20,0.95); border-radius: 8px; padding: 25px; z-index: 4000; display: none; text-align: center; box-shadow: 0 0 20px #000; }
         #invite-dialog { border: 2px solid #4CAF50; } #trade-dialog { border: 2px solid #2196F3; } .popup-dialog button { margin: 0 10px; width: 100px; }
-
         #trade-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 550px; background: rgba(20,20,20,0.98); border: 2px solid #2196F3; z-index: 4500; padding: 20px; box-shadow: 0 0 30px black; display: none; border-radius: 8px; }
         .trade-side { flex: 1; background: #111; padding: 10px; border: 1px solid #444; border-radius: 5px; }
     </style>
@@ -168,16 +157,12 @@
             <div class="trade-side">
                 <h3 style="margin-top:0; color:#4CAF50; text-align:center;">Your Offer</h3>
                 <div style="margin-bottom:10px;">Gold: <input type="number" id="trade-my-gold" value="0" min="0" style="width:80px; padding:4px; font-size:14px;"></div>
-                <div class="inv-grid" id="trade-my-items" style="grid-template-columns: repeat(3, 1fr);">
-                    <div class="inv-slot" onclick="window.removeFromTrade(0)"></div><div class="inv-slot" onclick="window.removeFromTrade(1)"></div><div class="inv-slot" onclick="window.removeFromTrade(2)"></div>
-                </div>
+                <div class="inv-grid" id="trade-my-items" style="grid-template-columns: repeat(3, 1fr);"><div class="inv-slot" onclick="window.removeFromTrade(0)"></div><div class="inv-slot" onclick="window.removeFromTrade(1)"></div><div class="inv-slot" onclick="window.removeFromTrade(2)"></div></div>
             </div>
             <div class="trade-side">
                 <h3 style="margin-top:0; color:#f44336; text-align:center;">Their Offer</h3>
                 <div style="margin-bottom:10px; color:gold;">Gold: <span id="trade-their-gold">0</span></div>
-                <div class="inv-grid" id="trade-their-items" style="grid-template-columns: repeat(3, 1fr);">
-                    <div class="inv-slot"></div><div class="inv-slot"></div><div class="inv-slot"></div>
-                </div>
+                <div class="inv-grid" id="trade-their-items" style="grid-template-columns: repeat(3, 1fr);"><div class="inv-slot"></div><div class="inv-slot"></div><div class="inv-slot"></div></div>
             </div>
         </div>
         <p style="text-align:center; color:#aaa; font-size:12px; margin-bottom:0;">(Open Inventory 'I' to click and add items to trade)</p>
@@ -282,12 +267,24 @@
                 <div class="admin-tool-row"><span>Give Item: Lv</span><input type="number" id="admin-item-level" value="5" min="1" max="50" style="width:50px;"><span>+</span><input type="number" id="admin-item-enhance" value="0" min="0" max="20" style="width:50px;"></div>
                 <div class="admin-tool-row"><select id="admin-item-rarity"><option value="Basic">Basic</option><option value="Rare">Rare</option><option value="Unique">Unique</option><option value="Legendary">Legendary</option><option value="Godly" selected>Godly</option></select><select id="admin-item-type"><option value="sword">Sword</option><option value="staff">Staff</option><option value="pendant">Pendant</option><option value="armor">Armor</option></select><button class="btn selected" onclick="window.adminGiveCustomItem()">Spawn</button></div>
             </div>
-            <p style="font-size: 14px; color: #aaa; margin-bottom: 5px;"><b>Alt + Left Click & Drag</b>: Draw Collision Box</p>
-            <p style="font-size: 14px; color: #00ff00; margin-bottom: 5px;"><b>Shift + Alt + Left Click & Drag</b>: Draw Teleport Box</p>
-            <p style="font-size: 14px; color: #0ff; margin-top: 0; margin-bottom: 5px;"><b>Tab + Left Click</b>: Set Safe Spawn Point</p>
-            <div style="display: flex; gap: 10px;"><button class="btn" style="flex: 1;" onclick="window.undoLastBox()">Undo Box</button><button class="btn" style="flex: 1; background-color: #f44336;" onclick="window.clearAllBoxes()">Clear Map</button></div>
+            
+            <p style="font-size: 14px; color: #aaa; margin-bottom: 5px;"><b>Alt + Drag</b>: Block <span style="color:#00ff00;">| <b>Shift+Alt+Drag</b>: Portal</span> <span style="color:#0ff;">| <b>Tab+Click</b>: Spawn</span></p>
+            <div class="admin-tool-row" style="margin-bottom: 5px;">
+                <span style="color: #ff9800; font-weight:bold; font-size:12px;">Z, X, C + Click to Spawn:</span>
+                <select id="admin-monster-key">
+                    <option value="common_mobs1">Slime</option>
+                    <option value="mini_boss1">Orc Chieftain</option>
+                    <option value="floor_boss1">Dragon</option>
+                </select>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top:10px;">
+                <button class="btn" style="flex: 1;" onclick="window.undoLastBox()">Undo Box</button>
+                <button class="btn" style="flex: 1; background-color: #f44336;" onclick="window.clearAllBoxes()">Clear Map</button>
+            </div>
             <textarea id="admin-output" readonly></textarea>
-            <button class="btn btn-large" style="margin-top: 0; padding: 10px;" onclick="window.copyAdminData()">Copy Code</button>
+            
+            <button class="btn btn-large" style="margin-top: 0; padding: 10px; background-color: #4CAF50;" onclick="window.saveMapToServer()">Save Map to Server</button>
         </div>
 
         <div id="inspect-screen"><h2 id="inspect-title" style="margin:0 0 10px 0; text-align:center; border-bottom:1px solid #444; padding-bottom:8px;">Inspect</h2><div id="inspect-content"></div><button class="btn btn-large" style="margin-top: 10px; padding: 10px;" onclick="window.closeInspect()">Close</button></div>
@@ -304,12 +301,6 @@
                     <img id="player-armor" class="avatar-layer layer-armor" style="display:none;">
                     <img id="player-weapon" class="avatar-layer layer-weapon" style="display:none;">
                 </div>
-            </div>
-
-            <div id="monster" class="entity" style="left: 900px; top: 800px;">
-                <div class="name-tag mob-name" id="monster-name-tag">Slime Lv.5</div>
-                <div id="monster-sprite"></div>
-                <div id="monster-ui"><div class="bar-container" style="height: 5px; border-radius: 0; margin-bottom: 0;"><div id="ui-monster-hp-bar" class="hp-fill monster-hp-fill"></div></div></div>
             </div>
         </div>
 
@@ -328,7 +319,7 @@
         </div>
 
         <div id="stat-screen" class="window-panel">
-            <h2 style="margin-top: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px;">Player Stats</h2>
+            <h2 style="margin: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px;">Player Stats</h2>
             <div class="stat-grid">
                 <div>Level: <span id="stat-lvl" style="color:#ffd700;">1</span></div><div>Max HP: <span id="stat-maxhp">100</span></div>
                 <div>Attack Power: <span id="stat-atk">0</span></div><div>Magic Attack: <span id="stat-matk">0</span></div>
@@ -344,19 +335,13 @@
 // ==========================================
 // 1. GLOBAL IMAGE ERROR HANDLER (NO BROKEN ICONS)
 // ==========================================
-function bindImageErrorHandlers() {
-    document.querySelectorAll('img').forEach(img => {
-        img.onerror = function() {
-            if (this.src.includes('_attack.png')) {
-                this.src = this.src.replace('_attack.png', '.png'); // fallback to normal weapon
-            } else {
-                this.style.opacity = '0'; // Completely hide if missing
-            }
-        };
-        img.onload = function() { this.style.opacity = '1'; };
-    });
-}
-bindImageErrorHandlers();
+document.querySelectorAll('.avatar-layer').forEach(img => {
+    img.onerror = function() {
+        if (this.src.includes('_attack.png')) this.src = this.src.replace('_attack.png', '.png'); // fallback to normal weapon
+        else this.style.opacity = '0'; // Completely hide if missing
+    };
+    img.onload = function() { this.style.opacity = '1'; };
+});
 
 // ==========================================
 // 2. TOP-LEVEL VARIABLES
@@ -365,7 +350,7 @@ let socket;
 try { socket = io(); } catch(e) { console.warn("Socket disconnected."); }
 
 const dom = {
-    creation: document.getElementById('creation-screen'), game: document.getElementById('game-screen'), playerContainer: document.getElementById('player-container'), playerAvatarContainer: document.getElementById('player-avatar-container'), playerBody: document.getElementById('player-body'), playerHead: document.getElementById('player-head'), playerHair: document.getElementById('player-hair'), playerWeapon: document.getElementById('player-weapon'), playerArmor: document.getElementById('player-armor'), playerLeggings: document.getElementById('player-leggings'), monster: document.getElementById('monster'), monsterSprite: document.getElementById('monster-sprite'), monsterName: document.getElementById('monster-name-tag'), log: document.getElementById('combat-log'), statScreen: document.getElementById('stat-screen'), invScreen: document.getElementById('inventory-screen'), world: document.getElementById('world'), inspect: document.getElementById('inspect-screen'), inspectContent: document.getElementById('inspect-content'), inspectTitle: document.getElementById('inspect-title'), partyPanel: document.getElementById('party-panel'), partyMembers: document.getElementById('party-members')
+    creation: document.getElementById('creation-screen'), game: document.getElementById('game-screen'), playerContainer: document.getElementById('player-container'), playerAvatarContainer: document.getElementById('player-avatar-container'), playerBody: document.getElementById('player-body'), playerHead: document.getElementById('player-head'), playerHair: document.getElementById('player-hair'), playerWeapon: document.getElementById('player-weapon'), playerArmor: document.getElementById('player-armor'), playerLeggings: document.getElementById('player-leggings'), log: document.getElementById('combat-log'), statScreen: document.getElementById('stat-screen'), invScreen: document.getElementById('inventory-screen'), world: document.getElementById('world'), inspect: document.getElementById('inspect-screen'), inspectContent: document.getElementById('inspect-content'), inspectTitle: document.getElementById('inspect-title'), partyPanel: document.getElementById('party-panel'), partyMembers: document.getElementById('party-members')
 };
 
 const skinFilters = { 'flesh': 'sepia(1) hue-rotate(-25deg) saturate(2.5) brightness(1.1)', 'yellow': 'sepia(1) hue-rotate(15deg) saturate(3) brightness(1.2)', 'green': 'sepia(1) hue-rotate(75deg) saturate(2) brightness(1)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2) brightness(1)', 'white': 'grayscale(1) brightness(1.8) contrast(0.9)' };
@@ -377,19 +362,21 @@ window.RARITY_COLORS = { "Starter": "#aaaaaa", "Basic": "#8B4513", "Rare": "#219
 window.ITEM_TEMPLATES = { sword: { slot: 'weapon', statKey: 'attack', baseName: 'Sword', spriteName: 'sword' }, staff: { slot: 'weapon', statKey: 'magic', baseName: 'Staff', spriteName: 'staff' }, pendant: { slot: 'weapon', statKey: 'magic', baseName: 'Pendant', spriteName: 'pendant' }, armor: { slot: 'armor', statKey: 'defense', baseName: 'Armor', spriteName: 'armor' }, leggings: { slot: 'leggings', statKey: 'hp', baseName: 'Leggings', spriteName: 'leggings' } };
 
 window.MapDatabase = window.MapDatabase || {};
-let safeMapData = (typeof townMapData !== 'undefined') ? townMapData : { id: "town", name: "Town of Exonie", image: "town_map.png", spawnX: 960, spawnY: 1000, collisions: [], teleports: [] };
-window.MapDatabase['town'] = safeMapData;
+if (typeof townMapData !== 'undefined') window.MapDatabase['town'] = townMapData;
+
+let safeMapData = window.MapDatabase['town'] || { id: "town", name: "Town of Exonie", image: "town_map.png", spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
 
 let isInventoryOpen = false; let isEnhancing = false; let activeInvIndex = -1; let facingRight = false; let attackCooldownActive = false; let isAttacking = false;
-let walkTimer = 0; let walkState = 0; const walkSpeed = 10; let attackAnimTimer = 0; let attackState = 0; let attackHeld = false; let isChatting = false;
+let walkTimer = 0; const walkSpeed = 10; let attackHeld = false; let isChatting = false; window.attemptAttackTarget = null;
 let inTradeMode = false; let tradeTarget = null; let tradeMyItems = [null, null, null]; let tradeTheirItems = [null, null, null];
 let lastVitalsSent = { hp: null, maxHp: null, level: null }; let lastVitalsTs = 0; let lastSentState = 'idle'; let lastNetTs = 0;
+let currentBGM = null; let currentTrackName = ""; let loginTimeout; let activeTargetPlayerId = null;
+let pendingPartyInvite = null; let pendingTradeInvite = null;
 
 window.game = {
     isRunning: false, keys: { w: false, a: false, s: false, d: false, tab: false, z: false, x: false, c: false },
     player: { id: 'local_player', name: "Adventurer", level: 1, exp: 0, maxExp: 200, gold: 0, x: 960, y: 1000, width: 48, height: 96, w: 24, h: 20, teleportCooldown: 0, baseStats: { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10 }, currentHp: 100, inventory: new Array(20).fill(null), equips: { weapon: null, armor: null, leggings: null } },
-    monster: { id: "m1", monsterKey: "common_mobs1", name: "Slime", x: 900, y: 800, width: 40, height: 40, maxHp: 100, currentHp: 100, alive: true },
-    remotePlayers: {}, cachedUserData: null, party: null
+    monsters: {}, remotePlayers: {}, cachedUserData: null, party: null
 };
 
 const DatabaseManager = { savePlayerData: function(playerObj) { playerObj.mapId = safeMapData.id || 'town'; if(socket) socket.emit('saveData', playerObj); if(socket) socket.emit('playerEquipUpdate', { equips: playerObj.equips }); } };
@@ -399,31 +386,19 @@ const DatabaseManager = { savePlayerData: function(playerObj) { playerObj.mapId 
 // ==========================================
 window.loadMapScript = function(mapId, callback) {
     if (window.MapDatabase[mapId]) return callback();
-    
     let scriptName = mapId === 'town' ? 'townmap.js' : mapId + '.js';
-    let script = document.createElement('script');
-    script.src = scriptName;
-    script.onload = () => {
-        if (window[mapId + 'MapData']) {
-            window.MapDatabase[mapId] = window[mapId + 'MapData'];
-        } else if (mapId === 'town' && typeof townMapData !== 'undefined') {
-            window.MapDatabase[mapId] = townMapData;
-        }
-        callback();
-    };
-    script.onerror = () => {
-        console.warn("Map script not found: " + scriptName);
-        window.MapDatabase[mapId] = { id: mapId, name: mapId, image: mapId === 'town' ? 'town_map.png' : mapId + '.png', spawnX: 960, spawnY: 1000, collisions: [], teleports: [] };
-        callback();
-    };
+    let script = document.createElement('script'); script.src = scriptName;
+    script.onload = () => { if (window[mapId === 'town' ? 'townMapData' : mapId + 'MapData']) window.MapDatabase[mapId] = window[mapId === 'town' ? 'townMapData' : mapId + 'MapData']; callback(); };
+    script.onerror = () => { console.warn("Map script not found: " + scriptName); window.MapDatabase[mapId] = { id: mapId, name: mapId, image: mapId === 'town' ? 'town_map.png' : mapId + '.png', spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] }; callback(); };
     document.head.appendChild(script);
 }
 
 // ==========================================
 // 4. CORE FUNCTIONS
 // ==========================================
-let currentBGM = null; let currentTrackName = "";
 window.playBGM = function(trackName) { if (currentTrackName === trackName) return; if (currentBGM) { currentBGM.pause(); currentBGM.currentTime = 0; } currentTrackName = trackName; currentBGM = new Audio(`music/${trackName}.mp3`); currentBGM.loop = true; currentBGM.volume = 0.4; currentBGM.play().catch(e => console.log("Audio waiting")); }
+document.addEventListener('click', function() { if (!currentBGM && document.getElementById('auth-screen').classList.contains('active')) { window.playBGM('loginmenu'); } });
+document.addEventListener('keydown', function() { if (!currentBGM && document.getElementById('auth-screen').classList.contains('active')) { window.playBGM('loginmenu'); } });
 
 window.getTotalStat = function(statName) { if (!game.player || !game.player.baseStats) return 0; let total = game.player.baseStats[statName] || 0; ['weapon', 'armor', 'leggings'].forEach(slot => { let eq = game.player.equips?.[slot]; if (eq) { if (eq.fixedStat && typeof eq.fixedStat[statName] === 'number') total += eq.fixedStat[statName]; if (eq.randomStat && typeof eq.randomStat[statName] === 'number') total += eq.randomStat[statName]; } }); return total; }
 window.getMaxHp = function() { return window.getTotalStat('hp'); }
@@ -434,7 +409,7 @@ window.getSpeed = function() { return window.getTotalStat('speed'); }
 window.getBaseStat = function(lvl) { if (lvl >= 50) return 100; if (lvl >= 45) return 45; if (lvl >= 40) return 40; if (lvl >= 35) return 30; if (lvl >= 30) return 27; if (lvl >= 25) return 22; if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; if (lvl >= 5) return 8; return 5; }
 
 window.generateLoot = function() {
-    if (Math.random() < 0.50) { return { id: Date.now() + Math.random(), name: "Refinement Stone Lv.5", type: "material", level: 5, rarity: "Basic", color: "#e0e0e0", description: "Enhances equipment.", quantity: 1 }; }
+    if (Math.random() < 0.50) return { id: Date.now() + Math.random(), name: "Refinement Stone Lv.5", type: "material", level: 5, rarity: "Basic", color: "#e0e0e0", description: "Enhances equipment.", quantity: 1 };
     let keys = Object.keys(window.ITEM_TEMPLATES); let typeKey = keys[Math.floor(Math.random() * keys.length)];
     let rarity = Math.random() < 0.05 ? "Rare" : "Basic"; let level = 5; let template = window.ITEM_TEMPLATES[typeKey];
     let rarityPrefix = rarity === "Starter" ? "basic" : rarity.toLowerCase(); let spriteName = rarityPrefix + template.spriteName; 
@@ -525,7 +500,6 @@ window.updateUI = function() {
     document.getElementById('ui-hp-bar').style.backgroundColor = (game.player.currentHp < (window.getMaxHp()*0.3)) ? '#f44336' : '#4CAF50';
     document.getElementById('ui-level-text').innerText = game.player.level; document.getElementById('ui-exp-text').innerText = `${game.player.exp} / ${game.player.maxExp}`;
     document.getElementById('ui-exp-bar').style.width = (game.player.exp / Math.max(1, game.player.maxExp)) * 100 + '%'; document.getElementById('ui-gold-text').innerText = game.player.gold || 0;
-    if(game.monster.maxHp > 0) { document.getElementById('ui-monster-hp-bar').style.width = (game.monster.currentHp / game.monster.maxHp) * 100 + '%'; }
 }
 
 window.toggleStats = function() {
@@ -547,12 +521,11 @@ window.buildCollisionLayers = function() {
     const layer = document.getElementById('collision-layers'); if (!layer) return; layer.innerHTML = ''; const cols = safeMapData.collisions || [];
     cols.forEach(box => { const div = document.createElement('div'); div.className = 'collision-box'; div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px'; layer.appendChild(div); });
     const tps = safeMapData.teleports || [];
-    tps.forEach(box => { const div = document.createElement('div'); div.className = 'collision-box'; div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px'; if (window.adminMode) { div.style.background = 'rgba(0, 0, 255, 0.4)'; div.style.border = '2px dashed #00f'; div.innerText = box.portalId || '?'; div.style.color = 'white'; div.style.display = 'flex'; div.style.justifyContent = 'center'; div.style.alignItems = 'center'; div.style.fontSize = '24px'; div.style.fontWeight = 'bold'; } layer.appendChild(div); });
-    if (window.adminMode && safeMapData.spawnX !== undefined) { const sm = document.createElement('div'); sm.className = 'admin-spawn-marker'; sm.style.left = safeMapData.spawnX + 'px'; sm.style.top = safeMapData.spawnY + 'px'; sm.innerText = 'S'; layer.appendChild(sm); }
+    tps.forEach(box => { const div = document.createElement('div'); div.className = 'collision-box'; div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px'; if (adminMode) { div.style.background = 'rgba(0, 0, 255, 0.4)'; div.style.border = '2px dashed #00f'; div.innerText = box.portalId || '?'; div.style.color = 'white'; div.style.display = 'flex'; div.style.justifyContent = 'center'; div.style.alignItems = 'center'; div.style.fontSize = '24px'; div.style.fontWeight = 'bold'; } layer.appendChild(div); });
+    if (adminMode && safeMapData.spawnX !== undefined) { const sm = document.createElement('div'); sm.className = 'admin-spawn-marker'; sm.style.left = safeMapData.spawnX + 'px'; sm.style.top = safeMapData.spawnY + 'px'; sm.innerText = 'S'; layer.appendChild(sm); }
 }
 
 window.isColliding = function(targetX, targetY) { const hitX = targetX + (game.player.width - game.player.w) / 2; const hitY = targetY + game.player.height - game.player.h; const cols = safeMapData.collisions || []; for (let box of cols) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; } return false; }
-window.isMonsterColliding = function(mx, my) { const cols = safeMapData.collisions || []; for (let box of cols) { if (mx < box.x + box.w && mx + game.monster.width > box.x && my < box.y + box.h && my + game.monster.height > box.y) return true; } return false; }
 window.isInTeleport = function(targetX, targetY) { const hitX = targetX + (game.player.width - game.player.w) / 2; const hitY = targetY + game.player.height - game.player.h; const tps = safeMapData.teleports || []; for (let box of tps) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return box; } return null; }
 window.applyCamera = function() { const cameraX = Math.floor((window.innerWidth / 2) - (game.player.x * CAMERA_ZOOM) - (game.player.width * CAMERA_ZOOM / 2)); const cameraY = Math.floor((window.innerHeight / 2) - (game.player.y * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2)); dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`; }
 
@@ -566,7 +539,7 @@ window.updateAnimationFrames = function(state) {
     
     let bodySrc = state === 'attack' ? 'animation/avatar_attack.png' : state === 'walk' ? 'animation/avatar_walk.png' : 'animation/avatar_idlefront.png';
     
-    // STRICT DOM CACHE (Only changes if the attribute is actually different)
+    // Memory Cache: Prevents browser from freezing by never re-assigning the same string
     if (dom.playerBody.getAttribute('src') !== bodySrc) {
         dom.playerBody.setAttribute('src', bodySrc);
     }
@@ -653,11 +626,7 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
         if (dom.game.classList.contains('active')) {
             if (isChatting) {
-                let msg = chatInputDom.value.trim();
-                if (msg !== '' && socket) { 
-                    socket.emit('chatMessage', { text: msg }); 
-                    window.showBubble(game.player, msg); // Show locally instantly!
-                }
+                if (chatInputDom.value.trim() !== '' && socket) { socket.emit('chatMessage', { text: chatInputDom.value.trim() }); }
                 chatInputDom.value = ''; chatContainerDom.style.display = 'none'; chatInputDom.blur(); isChatting = false;
             } else { chatContainerDom.style.display = 'block'; chatInputDom.focus(); isChatting = true; game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false; }
         }
@@ -673,12 +642,22 @@ function setKeyState(e, isDown) {
 }
 window.addEventListener('keydown', (e) => setKeyState(e, true), { capture: true }); window.addEventListener('keyup', (e) => setKeyState(e, false), { capture: true }); window.addEventListener('blur', () => { for (const k in game.keys) game.keys[k] = false; attackHeld = false; isChatting = false; });
 
-// STOPS CONTEXT MENUS FROM VANISHING BEFORE CLICK REGISTERS
-window.addEventListener('click', (e) => { 
+// FIX FOR BUTTONS NOT CLICKING
+window.addEventListener('mousedown', (e) => { 
     if (!e.target.closest('#inv-context-menu')) document.getElementById('inv-context-menu').style.display = 'none'; 
     if (!e.target.closest('#player-context-menu')) document.getElementById('player-context-menu').style.display = 'none'; 
     if (isEnhancing && !e.target.closest('#inventory-screen') && !e.target.closest('#inv-context-menu')) { isEnhancing = false; dom.log.innerText = "Enhancement mode cancelled."; window.renderInventory(); } 
 });
+
+// ADMIN AUTO-SAVE TO SERVER API
+window.saveMapToServer = function() {
+    if (!window.adminMode) return;
+    let mapId = safeMapData.id || 'town';
+    let varName = mapId === 'town' ? 'townMapData' : mapId + 'MapData';
+    let jsStr = `const ${varName} = ${JSON.stringify(safeMapData, null, 4)};\nif(typeof window !== 'undefined') window['${varName}'] = ${varName};`;
+    socket.emit('saveMapFile', { mapId: mapId, content: jsStr });
+    dom.log.innerText = "Map data sent to server for saving!";
+};
 
 // --- CONTEXT MENUS & TRADE UI ---
 window.openPlayerContextMenu = function(targetId, e) { activeTargetPlayerId = targetId; const menu = document.getElementById('player-context-menu'); menu.style.display = 'flex'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px'; }
@@ -688,6 +667,7 @@ window.requestTrade = function() { if (!activeTargetPlayerId) return; document.g
 
 window.closeInspect = function() { dom.inspect.style.display = 'none'; };
 window.respondInvite = function(accept) { document.getElementById('invite-dialog').style.display = 'none'; if (pendingPartyInvite) { if(socket) socket.emit('partyInviteResponse', { fromId: pendingPartyInvite, accept }); pendingPartyInvite = null; } };
+
 window.respondTrade = function(accept) { document.getElementById('trade-dialog').style.display = 'none'; if (pendingTradeInvite) { if(socket) socket.emit('tradeInviteResponse', { fromId: pendingTradeInvite, accept }); if (accept) { tradeTarget = pendingTradeInvite; inTradeMode = true; document.getElementById('trade-target-name').innerText = tradeTarget; document.getElementById('trade-screen').style.display = 'block'; window.renderTradeSlots(); window.renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.log.innerText = "Trade declined."; } pendingTradeInvite = null; } }
 window.closeTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade cancelled."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); if(socket) socket.emit('tradeCancel'); }
 window.confirmTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade completed visually."; tradeTheirItems.forEach(item => { if (item) window.addLoot(item); }); game.player.gold += parseInt(document.getElementById('trade-their-gold').innerText) || 0; game.player.gold -= parseInt(document.getElementById('trade-my-gold').value) || 0; if (game.player.gold < 0) game.player.gold = 0; tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); window.updateUI(); DatabaseManager.savePlayerData(game.player); }
@@ -725,7 +705,7 @@ window.addRemotePlayer = function(p) {
     
     if (p.spriteData?.weapon) {
         p.weapon.style.display = 'block';
-        let fixedWpn = p.spriteData.weapon.replace('starter', 'basic');
+        let fixedWpn = p.spriteData.weapon.replace('starter', 'basic'); // Patch old accounts
         p.weapon.setAttribute('src', `weapon/${fixedWpn}.png`);
     }
 }
@@ -793,7 +773,7 @@ if(socket) {
 
                     window.buildCollisionLayers(); window.updateEquipmentDisplay(); window.updateUI(); window.renderInventory();
                     
-                    if(socket) socket.emit('syncMapCollisions', { mapId: safeMapData.id, collisions: safeMapData.collisions });
+                    if(socket) socket.emit('syncMapData', safeMapData);
                     
                     window.playBGM((safeMapData.id || "").includes('floor') ? 'floor' : 'town');
 
@@ -859,31 +839,84 @@ if(socket) {
 
     socket.on('receiveExp', (data) => { game.player.exp += data.amount; dom.log.innerText = `Gained ${data.amount} EXP from ${data.source}!`; window.checkLevelUp(); window.updateUI(); });
 
+    // MULTI-MONSTER SPAWN ENGINE
     socket.on('monsterState', (monsters) => {
-        if (Array.isArray(monsters) && monsters.length > 0) {
-            const m = monsters[0]; game.monster.id = m.id || game.monster.id; game.monster.x = m.x; game.monster.y = m.y; game.monster.maxHp = m.maxHp; game.monster.currentHp = m.currentHp;
-            game.monster.alive = !!m.alive; game.monster.targetId = m.targetId || null;
-            if (!game.monster.alive) { dom.monster.style.display = 'none'; } 
-            else { 
-                dom.monster.style.display = 'flex'; dom.monster.style.left = game.monster.x + 'px'; dom.monster.style.top = game.monster.y + 'px'; 
-                dom.monsterName.innerText = `${m.name || "Monster"} Lv.5`;
-                if (m.monsterKey === 'common_mobs1') { dom.monsterSprite.style.backgroundImage = 'none'; dom.monsterSprite.style.backgroundColor = '#ff69b4'; dom.monsterSprite.style.border = '2px solid #c71585'; dom.monsterSprite.style.borderRadius = '50% 50% 40% 40%'; } 
-                else { dom.monsterSprite.style.backgroundColor = 'transparent'; dom.monsterSprite.style.border = 'none'; dom.monsterSprite.style.borderRadius = '0'; dom.monsterSprite.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`; }
-            } 
-            window.updateUI();
-        }
+        if (!Array.isArray(monsters)) return;
+        const currentIds = new Set();
+        
+        monsters.forEach(m => {
+            currentIds.add(m.id);
+            let mEl = document.getElementById('mob_' + m.id);
+            if (!mEl) {
+                mEl = document.createElement('div');
+                mEl.id = 'mob_' + m.id; mEl.className = 'entity monster-container';
+                mEl.style.position = 'absolute'; mEl.style.cursor = 'crosshair';
+                mEl.style.zIndex = '50'; mEl.style.display = 'flex'; mEl.style.justifyContent = 'center'; mEl.style.alignItems = 'flex-end';
+                
+                mEl.innerHTML = `
+                    <div class="name-tag mob-name" style="top:-30px; font-size:12px; color:#f44336; position:absolute;">${m.name} Lv.5</div>
+                    <div class="monster-sprite-layer" style="width:100%; height:100%; min-width:40px; min-height:40px; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div>
+                    <div class="monster-ui-layer" style="position:absolute; top:-20px; left:0; width:100%; pointer-events:none;">
+                        <div class="bar-container" style="height:5px; border-radius:0; margin-bottom:0;"><div class="hp-fill monster-hp-fill" style="background-color:#f44336; height:100%; width:100%;"></div></div>
+                    </div>
+                `;
+                
+                mEl.addEventListener('pointerdown', (e) => { e.stopPropagation(); attackHeld = true; window.attemptAttackTarget = m.id; window.attemptAttack(); });
+                dom.world.appendChild(mEl);
+            }
+            
+            game.monsters[m.id] = m;
+
+            if (!m.alive) {
+                mEl.style.display = 'none';
+            } else {
+                mEl.style.display = 'flex';
+                mEl.style.left = m.x + 'px';
+                mEl.style.top = m.y + 'px';
+                mEl.style.width = (m.width || 40) + 'px';
+                mEl.style.height = (m.height || 40) + 'px';
+                
+                const hpBar = mEl.querySelector('.monster-hp-fill');
+                if(hpBar) hpBar.style.width = (m.currentHp / Math.max(1, m.maxHp)) * 100 + '%';
+                
+                const spriteLayer = mEl.querySelector('.monster-sprite-layer');
+                if (m.monsterKey === 'common_mobs1') {
+                    spriteLayer.style.backgroundImage = 'none';
+                    spriteLayer.style.backgroundColor = '#ff69b4';
+                    spriteLayer.style.border = '2px solid #c71585';
+                    spriteLayer.style.borderRadius = '50% 50% 40% 40%';
+                    spriteLayer.style.animation = 'slime-bounce 0.5s infinite alternate';
+                } else {
+                    spriteLayer.style.backgroundColor = 'transparent';
+                    spriteLayer.style.border = 'none';
+                    spriteLayer.style.borderRadius = '0';
+                    spriteLayer.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`;
+                    spriteLayer.style.animation = 'none';
+                }
+            }
+        });
     });
 
     socket.on('monsterAttack', (data) => {
-        if (!data || data.monsterId !== game.monster.id) return;
-        const slimeEl = dom.monster; const targetId = data.targetId; game.monster.targetId = targetId;
+        if (!data || !game.monsters[data.monsterId]) return;
+        const m = game.monsters[data.monsterId];
+        const mEl = document.getElementById('mob_' + m.id); if(!mEl) return;
+        
+        const targetId = data.targetId;
         let tx = game.player.x + 24; let ty = game.player.y + 48;
         if (targetId !== game.player.id && game.remotePlayers[targetId]) { const rp = game.remotePlayers[targetId]; tx = rp.x + 24; ty = rp.y + 48; }
-        const mcx = game.monster.x + (game.monster.width / 2); const mcy = game.monster.y + (game.monster.height / 2);
+        
+        const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2);
         let dx = tx - mcx, dy = ty - mcy; let dist = Math.hypot(dx, dy) || 1; let moveX = (dx / dist) * 20; let moveY = (dy / dist) * 20;
-        slimeEl.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`; setTimeout(() => { slimeEl.style.transform = `translate(0px, 0px) scale(1)`; }, 150);
+        
+        const spriteLayer = mEl.querySelector('.monster-sprite-layer');
+        if(spriteLayer) {
+            spriteLayer.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`; 
+            setTimeout(() => { spriteLayer.style.transform = `translate(0px, 0px) scale(1)`; }, 150);
+        }
+        
         if (targetId === game.player.id && game.player.currentHp > 0) {
-            const mobDmg = Math.max(1, (game.monster.atk || 25) - window.getDefense());
+            const mobDmg = Math.max(1, (m.atk || 25) - window.getDefense());
             game.player.currentHp = Math.max(0, game.player.currentHp - mobDmg);
             window.spawnDamageText(game.player.x + 24, game.player.y - 10, mobDmg, '#f44336'); window.spawnSpark(game.player.x + 24, game.player.y + 48); window.updateUI(); window.emitVitalsIfNeeded(true);
             if (game.player.currentHp <= 0) { dom.log.innerText = "YOU DIED. Refresh to Restart."; game.isRunning = false; dom.playerContainer.style.opacity = "0.5"; }
@@ -891,47 +924,64 @@ if(socket) {
     });
 
     socket.on('monsterHit', (data) => {
-        if (!data || data.monsterId !== game.monster.id) return;
-        game.monster.currentHp = data.newHp; game.monster.maxHp = data.maxHp || game.monster.maxHp;
-        const mCenterX = game.monster.x + (game.monster.width / 2); const mCenterY = game.monster.y + (game.monster.height / 2);
-        document.getElementById('monster-ui').style.display = 'block'; window.spawnDamageText(mCenterX, game.monster.y - 10, data.damage, '#fff');
+        if (!data || !game.monsters[data.monsterId]) return;
+        const m = game.monsters[data.monsterId];
+        m.currentHp = data.newHp; m.maxHp = data.maxHp || m.maxHp;
+        const mCenterX = m.x + (m.width / 2); const mCenterY = m.y + (m.height / 2);
+        window.spawnDamageText(mCenterX, m.y - 10, data.damage, '#fff');
         if (data.isPendant) window.spawnWhiteSplash(mCenterX, mCenterY); else window.spawnSpark(mCenterX, mCenterY);
-        dom.monster.classList.add('hit-flash'); setTimeout(() => dom.monster.classList.remove('hit-flash'), 100); window.updateUI();
+        const mEl = document.getElementById('mob_' + m.id);
+        if(mEl) { mEl.classList.add('hit-flash'); setTimeout(() => mEl.classList.remove('hit-flash'), 100); }
+        window.updateUI();
     });
 
-    socket.on('monsterDied', (data) => { if (!data || data.monsterId !== game.monster.id) return; game.monster.alive = false; dom.monster.style.display = 'none'; window.updateUI(); });
+    socket.on('monsterDied', (data) => { if (!data || !game.monsters[data.monsterId]) return; game.monsters[data.monsterId].alive = false; const mEl = document.getElementById('mob_' + data.monsterId); if(mEl) mEl.style.display = 'none'; window.updateUI(); });
     socket.on('monsterSpawned', (m) => {
-        if (!m || m.id !== game.monster.id) return;
-        game.monster.id = m.id || game.monster.id; game.monster.x = m.x; game.monster.y = m.y; game.monster.maxHp = m.maxHp; game.monster.currentHp = m.currentHp;
-        game.monster.alive = !!m.alive; game.monster.targetId = m.targetId || null; dom.monster.style.display = 'flex';
-        if (m.monsterKey === 'common_mobs1') { dom.monsterSprite.style.backgroundImage = 'none'; dom.monsterSprite.style.backgroundColor = '#ff69b4'; dom.monsterSprite.style.border = '2px solid #c71585'; dom.monsterSprite.style.borderRadius = '50% 50% 40% 40%'; } 
-        else { dom.monsterSprite.style.backgroundColor = 'transparent'; dom.monsterSprite.style.border = 'none'; dom.monsterSprite.style.borderRadius = '0'; dom.monsterSprite.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`; }
+        if (!m) return;
+        game.monsters[m.id] = m;
+        const mEl = document.getElementById('mob_' + m.id);
+        if(mEl) mEl.style.display = 'flex';
     });
     socket.on('lootDropped', (item) => { if (item) window.addLoot(item); });
 }
 
 window.attemptAttack = function() {
     if (game.player.currentHp <= 0 || isInventoryOpen || window.adminMode) return;
-    if (!game.monster.alive) { isAttacking = true; setTimeout(() => { isAttacking = false; }, 300); return; }
     if (attackCooldownActive) return;
-    const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; const mCenterX = game.monster.x + (game.monster.width / 2); const mCenterY = game.monster.y + (game.monster.height / 2);
+    
+    // Find closest alive monster
+    let closestMob = null; let minD = Infinity;
+    const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; 
     let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : '';
     const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant'); const isPendant = weaponSprite.includes('pendant');
-    const dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY);
-    if (dist > (isRanged ? 250 : 80)) { dom.log.innerText = "Too far! Move closer."; return; }
+    const attackRadius = isRanged ? 250 : 80;
+
+    for(let mId in game.monsters) {
+        let m = game.monsters[mId];
+        if(!m.alive) continue;
+        let mCenterX = m.x + (m.width/2); let mCenterY = m.y + (m.height/2);
+        let dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY);
+        if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; }
+    }
+
+    if (!closestMob) { dom.log.innerText = "No target in range."; return; }
     
     isAttacking = true;
     if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
     
     attackCooldownActive = true; const cooldownMs = Math.max(200, 800 - (window.getSpeed() * 50));
-    const rawDmg = isRanged ? (window.getMagicAttack() * 0.75) : window.getAttackPower(); const dmg = Math.max(1, Math.floor(rawDmg * (0.9 + Math.random() * 0.2)) - (game.monster.def || 0));
+    const rawDmg = isRanged ? (window.getMagicAttack() * 0.75) : window.getAttackPower(); const dmg = Math.max(1, Math.floor(rawDmg * (0.9 + Math.random() * 0.2)) - (closestMob.def || 0));
     
-    if (isRanged) { window.shootOrb(pCenterX, pCenterY - 15, mCenterX, mCenterY); setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: game.monster.id, damage: dmg, isPendant: isPendant }); isAttacking = false; }, 500); } 
-    else { setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: game.monster.id, damage: dmg, isPendant: isPendant }); isAttacking = false; }, 300); }
+    const mCenterX = closestMob.x + (closestMob.width/2); const mCenterY = closestMob.y + (closestMob.height/2);
+    if (isRanged) { window.shootOrb(pCenterX, pCenterY - 15, mCenterX, mCenterY); setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: isPendant }); isAttacking = false; }, 500); } 
+    else { setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: isPendant }); isAttacking = false; }, 300); }
     setTimeout(() => { attackCooldownActive = false; }, cooldownMs);
 }
 
-dom.monster.addEventListener('pointerdown', (e) => { e.stopPropagation(); attackHeld = true; window.attemptAttack(); });
+// Ensure clicks on the map trigger attack if near a monster
+dom.world.addEventListener('pointerdown', (e) => { 
+    if(!window.adminMode && e.target.id === 'world') { attackHeld = true; window.attemptAttack(); }
+});
 window.addEventListener('pointerup', () => { attackHeld = false; });
 
 function gameLoop(ts) {
@@ -971,7 +1021,7 @@ function gameLoop(ts) {
                 dom.world.style.backgroundImage = `url('${safeMapData.image}')`; window.buildCollisionLayers();
                 
                 if(socket) {
-                    socket.emit('syncMapCollisions', { mapId: nextMapId, collisions: safeMapData.collisions });
+                    socket.emit('syncMapData', safeMapData);
                     socket.emit('playerTeleported', { mapId: nextMapId, x: game.player.x, y: game.player.y });
                 }
                 game.player.teleportCooldown = 2000; window.playBGM(nextMapId.includes('floor') ? 'floor' : 'town');
