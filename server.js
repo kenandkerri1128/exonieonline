@@ -19,69 +19,67 @@ const onlinePlayers = {};
 const parties = {};        
 const playerParty = {};    
 
-function findSocketIdByPlayerId(playerId) {
-    for (const sid of Object.keys(onlinePlayers)) {
-        if (onlinePlayers[sid]?.id === playerId) return sid;
-    }
-    return null;
-}
+// ==========================================
+// THE NEW MONSTER DATABASE
+// Place your images in public/monsters/ (e.g., common_mobs1.png)
+// ==========================================
+const MonsterDatabase = {
+    "common_mobs1": { name: "Slime", category: "common_mobs", maxHp: 100, atk: 25, def: 0, speed: 2.5, expYield: 25, aggroRadius: 250, chaseRadius: 400, attackRange: 55, width: 40, height: 40, respawnDelay: 10000 },
+    "mini_boss1": { name: "Orc Chieftain", category: "mini_boss", maxHp: 1500, atk: 80, def: 20, speed: 3.5, expYield: 500, aggroRadius: 350, chaseRadius: 500, attackRange: 60, width: 64, height: 64, respawnDelay: 300000 },
+    "floor_boss1": { name: "Dragon of Exonie", category: "floor_boss", maxHp: 10000, atk: 250, def: 50, speed: 4.5, expYield: 5000, aggroRadius: 500, chaseRadius: 800, attackRange: 100, width: 128, height: 128, respawnDelay: 99999999 }
+};
 
-function getPlayerById(playerId) {
-    for (const sid of Object.keys(onlinePlayers)) {
-        if (onlinePlayers[sid]?.id === playerId) return onlinePlayers[sid];
-    }
-    return null;
-}
+function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
+function getPlayerById(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return onlinePlayers[sid]; } return null; }
 
 function emitPartyUpdate(partyId) {
-    const party = parties[partyId];
-    if (!party) return;
-    const members = [];
+    const party = parties[partyId]; if (!party) return; const members = [];
     for (const pid of party.members) {
         const p = getPlayerById(pid);
         if (p) members.push({ id: p.id, name: p.name, level: p.level || 1, currentHp: p.currentHp ?? null, maxHp: p.maxHp ?? null });
         else members.push({ id: pid, name: pid, level: 1, currentHp: null, maxHp: null });
     }
     const payload = { partyId: party.id, leaderId: party.leaderId, name: `${party.leaderId}'s Party`, members };
-    for (const pid of party.members) {
-        const sid = findSocketIdByPlayerId(pid);
-        if (sid) io.to(sid).emit('partyUpdate', payload);
-    }
+    for (const pid of party.members) { const sid = findSocketIdByPlayerId(pid); if (sid) io.to(sid).emit('partyUpdate', payload); }
 }
 
 function removeFromParty(playerId) {
-    const pid = playerParty[playerId]; if (!pid) return;
-    const party = parties[pid]; if (!party) { delete playerParty[playerId]; return; }
+    const pid = playerParty[playerId]; if (!pid) return; const party = parties[pid]; if (!party) { delete playerParty[playerId]; return; }
     party.members.delete(playerId); delete playerParty[playerId];
     if (party.leaderId === playerId) { const next = party.members.values().next().value; party.leaderId = next || null; }
-    if (!party.leaderId || party.members.size <= 1) {
-        for (const rem of party.members) { delete playerParty[rem]; const sid = findSocketIdByPlayerId(rem); if (sid) io.to(sid).emit('partyKickedOrLeft'); }
-        delete parties[pid]; return;
-    }
+    if (!party.leaderId || party.members.size <= 1) { for (const rem of party.members) { delete playerParty[rem]; const sid = findSocketIdByPlayerId(rem); if (sid) io.to(sid).emit('partyKickedOrLeft'); } delete parties[pid]; return; }
     emitPartyUpdate(pid);
 }
 
 const worlds = {}; 
 
 function getMapConfig(mapId) {
-    if ((mapId || '').includes('floor')) return { spawnArea: { minX: 300, maxX: 1700, minY: 250, maxY: 1050 }, isFloor: true };
-    return { spawnArea: { minX: 200, maxX: 1600, minY: 300, maxY: 900 }, isFloor: false };
+    if ((mapId || '').includes('floor')) return { spawnArea: { minX: 300, maxX: 1700, minY: 250, maxY: 1050 }, defaultMob: "floor_boss1" };
+    return { spawnArea: { minX: 200, maxX: 1600, minY: 300, maxY: 900 }, defaultMob: "common_mobs1" };
 }
 
 function ensureWorld(mapId) {
-    if (!worlds[mapId]) { const cfg = getMapConfig(mapId); worlds[mapId] = { mapId, monsters: { slime1: spawnMonster(mapId, 'slime1', cfg) } }; }
+    if (!worlds[mapId]) { 
+        const cfg = getMapConfig(mapId); 
+        worlds[mapId] = { mapId, monsters: { m1: spawnMonster(mapId, 'm1', cfg.defaultMob, cfg) } }; 
+    }
     return worlds[mapId];
 }
 
 function randInt(min, max) { return Math.floor(min + Math.random() * (max - min + 1)); }
 
-function spawnMonster(mapId, monsterId, cfg) {
+function spawnMonster(mapId, entityId, monsterKey, cfg) {
     const x = randInt(cfg.spawnArea.minX, cfg.spawnArea.maxX); const y = randInt(cfg.spawnArea.minY, cfg.spawnArea.maxY);
-    return { id: monsterId, mapId, x, y, homeX: x, homeY: y, width: 40, height: 40, maxHp: 100, currentHp: 100, atk: 25, def: 0, speed: 2.5, aggroRadius: 250, chaseRadius: 400, attackRange: 55, lastAttack: 0, alive: true, threatTable: {}, forcedTargetId: null, forcedUntil: 0, targetId: null, isFloorBoss: false, respawnDelayMs: 3000 };
+    const stats = MonsterDatabase[monsterKey] || MonsterDatabase["common_mobs1"];
+    return { 
+        id: entityId, mapId, monsterKey, name: stats.name, x, y, homeX: x, homeY: y, width: stats.width, height: stats.height, 
+        maxHp: stats.maxHp, currentHp: stats.maxHp, atk: stats.atk, def: stats.def, speed: stats.speed, expYield: stats.expYield,
+        aggroRadius: stats.aggroRadius, chaseRadius: stats.chaseRadius, attackRange: stats.attackRange, 
+        lastAttack: 0, alive: true, threatTable: {}, forcedTargetId: null, forcedUntil: 0, targetId: null, respawnDelayMs: stats.respawnDelay 
+    };
 }
 
-function serializeMonster(m) { return { id: m.id, x: m.x, y: m.y, maxHp: m.maxHp, currentHp: m.currentHp, alive: m.alive, targetId: m.targetId || null, isFloorBoss: m.isFloorBoss || false }; }
-
+function serializeMonster(m) { return { id: m.id, monsterKey: m.monsterKey, name: m.name, x: m.x, y: m.y, width: m.width, height: m.height, maxHp: m.maxHp, currentHp: m.currentHp, alive: m.alive, targetId: m.targetId || null }; }
 function playersInMap(mapId) { return Object.values(onlinePlayers).filter(p => p.mapId === mapId); }
 
 function pickTarget(m, mapId, now) {
@@ -202,7 +200,6 @@ io.on('connection', (socket) => {
         io.to(p.mapId).emit('chatMessage', { id: p.id, text: data.text });
     });
 
-    // --- FULL TRADE SYSTEM LOGIC ---
     socket.on('tradeRequest', ({ targetId }) => {
         const me = onlinePlayers[socket.id]; if (!me || !targetId) return;
         const targetSid = findSocketIdByPlayerId(targetId);
@@ -230,14 +227,10 @@ io.on('connection', (socket) => {
     socket.on('tradeCancel', () => {
         const me = onlinePlayers[socket.id]; if (!me) return;
         const targetSid = findSocketIdByPlayerId(me.tradeTarget);
-        if (targetSid) {
-            io.to(targetSid).emit('tradeCancelled');
-            const target = getPlayerById(me.tradeTarget); if (target) target.tradeTarget = null;
-        }
+        if (targetSid) { io.to(targetSid).emit('tradeCancelled'); const target = getPlayerById(me.tradeTarget); if (target) target.tradeTarget = null; }
         me.tradeTarget = null;
     });
 
-    // --- OTHER CORE SYSTEMS ---
     socket.on('playerVitals', (data) => { if (!onlinePlayers[socket.id]) return; onlinePlayers[socket.id].currentHp = data.currentHp; onlinePlayers[socket.id].maxHp = data.maxHp; onlinePlayers[socket.id].level = data.level; const pid = playerParty[onlinePlayers[socket.id].id]; if (pid) emitPartyUpdate(pid); });
     socket.on('playerTeleported', async (data) => {
         if (!onlinePlayers[socket.id]) return; const p = onlinePlayers[socket.id];
@@ -265,15 +258,34 @@ io.on('connection', (socket) => {
         parties[pid].members.add(me.id); playerParty[me.id] = pid; emitPartyUpdate(pid);
     });
 
+    // ==========================================
+    // COMBAT & PARTY EXP SHARE SYSTEM
+    // ==========================================
     socket.on('attackMonster', (payload) => {
         const p = onlinePlayers[socket.id]; if (!p) return; const world = ensureWorld(p.mapId); const m = world.monsters[payload.monsterId]; if (!m || !m.alive) return;
         const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); if (dist > 350) return;
         const dmg = Math.max(1, Math.floor(Number(payload.damage) || 1)); m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
         io.to(p.mapId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: !!payload.isPendant });
+        
         if (m.currentHp <= 0) {
-            m.alive = false; m.targetId = null; m.threatTable = {}; m.forcedTargetId = null; m.forcedUntil = 0; io.to(p.mapId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
-            io.to(socket.id).emit('lootDropped', { id: Date.now() + Math.random(), name: "Basic Refinement Stone Lv.5", type: "material", level: 5, rarity: "Basic", color: "#e0e0e0", description: "Enhances equipment.", quantity: 1 });
-            setTimeout(() => { const cfg = getMapConfig(p.mapId); const nm = spawnMonster(p.mapId, m.id, cfg); world.monsters[m.id] = nm; io.to(p.mapId).emit('monsterSpawned', serializeMonster(nm)); }, m.respawnDelayMs || 3000);
+            m.alive = false; m.targetId = null; m.threatTable = {}; m.forcedTargetId = null; m.forcedUntil = 0; 
+            io.to(p.mapId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
+            
+            // PARTY EXP SHARE LOGIC
+            const expAmount = m.expYield || 25;
+            const pid = playerParty[p.id];
+            if (pid && parties[pid]) {
+                const party = parties[pid];
+                for (const memberId of party.members) {
+                    const sid = findSocketIdByPlayerId(memberId);
+                    if (sid) io.to(sid).emit('receiveExp', { amount: expAmount, source: m.name });
+                }
+            } else {
+                io.to(socket.id).emit('receiveExp', { amount: expAmount, source: m.name });
+            }
+            
+            io.to(socket.id).emit('lootDropped', { id: Date.now() + Math.random(), name: "Refinement Stone Lv.5", type: "material", level: 5, rarity: "Basic", color: "#e0e0e0", description: "Enhances equipment.", quantity: 1 });
+            setTimeout(() => { const cfg = getMapConfig(p.mapId); const nm = spawnMonster(p.mapId, m.id, m.monsterKey, cfg); world.monsters[m.id] = nm; io.to(p.mapId).emit('monsterSpawned', serializeMonster(nm)); }, m.respawnDelayMs || 3000);
         }
     });
 
@@ -282,10 +294,7 @@ io.on('connection', (socket) => {
         if (p) {
             socket.to(p.mapId).emit('remotePlayerLeft', p.id);
             removeFromParty(p.id);
-            if (p.tradeTarget) {
-                const tsid = findSocketIdByPlayerId(p.tradeTarget);
-                if (tsid) io.to(tsid).emit('tradeCancelled');
-            }
+            if (p.tradeTarget) { const tsid = findSocketIdByPlayerId(p.tradeTarget); if (tsid) io.to(tsid).emit('tradeCancelled'); }
             await supabase.from('Exonians').update({ pos_x: p.x, pos_y: p.y }).eq('character_name', p.id);
             delete onlinePlayers[socket.id];
         }
