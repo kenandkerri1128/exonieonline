@@ -10,84 +10,66 @@
     <script src="townmap.js"></script>
 
     <style>
-        /* --- GLOBAL STYLES --- */
+        /* GLOBAL & UI STYLES */
         body { margin: 0; font-family: 'MedievalSharp', cursive; background-color: #121212; color: #e0e0e0; display: flex; justify-content: center; align-items: center; height: 100vh; user-select: none; overflow: hidden; }
         #game-container { width: 100vw; height: 100vh; background-color: #1e1e1e; position: relative; overflow: hidden; image-rendering: pixelated; }
-        .screen { width: 100%; height: 100%; display: none; }
-        .screen.active { display: flex; }
-
-        /* --- LOADING SCREEN --- */
+        .screen { width: 100%; height: 100%; display: none; } .screen.active { display: flex; }
         #loading-screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #111; color: #fff; z-index: 5000; flex-direction: column; justify-content: center; align-items: center; }
         .loader-title { font-size: 32px; font-weight: bold; margin-bottom: 20px; color: #4CAF50; letter-spacing: 2px;}
         .loader-bar-bg { width: 400px; height: 12px; background: #333; border-radius: 6px; overflow: hidden; border: 2px solid #555;}
         .loader-bar-fill { width: 0%; height: 100%; background: #4CAF50; transition: width 0.8s ease-out; }
-
-        /* --- UI COMPONENTS --- */
         input[type="text"], input[type="password"], input[type="number"], select, button, textarea { font-family: 'MedievalSharp', cursive; }
         input[type="text"], input[type="password"], input[type="number"] { background: #111; color: #0f0; border: 1px solid #4CAF50; padding: 10px; border-radius: 4px; font-size: 18px; width: calc(100% - 22px); outline: none; margin-bottom: 15px; box-sizing: border-box; }
         input:read-only { color: #888; border-color: #555; background: #222; }
         select { background: #111; color: #fff; border: 1px solid #4CAF50; padding: 5px; border-radius: 4px; outline: none; font-size: 16px; }
         .btn { background-color: #3a3a3a; color: white; border: 1px solid #555; padding: 8px 12px; cursor: pointer; border-radius: 4px; transition: background 0.2s; font-size: 16px; }
-        .btn:hover { background-color: #555; }
-        .btn.selected { background-color: #4CAF50; border-color: #4CAF50; }
-        .btn-large { background-color: #4CAF50; font-size: 20px; font-weight: bold; padding: 15px; margin-top: 20px; width: 100%; }
-        .btn-large:hover { background-color: #45a049; }
+        .btn:hover { background-color: #555; } .btn.selected { background-color: #4CAF50; border-color: #4CAF50; }
+        .btn-large { background-color: #4CAF50; font-size: 20px; font-weight: bold; padding: 15px; margin-top: 20px; width: 100%; } .btn-large:hover { background-color: #45a049; }
         .panel-section { background-color: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #333; }
         .panel-section h4 { margin: 0 0 10px 0; color: #aaa; text-transform: uppercase; font-size: 14px;}
-        .button-group { display: flex; gap: 10px; flex-wrap: wrap; }
-        .color-group { display: flex; gap: 8px; flex-wrap: wrap; }
-        .color-swatch { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
-        .color-swatch:hover { transform: scale(1.1); }
-        .color-swatch.selected { border-color: white; }
+        .button-group, .color-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .color-swatch { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; } .color-swatch:hover { transform: scale(1.1); } .color-swatch.selected { border-color: white; }
 
-        /* --- AUTH SCREENS --- */
+        /* AUTH & CREATION STYLES */
         .auth-container { position: relative; z-index: 10; width: 400px; padding: 30px; background: #1e1e1e; border-radius: 8px; border: 2px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: center; margin: auto; }
         .auth-container h1 { margin-top: 0; color: #4CAF50; font-size: 40px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .auth-link { color: #4CAF50; cursor: pointer; font-size: 16px; text-decoration: underline; margin-top: 15px; display: inline-block; }
-        .auth-link:hover { color: #fff; }
-
-        /* --- CREATION / SELECT STAGE --- */
+        .auth-link { color: #4CAF50; cursor: pointer; font-size: 16px; text-decoration: underline; margin-top: 15px; display: inline-block; } .auth-link:hover { color: #fff; }
         #creation-screen, #select-screen { flex-direction: row; }
         .stage-area { width: 45%; height: 100%; background: radial-gradient(circle, #444 0%, #222 100%); display: flex; justify-content: center; align-items: center; border-right: 2px solid #333; }
         .controls-area { width: 55%; height: 100%; padding: 40px; overflow-y: auto; box-sizing: border-box; }
 
+        /* AVATAR RIG STYLES */
         .avatar-rig { position: relative; display: flex; justify-content: center; filter: drop-shadow(1px 0px 0px #000) drop-shadow(-1px 0px 0px #000) drop-shadow(0px 1px 0px #000) drop-shadow(0px -1px 0px #000) drop-shadow(2px 2px 0px rgba(0,0,0,0.5)); }
         #preview-rig, #select-rig { width: 128px; height: 256px; transform: scale(1.5); transform-origin: center center; }
         .avatar-layer { position: absolute; left: 50%; transform: translateX(-50%); width: auto; max-width: none; object-fit: contain; image-rendering: pixelated; }
-
         .layer-hair { height: 65%; top: 27%; z-index: 2; } .layer-head { height: 65%; top: 27%; z-index: 3; }
         .layer-body { height: 120%; bottom: -45%; z-index: 4; } .layer-leggings { height: 120%; bottom: -45%; z-index: 5; }
         .layer-armor { height: 120%; bottom: -45%; z-index: 6; } .layer-weapon { height: 120%; bottom: -45%; z-index: 7; }
 
-        /* --- GAME WORLD --- */
+        /* GAME WORLD STYLES */
         #game-screen { position: relative; width: 100%; height: 100%; background-color: #000; }
         #world { position: absolute; width: 2000px; height: 1333px; background-size: 100% 100%; transform-origin: top left; transition: background-image 0.5s; }
-
         .collision-box { position: absolute; background: transparent; z-index: 900; pointer-events: none; }
         #world.admin-active .collision-box { background: rgba(255, 0, 0, 0.4) !important; border: 1px solid red; }
         .admin-spawn-marker { position: absolute; width: 48px; height: 48px; border: 3px solid cyan; border-radius: 50%; background: rgba(0, 255, 255, 0.3); z-index: 800; pointer-events: none; transform: translate(-50%, -100%); display: none; }
         #world.admin-active .admin-spawn-marker { display: flex !important; justify-content: center; align-items: center; font-weight: bold; color: white;}
-
         #admin-panel { position: absolute; top: 20px; left: 290px; width: 450px; background: rgba(10, 10, 40, 0.95); padding: 15px; border-radius: 8px; border: 2px solid #55f; z-index: 2000; display: none; color: #fff; box-shadow: 0 0 15px rgba(0,0,255,0.5); overflow-y: auto; max-height: 90vh; }
         #admin-output { width: 100%; height: 100px; margin-top: 10px; margin-bottom: 10px; background: #111; color: #0f0; border: 1px solid #444; resize: none; font-size: 12px; box-sizing: border-box; padding: 5px; white-space: pre; overflow-x: auto; }
-        .admin-tool-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
-        .admin-tool-row input[type="number"] { margin-bottom: 0; width: 80px; padding: 5px; }
-
-        .entity { position: absolute; transition: filter 0.1s; z-index: 100;}
-        #player-container { z-index: 105; }
+        .admin-tool-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; } .admin-tool-row input[type="number"] { margin-bottom: 0; width: 80px; padding: 5px; }
+        .entity { position: absolute; transition: filter 0.1s; z-index: 100;} #player-container { z-index: 105; }
         .name-tag { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 1px 1px 0 #000; z-index: 20; pointer-events: none; }
         .mob-name { color: #f44336; top: -30px; font-size: 12px;}
-
         .player-avatar-container { pointer-events: none; transform-origin: center bottom; position: relative; width: 48px; height: 96px; }
         .player-avatar-container::after { content: ''; position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); width: 30px; height: 8px; background: rgba(0, 0, 0, 0.4); border-radius: 50%; z-index: -2; }
 
-        /* --- CLASSIC MONSTER CSS RESTORED --- */
+        /* MONSTER CSS */
         #monster { position: absolute; transition: filter 0.1s, transform 0.15s ease-out; cursor: crosshair; display: flex; justify-content: center; align-items: flex-end; z-index: 50; }
         #monster-sprite { width: 100%; height: 100%; background-color: #ff69b4; border: 2px solid #c71585; border-radius: 50% 50% 40% 40%; box-shadow: 0 4px 4px rgba(0,0,0,0.3); box-sizing: border-box; background-size: contain; background-repeat: no-repeat; background-position: bottom; animation: slime-bounce 0.5s infinite alternate; }
         @keyframes slime-bounce { 0% { transform: translateY(0) scaleY(0.9); } 100% { transform: translateY(-12px) scaleY(1.1); } }
         #monster.hit-flash #monster-sprite { filter: brightness(2) drop-shadow(0 0 5px red) !important; }
         #monster-ui { position: absolute; top: -20px; left: 0px; width: 100%; pointer-events: none; display: none; }
 
+        /* HUD & PANELS */
         #hud { position: absolute; top: 20px; left: 20px; width: 250px; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #555; z-index: 1000; }
         .stat-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 18px; font-weight: bold;}
         .level-row { font-size: 16px; color: #ffd700; margin-bottom: 10px; display: flex; justify-content: space-between;}
@@ -95,13 +77,11 @@
         .hp-fill { height: 100%; background-color: #4CAF50; width: 100%; transition: width 0.2s ease-out; }
         .exp-fill { height: 100%; background-color: #9c27b0; width: 0%; transition: width 0.3s ease-out; }
         #combat-log { position: absolute; bottom: 20px; left: 20px; color: #fff; font-size: 18px; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 5px; z-index: 1000; }
-
         #party-panel { margin-top: 10px; padding-top: 10px; border-top: 1px solid #444; display: none; }
         #party-title { font-size: 14px; font-weight: bold; color: #4CAF50; margin-bottom: 6px; }
-        .party-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; color: #ddd; }
-        .party-row span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; display: inline-block; }
-        .party-hp { color: #ffeb3b; }
+        .party-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; color: #ddd; } .party-hp { color: #ffeb3b; }
 
+        /* EFFECTS */
         .spark { position: absolute; width: 16px; height: 16px; background-color: #fff; border-radius: 50%; box-shadow: 0 0 8px #ffeb3b, 0 0 15px #ff9800; pointer-events: none; z-index: 300; animation: spark-pop 0.3s ease-out forwards; }
         @keyframes spark-pop { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 50% { background-color: #ffeb3b; } 100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; } }
         .white-splash { position: absolute; width: 30px; height: 30px; background-color: #fff; border-radius: 50%; box-shadow: 0 0 15px #fff, 0 0 25px #e0ffff; pointer-events: none; z-index: 300; transform: translate(-50%, -50%); animation: white-splash-pop 0.3s ease-out forwards; }
@@ -110,10 +90,10 @@
         .damage-text { position: absolute; color: white; font-weight: bold; font-size: 16px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; pointer-events: none; animation: floatUp 1s forwards; z-index: 200; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(1.5); } }
         .level-up-text { position: absolute; color: #ffd700; font-weight: bold; font-size: 28px; text-shadow: 0 0 10px #ff9800; pointer-events: none; animation: floatUp 2s forwards; z-index: 500; }
-
         .rarity-godly { animation: godly-sparkle 1.5s infinite alternate; }
         @keyframes godly-sparkle { 0% { text-shadow: 0 0 2px #fff, 0 0 5px #e0ffff; } 100% { text-shadow: 0 0 8px #fff, 0 0 15px #00ffff, 0 0 20px #00ffff; } }
 
+        /* MENUS & WINDOWS */
         #inventory-screen { position: absolute; top: 0; right: 0; width: 350px; height: 100%; background-color: rgba(25, 25, 25, 0.98); border-left: 2px solid #555; padding: 20px; z-index: 1000; display: none; box-sizing: border-box; box-shadow: -5px 0 20px rgba(0,0,0,0.8); overflow-y: auto; }
         #inventory-screen h2 { margin-top: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; font-size: 28px; }
         .inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
@@ -124,40 +104,25 @@
         .inv-slot:hover .tooltip { visibility: visible; }
         .equip-container { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px;}
         .equip-box { flex: 1; background: #1e1e1e; border: 1px solid #444; border-radius: 4px; padding: 10px 5px; text-align: center; font-size: 14px; position: relative; cursor: pointer; transition: background 0.2s;}
-        .equip-box:hover { background: #333; border-color: #f44336; }
-        .equip-box:hover .tooltip { visibility: visible; }
+        .equip-box:hover { background: #333; border-color: #f44336; } .equip-box:hover .tooltip { visibility: visible; }
         #inv-context-menu { display: none; position: absolute; background: #222; border: 1px solid #777; border-radius: 4px; z-index: 3000; flex-direction: column; width: 120px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
-        .ctx-btn { background: none; border: none; color: white; padding: 10px; cursor: pointer; text-align: left; font-weight: bold; font-size: 16px; font-family: 'MedievalSharp', cursive; }
-        .ctx-btn:hover { background: #444; }
-
-        #player-context-menu { display: none; position: absolute; background: #222; border: 1px solid #777; border-radius: 4px; z-index: 3500; flex-direction: column; width: 140px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
-        #player-context-menu .ctx-btn { width: 100%; }
-
+        .ctx-btn { background: none; border: none; color: white; padding: 10px; cursor: pointer; text-align: left; font-weight: bold; font-size: 16px; font-family: 'MedievalSharp', cursive; } .ctx-btn:hover { background: #444; }
+        #player-context-menu { display: none; position: absolute; background: #222; border: 1px solid #777; border-radius: 4px; z-index: 3500; flex-direction: column; width: 140px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); } #player-context-menu .ctx-btn { width: 100%; }
         #stat-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; background-color: rgba(30, 30, 30, 0.98); border: 2px solid #555; border-radius: 8px; padding: 20px; z-index: 1000; display: none; box-shadow: 0 0 20px black; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 18px; margin-bottom: 20px;}
-        .stat-grid div span { color: #4CAF50; float: right; font-weight: bold;}
-
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 18px; margin-bottom: 20px;} .stat-grid div span { color: #4CAF50; float: right; font-weight: bold;}
         #inspect-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 520px; background-color: rgba(20, 20, 20, 0.98); border: 2px solid #777; border-radius: 10px; padding: 16px; z-index: 1200; display: none; box-shadow: 0 0 25px rgba(0,0,0,0.9); }
         #inspect-content { max-height: 60vh; overflow-y: auto; padding-right: 6px; }
         .inspect-equip { background: rgba(0,0,0,0.35); border: 1px solid #444; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
-        .inspect-title { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-        .inspect-item-name { font-weight: bold; font-size: 16px; }
-        .inspect-sub { color: #aaa; font-size: 13px; }
-        .inspect-stat { font-size: 13px; color: #e0e0e0; margin-top: 6px; line-height: 1.3; }
-        .inspect-stat b { color: #4CAF50; }
-        .inspect-empty { color: #888; font-style: italic; }
+        .inspect-title { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; } .inspect-item-name { font-weight: bold; font-size: 16px; } .inspect-sub { color: #aaa; font-size: 13px; }
+        .inspect-stat { font-size: 13px; color: #e0e0e0; margin-top: 6px; line-height: 1.3; } .inspect-stat b { color: #4CAF50; } .inspect-empty { color: #888; font-style: italic; }
 
+        /* CHAT & DIALOGS */
         #chat-input-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 3000; display: none; }
         #chat-input { background: rgba(0,0,0,0.8); border: 1px solid #4CAF50; color: white; padding: 10px 20px; width: 400px; border-radius: 25px; outline: none; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
-        
         .chat-bubble { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.9); color: #111; padding: 6px 14px; border-radius: 12px; font-size: 14px; font-weight: bold; white-space: nowrap; pointer-events: none; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 200; animation: fadeInOut 4s forwards; }
         @keyframes fadeInOut { 0% { opacity: 0; transform: translate(-50%, 10px); } 10% { opacity: 1; transform: translate(-50%, 0); } 80% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -10px); } }
-
         .popup-dialog { position: absolute; top: 30%; left: 50%; transform: translateX(-50%); background: rgba(20,20,20,0.95); border-radius: 8px; padding: 25px; z-index: 4000; display: none; text-align: center; box-shadow: 0 0 20px #000; }
-        #invite-dialog { border: 2px solid #4CAF50; }
-        #trade-dialog { border: 2px solid #2196F3; }
-        .popup-dialog button { margin: 0 10px; width: 100px; }
-
+        #invite-dialog { border: 2px solid #4CAF50; } #trade-dialog { border: 2px solid #2196F3; } .popup-dialog button { margin: 0 10px; width: 100px; }
         #trade-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 550px; background: rgba(20,20,20,0.98); border: 2px solid #2196F3; z-index: 4500; padding: 20px; box-shadow: 0 0 30px black; display: none; border-radius: 8px; }
         .trade-side { flex: 1; background: #111; padding: 10px; border: 1px solid #444; border-radius: 5px; }
     </style>
@@ -182,16 +147,12 @@
             <div class="trade-side">
                 <h3 style="margin-top:0; color:#4CAF50; text-align:center;">Your Offer</h3>
                 <div style="margin-bottom:10px;">Gold: <input type="number" id="trade-my-gold" value="0" min="0" style="width:80px; padding:4px; font-size:14px;"></div>
-                <div class="inv-grid" id="trade-my-items" style="grid-template-columns: repeat(3, 1fr);">
-                    <div class="inv-slot" onclick="window.removeFromTrade(0)"></div><div class="inv-slot" onclick="window.removeFromTrade(1)"></div><div class="inv-slot" onclick="window.removeFromTrade(2)"></div>
-                </div>
+                <div class="inv-grid" id="trade-my-items" style="grid-template-columns: repeat(3, 1fr);"><div class="inv-slot" onclick="window.removeFromTrade(0)"></div><div class="inv-slot" onclick="window.removeFromTrade(1)"></div><div class="inv-slot" onclick="window.removeFromTrade(2)"></div></div>
             </div>
             <div class="trade-side">
                 <h3 style="margin-top:0; color:#f44336; text-align:center;">Their Offer</h3>
                 <div style="margin-bottom:10px; color:gold;">Gold: <span id="trade-their-gold">0</span></div>
-                <div class="inv-grid" id="trade-their-items" style="grid-template-columns: repeat(3, 1fr);">
-                    <div class="inv-slot"></div><div class="inv-slot"></div><div class="inv-slot"></div>
-                </div>
+                <div class="inv-grid" id="trade-their-items" style="grid-template-columns: repeat(3, 1fr);"><div class="inv-slot"></div><div class="inv-slot"></div><div class="inv-slot"></div></div>
             </div>
         </div>
         <p style="text-align:center; color:#aaa; font-size:12px; margin-bottom:0;">(Open Inventory 'I' to click and add items to trade)</p>
@@ -199,7 +160,6 @@
     </div>
 
     <div id="inv-context-menu"><button class="ctx-btn" id="ctx-btn-equip" style="border-bottom: 1px solid #444;" onclick="window.actionEquip(event)">Equip</button><button class="ctx-btn" id="ctx-btn-throw" style="color: #f44336;" onclick="window.actionThrow(event)">Throw</button></div>
-
     <div id="player-context-menu"><button class="ctx-btn" style="border-bottom: 1px solid #444;" onclick="window.inspectTargetPlayer()">Inspect</button><button class="ctx-btn" style="border-bottom: 1px solid #444;" onclick="window.inviteTargetToParty()">Invite Party</button><button class="ctx-btn" onclick="window.requestTrade()">Trade</button></div>
 
     <div id="auth-screen" class="screen active" style="background: url('town_map.png') center/cover; position: relative;">
@@ -223,9 +183,9 @@
     <div id="creation-screen" class="screen">
         <div class="stage-area">
             <div id="preview-rig" class="avatar-rig" style="pointer-events: none;">
-                <img id="preview-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" onerror="this.style.display='none'">
-                <img id="preview-head" class="avatar-layer layer-head" src="animation/avatar_head.png" onerror="this.style.display='none'">
-                <img id="preview-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png" onerror="this.style.display='none'">
+                <img id="preview-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png">
+                <img id="preview-head" class="avatar-layer layer-head" src="animation/avatar_head.png">
+                <img id="preview-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png">
             </div>
         </div>
         <div class="controls-area">
@@ -263,10 +223,10 @@
                 <h1 id="select-name-display" style="color: #4CAF50; font-size: 50px; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.8);">Player</h1>
                 <p id="select-level-display" style="color: #ffd700; margin-top:0; margin-bottom: 40px; font-size: 24px; font-weight: bold;">Level 1</p>
                 <div id="select-rig" class="avatar-rig" style="margin: auto; margin-bottom: 60px; pointer-events: none;">
-                    <img id="select-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" onerror="this.style.display='none'">
-                    <img id="select-head" class="avatar-layer layer-head" src="animation/avatar_head.png" onerror="this.style.display='none'">
-                    <img id="select-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png" onerror="this.style.display='none'">
-                    <img id="select-weapon" class="avatar-layer layer-weapon" style="display:none;" onerror="this.style.display='none'">
+                    <img id="select-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png">
+                    <img id="select-head" class="avatar-layer layer-head" src="animation/avatar_head.png">
+                    <img id="select-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png">
+                    <img id="select-weapon" class="avatar-layer layer-weapon" style="display:none;">
                 </div>
                 <button class="btn btn-large" onclick="window.enterGameWorld()" style="width: 300px; font-size: 28px; position: relative; z-index: 9999; pointer-events: auto; cursor: pointer;">ENTER WORLD</button>
             </div>
@@ -312,12 +272,12 @@
             <div id="player-container" class="entity" style="left: 960px; top: 1000px;">
                 <div id="player-name-tag" class="name-tag">Player</div>
                 <div id="player-avatar-container" class="player-avatar-container avatar-rig">
-                    <img id="player-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" onerror="this.style.display='none'">
-                    <img id="player-head" class="avatar-layer layer-head" src="animation/avatar_head.png" onerror="this.style.display='none'">
-                    <img id="player-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png" onerror="this.style.display='none'">
-                    <img id="player-leggings" class="avatar-layer layer-leggings" style="display:none;" onerror="this.style.display='none'">
-                    <img id="player-armor" class="avatar-layer layer-armor" style="display:none;" onerror="this.style.display='none'">
-                    <img id="player-weapon" class="avatar-layer layer-weapon" style="display:none;" onerror="this.style.display='none'">
+                    <img id="player-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png">
+                    <img id="player-head" class="avatar-layer layer-head" src="animation/avatar_head.png">
+                    <img id="player-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png">
+                    <img id="player-leggings" class="avatar-layer layer-leggings" style="display:none;">
+                    <img id="player-armor" class="avatar-layer layer-armor" style="display:none;">
+                    <img id="player-weapon" class="avatar-layer layer-weapon" style="display:none;">
                 </div>
             </div>
 
@@ -356,6 +316,29 @@
 </div>
 
 <script>
+// ==========================================
+// 1. GLOBAL IMAGE ERROR HANDLER (NO BROKEN ICONS)
+// ==========================================
+// This ensures that if a weapon attack frame doesn't exist, it uses the idle frame instead of breaking.
+function attachSafeImageLoaders() {
+    document.querySelectorAll('.avatar-layer').forEach(img => {
+        img.onerror = function() {
+            if (this.src.includes('_attack.png')) {
+                this.src = this.src.replace('_attack.png', '.png'); // Fallback to idle weapon
+            } else {
+                this.style.opacity = '0'; // Completely hide if totally missing to avoid broken logo
+            }
+        };
+        img.onload = function() {
+            this.style.opacity = '1';
+        };
+    });
+}
+attachSafeImageLoaders();
+
+// ==========================================
+// 2. TOP-LEVEL VARIABLES
+// ==========================================
 let socket;
 try { socket = io(); } catch(e) { console.warn("Socket disconnected."); }
 
@@ -481,9 +464,6 @@ window.updateEquipmentDisplay = function() {
         document.getElementById('eq-leggings-slot').innerText = buildDisplayStr(l); if(l) document.getElementById('eq-leggings-slot').style.color = l.color;
         dom.playerArmor.style.display = 'none'; dom.playerLeggings.style.display = 'none'; 
         
-        // INSTANT IDLE WEAPON RENDER
-        if (w && w.sprite) { dom.playerWeapon.style.display = 'block'; dom.playerWeapon.src = `weapon/${w.sprite}.png`; } else { dom.playerWeapon.style.display = 'none'; }
-        
         const createTip = (item, boxId) => { let box = document.getElementById(boxId); let tip = box.querySelector('.tooltip'); if(!tip) { tip = document.createElement('div'); tip.className = 'tooltip'; box.appendChild(tip); } if(item) tip.innerHTML = window.getItemTooltip(item); else tip.remove(); };
         createTip(w, 'eq-box-weapon'); createTip(a, 'eq-box-armor'); createTip(l, 'eq-box-leggings');
         let newMax = window.getMaxHp(); if(game.player.currentHp > newMax) game.player.currentHp = newMax; window.updateUI();
@@ -501,23 +481,15 @@ window.updateUI = function() {
 
 window.toggleStats = function() {
     if (dom.statScreen.style.display === 'block') { dom.statScreen.style.display = 'none'; } 
-    else {
-        document.getElementById('stat-lvl').innerText = game.player.level; document.getElementById('stat-maxhp').innerText = window.getMaxHp();
-        document.getElementById('stat-atk').innerText = window.getAttackPower(); document.getElementById('stat-matk').innerText = window.getMagicAttack();
-        document.getElementById('stat-def').innerText = window.getDefense(); document.getElementById('stat-spd').innerText = window.getSpeed();
-        document.getElementById('stat-str').innerText = window.getTotalStat('str'); document.getElementById('stat-int').innerText = window.getTotalStat('int');
-        dom.statScreen.style.display = 'block';
-    }
+    else { document.getElementById('stat-lvl').innerText = game.player.level; document.getElementById('stat-maxhp').innerText = window.getMaxHp(); document.getElementById('stat-atk').innerText = window.getAttackPower(); document.getElementById('stat-matk').innerText = window.getMagicAttack(); document.getElementById('stat-def').innerText = window.getDefense(); document.getElementById('stat-spd').innerText = window.getSpeed(); document.getElementById('stat-str').innerText = window.getTotalStat('str'); document.getElementById('stat-int').innerText = window.getTotalStat('int'); dom.statScreen.style.display = 'block'; }
 }
 
 window.checkLevelUp = function() {
     if(game.player.level >= 50) return;
     while(game.player.exp >= game.player.maxExp && game.player.level < 50) {
-        game.player.exp -= game.player.maxExp; game.player.level++; 
-        game.player.maxExp += (game.player.level >= 41 ? 1500 : game.player.level >= 31 ? 1000 : game.player.level >= 21 ? 750 : game.player.level >= 11 ? 500 : 200); 
+        game.player.exp -= game.player.maxExp; game.player.level++; game.player.maxExp += (game.player.level >= 41 ? 1500 : game.player.level >= 31 ? 1000 : game.player.level >= 21 ? 750 : game.player.level >= 11 ? 500 : 200); 
         game.player.baseStats.hp += 10; game.player.baseStats.str += 2; game.player.baseStats.int += 2; game.player.currentHp = window.getMaxHp(); 
-        const txt = document.createElement('div'); txt.className = 'level-up-text'; txt.innerText = "LEVEL UP!";
-        txt.style.left = (game.player.x - 20) + 'px'; txt.style.top = (game.player.y - 40) + 'px'; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 2000);
+        const txt = document.createElement('div'); txt.className = 'level-up-text'; txt.innerText = "LEVEL UP!"; txt.style.left = (game.player.x - 20) + 'px'; txt.style.top = (game.player.y - 40) + 'px'; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 2000);
     }
     window.updateUI(); DatabaseManager.savePlayerData(game.player); 
 }
@@ -536,28 +508,35 @@ window.isInTeleport = function(targetX, targetY) { const hitX = targetX + (game.
 window.applyCamera = function() { const cameraX = Math.floor((window.innerWidth / 2) - (game.player.x * CAMERA_ZOOM) - (game.player.width * CAMERA_ZOOM / 2)); const cameraY = Math.floor((window.innerHeight / 2) - (game.player.y * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2)); dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`; }
 
 // ==========================================
-// THE CLASSIC ANIMATION ENGINE 
+// THE CLASSIC, FLAWLESS ANIMATION ENGINE
+// (Corrected folder: 'animation/')
 // ==========================================
-let currentAnimState = ''; let currentWeaponSprite = ''; let lastFacingRight = false;
 window.updateAnimationFrames = function(state) {
     dom.playerAvatarContainer.style.transform = facingRight ? 'scaleX(-1)' : 'scaleX(1)';
     const wpn = game.player.equips.weapon ? game.player.equips.weapon.sprite : null;
     
-    // Memory Cache
-    if (currentAnimState === state && currentWeaponSprite === wpn && lastFacingRight === facingRight) return;
-    currentAnimState = state; currentWeaponSprite = wpn; lastFacingRight = facingRight;
-
     if (state === 'attack') {
-        if (!dom.playerBody.src.endsWith('animation/avatar_attack.png')) dom.playerBody.src = 'animation/avatar_attack.png';
-        if (wpn) { dom.playerWeapon.style.display = 'block'; let isAtk = !wpn.includes('pendant'); let wpnSrc = `weapon/${wpn}${isAtk ? '_attack' : ''}.png`; if (!dom.playerWeapon.src.endsWith(wpnSrc)) dom.playerWeapon.src = wpnSrc; } 
+        let bodySrc = 'animation/avatar_attack.png';
+        if (!dom.playerBody.src.includes(bodySrc)) dom.playerBody.src = bodySrc;
+        
+        if (wpn) { 
+            dom.playerWeapon.style.display = 'block'; 
+            let isAtk = !wpn.includes('pendant'); 
+            let wpnSrc = `weapon/${wpn}${isAtk ? '_attack' : ''}.png`; 
+            if (!dom.playerWeapon.src.includes(wpnSrc)) dom.playerWeapon.src = wpnSrc; 
+        } 
         else dom.playerWeapon.style.display = 'none';
     } else if (state === 'walk') {
-        if (!dom.playerBody.src.endsWith('animation/avatar_walk.png')) dom.playerBody.src = 'animation/avatar_walk.png';
-        if (wpn) { dom.playerWeapon.style.display = 'block'; let wpnSrc = `weapon/${wpn}.png`; if (!dom.playerWeapon.src.endsWith(wpnSrc)) dom.playerWeapon.src = wpnSrc; } 
+        let bodySrc = 'animation/avatar_walk.png';
+        if (!dom.playerBody.src.includes(bodySrc)) dom.playerBody.src = bodySrc;
+        
+        if (wpn) { dom.playerWeapon.style.display = 'block'; let wpnSrc = `weapon/${wpn}.png`; if (!dom.playerWeapon.src.includes(wpnSrc)) dom.playerWeapon.src = wpnSrc; } 
         else dom.playerWeapon.style.display = 'none';
     } else {
-        if (!dom.playerBody.src.endsWith('animation/avatar_idlefront.png')) dom.playerBody.src = 'animation/avatar_idlefront.png';
-        if (wpn) { dom.playerWeapon.style.display = 'block'; let wpnSrc = `weapon/${wpn}.png`; if (!dom.playerWeapon.src.endsWith(wpnSrc)) dom.playerWeapon.src = wpnSrc; } 
+        let bodySrc = 'animation/avatar_idlefront.png';
+        if (!dom.playerBody.src.includes(bodySrc)) dom.playerBody.src = bodySrc;
+        
+        if (wpn) { dom.playerWeapon.style.display = 'block'; let wpnSrc = `weapon/${wpn}.png`; if (!dom.playerWeapon.src.includes(wpnSrc)) dom.playerWeapon.src = wpnSrc; } 
         else dom.playerWeapon.style.display = 'none';
     }
 }
@@ -579,34 +558,28 @@ window.getPlayerById = function(id) { if (!id) return null; if (id === game.play
 
 // --- UI AND AUTH HANDLERS ---
 let loginTimeout;
-window.switchAuth = function(target) { document.getElementById('login-form').style.display = target === 'login' ? 'block' : 'none'; document.getElementById('register-form').style.display = target === 'register' ? 'block' : 'none'; window.playBGM('loginmenu'); }
+window.switchAuth = function(target) { document.getElementById('login-form').style.display = target === 'login' ? 'block' : 'none'; document.getElementById('register-form').style.display = target === 'register' ? 'block' : 'none'; window.playBGM('loginmenu'); };
 window.attemptLogin = function() {
     const u = document.getElementById('login-user').value.trim(); const p = document.getElementById('login-pass').value; if (!u || !p) return alert("Enter username and password!");
     document.getElementById('loading-text').innerText = "Logging in..."; document.getElementById('auth-screen').classList.remove('active'); document.getElementById('loading-screen').style.display = 'flex'; window.playBGM('loginmenu'); 
     loginTimeout = setTimeout(() => { alert("Server Timeout!"); document.getElementById('loading-screen').style.display = 'none'; document.getElementById('auth-screen').classList.add('active'); }, 10000);
     if(socket) socket.emit('login', { username: u, password: p });
-}
+};
 window.attemptRegister = function() {
     const u = document.getElementById('reg-user').value.trim(); const p = document.getElementById('reg-pass').value; if (!u || !p) return alert("Enter username and password!"); if (u.length < 3) return alert("Username too short!");
     document.getElementById('loading-text').innerText = "Registering..."; document.getElementById('auth-screen').classList.remove('active'); document.getElementById('loading-screen').style.display = 'flex'; window.playBGM('loginmenu'); 
     loginTimeout = setTimeout(() => { alert("Server Timeout!"); document.getElementById('loading-screen').style.display = 'none'; document.getElementById('auth-screen').classList.add('active'); }, 10000);
     if(socket) socket.emit('register', { username: u, password: p });
-}
+};
 window.submitCharacterCreation = function() {
     const username = document.getElementById('char-name-input').value; document.getElementById('creation-screen').classList.remove('active'); document.getElementById('loading-text').innerText = "Forging Avatar..."; document.getElementById('loading-screen').style.display = 'flex';
     window.playBGM('loginmenu'); if(socket) socket.emit('createCharacter', { username, charData: charData });
-}
+};
 window.enterGameWorld = function() {
     if (!game.cachedUserData) { alert("Character data lost. Please log in again."); return; }
     document.getElementById('select-screen').classList.remove('active'); document.getElementById('loading-text').innerText = "Entering Exonie..."; document.getElementById('loading-screen').style.display = 'flex';
     if(socket) socket.emit('enterWorld', game.cachedUserData);
-}
-
-// --- COLOR PICKERS ---
-window.setSkinColor = function(color, element) { charData.skinColor = color; document.getElementById('preview-body').style.filter = skinFilters[color]; document.getElementById('preview-head').style.filter = skinFilters[color]; document.querySelectorAll('#skin-color-group .color-swatch').forEach(s => s.classList.remove('selected')); element.classList.add('selected'); };
-window.setHairColor = function(color, element) { charData.hairColor = color; document.getElementById('preview-hair').style.filter = hairFilters[color]; document.querySelectorAll('#hair-color-group .color-swatch').forEach(s => s.classList.remove('selected')); element.classList.add('selected'); };
-window.setHairStyle = function(style) { charData.hairStyle = style; const hairLayer = document.getElementById('preview-hair'); if (style === 'none') { hairLayer.style.display = 'none'; } else { hairLayer.style.display = 'block'; hairLayer.src = `animation/avatar_hair${style}.png`; } document.querySelectorAll('#hair-button-container .btn').forEach(btn => btn.classList.remove('selected')); const activeBtn = document.getElementById(`btn-hair-${style}`); if(activeBtn) activeBtn.classList.add('selected'); };
-setTimeout(() => { let firstSkin = document.querySelector('#skin-color-group .color-swatch.selected'); let firstHair = document.querySelector('#hair-color-group .color-swatch.selected'); if (firstSkin) window.setSkinColor('flesh', firstSkin); if (firstHair) window.setHairColor('black', firstHair); }, 100);
+};
 
 // --- CHAT SYSTEM ---
 const chatInputDom = document.getElementById('chat-input'); const chatContainerDom = document.getElementById('chat-input-container');
@@ -659,7 +632,7 @@ window.renderPartyUI = function() {
     dom.partyMembers.innerHTML = html;
 }
 
-// --- REMOTE PLAYERS ---
+// --- REMOTE PLAYERS & SYNC ---
 window.addRemotePlayer = function(p) {
     if (!p || !p.id || game.remotePlayers[p.id]) return;
     game.remotePlayers[p.id] = p;
@@ -668,27 +641,25 @@ window.addRemotePlayer = function(p) {
     let nameTag = document.createElement('div'); nameTag.className = 'name-tag'; nameTag.innerText = p.name; container.appendChild(nameTag);
     let rig = document.createElement('div'); rig.className = 'player-avatar-container avatar-rig';
     
-    let hair = new Image(); hair.className = 'avatar-layer layer-hair'; hair.onerror = function(){this.style.display='none'};
+    let hair = new Image(); hair.className = 'avatar-layer layer-hair';
     if (p.spriteData?.style === 'none') hair.style.display = 'none'; else hair.src = `animation/avatar_hair${p.spriteData?.style || '1'}.png`; hair.style.filter = hairFilters[p.spriteData?.hair] || hairFilters['black'];
-    let head = new Image(); head.className = 'avatar-layer layer-head'; head.onerror = function(){this.style.display='none'}; head.src = 'animation/avatar_head.png'; head.style.filter = skinFilters[p.spriteData?.skin] || skinFilters['flesh'];
-    let body = new Image(); body.className = 'avatar-layer layer-body'; body.onerror = function(){this.style.display='none'}; body.src = 'animation/avatar_idlefront.png'; body.style.filter = skinFilters[p.spriteData?.skin] || skinFilters['flesh'];
-    let weapon = new Image(); weapon.className = 'avatar-layer layer-weapon'; weapon.style.display = 'none'; weapon.onerror = function(){this.style.display='none'};
+    let head = new Image(); head.className = 'avatar-layer layer-head'; head.src = 'animation/avatar_head.png'; head.style.filter = skinFilters[p.spriteData?.skin] || skinFilters['flesh'];
+    let body = new Image(); body.className = 'avatar-layer layer-body'; body.src = 'animation/avatar_idlefront.png'; body.style.filter = skinFilters[p.spriteData?.skin] || skinFilters['flesh'];
+    let weapon = new Image(); weapon.className = 'avatar-layer layer-weapon'; weapon.style.display = 'none';
     
     rig.appendChild(hair); rig.appendChild(head); rig.appendChild(body); rig.appendChild(weapon);
     container.appendChild(rig); document.getElementById('world').appendChild(container);
     p.dom = container; p.rig = rig; p.body = body; p.weapon = weapon;
     
-    // Apply Remote Weapon Instantly (Fixed)
     if (p.spriteData?.weapon) {
         p.weapon.style.display = 'block';
         let wpnSrc = `weapon/${p.spriteData.weapon}.png`;
-        if (!p.weapon.src.endsWith(wpnSrc)) p.weapon.src = wpnSrc;
+        if (!p.weapon.src.includes(wpnSrc)) p.weapon.src = wpnSrc;
     }
 }
 
 window.removeRemotePlayer = function(id) { if (game.remotePlayers[id]) { game.remotePlayers[id].dom.remove(); delete game.remotePlayers[id]; } }
 
-// --- SOCKET INITIALIZATION ---
 if(socket) {
     socket.on('registerSuccess', (username) => { clearTimeout(loginTimeout); document.getElementById('loading-screen').style.display = 'none'; document.getElementById('char-name-input').value = username; document.getElementById('creation-screen').classList.add('active'); });
     socket.on('needsCharacterCreation', (username) => { clearTimeout(loginTimeout); document.getElementById('loading-screen').style.display = 'none'; document.getElementById('char-name-input').value = username; document.getElementById('creation-screen').classList.add('active'); });
@@ -711,17 +682,24 @@ if(socket) {
         try {
             game.player.id = userData.character_name || "Unknown"; game.player.name = userData.character_name || "Unknown";
             document.getElementById('player-name-tag').innerText = game.player.name; document.getElementById('ui-name-display').innerText = game.player.name;
-            game.player.level = userData.level || 1; game.player.exp = userData.exp || 0; game.player.maxExp = userData.max_exp || 200;
-            game.player.gold = userData.gold || 0; 
+            game.player.level = userData.level || 1; game.player.exp = userData.exp || 0; game.player.maxExp = userData.max_exp || 200; game.player.gold = userData.gold || 0; 
             game.player.baseStats = userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10 };
             game.player.inventory = userData.inventory || new Array(20).fill(null); game.player.equips = userData.equips || { weapon: null, armor: null, leggings: null };
             safeMapData = window.MapDatabase[userData.map_id] || window.MapDatabase['town'] || safeMapData;
             game.player.x = userData.pos_x ?? safeMapData.spawnX ?? 960; game.player.y = userData.pos_y ?? safeMapData.spawnY ?? 1000;
             charData.skinColor = userData.skin_color || 'flesh'; charData.hairColor = userData.hair_color || 'black'; charData.hairStyle = userData.hair_style || '1';
             
-            game.player.currentHp = window.getMaxHp();
+            game.player.currentHp = window.getMaxHp(); // FULL HEAL ON LOGIN
+            document.getElementById('loading-text').innerText = "Loading Assets...";
 
-            document.getElementById('loading-text').innerText = "Loading World Assets...";
+            // SILENT PRE-LOADER (Fixes the freeze completely!)
+            const preloads = ['animation/avatar_idlefront.png', 'animation/avatar_walk.png', 'animation/avatar_attack.png'];
+            if (game.player.equips.weapon && game.player.equips.weapon.sprite) {
+                let wpn = game.player.equips.weapon.sprite;
+                preloads.push(`weapon/${wpn}.png`);
+                if (!wpn.includes('pendant')) preloads.push(`weapon/${wpn}_attack.png`);
+            }
+            preloads.forEach(src => { let img = new Image(); img.src = src; });
             
             setTimeout(() => { 
                 document.getElementById('loading-screen').style.display = 'none'; dom.game.classList.add('active');
@@ -730,11 +708,10 @@ if(socket) {
                 dom.playerBody.style.filter = skinFilters[charData.skinColor]; dom.playerHead.style.filter = skinFilters[charData.skinColor]; dom.playerHair.style.filter = hairFilters[charData.hairColor];
                 if (charData.hairStyle === 'none') dom.playerHair.style.display = 'none'; else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${charData.hairStyle}.png`; }
 
-                window.buildCollisionLayers(); window.updateEquipmentDisplay(); window.updateUI(); window.renderInventory();
-                window.playBGM((safeMapData.id || "").includes('floor') ? 'floor' : 'town');
+                window.buildCollisionLayers(); window.updateEquipmentDisplay(); window.updateUI(); window.renderInventory(); window.playBGM((safeMapData.id || "").includes('floor') ? 'floor' : 'town');
 
                 game.isRunning = true; requestAnimationFrame(gameLoop); window.emitVitalsIfNeeded(true);
-            }, 2500);
+            }, 4000);
         } catch (err) { alert("Game Boot Error: " + err.message); console.error(err); }
     });
 
@@ -742,8 +719,7 @@ if(socket) {
         let speaker = (data.id === game.player.id) ? game.player : game.remotePlayers[data.id];
         if (speaker) {
             const meCx = game.player.x + 24; const meCy = game.player.y + 48; const themCx = speaker.x + 24; const themCy = speaker.y + 48;
-            const dist = Math.hypot(meCx - themCx, meCy - themCy);
-            if (dist < 400 || data.id === game.player.id) window.showBubble(speaker, data.text);
+            if (Math.hypot(meCx - themCx, meCy - themCy) < 400 && data.id !== game.player.id) window.showBubble(speaker, data.text);
         }
     });
 
@@ -751,19 +727,19 @@ if(socket) {
     socket.on('remotePlayerJoined', (p) => window.addRemotePlayer(p));
     socket.on('remotePlayerLeft', (id) => window.removeRemotePlayer(id));
 
-    // REMOTE ANIMATION CACHE ENGINE
+    // REMOTE ANIMATION CACHE ENGINE (WITH PROPER FOLDER FIX)
     socket.on('remotePlayerMoved', (data) => {
         const p = game.remotePlayers[data.id]; if (!p) return;
         p.x = data.x; p.y = data.y; p.dom.style.left = p.x + 'px'; p.dom.style.top = p.y + 'px'; p.rig.style.transform = data.facingRight ? 'scaleX(-1)' : 'scaleX(1)';
         
         let bodySrc = data.state === 'attack' ? 'animation/avatar_attack.png' : data.state === 'walk' ? 'animation/avatar_walk.png' : 'animation/avatar_idlefront.png';
-        if (!p.body.src.endsWith(bodySrc)) p.body.src = bodySrc;
+        if (!p.body.src.includes(bodySrc)) p.body.src = bodySrc;
 
         if (data.weaponSprite) {
             p.weapon.style.display = 'block';
             const isAtk = data.state === 'attack' && !data.weaponSprite.includes('pendant');
             let wpnSrc = `weapon/${data.weaponSprite}${isAtk ? '_attack' : ''}.png`;
-            if (!p.weapon.src.endsWith(wpnSrc)) p.weapon.src = wpnSrc;
+            if (!p.weapon.src.includes(wpnSrc)) p.weapon.src = wpnSrc;
         } else {
             p.weapon.style.display = 'none';
         }
@@ -784,18 +760,13 @@ if(socket) {
         slots.forEach(s => { out += `<div class="inspect-equip"><div style="font-weight:bold; color:#ffeb3b; margin-bottom:6px;">${s.label}</div>${fmtStatBlock(equips[s.key])}</div>`; }); dom.inspectContent.innerHTML = out;
     });
 
-    socket.on('partyInviteReceived', (payload) => { pendingPartyInvite = payload?.fromId || "Unknown"; document.getElementById('invite-text').innerText = `${pendingPartyInvite} invited you to a party.`; document.getElementById('invite-dialog').style.display = 'block'; });
-    socket.on('tradeInviteReceived', (payload) => { pendingTradeInvite = payload?.fromId || "Unknown"; document.getElementById('trade-text').innerText = `${pendingTradeInvite} wants to trade.`; document.getElementById('trade-dialog').style.display = 'block'; });
     socket.on('tradeStarted', (data) => { tradeTarget = data.targetId; inTradeMode = true; document.getElementById('trade-target-name').innerText = tradeTarget; document.getElementById('trade-screen').style.display = 'block'; window.renderTradeSlots(); window.renderInventory(); dom.invScreen.style.display = 'block'; });
     socket.on('tradeSyncReceived', (data) => { document.getElementById('trade-their-gold').innerText = data.gold || 0; tradeTheirItems = data.items || [null, null, null]; window.renderTradeSlots(); });
     socket.on('tradeCancelled', () => { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "The other player cancelled the trade."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); });
     socket.on('partyUpdate', (partyData) => { game.party = partyData || null; window.renderPartyUI(); });
     socket.on('partyError', (msg) => { if (msg) dom.log.innerText = msg; if (msg && msg.includes('TRADE_ACCEPTED:')) { const target = msg.split(':')[1]; document.getElementById('trade-target-name').innerText = target; document.getElementById('trade-screen').style.display = 'block'; } });
 
-    socket.on('receiveExp', (data) => {
-        game.player.exp += data.amount; dom.log.innerText = `Gained ${data.amount} EXP!`;
-        window.checkLevelUp(); window.updateUI();
-    });
+    socket.on('receiveExp', (data) => { game.player.exp += data.amount; dom.log.innerText = `Gained ${data.amount} EXP from ${data.source}!`; window.checkLevelUp(); window.updateUI(); });
 
     // MONSTER SYNC (Classic Slime & Future Proof)
     socket.on('monsterState', (monsters) => {
@@ -805,20 +776,9 @@ if(socket) {
             if (!game.monster.alive) { dom.monster.style.display = 'none'; } 
             else { 
                 dom.monster.style.display = 'flex'; dom.monster.style.left = game.monster.x + 'px'; dom.monster.style.top = game.monster.y + 'px'; 
-                dom.monster.style.width = (m.width || 40) + 'px'; dom.monster.style.height = (m.height || 40) + 'px';
                 dom.monsterName.innerText = `${m.name || "Monster"}`;
-                
-                if (m.monsterKey === 'common_mobs1') {
-                    dom.monsterSprite.style.backgroundImage = 'none';
-                    dom.monsterSprite.style.backgroundColor = '#ff69b4';
-                    dom.monsterSprite.style.border = '2px solid #c71585';
-                    dom.monsterSprite.style.borderRadius = '50% 50% 40% 40%';
-                } else {
-                    dom.monsterSprite.style.backgroundColor = 'transparent';
-                    dom.monsterSprite.style.border = 'none';
-                    dom.monsterSprite.style.borderRadius = '0';
-                    dom.monsterSprite.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`;
-                }
+                if (m.monsterKey === 'common_mobs1') { dom.monsterSprite.style.backgroundImage = 'none'; dom.monsterSprite.style.backgroundColor = '#ff69b4'; dom.monsterSprite.style.border = '2px solid #c71585'; dom.monsterSprite.style.borderRadius = '50% 50% 40% 40%'; } 
+                else { dom.monsterSprite.style.backgroundColor = 'transparent'; dom.monsterSprite.style.border = 'none'; dom.monsterSprite.style.borderRadius = '0'; dom.monsterSprite.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`; }
             } 
             window.updateUI();
         }
