@@ -168,7 +168,7 @@
 
     <div id="creation-screen" class="screen">
         <div class="stage-area">
-            <div id="preview-rig" class="avatar-rig">
+            <div id="preview-rig" class="avatar-rig" style="pointer-events: none;">
                 <img id="preview-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" onerror="this.style.display='none'">
                 <img id="preview-head" class="avatar-layer layer-head" src="animation/avatar_head.png" onerror="this.style.display='none'">
                 <img id="preview-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png" onerror="this.style.display='none'">
@@ -220,14 +220,14 @@
                 <h1 id="select-name-display" style="color: #4CAF50; font-size: 50px; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.8);">Player</h1>
                 <p id="select-level-display" style="color: #ffd700; margin-top:0; margin-bottom: 40px; font-size: 24px; font-weight: bold;">Level 1</p>
                 
-                <div id="select-rig" class="avatar-rig" style="margin: auto; margin-bottom: 60px;">
+                <div id="select-rig" class="avatar-rig" style="margin: auto; margin-bottom: 60px; pointer-events: none;">
                     <img id="select-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" onerror="this.style.display='none'">
                     <img id="select-head" class="avatar-layer layer-head" src="animation/avatar_head.png" onerror="this.style.display='none'">
                     <img id="select-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png" onerror="this.style.display='none'">
                     <img id="select-weapon" class="avatar-layer layer-weapon" style="display:none;" onerror="this.style.display='none'">
                 </div>
 
-                <button class="btn btn-large" onclick="enterGameWorld()" style="width: 300px; font-size: 28px;">ENTER WORLD</button>
+                <button class="btn btn-large" onclick="enterGameWorld()" style="width: 300px; font-size: 28px; position: relative; z-index: 9999; pointer-events: auto; cursor: pointer;">ENTER WORLD</button>
             </div>
         </div>
     </div>
