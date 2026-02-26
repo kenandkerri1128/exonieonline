@@ -1,4 +1,4 @@
-const townMapData = {
+var townMapData = {
      id: "town",
      name: "Town of Exonie",
     image: "town_map.png",
@@ -830,4 +830,5 @@ const townMapData = {
   }
 ]
 };
+
 
