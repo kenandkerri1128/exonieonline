@@ -16,11 +16,13 @@
         .screen { width: 100%; height: 100%; display: none; }
         .screen.active { display: flex; }
 
+        /* --- LOADING SCREEN --- */
         #loading-screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #111; color: #fff; z-index: 5000; flex-direction: column; justify-content: center; align-items: center; }
         .loader-title { font-size: 32px; font-weight: bold; margin-bottom: 20px; color: #4CAF50; letter-spacing: 2px;}
         .loader-bar-bg { width: 400px; height: 12px; background: #333; border-radius: 6px; overflow: hidden; border: 2px solid #555;}
         .loader-bar-fill { width: 0%; height: 100%; background: #4CAF50; transition: width 0.8s ease-out; }
 
+        /* --- UI COMPONENTS --- */
         input[type="text"], input[type="password"], input[type="number"], select, button, textarea { font-family: 'MedievalSharp', cursive; }
         input[type="text"], input[type="password"], input[type="number"] { background: #111; color: #0f0; border: 1px solid #4CAF50; padding: 10px; border-radius: 4px; font-size: 18px; width: calc(100% - 22px); outline: none; margin-bottom: 15px; box-sizing: border-box; }
         input:read-only { color: #888; border-color: #555; background: #222; }
@@ -38,11 +40,13 @@
         .color-swatch:hover { transform: scale(1.1); }
         .color-swatch.selected { border-color: white; }
 
+        /* --- AUTH SCREENS --- */
         .auth-container { position: relative; z-index: 10; width: 400px; padding: 30px; background: #1e1e1e; border-radius: 8px; border: 2px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: center; margin: auto; }
         .auth-container h1 { margin-top: 0; color: #4CAF50; font-size: 40px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .auth-link { color: #4CAF50; cursor: pointer; font-size: 16px; text-decoration: underline; margin-top: 15px; display: inline-block; }
         .auth-link:hover { color: #fff; }
 
+        /* --- CREATION / SELECT STAGE --- */
         #creation-screen, #select-screen { flex-direction: row; }
         .stage-area { width: 45%; height: 100%; background: radial-gradient(circle, #444 0%, #222 100%); display: flex; justify-content: center; align-items: center; border-right: 2px solid #333; }
         .controls-area { width: 55%; height: 100%; padding: 40px; overflow-y: auto; box-sizing: border-box; }
@@ -55,6 +59,7 @@
         .layer-body { height: 120%; bottom: -45%; z-index: 4; } .layer-leggings { height: 120%; bottom: -45%; z-index: 5; }
         .layer-armor { height: 120%; bottom: -45%; z-index: 6; } .layer-weapon { height: 120%; bottom: -45%; z-index: 7; }
 
+        /* --- GAME WORLD --- */
         #game-screen { position: relative; width: 100%; height: 100%; background-color: #000; }
         #world { position: absolute; width: 2000px; height: 1333px; background-size: 100% 100%; transform-origin: top left; transition: background-image 0.5s; }
 
@@ -76,9 +81,9 @@
         .player-avatar-container { pointer-events: none; transform-origin: center bottom; position: relative; width: 48px; height: 96px; }
         .player-avatar-container::after { content: ''; position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); width: 30px; height: 8px; background: rgba(0, 0, 0, 0.4); border-radius: 50%; z-index: -2; }
 
-        /* --- CLASSIC PINK SLIME RESTORED + FUTURE-PROOFING --- */
-        #monster { position: absolute; transition: filter 0.1s, transform 0.15s ease-out; cursor: crosshair; display: flex; justify-content: center; align-items: flex-end; z-index: 50; }
-        #monster-sprite { width: 100%; height: 100%; background-color: #ff69b4; border: 2px solid #c71585; border-radius: 50% 50% 40% 40%; box-shadow: 0 4px 4px rgba(0,0,0,0.3); box-sizing: border-box; background-size: contain; background-repeat: no-repeat; background-position: bottom; animation: slime-bounce 0.5s infinite alternate; }
+        /* --- CLASSIC MONSTER CSS --- */
+        #monster { position: absolute; width: 40px; height: 40px; transition: filter 0.1s, transform 0.15s ease-out; cursor: crosshair; display: flex; justify-content: center; align-items: flex-end; z-index: 50; }
+        #monster-sprite { width: 100%; height: 100%; background-color: #ff69b4; border: 2px solid #c71585; border-radius: 50% 50% 40% 40%; box-shadow: 0 4px 4px rgba(0,0,0,0.3); box-sizing: border-box; animation: slime-bounce 0.5s infinite alternate; }
         @keyframes slime-bounce { 0% { transform: translateY(0) scaleY(0.9); } 100% { transform: translateY(-12px) scaleY(1.1); } }
         #monster.hit-flash #monster-sprite { filter: brightness(2) drop-shadow(0 0 5px red) !important; }
         #monster-ui { position: absolute; top: -20px; left: 0px; width: 100%; pointer-events: none; display: none; }
@@ -104,6 +109,7 @@
         .magic-orb { position: absolute; width: 12px; height: 12px; background-color: #e0ffff; border-radius: 50%; box-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff, 0 0 20px #ffffff; pointer-events: none; z-index: 250; transform: translate(-50%, -50%); }
         .damage-text { position: absolute; color: white; font-weight: bold; font-size: 16px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; pointer-events: none; animation: floatUp 1s forwards; z-index: 200; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(1.5); } }
+        .level-up-text { position: absolute; color: #ffd700; font-weight: bold; font-size: 28px; text-shadow: 0 0 10px #ff9800; pointer-events: none; animation: floatUp 2s forwards; z-index: 500; }
 
         .rarity-godly { animation: godly-sparkle 1.5s infinite alternate; }
         @keyframes godly-sparkle { 0% { text-shadow: 0 0 2px #fff, 0 0 5px #e0ffff; } 100% { text-shadow: 0 0 8px #fff, 0 0 15px #00ffff, 0 0 20px #00ffff; } }
@@ -145,7 +151,6 @@
         #chat-input { background: rgba(0,0,0,0.8); border: 1px solid #4CAF50; color: white; padding: 10px 20px; width: 400px; border-radius: 25px; outline: none; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
         
         .chat-bubble { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.9); color: #111; padding: 6px 14px; border-radius: 12px; font-size: 14px; font-weight: bold; white-space: nowrap; pointer-events: none; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 200; animation: fadeInOut 4s forwards; }
-        @keyframes fadeInOut { 0% { opacity: 0; transform: translate(-50%, 10px); } 10% { opacity: 1; transform: translate(-50%, 0); } 80% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -10px); } }
 
         .popup-dialog { position: absolute; top: 30%; left: 50%; transform: translateX(-50%); background: rgba(20,20,20,0.95); border-radius: 8px; padding: 25px; z-index: 4000; display: none; text-align: center; box-shadow: 0 0 20px #000; }
         #invite-dialog { border: 2px solid #4CAF50; }
@@ -160,15 +165,11 @@
 <body>
 <div id="game-container">
 
-    <div id="chat-input-container">
-        <input type="text" id="chat-input" placeholder="Say something..." autocomplete="off">
-    </div>
-    
+    <div id="chat-input-container"><input type="text" id="chat-input" placeholder="Press Enter to Chat..." autocomplete="off"></div>
     <div id="invite-dialog" class="popup-dialog">
         <p id="invite-text" style="font-size: 20px; margin-top: 0; margin-bottom: 20px;">Player invited you to party.</p>
         <div style="display: flex; justify-content: center;"><button class="btn selected" onclick="window.respondInvite(true)">Accept</button><button class="btn" style="background:#f44336; border-color:#f44336;" onclick="window.respondInvite(false)">Decline</button></div>
     </div>
-
     <div id="trade-dialog" class="popup-dialog">
         <p id="trade-text" style="font-size: 20px; margin-top: 0; margin-bottom: 20px;">Player wants to trade.</p>
         <div style="display: flex; justify-content: center;"><button class="btn selected" style="background:#2196F3; border-color:#2196F3;" onclick="window.respondTrade(true)">Accept</button><button class="btn" style="background:#f44336; border-color:#f44336;" onclick="window.respondTrade(false)">Decline</button></div>
@@ -197,13 +198,24 @@
     </div>
 
     <div id="inv-context-menu"><button class="ctx-btn" id="ctx-btn-equip" style="border-bottom: 1px solid #444;" onclick="window.actionEquip(event)">Equip</button><button class="ctx-btn" id="ctx-btn-throw" style="color: #f44336;" onclick="window.actionThrow(event)">Throw</button></div>
-
     <div id="player-context-menu"><button class="ctx-btn" style="border-bottom: 1px solid #444;" onclick="window.inspectTargetPlayer()">Inspect</button><button class="ctx-btn" style="border-bottom: 1px solid #444;" onclick="window.inviteTargetToParty()">Invite Party</button><button class="ctx-btn" onclick="window.requestTrade()">Trade</button></div>
 
     <div id="auth-screen" class="screen active" style="background: url('town_map.png') center/cover; position: relative;">
         <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); z-index: 1;"></div>
-        <div class="auth-container" id="login-form"><h1>Exonie Online</h1><input type="text" id="login-user" placeholder="Username" maxlength="16"><input type="password" id="login-pass" placeholder="Password"><button class="btn btn-large" onclick="window.attemptLogin()">LOGIN</button><span class="auth-link" onclick="window.switchAuth('register')">Create an Account</span></div>
-        <div class="auth-container" id="register-form" style="display: none;"><h1>Join Exonie</h1><input type="text" id="reg-user" placeholder="Username" maxlength="16"><input type="password" id="reg-pass" placeholder="Password"><button class="btn btn-large" onclick="window.attemptRegister()">CREATE ACCOUNT</button><span class="auth-link" onclick="window.switchAuth('login')">Back to Login</span></div>
+        <div class="auth-container" id="login-form">
+            <h1>Exonie Online</h1>
+            <input type="text" id="login-user" placeholder="Username" maxlength="16">
+            <input type="password" id="login-pass" placeholder="Password">
+            <button class="btn btn-large" onclick="window.attemptLogin()">LOGIN</button>
+            <span class="auth-link" onclick="window.switchAuth('register')">Create an Account</span>
+        </div>
+        <div class="auth-container" id="register-form" style="display: none;">
+            <h1>Join Exonie</h1>
+            <input type="text" id="reg-user" placeholder="Username" maxlength="16">
+            <input type="password" id="reg-pass" placeholder="Password">
+            <button class="btn btn-large" onclick="window.attemptRegister()">CREATE ACCOUNT</button>
+            <span class="auth-link" onclick="window.switchAuth('login')">Back to Login</span>
+        </div>
     </div>
 
     <div id="creation-screen" class="screen">
@@ -281,12 +293,15 @@
                 <h4 style="color:#ffeb3b;">Power Testing</h4>
                 <div class="admin-tool-row"><span>Player Lvl:</span><input type="number" id="admin-player-level" value="50" min="1" max="50"><button class="btn" onclick="window.adminSetPlayerLevel()">Apply</button></div>
                 <div class="admin-tool-row"><span>Give Item: Lv</span><input type="number" id="admin-item-level" value="5" min="1" max="50" style="width:50px;"><span>+</span><input type="number" id="admin-item-enhance" value="0" min="0" max="20" style="width:50px;"></div>
-                <div class="admin-tool-row"><select id="admin-item-rarity"><option value="Basic">Basic</option><option value="Rare">Rare</option><option value="Unique">Unique</option><option value="Legendary">Legendary</option><option value="Godly" selected>Godly</option></select><select id="admin-item-type"><option value="sword">Sword</option><option value="staff">Staff</option><option value="pendant">Pendant</option><option value="armor">Armor</option></select><button class="btn selected" onclick="window.adminGiveCustomItem()">Spawn</button></div>
+                <div class="admin-tool-row">
+                    <select id="admin-item-rarity"><option value="Basic">Basic</option><option value="Rare">Rare</option><option value="Unique">Unique</option><option value="Legendary">Legendary</option><option value="Godly" selected>Godly</option></select>
+                    <select id="admin-item-type"><option value="sword">Sword</option><option value="staff">Staff</option><option value="pendant">Pendant</option><option value="armor">Armor</option></select>
+                    <button class="btn selected" onclick="window.adminGiveCustomItem()">Spawn</button>
+                </div>
             </div>
             <p style="font-size: 14px; color: #aaa; margin-bottom: 5px;"><b>Alt + Left Click & Drag</b>: Draw Collision Box</p>
             <p style="font-size: 14px; color: #00ff00; margin-bottom: 5px;"><b>Shift + Alt + Left Click & Drag</b>: Draw Teleport Box</p>
             <p style="font-size: 14px; color: #0ff; margin-top: 0; margin-bottom: 5px;"><b>Tab + Left Click</b>: Set Safe Spawn Point</p>
-            <p style="font-size: 14px; color: #ffeb3b; font-weight: bold;">Admin Mode Active: Wall Collision Disabled</p>
             <div style="display: flex; gap: 10px;"><button class="btn" style="flex: 1;" onclick="window.undoLastBox()">Undo Box</button><button class="btn" style="flex: 1; background-color: #f44336;" onclick="window.clearAllBoxes()">Clear Map</button></div>
             <textarea id="admin-output" readonly></textarea>
             <button class="btn btn-large" style="margin-top: 0; padding: 10px;" onclick="window.copyAdminData()">Copy Code</button>
@@ -308,7 +323,7 @@
                 </div>
             </div>
 
-            <div id="monster" class="entity" style="left: 900px; top: 800px;">
+            <div id="monster" class="entity" style="left: 900px; top: 800px; width: 40px; height: 40px;">
                 <div class="name-tag mob-name" id="monster-name-tag">Slime Lv.5</div>
                 <div id="monster-sprite"></div>
                 <div id="monster-ui"><div class="bar-container" style="height: 5px; border-radius: 0; margin-bottom: 0;"><div id="ui-monster-hp-bar" class="hp-fill monster-hp-fill"></div></div></div>
@@ -343,21 +358,11 @@
 </div>
 
 <script>
-// ==========================================
-// 1. TOP-LEVEL VARIABLES
-// ==========================================
 let socket;
 try { socket = io(); } catch(e) { console.warn("Socket disconnected."); }
 
 const dom = {
-    creation: document.getElementById('creation-screen'), game: document.getElementById('game-screen'),
-    playerContainer: document.getElementById('player-container'), playerAvatarContainer: document.getElementById('player-avatar-container'),
-    playerBody: document.getElementById('player-body'), playerHead: document.getElementById('player-head'), playerHair: document.getElementById('player-hair'),
-    playerWeapon: document.getElementById('player-weapon'), playerArmor: document.getElementById('player-armor'), playerLeggings: document.getElementById('player-leggings'),
-    monster: document.getElementById('monster'), monsterSprite: document.getElementById('monster-sprite'), monsterName: document.getElementById('monster-name-tag'), log: document.getElementById('combat-log'), statScreen: document.getElementById('stat-screen'),
-    invScreen: document.getElementById('inventory-screen'), world: document.getElementById('world'), inspect: document.getElementById('inspect-screen'),
-    inspectContent: document.getElementById('inspect-content'), inspectTitle: document.getElementById('inspect-title'),
-    partyPanel: document.getElementById('party-panel'), partyMembers: document.getElementById('party-members')
+    creation: document.getElementById('creation-screen'), game: document.getElementById('game-screen'), playerContainer: document.getElementById('player-container'), playerAvatarContainer: document.getElementById('player-avatar-container'), playerBody: document.getElementById('player-body'), playerHead: document.getElementById('player-head'), playerHair: document.getElementById('player-hair'), playerWeapon: document.getElementById('player-weapon'), playerArmor: document.getElementById('player-armor'), playerLeggings: document.getElementById('player-leggings'), monster: document.getElementById('monster'), monsterSprite: document.getElementById('monster-sprite'), monsterName: document.getElementById('monster-name-tag'), log: document.getElementById('combat-log'), statScreen: document.getElementById('stat-screen'), invScreen: document.getElementById('inventory-screen'), world: document.getElementById('world'), inspect: document.getElementById('inspect-screen'), inspectContent: document.getElementById('inspect-content'), inspectTitle: document.getElementById('inspect-title'), partyPanel: document.getElementById('party-panel'), partyMembers: document.getElementById('party-members')
 };
 
 const skinFilters = { 'flesh': 'sepia(1) hue-rotate(-25deg) saturate(2.5) brightness(1.1)', 'yellow': 'sepia(1) hue-rotate(15deg) saturate(3) brightness(1.2)', 'green': 'sepia(1) hue-rotate(75deg) saturate(2) brightness(1)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2) brightness(1)', 'white': 'grayscale(1) brightness(1.8) contrast(0.9)' };
@@ -368,8 +373,7 @@ let adminMode = false; const CAMERA_ZOOM = 1.8; const STAT_TYPES = ['attack', 'm
 const RARITY_COLORS = { "Starter": "#aaaaaa", "Basic": "#8B4513", "Rare": "#2196F3", "Unique": "#9c27b0", "Legendary": "#f44336", "Godly": "#e0ffff" };
 const ITEM_TEMPLATES = { sword: { slot: 'weapon', statKey: 'attack', baseName: 'Sword', spriteName: 'sword' }, staff: { slot: 'weapon', statKey: 'magic', baseName: 'Staff', spriteName: 'staff' }, pendant: { slot: 'weapon', statKey: 'magic', baseName: 'Pendant', spriteName: 'pendant' }, armor: { slot: 'armor', statKey: 'defense', baseName: 'Armor', spriteName: 'armor' }, leggings: { slot: 'leggings', statKey: 'hp', baseName: 'Leggings', spriteName: 'leggings' } };
 
-window.MapDatabase = window.MapDatabase || {};
-if (typeof townMapData !== 'undefined') { window.MapDatabase[townMapData.id || 'town'] = townMapData; }
+window.MapDatabase = window.MapDatabase || {}; if (typeof townMapData !== 'undefined') { window.MapDatabase[townMapData.id || 'town'] = townMapData; }
 let safeMapData = window.MapDatabase['town'] || { id: "town", name: "Town of Exonie", image: "town_map.png", spawnX: 960, spawnY: 1000, collisions: [], teleports: [] };
 
 let isInventoryOpen = false; let isEnhancing = false; let activeInvIndex = -1; let facingRight = false; let attackCooldownActive = false; let isAttacking = false;
@@ -384,46 +388,33 @@ const game = {
     remotePlayers: {}, cachedUserData: null, party: null
 };
 
-const DatabaseManager = {
-    savePlayerData: function(playerObj) {
-        playerObj.mapId = safeMapData.id || 'town';
-        if(socket) socket.emit('saveData', playerObj);
-        if(socket) socket.emit('playerEquipUpdate', { equips: playerObj.equips });
-    }
-};
+const DatabaseManager = { savePlayerData: function(playerObj) { playerObj.mapId = safeMapData.id || 'town'; if(socket) socket.emit('saveData', playerObj); if(socket) socket.emit('playerEquipUpdate', { equips: playerObj.equips }); } };
 
-// ==========================================
-// 2. CORE FUNCTIONS
-// ==========================================
 let currentBGM = null; let currentTrackName = "";
-function playBGM(trackName) {
-    if (currentTrackName === trackName) return; if (currentBGM) { currentBGM.pause(); currentBGM.currentTime = 0; }
-    currentTrackName = trackName; currentBGM = new Audio(`music/${trackName}.mp3`); currentBGM.loop = true; currentBGM.volume = 0.4; currentBGM.play().catch(e => console.log("Audio waiting for user click."));
-}
+window.playBGM = function(trackName) { if (currentTrackName === trackName) return; if (currentBGM) { currentBGM.pause(); currentBGM.currentTime = 0; } currentTrackName = trackName; currentBGM = new Audio(`music/${trackName}.mp3`); currentBGM.loop = true; currentBGM.volume = 0.4; currentBGM.play().catch(e => console.log("Audio waiting for user click.")); }
+document.addEventListener('click', function initiateAudio() { if (!currentBGM && document.getElementById('auth-screen').classList.contains('active')) { window.playBGM('loginmenu'); } });
+document.addEventListener('keydown', function initiateAudioKey() { if (!currentBGM && document.getElementById('auth-screen').classList.contains('active')) { window.playBGM('loginmenu'); } });
 
-function getTotalStat(statName) {
-    if (!game.player || !game.player.baseStats) return 0; let total = game.player.baseStats[statName] || 0;
-    ['weapon', 'armor', 'leggings'].forEach(slot => { let eq = game.player.equips?.[slot]; if (eq) { if (eq.fixedStat && typeof eq.fixedStat[statName] === 'number') total += eq.fixedStat[statName]; if (eq.randomStat && typeof eq.randomStat[statName] === 'number') total += eq.randomStat[statName]; } }); return total;
-}
-function getMaxHp() { return getTotalStat('hp'); }
-function getAttackPower() { return getTotalStat('attack') + Math.floor(getTotalStat('str') / 2); }
-function getMagicAttack() { return getTotalStat('magic') + Math.floor(getTotalStat('int') / 2); }
-function getDefense() { return getTotalStat('defense'); }
-function getSpeed() { return getTotalStat('speed'); }
-function getBaseStat(lvl) { if (lvl >= 50) return 100; if (lvl >= 45) return 45; if (lvl >= 40) return 40; if (lvl >= 35) return 30; if (lvl >= 30) return 27; if (lvl >= 25) return 22; if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; if (lvl >= 5) return 8; return 5; }
+window.getTotalStat = function(statName) { if (!game.player || !game.player.baseStats) return 0; let total = game.player.baseStats[statName] || 0; ['weapon', 'armor', 'leggings'].forEach(slot => { let eq = game.player.equips?.[slot]; if (eq) { if (eq.fixedStat && typeof eq.fixedStat[statName] === 'number') total += eq.fixedStat[statName]; if (eq.randomStat && typeof eq.randomStat[statName] === 'number') total += eq.randomStat[statName]; } }); return total; }
+window.getMaxHp = function() { return window.getTotalStat('hp'); }
+window.getAttackPower = function() { return window.getTotalStat('attack') + Math.floor(window.getTotalStat('str') / 2); }
+window.getMagicAttack = function() { return window.getTotalStat('magic') + Math.floor(window.getTotalStat('int') / 2); }
+window.getDefense = function() { return window.getTotalStat('defense'); }
+window.getSpeed = function() { return window.getTotalStat('speed'); }
+window.getBaseStat = function(lvl) { if (lvl >= 50) return 100; if (lvl >= 45) return 45; if (lvl >= 40) return 40; if (lvl >= 35) return 30; if (lvl >= 30) return 27; if (lvl >= 25) return 22; if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; if (lvl >= 5) return 8; return 5; }
 
 window.generateLoot = function() {
     if (Math.random() < 0.50) { return { id: Date.now() + Math.random(), name: "Refinement Stone Lv.5", type: "material", level: 5, rarity: "Basic", color: "#e0e0e0", description: "Enhances equipment.", quantity: 1 }; }
     let keys = Object.keys(ITEM_TEMPLATES); let typeKey = keys[Math.floor(Math.random() * keys.length)];
     let rarity = Math.random() < 0.05 ? "Rare" : "Basic"; let level = 5; let template = ITEM_TEMPLATES[typeKey];
     
-    // Exact mapping requested by user
+    // Weapon prefix generator fix
     let rarityPrefix = rarity === "Starter" ? "basic" : rarity.toLowerCase(); 
     let spriteName = rarityPrefix + template.spriteName; 
     
     let item = { id: Date.now() + Math.random(), name: `${rarity === "Rare" ? "Slime" : "Basic"} ${template.baseName}`, type: template.slot, sprite: spriteName, level: level, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 };
-    let statVal = getBaseStat(level) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0); 
-    if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); item.fixedStat[template.statKey] = statVal; item.randomStat = {}; item.randomStat[STAT_TYPES[Math.floor(Math.random() * STAT_TYPES.length)]] = Math.floor(Math.random() * getBaseStat(level)) + 1; 
+    let statVal = window.getBaseStat(level) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0); 
+    if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); item.fixedStat[template.statKey] = statVal; item.randomStat = {}; item.randomStat[STAT_TYPES[Math.floor(Math.random() * STAT_TYPES.length)]] = Math.floor(Math.random() * window.getBaseStat(level)) + 1; 
     return item;
 }
 
@@ -444,7 +435,6 @@ window.getItemTooltip = function(item) {
 }
 
 window.toggleInventory = function() { isInventoryOpen = !isInventoryOpen; if (isInventoryOpen) { window.renderInventory(); dom.invScreen.style.display = 'block'; } else dom.invScreen.style.display = 'none'; }
-
 window.renderInventory = function() {
     const grid = document.getElementById('inventory-grid'); if (!grid) return; grid.innerHTML = ''; const inv = game.player.inventory || new Array(20).fill(null);
     for (let i = 0; i < inv.length; i++) {
@@ -469,7 +459,7 @@ window.unequipItem = function(slot) { const eq = game.player.equips[slot]; if (!
 
 window.useItem = function(index) {
     const item = game.player.inventory[index]; if (!item) return; if (item.level && item.level > game.player.level) { dom.log.innerText = `Level ${item.level} required!`; return; }
-    if (item.type === 'potion') { game.player.currentHp = Math.min(getMaxHp(), game.player.currentHp + item.fixedStat.hpHeal); item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, `+${item.fixedStat.hpHeal} HP`, '#4CAF50'); dom.log.innerText = `Used ${item.name}!`; window.updateUI(); window.emitVitalsIfNeeded(true); } 
+    if (item.type === 'potion') { game.player.currentHp = Math.min(window.getMaxHp(), game.player.currentHp + item.fixedStat.hpHeal); item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, `+${item.fixedStat.hpHeal} HP`, '#4CAF50'); dom.log.innerText = `Used ${item.name}!`; window.updateUI(); window.emitVitalsIfNeeded(true); } 
     else { const currentEquip = game.player.equips[item.type]; game.player.equips[item.type] = item; game.player.inventory[index] = currentEquip; dom.log.innerText = `Equipped ${item.name}!`; window.updateEquipmentDisplay(); window.emitVitalsIfNeeded(true); }
     window.renderInventory(); DatabaseManager.savePlayerData(game.player);
 }
@@ -497,27 +487,17 @@ window.updateEquipmentDisplay = function() {
         document.getElementById('eq-weapon-slot').innerText = buildDisplayStr(w); if(w) document.getElementById('eq-weapon-slot').style.color = w.color;
         document.getElementById('eq-armor-slot').innerText = buildDisplayStr(a); if(a) document.getElementById('eq-armor-slot').style.color = a.color;
         document.getElementById('eq-leggings-slot').innerText = buildDisplayStr(l); if(l) document.getElementById('eq-leggings-slot').style.color = l.color;
-        
-        // Setup initial Idle Weapon Frame
-        if (w && w.sprite) {
-            dom.playerWeapon.style.display = 'block';
-            if (!dom.playerWeapon.src.endsWith(`weapon/${w.sprite}.png`)) {
-                dom.playerWeapon.src = `weapon/${w.sprite}.png`;
-            }
-        } else {
-            dom.playerWeapon.style.display = 'none';
-        }
-
+        dom.playerArmor.style.display = 'none'; dom.playerLeggings.style.display = 'none'; 
         const createTip = (item, boxId) => { let box = document.getElementById(boxId); let tip = box.querySelector('.tooltip'); if(!tip) { tip = document.createElement('div'); tip.className = 'tooltip'; box.appendChild(tip); } if(item) tip.innerHTML = window.getItemTooltip(item); else tip.remove(); };
         createTip(w, 'eq-box-weapon'); createTip(a, 'eq-box-armor'); createTip(l, 'eq-box-leggings');
-        let newMax = getMaxHp(); if(game.player.currentHp > newMax) game.player.currentHp = newMax; window.updateUI();
+        let newMax = window.getMaxHp(); if(game.player.currentHp > newMax) game.player.currentHp = newMax; window.updateUI();
     } catch(err) { console.error(err); }
 }
 
 window.updateUI = function() {
-    document.getElementById('ui-hp-text').innerText = `${game.player.currentHp} / ${getMaxHp()}`;
-    document.getElementById('ui-hp-bar').style.width = (game.player.currentHp / Math.max(1, getMaxHp())) * 100 + '%';
-    document.getElementById('ui-hp-bar').style.backgroundColor = (game.player.currentHp < (getMaxHp()*0.3)) ? '#f44336' : '#4CAF50';
+    document.getElementById('ui-hp-text').innerText = `${game.player.currentHp} / ${window.getMaxHp()}`;
+    document.getElementById('ui-hp-bar').style.width = (game.player.currentHp / Math.max(1, window.getMaxHp())) * 100 + '%';
+    document.getElementById('ui-hp-bar').style.backgroundColor = (game.player.currentHp < (window.getMaxHp()*0.3)) ? '#f44336' : '#4CAF50';
     document.getElementById('ui-level-text').innerText = game.player.level; document.getElementById('ui-exp-text').innerText = `${game.player.exp} / ${game.player.maxExp}`;
     document.getElementById('ui-exp-bar').style.width = (game.player.exp / Math.max(1, game.player.maxExp)) * 100 + '%'; document.getElementById('ui-gold-text').innerText = game.player.gold || 0;
     if(game.monster.maxHp > 0) { document.getElementById('ui-monster-hp-bar').style.width = (game.monster.currentHp / game.monster.maxHp) * 100 + '%'; }
@@ -525,14 +505,20 @@ window.updateUI = function() {
 
 window.toggleStats = function() {
     if (dom.statScreen.style.display === 'block') { dom.statScreen.style.display = 'none'; } 
-    else { document.getElementById('stat-lvl').innerText = game.player.level; document.getElementById('stat-maxhp').innerText = getMaxHp(); document.getElementById('stat-atk').innerText = getAttackPower(); document.getElementById('stat-matk').innerText = getMagicAttack(); document.getElementById('stat-def').innerText = getDefense(); document.getElementById('stat-spd').innerText = getSpeed(); document.getElementById('stat-str').innerText = getTotalStat('str'); document.getElementById('stat-int').innerText = getTotalStat('int'); dom.statScreen.style.display = 'block'; }
+    else {
+        document.getElementById('stat-lvl').innerText = game.player.level; document.getElementById('stat-maxhp').innerText = window.getMaxHp();
+        document.getElementById('stat-atk').innerText = window.getAttackPower(); document.getElementById('stat-matk').innerText = window.getMagicAttack();
+        document.getElementById('stat-def').innerText = window.getDefense(); document.getElementById('stat-spd').innerText = window.getSpeed();
+        document.getElementById('stat-str').innerText = window.getTotalStat('str'); document.getElementById('stat-int').innerText = window.getTotalStat('int');
+        dom.statScreen.style.display = 'block';
+    }
 }
 
 window.checkLevelUp = function() {
     if(game.player.level >= 50) return;
     while(game.player.exp >= game.player.maxExp && game.player.level < 50) {
         game.player.exp -= game.player.maxExp; game.player.level++; game.player.maxExp += (game.player.level >= 41 ? 1500 : game.player.level >= 31 ? 1000 : game.player.level >= 21 ? 750 : game.player.level >= 11 ? 500 : 200); 
-        game.player.baseStats.hp += 10; game.player.baseStats.str += 2; game.player.baseStats.int += 2; game.player.currentHp = getMaxHp(); 
+        game.player.baseStats.hp += 10; game.player.baseStats.str += 2; game.player.baseStats.int += 2; game.player.currentHp = window.getMaxHp(); 
         const txt = document.createElement('div'); txt.className = 'level-up-text'; txt.innerText = "LEVEL UP!"; txt.style.left = (game.player.x - 20) + 'px'; txt.style.top = (game.player.y - 40) + 'px'; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 2000);
     }
     window.updateUI(); DatabaseManager.savePlayerData(game.player); 
@@ -546,29 +532,48 @@ window.buildCollisionLayers = function() {
     if (adminMode && safeMapData.spawnX !== undefined) { const sm = document.createElement('div'); sm.className = 'admin-spawn-marker'; sm.style.left = safeMapData.spawnX + 'px'; sm.style.top = safeMapData.spawnY + 'px'; sm.innerText = 'S'; layer.appendChild(sm); }
 }
 
-function isColliding(targetX, targetY) { const hitX = targetX + (game.player.width - game.player.w) / 2; const hitY = targetY + game.player.height - game.player.h; const cols = safeMapData.collisions || []; for (let box of cols) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; } return false; }
-function isInTeleport(targetX, targetY) { const hitX = targetX + (game.player.width - game.player.w) / 2; const hitY = targetY + game.player.height - game.player.h; const tps = safeMapData.teleports || []; for (let box of tps) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return box; } return null; }
-function applyCamera() { const cameraX = Math.floor((window.innerWidth / 2) - (game.player.x * CAMERA_ZOOM) - (game.player.width * CAMERA_ZOOM / 2)); const cameraY = Math.floor((window.innerHeight / 2) - (game.player.y * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2)); dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`; }
+window.isColliding = function(targetX, targetY) { const hitX = targetX + (game.player.width - game.player.w) / 2; const hitY = targetY + game.player.height - game.player.h; const cols = safeMapData.collisions || []; for (let box of cols) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; } return false; }
+window.isMonsterColliding = function(mx, my) { const cols = safeMapData.collisions || []; for (let box of cols) { if (mx < box.x + box.w && mx + game.monster.width > box.x && my < box.y + box.h && my + game.monster.height > box.y) return true; } return false; }
+window.isInTeleport = function(targetX, targetY) { const hitX = targetX + (game.player.width - game.player.w) / 2; const hitY = targetY + game.player.height - game.player.h; const tps = safeMapData.teleports || []; for (let box of tps) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return box; } return null; }
+window.applyCamera = function() { const cameraX = Math.floor((window.innerWidth / 2) - (game.player.x * CAMERA_ZOOM) - (game.player.width * CAMERA_ZOOM / 2)); const cameraY = Math.floor((window.innerHeight / 2) - (game.player.y * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2)); dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`; }
 
 // ==========================================
-// THE PERFECT, STABLE ANIMATION ENGINE
+// THE PURE ANIMATION ENGINE (FLAWLESS, NO FREEZE)
 // ==========================================
+let currentAnimState = ''; 
+let currentWeaponSprite = ''; 
+
 window.updateAnimationFrames = function(state) {
     dom.playerAvatarContainer.style.transform = facingRight ? 'scaleX(-1)' : 'scaleX(1)';
     const wpn = game.player.equips.weapon ? game.player.equips.weapon.sprite : null;
     
-    // We strictly check the END of the URL to prevent the browser from reloading it
-    let bodySrc = state === 'attack' ? 'animation/avatar_attack.png' : state === 'walk' ? 'animation/avatar_walk.png' : 'animation/avatar_idlefront.png';
-    if (!dom.playerBody.src.endsWith(bodySrc)) { dom.playerBody.src = bodySrc; }
+    // Memory Cache: Do absolutely nothing if the frame hasn't changed. Stops all flashing/freezing.
+    if (currentAnimState === state && currentWeaponSprite === wpn) return;
+    
+    currentAnimState = state; 
+    currentWeaponSprite = wpn;
 
-    if (wpn) {
-        dom.playerWeapon.style.display = 'block';
-        let wpnSrc = state === 'attack' && !wpn.includes('pendant') ? `weapon/${wpn}_attack.png` : `weapon/${wpn}.png`;
-        if (!dom.playerWeapon.src.endsWith(wpnSrc)) { dom.playerWeapon.src = wpnSrc; }
+    if (state === 'attack') {
+        dom.playerBody.src = 'animation/avatar_attack.png';
+        if (wpn) {
+            dom.playerWeapon.style.display = 'block';
+            let isAtk = !wpn.includes('pendant');
+            dom.playerWeapon.src = `weapon/${wpn}${isAtk ? '_attack' : ''}.png`;
+            dom.playerWeapon.onerror = function() { 
+                if (isAtk) this.src = `weapon/${wpn}.png`; // Safe fallback to idle weapon
+                else this.style.display = 'none'; 
+            };
+        } else dom.playerWeapon.style.display = 'none';
+    } else if (state === 'walk') {
+        dom.playerBody.src = 'animation/avatar_walk.png';
+        if (wpn) { dom.playerWeapon.style.display = 'block'; dom.playerWeapon.src = `weapon/${wpn}.png`; } 
+        else dom.playerWeapon.style.display = 'none';
     } else {
-        dom.playerWeapon.style.display = 'none';
+        dom.playerBody.src = 'animation/avatar_idlefront.png';
+        if (wpn) { dom.playerWeapon.style.display = 'block'; dom.playerWeapon.src = `weapon/${wpn}.png`; } 
+        else dom.playerWeapon.style.display = 'none';
     }
-}
+};
 
 window.spawnDamageText = function(x, y, amount, color) { const txt = document.createElement('div'); txt.className = 'damage-text'; txt.innerText = amount; txt.style.left = (x - 10) + 'px'; txt.style.top = y + 'px'; txt.style.color = color; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 1000); }
 window.spawnSpark = function(x, y) { const spark = document.createElement('div'); spark.className = 'spark'; spark.style.left = (x + (Math.random() * 20 - 10)) + 'px'; spark.style.top = (y + (Math.random() * 20 - 10)) + 'px'; dom.world.appendChild(spark); setTimeout(() => spark.remove(), 300); }
@@ -577,7 +582,7 @@ window.shootOrb = function(startX, startY, endX, endY) { const orb = document.cr
 window.showBubble = function(playerObj, text) { if (!playerObj || !playerObj.dom) return; const bubble = document.createElement('div'); bubble.className = 'chat-bubble'; bubble.innerText = text; playerObj.dom.appendChild(bubble); setTimeout(() => bubble.remove(), 4000); }
 
 window.emitVitalsIfNeeded = function(force) {
-    const now = Date.now(); const hp = game.player.currentHp; const mx = getMaxHp(); const lvl = game.player.level;
+    const now = Date.now(); const hp = game.player.currentHp; const mx = window.getMaxHp(); const lvl = game.player.level;
     const changed = (hp !== lastVitalsSent.hp || mx !== lastVitalsSent.maxHp || lvl !== lastVitalsSent.level);
     if (!force && !changed && (now - lastVitalsTs < 1000)) return;
     lastVitalsSent = { hp, maxHp: mx, level: lvl }; lastVitalsTs = now; if(socket) socket.emit('playerVitals', { currentHp: hp, maxHp: mx, level: lvl });
@@ -587,34 +592,28 @@ window.getPlayerById = function(id) { if (!id) return null; if (id === game.play
 
 // --- UI AND AUTH HANDLERS ---
 let loginTimeout;
-window.switchAuth = function(target) { document.getElementById('login-form').style.display = target === 'login' ? 'block' : 'none'; document.getElementById('register-form').style.display = target === 'register' ? 'block' : 'none'; playBGM('loginmenu'); }
+window.switchAuth = function(target) { document.getElementById('login-form').style.display = target === 'login' ? 'block' : 'none'; document.getElementById('register-form').style.display = target === 'register' ? 'block' : 'none'; window.playBGM('loginmenu'); };
 window.attemptLogin = function() {
     const u = document.getElementById('login-user').value.trim(); const p = document.getElementById('login-pass').value; if (!u || !p) return alert("Enter username and password!");
-    document.getElementById('loading-text').innerText = "Logging in..."; document.getElementById('auth-screen').classList.remove('active'); document.getElementById('loading-screen').style.display = 'flex'; playBGM('loginmenu'); 
-    loginTimeout = setTimeout(() => { alert("Server Timeout!"); document.getElementById('loading-screen').style.display = 'none'; document.getElementById('auth-screen').classList.add('active'); }, 10000);
+    document.getElementById('loading-text').innerText = "Logging in..."; document.getElementById('auth-screen').classList.remove('active'); document.getElementById('loading-screen').style.display = 'flex'; window.playBGM('loginmenu'); 
+    loginTimeout = setTimeout(() => { alert("Server Timeout! Render is offline or restarting."); document.getElementById('loading-screen').style.display = 'none'; document.getElementById('auth-screen').classList.add('active'); }, 10000);
     if(socket) socket.emit('login', { username: u, password: p });
-}
+};
 window.attemptRegister = function() {
     const u = document.getElementById('reg-user').value.trim(); const p = document.getElementById('reg-pass').value; if (!u || !p) return alert("Enter username and password!"); if (u.length < 3) return alert("Username too short!");
-    document.getElementById('loading-text').innerText = "Registering..."; document.getElementById('auth-screen').classList.remove('active'); document.getElementById('loading-screen').style.display = 'flex'; playBGM('loginmenu'); 
-    loginTimeout = setTimeout(() => { alert("Server Timeout!"); document.getElementById('loading-screen').style.display = 'none'; document.getElementById('auth-screen').classList.add('active'); }, 10000);
+    document.getElementById('loading-text').innerText = "Registering..."; document.getElementById('auth-screen').classList.remove('active'); document.getElementById('loading-screen').style.display = 'flex'; window.playBGM('loginmenu'); 
+    loginTimeout = setTimeout(() => { alert("Server Timeout! Render is offline or restarting."); document.getElementById('loading-screen').style.display = 'none'; document.getElementById('auth-screen').classList.add('active'); }, 10000);
     if(socket) socket.emit('register', { username: u, password: p });
-}
+};
 window.submitCharacterCreation = function() {
     const username = document.getElementById('char-name-input').value; document.getElementById('creation-screen').classList.remove('active'); document.getElementById('loading-text').innerText = "Forging Avatar..."; document.getElementById('loading-screen').style.display = 'flex';
-    playBGM('loginmenu'); if(socket) socket.emit('createCharacter', { username, charData: charData });
-}
+    window.playBGM('loginmenu'); if(socket) socket.emit('createCharacter', { username, charData: charData });
+};
 window.enterGameWorld = function() {
     if (!game.cachedUserData) { alert("Character data lost. Please log in again."); return; }
     document.getElementById('select-screen').classList.remove('active'); document.getElementById('loading-text').innerText = "Entering Exonie..."; document.getElementById('loading-screen').style.display = 'flex';
     if(socket) socket.emit('enterWorld', game.cachedUserData);
-}
-
-// --- COLOR PICKERS ---
-window.setSkinColor = function(color, element) { charData.skinColor = color; document.getElementById('preview-body').style.filter = skinFilters[color]; document.getElementById('preview-head').style.filter = skinFilters[color]; document.querySelectorAll('#skin-color-group .color-swatch').forEach(s => s.classList.remove('selected')); element.classList.add('selected'); };
-window.setHairColor = function(color, element) { charData.hairColor = color; document.getElementById('preview-hair').style.filter = hairFilters[color]; document.querySelectorAll('#hair-color-group .color-swatch').forEach(s => s.classList.remove('selected')); element.classList.add('selected'); };
-window.setHairStyle = function(style) { charData.hairStyle = style; const hairLayer = document.getElementById('preview-hair'); if (style === 'none') { hairLayer.style.display = 'none'; } else { hairLayer.style.display = 'block'; hairLayer.src = `animation/avatar_hair${style}.png`; } document.querySelectorAll('#hair-button-container .btn').forEach(btn => btn.classList.remove('selected')); const activeBtn = document.getElementById(`btn-hair-${style}`); if(activeBtn) activeBtn.classList.add('selected'); };
-setTimeout(() => { let firstSkin = document.querySelector('#skin-color-group .color-swatch.selected'); let firstHair = document.querySelector('#hair-color-group .color-swatch.selected'); if (firstSkin) window.setSkinColor('flesh', firstSkin); if (firstHair) window.setHairColor('black', firstHair); }, 100);
+};
 
 // --- CHAT SYSTEM ---
 const chatInputDom = document.getElementById('chat-input'); const chatContainerDom = document.getElementById('chat-input-container');
@@ -624,7 +623,7 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
         if (dom.game.classList.contains('active')) {
             if (isChatting) {
-                if (chatInputDom.value.trim() !== '' && socket) { socket.emit('chatMessage', { text: chatInputDom.value.trim() }); window.showBubble(game.player, chatInputDom.value.trim()); }
+                if (chatInputDom.value.trim() !== '' && socket) { socket.emit('chatMessage', { text: chatInputDom.value.trim() }); }
                 chatInputDom.value = ''; chatContainerDom.style.display = 'none'; chatInputDom.blur(); isChatting = false;
             } else { chatContainerDom.style.display = 'block'; chatInputDom.focus(); isChatting = true; game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false; }
         }
@@ -638,8 +637,7 @@ function setKeyState(e, isDown) {
     if (game.keys.hasOwnProperty(key)) game.keys[key] = isDown;
     if (isDown) { if (key === 'p') window.toggleStats(); if (key === 'i') window.toggleInventory(); if (key === 'o') { if (game.player.name === "Kei" && typeof window.toggleAdminMode === 'function') window.toggleAdminMode(); else dom.log.innerText = "Admin Mode is restricted."; } }
 }
-window.addEventListener('keydown', (e) => setKeyState(e, true), { capture: true }); window.addEventListener('keyup', (e) => setKeyState(e, false), { capture: true });
-window.addEventListener('blur', () => { for (const k in game.keys) game.keys[k] = false; attackHeld = false; isChatting = false; });
+window.addEventListener('keydown', (e) => setKeyState(e, true), { capture: true }); window.addEventListener('keyup', (e) => setKeyState(e, false), { capture: true }); window.addEventListener('blur', () => { for (const k in game.keys) game.keys[k] = false; attackHeld = false; isChatting = false; });
 window.addEventListener('click', (e) => { document.getElementById('inv-context-menu').style.display = 'none'; document.getElementById('player-context-menu').style.display = 'none'; if (isEnhancing && !e.target.closest('#inventory-screen') && !e.target.closest('#inv-context-menu')) { isEnhancing = false; dom.log.innerText = "Enhancement mode cancelled."; window.renderInventory(); } });
 
 // --- CONTEXT MENUS & TRADE UI ---
@@ -669,8 +667,10 @@ window.renderPartyUI = function() {
     dom.partyMembers.innerHTML = html;
 }
 
+// --- REMOTE PLAYERS & PARTY ---
 window.addRemotePlayer = function(p) {
-    if (!p || !p.id || game.remotePlayers[p.id]) return; game.remotePlayers[p.id] = p;
+    if (!p || !p.id || game.remotePlayers[p.id]) return;
+    game.remotePlayers[p.id] = p;
     let container = document.createElement('div'); container.className = 'entity'; container.id = 'remote_' + p.id; container.style.left = p.x + 'px'; container.style.top = p.y + 'px';
     container.addEventListener('click', (e) => { e.stopPropagation(); window.openPlayerContextMenu(p.id, e); });
     let nameTag = document.createElement('div'); nameTag.className = 'name-tag'; nameTag.innerText = p.name; container.appendChild(nameTag);
@@ -680,17 +680,16 @@ window.addRemotePlayer = function(p) {
     if (p.spriteData?.style === 'none') hair.style.display = 'none'; else hair.src = `animation/avatar_hair${p.spriteData?.style || '1'}.png`; hair.style.filter = hairFilters[p.spriteData?.hair] || hairFilters['black'];
     let head = new Image(); head.className = 'avatar-layer layer-head'; head.onerror = function(){this.style.display='none'}; head.src = 'animation/avatar_head.png'; head.style.filter = skinFilters[p.spriteData?.skin] || skinFilters['flesh'];
     let body = new Image(); body.className = 'avatar-layer layer-body'; body.onerror = function(){this.style.display='none'}; body.src = 'animation/avatar_idlefront.png'; body.style.filter = skinFilters[p.spriteData?.skin] || skinFilters['flesh'];
-    let weapon = new Image(); weapon.className = 'avatar-layer layer-weapon'; weapon.style.display = 'none'; weapon.onerror = function(){this.style.display='none'};
+    let weapon = new Image(); weapon.className = 'avatar-layer layer-weapon'; weapon.style.display = 'none'; 
     
     rig.appendChild(hair); rig.appendChild(head); rig.appendChild(body); rig.appendChild(weapon);
     container.appendChild(rig); document.getElementById('world').appendChild(container);
     p.dom = container; p.rig = rig; p.body = body; p.weapon = weapon;
     
-    // Set remote initial weapon
     if (p.spriteData?.weapon) {
         p.weapon.style.display = 'block';
-        let wpnSrc = `weapon/${p.spriteData.weapon}.png`;
-        if (!p.weapon.src.endsWith(wpnSrc)) p.weapon.src = wpnSrc;
+        p.weapon.src = `weapon/${p.spriteData.weapon}.png`;
+        p.weapon.onerror = function() { this.style.display = 'none'; };
     }
 }
 
@@ -719,24 +718,30 @@ if(socket) {
         try {
             game.player.id = userData.character_name || "Unknown"; game.player.name = userData.character_name || "Unknown";
             document.getElementById('player-name-tag').innerText = game.player.name; document.getElementById('ui-name-display').innerText = game.player.name;
-            game.player.level = userData.level || 1; game.player.exp = userData.exp || 0; game.player.maxExp = userData.max_exp || 200; game.player.gold = userData.gold || 0; 
+            game.player.level = userData.level || 1; game.player.exp = userData.exp || 0; game.player.maxExp = userData.max_exp || 200;
+            game.player.gold = userData.gold || 0; 
             game.player.baseStats = userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10 };
             game.player.inventory = userData.inventory || new Array(20).fill(null); game.player.equips = userData.equips || { weapon: null, armor: null, leggings: null };
             safeMapData = window.MapDatabase[userData.map_id] || window.MapDatabase['town'] || safeMapData;
             game.player.x = userData.pos_x ?? safeMapData.spawnX ?? 960; game.player.y = userData.pos_y ?? safeMapData.spawnY ?? 1000;
             charData.skinColor = userData.skin_color || 'flesh'; charData.hairColor = userData.hair_color || 'black'; charData.hairStyle = userData.hair_style || '1';
             
-            game.player.currentHp = getMaxHp(); // FULL HEAL ON LOGIN
-            document.getElementById('loading-screen').style.display = 'none'; dom.game.classList.add('active');
-            game.keys = { w:false, a:false, s:false, d:false, tab:false, z:false, x:false, c:false }; game.player.dom = dom.playerContainer; 
-            dom.world.style.backgroundImage = `url('${safeMapData.image}')`;
-            dom.playerBody.style.filter = skinFilters[charData.skinColor]; dom.playerHead.style.filter = skinFilters[charData.skinColor]; dom.playerHair.style.filter = hairFilters[charData.hairColor];
-            if (charData.hairStyle === 'none') dom.playerHair.style.display = 'none'; else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${charData.hairStyle}.png`; }
+            game.player.currentHp = window.getMaxHp(); // FULL HEAL ON LOGIN
 
-            window.buildCollisionLayers(); window.updateEquipmentDisplay(); window.updateUI(); window.renderInventory();
-            window.playBGM((safeMapData.id || "").includes('floor') ? 'floor' : 'town');
+            document.getElementById('loading-text').innerText = "Loading World Assets...";
+            
+            setTimeout(() => { // 2.5 Second Pre-Loader
+                document.getElementById('loading-screen').style.display = 'none'; dom.game.classList.add('active');
+                game.keys = { w:false, a:false, s:false, d:false, tab:false, z:false, x:false, c:false }; game.player.dom = dom.playerContainer; 
+                dom.world.style.backgroundImage = `url('${safeMapData.image}')`;
+                dom.playerBody.style.filter = skinFilters[charData.skinColor]; dom.playerHead.style.filter = skinFilters[charData.skinColor]; dom.playerHair.style.filter = hairFilters[charData.hairColor];
+                if (charData.hairStyle === 'none') dom.playerHair.style.display = 'none'; else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${charData.hairStyle}.png`; }
 
-            game.isRunning = true; requestAnimationFrame(gameLoop); window.emitVitalsIfNeeded(true);
+                window.buildCollisionLayers(); window.updateEquipmentDisplay(); window.updateUI(); window.renderInventory();
+                window.playBGM((safeMapData.id || "").includes('floor') ? 'floor' : 'town');
+
+                game.isRunning = true; requestAnimationFrame(gameLoop); window.emitVitalsIfNeeded(true);
+            }, 2500);
         } catch (err) { alert("Game Boot Error: " + err.message); console.error(err); }
     });
 
@@ -759,13 +764,19 @@ if(socket) {
         p.x = data.x; p.y = data.y; p.dom.style.left = p.x + 'px'; p.dom.style.top = p.y + 'px'; p.rig.style.transform = data.facingRight ? 'scaleX(-1)' : 'scaleX(1)';
         
         let bodySrc = data.state === 'attack' ? 'animation/avatar_attack.png' : data.state === 'walk' ? 'animation/avatar_walk.png' : 'animation/avatar_idlefront.png';
-        if (!p.body.src.endsWith(bodySrc)) p.body.src = bodySrc;
+        if (p.body.src !== bodySrc) p.body.src = bodySrc;
 
         if (data.weaponSprite) {
             p.weapon.style.display = 'block';
             const isAtk = data.state === 'attack' && !data.weaponSprite.includes('pendant');
             let wpnSrc = `weapon/${data.weaponSprite}${isAtk ? '_attack' : ''}.png`;
-            if (!p.weapon.src.endsWith(wpnSrc)) p.weapon.src = wpnSrc;
+            if (p.weapon.src !== wpnSrc) {
+                p.weapon.src = wpnSrc;
+                p.weapon.onerror = function() {
+                    if (isAtk) this.src = `weapon/${data.weaponSprite}.png`; // fallback to idle if missing attack
+                    else this.style.display = 'none';
+                };
+            }
         } else {
             p.weapon.style.display = 'none';
         }
@@ -776,7 +787,7 @@ if(socket) {
         const equips = data.equips || {}; const slots = [ { key: 'weapon', label: 'Weapon' }, { key: 'armor', label: 'Armor' }, { key: 'leggings', label: 'Leggings' } ];
         function fmtStatBlock(item) {
             if (!item) return `<div class="inspect-empty">None</div>`;
-            const rarityColor = item.color || (RARITY_COLORS[item.rarity] || "#fff"); const nameClass = item.rarity === "Godly" ? "rarity-godly" : ""; const displayName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name;
+            const rarityColor = item.color || (window.RARITY_COLORS[item.rarity] || "#fff"); const nameClass = item.rarity === "Godly" ? "rarity-godly" : ""; const displayName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name;
             let html = `<div class="inspect-title"><div class="inspect-item-name ${nameClass}" style="color:${rarityColor};">${displayName}</div><div class="inspect-sub">Lv.${item.level || 1} ${item.rarity || "Unknown"}</div></div><div class="inspect-stat">`;
             if (item.fixedStat) { for (const k in item.fixedStat) html += `<div><b>Fixed:</b> +${item.fixedStat[k]} ${k.toUpperCase()}</div>`; }
             if (item.randomStat) { for (const k in item.randomStat) html += `<div><b>Random:</b> +${item.randomStat[k]} ${k.toUpperCase()}</div>`; }
@@ -797,8 +808,7 @@ if(socket) {
     socket.on('receiveExp', (data) => {
         game.player.exp += data.amount;
         dom.log.innerText = `Gained ${data.amount} EXP from ${data.source}!`;
-        window.checkLevelUp(); 
-        window.updateUI();
+        window.checkLevelUp(); window.updateUI();
     });
 
     socket.on('monsterState', (monsters) => {
@@ -808,10 +818,10 @@ if(socket) {
             if (!game.monster.alive) { dom.monster.style.display = 'none'; } 
             else { 
                 dom.monster.style.display = 'flex'; dom.monster.style.left = game.monster.x + 'px'; dom.monster.style.top = game.monster.y + 'px'; 
+                dom.monster.style.width = (m.width || 40) + 'px'; dom.monster.style.height = (m.height || 40) + 'px';
                 dom.monsterName.innerText = `${m.name || "Monster"} Lv.5`;
-                // Render accurate monster sprite based on Server Database key, fallback to CSS slime
-                const mKey = m.monsterKey || 'common_mobs1';
-                if (mKey === 'common_mobs1') {
+                
+                if (m.monsterKey === 'common_mobs1') {
                     dom.monsterSprite.style.backgroundImage = 'none';
                     dom.monsterSprite.style.backgroundColor = '#ff69b4';
                     dom.monsterSprite.style.border = '2px solid #c71585';
@@ -820,7 +830,7 @@ if(socket) {
                     dom.monsterSprite.style.backgroundColor = 'transparent';
                     dom.monsterSprite.style.border = 'none';
                     dom.monsterSprite.style.borderRadius = '0';
-                    dom.monsterSprite.style.backgroundImage = `url('monsters/${mKey}.png')`;
+                    dom.monsterSprite.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`;
                 }
             } 
             window.updateUI();
@@ -832,7 +842,7 @@ if(socket) {
         const slimeEl = dom.monster; const targetId = data.targetId; game.monster.targetId = targetId;
         let tx = game.player.x + 24; let ty = game.player.y + 48;
         if (targetId !== game.player.id && game.remotePlayers[targetId]) { const rp = game.remotePlayers[targetId]; tx = rp.x + 24; ty = rp.y + 48; }
-        const mcx = game.monster.x + 20; const mcy = game.monster.y + 20;
+        const mcx = game.monster.x + (game.monster.width / 2); const mcy = game.monster.y + (game.monster.height / 2);
         let dx = tx - mcx, dy = ty - mcy; let dist = Math.hypot(dx, dy) || 1; let moveX = (dx / dist) * 20; let moveY = (dy / dist) * 20;
         slimeEl.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`; setTimeout(() => { slimeEl.style.transform = `translate(0px, 0px) scale(1)`; }, 150);
         if (targetId === game.player.id && game.player.currentHp > 0) {
@@ -846,7 +856,7 @@ if(socket) {
     socket.on('monsterHit', (data) => {
         if (!data || data.monsterId !== game.monster.id) return;
         game.monster.currentHp = data.newHp; game.monster.maxHp = data.maxHp || game.monster.maxHp;
-        const mCenterX = game.monster.x + 20; const mCenterY = game.monster.y + 20;
+        const mCenterX = game.monster.x + (game.monster.width / 2); const mCenterY = game.monster.y + (game.monster.height / 2);
         document.getElementById('monster-ui').style.display = 'block'; window.spawnDamageText(mCenterX, game.monster.y - 10, data.damage, '#fff');
         if (data.isPendant) window.spawnWhiteSplash(mCenterX, mCenterY); else window.spawnSpark(mCenterX, mCenterY);
         dom.monster.classList.add('hit-flash'); setTimeout(() => dom.monster.classList.remove('hit-flash'), 100); window.updateUI();
@@ -855,20 +865,19 @@ if(socket) {
     socket.on('monsterDied', (data) => { if (!data || data.monsterId !== game.monster.id) return; game.monster.alive = false; dom.monster.style.display = 'none'; window.updateUI(); });
     socket.on('monsterSpawned', (m) => {
         if (!m || m.id !== game.monster.id) return;
-        game.monster.id = m.id || game.monster.id; game.monster.x = m.x; game.monster.y = m.y; game.monster.maxHp = m.maxHp; game.monster.currentHp = m.currentHp;
-        game.monster.alive = !!m.alive; game.monster.isFloorBoss = !!m.isFloorBoss; game.monster.targetId = m.targetId || null; dom.monster.style.display = 'flex';
-        const mKey = m.monsterKey || 'common_mobs1';
-        if (mKey === 'common_mobs1') { dom.monsterSprite.style.backgroundImage = 'none'; dom.monsterSprite.style.backgroundColor = '#ff69b4'; dom.monsterSprite.style.border = '2px solid #c71585'; dom.monsterSprite.style.borderRadius = '50% 50% 40% 40%'; } 
-        else { dom.monsterSprite.style.backgroundColor = 'transparent'; dom.monsterSprite.style.border = 'none'; dom.monsterSprite.style.borderRadius = '0'; dom.monsterSprite.style.backgroundImage = `url('monsters/${mKey}.png')`; }
+        game.monster = m; dom.monster.style.display = 'flex';
+        dom.monster.style.width = (m.width || 40) + 'px'; dom.monster.style.height = (m.height || 40) + 'px';
+        if (m.monsterKey === 'common_mobs1') { dom.monsterSprite.style.backgroundImage = 'none'; dom.monsterSprite.style.backgroundColor = '#ff69b4'; dom.monsterSprite.style.border = '2px solid #c71585'; dom.monsterSprite.style.borderRadius = '50% 50% 40% 40%'; } 
+        else { dom.monsterSprite.style.backgroundColor = 'transparent'; dom.monsterSprite.style.border = 'none'; dom.monsterSprite.style.borderRadius = '0'; dom.monsterSprite.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`; }
     });
     socket.on('lootDropped', (item) => { if (item) window.addLoot(item); });
 }
 
 window.attemptAttack = function() {
-    if (game.player.currentHp <= 0 || isInventoryOpen || adminMode) return;
+    if (game.player.currentHp <= 0 || isInventoryOpen || window.adminMode) return;
     if (!game.monster.alive) { isAttacking = true; setTimeout(() => { isAttacking = false; }, 300); return; }
     if (attackCooldownActive) return;
-    const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; const mCenterX = game.monster.x + 20; const mCenterY = game.monster.y + 20;
+    const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; const mCenterX = game.monster.x + (game.monster.width / 2); const mCenterY = game.monster.y + (game.monster.height / 2);
     let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : '';
     const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant'); const isPendant = weaponSprite.includes('pendant');
     const dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY);
@@ -903,8 +912,8 @@ function gameLoop(ts) {
     nextX = Math.max(0, Math.min(2000 - game.player.width, nextX)); nextY = Math.max(0, Math.min(1333 - game.player.height, nextY));
 
     if (isMoving) {
-        let canMoveX = !window.isColliding(nextX, game.player.y) || adminMode;
-        let canMoveY = !window.isColliding(game.player.x, nextY) || adminMode;
+        let canMoveX = !window.isColliding(nextX, game.player.y) || window.adminMode;
+        let canMoveY = !window.isColliding(game.player.x, nextY) || window.adminMode;
         if (window.isColliding(game.player.x, game.player.y)) { canMoveX = true; canMoveY = true; } 
         if (canMoveX) game.player.x = nextX;
         if (canMoveY) game.player.y = nextY;
@@ -916,13 +925,13 @@ function gameLoop(ts) {
         if (tp && tp.portalId) {
             const destMap = tp.targetMapId || 'town'; const dest = window.MapDatabase[destMap];
             if (dest) {
-                safeMapData = dest;
-                let targetId = tp.portalId % 2 === 1 ? tp.portalId + 1 : tp.portalId - 1; let targetPortal = safeMapData.teleports.find(p => p.portalId === targetId);
+                window.safeMapData = dest;
+                let targetId = tp.portalId % 2 === 1 ? tp.portalId + 1 : tp.portalId - 1; let targetPortal = window.safeMapData.teleports.find(p => p.portalId === targetId);
                 game.player.x = targetPortal ? (targetPortal.x + (targetPortal.w / 2) - (game.player.width / 2)) : dest.spawnX;
                 game.player.y = targetPortal ? (targetPortal.y + targetPortal.h - game.player.height + 5) : dest.spawnY;
                 dom.world.style.backgroundImage = `url('${dest.image}')`; window.buildCollisionLayers();
                 if(socket) socket.emit('playerTeleported', { mapId: dest.id || destMap, x: game.player.x, y: game.player.y });
-                game.player.teleportCooldown = 2000; window.playBGM((safeMapData.id || "").includes('floor') ? 'floor' : 'town');
+                game.player.teleportCooldown = 2000; window.playBGM((window.safeMapData.id || "").includes('floor') ? 'floor' : 'town');
             }
         }
     }
@@ -939,7 +948,7 @@ function gameLoop(ts) {
         walkTimer = 0; walkState = 0; window.updateAnimationFrames('idle');
     }
 
-    if (attackHeld && !isInventoryOpen && !adminMode && !isChatting) { window.attemptAttack(); }
+    if (attackHeld && !isInventoryOpen && !window.adminMode && !isChatting) { window.attemptAttack(); }
 
     const desiredState = isAttacking ? 'attack' : (isMoving ? 'walk' : 'idle');
     const netNow = Date.now();
