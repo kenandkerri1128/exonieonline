@@ -20,7 +20,8 @@ const parties = {};
 const playerParty = {};    
 
 // ==========================================
-// MONSTER DATABASE
+// THE MONSTER DATABASE (3 Categories)
+// Drop sprites into public/monsters/ (e.g., common_mobs1.png)
 // ==========================================
 const MonsterDatabase = {
     "common_mobs1": { name: "Slime", category: "common_mobs", maxHp: 100, atk: 25, def: 0, speed: 2.5, expYield: 25, aggroRadius: 250, chaseRadius: 400, attackRange: 55, width: 40, height: 40, respawnDelay: 10000 },
@@ -60,7 +61,7 @@ function getMapConfig(mapId) {
 function ensureWorld(mapId) {
     if (!worlds[mapId]) { 
         const cfg = getMapConfig(mapId); 
-        worlds[mapId] = { mapId, monsters: { m1: spawnMonster(mapId, 'm1', cfg.defaultMob, cfg) } }; 
+        worlds[mapId] = { mapId, cfg, monsters: { m1: spawnMonster(mapId, 'm1', cfg.defaultMob, cfg) } }; 
     }
     return worlds[mapId];
 }
@@ -103,22 +104,34 @@ function pickTarget(m, mapId, now) {
     return null;
 }
 
-function updateMonsterAI(mapId, m, now) {
+function updateMonsterAI(world, m, now) {
     if (!m.alive) return;
-    const target = pickTarget(m, mapId, now); m.targetId = target ? target.id : null;
+    const target = pickTarget(m, world.mapId, now); m.targetId = target ? target.id : null;
     const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2);
-    if (!target) { const dist = Math.hypot(m.homeX - m.x, m.homeY - m.y); if (dist > 2) { const ang = Math.atan2(m.homeY - m.y, m.homeX - m.x); m.x += Math.cos(ang) * m.speed; m.y += Math.sin(ang) * m.speed; } return; }
-    const dist = Math.hypot((target.x + 24) - mcx, (target.y + 48) - mcy);
-    if (dist > m.chaseRadius) { if (m.threatTable[target.id]) m.threatTable[target.id] *= 0.9; if (m.threatTable[target.id] < 1) delete m.threatTable[target.id]; if (!m.forcedTargetId) m.targetId = null; return; }
-    if (dist > m.attackRange) { const ang = Math.atan2((target.y + 48) - mcy, (target.x + 24) - mcx); m.x += Math.cos(ang) * m.speed; m.y += Math.sin(ang) * m.speed; } 
-    else { if (now - m.lastAttack > 1500) { m.lastAttack = now; io.to(mapId).emit('monsterAttack', { monsterId: m.id, targetId: target.id }); } }
+    
+    let nextX = m.x; let nextY = m.y;
+
+    if (!target) { 
+        const dist = Math.hypot(m.homeX - m.x, m.homeY - m.y); 
+        if (dist > 2) { const ang = Math.atan2(m.homeY - m.y, m.homeX - m.x); nextX += Math.cos(ang) * m.speed; nextY += Math.sin(ang) * m.speed; } 
+    } else {
+        const dist = Math.hypot((target.x + 24) - mcx, (target.y + 48) - mcy);
+        if (dist > m.chaseRadius) { if (m.threatTable[target.id]) m.threatTable[target.id] *= 0.9; if (m.threatTable[target.id] < 1) delete m.threatTable[target.id]; if (!m.forcedTargetId) m.targetId = null; return; }
+        if (dist > m.attackRange) { const ang = Math.atan2((target.y + 48) - mcy, (target.x + 24) - mcx); nextX += Math.cos(ang) * m.speed; nextY += Math.sin(ang) * m.speed; } 
+        else { if (now - m.lastAttack > 1500) { m.lastAttack = now; io.to(world.mapId).emit('monsterAttack', { monsterId: m.id, targetId: target.id }); } }
+    }
+
+    // SERVER-SIDE BOUNDARY COLLISION (Keeps slime in spawn area)
+    const area = world.cfg.spawnArea;
+    m.x = Math.max(area.minX, Math.min(area.maxX, nextX));
+    m.y = Math.max(area.minY, Math.min(area.maxY, nextY));
 }
 
 setInterval(() => {
     const now = Date.now();
     for (const mapId of Object.keys(worlds)) {
         const world = worlds[mapId];
-        for (const mid of Object.keys(world.monsters)) updateMonsterAI(mapId, world.monsters[mid], now);
+        for (const mid of Object.keys(world.monsters)) updateMonsterAI(world, world.monsters[mid], now);
         io.to(mapId).emit('monsterState', Object.values(world.monsters).map(serializeMonster));
     }
 }, 100);
@@ -152,17 +165,15 @@ io.on('connection', (socket) => {
     socket.on('createCharacter', async (data) => {
         try {
             const { username, charData } = data;
-            // CRITICAL FIX: Added ID generation to Starter Gear so they render correctly for other players
             const starterGear = { id: Date.now()+1, name: "Starter Sword", type: "weapon", sprite: "basicsword", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { attack: 5 }, enhanceLevel: 0 };
             const starterInv = new Array(20).fill(null);
             starterInv[0] = { id: Date.now()+2, name: "Starter Staff", type: "weapon", sprite: "basicstaff", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 5 }, enhanceLevel: 0 };
             starterInv[1] = { id: Date.now()+3, name: "Starter Pendant", type: "weapon", sprite: "basicpendant", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 2 }, enhanceLevel: 0 };
             starterInv[2] = { id: Date.now()+4, name: "Starter Health Potion", type: "potion", fixedStat: { hpHeal: 50 }, color: "#f44336", quantity: 5 };
             
-            // CRITICAL FIX: Removed 'gold: 0' to bypass your Supabase Schema Cache Error!
             const { data: updatedUser, error } = await supabase.from('Exonians').update({
                 skin_color: charData.skinColor, hair_color: charData.hairColor, hair_style: charData.hairStyle,
-                level: 1, exp: 0, max_exp: 200, current_hp: 100, map_id: 'town', pos_x: 960, pos_y: 1000,
+                level: 1, exp: 0, max_exp: 200, current_hp: 100, gold: 0, map_id: 'town', pos_x: 960, pos_y: 1000,
                 base_stats: { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10 },
                 inventory: starterInv, equips: { weapon: starterGear, armor: null, leggings: null }
             }).eq('character_name', username).select().single();
@@ -187,9 +198,7 @@ io.on('connection', (socket) => {
 
     socket.on('saveData', async (playerData) => {
         if (!currentUser) return;
-        // Suppress errors silently in case Supabase doesn't have a column yet
-        supabase.from('Exonians').update({ level: playerData.level, exp: playerData.exp, max_exp: playerData.maxExp, current_hp: playerData.currentHp, pos_x: playerData.x, pos_y: playerData.y, map_id: playerData.mapId, base_stats: playerData.baseStats, inventory: playerData.inventory, equips: playerData.equips }).eq('character_name', currentUser).then(()=>{});
-        
+        await supabase.from('Exonians').update({ level: playerData.level, exp: playerData.exp, max_exp: playerData.maxExp, current_hp: playerData.currentHp, gold: playerData.gold, pos_x: playerData.x, pos_y: playerData.y, map_id: playerData.mapId, base_stats: playerData.baseStats, inventory: playerData.inventory, equips: playerData.equips }).eq('character_name', currentUser);
         if (onlinePlayers[socket.id]) { onlinePlayers[socket.id].level = playerData.level; onlinePlayers[socket.id].currentHp = playerData.currentHp; onlinePlayers[socket.id].equips = playerData.equips; if (playerData.equips?.weapon?.sprite) onlinePlayers[socket.id].spriteData.weapon = playerData.equips.weapon.sprite; }
         if (onlinePlayers[socket.id]) { const pid = playerParty[onlinePlayers[socket.id].id]; if (pid) emitPartyUpdate(pid); }
     });
@@ -236,6 +245,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('playerVitals', (data) => { if (!onlinePlayers[socket.id]) return; onlinePlayers[socket.id].currentHp = data.currentHp; onlinePlayers[socket.id].maxHp = data.maxHp; onlinePlayers[socket.id].level = data.level; const pid = playerParty[onlinePlayers[socket.id].id]; if (pid) emitPartyUpdate(pid); });
+    
     socket.on('playerTeleported', async (data) => {
         if (!onlinePlayers[socket.id]) return; const p = onlinePlayers[socket.id];
         socket.leave(p.mapId); socket.to(p.mapId).emit('remotePlayerLeft', p.id); p.mapId = data.mapId; p.x = data.x; p.y = data.y; ensureWorld(p.mapId); socket.join(p.mapId);
@@ -243,7 +253,7 @@ io.on('connection', (socket) => {
         const playersInMap = Object.values(onlinePlayers).filter(remote => remote.mapId === p.mapId && remote.id !== p.id);
         socket.emit('mapPlayersList', playersInMap.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData })));
         const world = ensureWorld(p.mapId); socket.emit('mapMonstersList', Object.values(world.monsters).map(serializeMonster));
-        supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', currentUser).then(()=>{});
+        await supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', currentUser);
     });
 
     socket.on('inspectRequest', async ({ targetId }) => {
@@ -272,6 +282,7 @@ io.on('connection', (socket) => {
             m.alive = false; m.targetId = null; m.threatTable = {}; m.forcedTargetId = null; m.forcedUntil = 0; 
             io.to(p.mapId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
             
+            // PARTY EXP SHARE
             const expAmount = m.expYield || 25;
             const pid = playerParty[p.id];
             if (pid && parties[pid]) {
@@ -283,7 +294,7 @@ io.on('connection', (socket) => {
                 io.to(socket.id).emit('receiveExp', { amount: expAmount, source: m.name });
             }
             
-            io.to(socket.id).emit('lootDropped', { id: Date.now() + Math.random(), name: "Basic Refinement Stone Lv.5", type: "material", level: 5, rarity: "Basic", color: "#e0e0e0", description: "Enhances equipment.", quantity: 1 });
+            io.to(socket.id).emit('lootDropped', { id: Date.now() + Math.random(), name: "Refinement Stone Lv.5", type: "material", level: 5, rarity: "Basic", color: "#e0e0e0", description: "Enhances equipment.", quantity: 1 });
             setTimeout(() => { const cfg = getMapConfig(p.mapId); const nm = spawnMonster(p.mapId, m.id, m.monsterKey, cfg); world.monsters[m.id] = nm; io.to(p.mapId).emit('monsterSpawned', serializeMonster(nm)); }, m.respawnDelayMs || 3000);
         }
     });
@@ -294,7 +305,7 @@ io.on('connection', (socket) => {
             socket.to(p.mapId).emit('remotePlayerLeft', p.id);
             removeFromParty(p.id);
             if (p.tradeTarget) { const tsid = findSocketIdByPlayerId(p.tradeTarget); if (tsid) io.to(tsid).emit('tradeCancelled'); }
-            supabase.from('Exonians').update({ pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
+            await supabase.from('Exonians').update({ pos_x: p.x, pos_y: p.y }).eq('character_name', p.id);
             delete onlinePlayers[socket.id];
         }
     });
