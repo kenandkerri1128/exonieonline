@@ -1,4 +1,5 @@
 const townMapData = {
+     id: "town",
      name: "Town of Exonie",
     image: "town_map.png",
     spawnX: 960,
@@ -829,3 +830,4 @@ const townMapData = {
   }
 ]
 };
+
