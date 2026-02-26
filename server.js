@@ -17,17 +17,29 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Server memory for real-time multiplayer sync
-const onlinePlayers = {};
+const onlinePlayers = {}; // { [socketId]: { id,name,mapId,x,y,spriteData } }
+
+// Proximity chat settings
+const CHAT_RADIUS = 300;           // pixels
+const CHAT_MAX_LEN = 80;
+const CHAT_RATE_LIMIT_MS = 700;    // anti-spam
 
 io.on('connection', (socket) => {
     let currentUser = null;
+
+    socket.data.lastChatAt = 0;
 
     // --- 1. REGISTRATION ---
     socket.on('register', async (data) => {
         const { username, password } = data;
         
         // Check for duplicates using character_name
-        const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', username).single();
+        const { data: existingUser } = await supabase
+            .from('Exonians')
+            .select('character_name')
+            .eq('character_name', username)
+            .single();
+
         if (existingUser) {
             return socket.emit('authError', 'Username is already taken!');
         }
@@ -40,6 +52,9 @@ io.on('connection', (socket) => {
             return socket.emit('authError', `Database Error: ${error.message}`);
         }
 
+        // IMPORTANT: set currentUser so later events (enterWorld/saveData/playerMoved) work after register flow
+        currentUser = username;
+
         socket.emit('registerSuccess', username);
     });
 
@@ -48,7 +63,12 @@ io.on('connection', (socket) => {
         const { username, password } = data;
         
         // Login check using character_name
-        const { data: user, error } = await supabase.from('Exonians').select('*').eq('character_name', username).eq('password', password).single();
+        const { data: user, error } = await supabase
+            .from('Exonians')
+            .select('*')
+            .eq('character_name', username)
+            .eq('password', password)
+            .single();
         
         if (error || !user) {
             console.error("Supabase Login Error:", error);
@@ -69,6 +89,9 @@ io.on('connection', (socket) => {
     // --- 3. CHARACTER CREATION ---
     socket.on('createCharacter', async (data) => {
         const { username, charData } = data;
+
+        // Ensure currentUser is set for newly registered users
+        currentUser = username;
 
         const starterGear = { name: "Starter Sword", type: "weapon", sprite: "startersword", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { attack: 5 }, enhanceLevel: 0 };
         const starterInv = new Array(20).fill(null);
@@ -98,9 +121,21 @@ io.on('connection', (socket) => {
 
     // --- 4. ENTER WORLD ---
     socket.on('enterWorld', (userData) => {
+        // Ensure currentUser is set (critical for movement/chat/save)
+        currentUser = userData.character_name;
+
         onlinePlayers[socket.id] = {
-            id: userData.character_name, name: userData.character_name, mapId: userData.map_id || 'town', x: userData.pos_x, y: userData.pos_y,
-            spriteData: { skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, weapon: userData.equips?.weapon?.sprite }
+            id: userData.character_name,
+            name: userData.character_name,
+            mapId: userData.map_id || 'town',
+            x: userData.pos_x,
+            y: userData.pos_y,
+            spriteData: { 
+                skin: userData.skin_color, 
+                hair: userData.hair_color, 
+                style: userData.hair_style, 
+                weapon: userData.equips?.weapon?.sprite 
+            }
         };
 
         socket.join(onlinePlayers[socket.id].mapId);
@@ -113,49 +148,110 @@ io.on('connection', (socket) => {
 
     // Save Data to Supabase
     socket.on('saveData', async (playerData) => {
-        if (!currentUser) return;
-        await supabase.from('Exonians').update({
-            level: playerData.level, exp: playerData.exp, max_exp: playerData.maxExp, current_hp: playerData.currentHp,
-            pos_x: playerData.x, pos_y: playerData.y, map_id: playerData.mapId,
-            base_stats: playerData.baseStats, inventory: playerData.inventory, equips: playerData.equips
-        }).eq('character_name', currentUser);
+        const username = currentUser || (onlinePlayers[socket.id] && onlinePlayers[socket.id].id);
+        if (!username) return;
+
+        try {
+            await supabase.from('Exonians').update({
+                level: playerData.level, exp: playerData.exp, max_exp: playerData.maxExp, current_hp: playerData.currentHp,
+                pos_x: playerData.x, pos_y: playerData.y, map_id: playerData.mapId,
+                base_stats: playerData.baseStats, inventory: playerData.inventory, equips: playerData.equips
+            }).eq('character_name', username);
+        } catch (e) {
+            console.error("saveData error:", e);
+        }
     });
 
     // Multiplayer Real-time Movement
     socket.on('playerMoved', (data) => {
-        if (!onlinePlayers[socket.id]) return;
-        onlinePlayers[socket.id].x = data.x;
-        onlinePlayers[socket.id].y = data.y;
-        onlinePlayers[socket.id].spriteData.weapon = data.weaponSprite;
-        
-        socket.to(onlinePlayers[socket.id].mapId).emit('remotePlayerMoved', {
-            id: currentUser, x: data.x, y: data.y, state: data.state, facingRight: data.facingRight, weaponSprite: data.weaponSprite
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+
+        p.x = data.x;
+        p.y = data.y;
+        p.spriteData.weapon = data.weaponSprite;
+
+        socket.to(p.mapId).emit('remotePlayerMoved', {
+            id: p.id,
+            x: data.x,
+            y: data.y,
+            state: data.state,
+            facingRight: data.facingRight,
+            weaponSprite: data.weaponSprite
         });
+    });
+
+    // --- PROXIMITY CHAT ---
+    socket.on('chatMessage', (data) => {
+        const sender = onlinePlayers[socket.id];
+        if (!sender) return;
+
+        const now = Date.now();
+        if (now - (socket.data.lastChatAt || 0) < CHAT_RATE_LIMIT_MS) return;
+        socket.data.lastChatAt = now;
+
+        let text = (data && typeof data.text === 'string') ? data.text : '';
+        text = text.replace(/[\r\n\t]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
+        if (!text) return;
+        if (text.length > CHAT_MAX_LEN) text = text.slice(0, CHAT_MAX_LEN);
+
+        // Send ONLY to nearby players in the same map
+        for (const sid of Object.keys(onlinePlayers)) {
+            const target = onlinePlayers[sid];
+            if (!target) continue;
+            if (target.mapId !== sender.mapId) continue;
+
+            const dx = (target.x || 0) - (sender.x || 0);
+            const dy = (target.y || 0) - (sender.y || 0);
+            const dist = Math.hypot(dx, dy);
+
+            if (dist <= CHAT_RADIUS) {
+                io.to(sid).emit('chatBubble', {
+                    id: sender.id,
+                    text: text
+                });
+            }
+        }
     });
 
     // Map Teleportation Engine
     socket.on('playerTeleported', async (data) => {
-        if (!onlinePlayers[socket.id]) return;
         const p = onlinePlayers[socket.id];
-        
+        if (!p) return;
+
         socket.leave(p.mapId);
         socket.to(p.mapId).emit('remotePlayerLeft', p.id);
         
-        p.mapId = data.mapId; p.x = data.x; p.y = data.y;
+        p.mapId = data.mapId; 
+        p.x = data.x; 
+        p.y = data.y;
+
         socket.join(p.mapId);
         socket.to(p.mapId).emit('remotePlayerJoined', p);
         
         const playersInMap = Object.values(onlinePlayers).filter(remote => remote.mapId === p.mapId && remote.id !== p.id);
         socket.emit('mapPlayersList', playersInMap);
         
-        await supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', currentUser);
+        try {
+            await supabase.from('Exonians')
+                .update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y })
+                .eq('character_name', p.id);
+        } catch (e) {
+            console.error("playerTeleported save error:", e);
+        }
     });
 
     socket.on('disconnect', async () => {
-        if (onlinePlayers[socket.id]) {
-            const p = onlinePlayers[socket.id];
+        const p = onlinePlayers[socket.id];
+        if (p) {
             socket.to(p.mapId).emit('remotePlayerLeft', p.id);
-            await supabase.from('Exonians').update({ pos_x: p.x, pos_y: p.y }).eq('character_name', p.id);
+            try {
+                await supabase.from('Exonians')
+                    .update({ pos_x: p.x, pos_y: p.y })
+                    .eq('character_name', p.id);
+            } catch (e) {
+                console.error("disconnect save error:", e);
+            }
             delete onlinePlayers[socket.id];
         }
     });
