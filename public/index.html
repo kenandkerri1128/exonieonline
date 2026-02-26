@@ -467,7 +467,7 @@ window.game = {
 const DatabaseManager = { savePlayerData: function(playerObj) { playerObj.mapId = safeMapData.id || 'town'; if(socket) socket.emit('saveData', playerObj); if(socket) socket.emit('playerEquipUpdate', { equips: playerObj.equips }); } };
 
 // ==========================================
-// 2. CACHE BUSTER MAP LOADER (DEEP COPY FIX)
+// 2. CACHE BUSTER MAP LOADER
 // ==========================================
 window.loadMapScript = function(mapId, callback) {
     let scriptName = (mapId === 'town' ? 'townmap.js' : mapId + '.js') + '?v=' + Date.now();
@@ -485,22 +485,22 @@ window.loadMapScript = function(mapId, callback) {
 }
 
 // ==========================================
-// 3. PURE 0.25s PULSE ANIMATION ENGINE
+// 3. ANIMATION ENGINE (FIXED SWORD VISIBILITY)
 // ==========================================
 window.updateAnimationFrames = function(state) {
     dom.playerAvatarContainer.style.transform = window.facingRight ? 'scaleX(-1)' : 'scaleX(1)';
     let rawWpn = game.player.equips?.weapon ? game.player.equips.weapon.sprite : null; 
     let wpn = rawWpn ? rawWpn.replace('starter', 'basic') : null; 
     
-    // Quarter-second rhythm
     let pulseActive = (Math.floor(Date.now() / 250) % 2 === 0);
     
     let bodySrc = 'animation/avatar_idlefront.png'; 
     let isAtk = false;
 
+    // Solidly hold the attack frame so swords are clearly visible
     if (state === 'attack') { 
-        bodySrc = pulseActive ? 'animation/avatar_attack.png' : 'animation/avatar_idlefront.png'; 
-        isAtk = pulseActive; 
+        bodySrc = 'animation/avatar_attack.png'; 
+        isAtk = true; 
     }
     else if (state === 'walk') { 
         bodySrc = pulseActive ? 'animation/avatar_walk.png' : 'animation/avatar_idlefront.png'; 
@@ -638,27 +638,7 @@ window.setHairStyle = function(style) { window.charData.hairStyle = style; const
 setTimeout(() => { let firstSkin = document.querySelector('#skin-color-group .color-swatch.selected'); let firstHair = document.querySelector('#hair-color-group .color-swatch.selected'); if (firstSkin) window.setSkinColor('flesh', firstSkin); if (firstHair) window.setHairColor('black', firstHair); }, 100);
 
 // ==========================================
-// 6. CONTEXT MENUS & TRADE LOGIC
-// ==========================================
-window.openPlayerContextMenu = function(targetId, e) { activeTargetPlayerId = targetId; const menu = document.getElementById('player-context-menu'); menu.style.display = 'flex'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px'; }; 
-window.inspectTargetPlayer = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('inspectRequest', { targetId: activeTargetPlayerId }); }; 
-window.inviteTargetToParty = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('partyInvite', { targetId: activeTargetPlayerId }); dom.log.innerText = `Party invite sent to ${activeTargetPlayerId}.`; }; 
-window.requestTrade = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('tradeRequest', { targetId: activeTargetPlayerId }); dom.log.innerText = `Trade request sent to ${activeTargetPlayerId}.`; }; 
-window.closeInspect = function() { dom.inspect.style.display = 'none'; };
-
-window.respondInvite = function(accept) { document.getElementById('invite-dialog').style.display = 'none'; if (pendingPartyInvite) { if(socket) socket.emit('partyInviteResponse', { fromId: pendingPartyInvite, accept }); pendingPartyInvite = null; } }; 
-window.respondTrade = function(accept) { document.getElementById('trade-dialog').style.display = 'none'; if (pendingTradeInvite) { if(socket) socket.emit('tradeInviteResponse', { fromId: pendingTradeInvite, accept }); if (accept) { tradeTarget = pendingTradeInvite; inTradeMode = true; document.getElementById('trade-target-name').innerText = tradeTarget; document.getElementById('trade-screen').style.display = 'block'; window.renderTradeSlots(); window.renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.log.innerText = "Trade declined."; } pendingTradeInvite = null; } }; 
-window.closeTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade cancelled."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); if(socket) socket.emit('tradeCancel'); }; 
-window.confirmTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade completed visually."; tradeTheirItems.forEach(item => { if (item) window.addLoot(item); }); game.player.gold += parseInt(document.getElementById('trade-their-gold').innerText) || 0; game.player.gold -= parseInt(document.getElementById('trade-my-gold').value) || 0; if (game.player.gold < 0) game.player.gold = 0; tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); window.updateUI(); DatabaseManager.savePlayerData(game.player); }; 
-window.addTradeItem = function(invIndex) { if (!inTradeMode) return; const item = game.player.inventory[invIndex]; if (!item) return; const emptyTradeSlot = tradeMyItems.findIndex(i => i === null); if (emptyTradeSlot === -1) { dom.log.innerText = "Trade offer full!"; return; } tradeMyItems[emptyTradeSlot] = item; game.player.inventory[invIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
-window.removeFromTrade = function(tradeIndex) { if (!inTradeMode) return; const item = tradeMyItems[tradeIndex]; if (!item) return; window.addLoot(item); tradeMyItems[tradeIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
-document.getElementById('trade-my-gold').addEventListener('input', (e) => { let val = parseInt(e.target.value) || 0; if (val > game.player.gold) { val = game.player.gold; e.target.value = val; } window.syncTrade(); }); 
-window.renderTradeSlots = function() { const myGrid = document.getElementById('trade-my-items'); myGrid.innerHTML = ''; const theirGrid = document.getElementById('trade-their-items'); theirGrid.innerHTML = ''; for (let i = 0; i < 3; i++) { const mySlot = document.createElement('div'); mySlot.className = 'inv-slot'; if (tradeMyItems[i]) { mySlot.style.border = `2px solid ${tradeMyItems[i].color || '#fff'}`; mySlot.innerText = tradeMyItems[i].enhanceLevel ? `${tradeMyItems[i].name} +${tradeMyItems[i].enhanceLevel}` : tradeMyItems[i].name; mySlot.onclick = () => window.removeFromTrade(i); } else { mySlot.innerText = "Empty"; mySlot.style.color = "#555"; } myGrid.appendChild(mySlot); const theirSlot = document.createElement('div'); theirSlot.className = 'inv-slot'; if (tradeTheirItems[i]) { theirSlot.style.border = `2px solid ${tradeTheirItems[i].color || '#fff'}`; theirSlot.innerText = tradeTheirItems[i].enhanceLevel ? `${tradeTheirItems[i].name} +${tradeTheirItems[i].enhanceLevel}` : tradeTheirItems[i].name; } else { theirSlot.innerText = "Empty"; theirSlot.style.color = "#555"; } theirGrid.appendChild(theirSlot); } }; 
-window.syncTrade = function() { if(socket && tradeTarget) { socket.emit('tradeSync', { gold: parseInt(document.getElementById('trade-my-gold').value) || 0, items: tradeMyItems }); } }
-window.renderPartyUI = function() { if (!game.party || !Array.isArray(game.party.members) || game.party.members.length <= 1) { dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; return; } dom.partyPanel.style.display = 'block'; let html = ''; for (const m of game.party.members) { const hpText = (typeof m.currentHp === 'number' && typeof m.maxHp === 'number') ? `${m.currentHp}/${m.maxHp}` : '??/??'; const ghostStr = m.isGhost ? ' (GHOST)' : ''; html += `<div class="party-row"><span style="${m.isGhost?'color:#888':''}">${m.name} (Lv.${m.level || 1})${ghostStr}</span><span class="party-hp">${hpText}</span></div>`; } dom.partyMembers.innerHTML = html; }
-
-// ==========================================
-// 7. REMOTE PLAYER RENDERING (CLICKABLE)
+// 6. REMOTE PLAYER RENDERING (CLICKABLE)
 // ==========================================
 window.addRemotePlayer = function(pData) {
     if (!pData || !pData.id) return;
@@ -687,10 +667,14 @@ window.addRemotePlayer = function(pData) {
     const rig = document.createElement('div');
     rig.className = 'player-avatar-container avatar-rig';
 
-    const hair = new Image(); hair.className = 'avatar-layer layer-hair';
-    const head = new Image(); head.className = 'avatar-layer layer-head'; head.src = 'animation/avatar_head.png';
-    const body = new Image(); body.className = 'avatar-layer layer-body'; body.src = 'animation/avatar_idlefront.png';
-    const weapon = new Image(); weapon.className = 'avatar-layer layer-weapon';
+    const hair = new Image();
+    hair.className = 'avatar-layer layer-hair';
+    const head = new Image();
+    head.className = 'avatar-layer layer-head';
+    const body = new Image();
+    body.className = 'avatar-layer layer-body';
+    const weapon = new Image();
+    weapon.className = 'avatar-layer layer-weapon';
 
     const skin = (pData.spriteData && pData.spriteData.skin) ? pData.spriteData.skin : 'flesh';
     const hairColor = (pData.spriteData && pData.spriteData.hair) ? pData.spriteData.hair : 'black';
@@ -699,24 +683,37 @@ window.addRemotePlayer = function(pData) {
     if (hairStyle === 'none') hair.style.display = 'none';
     else { hair.style.display = 'block'; hair.src = `animation/avatar_hair${hairStyle}.png`; }
 
+    head.src = 'animation/avatar_head.png';
+    body.src = 'animation/avatar_idlefront.png';
+
     head.style.filter = skinFilters[skin] || skinFilters['flesh'];
     body.style.filter = skinFilters[skin] || skinFilters['flesh'];
     hair.style.filter = hairFilters[hairColor] || hairFilters['black'];
 
+    hair.style.opacity = '1';
+    head.style.opacity = '1';
+    body.style.opacity = '1';
+    weapon.style.opacity = '1';
+
     weapon.style.display = 'none';
 
-    rig.appendChild(hair); rig.appendChild(head); rig.appendChild(body); rig.appendChild(weapon);
-    container.appendChild(rig); dom.world.appendChild(container);
+    rig.appendChild(hair);
+    rig.appendChild(head);
+    rig.appendChild(body);
+    rig.appendChild(weapon);
+
+    container.appendChild(rig);
+    dom.world.appendChild(container);
 
     game.remotePlayers[pData.id] = {
-        id: pData.id, name: pData.name || pData.id, x: pData.x || 0, y: pData.y || 0,
-        dom: container, rig: rig, body: body, weapon: weapon, currentBodySrc: '', currentWeaponSrc: '', isGhost: false
+        id: pData.id, name: pData.name || pData.id, x: pData.x || 0, y: pData.y || 0, dom: container, rig: rig, body: body, weapon: weapon, currentBodySrc: '', currentWeaponSrc: '', isGhost: false
     };
 
     const wpnSprite = (pData.spriteData && pData.spriteData.weapon) ? pData.spriteData.weapon : (pData.weaponSprite || null);
     if (wpnSprite) {
         const fixedWpn = wpnSprite.replace('starter', 'basic');
-        weapon.style.display = 'block'; weapon.src = `weapon/${fixedWpn}.png`;
+        weapon.style.display = 'block';
+        weapon.src = `weapon/${fixedWpn}.png`;
         game.remotePlayers[pData.id].currentWeaponSrc = weapon.src;
     }
 };
@@ -727,108 +724,49 @@ window.removeRemotePlayer = function(id) {
     delete game.remotePlayers[id];
 };
     // ==========================================
-// 6. CHAT, INPUT & CONTEXT MENUS
-// ==========================================
-window.openPlayerContextMenu = function(targetId, e) { activeTargetPlayerId = targetId; const menu = document.getElementById('player-context-menu'); menu.style.display = 'flex'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px'; }; 
-window.inspectTargetPlayer = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('inspectRequest', { targetId: activeTargetPlayerId }); }; 
-window.inviteTargetToParty = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('partyInvite', { targetId: activeTargetPlayerId }); dom.log.innerText = `Party invite sent to ${activeTargetPlayerId}.`; }; 
-window.requestTrade = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('tradeRequest', { targetId: activeTargetPlayerId }); dom.log.innerText = `Trade request sent to ${activeTargetPlayerId}.`; }; 
-window.closeInspect = function() { dom.inspect.style.display = 'none'; };
-
-window.respondInvite = function(accept) { document.getElementById('invite-dialog').style.display = 'none'; if (pendingPartyInvite) { if(socket) socket.emit('partyInviteResponse', { fromId: pendingPartyInvite, accept }); pendingPartyInvite = null; } }; 
-window.respondTrade = function(accept) { document.getElementById('trade-dialog').style.display = 'none'; if (pendingTradeInvite) { if(socket) socket.emit('tradeInviteResponse', { fromId: pendingTradeInvite, accept }); if (accept) { tradeTarget = pendingTradeInvite; inTradeMode = true; document.getElementById('trade-target-name').innerText = tradeTarget; document.getElementById('trade-screen').style.display = 'block'; window.renderTradeSlots(); window.renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.log.innerText = "Trade declined."; } pendingTradeInvite = null; } }; 
-window.closeTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade cancelled."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); if(socket) socket.emit('tradeCancel'); }; 
-window.confirmTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade completed visually."; tradeTheirItems.forEach(item => { if (item) window.addLoot(item); }); game.player.gold += parseInt(document.getElementById('trade-their-gold').innerText) || 0; game.player.gold -= parseInt(document.getElementById('trade-my-gold').value) || 0; if (game.player.gold < 0) game.player.gold = 0; tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); window.updateUI(); DatabaseManager.savePlayerData(game.player); }; 
-window.addTradeItem = function(invIndex) { if (!inTradeMode) return; const item = game.player.inventory[invIndex]; if (!item) return; const emptyTradeSlot = tradeMyItems.findIndex(i => i === null); if (emptyTradeSlot === -1) { dom.log.innerText = "Trade offer full!"; return; } tradeMyItems[emptyTradeSlot] = item; game.player.inventory[invIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
-window.removeFromTrade = function(tradeIndex) { if (!inTradeMode) return; const item = tradeMyItems[tradeIndex]; if (!item) return; window.addLoot(item); tradeMyItems[tradeIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
-document.getElementById('trade-my-gold').addEventListener('input', (e) => { let val = parseInt(e.target.value) || 0; if (val > game.player.gold) { val = game.player.gold; e.target.value = val; } window.syncTrade(); }); 
-window.renderTradeSlots = function() { const myGrid = document.getElementById('trade-my-items'); myGrid.innerHTML = ''; const theirGrid = document.getElementById('trade-their-items'); theirGrid.innerHTML = ''; for (let i = 0; i < 3; i++) { const mySlot = document.createElement('div'); mySlot.className = 'inv-slot'; if (tradeMyItems[i]) { mySlot.style.border = `2px solid ${tradeMyItems[i].color || '#fff'}`; mySlot.innerText = tradeMyItems[i].enhanceLevel ? `${tradeMyItems[i].name} +${tradeMyItems[i].enhanceLevel}` : tradeMyItems[i].name; mySlot.onclick = () => window.removeFromTrade(i); } else { mySlot.innerText = "Empty"; mySlot.style.color = "#555"; } myGrid.appendChild(mySlot); const theirSlot = document.createElement('div'); theirSlot.className = 'inv-slot'; if (tradeTheirItems[i]) { theirSlot.style.border = `2px solid ${tradeTheirItems[i].color || '#fff'}`; theirSlot.innerText = tradeTheirItems[i].enhanceLevel ? `${tradeTheirItems[i].name} +${tradeTheirItems[i].enhanceLevel}` : tradeTheirItems[i].name; } else { theirSlot.innerText = "Empty"; theirSlot.style.color = "#555"; } theirGrid.appendChild(theirSlot); } }; 
-window.syncTrade = function() { if(socket && tradeTarget) { socket.emit('tradeSync', { gold: parseInt(document.getElementById('trade-my-gold').value) || 0, items: tradeMyItems }); } }
-window.renderPartyUI = function() { if (!game.party || !Array.isArray(game.party.members) || game.party.members.length <= 1) { dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; return; } dom.partyPanel.style.display = 'block'; let html = ''; for (const m of game.party.members) { const hpText = (typeof m.currentHp === 'number' && typeof m.maxHp === 'number') ? `${m.currentHp}/${m.maxHp}` : '??/??'; const ghostStr = m.isGhost ? ' (GHOST)' : ''; html += `<div class="party-row"><span style="${m.isGhost?'color:#888':''}">${m.name} (Lv.${m.level || 1})${ghostStr}</span><span class="party-hp">${hpText}</span></div>`; } dom.partyMembers.innerHTML = html; }
-
-window.respawn = function() { document.getElementById('death-screen').style.display = 'none'; game.isGhost = false; dom.playerContainer.style.opacity = '1'; if(socket) socket.emit('respawnPlayer'); };
-
-const chatInputDom = document.getElementById('chat-input'); const chatContainerDom = document.getElementById('chat-input-container');
-chatInputDom.addEventListener('blur', () => { isChatting = false; chatContainerDom.style.display = 'none'; });
-window.addEventListener('keydown', (e) => { 
-    if (e.key === 'Enter') { 
-        if (dom.game.classList.contains('active')) { 
-            if (isChatting) { 
-                let msg = chatInputDom.value.trim(); 
-                if (msg !== '' && socket) { socket.emit('chatMessage', { text: msg }); window.showBubble(game.player, msg); } 
-                chatInputDom.value = ''; chatContainerDom.style.display = 'none'; chatInputDom.blur(); isChatting = false; 
-            } else { chatContainerDom.style.display = 'block'; chatInputDom.focus(); isChatting = true; game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false; } 
-        } 
-    } 
-});
-
-function setKeyState(e, isDown) { 
-    if (isChatting || (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA'))) return; 
-    if (e.key === 'Tab' || e.code === 'Tab') { if (isDown) e.preventDefault(); game.keys['tab'] = isDown; return; } 
-    const key = (e.code === 'KeyW' ? 'w' : e.code === 'KeyA' ? 'a' : e.code === 'KeyS' ? 's' : e.code === 'KeyD' ? 'd' : e.code === 'KeyZ' ? 'z' : e.code === 'KeyX' ? 'x' : e.code === 'KeyC' ? 'c' : (e.key || "").toLowerCase()); 
-    if (isDown && key === 'b') { autoAttackMode = !autoAttackMode; dom.log.innerText = `Auto-Attack: ${autoAttackMode ? 'ON' : 'OFF'}`; return; } 
-    if (game.keys.hasOwnProperty(key)) game.keys[key] = isDown; 
-    if (isDown) { 
-        if (key === 'p') window.toggleStats(); 
-        if (key === 'i') window.toggleInventory(); 
-        if (key === 'o') { 
-            if (game.player.name === "Kei") { window.adminMode = !window.adminMode; dom.adminOutput.style.display = window.adminMode ? 'block' : 'none'; dom.log.innerText = window.adminMode ? "Admin Mode ON" : "Admin Mode OFF"; window.buildCollisionLayers(); } 
-            else dom.log.innerText = "Admin Mode restricted."; 
-        } 
-    } 
-}
-window.addEventListener('keydown', (e) => setKeyState(e, true), { capture: true }); window.addEventListener('keyup', (e) => setKeyState(e, false), { capture: true }); window.addEventListener('blur', () => { for (const k in game.keys) game.keys[k] = false; attackHeld = false; isChatting = false; });
-window.addEventListener('mousedown', (e) => { 
-    if (!e.target.closest('#inv-context-menu')) document.getElementById('inv-context-menu').style.display = 'none'; 
-    if (!e.target.closest('#player-context-menu')) document.getElementById('player-context-menu').style.display = 'none'; 
-    if (isEnhancing && !e.target.closest('#inventory-screen') && !e.target.closest('#inv-context-menu')) { isEnhancing = false; dom.log.innerText = "Enhancement mode cancelled."; window.renderInventory(); } 
-});
-
-// ==========================================
-// 7. REMOTE PLAYER RENDERING (CLICKABLE)
-// ==========================================
-window.addRemotePlayer = function(pData) {
-    if (!pData || !pData.id || pData.id === game.player.id || game.remotePlayers[pData.id]) return;
-    const container = document.createElement('div'); container.className = 'entity'; container.id = 'remote_' + pData.id;
-    container.style.left = (pData.x || 0) + 'px'; container.style.top = (pData.y || 0) + 'px'; container.style.zIndex = '104'; container.style.cursor = 'pointer';
-    
-    // PLAYER INTERACTION MENU EVENT
-    container.addEventListener('pointerdown', (e) => { e.stopPropagation(); window.openPlayerContextMenu(pData.id, e); });
-
-    const nameTag = document.createElement('div'); nameTag.className = 'name-tag'; nameTag.innerText = pData.name || pData.id; container.appendChild(nameTag);
-    const rig = document.createElement('div'); rig.className = 'player-avatar-container avatar-rig';
-    const hair = new Image(); hair.className = 'avatar-layer layer-hair';
-    const head = new Image(); head.className = 'avatar-layer layer-head'; head.src = 'animation/avatar_head.png';
-    const body = new Image(); body.className = 'avatar-layer layer-body'; body.src = 'animation/avatar_idlefront.png';
-    const weapon = new Image(); weapon.className = 'avatar-layer layer-weapon';
-
-    const skin = (pData.spriteData && pData.spriteData.skin) ? pData.spriteData.skin : 'flesh';
-    const hairColor = (pData.spriteData && pData.spriteData.hair) ? pData.spriteData.hair : 'black';
-    const hairStyle = (pData.spriteData && pData.spriteData.style) ? pData.spriteData.style : '1';
-
-    if (hairStyle === 'none') hair.style.display = 'none'; else { hair.style.display = 'block'; hair.src = `animation/avatar_hair${hairStyle}.png`; }
-    head.style.filter = skinFilters[skin] || skinFilters['flesh']; body.style.filter = skinFilters[skin] || skinFilters['flesh']; hair.style.filter = hairFilters[hairColor] || hairFilters['black'];
-    weapon.style.display = 'none';
-    rig.appendChild(hair); rig.appendChild(head); rig.appendChild(body); rig.appendChild(weapon); container.appendChild(rig); dom.world.appendChild(container);
-
-    game.remotePlayers[pData.id] = { id: pData.id, name: pData.name || pData.id, x: pData.x || 0, y: pData.y || 0, dom: container, rig: rig, body: body, weapon: weapon, currentBodySrc: '', currentWeaponSrc: '', isGhost: !!pData.isGhost };
-    if (pData.isGhost) container.style.opacity = '0.5';
-
-    const wpnSprite = (pData.spriteData && pData.spriteData.weapon) ? pData.spriteData.weapon : (pData.weaponSprite || null);
-    if (wpnSprite) { const fixedWpn = wpnSprite.replace('starter', 'basic'); weapon.style.display = 'block'; weapon.src = `weapon/${fixedWpn}.png`; game.remotePlayers[pData.id].currentWeaponSrc = weapon.src; }
-};
-window.removeRemotePlayer = function(id) { const p = game.remotePlayers[id]; if (p && p.dom) p.dom.remove(); delete game.remotePlayers[id]; };
-
-// ==========================================
-// 8. SOCKET LISTENERS & RESPAWN LOGIC
+// 7. SOCKET & MULTIPLAYER
 // ==========================================
 if(socket) {
-    socket.on('characterSelect', (userData) => { document.getElementById('loading-screen').style.display = 'none'; document.getElementById('select-name-display').innerText = userData.character_name; document.getElementById('select-screen').classList.add('active'); game.cachedUserData = userData; });
+    /* ✅ FIX: Character Select now shows correct Level + Colors + Weapon preview */
+    socket.on('characterSelect', (userData) => {
+        document.getElementById('loading-screen').style.display = 'none';
+
+        const cname = userData.character_name || "Unknown";
+        document.getElementById('select-name-display').innerText = cname;
+        document.getElementById('select-level-display').innerText = `Level ${userData.level || 1}`;
+
+        const skin = userData.skin_color || 'flesh';
+        const hairC = userData.hair_color || 'black';
+        const hStyle = userData.hair_style || '1';
+
+        const selBody = document.getElementById('select-body');
+        const selHead = document.getElementById('select-head');
+        const selHair = document.getElementById('select-hair');
+        const selWeapon = document.getElementById('select-weapon');
+
+        selBody.style.filter = skinFilters[skin] || skinFilters['flesh'];
+        selHead.style.filter = skinFilters[skin] || skinFilters['flesh'];
+
+        selHair.style.filter = hairFilters[hairC] || hairFilters['black'];
+        if (hStyle === 'none') selHair.style.display = 'none';
+        else { selHair.style.display = 'block'; selHair.src = `animation/avatar_hair${hStyle}.png`; }
+
+        const wpn = userData.equips?.weapon?.sprite;
+        if (wpn) { selWeapon.style.display = 'block'; selWeapon.src = `weapon/${wpn.replace('starter', 'basic')}.png`; }
+        else { selWeapon.style.display = 'none'; }
+
+        selBody.style.opacity = '1'; selHead.style.opacity = '1'; selHair.style.opacity = '1'; selWeapon.style.opacity = '1';
+
+        document.getElementById('select-screen').classList.add('active');
+        game.cachedUserData = userData;
+    });
+
     socket.on('authSuccess', (userData) => {
         game.player.id = userData.character_name || "Unknown"; game.player.name = userData.character_name || "Unknown"; document.getElementById('player-name-tag').innerText = game.player.name; document.getElementById('ui-name-display').innerText = game.player.name;
         game.player.level = userData.level || 1; game.player.exp = userData.exp || 0; game.player.maxExp = userData.max_exp || 200; game.player.gold = userData.gold || 0; 
         game.player.baseStats = userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10 }; game.player.inventory = userData.inventory || new Array(20).fill(null); game.player.equips = userData.equips || { weapon: null, armor: null, leggings: null };
         window.charData.skinColor = userData.skin_color || 'flesh'; window.charData.hairColor = userData.hair_color || 'black'; window.charData.hairStyle = userData.hair_style || '1'; game.player.currentHp = userData.current_hp || 100;
+        
         let targetMapId = userData.map_id || 'town';
         window.loadMapScript(targetMapId, () => {
             safeMapData = window.MapDatabase[targetMapId]; game.player.x = userData.pos_x ?? safeMapData.spawnX ?? 960; game.player.y = userData.pos_y ?? safeMapData.spawnY ?? 1000;
@@ -836,6 +774,7 @@ if(socket) {
             game.player.dom = dom.playerContainer; dom.playerBody.style.filter = skinFilters[window.charData.skinColor]; dom.playerHead.style.filter = skinFilters[window.charData.skinColor]; dom.playerHair.style.filter = hairFilters[window.charData.hairColor];
             if (window.charData.hairStyle === 'none') dom.playerHair.style.display = 'none'; else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${window.charData.hairStyle}.png`; }
             window.buildCollisionLayers(); window.updateEquipmentDisplay(); window.updateUI(); window.renderInventory();
+
             socket.on('requestMapSync', (req) => { window.loadMapScript(req.mapId, () => { let mapPayload = Object.assign({}, window.MapDatabase[req.mapId], { instanceId: req.instanceId }); socket.emit('syncMapData', mapPayload); }); });
             window.playBGM(safeMapData.id.includes('floor') ? 'floors' : 'town');
             game.isRunning = true; requestAnimationFrame(gameLoop);
@@ -848,13 +787,12 @@ if(socket) {
     socket.on('remotePlayerGhosted', (pid) => { const rp = document.getElementById('remote_' + pid); if(rp) rp.style.opacity = '0.5'; if(game.remotePlayers[pid]) game.remotePlayers[pid].isGhost = true; window.renderPartyUI(); });
     socket.on('partyWiped', () => { document.getElementById('death-screen').style.display = 'flex'; });
     socket.on('partyError', (msg) => { dom.log.innerText = msg; });
-    
-    // PORTAL 1 RESPAWN OVERRIDE LOGIC
+
+    /* ✅ FIX: Respawn firmly at Town Portal 1 */
     socket.on('forceTeleport', (tp) => { 
         window.loadMapScript(tp.mapId, () => { 
             safeMapData = window.MapDatabase[tp.mapId]; 
             
-            // If teleporting to town (Respawn), actively seek Portal ID 1!
             if (tp.mapId === 'town' && safeMapData.teleports) {
                 const p1 = safeMapData.teleports.find(p => p.portalId === 1);
                 if (p1) {
@@ -867,11 +805,7 @@ if(socket) {
                 game.player.x = tp.x; game.player.y = tp.y;
             }
 
-            dom.world.style.backgroundImage = `url('${safeMapData.image}')`; 
-            window.buildCollisionLayers(); 
-            window.playBGM(tp.mapId.includes('floor') ? 'floors' : 'town'); 
-            
-            // Immediately sync new coordinates
+            dom.world.style.backgroundImage = `url('${safeMapData.image}')`; window.buildCollisionLayers(); window.playBGM(tp.mapId.includes('floor') ? 'floors' : 'town'); 
             socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'idle', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
         }); 
     });
@@ -896,7 +830,7 @@ if(socket) {
         
         let pulseActive = (Math.floor(Date.now() / 250) % 2 === 0);
         let bodySrc = 'animation/avatar_idlefront.png'; let isAtk = false;
-        if (data.state === 'attack') { bodySrc = pulseActive ? 'animation/avatar_attack.png' : 'animation/avatar_idlefront.png'; isAtk = pulseActive; }
+        if (data.state === 'attack') { bodySrc = 'animation/avatar_attack.png'; isAtk = true; }
         else if (data.state === 'walk') { bodySrc = pulseActive ? 'animation/avatar_walk.png' : 'animation/avatar_idlefront.png'; }
         
         if (p.currentBodySrc !== bodySrc) { p.body.src = bodySrc; p.currentBodySrc = bodySrc; }
@@ -904,16 +838,10 @@ if(socket) {
     });
 
     socket.on('inspectData', (data) => { if (!data) return; dom.inspect.style.display = 'block'; dom.inspectTitle.innerText = `Inspect: ${data.name || data.id || "Unknown"}`; const equips = data.equips || {}; const slots = [ { key: 'weapon', label: 'Weapon' }, { key: 'armor', label: 'Armor' }, { key: 'leggings', label: 'Leggings' } ]; function fmtStatBlock(item) { if (!item) return `<div class="inspect-empty">None</div>`; const rarityColor = item.color || (window.RARITY_COLORS[item.rarity] || "#fff"); const nameClass = item.rarity === "Godly" ? "rarity-godly" : ""; const displayName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name; let html = `<div class="inspect-title"><div class="inspect-item-name ${nameClass}" style="color:${rarityColor};">${displayName}</div><div class="inspect-sub">Lv.${item.level || 1} ${item.rarity || "Unknown"}</div></div><div class="inspect-stat">`; if (item.fixedStat) { for (const k in item.fixedStat) html += `<div><b>Fixed:</b> +${item.fixedStat[k]} ${k.toUpperCase()}</div>`; } if (item.randomStat) { for (const k in item.randomStat) html += `<div><b>Random:</b> +${item.randomStat[k]} ${k.toUpperCase()}</div>`; } if (item.sprite) { html += `<div style="color:#888; margin-top:6px;">Sprite: ${item.sprite}.png</div>`; } html += `</div>`; return html; } let out = `<div style="font-size:14px; color:#ccc; margin-bottom:10px; text-align:center;">Level ${data.level || 1} &nbsp; | &nbsp; HP ${data.currentHp ?? "?"} / ${data.maxHp ?? "?"}</div>`; slots.forEach(s => { out += `<div class="inspect-equip"><div style="font-weight:bold; color:#ffeb3b; margin-bottom:6px;">${s.label}</div>${fmtStatBlock(equips[s.key])}</div>`; }); dom.inspectContent.innerHTML = out; });
-    socket.on('partyInviteReceived', (payload) => { pendingPartyInvite = payload?.fromId || "Unknown"; document.getElementById('invite-text').innerText = `${pendingPartyInvite} invited you to a party.`; document.getElementById('invite-dialog').style.display = 'block'; });
-    socket.on('tradeInviteReceived', (payload) => { pendingTradeInvite = payload?.fromId || "Unknown"; document.getElementById('trade-text').innerText = `${pendingTradeInvite} wants to trade.`; document.getElementById('trade-dialog').style.display = 'block'; });
-    socket.on('tradeStarted', (data) => { tradeTarget = data.targetId; inTradeMode = true; document.getElementById('trade-target-name').innerText = tradeTarget; document.getElementById('trade-screen').style.display = 'block'; window.renderTradeSlots(); window.renderInventory(); dom.invScreen.style.display = 'block'; });
-    socket.on('tradeSyncReceived', (data) => { document.getElementById('trade-their-gold').innerText = data.gold || 0; tradeTheirItems = data.items || [null, null, null]; window.renderTradeSlots(); });
-    socket.on('tradeCancelled', () => { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "The other player cancelled the trade."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); });
-    socket.on('partyUpdate', (partyData) => { game.party = partyData || null; window.renderPartyUI(); });
-    socket.on('receiveExp', (data) => { game.player.exp += data.amount; dom.log.innerText = `Gained ${data.amount} EXP from ${data.source}!`; window.checkLevelUp(); window.updateUI(); });
-
+    
+    /* ✅ FIX: Town Block applied to monster spawns */
     socket.on('monsterState', (monsters) => {
-        if (!Array.isArray(monsters)) return;
+        if (!Array.isArray(monsters) || safeMapData.id === 'town') return;
         const currentIds = new Set();
         monsters.forEach(m => {
             currentIds.add(m.id); let mEl = document.getElementById('mob_' + m.id);
@@ -946,17 +874,28 @@ if(socket) {
 
     socket.on('monsterHit', (data) => { if (!data || !game.monsters[data.monsterId]) return; const m = game.monsters[data.monsterId]; m.currentHp = data.newHp; m.maxHp = data.maxHp || m.maxHp; const mCenterX = m.x + (m.width / 2); const mCenterY = m.y + (m.height / 2); window.spawnDamageText(mCenterX, m.y - 10, data.damage, '#fff'); if (data.isPendant) window.spawnWhiteSplash(mCenterX, mCenterY); else window.spawnSpark(mCenterX, mCenterY); const mEl = document.getElementById('mob_' + m.id); if(mEl) { mEl.classList.add('hit-flash'); setTimeout(() => mEl.classList.remove('hit-flash'), 100); } window.updateUI(); });
     socket.on('monsterDied', (data) => { if (!data || !game.monsters[data.monsterId]) return; game.monsters[data.monsterId].alive = false; const mEl = document.getElementById('mob_' + data.monsterId); if(mEl) mEl.style.display = 'none'; window.updateUI(); });
-    socket.on('monsterSpawned', (m) => { if (!m) return; game.monsters[m.id] = m; const mEl = document.getElementById('mob_' + m.id); if(mEl) mEl.style.display = 'flex'; });
+    socket.on('monsterSpawned', (m) => { if (!m || safeMapData.id === 'town') return; game.monsters[m.id] = m; const mEl = document.getElementById('mob_' + m.id); if(mEl) mEl.style.display = 'flex'; });
     socket.on('lootDropped', (item) => { if (item) window.addLoot(item); });
 }
 
 // ==========================================
-// 9. COMBAT & MAIN GAME LOOP
+// 8. COMBAT & MAIN GAME LOOP
 // ==========================================
+
+/* ✅ FIX: Added pointerup to stop auto-attack bug when releasing mouse */
+dom.world.addEventListener('pointerdown', (e) => { 
+    if(!window.adminMode && e.target.id === 'world') { 
+        attackHeld = true; window.attemptAttack(false); 
+    } 
+});
+window.addEventListener('pointerup', () => { 
+    attackHeld = false; 
+});
+
 window.attemptAttack = function(silent) {
     if (game.player.currentHp <= 0 || isInventoryOpen || window.adminMode || game.isGhost) return;
     
-    // ✅ FIX: STRICT 0.25s COOLDOWN (Stops buffering/ghost attacks)
+    // ✅ FIX: STRICT 1 SECOND COOLDOWN
     if (attackCooldownActive) return; 
     
     let closestMob = null; let minD = Infinity; const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : ''; const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant'); const isPendant = weaponSprite.includes('pendant'); const attackRadius = isRanged ? 250 : 80;
@@ -965,11 +904,11 @@ window.attemptAttack = function(silent) {
     if (!closestMob) { if(!silent) dom.log.innerText = "No target in range."; return; }
     
     isAttacking = true; 
-    attackCooldownActive = true; 
+    attackCooldownActive = true; // Lock attack completely
     
     if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
     
-    // ✅ NEW: SFX Execution
+    // ✅ FIX: SFX Execution
     window.playSFX(weaponSprite);
 
     const rawDmg = isRanged ? (window.getMagicAttack() * 0.75) : window.getAttackPower(); const dmg = Math.max(1, Math.floor(rawDmg * (0.9 + Math.random() * 0.2)) - (closestMob.def || 0));
@@ -977,22 +916,15 @@ window.attemptAttack = function(silent) {
     
     if (isRanged) { 
         window.shootOrb(pCenterX, pCenterY - 15, mCenterX, mCenterY); 
-        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: isPendant }); isAttacking = false; }, 500); 
-    } 
-    else { 
-        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: isPendant }); isAttacking = false; }, 300); 
+        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: isPendant }); }, 500); 
+    } else { 
+        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: isPendant }); }, 300); 
     }
     
-    // ✅ FIX: Release Cooldown after exactly 250ms
-    setTimeout(() => { attackCooldownActive = false; }, 250);
+    // ✅ FIX: Sword Animation shows clearly for 500ms, Cooldown lasts exactly 1000ms
+    setTimeout(() => { isAttacking = false; }, 500);
+    setTimeout(() => { attackCooldownActive = false; }, 1000);
 }
-
-dom.world.addEventListener('pointerdown', (e) => { 
-    if(!window.adminMode && e.target.id === 'world') { 
-        attackHeld = true; window.attemptAttack(false); 
-    } 
-});
-window.addEventListener('pointerup', () => { attackHeld = false; });
 
 function gameLoop(ts) {
     if (!game.isRunning) return;
