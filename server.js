@@ -21,12 +21,93 @@ const parties = {};
 const playerParty = {};    
 
 // ==========================================
+// LOOT & STAT GENERATION ENGINE
+// ==========================================
+const STAT_TYPES = ['attack', 'magic', 'defense', 'speed', 'int', 'str', 'hp'];
+const RARITY_COLORS = { "Starter": "#aaaaaa", "Basic": "#8B4513", "Rare": "#2196F3", "Unique": "#9c27b0", "Legendary": "#f44336", "Godly": "#e0ffff" };
+const ITEM_TEMPLATES = { 
+    sword: { slot: 'weapon', statKey: 'attack', baseName: 'Sword', spriteName: 'sword' }, 
+    staff: { slot: 'weapon', statKey: 'magic', baseName: 'Staff', spriteName: 'staff' }, 
+    pendant: { slot: 'weapon', statKey: 'magic', baseName: 'Pendant', spriteName: 'pendant' }, 
+    armor: { slot: 'armor', statKey: 'defense', baseName: 'Armor', spriteName: 'armor' }, 
+    leggings: { slot: 'leggings', statKey: 'hp', baseName: 'Leggings', spriteName: 'leggings' } 
+};
+
+function getBaseStat(lvl) { 
+    if (lvl >= 50) return 100; if (lvl >= 45) return 45; if (lvl >= 40) return 40; 
+    if (lvl >= 35) return 30; if (lvl >= 30) return 27; if (lvl >= 25) return 22; 
+    if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; 
+    if (lvl >= 5) return 8; return 5; 
+}
+
+function generateLoot(monster) {
+    const mLevel = monster.level || 5;
+
+    // 50% chance for a Refinement Stone (Your exact original logic)
+    if (Math.random() < 0.50) {
+        return { 
+            id: Date.now() + Math.random(), 
+            name: `Refinement Stone Lv.${mLevel}`, 
+            type: "material", level: mLevel, rarity: "Basic", color: "#e0e0e0", 
+            description: "Enhances equipment.", quantity: 1 
+        };
+    }
+
+    const keys = Object.keys(ITEM_TEMPLATES);
+    const typeKey = keys[Math.floor(Math.random() * keys.length)];
+    
+    let rarityRoll = Math.random();
+    let rarity = "Basic";
+    
+    // Strict adherence to your drop table: 0% chance for Unique+ on common mobs
+    if (monster.category === "floor_boss") {
+        rarity = rarityRoll < 0.05 ? "Godly" : (rarityRoll < 0.20 ? "Legendary" : (rarityRoll < 0.50 ? "Unique" : "Rare"));
+    } else if (monster.category === "mini_boss") {
+        rarity = rarityRoll < 0.05 ? "Legendary" : (rarityRoll < 0.20 ? "Unique" : (rarityRoll < 0.50 ? "Rare" : "Basic"));
+    } else {
+        // Common Mobs: Exactly 5% Rare, 95% Basic. 
+        rarity = rarityRoll < 0.05 ? "Rare" : "Basic";
+    }
+
+    const template = ITEM_TEMPLATES[typeKey];
+    const rarityPrefix = rarity === "Starter" ? "basic" : rarity.toLowerCase();
+    const spriteName = rarityPrefix + template.spriteName;
+    
+    // Maintain your exact naming convention
+    let itemName = `${rarity === "Rare" ? "Slime" : "Basic"} ${template.baseName}`;
+    if (rarity !== "Rare" && rarity !== "Basic") {
+        itemName = `${rarity} ${template.baseName}`;
+    }
+
+    let item = { 
+        id: Date.now() + Math.random(), 
+        name: itemName, 
+        type: template.slot, 
+        sprite: spriteName, 
+        level: mLevel, 
+        rarity: rarity, 
+        color: RARITY_COLORS[rarity], 
+        fixedStat: {}, 
+        enhanceLevel: 0 
+    };
+    
+    let statVal = getBaseStat(mLevel) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0);
+    if (typeKey === 'pendant') statVal = Math.floor(statVal / 2);
+    item.fixedStat[template.statKey] = statVal;
+    
+    item.randomStat = {};
+    item.randomStat[STAT_TYPES[Math.floor(Math.random() * STAT_TYPES.length)]] = Math.floor(Math.random() * getBaseStat(mLevel)) + 1;
+    
+    return item;
+}
+
+// ==========================================
 // SCALED MONSTER DATABASE
 // ==========================================
 const MonsterDatabase = {
-    "common_mobs1": { name: "Slime", category: "common_mobs", maxHp: 100, atk: 25, def: 0, speed: 2.5, expYield: 25, aggroRadius: 250, chaseRadius: 400, attackRange: 55, width: 40, height: 40, respawnDelay: 30000, cssColor: '#ff69b4', cssBorder: '#c71585' },
-    "mini_boss1": { name: "Orc Slime", category: "mini_boss", maxHp: 400, atk: 100, def: 5, speed: 2.8, expYield: 200, aggroRadius: 350, chaseRadius: 500, attackRange: 60, width: 60, height: 60, respawnDelay: 300000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
-    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", maxHp: 2000, atk: 500, def: 25, speed: 3.2, expYield: 1500, aggroRadius: 500, chaseRadius: 800, attackRange: 80, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
+    "common_mobs1": { name: "Slime", category: "common_mobs", level: 5, maxHp: 100, atk: 25, def: 0, speed: 2.5, expYield: 25, aggroRadius: 250, chaseRadius: 400, attackRange: 55, width: 40, height: 40, respawnDelay: 30000, cssColor: '#ff69b4', cssBorder: '#c71585' },
+    "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 10, maxHp: 400, atk: 100, def: 5, speed: 2.8, expYield: 200, aggroRadius: 350, chaseRadius: 500, attackRange: 60, width: 60, height: 60, respawnDelay: 300000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
+    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 15, maxHp: 2000, atk: 500, def: 25, speed: 3.2, expYield: 1500, aggroRadius: 500, chaseRadius: 800, attackRange: 80, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
 };
 
 function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
@@ -63,7 +144,7 @@ const worlds = {};
 function spawnMonster(instId, entityId, monsterKey, cfg) {
     const stats = MonsterDatabase[monsterKey] || MonsterDatabase["common_mobs1"];
     return { 
-        id: entityId, instanceId: instId, monsterKey, name: stats.name, x: cfg.spawnArea.minX, y: cfg.spawnArea.minY, homeX: cfg.spawnArea.minX, homeY: cfg.spawnArea.minY, 
+        id: entityId, instanceId: instId, monsterKey, name: stats.name, category: stats.category, level: stats.level, x: cfg.spawnArea.minX, y: cfg.spawnArea.minY, homeX: cfg.spawnArea.minX, homeY: cfg.spawnArea.minY, 
         width: stats.width, height: stats.height, maxHp: stats.maxHp, currentHp: stats.maxHp, atk: stats.atk, def: stats.def, speed: stats.speed, expYield: stats.expYield,
         aggroRadius: stats.aggroRadius, chaseRadius: stats.chaseRadius, attackRange: stats.attackRange, cssColor: stats.cssColor, cssBorder: stats.cssBorder,
         lastAttack: 0, alive: true, threatTable: {}, forcedTargetId: null, forcedUntil: 0, targetId: null, respawnDelayMs: stats.respawnDelay 
@@ -148,7 +229,7 @@ io.on('connection', (socket) => {
         if (!worlds[instId]) { worlds[instId] = { instanceId: instId, mapId: data.mapId, collisions: [], monsters: {}, monstersSpawned: false }; }
         worlds[instId].collisions = data.collisions || [];
 
-        // The exact fix for spawning monsters when entering floors!
+        // Spawn monsters
         if (!worlds[instId].monstersSpawned) {
             worlds[instId].monstersSpawned = true;
             let mIndex = 0;
@@ -276,7 +357,7 @@ io.on('connection', (socket) => {
         p.instanceId = getInstanceId(p.id, data.mapId); 
         socket.join(p.instanceId);
         
-        socket.emit('requestMapSync', { mapId: data.mapId, instanceId: p.instanceId }); // Demands Map from client to trigger spawns!
+        socket.emit('requestMapSync', { mapId: data.mapId, instanceId: p.instanceId }); 
         
         socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
         const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id);
@@ -299,11 +380,20 @@ io.on('connection', (socket) => {
             
             const expAmount = m.expYield || 25;
             const pid = playerParty[p.id];
+
+            // EVERYONE GETS LOOT AND EXP IN A PARTY
             if (pid && parties[pid]) {
-                for (const memberId of parties[pid].members) { const sid = findSocketIdByPlayerId(memberId); if (sid) io.to(sid).emit('receiveExp', { amount: expAmount, source: m.name }); }
-            } else { io.to(socket.id).emit('receiveExp', { amount: expAmount, source: m.name }); }
-            
-            io.to(socket.id).emit('lootDropped', { id: Date.now() + Math.random(), name: "Basic Refinement Stone Lv.5", type: "material", level: 5, rarity: "Basic", color: "#e0e0e0", description: "Enhances equipment.", quantity: 1 });
+                for (const memberId of parties[pid].members) { 
+                    const sid = findSocketIdByPlayerId(memberId); 
+                    if (sid) {
+                        io.to(sid).emit('receiveExp', { amount: expAmount, source: m.name }); 
+                        io.to(sid).emit('lootDropped', generateLoot(m));
+                    }
+                }
+            } else { 
+                io.to(socket.id).emit('receiveExp', { amount: expAmount, source: m.name }); 
+                io.to(socket.id).emit('lootDropped', generateLoot(m));
+            }
             
             if (m.respawnDelayMs !== -1) {
                 setTimeout(() => { const cfg = { spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY } }; const nm = spawnMonster(p.instanceId, m.id, m.monsterKey, cfg); world.monsters[m.id] = nm; io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm)); }, m.respawnDelayMs || 3000);
