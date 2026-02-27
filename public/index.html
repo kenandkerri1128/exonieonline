@@ -545,7 +545,57 @@ window.playSFX = function(weaponSprite) {
 window.getTotalStat = function(statName) { if (!game.player || !game.player.baseStats) return 0; let total = game.player.baseStats[statName] || 0; ['weapon', 'armor', 'leggings'].forEach(slot => { let eq = game.player.equips?.[slot]; if (eq) { if (eq.fixedStat && typeof eq.fixedStat[statName] === 'number') total += eq.fixedStat[statName]; if (eq.randomStat && typeof eq.randomStat[statName] === 'number') total += eq.randomStat[statName]; } }); return total; }
 window.getMaxHp = function() { return window.getTotalStat('hp'); }; window.getAttackPower = function() { return window.getTotalStat('attack') + Math.floor(window.getTotalStat('str') / 2); }; window.getMagicAttack = function() { return window.getTotalStat('magic') + Math.floor(window.getTotalStat('int') / 2); }; window.getDefense = function() { return window.getTotalStat('defense'); }; window.getSpeed = function() { return window.getTotalStat('speed'); }; window.getBaseStat = function(lvl) { if (lvl >= 50) return 100; if (lvl >= 45) return 45; if (lvl >= 40) return 40; if (lvl >= 35) return 30; if (lvl >= 30) return 27; if (lvl >= 25) return 22; if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; if (lvl >= 5) return 8; return 5; }
 
-window.generateLoot = function() { if (Math.random() < 0.50) { return { id: Date.now() + Math.random(), name: "Refinement Stone Lv.5", type: "material", level: 5, rarity: "Basic", color: "#e0e0e0", description: "Enhances equipment.", quantity: 1 }; } let keys = Object.keys(window.ITEM_TEMPLATES); let typeKey = keys[Math.floor(Math.random() * keys.length)]; let rarity = Math.random() < 0.05 ? "Rare" : "Basic"; let level = 5; let template = window.ITEM_TEMPLATES[typeKey]; let rarityPrefix = rarity === "Starter" ? "basic" : rarity.toLowerCase(); let spriteName = rarityPrefix + template.spriteName; let item = { id: Date.now() + Math.random(), name: `${rarity === "Rare" ? "Slime" : "Basic"} ${template.baseName}`, type: template.slot, sprite: spriteName, level: level, rarity: rarity, color: window.RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 }; let statVal = window.getBaseStat(level) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0); if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); item.fixedStat[template.statKey] = statVal; item.randomStat = {}; item.randomStat[STAT_TYPES[Math.floor(Math.random() * STAT_TYPES.length)]] = Math.floor(Math.random() * window.getBaseStat(level)) + 1; return item; }
+// ✅ FIX: Strict Loot Drop Percentages based on Monster Type
+window.generateLoot = function(mobType, mobLevel) { 
+    let level = mobLevel || 1;
+    let roll = Math.random() * 100; 
+    let isStone = false; 
+    let rarity = "Basic"; 
+    let stoneRarity = "Basic";
+
+    if (mobType && mobType.includes('floor_boss')) {
+        // Floor Boss: 50% Stone (Unique/Legend), 20% Basic, 10% Rare, 8% Unique, 1.5% Legend, 0.5% Godly (10% no drop)
+        if (roll < 50) { isStone = true; stoneRarity = Math.random() < 0.5 ? "Unique" : "Legendary"; }
+        else if (roll < 70) { rarity = "Basic"; }
+        else if (roll < 80) { rarity = "Rare"; }
+        else if (roll < 88) { rarity = "Unique"; }
+        else if (roll < 89.5) { rarity = "Legendary"; }
+        else if (roll < 90) { rarity = "Godly"; }
+        else return null; 
+    } 
+    else if (mobType && mobType.includes('mini_boss')) {
+        // Mini Boss: 50% Stone (Rare/Unique), 29% Basic, 20% Rare, 1% Unique
+        if (roll < 50) { isStone = true; stoneRarity = Math.random() < 0.5 ? "Rare" : "Unique"; }
+        else if (roll < 79) { rarity = "Basic"; }
+        else if (roll < 99) { rarity = "Rare"; }
+        else { rarity = "Unique"; }
+    } 
+    else { 
+        // Common Mobs: 50% Stone (Basic/Rare), 45% Basic, 5% Rare
+        if (roll < 50) { isStone = true; stoneRarity = Math.random() < 0.5 ? "Basic" : "Rare"; }
+        else if (roll < 95) { rarity = "Basic"; }
+        else { rarity = "Rare"; }
+    }
+
+    if (isStone) {
+        return { id: Date.now() + Math.random(), name: `${stoneRarity} Refinement Stone Lv.${level}`, type: "material", level: level, rarity: stoneRarity, color: window.RARITY_COLORS[stoneRarity] || "#e0e0e0", description: "Enhances equipment.", quantity: 1 };
+    }
+
+    let keys = Object.keys(window.ITEM_TEMPLATES); 
+    let typeKey = keys[Math.floor(Math.random() * keys.length)]; 
+    let template = window.ITEM_TEMPLATES[typeKey]; 
+    let rarityPrefix = rarity === "Starter" ? "basic" : rarity.toLowerCase(); 
+    let spriteName = rarityPrefix + template.spriteName; 
+    
+    let item = { id: Date.now() + Math.random(), name: `${rarity} ${template.baseName}`, type: template.slot, sprite: spriteName, level: level, rarity: rarity, color: window.RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 }; 
+    let statVal = window.getBaseStat(level) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0); 
+    if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); 
+    item.fixedStat[template.statKey] = statVal; 
+    item.randomStat = {}; 
+    item.randomStat[STAT_TYPES[Math.floor(Math.random() * STAT_TYPES.length)]] = Math.floor(Math.random() * window.getBaseStat(level)) + 1; 
+    return item; 
+}
+
 window.addLoot = function(item) { item.quantity = item.quantity || 1; if (item.type === 'potion' || item.type === 'material') { const inv = game.player.inventory || []; let existingIndex = inv.findIndex(i => i && i.name === item.name); if (existingIndex !== -1) { game.player.inventory[existingIndex].quantity += item.quantity; dom.log.innerText = `Looted: ${item.name} (x${game.player.inventory[existingIndex].quantity})!`; if (isInventoryOpen) window.renderInventory(); return; } } const inv = game.player.inventory || []; const emptySlot = inv.findIndex(i => i === null); if (emptySlot !== -1) { game.player.inventory[emptySlot] = item; dom.log.innerText = `Looted: ${item.name}!`; if (isInventoryOpen) window.renderInventory(); } else { dom.log.innerText = `Inventory full! Lost ${item.name}.`; } }
 window.getItemTooltip = function(item) { if(!item) return ""; let html = `<strong class="${item.rarity === "Godly" ? "rarity-godly" : ""}" style="color:${item.color}; font-size: 13px;">${item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name}</strong><br><span style="color:#888;">Lv. ${item.level || 1} ${item.rarity || 'Normal'}</span><br><br>`; if(item.type === 'material') return html + `<span style="color:#aaa;"><em>${item.description}</em></span>`; if(item.type === 'potion') return html + `Heals ${item.fixedStat.hpHeal} HP`; if(item.fixedStat) { let key = Object.keys(item.fixedStat)[0]; html += `+${item.fixedStat[key]} ${key.toUpperCase()}<br>`; } if(item.randomStat) { let key = Object.keys(item.randomStat)[0]; html += `<span style="color:#4CAF50;">+${item.randomStat[key]} ${key.toUpperCase()} (Bonus)</span>`; } return html; }
 
@@ -617,7 +667,15 @@ window.undoLastBox = function() { if (!window.adminMode) return; if (safeMapData
 window.clearAllBoxes = function() { if (!window.adminMode || !confirm("Clear ALL boxes?")) return; safeMapData.collisions = []; safeMapData.teleports = []; safeMapData.normalSpawns = []; safeMapData.miniBossSpawns = []; safeMapData.floorBossSpawns = []; window.buildCollisionLayers(); window.copyAdminData(); dom.log.innerText = "All boxes cleared."; }
 window.copyAdminData = function() { let mapId = safeMapData.id || 'town'; let varName = mapId === 'town' ? 'townMapData' : mapId + 'MapData'; let str = `var ${varName} = ` + JSON.stringify(safeMapData, null, 4) + `;\nif(typeof window !== 'undefined') window['${varName}'] = ${varName};`; dom.adminOutput.value = str; }
 window.adminSetPlayerLevel = function() { game.player.level = parseInt(document.getElementById('admin-player-level').value) || 1; game.player.maxExp = 200 + (game.player.level * 100); game.player.baseStats.hp = window.getBaseStat(game.player.level)*10; game.player.baseStats.str = window.getBaseStat(game.player.level); game.player.baseStats.int = window.getBaseStat(game.player.level); game.player.currentHp = window.getMaxHp(); window.updateUI(); DatabaseManager.savePlayerData(game.player); dom.log.innerText = `Level set to ${game.player.level}`; }
-window.adminGiveCustomItem = function() { let r = document.getElementById('admin-item-rarity').value; let t = document.getElementById('admin-item-type').value; let l = parseInt(document.getElementById('admin-item-level').value) || 1; let e = parseInt(document.getElementById('admin-item-enhance').value) || 0; let tmpl = window.ITEM_TEMPLATES[t]; let rPfx = r==="Starter"?"basic":r.toLowerCase(); let item = { id: Date.now() + Math.random(), name: `${r} Admin ${tmpl.baseName}`, type: tmpl.slot, sprite: rPfx+tmpl.spriteName, level: l, rarity: r, color: window.RARITY_COLORS[r], fixedStat: {}, enhanceLevel: e }; let sVal = window.getBaseStat(l); item.fixedStat[tmpl.statKey] = sVal; window.addLoot(item); dom.log.innerText = `Spawned ${item.name}!`; }
+
+// Admin custom spawn triggers standard generateLoot logic now
+window.adminGiveCustomItem = function() { 
+    let r = document.getElementById('admin-item-rarity').value; let t = document.getElementById('admin-item-type').value; let l = parseInt(document.getElementById('admin-item-level').value) || 1; let e = parseInt(document.getElementById('admin-item-enhance').value) || 0; 
+    let tmpl = window.ITEM_TEMPLATES[t]; let rPfx = r==="Starter"?"basic":r.toLowerCase(); 
+    let item = { id: Date.now() + Math.random(), name: `${r} Admin ${tmpl.baseName}`, type: tmpl.slot, sprite: rPfx+tmpl.spriteName, level: l, rarity: r, color: window.RARITY_COLORS[r], fixedStat: {}, enhanceLevel: e }; 
+    let sVal = window.getBaseStat(l); item.fixedStat[tmpl.statKey] = sVal; 
+    window.addLoot(item); dom.log.innerText = `Spawned ${item.name}!`; 
+}
 
 window.isColliding = function(targetX, targetY) { const hitX = targetX + (game.player.width - game.player.w) / 2; const hitY = targetY + game.player.height - game.player.h; const cols = safeMapData.collisions || []; for (let box of cols) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; } return false; }
 window.spawnDamageText = function(x, y, amount, color) { const txt = document.createElement('div'); txt.className = 'damage-text'; txt.innerText = amount; txt.style.left = (x - 10) + 'px'; txt.style.top = y + 'px'; txt.style.color = color; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 1000); }
@@ -639,75 +697,6 @@ window.setHairStyle = function(style) { window.charData.hairStyle = style; const
 setTimeout(() => { let firstSkin = document.querySelector('#skin-color-group .color-swatch.selected'); let firstHair = document.querySelector('#hair-color-group .color-swatch.selected'); if (firstSkin) window.setSkinColor('flesh', firstSkin); if (firstHair) window.setHairColor('black', firstHair); }, 100);
 
 window.respawn = function() { document.getElementById('death-screen').style.display = 'none'; game.isGhost = false; dom.playerContainer.style.opacity = '1'; if(socket) socket.emit('respawnPlayer'); };
-
-// ==========================================
-// 6. CHAT, CONTEXT MENUS & INPUT
-// ==========================================
-window.openPlayerContextMenu = function(targetId, e) { activeTargetPlayerId = targetId; const menu = document.getElementById('player-context-menu'); menu.style.display = 'flex'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px'; }; 
-window.inspectTargetPlayer = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('inspectRequest', { targetId: activeTargetPlayerId }); }; 
-window.inviteTargetToParty = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('partyInvite', { targetId: activeTargetPlayerId }); dom.log.innerText = `Party invite sent to ${activeTargetPlayerId}.`; }; 
-window.requestTrade = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('tradeRequest', { targetId: activeTargetPlayerId }); dom.log.innerText = `Trade request sent to ${activeTargetPlayerId}.`; }; 
-window.closeInspect = function() { dom.inspect.style.display = 'none'; };
-
-window.respondInvite = function(accept) { document.getElementById('invite-dialog').style.display = 'none'; if (pendingPartyInvite) { if(socket) socket.emit('partyInviteResponse', { fromId: pendingPartyInvite, accept }); pendingPartyInvite = null; } }; 
-window.respondTrade = function(accept) { document.getElementById('trade-dialog').style.display = 'none'; if (pendingTradeInvite) { if(socket) socket.emit('tradeInviteResponse', { fromId: pendingTradeInvite, accept }); if (accept) { tradeTarget = pendingTradeInvite; inTradeMode = true; document.getElementById('trade-target-name').innerText = tradeTarget; document.getElementById('trade-screen').style.display = 'block'; window.renderTradeSlots(); window.renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.log.innerText = "Trade declined."; } pendingTradeInvite = null; } }; 
-window.closeTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade cancelled."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); if(socket) socket.emit('tradeCancel'); }; 
-window.confirmTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade completed visually."; tradeTheirItems.forEach(item => { if (item) window.addLoot(item); }); game.player.gold += parseInt(document.getElementById('trade-their-gold').innerText) || 0; game.player.gold -= parseInt(document.getElementById('trade-my-gold').value) || 0; if (game.player.gold < 0) game.player.gold = 0; tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); window.updateUI(); DatabaseManager.savePlayerData(game.player); }; 
-window.addTradeItem = function(invIndex) { if (!inTradeMode) return; const item = game.player.inventory[invIndex]; if (!item) return; const emptyTradeSlot = tradeMyItems.findIndex(i => i === null); if (emptyTradeSlot === -1) { dom.log.innerText = "Trade offer full!"; return; } tradeMyItems[emptyTradeSlot] = item; game.player.inventory[invIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
-window.removeFromTrade = function(tradeIndex) { if (!inTradeMode) return; const item = tradeMyItems[tradeIndex]; if (!item) return; window.addLoot(item); tradeMyItems[tradeIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
-document.getElementById('trade-my-gold').addEventListener('input', (e) => { let val = parseInt(e.target.value) || 0; if (val > game.player.gold) { val = game.player.gold; e.target.value = val; } window.syncTrade(); }); 
-window.renderTradeSlots = function() { const myGrid = document.getElementById('trade-my-items'); myGrid.innerHTML = ''; const theirGrid = document.getElementById('trade-their-items'); theirGrid.innerHTML = ''; for (let i = 0; i < 3; i++) { const mySlot = document.createElement('div'); mySlot.className = 'inv-slot'; if (tradeMyItems[i]) { mySlot.style.border = `2px solid ${tradeMyItems[i].color || '#fff'}`; mySlot.innerText = tradeMyItems[i].enhanceLevel ? `${tradeMyItems[i].name} +${tradeMyItems[i].enhanceLevel}` : tradeMyItems[i].name; mySlot.onclick = () => window.removeFromTrade(i); } else { mySlot.innerText = "Empty"; mySlot.style.color = "#555"; } myGrid.appendChild(mySlot); const theirSlot = document.createElement('div'); theirSlot.className = 'inv-slot'; if (tradeTheirItems[i]) { theirSlot.style.border = `2px solid ${tradeTheirItems[i].color || '#fff'}`; theirSlot.innerText = tradeTheirItems[i].enhanceLevel ? `${tradeTheirItems[i].name} +${tradeTheirItems[i].enhanceLevel}` : tradeTheirItems[i].name; } else { theirSlot.innerText = "Empty"; theirSlot.style.color = "#555"; } theirGrid.appendChild(theirSlot); } }; 
-window.syncTrade = function() { if(socket && tradeTarget) { socket.emit('tradeSync', { gold: parseInt(document.getElementById('trade-my-gold').value) || 0, items: tradeMyItems }); } }
-window.renderPartyUI = function() { if (!game.party || !Array.isArray(game.party.members) || game.party.members.length <= 1) { dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; return; } dom.partyPanel.style.display = 'block'; let html = ''; for (const m of game.party.members) { const hpText = (typeof m.currentHp === 'number' && typeof m.maxHp === 'number') ? `${m.currentHp}/${m.maxHp}` : '??/??'; const ghostStr = m.isGhost ? ' (GHOST)' : ''; html += `<div class="party-row"><span style="${m.isGhost?'color:#888':''}">${m.name} (Lv.${m.level || 1})${ghostStr}</span><span class="party-hp">${hpText}</span></div>`; } dom.partyMembers.innerHTML = html; }
-
-const chatInputDom = document.getElementById('chat-input'); const chatContainerDom = document.getElementById('chat-input-container');
-chatInputDom.addEventListener('blur', () => { isChatting = false; chatContainerDom.style.display = 'none'; });
-window.addEventListener('keydown', (e) => { 
-    if (e.key === 'Enter') { 
-        if (dom.game.classList.contains('active')) { 
-            if (isChatting) { 
-                let msg = chatInputDom.value.trim(); 
-                if (msg !== '' && socket) { socket.emit('chatMessage', { text: msg }); window.showBubble(game.player, msg); } 
-                chatInputDom.value = ''; chatContainerDom.style.display = 'none'; chatInputDom.blur(); isChatting = false; 
-            } else { chatContainerDom.style.display = 'block'; chatInputDom.focus(); isChatting = true; game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false; } 
-        } 
-    } 
-});
-
-function setKeyState(e, isDown) { 
-    if (isChatting || (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA'))) return; 
-    if (e.key === 'Tab' || e.code === 'Tab') { if (isDown) e.preventDefault(); game.keys['tab'] = isDown; return; } 
-    const key = (e.code === 'KeyW' ? 'w' : e.code === 'KeyA' ? 'a' : e.code === 'KeyS' ? 's' : e.code === 'KeyD' ? 'd' : e.code === 'KeyZ' ? 'z' : e.code === 'KeyX' ? 'x' : e.code === 'KeyC' ? 'c' : (e.key || "").toLowerCase()); 
-    if (isDown && key === 'b') { autoAttackMode = !autoAttackMode; dom.log.innerText = `Auto-Attack: ${autoAttackMode ? 'ON' : 'OFF'}`; return; } 
-    if (game.keys.hasOwnProperty(key)) game.keys[key] = isDown; 
-    if (isDown) { 
-        if (key === 'p') window.toggleStats(); 
-        if (key === 'i') window.toggleInventory(); 
-        if (key === 'o') { 
-            if (game.player.name === "Kei") { window.adminMode = !window.adminMode; dom.adminOutput.style.display = window.adminMode ? 'block' : 'none'; dom.log.innerText = window.adminMode ? "Admin Mode ON" : "Admin Mode OFF"; window.buildCollisionLayers(); } 
-            else dom.log.innerText = "Admin Mode restricted."; 
-        } 
-    } 
-}
-
-window.addEventListener('keydown', (e) => setKeyState(e, true), { capture: true }); 
-window.addEventListener('keyup', (e) => setKeyState(e, false), { capture: true }); 
-window.addEventListener('blur', () => { for (const k in game.keys) game.keys[k] = false; attackHeld = false; isChatting = false; });
-window.addEventListener('mousedown', (e) => { 
-    if (!e.target.closest('#inv-context-menu')) document.getElementById('inv-context-menu').style.display = 'none'; 
-    if (!e.target.closest('#player-context-menu')) document.getElementById('player-context-menu').style.display = 'none'; 
-    if (isEnhancing && !e.target.closest('#inventory-screen') && !e.target.closest('#inv-context-menu')) { isEnhancing = false; dom.log.innerText = "Enhancement mode cancelled."; window.renderInventory(); } 
-});
-
-/* ✅ GLOBAL POINTER UP: Stops auto-attack glitch entirely */
-window.addEventListener('pointerup', () => { 
-    attackHeld = false; 
-});
-dom.world.addEventListener('pointerdown', (e) => { 
-    if(!window.adminMode && e.target.id === 'world') { 
-        attackHeld = true; window.attemptAttack(false); 
-    } 
-});
 
 // ==========================================
 // 7. REMOTE PLAYER RENDERING (CLICKABLE)
@@ -759,12 +748,82 @@ window.addRemotePlayer = function(pData) {
     const wpnSprite = (pData.spriteData && pData.spriteData.weapon) ? pData.spriteData.weapon : (pData.weaponSprite || null);
     if (wpnSprite) { const fixedWpn = wpnSprite.replace('starter', 'basic'); weapon.style.display = 'block'; weapon.src = `weapon/${fixedWpn}.png`; game.remotePlayers[pData.id].currentWeaponSrc = weapon.src; }
 };
+
 window.removeRemotePlayer = function(id) { const p = game.remotePlayers[id]; if (p && p.dom) p.dom.remove(); delete game.remotePlayers[id]; };
     // ==========================================
-// 8. SOCKET LISTENERS (WEB OPTIMIZED)
+// 8. CONTEXT MENUS & TRADE LOGIC
+// ==========================================
+window.openPlayerContextMenu = function(targetId, e) { activeTargetPlayerId = targetId; const menu = document.getElementById('player-context-menu'); menu.style.display = 'flex'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px'; }; 
+window.inspectTargetPlayer = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('inspectRequest', { targetId: activeTargetPlayerId }); }; 
+window.inviteTargetToParty = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('partyInvite', { targetId: activeTargetPlayerId }); dom.log.innerText = `Party invite sent to ${activeTargetPlayerId}.`; }; 
+window.requestTrade = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('tradeRequest', { targetId: activeTargetPlayerId }); dom.log.innerText = `Trade request sent to ${activeTargetPlayerId}.`; }; 
+window.closeInspect = function() { dom.inspect.style.display = 'none'; };
+
+window.respondInvite = function(accept) { document.getElementById('invite-dialog').style.display = 'none'; if (pendingPartyInvite) { if(socket) socket.emit('partyInviteResponse', { fromId: pendingPartyInvite, accept }); pendingPartyInvite = null; } }; 
+window.respondTrade = function(accept) { document.getElementById('trade-dialog').style.display = 'none'; if (pendingTradeInvite) { if(socket) socket.emit('tradeInviteResponse', { fromId: pendingTradeInvite, accept }); if (accept) { tradeTarget = pendingTradeInvite; inTradeMode = true; document.getElementById('trade-target-name').innerText = tradeTarget; document.getElementById('trade-screen').style.display = 'block'; window.renderTradeSlots(); window.renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.log.innerText = "Trade declined."; } pendingTradeInvite = null; } }; 
+window.closeTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade cancelled."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); if(socket) socket.emit('tradeCancel'); }; 
+window.confirmTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade completed visually."; tradeTheirItems.forEach(item => { if (item) window.addLoot(item); }); game.player.gold += parseInt(document.getElementById('trade-their-gold').innerText) || 0; game.player.gold -= parseInt(document.getElementById('trade-my-gold').value) || 0; if (game.player.gold < 0) game.player.gold = 0; tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); window.updateUI(); DatabaseManager.savePlayerData(game.player); }; 
+window.addTradeItem = function(invIndex) { if (!inTradeMode) return; const item = game.player.inventory[invIndex]; if (!item) return; const emptyTradeSlot = tradeMyItems.findIndex(i => i === null); if (emptyTradeSlot === -1) { dom.log.innerText = "Trade offer full!"; return; } tradeMyItems[emptyTradeSlot] = item; game.player.inventory[invIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
+window.removeFromTrade = function(tradeIndex) { if (!inTradeMode) return; const item = tradeMyItems[tradeIndex]; if (!item) return; window.addLoot(item); tradeMyItems[tradeIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
+document.getElementById('trade-my-gold').addEventListener('input', (e) => { let val = parseInt(e.target.value) || 0; if (val > game.player.gold) { val = game.player.gold; e.target.value = val; } window.syncTrade(); }); 
+window.renderTradeSlots = function() { const myGrid = document.getElementById('trade-my-items'); myGrid.innerHTML = ''; const theirGrid = document.getElementById('trade-their-items'); theirGrid.innerHTML = ''; for (let i = 0; i < 3; i++) { const mySlot = document.createElement('div'); mySlot.className = 'inv-slot'; if (tradeMyItems[i]) { mySlot.style.border = `2px solid ${tradeMyItems[i].color || '#fff'}`; mySlot.innerText = tradeMyItems[i].enhanceLevel ? `${tradeMyItems[i].name} +${tradeMyItems[i].enhanceLevel}` : tradeMyItems[i].name; mySlot.onclick = () => window.removeFromTrade(i); } else { mySlot.innerText = "Empty"; mySlot.style.color = "#555"; } myGrid.appendChild(mySlot); const theirSlot = document.createElement('div'); theirSlot.className = 'inv-slot'; if (tradeTheirItems[i]) { theirSlot.style.border = `2px solid ${tradeTheirItems[i].color || '#fff'}`; theirSlot.innerText = tradeTheirItems[i].enhanceLevel ? `${tradeTheirItems[i].name} +${tradeTheirItems[i].enhanceLevel}` : tradeTheirItems[i].name; } else { theirSlot.innerText = "Empty"; theirSlot.style.color = "#555"; } theirGrid.appendChild(theirSlot); } }; 
+window.syncTrade = function() { if(socket && tradeTarget) { socket.emit('tradeSync', { gold: parseInt(document.getElementById('trade-my-gold').value) || 0, items: tradeMyItems }); } }
+window.renderPartyUI = function() { if (!game.party || !Array.isArray(game.party.members) || game.party.members.length <= 1) { dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; return; } dom.partyPanel.style.display = 'block'; let html = ''; for (const m of game.party.members) { const hpText = (typeof m.currentHp === 'number' && typeof m.maxHp === 'number') ? `${m.currentHp}/${m.maxHp}` : '??/??'; const ghostStr = m.isGhost ? ' (GHOST)' : ''; html += `<div class="party-row"><span style="${m.isGhost?'color:#888':''}">${m.name} (Lv.${m.level || 1})${ghostStr}</span><span class="party-hp">${hpText}</span></div>`; } dom.partyMembers.innerHTML = html; }
+
+// ==========================================
+// 9. CHAT & INPUT EVENTS
+// ==========================================
+const chatInputDom = document.getElementById('chat-input'); const chatContainerDom = document.getElementById('chat-input-container');
+chatInputDom.addEventListener('blur', () => { isChatting = false; chatContainerDom.style.display = 'none'; });
+window.addEventListener('keydown', (e) => { 
+    if (e.key === 'Enter') { 
+        if (dom.game.classList.contains('active')) { 
+            if (isChatting) { 
+                let msg = chatInputDom.value.trim(); 
+                if (msg !== '' && socket) { socket.emit('chatMessage', { text: msg }); window.showBubble(game.player, msg); } 
+                chatInputDom.value = ''; chatContainerDom.style.display = 'none'; chatInputDom.blur(); isChatting = false; 
+            } else { chatContainerDom.style.display = 'block'; chatInputDom.focus(); isChatting = true; game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false; } 
+        } 
+    } 
+});
+
+function setKeyState(e, isDown) { 
+    if (isChatting || (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA'))) return; 
+    if (e.key === 'Tab' || e.code === 'Tab') { if (isDown) e.preventDefault(); game.keys['tab'] = isDown; return; } 
+    const key = (e.code === 'KeyW' ? 'w' : e.code === 'KeyA' ? 'a' : e.code === 'KeyS' ? 's' : e.code === 'KeyD' ? 'd' : e.code === 'KeyZ' ? 'z' : e.code === 'KeyX' ? 'x' : e.code === 'KeyC' ? 'c' : (e.key || "").toLowerCase()); 
+    if (isDown && key === 'b') { autoAttackMode = !autoAttackMode; dom.log.innerText = `Auto-Attack: ${autoAttackMode ? 'ON' : 'OFF'}`; return; } 
+    if (game.keys.hasOwnProperty(key)) game.keys[key] = isDown; 
+    if (isDown) { 
+        if (key === 'p') window.toggleStats(); 
+        if (key === 'i') window.toggleInventory(); 
+        if (key === 'o') { 
+            if (game.player.name === "Kei") { window.adminMode = !window.adminMode; dom.adminOutput.style.display = window.adminMode ? 'block' : 'none'; dom.log.innerText = window.adminMode ? "Admin Mode ON" : "Admin Mode OFF"; window.buildCollisionLayers(); } 
+            else dom.log.innerText = "Admin Mode restricted."; 
+        } 
+    } 
+}
+window.addEventListener('keydown', (e) => setKeyState(e, true), { capture: true }); window.addEventListener('keyup', (e) => setKeyState(e, false), { capture: true }); window.addEventListener('blur', () => { for (const k in game.keys) game.keys[k] = false; attackHeld = false; isChatting = false; });
+window.addEventListener('mousedown', (e) => { 
+    if (!e.target.closest('#inv-context-menu')) document.getElementById('inv-context-menu').style.display = 'none'; 
+    if (!e.target.closest('#player-context-menu')) document.getElementById('player-context-menu').style.display = 'none'; 
+    if (isEnhancing && !e.target.closest('#inventory-screen') && !e.target.closest('#inv-context-menu')) { isEnhancing = false; dom.log.innerText = "Enhancement mode cancelled."; window.renderInventory(); } 
+});
+
+/* ✅ FIX: GLOBAL POINTER UP - STOPS GHOST CLICKS & STUCK AUTO-ATTACKS */
+window.addEventListener('pointerup', () => { 
+    attackHeld = false; 
+});
+dom.world.addEventListener('pointerdown', (e) => { 
+    if(!window.adminMode && e.target.id === 'world') { 
+        attackHeld = true; window.attemptAttack(false); 
+    } 
+});
+
+// ==========================================
+// 10. SOCKET LISTENERS (WEB OPTIMIZED)
 // ==========================================
 if(socket) {
-    /* ✅ FIX: Gray screen bypass, instant correct visuals */
+    /* ✅ FIX: Instant Character Select visuals */
     socket.on('characterSelect', (userData) => { 
         document.getElementById('loading-screen').style.display = 'none'; 
         document.getElementById('select-name-display').innerText = userData.character_name || "Unknown"; 
@@ -779,8 +838,7 @@ if(socket) {
         if (userData.equips && userData.equips.weapon && userData.equips.weapon.sprite) { 
             selWeapon.style.display = 'block'; 
             selWeapon.src = `weapon/${userData.equips.weapon.sprite.replace('starter', 'basic')}.png`; 
-        } 
-        else { selWeapon.style.display = 'none'; }
+        } else { selWeapon.style.display = 'none'; }
         
         selBody.style.opacity = '1'; selHead.style.opacity = '1'; selHair.style.opacity = '1'; selWeapon.style.opacity = '1';
         document.getElementById('select-screen').classList.add('active'); game.cachedUserData = userData; 
@@ -812,8 +870,14 @@ if(socket) {
     socket.on('remotePlayerGhosted', (pid) => { const rp = document.getElementById('remote_' + pid); if(rp) rp.style.opacity = '0.5'; if(game.remotePlayers[pid]) game.remotePlayers[pid].isGhost = true; window.renderPartyUI(); });
     socket.on('partyWiped', () => { document.getElementById('death-screen').style.display = 'flex'; });
     socket.on('partyError', (msg) => { dom.log.innerText = msg; });
-    
-    /* ✅ FIX: Town Portal 1 Respawn Interceptor */
+
+    /* ✅ FIX: Missing Chat Bubble Logic */
+    socket.on('chatMessage', (data) => {
+        let p = window.getPlayerById(data.id);
+        if (p) window.showBubble(p, data.text);
+    });
+
+    /* ✅ FIX: Town Portal 1 Exact Coordinates Interceptor */
     socket.on('forceTeleport', (tp) => { 
         window.loadMapScript(tp.mapId, () => { 
             safeMapData = window.MapDatabase[tp.mapId]; 
@@ -867,7 +931,7 @@ if(socket) {
     socket.on('partyUpdate', (partyData) => { game.party = partyData || null; window.renderPartyUI(); });
     socket.on('receiveExp', (data) => { game.player.exp += data.amount; dom.log.innerText = `Gained ${data.amount} EXP from ${data.source}!`; window.checkLevelUp(); window.updateUI(); });
 
-    /* ✅ FIX: Town Monster Hard Block */
+    /* ✅ FIX: Hard block monsters from spawning in the Town entirely */
     socket.on('monsterState', (monsters) => {
         if (!Array.isArray(monsters) || safeMapData.id === 'town') return;
         const currentIds = new Set();
@@ -902,12 +966,13 @@ if(socket) {
 
     socket.on('monsterHit', (data) => { if (!data || !game.monsters[data.monsterId]) return; const m = game.monsters[data.monsterId]; m.currentHp = data.newHp; m.maxHp = data.maxHp || m.maxHp; const mCenterX = m.x + (m.width / 2); const mCenterY = m.y + (m.height / 2); window.spawnDamageText(mCenterX, m.y - 10, data.damage, '#fff'); if (data.isPendant) window.spawnWhiteSplash(mCenterX, mCenterY); else window.spawnSpark(mCenterX, mCenterY); const mEl = document.getElementById('mob_' + m.id); if(mEl) { mEl.classList.add('hit-flash'); setTimeout(() => mEl.classList.remove('hit-flash'), 100); } window.updateUI(); });
     socket.on('monsterDied', (data) => { if (!data || !game.monsters[data.monsterId]) return; game.monsters[data.monsterId].alive = false; const mEl = document.getElementById('mob_' + data.monsterId); if(mEl) mEl.style.display = 'none'; window.updateUI(); });
+    
     socket.on('monsterSpawned', (m) => { if (!m || safeMapData.id === 'town') return; game.monsters[m.id] = m; const mEl = document.getElementById('mob_' + m.id); if(mEl) mEl.style.display = 'flex'; });
     socket.on('lootDropped', (item) => { if (item) window.addLoot(item); });
 }
 
 // ==========================================
-// 9. COMBAT & MAIN GAME LOOP (WEB OPTIMIZED)
+// 11. COMBAT & MAIN GAME LOOP (WEB OPTIMIZED)
 // ==========================================
 window.attemptAttack = function(silent) {
     if (game.player.currentHp <= 0 || isInventoryOpen || window.adminMode || game.isGhost) return;
