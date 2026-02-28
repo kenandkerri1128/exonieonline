@@ -100,7 +100,12 @@
         .bar-container { width: 100%; height: 15px; background-color: #333; border-radius: 3px; overflow: hidden; border: 1px solid #000; margin-bottom: 10px;}
         .hp-fill { height: 100%; background-color: #4CAF50; width: 100%; transition: width 0.2s ease-out; }
         .exp-fill { height: 100%; background-color: #9c27b0; width: 0%; transition: width 0.3s ease-out; }
-        #combat-log { position: absolute; bottom: 20px; left: 20px; color: #fff; font-size: 18px; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 5px; z-index: 1000; pointer-events: none; }
+        
+        /* ✅ UPDATED COMBAT LOG CONTAINER FOR UNSTUCK BUTTON */
+        #combat-log-container { position: absolute; bottom: 20px; left: 20px; display: flex; align-items: center; gap: 10px; z-index: 1000; }
+        #combat-log { color: #fff; font-size: 18px; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 5px; pointer-events: none; }
+        #unstuck-btn { background-color: #ff9800; border-color: #ff9800; color: white; font-weight: bold; padding: 10px 15px; cursor: pointer; border-radius: 4px; pointer-events: auto; font-family: 'MedievalSharp', cursive; font-size: 16px; }
+        #unstuck-btn:hover { background-color: #e68a00; }
 
         #party-panel { margin-top: 15px; padding-top: 15px; border-top: 1px solid #444; display: none; }
         #party-title { font-size: 16px; font-weight: bold; color: #4CAF50; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
@@ -109,7 +114,7 @@
         .party-hp-bar-bg { width: 100%; height: 8px; background: #333; border: 1px solid #000; border-radius: 4px; overflow: hidden; }
         .party-hp-bar-fill { height: 100%; background: #4CAF50; transition: width 0.2s; }
 
-        /* ✅ HOTBAR UI FOR SKILLS WITH COOLDOWN TEXT */
+        /* HOTBAR UI */
         #hotbar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 1000; display: none; }
         .hotbar-slot { width: 50px; height: 50px; background: rgba(0,0,0,0.8); border: 2px solid #555; border-radius: 5px; display: flex; justify-content: center; align-items: center; font-weight: bold; position: relative; overflow: hidden; }
         .hotbar-key { position: absolute; top: 2px; left: 4px; font-size: 12px; color: #ffeb3b; z-index: 2; }
@@ -133,7 +138,11 @@
         @keyframes aura-burst { 0% { transform: translateX(-50%) scale(0.2); opacity: 1; } 100% { transform: translateX(-50%) scale(2.5); opacity: 0; } }
 
         .icicle { position: absolute; width: 15px; height: 40px; background: linear-gradient(to bottom, #fff, #00ffff); box-shadow: 0 0 10px #fff; border-radius: 2px 2px 50% 50%; pointer-events: none; z-index: 250; }
-        .pet-slime { position: absolute; width: 30px; height: 30px; background-color: #00ffff; border: 2px solid #00bfff; border-radius: 50% 50% 40% 40%; z-index: 90; transition: left 0.2s, top 0.2s; animation: slime-bounce 0.6s infinite alternate; pointer-events: none; margin-top: -15px; margin-left: -15px;}
+        
+        /* Pet Slime Custom Styles */
+        .pet-slime { position: absolute; width: 30px; height: 30px; background-color: #00ffff; border: 2px solid #00bfff; border-radius: 50% 50% 40% 40%; z-index: 90; transition: left 0.15s linear, top 0.15s linear, transform 0.1s; animation: slime-bounce 0.6s infinite alternate; pointer-events: none; margin-top: -15px; margin-left: -15px;}
+        .pet-hp-bar { position: absolute; bottom: -8px; left: 0; width: 100%; height: 4px; background: #333; border: 1px solid #000; border-radius: 2px; overflow: hidden; display: block; }
+        .pet-hp-fill { height: 100%; background: #4CAF50; width: 100%; }
 
         /* --- EFFECTS --- */
         .spark { position: absolute; width: 16px; height: 16px; background-color: #fff; border-radius: 50%; box-shadow: 0 0 8px #ffeb3b, 0 0 15px #ff9800; pointer-events: none; z-index: 300; animation: spark-pop 0.3s ease-out forwards; }
@@ -165,7 +174,7 @@
         #inv-context-menu { display: none; position: absolute; background: #222; border: 1px solid #777; border-radius: 4px; z-index: 3000; flex-direction: column; width: 120px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
         .ctx-btn { background: none; border: none; color: white; padding: 10px; cursor: pointer; text-align: left; font-weight: bold; font-size: 16px; font-family: 'MedievalSharp', cursive; } 
         .ctx-btn:hover { background: #444; }
-
+        
         /* ✅ ADDED SPECIFIC SELL BUTTON STYLE */
         #ctx-btn-sell { color: gold; display: none; border-bottom: 1px solid #444; } 
         #ctx-btn-sell:hover { background: #333; color: #fff; }
@@ -184,6 +193,15 @@
         .inspect-item-name { font-weight: bold; font-size: 16px; } .inspect-sub { color: #aaa; font-size: 13px; }
         .inspect-stat { font-size: 13px; color: #e0e0e0; margin-top: 6px; line-height: 1.3; } .inspect-stat b { color: #4CAF50; } .inspect-empty { color: #888; font-style: italic; }
 
+        /* --- MERCHANT SHOP --- */
+        #shop-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; background: rgba(20,20,20,0.98); border: 2px solid #4CAF50; border-radius: 8px; padding: 20px; z-index: 2000; display: none; box-shadow: 0 0 30px #000; }
+        .shop-item-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding: 15px 0; }
+        .shop-item-row:last-child { border-bottom: none; }
+        .shop-item-info { display: flex; align-items: center; gap: 15px; }
+        .shop-item-icon { width: 40px; height: 40px; background: #222; border: 1px solid #555; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 20px; }
+        .shop-buy-btn { background: #4CAF50; border: none; color: white; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: 'MedievalSharp', cursive; font-size: 16px;}
+        .shop-buy-btn:hover { background: #45a049; }
+
         /* --- BUBBLE CHAT & POPUPS --- */
         #chat-input-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 3000; display: none; }
         #chat-input { background: rgba(0,0,0,0.8); border: 1px solid #4CAF50; color: white; padding: 10px 20px; width: 400px; border-radius: 25px; outline: none; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
@@ -195,15 +213,6 @@
 
         #trade-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 550px; background: rgba(20,20,20,0.98); border: 2px solid #2196F3; z-index: 4500; padding: 20px; box-shadow: 0 0 30px black; display: none; border-radius: 8px; }
         .trade-side { flex: 1; background: #111; padding: 10px; border: 1px solid #444; border-radius: 5px; }
-
-        /* --- MERCHANT SHOP --- */
-        #shop-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; background: rgba(20,20,20,0.98); border: 2px solid #4CAF50; border-radius: 8px; padding: 20px; z-index: 2000; display: none; box-shadow: 0 0 30px #000; }
-        .shop-item-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding: 15px 0; }
-        .shop-item-row:last-child { border-bottom: none; }
-        .shop-item-info { display: flex; align-items: center; gap: 15px; }
-        .shop-item-icon { width: 40px; height: 40px; background: #222; border: 1px solid #555; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 20px; }
-        .shop-buy-btn { background: #4CAF50; border: none; color: white; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: 'MedievalSharp', cursive; font-size: 16px;}
-        .shop-buy-btn:hover { background: #45a049; }
     </style>
 </head>
 <body>
@@ -398,9 +407,9 @@
             </div>
         </div>
 
-        <div style="position: absolute; bottom: 20px; left: 20px; display: flex; align-items: center; gap: 10px; z-index: 1000;">
-            <div id="combat-log" style="position: relative; bottom: auto; left: auto; color: #fff; font-size: 18px; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 5px; pointer-events: none;">Welcome to Exonie. WASD to move. Left click to attack.</div>
-            <button id="unstuck-btn" class="btn" style="background-color: #ff9800; border-color: #ff9800; color: white; font-weight: bold; padding: 10px 15px; pointer-events: auto; display: none;" onclick="window.forceUnstuck()">Unstuck (Town)</button>
+        <div id="combat-log-container">
+            <div id="combat-log">Welcome to Exonie. WASD to move. Left click to attack.</div>
+            <button id="unstuck-btn" onclick="window.forceUnstuck()" style="display: none;">Unstuck (Town)</button>
         </div>
 
         <div id="hotbar">
@@ -523,7 +532,7 @@ window.onload = () => {
         document.getElementById('login-pass').value = savedP; 
         window.attemptLogin(); 
     }
-    
+
     // ✅ Reveal the Unstuck button
     setTimeout(() => {
         let unstuckBtn = document.getElementById('unstuck-btn');
@@ -592,7 +601,6 @@ const DatabaseManager = { savePlayerData: function(playerObj) { playerObj.mapId 
 window.forceUnstuck = function() {
     game.player.x = 960;
     game.player.y = 1000;
-    
     if (safeMapData.id !== 'town') {
         if(socket) socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
         dom.log.innerText = "Evacuating to Town...";
@@ -714,7 +722,6 @@ window.buyItem = function(type) {
     DatabaseManager.savePlayerData(game.player);
 }
 
-// ✅ SELLING LOOT FOR GOLD
 window.actionSell = function(e) {
     if (e) e.stopPropagation();
     const item = game.player.inventory[activeInvIndex];
@@ -867,9 +874,23 @@ window.attemptEnhance = function(targetIndex, e) {
 }
 
 window.updateEquipmentDisplay = function() { try { const buildDisplayStr = (item) => item ? (item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name) : 'None'; let w = game.player.equips.weapon; let a = game.player.equips.armor; let l = game.player.equips.leggings; document.getElementById('eq-weapon-slot').innerText = buildDisplayStr(w); if(w) document.getElementById('eq-weapon-slot').style.color = w.color; document.getElementById('eq-armor-slot').innerText = buildDisplayStr(a); if(a) document.getElementById('eq-armor-slot').style.color = a.color; document.getElementById('eq-leggings-slot').innerText = buildDisplayStr(l); if(l) document.getElementById('eq-leggings-slot').style.color = l.color; dom.playerArmor.style.display = 'none'; dom.playerLeggings.style.display = 'none'; const createTip = (item, boxId) => { let box = document.getElementById(boxId); let tip = box.querySelector('.tooltip'); if(!tip) { tip = document.createElement('div'); tip.className = 'tooltip'; box.appendChild(tip); } if(item) tip.innerHTML = window.getItemTooltip(item); else tip.remove(); }; createTip(w, 'eq-box-weapon'); createTip(a, 'eq-box-armor'); createTip(l, 'eq-box-leggings'); let newMax = window.getMaxHp(); if(game.player.currentHp > newMax) game.player.currentHp = newMax; window.updateUI(); } catch(err) {} }
-window.updateUI = function() { document.getElementById('ui-hp-text').innerText = `${game.player.currentHp} / ${window.getMaxHp()}`; document.getElementById('ui-hp-bar').style.width = (game.player.currentHp / Math.max(1, window.getMaxHp())) * 100 + '%'; document.getElementById('ui-hp-bar').style.backgroundColor = (game.player.currentHp < (window.getMaxHp()*0.3)) ? '#f44336' : '#4CAF50'; document.getElementById('ui-level-text').innerText = game.player.level; document.getElementById('ui-exp-text').innerText = `${game.player.exp} / ${game.player.maxExp}`; document.getElementById('ui-exp-bar').style.width = (game.player.exp / Math.max(1, game.player.maxExp)) * 100 + '%'; document.getElementById('ui-gold-text').innerText = game.player.gold || 0; if (game.party && game.party.members) { let me = game.party.members.find(x => x.id === game.player.id); if (me) { me.currentHp = game.player.currentHp; me.maxHp = window.getMaxHp(); me.level = game.player.level; window.renderPartyUI(); } } }
+window.updateUI = function() { 
+    document.getElementById('ui-hp-text').innerText = `${game.player.currentHp} / ${window.getMaxHp()}`; 
+    document.getElementById('ui-hp-bar').style.width = (game.player.currentHp / Math.max(1, window.getMaxHp())) * 100 + '%'; 
+    document.getElementById('ui-hp-bar').style.backgroundColor = (game.player.currentHp < (window.getMaxHp()*0.3)) ? '#f44336' : '#4CAF50'; 
+    document.getElementById('ui-level-text').innerText = game.player.level; 
+    document.getElementById('ui-exp-text').innerText = `${game.player.exp} / ${game.player.maxExp}`; 
+    document.getElementById('ui-exp-bar').style.width = (game.player.exp / Math.max(1, game.player.maxExp)) * 100 + '%'; 
+    document.getElementById('ui-gold-text').innerText = game.player.gold || 0; 
+    
+    // Party HP Local Update
+    if (game.party && game.party.members) { 
+        let me = game.party.members.find(x => x.id === game.player.id); 
+        if (me) { me.currentHp = game.player.currentHp; me.maxHp = window.getMaxHp(); me.level = game.player.level; window.renderPartyUI(); } 
+    } 
+}
 window.toggleStats = function() { if (dom.statScreen.style.display === 'block') { dom.statScreen.style.display = 'none'; } else { document.getElementById('stat-lvl').innerText = game.player.level; document.getElementById('stat-maxhp').innerText = window.getMaxHp(); document.getElementById('stat-atk').innerText = window.getAttackPower(); document.getElementById('stat-matk').innerText = window.getMagicAttack(); document.getElementById('stat-def').innerText = window.getDefense(); document.getElementById('stat-spd').innerText = window.getSpeed(); document.getElementById('stat-str').innerText = window.getTotalStat('str'); document.getElementById('stat-int').innerText = window.getTotalStat('int'); dom.statScreen.style.display = 'block'; } }
-window.checkLevelUp = function() { if(game.player.level >= 50) return; while(game.player.exp >= game.player.maxExp && game.player.level < 50) { game.player.exp -= game.player.maxExp; game.player.level++; game.player.maxExp += (game.player.level >= 41 ? 1500 : game.player.level >= 31 ? 1000 : game.player.level >= 21 ? 750 : game.player.level >= 11 ? 500 : 100); game.player.baseStats.hp += 10; game.player.baseStats.str += 2; game.player.baseStats.int += 2; game.player.currentHp = window.getMaxHp(); const txt = document.createElement('div'); txt.className = 'level-up-text'; txt.innerText = "LEVEL UP!"; txt.style.left = (game.player.x - 20) + 'px'; txt.style.top = (game.player.y - 40) + 'px'; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 2000); } window.updateUI(); window.updateSkillMenu(); DatabaseManager.savePlayerData(game.player); }
+window.checkLevelUp = function() { if(game.player.level >= 50) return; while(game.player.exp >= game.player.maxExp && game.player.level < 50) { game.player.exp -= game.player.maxExp; game.player.level++; game.player.maxExp += (game.player.level >= 41 ? 1500 : game.player.level >= 31 ? 1000 : game.player.level >= 21 ? 750 : game.player.level >= 11 ? 500 : 100); game.player.baseStats.hp += 10; game.player.baseStats.str += 2; game.player.baseStats.int += 2; game.player.currentHp = window.getMaxHp(); const txt = document.createElement('div'); txt.className = 'level-up-text'; txt.innerText = "LEVEL UP!"; txt.style.left = (game.player.x - 20) + 'px'; txt.style.top = (game.player.y - 40) + 'px'; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 2000); } window.updateUI(); window.emitVitalsIfNeeded(true); window.updateSkillMenu(); DatabaseManager.savePlayerData(game.player); }
 
 // ==========================================
 // 6. ADMIN MAP DRAWING TOOLS & SPAWNING
@@ -1078,7 +1099,7 @@ function setKeyState(e, isDown) {
                 window.adminMode = !window.adminMode; 
                 document.getElementById('admin-panel').style.display = window.adminMode ? 'block' : 'none';
                 
-                // ✅ FIX: INSTANTLY APPLIES ADMIN CLASS FOR RED COLLISION BOXES
+                // ✅ ADMIN RED BOXES REVEAL FIX
                 dom.world.classList.toggle('admin-active', window.adminMode);
                 
                 dom.log.innerText = window.adminMode ? "Admin Mode ON" : "Admin Mode OFF"; window.buildCollisionLayers(); 
@@ -1302,11 +1323,15 @@ if(socket) {
             if (!mEl) {
                 mEl = document.createElement('div'); mEl.id = 'mob_' + m.id; mEl.className = 'entity monster-container'; mEl.style.position = 'absolute'; mEl.style.cursor = m.isMerchant ? 'pointer' : 'crosshair'; mEl.style.zIndex = '50'; mEl.style.display = 'flex'; mEl.style.justifyContent = 'center'; mEl.style.alignItems = 'flex-end';
                 
-                // ✅ RENDER THE SIMPLE MERCHANT SPRITE
+                // ✅ RENDER THE HIGHLY VISIBLE EMOJI MERCHANT SPRITE
                 if (m.isMerchant) {
-                    mEl.innerHTML = `<div class="name-tag merchant-name">Merchant</div><div style="font-size: 32px; width: 48px; height: 48px; display: flex; justify-content: center; align-items: center; background: rgba(76,175,80,0.4); border: 2px solid #4CAF50; border-radius: 8px; box-shadow: 0 0 10px #4CAF50;">🧍‍♂️</div>`;
+                    mEl.innerHTML = `
+                        <div class="name-tag merchant-name" style="font-size: 16px; top: -45px;">Wandering Merchant</div>
+                        <div style="font-size: 60px; width: 80px; height: 120px; display: flex; justify-content: center; align-items: center; background: rgba(76, 175, 80, 0.2); border: 3px solid #4CAF50; border-radius: 15px; box-shadow: 0 0 20px #4CAF50; animation: merchantPulse 2s infinite alternate;">🧍‍♂️</div>
+                        <style>@keyframes merchantPulse { 0% { box-shadow: 0 0 10px #4CAF50; transform: scale(1); } 100% { box-shadow: 0 0 30px #4CAF50, 0 0 40px #81c784; transform: scale(1.05); } }</style>
+                    `;
                 } else {
-                    mEl.innerHTML = `<div class="name-tag mob-name">${m.name} Lv.${m.monsterKey === 'mini_boss1' ? '10' : m.monsterKey === 'floor_boss1' ? '15' : '5'}</div><div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div><div class="monster-ui-layer" style="position:absolute; top:-20px; left:0; width:100%; pointer-events:none;"><div class="bar-container" style="height:5px; border-radius:0; margin-bottom:0;"><div class="hp-fill monster-hp-fill" style="background-color:#f44336; height:100%; width:100%;"></div></div></div>`;
+                    mEl.innerHTML = `<div class="name-tag mob-name">${m.name}${m.isMerchant?'':` Lv.${m.monsterKey === 'mini_boss1' ? '10' : m.monsterKey === 'floor_boss1' ? '15' : '5'}`}</div><div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div><div class="monster-ui-layer" style="position:absolute; top:-20px; left:0; width:100%; pointer-events:none;"><div class="bar-container" style="height:5px; border-radius:0; margin-bottom:0;"><div class="hp-fill monster-hp-fill" style="background-color:#f44336; height:100%; width:100%;"></div></div></div>`;
                 }
 
                 mEl.addEventListener('pointerdown', (e) => { 
@@ -1320,11 +1345,14 @@ if(socket) {
             if (!m.alive) { mEl.style.display = 'none'; } else {
                 mEl.style.display = 'flex'; mEl.style.left = m.x + 'px'; mEl.style.top = m.y + 'px'; mEl.style.width = (m.width || 40) + 'px'; mEl.style.height = (m.height || 40) + 'px';
                 
-                if (!m.isMerchant) {
-                    const hpBarFill = mEl.querySelector('.monster-hp-fill'); 
-                    if(hpBarFill) hpBarFill.style.width = (m.currentHp / Math.max(1, m.maxHp)) * 100 + '%';
+                const hpBarFill = mEl.querySelector('.monster-hp-fill'); 
+                if(hpBarFill) hpBarFill.style.width = (m.currentHp / Math.max(1, m.maxHp)) * 100 + '%';
+                
+                const uiLayer = mEl.querySelector('.monster-ui-layer');
+                if (m.isMerchant && uiLayer) uiLayer.style.display = 'none';
 
-                    const spriteLayer = mEl.querySelector('.monster-sprite-layer');
+                const spriteLayer = mEl.querySelector('.monster-sprite-layer');
+                if (!m.isMerchant) {
                     if (m.monsterKey.includes('common_mobs') || m.monsterKey.includes('mini_boss') || m.monsterKey.includes('floor_boss')) { spriteLayer.style.backgroundImage = 'none'; spriteLayer.style.backgroundColor = m.cssColor || '#ff69b4'; spriteLayer.style.border = `2px solid ${m.cssBorder || '#c71585'}`; spriteLayer.style.borderRadius = '50% 50% 40% 40%'; spriteLayer.style.animation = 'slime-bounce 0.5s infinite alternate'; } 
                     else { spriteLayer.style.backgroundColor = 'transparent'; spriteLayer.style.border = 'none'; spriteLayer.style.borderRadius = '0'; spriteLayer.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`; spriteLayer.style.animation = 'none'; }
                 }
@@ -1334,21 +1362,27 @@ if(socket) {
 
     socket.on('monsterAttack', (data) => {
         if (!data || !game.monsters[data.monsterId]) return; const m = game.monsters[data.monsterId]; const mEl = document.getElementById('mob_' + m.id); if(!mEl) return;
-        const targetId = data.targetId; let tx = game.player.x + 24; let ty = game.player.y + 48; if (targetId !== game.player.id && game.remotePlayers[targetId]) { const rp = game.remotePlayers[targetId]; tx = rp.x + 24; ty = rp.y + 48; }
-        const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); let dx = tx - mcx, dy = ty - mcy; let dist = Math.hypot(dx, dy) || 1; let moveX = (dx / dist) * 20; let moveY = (dy / dist) * 20;
-        
-        if(!m.isMerchant) {
-            const spriteLayer = mEl.querySelector('.monster-sprite-layer'); if(spriteLayer) { spriteLayer.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`; setTimeout(() => { spriteLayer.style.transform = `translate(0px, 0px) scale(1)`; }, 150); }
+        const targetId = data.targetId; let tx = game.player.x + 24; let ty = game.player.y + 48; 
+        if (targetId !== game.player.id && game.remotePlayers[targetId]) { const rp = game.remotePlayers[targetId]; tx = rp.x + 24; ty = rp.y + 48; }
+
+        // ✅ CHECK IF TARGET WAS A PET
+        let hitPet = null;
+        if (game.player.activePets) {
+            hitPet = game.player.activePets.find(p => p.id === targetId);
+            if (hitPet) { tx = hitPet.x + 15; ty = hitPet.y + 15; }
         }
+
+        const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); let dx = tx - mcx, dy = ty - mcy; let dist = Math.hypot(dx, dy) || 1; let moveX = (dx / dist) * 20; let moveY = (dy / dist) * 20;
+        const spriteLayer = mEl.querySelector('.monster-sprite-layer'); if(spriteLayer) { spriteLayer.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`; setTimeout(() => { spriteLayer.style.transform = `translate(0px, 0px) scale(1)`; }, 150); }
         
+        // ✅ 1-DAMAGE BUG FIXED: Server sends data.atk
+        const serverAtk = data.atk || m.atk || 25;
+
         if (targetId === game.player.id && game.player.currentHp > 0 && !game.isGhost) {
             let now = Date.now();
             if (now < game.player.untargetableUntil) return; 
             
-            // ✅ FIX: USES SERVER DAMAGE
-            const serverAtk = data.atk || m.atk || 25;
             const mobDmg = Math.max(1, serverAtk - window.getDefense()); 
-            
             game.player.currentHp = Math.max(0, game.player.currentHp - mobDmg);
             
             if (game.player.currentHp <= 0 && now < game.player.immortalUntil) {
@@ -1356,6 +1390,16 @@ if(socket) {
             } else { window.spawnDamageText(game.player.x + 24, game.player.y - 10, mobDmg, '#f44336'); }
             
             window.spawnSpark(game.player.x + 24, game.player.y + 48); window.updateUI(); window.emitVitalsIfNeeded(true);
+        } else if (hitPet) {
+            // ✅ PET SLIMES NOW TAKE REAL DAMAGE
+            const petDef = Math.floor(window.getDefense() * 0.25);
+            const actualDmg = Math.max(1, serverAtk - petDef);
+            hitPet.hp -= actualDmg;
+            window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, actualDmg, '#ff0000');
+        } else if (game.remotePlayers[targetId]) {
+            // Optional visual flair for party members getting hit
+            const rp = game.remotePlayers[targetId];
+            window.spawnSpark(rp.x + 24, rp.y + 48);
         }
     });
 
@@ -1435,6 +1479,29 @@ window.chooseClass = function(cName) {
     if (!confirm(`Are you sure you want to become a ${cName}? This is permanent!`)) return;
     game.player.baseStats.playerClass = cName; DatabaseManager.savePlayerData(game.player);
     window.renderSkillScreen(); window.updateSkillMenu(); window.updateUI(); dom.log.innerText = `You are now a ${cName}!`; window.spawnSpark(game.player.x + 24, game.player.y + 48);
+}
+
+window.updateHotbarCooldowns = function() {
+    if (!game.player.activeSkills) return;
+    const now = Date.now();
+    for (let i = 0; i < 2; i++) {
+        let skill = game.player.activeSkills[i];
+        if (skill) {
+            let overlay = document.getElementById(`cd-${i+1}`);
+            let txt = document.getElementById(`cdt-${i+1}`);
+            if (now < skill.cooldownReadyAt) {
+                let remaining = skill.cooldownReadyAt - now;
+                let pct = (remaining / skill.cd) * 100;
+                overlay.style.height = pct + '%';
+                txt.style.display = 'block';
+                txt.innerText = Math.ceil(remaining / 1000);
+            } else {
+                overlay.style.height = '0%';
+                txt.style.display = 'none';
+            }
+        }
+    }
+    if (game.player.activeSkills.some(s => now < s.cooldownReadyAt)) { requestAnimationFrame(window.updateHotbarCooldowns); }
 }
 
 window.updateSkillMenu = function() {
@@ -1618,6 +1685,7 @@ function gameLoop(ts) {
         if (canMoveY) game.player.y = nextY;
     }
 
+    // ✅ SUMMONER SLIME AI: Melee Slam & HP
     if (game.player.activePets && game.player.activePets.length > 0) {
         let pClass = game.player.baseStats.playerClass;
         let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(pClass);
