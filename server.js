@@ -129,7 +129,6 @@ function removeFromParty(playerId) {
     emitPartyUpdate(pid);
 }
 
-// PRIVATE ROOM ROUTER
 function getInstanceId(playerId, mapId) {
     if (mapId === 'town') return 'town'; 
     const partyId = playerParty[playerId];
@@ -145,7 +144,7 @@ function spawnMonster(instId, entityId, monsterKey, cfg) {
         width: stats.width, height: stats.height, maxHp: stats.maxHp, currentHp: stats.maxHp, atk: stats.atk, def: stats.def, speed: stats.speed, expYield: stats.expYield,
         aggroRadius: stats.aggroRadius, chaseRadius: stats.chaseRadius, attackRange: stats.attackRange, cssColor: stats.cssColor, cssBorder: stats.cssBorder,
         lastAttack: 0, alive: true, threatTable: {}, forcedTargetId: null, forcedUntil: 0, targetId: null, respawnDelayMs: stats.respawnDelay,
-        frozenUntil: 0 // SKILL ENGINE: Tracks Ice Master Freeze
+        frozenUntil: 0 
     };
 }
 
@@ -161,11 +160,9 @@ function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
 function pickTarget(m, instId, now) {
     for (const pid of Object.keys(m.threatTable)) { 
         const p = getPlayerById(pid); 
-        // Drop threat if player is a ghost OR untargetable (Blademaster Blur) OR in town
         if (!p || p.instanceId !== instId || p.isGhost || p.untargetableUntil > now || p.mapId === 'town') delete m.threatTable[pid]; 
     }
     
-    // SKILL ENGINE: Berserker Taunt Logic.
     if (m.forcedUntil > now && m.forcedTargetId) {
         const p = getPlayerById(m.forcedTargetId);
         if (p && p.instanceId === instId && !p.isGhost && p.untargetableUntil <= now && p.mapId !== 'town' && (p.currentHp ?? 1) > 0) {
@@ -198,7 +195,6 @@ function pickTarget(m, instId, now) {
 function updateMonsterAI(instId, m, now) {
     if (!m.alive) return;
     
-    // SKILL ENGINE: Ice Master Freeze Logic.
     if (now < m.frozenUntil) return;
 
     const target = pickTarget(m, instId, now); m.targetId = target ? target.id : null;
@@ -268,7 +264,9 @@ io.on('connection', (socket) => {
         const instId = data.instanceId; if (!instId || !worlds[instId]) return;
         let mId = `${instId}_m_admin_${Date.now()}`;
         let cfg = { spawnArea: { minX: data.x, maxX: data.x, minY: data.y, maxY: data.y } };
-        worlds[instId].monsters[mId] = spawnMonster(instId, mId, data.monsterKey, cfg);
+        const newMob = spawnMonster(instId, mId, data.monsterKey, cfg);
+        worlds[instId].monsters[mId] = newMob;
+        io.to(instId).emit('monsterSpawned', serializeMonster(newMob));
     });
 
     socket.on('portalStep', (data) => {
@@ -365,7 +363,7 @@ io.on('connection', (socket) => {
     
     socket.on('partyRevive', () => {
         const p = onlinePlayers[socket.id]; if(!p) return;
-        if (p.mapId === 'town') return; // ✅ SECURITY: No revives needed in town
+        if (p.mapId === 'town') return;
 
         const pid = playerParty[p.id];
         if (pid && parties[pid]) {
@@ -383,7 +381,7 @@ io.on('connection', (socket) => {
 
     socket.on('tauntMonsters', (data) => {
         const p = onlinePlayers[socket.id]; if(!p || p.isGhost) return;
-        if (p.mapId === 'town') return; // ✅ SECURITY: Cannot taunt in town
+        if (p.mapId === 'town') return; 
         const world = worlds[p.instanceId]; if(!world) return;
 
         for (let mId in world.monsters) {
@@ -399,7 +397,7 @@ io.on('connection', (socket) => {
 
     socket.on('syncPet', (data) => {
         const p = onlinePlayers[socket.id]; if(!p) return;
-        if (p.mapId === 'town') return; // ✅ SECURITY: Pets disabled in town
+        if (p.mapId === 'town') return; 
         socket.to(p.instanceId).emit('remotePetSync', { ownerId: p.id, petData: data });
     });
 
@@ -410,7 +408,7 @@ io.on('connection', (socket) => {
 
     socket.on('attackMonster', (payload) => {
         const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return; 
-        if (p.mapId === 'town') return; // ✅ SECURITY: Master lock against attacking in town
+        if (p.mapId === 'town') return; 
 
         const world = worlds[p.instanceId]; if (!world) return; 
         const m = world.monsters[payload.monsterId]; if (!m || !m.alive) return;
@@ -532,6 +530,36 @@ io.on('connection', (socket) => {
             removeFromParty(p.id);
             if (p.mapId !== 'town') {
                 socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
+            }
+        }
+    });
+
+    // ✅ FIX: SERVER NOW CORRECTLY SWITCHES THE PLAYER'S ROOM ON TELEPORT
+    socket.on('playerTeleported', async (data) => {
+        if (!onlinePlayers[socket.id]) return; const p = onlinePlayers[socket.id];
+        socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
+        p.mapId = data.mapId; p.x = data.x; p.y = data.y; p.currentPortal = null;
+        p.instanceId = getInstanceId(p.id, data.mapId); 
+        socket.join(p.instanceId);
+        
+        socket.emit('requestMapSync', { mapId: data.mapId, instanceId: p.instanceId }); 
+        
+        socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
+        const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id);
+        socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
+        supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', currentUser).then(()=>{});
+    });
+
+    // ✅ FIX: ADDED MISSING RESPAWN HOOK SO DYING SENDS YOU BACK TO TOWN ON SERVER
+    socket.on('respawnPlayer', () => {
+        const p = onlinePlayers[socket.id];
+        if (p) {
+            p.isGhost = false;
+            p.currentHp = p.maxHp || 100;
+            if (p.mapId !== 'town') {
+                socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
+            } else {
+                io.to(p.instanceId).emit('playerRevived', { id: p.id, currentHp: p.currentHp });
             }
         }
     });
