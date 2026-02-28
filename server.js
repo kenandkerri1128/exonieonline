@@ -115,7 +115,7 @@ const MonsterDatabase = {
     // 2 minute respawn (120,000 ms)
     "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 1500, atk: 120, def: 15, speed: 2.8, expYield: 500, goldYield: 150, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
     // Aggressive, fast, massive aggro radius, no respawn until server reload/admin spawn
-    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 400, def: 40, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 800, chaseRadius: 1500, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
+    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 4000, def: 40, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 800, chaseRadius: 1500, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
 };
 
 function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
@@ -158,7 +158,9 @@ function spawnMonster(instId, entityId, monsterKey, cfg) {
     };
 }
 
-function serializeMonster(m) { return { id: m.id, monsterKey: m.monsterKey, name: m.name, isMerchant: m.isMerchant, x: m.x, y: m.y, width: m.width, height: m.height, maxHp: m.maxHp, currentHp: m.currentHp, alive: m.alive, targetId: m.targetId || null, cssColor: m.cssColor, cssBorder: m.cssBorder }; }
+// ✅ FIX: INCLUDES `atk` SO FRONTEND CALCULATES REAL DAMAGE INSTEAD OF 1
+function serializeMonster(m) { return { id: m.id, monsterKey: m.monsterKey, name: m.name, isMerchant: m.isMerchant, x: m.x, y: m.y, width: m.width, height: m.height, maxHp: m.maxHp, currentHp: m.currentHp, atk: m.atk, def: m.def, alive: m.alive, targetId: m.targetId || null, cssColor: m.cssColor, cssBorder: m.cssBorder }; }
+
 function playersInInstance(instId) { return Object.values(onlinePlayers).filter(p => p.instanceId === instId); }
 
 function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
@@ -250,7 +252,7 @@ function updateMonsterAI(instId, m, now) {
     } else { 
         if (now - m.lastAttack > 1500) { 
             m.lastAttack = now; 
-            // ✅ SENDS THE EXACT MONSTER 'atk' TO FIX THE 1 DAMAGE BUG
+            // ✅ FIX: EMITS THE SERVER-SIDE 'atk' SO FRONTEND RECEIVES THE TRUE DAMAGE
             io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: target.id, targetX: target.x, targetY: target.y, atk: m.atk }); 
         } 
     }
@@ -283,12 +285,12 @@ io.on('connection', (socket) => {
         if (!worlds[instId].monstersSpawned) {
             worlds[instId].monstersSpawned = true;
             
-            // ✅ SPAWNS STATIONARY MERCHANT NEAR FOUNTAIN
+            // ✅ SPAWNS STATIONARY MERCHANT AT EXACTLY 960, 1000
             if (data.mapId === 'town') {
                 worlds[instId].monsters['npc_merchant'] = {
                     id: 'npc_merchant', isMerchant: true, name: 'Merchant', 
-                    x: 850, y: 950, homeX: 850, homeY: 950, 
-                    width: 48, height: 48, speed: 0, maxHp: 9999, currentHp: 9999, alive: true
+                    x: 960, y: 1000, homeX: 960, homeY: 1000, 
+                    width: 48, height: 48, speed: 0, maxHp: 9999, currentHp: 9999, atk: 0, alive: true
                 };
             }
 
@@ -427,7 +429,7 @@ io.on('connection', (socket) => {
 
         for (let mId in world.monsters) {
             let m = world.monsters[mId];
-            if (!m.alive) continue;
+            if (!m.alive || m.isMerchant) continue;
             let dist = Math.hypot(p.x + 24 - (m.x + m.width/2), p.y + 48 - (m.y + m.height/2));
             if (dist <= (data.radius || 300)) { m.forcedTargetId = p.id; m.forcedUntil = Date.now() + 10000; }
         }
@@ -553,11 +555,30 @@ io.on('connection', (socket) => {
         }
     });
 
+    // ✅ ADDED FORCE TELEPORT LISTENER FOR THE UNSTUCK BUTTON
+    socket.on('forceTeleport', (tp) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+        
+        socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
+        
+        if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
+            for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
+        }
+
+        p.mapId = tp.mapId; p.x = tp.x; p.y = tp.y; p.currentPortal = null;
+        p.instanceId = getInstanceId(p.id, tp.mapId); 
+        socket.join(p.instanceId);
+        
+        socket.emit('forceTeleport', tp); // Tells client to reload map locally
+        socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
+        supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
+    });
+
     socket.on('playerTeleported', async (data) => {
         if (!onlinePlayers[socket.id]) return; const p = onlinePlayers[socket.id];
         socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
         
-        // Remove pet tracking on teleport
         if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
             for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
         }
