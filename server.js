@@ -21,7 +21,7 @@ const parties = {};
 const playerParty = {};    
 
 // ==========================================
-// LOOT & STAT GENERATION ENGINE
+// LOOT, GOLD & STAT GENERATION ENGINE
 // ==========================================
 const STAT_TYPES = ['attack', 'magic', 'defense', 'speed', 'int', 'str', 'hp'];
 const RARITY_COLORS = { "Starter": "#aaaaaa", "Basic": "#8B4513", "Rare": "#2196F3", "Unique": "#9c27b0", "Legendary": "#f44336", "Godly": "#e0ffff" };
@@ -42,19 +42,50 @@ function getBaseStat(lvl) {
 
 function generateLoot(monster) {
     const mLevel = monster.level || 5;
+
+    // 50% chance for a Refinement Stone Drop
     if (Math.random() < 0.50) {
-        return { id: Date.now() + Math.random(), name: `Refinement Stone Lv.${mLevel}`, type: "material", level: mLevel, rarity: "Basic", color: "#e0e0e0", description: "Enhances equipment.", quantity: 1 };
+        let stoneRarity = "Basic";
+        let r = Math.random();
+        
+        if (monster.category === "floor_boss") {
+            if(r < 0.10) stoneRarity = "Godly";
+            else if(r < 0.30) stoneRarity = "Legendary";
+            else if(r < 0.60) stoneRarity = "Unique";
+            else if(r < 0.85) stoneRarity = "Rare";
+            else stoneRarity = "Basic";
+        } else if (monster.category === "mini_boss") {
+            stoneRarity = r < 0.35 ? "Unique" : "Rare";
+        } else {
+            stoneRarity = r < 0.15 ? "Rare" : "Basic";
+        }
+
+        return { 
+            id: Date.now() + Math.random(), 
+            name: `Refinement Stone Lv.${mLevel}`, 
+            type: "material", level: mLevel, rarity: stoneRarity, color: RARITY_COLORS[stoneRarity], 
+            description: "Enhances equipment.", quantity: 1 
+        };
     }
 
+    // 50% chance for Gear Drop
     const keys = Object.keys(ITEM_TEMPLATES);
     const typeKey = keys[Math.floor(Math.random() * keys.length)];
     
     let rarityRoll = Math.random();
     let rarity = "Basic";
     
-    if (monster.category === "floor_boss") rarity = rarityRoll < 0.05 ? "Godly" : (rarityRoll < 0.20 ? "Legendary" : (rarityRoll < 0.50 ? "Unique" : "Rare"));
-    else if (monster.category === "mini_boss") rarity = rarityRoll < 0.05 ? "Legendary" : (rarityRoll < 0.20 ? "Unique" : (rarityRoll < 0.50 ? "Rare" : "Basic"));
-    else rarity = rarityRoll < 0.05 ? "Rare" : "Basic";
+    if (monster.category === "floor_boss") {
+        if(rarityRoll < 0.10) rarity = "Godly";
+        else if(rarityRoll < 0.30) rarity = "Legendary";
+        else if(rarityRoll < 0.60) rarity = "Unique";
+        else if(rarityRoll < 0.85) rarity = "Rare";
+        else rarity = "Basic";
+    } else if (monster.category === "mini_boss") {
+        rarity = rarityRoll < 0.35 ? "Unique" : "Rare";
+    } else {
+        rarity = rarityRoll < 0.15 ? "Rare" : "Basic";
+    }
 
     const template = ITEM_TEMPLATES[typeKey];
     const rarityPrefix = rarity === "Starter" ? "basic" : rarity.toLowerCase();
@@ -64,8 +95,9 @@ function generateLoot(monster) {
 
     let item = { id: Date.now() + Math.random(), name: itemName, type: template.slot, sprite: rarityPrefix + template.spriteName, level: mLevel, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 };
     
+    // ✅ STRICT PENDANT 50% PENALTY ENFORCED
     let statVal = getBaseStat(mLevel) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0);
-    if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); // ✅ PENDANTS SCALED TO 50%
+    if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); 
     item.fixedStat[template.statKey] = statVal;
     
     item.randomStat = {};
@@ -75,12 +107,15 @@ function generateLoot(monster) {
 }
 
 // ==========================================
-// SCALED MONSTER DATABASE (Updated Timers & Gold)
+// SCALED MONSTER DATABASE (Updated Timers, Gold & Boss Aggro)
 // ==========================================
 const MonsterDatabase = {
+    // 10 second respawn
     "common_mobs1": { name: "Slime", category: "common_mobs", level: 5, maxHp: 100, atk: 25, def: 0, speed: 2.5, expYield: 25, goldYield: 15, aggroRadius: 250, chaseRadius: 400, attackRange: 55, width: 40, height: 40, respawnDelay: 10000, cssColor: '#ff69b4', cssBorder: '#c71585' },
+    // 2 minute respawn (120,000 ms)
     "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 1500, atk: 120, def: 15, speed: 2.8, expYield: 500, goldYield: 150, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
-    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 400, def: 40, speed: 3.2, expYield: 3000, goldYield: 1000, aggroRadius: 500, chaseRadius: 800, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
+    // Aggressive, fast, massive aggro radius, no respawn until server reload/admin spawn
+    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 400, def: 40, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 800, chaseRadius: 1500, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
 };
 
 function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
@@ -168,7 +203,7 @@ function updateMonsterAI(instId, m, now) {
     if (!m.alive) return;
     if (now < m.frozenUntil) return;
 
-    // ✅ SERVER-SIDE MERCHANT AI
+    // ✅ SERVER-SIDE MERCHANT WANDERING AI
     if (m.isMerchant) {
         if (Math.random() < 0.02) {
             m.targetX = m.homeX + (Math.random() * 400 - 200);
@@ -401,7 +436,10 @@ io.on('connection', (socket) => {
         if (p.mapId === 'town') return; 
 
         const world = worlds[p.instanceId]; if (!world) return; 
-        const m = world.monsters[payload.monsterId]; if (!m || !m.alive || m.isMerchant) return;
+        const m = world.monsters[payload.monsterId]; 
+        
+        // ✅ PREVENT ATTACKING THE MERCHANT
+        if (!m || !m.alive || m.isMerchant) return;
         
         const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); if (dist > 350) return;
         const dmg = Math.max(1, Math.floor(Number(payload.damage) || 1)); m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
@@ -415,7 +453,7 @@ io.on('connection', (socket) => {
             io.to(p.instanceId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
             
             const expAmount = m.expYield || 25;
-            const goldAmount = m.goldYield || 15; // ✅ GOLD YIELD INTEGRATION
+            const goldAmount = m.goldYield || 15; 
             const pid = playerParty[p.id];
 
             if (pid && parties[pid]) {
