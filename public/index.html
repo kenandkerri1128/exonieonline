@@ -108,22 +108,23 @@
         .party-hp-bar-bg { width: 100%; height: 8px; background: #333; border: 1px solid #000; border-radius: 4px; overflow: hidden; }
         .party-hp-bar-fill { height: 100%; background: #4CAF50; transition: width 0.2s; }
 
-        /* ✅ FIX: HOTBAR UI FOR SKILLS */
+        /* ✅ HOTBAR UI FOR SKILLS WITH COOLDOWN TEXT */
         #hotbar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 1000; display: none; }
-        .hotbar-slot { width: 50px; height: 50px; background: rgba(0,0,0,0.8); border: 2px solid #555; border-radius: 5px; display: flex; justify-content: center; align-items: center; font-weight: bold; position: relative; overflow: hidden; }
+        .hotbar-slot { width: 50px; height: 50px; background: rgba(0,0,0,0.8); border: 2px solid #555; border-radius: 5px; display: none; justify-content: center; align-items: center; font-weight: bold; position: relative; overflow: hidden; }
         .hotbar-key { position: absolute; top: 2px; left: 4px; font-size: 12px; color: #ffeb3b; z-index: 2; }
-        .hotbar-icon { width: 100%; height: 100%; object-fit: cover; z-index: 1; opacity: 0.8; }
+        .hotbar-name { position: absolute; bottom: 2px; width: 100%; text-align: center; font-size: 10px; color: white; z-index: 2; pointer-events: none; line-height: 1; }
         .cooldown-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: rgba(255,0,0,0.6); transition: height 0.1s linear; z-index: 3; }
+        .cooldown-text { position: absolute; z-index: 4; font-size: 20px; font-weight: bold; color: white; text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; pointer-events: none; display: none; }
 
-        /* ✅ FIX: SKILL SCREEN UI */
+        /* SKILL SCREEN UI */
         #skill-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 550px; background: rgba(20,20,20,0.98); border: 2px solid #9c27b0; border-radius: 10px; padding: 20px; z-index: 1500; display: none; box-shadow: 0 0 30px #000; }
         .skill-class-card { background: #111; border: 1px solid #444; padding: 15px; margin-bottom: 15px; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
         .skill-class-card:hover { border-color: #9c27b0; background: #222; }
-        .skill-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding: 10px 0; }
+        .skill-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding: 10px 0; color: #fff; }
         .skill-row:last-child { border-bottom: none; }
-        .skill-desc { font-size: 13px; color: #aaa; margin-top: 4px; }
+        .skill-desc { font-size: 13px; color: #aaa; margin-top: 4px; line-height: 1.4; }
         
-        /* ✅ FIX: AURA & SKILL EFFECTS */
+        /* AURA & SKILL EFFECTS */
         .aura { position: absolute; width: 150px; height: 150px; bottom: -25px; left: 50%; transform: translateX(-50%); border-radius: 50%; opacity: 0; pointer-events: none; z-index: 5; }
         .aura-green { background: radial-gradient(circle, rgba(76,175,80,0.8) 0%, rgba(76,175,80,0) 70%); }
         .aura-blue { background: radial-gradient(circle, rgba(33,150,243,0.8) 0%, rgba(33,150,243,0) 70%); }
@@ -131,8 +132,19 @@
         @keyframes aura-burst { 0% { transform: translateX(-50%) scale(0.2); opacity: 1; } 100% { transform: translateX(-50%) scale(2.5); opacity: 0; } }
 
         .icicle { position: absolute; width: 15px; height: 40px; background: linear-gradient(to bottom, #fff, #00ffff); box-shadow: 0 0 10px #fff; border-radius: 2px 2px 50% 50%; pointer-events: none; z-index: 250; }
-        
-        .pet-slime { position: absolute; width: 30px; height: 30px; background-color: #00ffff; border: 2px solid #00bfff; border-radius: 50% 50% 40% 40%; z-index: 90; transition: left 0.2s, top 0.2s; animation: slime-bounce 0.6s infinite alternate; pointer-events: none; }
+        .pet-slime { position: absolute; width: 30px; height: 30px; background-color: #00ffff; border: 2px solid #00bfff; border-radius: 50% 50% 40% 40%; z-index: 90; transition: left 0.2s, top 0.2s; animation: slime-bounce 0.6s infinite alternate; pointer-events: none; margin-top: -15px; margin-left: -15px;}
+
+        /* --- EFFECTS --- */
+        .spark { position: absolute; width: 16px; height: 16px; background-color: #fff; border-radius: 50%; box-shadow: 0 0 8px #ffeb3b, 0 0 15px #ff9800; pointer-events: none; z-index: 300; animation: spark-pop 0.3s ease-out forwards; }
+        @keyframes spark-pop { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 50% { background-color: #ffeb3b; } 100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; } }
+        .white-splash { position: absolute; width: 30px; height: 30px; background-color: #fff; border-radius: 50%; box-shadow: 0 0 15px #fff, 0 0 25px #e0ffff; pointer-events: none; z-index: 300; transform: translate(-50%, -50%); animation: white-splash-pop 0.3s ease-out forwards; }
+        @keyframes white-splash-pop { 0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; } }
+        .magic-orb { position: absolute; width: 12px; height: 12px; background-color: #e0ffff; border-radius: 50%; box-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff, 0 0 20px #ffffff; pointer-events: none; z-index: 250; transform: translate(-50%, -50%); }
+        .damage-text { position: absolute; color: white; font-weight: bold; font-size: 16px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; pointer-events: none; animation: floatUp 1s forwards; z-index: 200; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(1.5); } }
+        .level-up-text { position: absolute; color: #ffd700; font-weight: bold; font-size: 28px; text-shadow: 0 0 10px #ff9800; pointer-events: none; animation: floatUp 2s forwards; z-index: 500; }
+        .rarity-godly { animation: godly-sparkle 1.5s infinite alternate; }
+        @keyframes godly-sparkle { 0% { text-shadow: 0 0 2px #fff, 0 0 5px #e0ffff; } 100% { text-shadow: 0 0 8px #fff, 0 0 15px #00ffff, 0 0 20px #00ffff; } }
 
         /* --- MENUS & WINDOWS --- */
         #inventory-screen { position: absolute; top: 0; right: 0; width: 350px; height: 100%; background-color: rgba(25, 25, 25, 0.98); border-left: 2px solid #555; padding: 20px; z-index: 1000; display: none; box-sizing: border-box; box-shadow: -5px 0 20px rgba(0,0,0,0.8); overflow-y: auto; }
@@ -203,6 +215,7 @@
         .hotbar-key { position: absolute; top: 2px; left: 4px; font-size: 12px; color: #ffeb3b; z-index: 2; }
         .hotbar-name { position: absolute; bottom: 2px; width: 100%; text-align: center; font-size: 10px; color: white; z-index: 2; pointer-events: none; line-height: 1; }
         .cooldown-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: rgba(255,0,0,0.6); transition: height 0.1s linear; z-index: 3; }
+        .cooldown-text { position: absolute; z-index: 4; font-size: 20px; font-weight: bold; color: white; text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; pointer-events: none; display: none; }
     </style>
 
 <div id="game-container">
@@ -366,8 +379,18 @@
         <div id="combat-log">Welcome to Exonie. WASD to move. Left click to attack.</div>
 
         <div id="hotbar">
-            <div class="hotbar-slot" id="hotbar-1"><div class="hotbar-key">1</div><div class="hotbar-name" id="hotbar-name-1"></div><div class="cooldown-overlay" id="cd-1"></div></div>
-            <div class="hotbar-slot" id="hotbar-2"><div class="hotbar-key">2</div><div class="hotbar-name" id="hotbar-name-2"></div><div class="cooldown-overlay" id="cd-2"></div></div>
+            <div class="hotbar-slot" id="hotbar-1">
+                <div class="hotbar-key">1</div>
+                <div class="hotbar-name" id="hotbar-name-1"></div>
+                <div class="cooldown-overlay" id="cd-1"></div>
+                <div class="cooldown-text" id="cdt-1"></div>
+            </div>
+            <div class="hotbar-slot" id="hotbar-2">
+                <div class="hotbar-key">2</div>
+                <div class="hotbar-name" id="hotbar-name-2"></div>
+                <div class="cooldown-overlay" id="cd-2"></div>
+                <div class="cooldown-text" id="cdt-2"></div>
+            </div>
         </div>
         
         <div id="admin-panel">
@@ -521,7 +544,7 @@ let safeMapData = { id: "town", name: "Town of Exonie", image: "town_map.png", s
 
 let isInventoryOpen = false; let isSkillOpen = false; let isEnhancing = false; let activeInvIndex = -1; let attackCooldownActive = false; let isAttacking = false; let attackHeld = false; let isChatting = false; let autoAttackMode = false; let lastNetTs = 0; let lastSentState = 'idle'; let pendingPartyInvite = null; let pendingTradeInvite = null; let inTradeMode = false; let tradeTarget = null; let tradeMyItems = [null,null,null]; let tradeTheirItems = [null,null,null]; let lastVitalsSent = {hp:null,maxHp:null,level:null}; let lastVitalsTs = 0;
 let isDrawing = false; let startX = 0; let startY = 0; let currentBox = null; let drawType = 'collision';
-let currentBGM = null; let currentTrackName = ""; let activeTargetPlayerId = null;
+let currentBGM = null; let currentTrackName = ""; let loginTimeout; let activeTargetPlayerId = null;
 window.facingRight = false;
 window.isLoading = false; 
 
@@ -620,14 +643,17 @@ window.showAura = function(color) {
     const aura = document.getElementById('player-aura');
     aura.className = `aura aura-${color}`;
     aura.style.animation = 'none';
-    void aura.offsetWidth; // Trigger reflow
+    void aura.offsetWidth; 
     aura.style.animation = 'aura-burst 0.6s ease-out forwards';
 }
 
-window.playVoice = function(skillName) {
-    let audio = new Audio(`skills/hair${window.charData.hairStyle}_${skillName}.mp3`);
+/* ✅ FIX: VOICE AUDIO CORRECTLY USES CLASS NAME & NONE HAIR */
+window.playVoice = function(className) {
+    let hairPrefix = window.charData.hairStyle === 'none' ? 'none' : `hair${window.charData.hairStyle}`;
+    let formattedClass = className.replace(/\s+/g, '').toLowerCase(); // "Ice Master" -> "icemaster"
+    let audio = new Audio(`skills/${hairPrefix}_${formattedClass}.mp3`);
     audio.volume = 0.8;
-    audio.play().catch(e => console.log("Voice clip missing", e));
+    audio.play().catch(e => console.log(`Voice clip missing: skills/${hairPrefix}_${formattedClass}.mp3`, e));
 }
 
 // ==========================================
@@ -644,7 +670,6 @@ window.playSFX = function(weaponSprite) {
     let audio = new Audio(`music/${sfx}.mp3`); audio.volume = 0.5; audio.play().catch(e => console.log("SFX error", e));
 }
 
-// STAT CALCULATIONS WITH PASSIVES
 window.getTotalStat = function(statName) { 
     if (!game.player || !game.player.baseStats) return 0; 
     let base = game.player.baseStats[statName] || 0; 
@@ -656,14 +681,12 @@ window.getTotalStat = function(statName) {
         } 
     }); 
     
-    // Passives
     if (game.player.baseStats.playerClass === 'Berserker' && game.player.level >= 25) {
         if (statName === 'hp' || statName === 'defense') { base += Math.floor(game.player.baseStats[statName] * 0.25); }
     }
     if (game.player.baseStats.playerClass === 'Blademaster') {
         if (statName === 'attack') { base += Math.floor(game.player.baseStats.attack * 0.25); }
     }
-    
     return base; 
 }
 window.getMaxHp = function() { return window.getTotalStat('hp'); }; window.getAttackPower = function() { return window.getTotalStat('attack') + Math.floor(window.getTotalStat('str') / 2); }; window.getMagicAttack = function() { return window.getTotalStat('magic') + Math.floor(window.getTotalStat('int') / 2); }; window.getDefense = function() { return window.getTotalStat('defense'); }; window.getSpeed = function() { return window.getTotalStat('speed'); }; window.getBaseStat = function(lvl) { if (lvl >= 50) return 100; if (lvl >= 45) return 45; if (lvl >= 40) return 40; if (lvl >= 35) return 30; if (lvl >= 30) return 27; if (lvl >= 25) return 22; if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; if (lvl >= 5) return 8; return 5; }
@@ -875,6 +898,9 @@ window.leaveParty = function() {
                 window.preloadMapAssets(safeMapData, () => {
                     dom.world.style.backgroundImage = `url('${safeMapData.image}')`;
                     window.buildCollisionLayers();
+                    
+                    /* ✅ FIX: CROSS MAP GHOSTING WIPE */
+                    for (let rId in game.remotePlayers) window.removeRemotePlayer(rId);
                     document.querySelectorAll('.monster-container').forEach(el => el.remove());
                     game.monsters = {};
                     
@@ -943,7 +969,7 @@ function setKeyState(e, isDown) {
     if (isDown) { 
         if (key === 'p') window.toggleStats(); 
         if (key === 'i') window.toggleInventory(); 
-        if (key === 'k') window.toggleSkillScreen(); // ✅ HOTKEY TO OPEN CLASS/SKILLS MENU
+        if (key === 'k') window.toggleSkillScreen(); 
         if (key === 'o') { 
             if (game.player.name === "Kei") { 
                 window.adminMode = !window.adminMode; 
@@ -955,7 +981,6 @@ function setKeyState(e, isDown) {
             } 
         } 
         
-        // ✅ SKILL KEYBINDS (1 & 2)
         if (key === '1' || key === '2') {
             if (!game.isGhost && !window.isLoading && !isInventoryOpen && !isSkillOpen && !window.adminMode) {
                 let slotIndex = key === '1' ? 0 : 1;
@@ -1119,6 +1144,9 @@ if(socket) {
                 else { game.player.x = tp.x; game.player.y = tp.y; }
             } else { game.player.x = tp.x; game.player.y = tp.y; }
 
+            /* ✅ FIX: CROSS-MAP GHOSTING WIPE ON RESPAWN */
+            for (let rId in game.remotePlayers) window.removeRemotePlayer(rId);
+
             if(tp.mapId === 'town') {
                 document.querySelectorAll('.monster-container').forEach(el => el.remove());
                 game.monsters = {};
@@ -1143,13 +1171,15 @@ if(socket) {
                     game.player.x = targetPortal ? (targetPortal.x + (targetPortal.w / 2) - (game.player.width / 2)) : safeMapData.spawnX; game.player.y = targetPortal ? (targetPortal.y + targetPortal.h - game.player.height + 5) : safeMapData.spawnY;
                     dom.world.style.backgroundImage = `url('${safeMapData.image}')`; window.buildCollisionLayers();
                     
+                    /* ✅ FIX: CROSS-MAP GHOSTING WIPE */
+                    for (let rId in game.remotePlayers) window.removeRemotePlayer(rId);
+
                     if(nextMapId === 'town') {
                         document.querySelectorAll('.monster-container').forEach(el => el.remove());
                         game.monsters = {};
                     }
 
-                    // Pet follows through portal
-                    if (game.player.activePets.length > 0) {
+                    if (game.player.activePets && game.player.activePets.length > 0) {
                         game.player.activePets.forEach(pet => { pet.dom.remove(); });
                         game.player.activePets = [];
                     }
@@ -1209,7 +1239,6 @@ if(socket) {
         }
     });
     
-    // Remote pet sync
     socket.on('remotePetSync', (data) => {
         let petId = `pet_${data.ownerId}_${data.petData.id}`;
         let petEl = document.getElementById(petId);
@@ -1222,7 +1251,6 @@ if(socket) {
         } else if (petEl) { petEl.remove(); }
     });
     
-    // Revive sync
     socket.on('playerRevived', (data) => {
         if (data.id === game.player.id) {
             game.isGhost = false;
@@ -1266,13 +1294,12 @@ if(socket) {
         
         if (targetId === game.player.id && game.player.currentHp > 0 && !game.isGhost) {
             let now = Date.now();
-            if (now < game.player.untargetableUntil) return; // Blur logic
+            if (now < game.player.untargetableUntil) return; 
             
             const mobDmg = Math.max(1, (m.atk || 25) - window.getDefense()); 
             
-            // Pet absorbs 50% damage if Summoner pet alive
             let dmgTaken = mobDmg;
-            if (game.player.activePets.length > 0) {
+            if (game.player.activePets && game.player.activePets.length > 0) {
                 let pet = game.player.activePets[0];
                 pet.hp -= Math.floor(mobDmg / 2);
                 dmgTaken = Math.floor(mobDmg / 2);
@@ -1281,7 +1308,6 @@ if(socket) {
 
             game.player.currentHp = Math.max(0, game.player.currentHp - dmgTaken);
             
-            // Immortal logic
             if (game.player.currentHp <= 0 && now < game.player.immortalUntil) {
                 game.player.currentHp = 1;
                 window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMORTAL", '#ffeb3b');
@@ -1402,7 +1428,6 @@ window.updateSkillMenu = function() {
         else if (game.player.equips.weapon.sprite.includes('pendant')) wpnType = 'pendant';
     }
 
-    // Hide hotbar if wrong weapon or no class
     if (!pClass || CLASSES[pClass].weapon !== wpnType) {
         dom.hotbar.style.display = 'none';
         game.player.activeSkills = [];
@@ -1412,7 +1437,6 @@ window.updateSkillMenu = function() {
     dom.hotbar.style.display = 'flex';
     game.player.activeSkills = [];
     
-    // Bind active skills strictly to keys 1 and 2
     let activeIndex = 0;
     CLASSES[pClass].skills.forEach(s => {
         if (s.type === 'active' && game.player.level >= s.unlock && activeIndex < 2) {
@@ -1425,18 +1449,25 @@ window.updateSkillMenu = function() {
         }
     });
 
-    // Hide unused slots
     for (let i = activeIndex; i < 2; i++) { document.getElementById(`hotbar-${i+1}`).style.display = 'none'; }
 }
 
+/* ✅ FIX: ADDED DYNAMIC NUMBER COUNTDOWN TO COOLDOWN UI */
 function updateHotbarCooldowns() {
     let now = Date.now();
     game.player.activeSkills.forEach((s, index) => {
         let overlay = document.getElementById(`cd-${index+1}`);
+        let txt = document.getElementById(`cdt-${index+1}`);
         if (s.cooldownReadyAt > now) {
+            let remainingSecs = Math.ceil((s.cooldownReadyAt - now) / 1000);
             let pct = ((s.cooldownReadyAt - now) / s.cd) * 100;
             overlay.style.height = `${pct}%`;
-        } else { overlay.style.height = '0%'; }
+            txt.innerText = remainingSecs;
+            txt.style.display = 'block';
+        } else { 
+            overlay.style.height = '0%'; 
+            txt.style.display = 'none';
+        }
     });
     let anyCd = game.player.activeSkills.some(s => s.cooldownReadyAt > now);
     if (anyCd) requestAnimationFrame(updateHotbarCooldowns);
@@ -1444,10 +1475,15 @@ function updateHotbarCooldowns() {
 
 // SKILL EXECUTION LOGIC
 window.executeSkill = function(skillId, className) {
+    /* ✅ FIX: STRICT TOWN PACIFISM FOR SKILLS */
+    if (safeMapData.id === 'town') {
+        dom.log.innerText = "You cannot use skills in Town!";
+        return;
+    }
+
     let auraColor = CLASSES[className].aura;
     window.showAura(auraColor);
     
-    // Animate attack format
     isAttacking = true;
     attackCooldownActive = true;
     setTimeout(() => { isAttacking = false; }, 500);
@@ -1456,16 +1492,15 @@ window.executeSkill = function(skillId, className) {
 
     // HEALER
     if (skillId === 'heal1') {
-        window.playVoice('heal');
+        window.playVoice(className);
         let healAmt = game.player.level >= 25 ? 500 : 250;
         game.player.currentHp = Math.min(window.getMaxHp(), game.player.currentHp + healAmt);
         window.spawnDamageText(game.player.x + 24, game.player.y - 10, `+${healAmt}`, '#4CAF50');
         window.updateUI(); window.emitVitalsIfNeeded(true);
-        // Also heal local pets
-        game.player.activePets.forEach(p => { p.hp += healAmt; window.spawnDamageText(p.x + 15, p.y, `+${healAmt}`, '#4CAF50'); });
+        if(game.player.activePets) game.player.activePets.forEach(p => { p.hp += healAmt; window.spawnDamageText(p.x + 15, p.y, `+${healAmt}`, '#4CAF50'); });
     }
     if (skillId === 'heal3') {
-        window.playVoice('purification');
+        window.playVoice(className);
         game.player.currentHp = window.getMaxHp();
         window.spawnDamageText(game.player.x + 24, game.player.y - 10, "FULL HEAL", '#4CAF50');
         window.updateUI(); window.emitVitalsIfNeeded(true);
@@ -1474,7 +1509,8 @@ window.executeSkill = function(skillId, className) {
 
     // SUMMONER
     if (skillId === 'sum1') {
-        window.playVoice('summon');
+        window.playVoice(className);
+        if (!game.player.activePets) game.player.activePets = [];
         let count = game.player.level >= 25 ? 2 : 1;
         for (let i=0; i<count; i++) {
             let petId = Date.now() + i;
@@ -1487,25 +1523,25 @@ window.executeSkill = function(skillId, className) {
         }
     }
     if (skillId === 'sum3') {
-        window.playVoice('enhance');
-        game.player.activePets.forEach(p => { p.enhancedUntil = Date.now() + 10000; window.spawnSpark(p.x+15, p.y+15); });
+        window.playVoice(className);
+        if(game.player.activePets) game.player.activePets.forEach(p => { p.enhancedUntil = Date.now() + 10000; window.spawnSpark(p.x+15, p.y+15); });
     }
 
     // BERSERKER
     if (skillId === 'ber1') {
-        window.playVoice('callout');
+        window.playVoice(className);
         if(socket) socket.emit('tauntMonsters', { radius: 300 });
         window.spawnDamageText(game.player.x + 24, game.player.y - 10, "TAUNT", '#ff9800');
     }
     if (skillId === 'ber3') {
-        window.playVoice('immortal');
+        window.playVoice(className);
         game.player.immortalUntil = Date.now() + 10000;
         window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMORTAL", '#ffeb3b');
     }
 
     // BLADEMASTER
     if (skillId === 'bld2') {
-        window.playVoice('blur');
+        window.playVoice(className);
         game.player.untargetableUntil = Date.now() + 10000;
         dom.playerContainer.style.opacity = '0.5';
         setTimeout(() => { if (!game.isGhost) dom.playerContainer.style.opacity = '1'; }, 10000);
@@ -1522,7 +1558,7 @@ window.executeSkill = function(skillId, className) {
             let mCx = closestMob.x + (closestMob.width/2); let mCy = closestMob.y + (closestMob.height/2);
             
             if (className === 'Ice Master') {
-                window.playVoice(skillId === 'ice3' ? 'iciclestorm' : 'iciclespear');
+                window.playVoice(className);
                 let count = skillId === 'ice3' ? 3 : 1;
                 let dmg = window.getMagicAttack() * 2;
                 for (let i=0; i<count; i++) {
@@ -1534,7 +1570,7 @@ window.executeSkill = function(skillId, className) {
                 }
             }
             if (skillId === 'bld3') {
-                window.playVoice('megaslash');
+                window.playVoice(className);
                 let dmg = window.getAttackPower() * 5;
                 window.spawnWhiteSplash(mCx, mCy);
                 if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: false });
@@ -1547,6 +1583,12 @@ window.executeSkill = function(skillId, className) {
 // 10. COMBAT & MAIN GAME LOOP
 // ==========================================
 window.attemptAttack = function(silent) {
+    /* ✅ FIX: STRICT TOWN PACIFISM FOR ATTACKS */
+    if (safeMapData.id === 'town') {
+        if (!silent) dom.log.innerText = "You cannot attack in Town!";
+        return;
+    }
+
     if (game.player.currentHp <= 0 || isInventoryOpen || window.adminMode || game.isGhost || window.isLoading) return;
     if (attackCooldownActive) return; 
     
@@ -1562,7 +1604,6 @@ window.attemptAttack = function(silent) {
     const rawDmg = isRanged ? (window.getMagicAttack() * 0.75) : window.getAttackPower(); const dmg = Math.max(1, Math.floor(rawDmg * (0.9 + Math.random() * 0.2)) - (closestMob.def || 0));
     const mCenterX = closestMob.x + (closestMob.width/2); const mCenterY = closestMob.y + (closestMob.height/2);
     
-    // Chill Passive Check
     let applyFreeze = (game.player.baseStats.playerClass === 'Ice Master' && game.player.level >= 25 && Math.random() < 0.25);
 
     if (isRanged) { 
@@ -1572,8 +1613,7 @@ window.attemptAttack = function(silent) {
         setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: isPendant, freeze: applyFreeze }); }, 300); 
     }
 
-    // Add Pet attacks
-    if (game.player.activePets.length > 0) {
+    if (game.player.activePets && game.player.activePets.length > 0) {
         game.player.activePets.forEach(p => {
             let pDmg = p.enhancedUntil > Date.now() ? window.getMagicAttack() : p.matk;
             window.shootOrb(p.x+15, p.y+15, mCenterX, mCenterY);
@@ -1593,7 +1633,8 @@ function gameLoop(ts) {
         if(socket) socket.emit('playerDied'); 
     }
 
-    let nextX = game.player.x; let nextY = game.player.y; let isMoving = false; const moveSpeed = window.getSpeed() || 5;
+    /* ✅ FIX: RESTORED FLAT MOVEMENT SPEED */
+    let nextX = game.player.x; let nextY = game.player.y; let isMoving = false; const moveSpeed = 5; 
 
     let canInputMove = (!isChatting && !window.isLoading);
     if (game.isGhost) {
@@ -1616,8 +1657,7 @@ function gameLoop(ts) {
         if (canMoveY) game.player.y = nextY;
     }
 
-    // Pet Follow Logic
-    if (game.player.activePets.length > 0) {
+    if (game.player.activePets && game.player.activePets.length > 0) {
         game.player.activePets = game.player.activePets.filter(p => p.hp > 0);
         game.player.activePets.forEach((p, idx) => {
             let targetX = game.player.x + (idx === 0 ? -40 : 40); let targetY = game.player.y - 20;
@@ -1627,7 +1667,7 @@ function gameLoop(ts) {
         });
         
         let sum1Skill = game.player.activeSkills.find(s => s.id === 'sum1');
-        if (sum1Skill) sum1Skill.cooldownReadyAt = Date.now() + sum1Skill.cd; // Lock button while alive
+        if (sum1Skill) sum1Skill.cooldownReadyAt = Date.now() + sum1Skill.cd;
     }
 
     if (game.player.teleportCooldown > 0) game.player.teleportCooldown -= 16;
