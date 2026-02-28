@@ -71,6 +71,7 @@
         #game-screen { position: relative; width: 100%; height: 100%; background-color: #000; }
         #world { position: absolute; width: 2000px; height: 1333px; background-size: 100% 100%; transform-origin: top left; transition: background-image 0.5s; }
 
+        /* ✅ ADMIN COLLISION BOXES */
         .collision-box { position: absolute; background: transparent; z-index: 900; pointer-events: none; }
         #world.admin-active .collision-box { background: rgba(255, 0, 0, 0.4) !important; border: 1px solid red; pointer-events: auto; cursor: pointer; }
         .admin-spawn-marker { position: absolute; width: 48px; height: 48px; border: 3px solid cyan; border-radius: 50%; background: rgba(0, 255, 255, 0.3); z-index: 800; pointer-events: none; transform: translate(-50%, -100%); display: none; }
@@ -84,7 +85,6 @@
         .entity { position: absolute; transition: filter 0.1s; z-index: 100;} 
         #player-container { z-index: 105; transition: opacity 0.3s; }
         
-        /* ✅ ADDED NPC MERCHANT SPECIFIC TAG */
         .name-tag { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 1px 1px 0 #000; z-index: 20; pointer-events: none; }
         .mob-name { color: #f44336; top: -30px; font-size: 12px;}
         .merchant-name { color: #4CAF50 !important; top: -30px; font-size: 14px; }
@@ -97,7 +97,6 @@
         .hit-flash .monster-sprite-layer { filter: brightness(2) drop-shadow(0 0 5px red) !important; }
         @keyframes slime-bounce { 0% { transform: translateY(0) scaleY(0.9); } 100% { transform: translateY(-12px) scaleY(1.1); } }
         
-        /* ✅ MODIFIED PET SLIME TO SUPPORT MELEE SLAM & HP BARS */
         .pet-slime { position: absolute; width: 30px; height: 30px; background-color: #00ffff; border: 2px solid #00bfff; border-radius: 50% 50% 40% 40%; z-index: 90; transition: left 0.15s linear, top 0.15s linear, transform 0.1s; animation: slime-bounce 0.6s infinite alternate; pointer-events: none; margin-top: -15px; margin-left: -15px;}
         .pet-hp-bar { position: absolute; bottom: -8px; left: 0; width: 100%; height: 4px; background: #333; border: 1px solid #000; border-radius: 2px; overflow: hidden; display: block; }
         .pet-hp-fill { height: 100%; background: #4CAF50; width: 100%; }
@@ -118,7 +117,6 @@
         .party-hp-bar-bg { width: 100%; height: 8px; background: #333; border: 1px solid #000; border-radius: 4px; overflow: hidden; }
         .party-hp-bar-fill { height: 100%; background: #4CAF50; transition: width 0.2s; }
 
-        /* --- HOTBAR --- */
         #hotbar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 1000; display: none; }
         .hotbar-slot { width: 50px; height: 50px; background: rgba(0,0,0,0.8); border: 2px solid #555; border-radius: 5px; display: flex; justify-content: center; align-items: center; font-weight: bold; position: relative; overflow: hidden; }
         .hotbar-key { position: absolute; top: 2px; left: 4px; font-size: 12px; color: #ffeb3b; z-index: 2; }
@@ -140,7 +138,6 @@
         .aura-blue { background: radial-gradient(circle, rgba(33,150,243,0.8) 0%, rgba(33,150,243,0) 70%); }
         .aura-red { background: radial-gradient(circle, rgba(244,67,54,0.8) 0%, rgba(244,67,54,0) 70%); }
         @keyframes aura-burst { 0% { transform: translateX(-50%) scale(0.2); opacity: 1; } 100% { transform: translateX(-50%) scale(2.5); opacity: 0; } }
-
         .icicle { position: absolute; width: 15px; height: 40px; background: linear-gradient(to bottom, #fff, #00ffff); box-shadow: 0 0 10px #fff; border-radius: 2px 2px 50% 50%; pointer-events: none; z-index: 250; }
 
         /* --- EFFECTS --- */
@@ -173,7 +170,6 @@
         #inv-context-menu { display: none; position: absolute; background: #222; border: 1px solid #777; border-radius: 4px; z-index: 3000; flex-direction: column; width: 120px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
         .ctx-btn { background: none; border: none; color: white; padding: 10px; cursor: pointer; text-align: left; font-weight: bold; font-size: 16px; font-family: 'MedievalSharp', cursive; } 
         .ctx-btn:hover { background: #444; }
-        /* ✅ ADDED SPECIFIC SELL BUTTON STYLE */
         #ctx-btn-sell { color: gold; display: none; border-bottom: 1px solid #444; } 
         #ctx-btn-sell:hover { background: #333; color: #fff; }
 
@@ -1047,7 +1043,12 @@ function setKeyState(e, isDown) {
             if (game.player.name === "Kei") { 
                 window.adminMode = !window.adminMode; 
                 document.getElementById('admin-panel').style.display = window.adminMode ? 'block' : 'none';
-                dom.log.innerText = window.adminMode ? "Admin Mode ON" : "Admin Mode OFF"; window.buildCollisionLayers(); 
+                
+                // ✅ FIX: ADD THE ADMIN-ACTIVE CLASS TO THE WORLD CONTAINER TO SHOW RED BOXES
+                dom.world.classList.toggle('admin-active', window.adminMode);
+                
+                dom.log.innerText = window.adminMode ? "Admin Mode ON" : "Admin Mode OFF"; 
+                window.buildCollisionLayers(); 
             } else { dom.log.innerText = "Admin Mode restricted."; } 
         } 
         
@@ -1312,7 +1313,8 @@ if(socket) {
             let now = Date.now();
             if (now < game.player.untargetableUntil) return; 
             
-            const mobDmg = Math.max(1, (m.atk || 25) - window.getDefense()); 
+            // ✅ FIX: IT NOW RECEIVES data.atk FROM THE SERVER!
+            const mobDmg = Math.max(1, data.atk - window.getDefense()); 
             game.player.currentHp = Math.max(0, game.player.currentHp - mobDmg);
             
             if (game.player.currentHp <= 0 && now < game.player.immortalUntil) {
@@ -1321,10 +1323,10 @@ if(socket) {
             
             window.spawnSpark(game.player.x + 24, game.player.y + 48); window.updateUI(); window.emitVitalsIfNeeded(true);
         } else if (game.player.activePets && game.player.activePets.length > 0) {
-            // ✅ PET TAKES DAMAGE INSTEAD
+            // ✅ PET TAKES DAMAGE
             let pet = game.player.activePets.find(p => p.id === data.targetId);
             if (pet) {
-                const mobDmg = Math.max(1, (m.atk || 25) - window.getDefense()); 
+                const mobDmg = Math.max(1, data.atk - window.getDefense()); 
                 pet.hp -= mobDmg;
                 window.spawnDamageText(pet.x + 15, pet.y, mobDmg, '#ff0000');
             }
@@ -1566,7 +1568,7 @@ function gameLoop(ts) {
     }
 
     // ✅ LAST MAN GHOST EVACUATION
-    if (game.isGhost && game.party && game.party.members.length === 1 && safeMapData.id !== 'town') {
+    if (game.isGhost && game.party && Array.from(game.party.members).length === 1 && safeMapData.id !== 'town') {
         dom.log.innerText = "You are the last one left. Returning to Town.";
         window.leaveParty();
     }
