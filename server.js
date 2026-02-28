@@ -43,7 +43,6 @@ function getBaseStat(lvl) {
 function generateLoot(monster) {
     const mLevel = monster.level || 5;
 
-    // 50% chance for a Refinement Stone
     if (Math.random() < 0.50) {
         return { 
             id: Date.now() + Math.random(), 
@@ -64,7 +63,6 @@ function generateLoot(monster) {
     } else if (monster.category === "mini_boss") {
         rarity = rarityRoll < 0.05 ? "Legendary" : (rarityRoll < 0.20 ? "Unique" : (rarityRoll < 0.50 ? "Rare" : "Basic"));
     } else {
-        // Common Mobs: Exactly 5% Rare, 95% Basic. 
         rarity = rarityRoll < 0.05 ? "Rare" : "Basic";
     }
 
@@ -73,20 +71,11 @@ function generateLoot(monster) {
     const spriteName = rarityPrefix + template.spriteName;
     
     let itemName = `${rarity === "Rare" ? "Slime" : "Basic"} ${template.baseName}`;
-    if (rarity !== "Rare" && rarity !== "Basic") {
-        itemName = `${rarity} ${template.baseName}`;
-    }
+    if (rarity !== "Rare" && rarity !== "Basic") { itemName = `${rarity} ${template.baseName}`; }
 
     let item = { 
-        id: Date.now() + Math.random(), 
-        name: itemName, 
-        type: template.slot, 
-        sprite: spriteName, 
-        level: mLevel, 
-        rarity: rarity, 
-        color: RARITY_COLORS[rarity], 
-        fixedStat: {}, 
-        enhanceLevel: 0 
+        id: Date.now() + Math.random(), name: itemName, type: template.slot, sprite: spriteName, 
+        level: mLevel, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 
     };
     
     let statVal = getBaseStat(mLevel) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0);
@@ -130,11 +119,10 @@ function removeFromParty(playerId) {
     emitPartyUpdate(pid);
 }
 
-// PRIVATE ROOM ROUTER
 function getInstanceId(playerId, mapId) {
-    if (mapId === 'town') return 'town'; // Town is public
+    if (mapId === 'town') return 'town';
     const partyId = playerParty[playerId];
-    return partyId ? `${mapId}_${partyId}` : `${mapId}_solo_${playerId}`; // Private Rooms
+    return partyId ? `${mapId}_${partyId}` : `${mapId}_solo_${playerId}`;
 }
 
 const worlds = {}; 
@@ -145,7 +133,8 @@ function spawnMonster(instId, entityId, monsterKey, cfg) {
         id: entityId, instanceId: instId, monsterKey, name: stats.name, category: stats.category, level: stats.level, x: cfg.spawnArea.minX, y: cfg.spawnArea.minY, homeX: cfg.spawnArea.minX, homeY: cfg.spawnArea.minY, 
         width: stats.width, height: stats.height, maxHp: stats.maxHp, currentHp: stats.maxHp, atk: stats.atk, def: stats.def, speed: stats.speed, expYield: stats.expYield,
         aggroRadius: stats.aggroRadius, chaseRadius: stats.chaseRadius, attackRange: stats.attackRange, cssColor: stats.cssColor, cssBorder: stats.cssBorder,
-        lastAttack: 0, alive: true, threatTable: {}, forcedTargetId: null, forcedUntil: 0, targetId: null, respawnDelayMs: stats.respawnDelay 
+        lastAttack: 0, alive: true, threatTable: {}, forcedTargetId: null, forcedUntil: 0, targetId: null, respawnDelayMs: stats.respawnDelay,
+        frozenUntil: 0 // ✅ NEW: Tracks Ice Master Freeze
     };
 }
 
@@ -160,6 +149,17 @@ function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
 
 function pickTarget(m, instId, now) {
     for (const pid of Object.keys(m.threatTable)) { const p = getPlayerById(pid); if (!p || p.instanceId !== instId || p.isGhost) delete m.threatTable[pid]; }
+    
+    // ✅ NEW: Berserker Taunt Logic. If a forced target exists and is valid, strictly chase them.
+    if (m.forcedUntil > now && m.forcedTargetId) {
+        const p = getPlayerById(m.forcedTargetId);
+        if (p && p.instanceId === instId && !p.isGhost && (p.currentHp ?? 1) > 0) {
+            return p;
+        } else {
+            m.forcedTargetId = null;
+        }
+    }
+
     let best = null; let bestThreat = -1; let bestDist = Infinity;
     for (const pid of Object.keys(m.threatTable)) {
         const threat = m.threatTable[pid] || 0; const p = getPlayerById(pid); if (!p || p.isGhost) continue;
@@ -170,7 +170,7 @@ function pickTarget(m, instId, now) {
     if (best) return best;
     let nearest = null; let nearestDist = Infinity;
     for (const p of playersInInstance(instId)) {
-        if (p.isGhost || (p.currentHp ?? 1) <= 0) continue; // Monsters IGNORE GHOSTS
+        if (p.isGhost || (p.currentHp ?? 1) <= 0) continue; 
         const dist = Math.hypot((p.x + 24) - (m.x + (m.width / 2)), (p.y + 48) - (m.y + (m.height / 2)));
         if (dist <= m.aggroRadius && dist < nearestDist) { nearest = p; nearestDist = dist; }
     }
@@ -180,6 +180,10 @@ function pickTarget(m, instId, now) {
 
 function updateMonsterAI(instId, m, now) {
     if (!m.alive) return;
+    
+    // ✅ NEW: Ice Master Freeze Logic. Monster completely skips turn if frozen.
+    if (now < m.frozenUntil) return;
+
     const target = pickTarget(m, instId, now); m.targetId = target ? target.id : null;
     const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2);
     if (!target) { 
@@ -219,7 +223,7 @@ io.on('connection', (socket) => {
         if (!data.mapId || !data.content) return;
         const fileName = data.mapId === 'town' ? 'townmap.js' : `${data.mapId}.js`;
         const filePath = path.join(__dirname, 'public', fileName);
-        try { fs.writeFileSync(filePath, data.content); } catch(err) { console.error("Render temp error", err); }
+        try { fs.writeFileSync(filePath, data.content); } catch(err) {}
     });
 
     socket.on('syncMapData', (data) => {
@@ -227,7 +231,6 @@ io.on('connection', (socket) => {
         if (!worlds[instId]) { worlds[instId] = { instanceId: instId, mapId: data.mapId, collisions: [], monsters: {}, monstersSpawned: false }; }
         worlds[instId].collisions = data.collisions || [];
 
-        // Spawn monsters
         if (!worlds[instId].monstersSpawned) {
             worlds[instId].monstersSpawned = true;
             let mIndex = 0;
@@ -251,17 +254,14 @@ io.on('connection', (socket) => {
         worlds[instId].monsters[mId] = spawnMonster(instId, mId, data.monsterKey, cfg);
     });
 
-    // PORTAL GATHERING SYSTEM
     socket.on('portalStep', (data) => {
         const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return;
         p.currentPortal = data.portalId;
         const pid = playerParty[p.id];
         
         if (!pid) {
-            // Solo: Instant Teleport
             socket.emit('teleportApproved', data);
         } else {
-            // Party: Wait for all
             const party = parties[pid];
             let allReady = true;
             for (const memberId of party.members) {
@@ -312,8 +312,9 @@ io.on('connection', (socket) => {
         
         onlinePlayers[socket.id] = {
             socketId: socket.id, id: userData.character_name, name: userData.character_name, mapId: mapId, instanceId: instId, isGhost: false, currentPortal: null,
-            x: userData.pos_x || 960, y: userData.pos_y || 1000, level: userData.level || 1, currentHp: userData.current_hp || 100, maxHp: null, tradeTarget: null,
-            equips: userData.equips || { weapon: null, armor: null, leggings: null }, spriteData: { skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, weapon: userData.equips?.weapon?.sprite || null }
+            x: userData.pos_x || 960, y: userData.pos_y || 1000, level: userData.level || 1, currentHp: userData.current_hp || 100, maxHp: 100, tradeTarget: null,
+            equips: userData.equips || { weapon: null, armor: null, leggings: null }, 
+            spriteData: { skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, weapon: userData.equips?.weapon?.sprite || null }
         };
         socket.join(instId); socket.emit('authSuccess', userData);
         
@@ -328,9 +329,11 @@ io.on('connection', (socket) => {
         
         const p = onlinePlayers[socket.id];
         if (p) { 
-            p.level = playerData.level; p.currentHp = playerData.currentHp; p.maxHp = playerData.maxHp; p.equips = playerData.equips; 
+            p.level = playerData.level; p.currentHp = playerData.currentHp; p.maxHp = playerData.maxHp || 100; p.equips = playerData.equips; 
             if (playerData.equips?.weapon?.sprite) p.spriteData.weapon = playerData.equips.weapon.sprite; 
         }
+        
+        if (p) { const pid = playerParty[p.id]; if (pid) emitPartyUpdate(pid); }
     });
 
     socket.on('playerMoved', (data) => {
@@ -338,20 +341,12 @@ io.on('connection', (socket) => {
         socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: data.x, y: data.y, state: data.state, facingRight: data.facingRight, weaponSprite: data.weaponSprite });
     });
 
-    // ==========================================
-    // INSPECT & TRADE ROUTING
-    // ==========================================
     socket.on('inspectRequest', (data) => {
         const targetId = data.targetId;
         const target = getPlayerById(targetId);
         if (target) {
             socket.emit('inspectData', {
-                id: target.id,
-                name: target.name,
-                level: target.level,
-                currentHp: target.currentHp,
-                maxHp: target.maxHp,
-                equips: target.equips
+                id: target.id, name: target.name, level: target.level || 1, currentHp: target.currentHp || 0, maxHp: target.maxHp || 100, equips: target.equips || { weapon: null, armor: null, leggings: null }
             });
         }
     });
@@ -366,9 +361,12 @@ io.on('connection', (socket) => {
     socket.on('tradeInviteResponse', (data) => {
         const me = onlinePlayers[socket.id]; if (!me || !data.fromId) return;
         const fromSid = findSocketIdByPlayerId(data.fromId);
-        if (!fromSid) return;
+        const targetPlayer = getPlayerById(data.fromId);
+        if (!fromSid || !targetPlayer) return;
+        
         if (data.accept) {
-            // Tell both clients to open the trade screen
+            me.tradeTarget = targetPlayer.id;
+            targetPlayer.tradeTarget = me.id;
             socket.emit('tradeStarted', { targetId: data.fromId });
             io.to(fromSid).emit('tradeStarted', { targetId: me.id });
         } else {
@@ -377,14 +375,31 @@ io.on('connection', (socket) => {
     });
 
     socket.on('tradeSync', (data) => {
-        const p = onlinePlayers[socket.id]; if(!p) return;
-        // Broadcast the items and gold being offered to the other party members in the instance
-        socket.to(p.instanceId).emit('tradeSyncReceived', data); 
+        const me = onlinePlayers[socket.id]; if(!me || !me.tradeTarget) return;
+        const targetSid = findSocketIdByPlayerId(me.tradeTarget);
+        if (targetSid) io.to(targetSid).emit('tradeSyncReceived', data);
     });
 
     socket.on('tradeCancel', () => {
-        const p = onlinePlayers[socket.id]; if(!p) return;
-        socket.to(p.instanceId).emit('tradeCancelled'); 
+        const me = onlinePlayers[socket.id]; if(!me || !me.tradeTarget) return;
+        const targetSid = findSocketIdByPlayerId(me.tradeTarget);
+        let tId = me.tradeTarget; me.tradeTarget = null;
+        let targetPlayer = getPlayerById(tId); if(targetPlayer) targetPlayer.tradeTarget = null;
+        if (targetSid) io.to(targetSid).emit('tradeCancelled');
+    });
+
+    socket.on('playerVitals', (data) => {
+        const p = onlinePlayers[socket.id]; if (!p) return;
+        p.currentHp = data.currentHp; p.maxHp = data.maxHp; p.level = data.level;
+        const pid = playerParty[p.id];
+        if (pid && parties[pid]) {
+            for (const memberId of parties[pid].members) {
+                if (memberId !== p.id) {
+                    const sid = findSocketIdByPlayerId(memberId);
+                    if (sid) io.to(sid).emit('partyMemberVitals', { id: p.id, currentHp: p.currentHp, maxHp: p.maxHp, level: p.level });
+                }
+            }
+        }
     });
 
     socket.on('chatMessage', (data) => {
@@ -392,9 +407,6 @@ io.on('connection', (socket) => {
         io.to(p.instanceId).emit('chatMessage', { id: p.id, text: data.text });
     });
 
-    // ==========================================
-    // PARTY & HEALTH ROUTING
-    // ==========================================
     socket.on('partyInvite', ({ targetId }) => { const me = onlinePlayers[socket.id]; if (!me || !targetId) return; const targetSid = findSocketIdByPlayerId(targetId); if (!targetSid) return socket.emit('partyError', 'Target is not online.'); io.to(targetSid).emit('partyInviteReceived', { fromId: me.id }); });
     socket.on('partyInviteResponse', ({ fromId, accept }) => {
         const me = onlinePlayers[socket.id]; if (!me || !fromId) return; const fromSid = findSocketIdByPlayerId(fromId); const inviter = getPlayerById(fromId); if (!inviter || !fromSid) return;
@@ -408,26 +420,8 @@ io.on('connection', (socket) => {
         const p = onlinePlayers[socket.id];
         if (p && playerParty[p.id]) {
             removeFromParty(p.id);
-        }
-    });
-
-    // Syncing Vitals to Party
-    socket.on('playerVitals', (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
-        p.currentHp = data.currentHp;
-        p.maxHp = data.maxHp;
-        p.level = data.level;
-
-        const pid = playerParty[p.id];
-        if (pid && parties[pid]) {
-            for (const memberId of parties[pid].members) {
-                if (memberId !== p.id) {
-                    const sid = findSocketIdByPlayerId(memberId);
-                    if (sid) {
-                        io.to(sid).emit('partyMemberVitals', { id: p.id, currentHp: p.currentHp, maxHp: p.maxHp, level: p.level });
-                    }
-                }
+            if (p.mapId !== 'town') {
+                socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
             }
         }
     });
@@ -447,6 +441,45 @@ io.on('connection', (socket) => {
         supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', currentUser).then(()=>{});
     });
 
+    // ==========================================
+    // SKILL SERVER SYSTEM (Aura, Dmg, Revive, Taunt)
+    // ==========================================
+    
+    // ✅ NEW: Server handles Healer Revive completely
+    socket.on('revivePlayer', (data) => {
+        const p = onlinePlayers[socket.id]; if(!p) return;
+        const targetSid = findSocketIdByPlayerId(data.targetId);
+        if (targetSid && onlinePlayers[targetSid]) {
+            let tp = onlinePlayers[targetSid];
+            tp.isGhost = false;
+            tp.currentHp = tp.maxHp ? Math.floor(tp.maxHp / 2) : 50; // Revives at half HP
+            io.to(tp.instanceId).emit('playerRevived', { id: tp.id, currentHp: tp.currentHp });
+            const pid = playerParty[tp.id]; if (pid) emitPartyUpdate(pid); // Syncs UI to show they are alive
+        }
+    });
+
+    // ✅ NEW: Server handles Berserker Taunt completely
+    socket.on('tauntMonsters', (data) => {
+        const p = onlinePlayers[socket.id]; if(!p || p.isGhost) return;
+        const world = worlds[p.instanceId]; if(!world) return;
+        for (let mId in world.monsters) {
+            let m = world.monsters[mId];
+            if (!m.alive) continue;
+            let dist = Math.hypot(p.x + 24 - (m.x + m.width/2), p.y + 48 - (m.y + m.height/2));
+            if (dist <= (data.radius || 300)) {
+                m.forcedTargetId = p.id;
+                m.forcedUntil = Date.now() + 10000; // Taunted for 10 seconds
+            }
+        }
+    });
+
+    // ✅ NEW: Route Summoner's pet visuals to other players
+    socket.on('syncPet', (data) => {
+        const p = onlinePlayers[socket.id]; if(!p) return;
+        socket.to(p.instanceId).emit('remotePetSync', { ownerId: p.id, petData: data });
+    });
+
+    // Expanded Attack logic to handle Skill Freezing (Ice Master)
     socket.on('attackMonster', (payload) => {
         const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return; 
         const world = worlds[p.instanceId]; if (!world) return; 
@@ -454,10 +487,16 @@ io.on('connection', (socket) => {
         
         const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); if (dist > 350) return;
         const dmg = Math.max(1, Math.floor(Number(payload.damage) || 1)); m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
+        
+        // ✅ NEW: Ice Master Chill applied here
+        if (payload.freeze) {
+            m.frozenUntil = Date.now() + 3000; // Freeze for 3 seconds
+        }
+
         io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: !!payload.isPendant });
         
         if (m.currentHp <= 0) {
-            m.alive = false; m.targetId = null; m.threatTable = {}; m.forcedTargetId = null; m.forcedUntil = 0; 
+            m.alive = false; m.targetId = null; m.threatTable = {}; m.forcedTargetId = null; m.forcedUntil = 0; m.frozenUntil = 0;
             io.to(p.instanceId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
             
             const expAmount = m.expYield || 25;
