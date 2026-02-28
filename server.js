@@ -42,15 +42,8 @@ function getBaseStat(lvl) {
 
 function generateLoot(monster) {
     const mLevel = monster.level || 5;
-
-    // 50% chance for a Refinement Stone
     if (Math.random() < 0.50) {
-        return { 
-            id: Date.now() + Math.random(), 
-            name: `Refinement Stone Lv.${mLevel}`, 
-            type: "material", level: mLevel, rarity: "Basic", color: "#e0e0e0", 
-            description: "Enhances equipment.", quantity: 1 
-        };
+        return { id: Date.now() + Math.random(), name: `Refinement Stone Lv.${mLevel}`, type: "material", level: mLevel, rarity: "Basic", color: "#e0e0e0", description: "Enhances equipment.", quantity: 1 };
     }
 
     const keys = Object.keys(ITEM_TEMPLATES);
@@ -59,37 +52,20 @@ function generateLoot(monster) {
     let rarityRoll = Math.random();
     let rarity = "Basic";
     
-    if (monster.category === "floor_boss") {
-        rarity = rarityRoll < 0.05 ? "Godly" : (rarityRoll < 0.20 ? "Legendary" : (rarityRoll < 0.50 ? "Unique" : "Rare"));
-    } else if (monster.category === "mini_boss") {
-        rarity = rarityRoll < 0.05 ? "Legendary" : (rarityRoll < 0.20 ? "Unique" : (rarityRoll < 0.50 ? "Rare" : "Basic"));
-    } else {
-        rarity = rarityRoll < 0.05 ? "Rare" : "Basic";
-    }
+    if (monster.category === "floor_boss") rarity = rarityRoll < 0.05 ? "Godly" : (rarityRoll < 0.20 ? "Legendary" : (rarityRoll < 0.50 ? "Unique" : "Rare"));
+    else if (monster.category === "mini_boss") rarity = rarityRoll < 0.05 ? "Legendary" : (rarityRoll < 0.20 ? "Unique" : (rarityRoll < 0.50 ? "Rare" : "Basic"));
+    else rarity = rarityRoll < 0.05 ? "Rare" : "Basic";
 
     const template = ITEM_TEMPLATES[typeKey];
     const rarityPrefix = rarity === "Starter" ? "basic" : rarity.toLowerCase();
-    const spriteName = rarityPrefix + template.spriteName;
     
     let itemName = `${rarity === "Rare" ? "Slime" : "Basic"} ${template.baseName}`;
-    if (rarity !== "Rare" && rarity !== "Basic") {
-        itemName = `${rarity} ${template.baseName}`;
-    }
+    if (rarity !== "Rare" && rarity !== "Basic") itemName = `${rarity} ${template.baseName}`;
 
-    let item = { 
-        id: Date.now() + Math.random(), 
-        name: itemName, 
-        type: template.slot, 
-        sprite: spriteName, 
-        level: mLevel, 
-        rarity: rarity, 
-        color: RARITY_COLORS[rarity], 
-        fixedStat: {}, 
-        enhanceLevel: 0 
-    };
+    let item = { id: Date.now() + Math.random(), name: itemName, type: template.slot, sprite: rarityPrefix + template.spriteName, level: mLevel, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 };
     
     let statVal = getBaseStat(mLevel) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0);
-    if (typeKey === 'pendant') statVal = Math.floor(statVal / 2);
+    if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); // ✅ PENDANTS SCALED TO 50%
     item.fixedStat[template.statKey] = statVal;
     
     item.randomStat = {};
@@ -99,12 +75,12 @@ function generateLoot(monster) {
 }
 
 // ==========================================
-// SCALED MONSTER DATABASE
+// SCALED MONSTER DATABASE (Updated Timers & Gold)
 // ==========================================
 const MonsterDatabase = {
-    "common_mobs1": { name: "Slime", category: "common_mobs", level: 5, maxHp: 100, atk: 25, def: 0, speed: 2.5, expYield: 25, aggroRadius: 250, chaseRadius: 400, attackRange: 55, width: 40, height: 40, respawnDelay: 5000, cssColor: '#ff69b4', cssBorder: '#c71585' },
-    "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 1500, atk: 120, def: 15, speed: 2.8, expYield: 500, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 20000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
-    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 400, def: 40, speed: 3.2, expYield: 3000, aggroRadius: 500, chaseRadius: 800, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
+    "common_mobs1": { name: "Slime", category: "common_mobs", level: 5, maxHp: 100, atk: 25, def: 0, speed: 2.5, expYield: 25, goldYield: 15, aggroRadius: 250, chaseRadius: 400, attackRange: 55, width: 40, height: 40, respawnDelay: 10000, cssColor: '#ff69b4', cssBorder: '#c71585' },
+    "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 1500, atk: 120, def: 15, speed: 2.8, expYield: 500, goldYield: 150, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
+    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 400, def: 40, speed: 3.2, expYield: 3000, goldYield: 1000, aggroRadius: 500, chaseRadius: 800, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
 };
 
 function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
@@ -141,14 +117,13 @@ function spawnMonster(instId, entityId, monsterKey, cfg) {
     const stats = MonsterDatabase[monsterKey] || MonsterDatabase["common_mobs1"];
     return { 
         id: entityId, instanceId: instId, monsterKey, name: stats.name, category: stats.category, level: stats.level, x: cfg.spawnArea.minX, y: cfg.spawnArea.minY, homeX: cfg.spawnArea.minX, homeY: cfg.spawnArea.minY, 
-        width: stats.width, height: stats.height, maxHp: stats.maxHp, currentHp: stats.maxHp, atk: stats.atk, def: stats.def, speed: stats.speed, expYield: stats.expYield,
+        width: stats.width, height: stats.height, maxHp: stats.maxHp, currentHp: stats.maxHp, atk: stats.atk, def: stats.def, speed: stats.speed, expYield: stats.expYield, goldYield: stats.goldYield,
         aggroRadius: stats.aggroRadius, chaseRadius: stats.chaseRadius, attackRange: stats.attackRange, cssColor: stats.cssColor, cssBorder: stats.cssBorder,
-        lastAttack: 0, alive: true, threatTable: {}, forcedTargetId: null, forcedUntil: 0, targetId: null, respawnDelayMs: stats.respawnDelay,
-        frozenUntil: 0 
+        lastAttack: 0, alive: true, threatTable: {}, forcedTargetId: null, forcedUntil: 0, targetId: null, respawnDelayMs: stats.respawnDelay, frozenUntil: 0 
     };
 }
 
-function serializeMonster(m) { return { id: m.id, monsterKey: m.monsterKey, name: m.name, x: m.x, y: m.y, width: m.width, height: m.height, maxHp: m.maxHp, currentHp: m.currentHp, alive: m.alive, targetId: m.targetId || null, cssColor: m.cssColor, cssBorder: m.cssBorder }; }
+function serializeMonster(m) { return { id: m.id, monsterKey: m.monsterKey, name: m.name, isMerchant: m.isMerchant, x: m.x, y: m.y, width: m.width, height: m.height, maxHp: m.maxHp, currentHp: m.currentHp, alive: m.alive, targetId: m.targetId || null, cssColor: m.cssColor, cssBorder: m.cssBorder }; }
 function playersInInstance(instId) { return Object.values(onlinePlayers).filter(p => p.instanceId === instId); }
 
 function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
@@ -165,11 +140,8 @@ function pickTarget(m, instId, now) {
     
     if (m.forcedUntil > now && m.forcedTargetId) {
         const p = getPlayerById(m.forcedTargetId);
-        if (p && p.instanceId === instId && !p.isGhost && p.untargetableUntil <= now && p.mapId !== 'town' && (p.currentHp ?? 1) > 0) {
-            return p;
-        } else {
-            m.forcedTargetId = null;
-        }
+        if (p && p.instanceId === instId && !p.isGhost && p.untargetableUntil <= now && p.mapId !== 'town' && (p.currentHp ?? 1) > 0) return p;
+        else m.forcedTargetId = null;
     }
 
     let best = null; let bestThreat = -1; let bestDist = Infinity;
@@ -194,11 +166,26 @@ function pickTarget(m, instId, now) {
 
 function updateMonsterAI(instId, m, now) {
     if (!m.alive) return;
-    
     if (now < m.frozenUntil) return;
+
+    // ✅ SERVER-SIDE MERCHANT AI
+    if (m.isMerchant) {
+        if (Math.random() < 0.02) {
+            m.targetX = m.homeX + (Math.random() * 400 - 200);
+            m.targetY = m.homeY + (Math.random() * 400 - 200);
+        }
+        if (m.targetX && m.targetY) {
+            const ang = Math.atan2(m.targetY - m.y, m.targetX - m.x);
+            let nx = m.x + Math.cos(ang) * m.speed; let ny = m.y + Math.sin(ang) * m.speed;
+            if (!isMonsterColliding(instId, nx, m.y, m.width, m.height)) m.x = nx;
+            if (!isMonsterColliding(instId, m.x, ny, m.width, m.height)) m.y = ny;
+        }
+        return;
+    }
 
     const target = pickTarget(m, instId, now); m.targetId = target ? target.id : null;
     const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2);
+    
     if (!target) { 
         const dist = Math.hypot(m.homeX - m.x, m.homeY - m.y); 
         if (dist > 2) { 
@@ -208,8 +195,10 @@ function updateMonsterAI(instId, m, now) {
             if (!isMonsterColliding(instId, m.x, ny, m.width, m.height)) m.y = ny;
         } return; 
     }
+    
     const dist = Math.hypot((target.x + 24) - mcx, (target.y + 48) - mcy);
     if (dist > m.chaseRadius) { if (m.threatTable[target.id]) m.threatTable[target.id] *= 0.9; if (m.threatTable[target.id] < 1) delete m.threatTable[target.id]; return; }
+    
     if (dist > m.attackRange) { 
         const ang = Math.atan2((target.y + 48) - mcy, (target.x + 24) - mcx); 
         let nx = m.x + Math.cos(ang) * m.speed; let ny = m.y + Math.sin(ang) * m.speed; 
@@ -246,6 +235,15 @@ io.on('connection', (socket) => {
 
         if (!worlds[instId].monstersSpawned) {
             worlds[instId].monstersSpawned = true;
+            
+            // ✅ SPAWN WANDERING MERCHANT IF IN TOWN
+            if (data.mapId === 'town') {
+                worlds[instId].monsters['npc_merchant'] = {
+                    id: 'npc_merchant', isMerchant: true, name: 'Merchant', x: 800, y: 800, homeX: 960, homeY: 1000,
+                    width: 48, height: 48, speed: 1.2, maxHp: 9999, currentHp: 9999, alive: true
+                };
+            }
+
             let mIndex = 0;
             const spawnGroups = [ { arr: data.normalSpawns || [], fallback: 'common_mobs1' }, { arr: data.miniBossSpawns || [], fallback: 'mini_boss1' }, { arr: data.floorBossSpawns || [], fallback: 'floor_boss1' } ];
             spawnGroups.forEach(group => {
@@ -348,7 +346,6 @@ io.on('connection', (socket) => {
             p.level = playerData.level; p.currentHp = playerData.currentHp; p.maxHp = playerData.maxHp || 100; p.equips = playerData.equips; 
             if (playerData.equips?.weapon?.sprite) p.spriteData.weapon = playerData.equips.weapon.sprite; 
         }
-        
         if (p) { const pid = playerParty[p.id]; if (pid) emitPartyUpdate(pid); }
     });
 
@@ -357,10 +354,6 @@ io.on('connection', (socket) => {
         socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: data.x, y: data.y, state: data.state, facingRight: data.facingRight, weaponSprite: data.weaponSprite });
     });
 
-    // ==========================================
-    // SKILL ENGINE ROUTING & SECURITY BLOCKS
-    // ==========================================
-    
     socket.on('partyRevive', () => {
         const p = onlinePlayers[socket.id]; if(!p) return;
         if (p.mapId === 'town') return;
@@ -388,10 +381,7 @@ io.on('connection', (socket) => {
             let m = world.monsters[mId];
             if (!m.alive) continue;
             let dist = Math.hypot(p.x + 24 - (m.x + m.width/2), p.y + 48 - (m.y + m.height/2));
-            if (dist <= (data.radius || 300)) {
-                m.forcedTargetId = p.id;
-                m.forcedUntil = Date.now() + 10000; 
-            }
+            if (dist <= (data.radius || 300)) { m.forcedTargetId = p.id; m.forcedUntil = Date.now() + 10000; }
         }
     });
 
@@ -411,7 +401,7 @@ io.on('connection', (socket) => {
         if (p.mapId === 'town') return; 
 
         const world = worlds[p.instanceId]; if (!world) return; 
-        const m = world.monsters[payload.monsterId]; if (!m || !m.alive) return;
+        const m = world.monsters[payload.monsterId]; if (!m || !m.alive || m.isMerchant) return;
         
         const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); if (dist > 350) return;
         const dmg = Math.max(1, Math.floor(Number(payload.damage) || 1)); m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
@@ -425,37 +415,33 @@ io.on('connection', (socket) => {
             io.to(p.instanceId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
             
             const expAmount = m.expYield || 25;
+            const goldAmount = m.goldYield || 15; // ✅ GOLD YIELD INTEGRATION
             const pid = playerParty[p.id];
 
             if (pid && parties[pid]) {
                 for (const memberId of parties[pid].members) { 
                     const sid = findSocketIdByPlayerId(memberId); 
                     if (sid) {
-                        io.to(sid).emit('receiveExp', { amount: expAmount, source: m.name }); 
+                        io.to(sid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
                         io.to(sid).emit('lootDropped', generateLoot(m));
                     }
                 }
             } else { 
-                io.to(socket.id).emit('receiveExp', { amount: expAmount, source: m.name }); 
+                io.to(socket.id).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
                 io.to(socket.id).emit('lootDropped', generateLoot(m));
             }
             
             if (m.respawnDelayMs !== -1) {
-                setTimeout(() => { const cfg = { spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY } }; const nm = spawnMonster(p.instanceId, m.id, m.monsterKey, cfg); world.monsters[m.id] = nm; io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm)); }, m.respawnDelayMs || 3000);
+                setTimeout(() => { const cfg = { spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY } }; const nm = spawnMonster(p.instanceId, m.id, m.monsterKey, cfg); world.monsters[m.id] = nm; io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm)); }, m.respawnDelayMs || 10000);
             }
         }
     });
 
-    // ==========================================
-    // INSPECT, TRADE & PARTY ROUTING
-    // ==========================================
     socket.on('inspectRequest', (data) => {
         const targetId = data.targetId;
         const target = getPlayerById(targetId);
         if (target) {
-            socket.emit('inspectData', {
-                id: target.id, name: target.name, level: target.level || 1, currentHp: target.currentHp || 0, maxHp: target.maxHp || 100, equips: target.equips || { weapon: null, armor: null, leggings: null }
-            });
+            socket.emit('inspectData', { id: target.id, name: target.name, level: target.level || 1, currentHp: target.currentHp || 0, maxHp: target.maxHp || 100, equips: target.equips || { weapon: null, armor: null, leggings: null } });
         }
     });
 
@@ -473,49 +459,28 @@ io.on('connection', (socket) => {
         if (!fromSid || !targetPlayer) return;
         
         if (data.accept) {
-            me.tradeTarget = targetPlayer.id;
-            targetPlayer.tradeTarget = me.id;
+            me.tradeTarget = targetPlayer.id; targetPlayer.tradeTarget = me.id;
             socket.emit('tradeStarted', { targetId: data.fromId });
             io.to(fromSid).emit('tradeStarted', { targetId: me.id });
-        } else {
-            io.to(fromSid).emit('partyError', `${me.id} declined your trade request.`);
-        }
+        } else { io.to(fromSid).emit('partyError', `${me.id} declined your trade request.`); }
     });
 
-    socket.on('tradeSync', (data) => {
-        const me = onlinePlayers[socket.id]; if(!me || !me.tradeTarget) return;
-        const targetSid = findSocketIdByPlayerId(me.tradeTarget);
-        if (targetSid) io.to(targetSid).emit('tradeSyncReceived', data);
-    });
-
-    socket.on('tradeCancel', () => {
-        const me = onlinePlayers[socket.id]; if(!me || !me.tradeTarget) return;
-        const targetSid = findSocketIdByPlayerId(me.tradeTarget);
-        let tId = me.tradeTarget; me.tradeTarget = null;
-        let targetPlayer = getPlayerById(tId); if(targetPlayer) targetPlayer.tradeTarget = null;
-        if (targetSid) io.to(targetSid).emit('tradeCancelled');
-    });
-
+    socket.on('tradeSync', (data) => { const me = onlinePlayers[socket.id]; if(!me || !me.tradeTarget) return; const targetSid = findSocketIdByPlayerId(me.tradeTarget); if (targetSid) io.to(targetSid).emit('tradeSyncReceived', data); });
+    socket.on('tradeCancel', () => { const me = onlinePlayers[socket.id]; if(!me || !me.tradeTarget) return; const targetSid = findSocketIdByPlayerId(me.tradeTarget); let tId = me.tradeTarget; me.tradeTarget = null; let targetPlayer = getPlayerById(tId); if(targetPlayer) targetPlayer.tradeTarget = null; if (targetSid) io.to(targetSid).emit('tradeCancelled'); });
     socket.on('playerVitals', (data) => {
         const p = onlinePlayers[socket.id]; if (!p) return;
         p.currentHp = data.currentHp; p.maxHp = data.maxHp; p.level = data.level;
         const pid = playerParty[p.id];
         if (pid && parties[pid]) {
             for (const memberId of parties[pid].members) {
-                if (memberId !== p.id) {
-                    const sid = findSocketIdByPlayerId(memberId);
-                    if (sid) io.to(sid).emit('partyMemberVitals', { id: p.id, currentHp: p.currentHp, maxHp: p.maxHp, level: p.level });
-                }
+                if (memberId !== p.id) { const sid = findSocketIdByPlayerId(memberId); if (sid) io.to(sid).emit('partyMemberVitals', { id: p.id, currentHp: p.currentHp, maxHp: p.maxHp, level: p.level }); }
             }
         }
     });
 
-    socket.on('chatMessage', (data) => {
-        const p = onlinePlayers[socket.id]; if (!p || !data.text) return;
-        io.to(p.instanceId).emit('chatMessage', { id: p.id, text: data.text });
-    });
-
+    socket.on('chatMessage', (data) => { const p = onlinePlayers[socket.id]; if (!p || !data.text) return; io.to(p.instanceId).emit('chatMessage', { id: p.id, text: data.text }); });
     socket.on('partyInvite', ({ targetId }) => { const me = onlinePlayers[socket.id]; if (!me || !targetId) return; const targetSid = findSocketIdByPlayerId(targetId); if (!targetSid) return socket.emit('partyError', 'Target is not online.'); io.to(targetSid).emit('partyInviteReceived', { fromId: me.id }); });
+    
     socket.on('partyInviteResponse', ({ fromId, accept }) => {
         const me = onlinePlayers[socket.id]; if (!me || !fromId) return; const fromSid = findSocketIdByPlayerId(fromId); const inviter = getPlayerById(fromId); if (!inviter || !fromSid) return;
         if (!accept) { io.to(fromSid).emit('partyError', `${me.id} declined your party invite.`); return; }
@@ -528,13 +493,10 @@ io.on('connection', (socket) => {
         const p = onlinePlayers[socket.id];
         if (p && playerParty[p.id]) {
             removeFromParty(p.id);
-            if (p.mapId !== 'town') {
-                socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
-            }
+            if (p.mapId !== 'town') { socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); }
         }
     });
 
-    // ✅ FIX: SERVER NOW CORRECTLY SWITCHES THE PLAYER'S ROOM ON TELEPORT
     socket.on('playerTeleported', async (data) => {
         if (!onlinePlayers[socket.id]) return; const p = onlinePlayers[socket.id];
         socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
@@ -543,24 +505,19 @@ io.on('connection', (socket) => {
         socket.join(p.instanceId);
         
         socket.emit('requestMapSync', { mapId: data.mapId, instanceId: p.instanceId }); 
-        
         socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
+        
         const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id);
         socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
         supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', currentUser).then(()=>{});
     });
 
-    // ✅ FIX: ADDED MISSING RESPAWN HOOK SO DYING SENDS YOU BACK TO TOWN ON SERVER
     socket.on('respawnPlayer', () => {
         const p = onlinePlayers[socket.id];
         if (p) {
-            p.isGhost = false;
-            p.currentHp = p.maxHp || 100;
-            if (p.mapId !== 'town') {
-                socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
-            } else {
-                io.to(p.instanceId).emit('playerRevived', { id: p.id, currentHp: p.currentHp });
-            }
+            p.isGhost = false; p.currentHp = p.maxHp || 100;
+            if (p.mapId !== 'town') socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
+            else io.to(p.instanceId).emit('playerRevived', { id: p.id, currentHp: p.currentHp });
         }
     });
 
