@@ -43,7 +43,7 @@ function getBaseStat(lvl) {
 function generateLoot(monster) {
     const mLevel = monster.level || 5;
 
-    // 50% chance for a Refinement Stone (Your exact original logic)
+    // 50% chance for a Refinement Stone
     if (Math.random() < 0.50) {
         return { 
             id: Date.now() + Math.random(), 
@@ -59,7 +59,6 @@ function generateLoot(monster) {
     let rarityRoll = Math.random();
     let rarity = "Basic";
     
-    // Strict adherence to your drop table: 0% chance for Unique+ on common mobs
     if (monster.category === "floor_boss") {
         rarity = rarityRoll < 0.05 ? "Godly" : (rarityRoll < 0.20 ? "Legendary" : (rarityRoll < 0.50 ? "Unique" : "Rare"));
     } else if (monster.category === "mini_boss") {
@@ -73,7 +72,6 @@ function generateLoot(monster) {
     const rarityPrefix = rarity === "Starter" ? "basic" : rarity.toLowerCase();
     const spriteName = rarityPrefix + template.spriteName;
     
-    // Maintain your exact naming convention
     let itemName = `${rarity === "Rare" ? "Slime" : "Basic"} ${template.baseName}`;
     if (rarity !== "Rare" && rarity !== "Basic") {
         itemName = `${rarity} ${template.baseName}`;
@@ -327,8 +325,12 @@ io.on('connection', (socket) => {
     socket.on('saveData', async (playerData) => {
         if (!currentUser) return;
         supabase.from('Exonians').update({ level: playerData.level, exp: playerData.exp, max_exp: playerData.maxExp, current_hp: playerData.currentHp, gold: playerData.gold, pos_x: playerData.x, pos_y: playerData.y, map_id: playerData.mapId, base_stats: playerData.baseStats, inventory: playerData.inventory, equips: playerData.equips }).eq('character_name', currentUser).then(()=>{});
-        if (onlinePlayers[socket.id]) { onlinePlayers[socket.id].level = playerData.level; onlinePlayers[socket.id].currentHp = playerData.currentHp; onlinePlayers[socket.id].equips = playerData.equips; if (playerData.equips?.weapon?.sprite) onlinePlayers[socket.id].spriteData.weapon = playerData.equips.weapon.sprite; }
-        if (onlinePlayers[socket.id]) { const pid = playerParty[onlinePlayers[socket.id].id]; if (pid) emitPartyUpdate(pid); }
+        
+        const p = onlinePlayers[socket.id];
+        if (p) { 
+            p.level = playerData.level; p.currentHp = playerData.currentHp; p.maxHp = playerData.maxHp; p.equips = playerData.equips; 
+            if (playerData.equips?.weapon?.sprite) p.spriteData.weapon = playerData.equips.weapon.sprite; 
+        }
     });
 
     socket.on('playerMoved', (data) => {
@@ -336,11 +338,63 @@ io.on('connection', (socket) => {
         socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: data.x, y: data.y, state: data.state, facingRight: data.facingRight, weaponSprite: data.weaponSprite });
     });
 
+    // ==========================================
+    // INSPECT & TRADE ROUTING
+    // ==========================================
+    socket.on('inspectRequest', (data) => {
+        const targetId = data.targetId;
+        const target = getPlayerById(targetId);
+        if (target) {
+            socket.emit('inspectData', {
+                id: target.id,
+                name: target.name,
+                level: target.level,
+                currentHp: target.currentHp,
+                maxHp: target.maxHp,
+                equips: target.equips
+            });
+        }
+    });
+
+    socket.on('tradeRequest', (data) => {
+        const me = onlinePlayers[socket.id]; if (!me || !data.targetId) return;
+        const targetSid = findSocketIdByPlayerId(data.targetId);
+        if (!targetSid) return socket.emit('partyError', 'Target is not online.');
+        io.to(targetSid).emit('tradeInviteReceived', { fromId: me.id });
+    });
+
+    socket.on('tradeInviteResponse', (data) => {
+        const me = onlinePlayers[socket.id]; if (!me || !data.fromId) return;
+        const fromSid = findSocketIdByPlayerId(data.fromId);
+        if (!fromSid) return;
+        if (data.accept) {
+            // Tell both clients to open the trade screen
+            socket.emit('tradeStarted', { targetId: data.fromId });
+            io.to(fromSid).emit('tradeStarted', { targetId: me.id });
+        } else {
+            io.to(fromSid).emit('partyError', `${me.id} declined your trade request.`);
+        }
+    });
+
+    socket.on('tradeSync', (data) => {
+        const p = onlinePlayers[socket.id]; if(!p) return;
+        // Broadcast the items and gold being offered to the other party members in the instance
+        socket.to(p.instanceId).emit('tradeSyncReceived', data); 
+    });
+
+    socket.on('tradeCancel', () => {
+        const p = onlinePlayers[socket.id]; if(!p) return;
+        socket.to(p.instanceId).emit('tradeCancelled'); 
+    });
+
     socket.on('chatMessage', (data) => {
         const p = onlinePlayers[socket.id]; if (!p || !data.text) return;
         io.to(p.instanceId).emit('chatMessage', { id: p.id, text: data.text });
     });
 
+    // ==========================================
+    // PARTY & HEALTH ROUTING
+    // ==========================================
     socket.on('partyInvite', ({ targetId }) => { const me = onlinePlayers[socket.id]; if (!me || !targetId) return; const targetSid = findSocketIdByPlayerId(targetId); if (!targetSid) return socket.emit('partyError', 'Target is not online.'); io.to(targetSid).emit('partyInviteReceived', { fromId: me.id }); });
     socket.on('partyInviteResponse', ({ fromId, accept }) => {
         const me = onlinePlayers[socket.id]; if (!me || !fromId) return; const fromSid = findSocketIdByPlayerId(fromId); const inviter = getPlayerById(fromId); if (!inviter || !fromSid) return;
@@ -348,6 +402,34 @@ io.on('connection', (socket) => {
         let pid = playerParty[fromId]; if (!pid) { pid = `party_${Date.now()}_${Math.floor(Math.random() * 9999)}`; parties[pid] = { id: pid, leaderId: fromId, members: new Set([fromId]) }; playerParty[fromId] = pid; }
         if (playerParty[me.id] && playerParty[me.id] !== pid) { removeFromParty(me.id); }
         parties[pid].members.add(me.id); playerParty[me.id] = pid; emitPartyUpdate(pid);
+    });
+
+    socket.on('leaveParty', () => {
+        const p = onlinePlayers[socket.id];
+        if (p && playerParty[p.id]) {
+            removeFromParty(p.id);
+        }
+    });
+
+    // Syncing Vitals to Party
+    socket.on('playerVitals', (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+        p.currentHp = data.currentHp;
+        p.maxHp = data.maxHp;
+        p.level = data.level;
+
+        const pid = playerParty[p.id];
+        if (pid && parties[pid]) {
+            for (const memberId of parties[pid].members) {
+                if (memberId !== p.id) {
+                    const sid = findSocketIdByPlayerId(memberId);
+                    if (sid) {
+                        io.to(sid).emit('partyMemberVitals', { id: p.id, currentHp: p.currentHp, maxHp: p.maxHp, level: p.level });
+                    }
+                }
+            }
+        }
     });
 
     socket.on('playerTeleported', async (data) => {
@@ -381,7 +463,6 @@ io.on('connection', (socket) => {
             const expAmount = m.expYield || 25;
             const pid = playerParty[p.id];
 
-            // EVERYONE GETS LOOT AND EXP IN A PARTY
             if (pid && parties[pid]) {
                 for (const memberId of parties[pid].members) { 
                     const sid = findSocketIdByPlayerId(memberId); 
@@ -401,7 +482,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    // THE PARTY WIPE ENGINE
     socket.on('playerDied', () => {
         const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return;
         p.isGhost = true; p.currentHp = 0;
