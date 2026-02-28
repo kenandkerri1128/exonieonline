@@ -43,6 +43,7 @@ function getBaseStat(lvl) {
 function generateLoot(monster) {
     const mLevel = monster.level || 5;
 
+    // 50% chance for a Refinement Stone
     if (Math.random() < 0.50) {
         return { 
             id: Date.now() + Math.random(), 
@@ -71,11 +72,20 @@ function generateLoot(monster) {
     const spriteName = rarityPrefix + template.spriteName;
     
     let itemName = `${rarity === "Rare" ? "Slime" : "Basic"} ${template.baseName}`;
-    if (rarity !== "Rare" && rarity !== "Basic") { itemName = `${rarity} ${template.baseName}`; }
+    if (rarity !== "Rare" && rarity !== "Basic") {
+        itemName = `${rarity} ${template.baseName}`;
+    }
 
     let item = { 
-        id: Date.now() + Math.random(), name: itemName, type: template.slot, sprite: spriteName, 
-        level: mLevel, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 
+        id: Date.now() + Math.random(), 
+        name: itemName, 
+        type: template.slot, 
+        sprite: spriteName, 
+        level: mLevel, 
+        rarity: rarity, 
+        color: RARITY_COLORS[rarity], 
+        fixedStat: {}, 
+        enhanceLevel: 0 
     };
     
     let statVal = getBaseStat(mLevel) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0);
@@ -120,9 +130,9 @@ function removeFromParty(playerId) {
 }
 
 function getInstanceId(playerId, mapId) {
-    if (mapId === 'town') return 'town';
+    if (mapId === 'town') return 'town'; 
     const partyId = playerParty[playerId];
-    return partyId ? `${mapId}_${partyId}` : `${mapId}_solo_${playerId}`;
+    return partyId ? `${mapId}_${partyId}` : `${mapId}_solo_${playerId}`; 
 }
 
 const worlds = {}; 
@@ -134,7 +144,7 @@ function spawnMonster(instId, entityId, monsterKey, cfg) {
         width: stats.width, height: stats.height, maxHp: stats.maxHp, currentHp: stats.maxHp, atk: stats.atk, def: stats.def, speed: stats.speed, expYield: stats.expYield,
         aggroRadius: stats.aggroRadius, chaseRadius: stats.chaseRadius, attackRange: stats.attackRange, cssColor: stats.cssColor, cssBorder: stats.cssBorder,
         lastAttack: 0, alive: true, threatTable: {}, forcedTargetId: null, forcedUntil: 0, targetId: null, respawnDelayMs: stats.respawnDelay,
-        frozenUntil: 0 // ✅ NEW: Tracks Ice Master Freeze
+        frozenUntil: 0 // SKILL ENGINE: Tracks Ice Master Freeze
     };
 }
 
@@ -148,12 +158,16 @@ function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
 }
 
 function pickTarget(m, instId, now) {
-    for (const pid of Object.keys(m.threatTable)) { const p = getPlayerById(pid); if (!p || p.instanceId !== instId || p.isGhost) delete m.threatTable[pid]; }
+    for (const pid of Object.keys(m.threatTable)) { 
+        const p = getPlayerById(pid); 
+        // Drop threat if player is a ghost OR untargetable (Blademaster Blur)
+        if (!p || p.instanceId !== instId || p.isGhost || p.untargetableUntil > now) delete m.threatTable[pid]; 
+    }
     
-    // ✅ NEW: Berserker Taunt Logic. If a forced target exists and is valid, strictly chase them.
+    // SKILL ENGINE: Berserker Taunt Logic.
     if (m.forcedUntil > now && m.forcedTargetId) {
         const p = getPlayerById(m.forcedTargetId);
-        if (p && p.instanceId === instId && !p.isGhost && (p.currentHp ?? 1) > 0) {
+        if (p && p.instanceId === instId && !p.isGhost && p.untargetableUntil <= now && (p.currentHp ?? 1) > 0) {
             return p;
         } else {
             m.forcedTargetId = null;
@@ -162,15 +176,17 @@ function pickTarget(m, instId, now) {
 
     let best = null; let bestThreat = -1; let bestDist = Infinity;
     for (const pid of Object.keys(m.threatTable)) {
-        const threat = m.threatTable[pid] || 0; const p = getPlayerById(pid); if (!p || p.isGhost) continue;
+        const threat = m.threatTable[pid] || 0; const p = getPlayerById(pid); 
+        if (!p || p.isGhost || p.untargetableUntil > now) continue;
         const dist = Math.hypot((p.x + 24) - (m.x + (m.width / 2)), (p.y + 48) - (m.y + (m.height / 2)));
         if (dist > m.chaseRadius) continue;
         if (threat > bestThreat || (threat === bestThreat && dist < bestDist)) { best = p; bestThreat = threat; bestDist = dist; }
     }
     if (best) return best;
+    
     let nearest = null; let nearestDist = Infinity;
     for (const p of playersInInstance(instId)) {
-        if (p.isGhost || (p.currentHp ?? 1) <= 0) continue; 
+        if (p.isGhost || p.untargetableUntil > now || (p.currentHp ?? 1) <= 0) continue; 
         const dist = Math.hypot((p.x + 24) - (m.x + (m.width / 2)), (p.y + 48) - (m.y + (m.height / 2)));
         if (dist <= m.aggroRadius && dist < nearestDist) { nearest = p; nearestDist = dist; }
     }
@@ -181,7 +197,7 @@ function pickTarget(m, instId, now) {
 function updateMonsterAI(instId, m, now) {
     if (!m.alive) return;
     
-    // ✅ NEW: Ice Master Freeze Logic. Monster completely skips turn if frozen.
+    // SKILL ENGINE: Ice Master Freeze Logic.
     if (now < m.frozenUntil) return;
 
     const target = pickTarget(m, instId, now); m.targetId = target ? target.id : null;
@@ -314,7 +330,8 @@ io.on('connection', (socket) => {
             socketId: socket.id, id: userData.character_name, name: userData.character_name, mapId: mapId, instanceId: instId, isGhost: false, currentPortal: null,
             x: userData.pos_x || 960, y: userData.pos_y || 1000, level: userData.level || 1, currentHp: userData.current_hp || 100, maxHp: 100, tradeTarget: null,
             equips: userData.equips || { weapon: null, armor: null, leggings: null }, 
-            spriteData: { skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, weapon: userData.equips?.weapon?.sprite || null }
+            spriteData: { skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, weapon: userData.equips?.weapon?.sprite || null },
+            untargetableUntil: 0 // SKILL ENGINE: Blademaster Blur status
         };
         socket.join(instId); socket.emit('authSuccess', userData);
         
@@ -341,6 +358,92 @@ io.on('connection', (socket) => {
         socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: data.x, y: data.y, state: data.state, facingRight: data.facingRight, weaponSprite: data.weaponSprite });
     });
 
+    // ==========================================
+    // SKILL ENGINE ROUTING
+    // ==========================================
+    
+    socket.on('partyRevive', () => {
+        const p = onlinePlayers[socket.id]; if(!p) return;
+        const pid = playerParty[p.id];
+        if (pid && parties[pid]) {
+            for (const memberId of parties[pid].members) {
+                const mp = getPlayerById(memberId);
+                if (mp && mp.isGhost) {
+                    mp.isGhost = false;
+                    mp.currentHp = Math.floor(mp.maxHp / 2) || 50;
+                    io.to(mp.instanceId).emit('playerRevived', { id: mp.id, currentHp: mp.currentHp });
+                }
+            }
+            emitPartyUpdate(pid);
+        }
+    });
+
+    socket.on('tauntMonsters', (data) => {
+        const p = onlinePlayers[socket.id]; if(!p || p.isGhost) return;
+        const world = worlds[p.instanceId]; if(!world) return;
+        for (let mId in world.monsters) {
+            let m = world.monsters[mId];
+            if (!m.alive) continue;
+            let dist = Math.hypot(p.x + 24 - (m.x + m.width/2), p.y + 48 - (m.y + m.height/2));
+            if (dist <= (data.radius || 300)) {
+                m.forcedTargetId = p.id;
+                m.forcedUntil = Date.now() + 10000;
+            }
+        }
+    });
+
+    socket.on('syncPet', (data) => {
+        const p = onlinePlayers[socket.id]; if(!p) return;
+        socket.to(p.instanceId).emit('remotePetSync', { ownerId: p.id, petData: data });
+    });
+
+    socket.on('setUntargetable', (data) => {
+        const p = onlinePlayers[socket.id];
+        if (p) { p.untargetableUntil = Date.now() + (data.duration || 10000); }
+    });
+
+    socket.on('attackMonster', (payload) => {
+        const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return; 
+        const world = worlds[p.instanceId]; if (!world) return; 
+        const m = world.monsters[payload.monsterId]; if (!m || !m.alive) return;
+        
+        const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); if (dist > 350) return;
+        const dmg = Math.max(1, Math.floor(Number(payload.damage) || 1)); m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
+        
+        // SKILL ENGINE: Apply Ice Master Freeze
+        if (payload.freeze) { m.frozenUntil = Date.now() + 3000; }
+
+        io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: !!payload.isPendant });
+        
+        if (m.currentHp <= 0) {
+            m.alive = false; m.targetId = null; m.threatTable = {}; m.forcedTargetId = null; m.forcedUntil = 0; m.frozenUntil = 0;
+            io.to(p.instanceId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
+            
+            const expAmount = m.expYield || 25;
+            const pid = playerParty[p.id];
+
+            if (pid && parties[pid]) {
+                for (const memberId of parties[pid].members) { 
+                    const sid = findSocketIdByPlayerId(memberId); 
+                    if (sid) {
+                        io.to(sid).emit('receiveExp', { amount: expAmount, source: m.name }); 
+                        io.to(sid).emit('lootDropped', generateLoot(m));
+                    }
+                }
+            } else { 
+                io.to(socket.id).emit('receiveExp', { amount: expAmount, source: m.name }); 
+                io.to(socket.id).emit('lootDropped', generateLoot(m));
+            }
+            
+            if (m.respawnDelayMs !== -1) {
+                setTimeout(() => { const cfg = { spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY } }; const nm = spawnMonster(p.instanceId, m.id, m.monsterKey, cfg); world.monsters[m.id] = nm; io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm)); }, m.respawnDelayMs || 3000);
+            }
+        }
+    });
+
+    // ==========================================
+    // INSPECT, TRADE & PARTY ROUTING
+    // ==========================================
     socket.on('inspectRequest', (data) => {
         const targetId = data.targetId;
         const target = getPlayerById(targetId);
@@ -422,101 +525,6 @@ io.on('connection', (socket) => {
             removeFromParty(p.id);
             if (p.mapId !== 'town') {
                 socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
-            }
-        }
-    });
-
-    socket.on('playerTeleported', async (data) => {
-        if (!onlinePlayers[socket.id]) return; const p = onlinePlayers[socket.id];
-        socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
-        p.mapId = data.mapId; p.x = data.x; p.y = data.y; p.currentPortal = null;
-        p.instanceId = getInstanceId(p.id, data.mapId); 
-        socket.join(p.instanceId);
-        
-        socket.emit('requestMapSync', { mapId: data.mapId, instanceId: p.instanceId }); 
-        
-        socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
-        const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id);
-        socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
-        supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', currentUser).then(()=>{});
-    });
-
-    // ==========================================
-    // SKILL SERVER SYSTEM (Aura, Dmg, Revive, Taunt)
-    // ==========================================
-    
-    // ✅ NEW: Server handles Healer Revive completely
-    socket.on('revivePlayer', (data) => {
-        const p = onlinePlayers[socket.id]; if(!p) return;
-        const targetSid = findSocketIdByPlayerId(data.targetId);
-        if (targetSid && onlinePlayers[targetSid]) {
-            let tp = onlinePlayers[targetSid];
-            tp.isGhost = false;
-            tp.currentHp = tp.maxHp ? Math.floor(tp.maxHp / 2) : 50; // Revives at half HP
-            io.to(tp.instanceId).emit('playerRevived', { id: tp.id, currentHp: tp.currentHp });
-            const pid = playerParty[tp.id]; if (pid) emitPartyUpdate(pid); // Syncs UI to show they are alive
-        }
-    });
-
-    // ✅ NEW: Server handles Berserker Taunt completely
-    socket.on('tauntMonsters', (data) => {
-        const p = onlinePlayers[socket.id]; if(!p || p.isGhost) return;
-        const world = worlds[p.instanceId]; if(!world) return;
-        for (let mId in world.monsters) {
-            let m = world.monsters[mId];
-            if (!m.alive) continue;
-            let dist = Math.hypot(p.x + 24 - (m.x + m.width/2), p.y + 48 - (m.y + m.height/2));
-            if (dist <= (data.radius || 300)) {
-                m.forcedTargetId = p.id;
-                m.forcedUntil = Date.now() + 10000; // Taunted for 10 seconds
-            }
-        }
-    });
-
-    // ✅ NEW: Route Summoner's pet visuals to other players
-    socket.on('syncPet', (data) => {
-        const p = onlinePlayers[socket.id]; if(!p) return;
-        socket.to(p.instanceId).emit('remotePetSync', { ownerId: p.id, petData: data });
-    });
-
-    // Expanded Attack logic to handle Skill Freezing (Ice Master)
-    socket.on('attackMonster', (payload) => {
-        const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return; 
-        const world = worlds[p.instanceId]; if (!world) return; 
-        const m = world.monsters[payload.monsterId]; if (!m || !m.alive) return;
-        
-        const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); if (dist > 350) return;
-        const dmg = Math.max(1, Math.floor(Number(payload.damage) || 1)); m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
-        
-        // ✅ NEW: Ice Master Chill applied here
-        if (payload.freeze) {
-            m.frozenUntil = Date.now() + 3000; // Freeze for 3 seconds
-        }
-
-        io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: !!payload.isPendant });
-        
-        if (m.currentHp <= 0) {
-            m.alive = false; m.targetId = null; m.threatTable = {}; m.forcedTargetId = null; m.forcedUntil = 0; m.frozenUntil = 0;
-            io.to(p.instanceId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
-            
-            const expAmount = m.expYield || 25;
-            const pid = playerParty[p.id];
-
-            if (pid && parties[pid]) {
-                for (const memberId of parties[pid].members) { 
-                    const sid = findSocketIdByPlayerId(memberId); 
-                    if (sid) {
-                        io.to(sid).emit('receiveExp', { amount: expAmount, source: m.name }); 
-                        io.to(sid).emit('lootDropped', generateLoot(m));
-                    }
-                }
-            } else { 
-                io.to(socket.id).emit('receiveExp', { amount: expAmount, source: m.name }); 
-                io.to(socket.id).emit('lootDropped', generateLoot(m));
-            }
-            
-            if (m.respawnDelayMs !== -1) {
-                setTimeout(() => { const cfg = { spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY } }; const nm = spawnMonster(p.instanceId, m.id, m.monsterKey, cfg); world.monsters[m.id] = nm; io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm)); }, m.respawnDelayMs || 3000);
             }
         }
     });
