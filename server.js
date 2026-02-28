@@ -113,9 +113,9 @@ const MonsterDatabase = {
     // 10 second respawn
     "common_mobs1": { name: "Slime", category: "common_mobs", level: 5, maxHp: 100, atk: 25, def: 0, speed: 2.5, expYield: 25, goldYield: 15, aggroRadius: 250, chaseRadius: 400, attackRange: 55, width: 40, height: 40, respawnDelay: 10000, cssColor: '#ff69b4', cssBorder: '#c71585' },
     // 2 minute respawn (120,000 ms)
-    "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 1500, atk: 120, def: 15, speed: 2.8, expYield: 500, goldYield: 150, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
+    "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 1500, atk: 125, def: 20, speed: 2.8, expYield: 500, goldYield: 150, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
     // Aggressive, fast, massive aggro radius, no respawn until server reload/admin spawn
-    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 4000, def: 40, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 800, chaseRadius: 1500, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
+    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 450, def: 100, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 800, chaseRadius: 1500, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
 };
 
 function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
@@ -252,7 +252,7 @@ function updateMonsterAI(instId, m, now) {
     } else { 
         if (now - m.lastAttack > 1500) { 
             m.lastAttack = now; 
-            // ✅ FIX: EMITS THE SERVER-SIDE 'atk' SO FRONTEND RECEIVES THE TRUE DAMAGE
+            // ✅ SENDS THE EXACT MONSTER 'atk' TO FIX THE 1 DAMAGE BUG
             io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: target.id, targetX: target.x, targetY: target.y, atk: m.atk }); 
         } 
     }
@@ -285,12 +285,12 @@ io.on('connection', (socket) => {
         if (!worlds[instId].monstersSpawned) {
             worlds[instId].monstersSpawned = true;
             
-            // ✅ SPAWNS STATIONARY MERCHANT AT EXACTLY 960, 1000
+            // ✅ SPAWNS STATIONARY MERCHANT AT 960, 1000 WITH CORRECT HITBOX DIMS (80x120)
             if (data.mapId === 'town') {
                 worlds[instId].monsters['npc_merchant'] = {
                     id: 'npc_merchant', isMerchant: true, name: 'Merchant', 
                     x: 960, y: 1000, homeX: 960, homeY: 1000, 
-                    width: 48, height: 48, speed: 0, maxHp: 9999, currentHp: 9999, atk: 0, alive: true
+                    width: 80, height: 120, speed: 0, maxHp: 9999, currentHp: 9999, atk: 0, alive: true
                 };
             }
 
@@ -435,7 +435,7 @@ io.on('connection', (socket) => {
         }
     });
 
-    // ✅ SERVER PET TRACKING MEMORY ADDED
+    // ✅ SERVER PET TRACKING MEMORY
     socket.on('syncPet', (data) => {
         const p = onlinePlayers[socket.id]; if(!p) return;
         if (p.mapId === 'town') return; 
