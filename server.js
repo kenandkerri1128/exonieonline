@@ -43,38 +43,65 @@ function getBaseStat(lvl) {
 function generateLoot(monster) {
     const mLevel = monster.level || 5;
 
+    // 50% chance for a Refinement Stone Drop
     if (Math.random() < 0.50) {
         let stoneRarity = "Basic";
         let r = Math.random();
+        
         if (monster.category === "floor_boss") {
-            if(r < 0.10) stoneRarity = "Godly"; else if(r < 0.30) stoneRarity = "Legendary"; else if(r < 0.60) stoneRarity = "Unique"; else if(r < 0.85) stoneRarity = "Rare"; else stoneRarity = "Basic";
-        } else if (monster.category === "mini_boss") { stoneRarity = r < 0.35 ? "Unique" : "Rare"; } 
-        else { stoneRarity = r < 0.15 ? "Rare" : "Basic"; }
+            if(r < 0.10) stoneRarity = "Godly";
+            else if(r < 0.30) stoneRarity = "Legendary";
+            else if(r < 0.60) stoneRarity = "Unique";
+            else if(r < 0.85) stoneRarity = "Rare";
+            else stoneRarity = "Basic";
+        } else if (monster.category === "mini_boss") {
+            stoneRarity = r < 0.35 ? "Unique" : "Rare";
+        } else {
+            stoneRarity = r < 0.15 ? "Rare" : "Basic";
+        }
 
-        return { id: Date.now() + Math.random(), name: `Refinement Stone Lv.${mLevel}`, type: "material", level: mLevel, rarity: stoneRarity, color: RARITY_COLORS[stoneRarity], description: "Enhances equipment.", quantity: 1 };
+        return { 
+            id: Date.now() + Math.random(), 
+            name: `Refinement Stone Lv.${mLevel}`, 
+            type: "material", level: mLevel, rarity: stoneRarity, color: RARITY_COLORS[stoneRarity], 
+            description: "Enhances equipment.", quantity: 1 
+        };
     }
 
+    // 50% chance for Gear Drop
     const keys = Object.keys(ITEM_TEMPLATES);
     const typeKey = keys[Math.floor(Math.random() * keys.length)];
+    
     let rarityRoll = Math.random();
     let rarity = "Basic";
     
     if (monster.category === "floor_boss") {
-        if(rarityRoll < 0.10) rarity = "Godly"; else if(rarityRoll < 0.30) rarity = "Legendary"; else if(rarityRoll < 0.60) rarity = "Unique"; else if(rarityRoll < 0.85) rarity = "Rare"; else rarity = "Basic";
-    } else if (monster.category === "mini_boss") { rarity = rarityRoll < 0.35 ? "Unique" : "Rare"; } 
-    else { rarity = rarityRoll < 0.15 ? "Rare" : "Basic"; }
+        if(rarityRoll < 0.10) rarity = "Godly";
+        else if(rarityRoll < 0.30) rarity = "Legendary";
+        else if(rarityRoll < 0.60) rarity = "Unique";
+        else if(rarityRoll < 0.85) rarity = "Rare";
+        else rarity = "Basic";
+    } else if (monster.category === "mini_boss") {
+        rarity = rarityRoll < 0.35 ? "Unique" : "Rare";
+    } else {
+        rarity = rarityRoll < 0.15 ? "Rare" : "Basic";
+    }
 
     const template = ITEM_TEMPLATES[typeKey];
     const rarityPrefix = rarity === "Starter" ? "basic" : rarity.toLowerCase();
+    
     let itemName = `${rarity === "Rare" ? "Slime" : "Basic"} ${template.baseName}`;
     if (rarity !== "Rare" && rarity !== "Basic") itemName = `${rarity} ${template.baseName}`;
 
     let item = { id: Date.now() + Math.random(), name: itemName, type: template.slot, sprite: rarityPrefix + template.spriteName, level: mLevel, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 };
     
+    // ✅ STRICT PENDANT 50% PENALTY ENFORCED
     let statVal = getBaseStat(mLevel) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0);
     if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); 
     item.fixedStat[template.statKey] = statVal;
-    item.randomStat = {}; item.randomStat[STAT_TYPES[Math.floor(Math.random() * STAT_TYPES.length)]] = Math.floor(Math.random() * getBaseStat(mLevel)) + 1;
+    
+    item.randomStat = {};
+    item.randomStat[STAT_TYPES[Math.floor(Math.random() * STAT_TYPES.length)]] = Math.floor(Math.random() * getBaseStat(mLevel)) + 1;
     
     return item;
 }
@@ -83,9 +110,12 @@ function generateLoot(monster) {
 // SCALED MONSTER DATABASE
 // ==========================================
 const MonsterDatabase = {
+    // 10 second respawn
     "common_mobs1": { name: "Slime", category: "common_mobs", level: 5, maxHp: 100, atk: 25, def: 0, speed: 2.5, expYield: 25, goldYield: 15, aggroRadius: 250, chaseRadius: 400, attackRange: 55, width: 40, height: 40, respawnDelay: 10000, cssColor: '#ff69b4', cssBorder: '#c71585' },
-    "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 1500, atk: 1120, def: 30, speed: 2.8, expYield: 500, goldYield: 150, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
-    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 25000, atk: 4000, def: 400, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 800, chaseRadius: 1500, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
+    // 2 minute respawn (120,000 ms)
+    "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 1500, atk: 120, def: 15, speed: 2.8, expYield: 500, goldYield: 150, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
+    // Aggressive, fast, massive aggro radius, no respawn until server reload/admin spawn
+    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 400, def: 40, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 800, chaseRadius: 1500, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
 };
 
 function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
@@ -137,34 +167,36 @@ function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
     return false;
 }
 
-// ✅ PERFECTED AGGRO HIERARCHY: Taunt -> Pets -> Highest Threat -> Nearest Player
+// ✅ PERFECTED AGGRO HIERARCHY: 1. Taunt -> 2. Pets -> 3. Highest Threat -> 4. Nearest Player
 function pickTarget(m, instId, now) {
     for (const pid of Object.keys(m.threatTable)) { 
         const p = getPlayerById(pid); 
         if (!p || p.instanceId !== instId || p.isGhost || p.untargetableUntil > now || p.mapId === 'town') delete m.threatTable[pid]; 
     }
     
-    // 1. TAUNT PRIORITY
+    // 1. TAUNT
     if (m.forcedUntil > now && m.forcedTargetId) {
         const p = getPlayerById(m.forcedTargetId);
-        if (p && p.instanceId === instId && !p.isGhost && p.untargetableUntil <= now && p.mapId !== 'town' && (p.currentHp ?? 1) > 0) return { id: p.id, isPet: false, x: p.x + 24, y: p.y + 48 };
-        else m.forcedTargetId = null;
+        if (p && p.instanceId === instId && !p.isGhost && p.untargetableUntil <= now && p.mapId !== 'town' && (p.currentHp ?? 1) > 0) {
+            return { id: p.id, isPet: false, x: p.x + 24, y: p.y + 48 };
+        } else { m.forcedTargetId = null; }
     }
 
     const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2);
 
     // 2. SUMMONER PET PRIORITY
-    if (worlds[instId] && worlds[instId].pets) {
+    const world = worlds[instId];
+    if (world && world.pets) {
         let closestPet = null; let petDist = Infinity;
-        for (const petId in worlds[instId].pets) {
-            const pet = worlds[instId].pets[petId];
+        for (const petId in world.pets) {
+            const pet = world.pets[petId];
             const dist = Math.hypot(pet.x - mcx, pet.y - mcy);
             if (dist <= m.chaseRadius && dist < petDist) { closestPet = pet; petDist = dist; }
         }
         if (closestPet) return { id: closestPet.id, isPet: true, x: closestPet.x, y: closestPet.y };
     }
 
-    // 3. THREAT TABLE PRIORITY
+    // 3. HIGHEST THREAT
     let best = null; let bestThreat = -1; let bestDist = Infinity;
     for (const pid of Object.keys(m.threatTable)) {
         const threat = m.threatTable[pid] || 0; const p = getPlayerById(pid); 
@@ -183,6 +215,7 @@ function pickTarget(m, instId, now) {
         if (dist <= m.aggroRadius && dist < nearestDist) { nearest = p; nearestDist = dist; }
     }
     if (nearest) { m.threatTable[nearest.id] = Math.max(1, m.threatTable[nearest.id] || 0); return { id: nearest.id, isPet: false, x: nearest.x + 24, y: nearest.y + 48 }; }
+    
     return null;
 }
 
@@ -190,16 +223,8 @@ function updateMonsterAI(instId, m, now) {
     if (!m.alive) return;
     if (now < m.frozenUntil) return;
 
-    if (m.isMerchant) {
-        if (Math.random() < 0.02) { m.targetX = m.homeX + (Math.random() * 400 - 200); m.targetY = m.homeY + (Math.random() * 400 - 200); }
-        if (m.targetX && m.targetY) {
-            const ang = Math.atan2(m.targetY - m.y, m.targetX - m.x);
-            let nx = m.x + Math.cos(ang) * m.speed; let ny = m.y + Math.sin(ang) * m.speed;
-            if (!isMonsterColliding(instId, nx, m.y, m.width, m.height)) m.x = nx;
-            if (!isMonsterColliding(instId, m.x, ny, m.width, m.height)) m.y = ny;
-        }
-        return;
-    }
+    // ✅ MERCHANT NEVER MOVES
+    if (m.isMerchant) return; 
 
     const target = pickTarget(m, instId, now); m.targetId = target ? target.id : null;
     const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2);
@@ -223,8 +248,11 @@ function updateMonsterAI(instId, m, now) {
         if (!isMonsterColliding(instId, nx, m.y, m.width, m.height)) m.x = nx;
         if (!isMonsterColliding(instId, m.x, ny, m.width, m.height)) m.y = ny;
     } else { 
-        // Emitting explicitly targeted coordinates so client knows exactly who got hit (Player or Pet)
-        if (now - m.lastAttack > 1500) { m.lastAttack = now; io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: target.id, targetX: target.x, targetY: target.y }); } 
+        if (now - m.lastAttack > 1500) { 
+            m.lastAttack = now; 
+            // ✅ SENDS THE EXACT MONSTER 'atk' TO FIX THE 1 DAMAGE BUG
+            io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: target.id, targetX: target.x, targetY: target.y, atk: m.atk }); 
+        } 
     }
 }
 
@@ -254,8 +282,14 @@ io.on('connection', (socket) => {
 
         if (!worlds[instId].monstersSpawned) {
             worlds[instId].monstersSpawned = true;
+            
+            // ✅ SPAWNS STATIONARY MERCHANT NEAR FOUNTAIN
             if (data.mapId === 'town') {
-                worlds[instId].monsters['npc_merchant'] = { id: 'npc_merchant', isMerchant: true, name: 'Merchant', x: 800, y: 800, homeX: 960, homeY: 1000, width: 48, height: 48, speed: 1.2, maxHp: 9999, currentHp: 9999, alive: true };
+                worlds[instId].monsters['npc_merchant'] = {
+                    id: 'npc_merchant', isMerchant: true, name: 'Merchant', 
+                    x: 850, y: 950, homeX: 850, homeY: 950, 
+                    width: 48, height: 48, speed: 0, maxHp: 9999, currentHp: 9999, alive: true
+                };
             }
 
             let mIndex = 0;
@@ -293,14 +327,18 @@ io.on('connection', (socket) => {
             let allReady = true;
             for (const memberId of party.members) {
                 const mp = getPlayerById(memberId);
-                if (mp && mp.instanceId === p.instanceId && mp.currentPortal !== data.portalId && !mp.isGhost) { allReady = false; break; }
+                if (mp && mp.instanceId === p.instanceId && mp.currentPortal !== data.portalId && !mp.isGhost) {
+                    allReady = false; break;
+                }
             }
             if (allReady) {
                 for (const memberId of party.members) {
                     const msid = findSocketIdByPlayerId(memberId);
                     if (msid) io.to(msid).emit('teleportApproved', data);
                 }
-            } else { socket.emit('partyError', 'Waiting for all alive party members to gather on the portal...'); }
+            } else {
+                socket.emit('partyError', 'Waiting for all alive party members to gather on the portal...');
+            }
         }
     });
 
@@ -341,6 +379,7 @@ io.on('connection', (socket) => {
             untargetableUntil: 0 
         };
         socket.join(instId); socket.emit('authSuccess', userData);
+        
         socket.to(instId).emit('remotePlayerJoined', { id: onlinePlayers[socket.id].id, name: onlinePlayers[socket.id].name, mapId, instanceId: instId, x: onlinePlayers[socket.id].x, y: onlinePlayers[socket.id].y, spriteData: onlinePlayers[socket.id].spriteData, isGhost: false });
         const playersInInst = Object.values(onlinePlayers).filter(p => p.instanceId === instId && p.id !== userData.character_name);
         socket.emit('mapPlayersList', playersInInst.map(p => ({ id: p.id, name: p.name, mapId: p.mapId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost })));
@@ -349,6 +388,7 @@ io.on('connection', (socket) => {
     socket.on('saveData', async (playerData) => {
         if (!currentUser) return;
         supabase.from('Exonians').update({ level: playerData.level, exp: playerData.exp, max_exp: playerData.maxExp, current_hp: playerData.currentHp, gold: playerData.gold, pos_x: playerData.x, pos_y: playerData.y, map_id: playerData.mapId, base_stats: playerData.baseStats, inventory: playerData.inventory, equips: playerData.equips }).eq('character_name', currentUser).then(()=>{});
+        
         const p = onlinePlayers[socket.id];
         if (p) { 
             p.level = playerData.level; p.currentHp = playerData.currentHp; p.maxHp = playerData.maxHp || 100; p.equips = playerData.equips; 
@@ -365,12 +405,14 @@ io.on('connection', (socket) => {
     socket.on('partyRevive', () => {
         const p = onlinePlayers[socket.id]; if(!p) return;
         if (p.mapId === 'town') return;
+
         const pid = playerParty[p.id];
         if (pid && parties[pid]) {
             for (const memberId of parties[pid].members) {
                 const mp = getPlayerById(memberId);
                 if (mp && mp.isGhost && mp.mapId !== 'town') {
-                    mp.isGhost = false; mp.currentHp = Math.floor(mp.maxHp / 2) || 50; 
+                    mp.isGhost = false;
+                    mp.currentHp = Math.floor(mp.maxHp / 2) || 50; 
                     io.to(mp.instanceId).emit('playerRevived', { id: mp.id, currentHp: mp.currentHp });
                 }
             }
@@ -382,16 +424,19 @@ io.on('connection', (socket) => {
         const p = onlinePlayers[socket.id]; if(!p || p.isGhost) return;
         if (p.mapId === 'town') return; 
         const world = worlds[p.instanceId]; if(!world) return;
+
         for (let mId in world.monsters) {
-            let m = world.monsters[mId]; if (!m.alive) continue;
+            let m = world.monsters[mId];
+            if (!m.alive) continue;
             let dist = Math.hypot(p.x + 24 - (m.x + m.width/2), p.y + 48 - (m.y + m.height/2));
             if (dist <= (data.radius || 300)) { m.forcedTargetId = p.id; m.forcedUntil = Date.now() + 10000; }
         }
     });
 
-    // ✅ SERVER PET TRACKING FOR AGGRO
+    // ✅ SERVER PET TRACKING MEMORY ADDED
     socket.on('syncPet', (data) => {
-        const p = onlinePlayers[socket.id]; if(!p || p.mapId === 'town') return; 
+        const p = onlinePlayers[socket.id]; if(!p) return;
+        if (p.mapId === 'town') return; 
         const world = worlds[p.instanceId]; if(!world) return;
         if (!world.pets) world.pets = {};
         if (data.alive) { world.pets[data.id] = { id: data.id, ownerId: p.id, x: data.x, y: data.y }; } 
@@ -415,6 +460,7 @@ io.on('connection', (socket) => {
         
         const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); if (dist > 350) return;
         const dmg = Math.max(1, Math.floor(Number(payload.damage) || 1)); m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
+        
         if (payload.freeze) { m.frozenUntil = Date.now() + 3000; }
 
         io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: !!payload.isPendant });
@@ -430,10 +476,14 @@ io.on('connection', (socket) => {
             if (pid && parties[pid]) {
                 for (const memberId of parties[pid].members) { 
                     const sid = findSocketIdByPlayerId(memberId); 
-                    if (sid) { io.to(sid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); io.to(sid).emit('lootDropped', generateLoot(m)); }
+                    if (sid) {
+                        io.to(sid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
+                        io.to(sid).emit('lootDropped', generateLoot(m));
+                    }
                 }
             } else { 
-                io.to(socket.id).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); io.to(socket.id).emit('lootDropped', generateLoot(m));
+                io.to(socket.id).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
+                io.to(socket.id).emit('lootDropped', generateLoot(m));
             }
             
             if (m.respawnDelayMs !== -1) {
@@ -443,32 +493,45 @@ io.on('connection', (socket) => {
     });
 
     socket.on('inspectRequest', (data) => {
-        const target = getPlayerById(data.targetId);
-        if (target) { socket.emit('inspectData', { id: target.id, name: target.name, level: target.level || 1, currentHp: target.currentHp || 0, maxHp: target.maxHp || 100, equips: target.equips || { weapon: null, armor: null, leggings: null } }); }
+        const targetId = data.targetId;
+        const target = getPlayerById(targetId);
+        if (target) {
+            socket.emit('inspectData', { id: target.id, name: target.name, level: target.level || 1, currentHp: target.currentHp || 0, maxHp: target.maxHp || 100, equips: target.equips || { weapon: null, armor: null, leggings: null } });
+        }
     });
 
     socket.on('tradeRequest', (data) => {
         const me = onlinePlayers[socket.id]; if (!me || !data.targetId) return;
-        const targetSid = findSocketIdByPlayerId(data.targetId); if (!targetSid) return socket.emit('partyError', 'Target is not online.');
+        const targetSid = findSocketIdByPlayerId(data.targetId);
+        if (!targetSid) return socket.emit('partyError', 'Target is not online.');
         io.to(targetSid).emit('tradeInviteReceived', { fromId: me.id });
     });
 
     socket.on('tradeInviteResponse', (data) => {
         const me = onlinePlayers[socket.id]; if (!me || !data.fromId) return;
-        const fromSid = findSocketIdByPlayerId(data.fromId); const targetPlayer = getPlayerById(data.fromId);
+        const fromSid = findSocketIdByPlayerId(data.fromId);
+        const targetPlayer = getPlayerById(data.fromId);
         if (!fromSid || !targetPlayer) return;
         
-        if (data.accept) { me.tradeTarget = targetPlayer.id; targetPlayer.tradeTarget = me.id; socket.emit('tradeStarted', { targetId: data.fromId }); io.to(fromSid).emit('tradeStarted', { targetId: me.id }); } 
-        else { io.to(fromSid).emit('partyError', `${me.id} declined your trade request.`); }
+        if (data.accept) {
+            me.tradeTarget = targetPlayer.id; targetPlayer.tradeTarget = me.id;
+            socket.emit('tradeStarted', { targetId: data.fromId });
+            io.to(fromSid).emit('tradeStarted', { targetId: me.id });
+        } else { io.to(fromSid).emit('partyError', `${me.id} declined your trade request.`); }
     });
 
     socket.on('tradeSync', (data) => { const me = onlinePlayers[socket.id]; if(!me || !me.tradeTarget) return; const targetSid = findSocketIdByPlayerId(me.tradeTarget); if (targetSid) io.to(targetSid).emit('tradeSyncReceived', data); });
     socket.on('tradeCancel', () => { const me = onlinePlayers[socket.id]; if(!me || !me.tradeTarget) return; const targetSid = findSocketIdByPlayerId(me.tradeTarget); let tId = me.tradeTarget; me.tradeTarget = null; let targetPlayer = getPlayerById(tId); if(targetPlayer) targetPlayer.tradeTarget = null; if (targetSid) io.to(targetSid).emit('tradeCancelled'); });
+    
     socket.on('playerVitals', (data) => {
         const p = onlinePlayers[socket.id]; if (!p) return;
         p.currentHp = data.currentHp; p.maxHp = data.maxHp; p.level = data.level;
         const pid = playerParty[p.id];
-        if (pid && parties[pid]) { for (const memberId of parties[pid].members) { if (memberId !== p.id) { const sid = findSocketIdByPlayerId(memberId); if (sid) io.to(sid).emit('partyMemberVitals', { id: p.id, currentHp: p.currentHp, maxHp: p.maxHp, level: p.level }); } } }
+        if (pid && parties[pid]) {
+            for (const memberId of parties[pid].members) {
+                if (memberId !== p.id) { const sid = findSocketIdByPlayerId(memberId); if (sid) io.to(sid).emit('partyMemberVitals', { id: p.id, currentHp: p.currentHp, maxHp: p.maxHp, level: p.level }); }
+            }
+        }
     });
 
     socket.on('chatMessage', (data) => { const p = onlinePlayers[socket.id]; if (!p || !data.text) return; io.to(p.instanceId).emit('chatMessage', { id: p.id, text: data.text }); });
@@ -484,20 +547,28 @@ io.on('connection', (socket) => {
 
     socket.on('leaveParty', () => {
         const p = onlinePlayers[socket.id];
-        if (p && playerParty[p.id]) { removeFromParty(p.id); if (p.mapId !== 'town') { socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); } }
+        if (p && playerParty[p.id]) {
+            removeFromParty(p.id);
+            if (p.mapId !== 'town') { socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); }
+        }
     });
 
     socket.on('playerTeleported', async (data) => {
         if (!onlinePlayers[socket.id]) return; const p = onlinePlayers[socket.id];
         socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
+        
+        // Remove pet tracking on teleport
         if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
             for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
         }
-        p.mapId = data.mapId; p.x = data.x; p.y = data.y; p.currentPortal = null; p.instanceId = getInstanceId(p.id, data.mapId); 
+
+        p.mapId = data.mapId; p.x = data.x; p.y = data.y; p.currentPortal = null;
+        p.instanceId = getInstanceId(p.id, data.mapId); 
         socket.join(p.instanceId);
         
         socket.emit('requestMapSync', { mapId: data.mapId, instanceId: p.instanceId }); 
         socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
+        
         const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id);
         socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
         supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', currentUser).then(()=>{});
@@ -514,8 +585,11 @@ io.on('connection', (socket) => {
 
     socket.on('playerDied', () => {
         const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return;
-        p.isGhost = true; p.currentHp = 0; io.to(p.instanceId).emit('remotePlayerGhosted', p.id);
-        let instPlayers = playersInInstance(p.instanceId); let allDead = instPlayers.every(pl => pl.isGhost);
+        p.isGhost = true; p.currentHp = 0;
+        io.to(p.instanceId).emit('remotePlayerGhosted', p.id);
+        
+        let instPlayers = playersInInstance(p.instanceId);
+        let allDead = instPlayers.every(pl => pl.isGhost);
         if (allDead) { io.to(p.instanceId).emit('partyWiped'); }
     });
 
@@ -523,12 +597,15 @@ io.on('connection', (socket) => {
         const p = onlinePlayers[socket.id];
         if (p) {
             socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
-            if (worlds[p.instanceId] && worlds[p.instanceId].pets) { for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; } }
-            removeFromParty(p.id); supabase.from('Exonians').update({ pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{}); delete onlinePlayers[socket.id];
+            if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
+                for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
+            }
+            removeFromParty(p.id);
+            supabase.from('Exonians').update({ pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
+            delete onlinePlayers[socket.id];
         }
     });
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
-
