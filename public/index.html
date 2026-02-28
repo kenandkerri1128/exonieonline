@@ -193,31 +193,6 @@
     </style>
 </head>
 <body>
-    <style>
-        /* ✅ INJECTED SKILL & AURA CSS */
-        .aura { position: absolute; width: 150px; height: 150px; bottom: -25px; left: 50%; transform: translateX(-50%); border-radius: 50%; opacity: 0; pointer-events: none; z-index: 5; }
-        .aura-green { background: radial-gradient(circle, rgba(76,175,80,0.8) 0%, rgba(76,175,80,0) 70%); }
-        .aura-blue { background: radial-gradient(circle, rgba(33,150,243,0.8) 0%, rgba(33,150,243,0) 70%); }
-        .aura-red { background: radial-gradient(circle, rgba(244,67,54,0.8) 0%, rgba(244,67,54,0) 70%); }
-        @keyframes aura-burst { 0% { transform: translateX(-50%) scale(0.2); opacity: 1; } 100% { transform: translateX(-50%) scale(2.5); opacity: 0; } }
-
-        .icicle { position: absolute; width: 15px; height: 40px; background: linear-gradient(to bottom, #fff, #00ffff); box-shadow: 0 0 10px #fff; border-radius: 2px 2px 50% 50%; pointer-events: none; z-index: 250; }
-        .pet-slime { position: absolute; width: 30px; height: 30px; background-color: #00ffff; border: 2px solid #00bfff; border-radius: 50% 50% 40% 40%; z-index: 90; transition: left 0.2s, top 0.2s; animation: slime-bounce 0.6s infinite alternate; pointer-events: none; margin-top: -15px; margin-left: -15px;}
-        
-        .skill-class-card { background: #111; border: 1px solid #444; padding: 15px; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
-        .skill-class-card:hover { border-color: #9c27b0; background: #222; }
-        .skill-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding: 10px 0; color: #fff; }
-        .skill-row:last-child { border-bottom: none; }
-        .skill-desc { font-size: 13px; color: #aaa; margin-top: 4px; line-height: 1.4; }
-        
-        #hotbar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 1000; }
-        .hotbar-slot { width: 50px; height: 50px; background: rgba(0,0,0,0.8); border: 2px solid #555; border-radius: 5px; display: none; justify-content: center; align-items: center; font-weight: bold; position: relative; overflow: hidden; }
-        .hotbar-key { position: absolute; top: 2px; left: 4px; font-size: 12px; color: #ffeb3b; z-index: 2; }
-        .hotbar-name { position: absolute; bottom: 2px; width: 100%; text-align: center; font-size: 10px; color: white; z-index: 2; pointer-events: none; line-height: 1; }
-        .cooldown-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: rgba(255,0,0,0.6); transition: height 0.1s linear; z-index: 3; }
-        .cooldown-text { position: absolute; z-index: 4; font-size: 20px; font-weight: bold; color: white; text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; pointer-events: none; display: none; }
-    </style>
-
 <div id="game-container">
     <div id="chat-input-container"><input type="text" id="chat-input" placeholder="Press Enter to Chat..." autocomplete="off"></div>
     
@@ -548,6 +523,7 @@ let currentBGM = null; let currentTrackName = ""; let activeTargetPlayerId = nul
 window.facingRight = false;
 window.isLoading = false; 
 
+/* ✅ FIX: ADDED Z, X, C TO KEY TRACKER FOR ADMIN SPAWNS */
 window.game = { 
     isRunning: false, isGhost: false, keys: { w: false, a: false, s: false, d: false, z: false, x: false, c: false }, 
     player: { id: 'local_player', name: "Adventurer", level: 1, currentHp: 100, x: 960, y: 1000, width: 48, height: 96, w: 24, h: 20, teleportCooldown: 0, currentPortal: null, equips: { weapon: null }, currentBodySrc: '', playerClass: null, immortalUntil: 0, untargetableUntil: 0, activePets: [] }, 
@@ -557,7 +533,7 @@ window.game = {
 const DatabaseManager = { savePlayerData: function(playerObj) { playerObj.mapId = safeMapData.id || 'town'; if(socket) socket.emit('saveData', playerObj); if(socket) socket.emit('playerEquipUpdate', { equips: playerObj.equips }); } };
 
 // ==========================================
-// 2. REAL CACHE BUSTER MAP LOADER & ASSET PRELOADER (NOW FETCHES AUDIO!)
+// 2. REAL CACHE BUSTER MAP LOADER & ASSET PRELOADER
 // ==========================================
 window.loadMapScript = function(mapId, callback) {
     let scriptName = (mapId === 'town' ? 'townmap.js' : mapId + '.js') + '?v=' + Date.now();
@@ -580,7 +556,8 @@ window.preloadMapAssets = function(mapData, callback) {
     if(loaderFill) loaderFill.style.width = '0%';
     
     let assets = [
-        mapData.image, 'animation/avatar_idlefront.png', 'animation/avatar_walk.png', 'animation/avatar_attack.png', 'animation/avatar_head.png'
+        mapData.image, 'animation/avatar_idlefront.png', 'animation/avatar_walk.png', 'animation/avatar_attack.png', 'animation/avatar_head.png',
+        'music/slash.mp3', 'music/lightning.mp3', 'music/splash.mp3' /* ✅ FIX: PRELOAD COMBAT SFX! */
     ];
     
     let mKeys = new Set();
@@ -598,7 +575,7 @@ window.preloadMapAssets = function(mapData, callback) {
         if(!wpn.includes('pendant')) assets.push(`weapon/${wpn}_attack.png`);
     }
 
-    // ✅ FIX: PRELOAD SKILL AUDIO SO IT NEVER DELAYS IN BATTLE
+    /* ✅ FIX: SKILL VOICE AUDIO PRELOADING */
     if (game.player.baseStats && game.player.baseStats.playerClass) {
         let hairPrefix = window.charData.hairStyle === 'none' ? 'none' : `hair${window.charData.hairStyle}`;
         let formattedClass = game.player.baseStats.playerClass.replace(/\s+/g, '').toLowerCase();
@@ -655,7 +632,7 @@ window.showAura = function(color) {
     const aura = document.getElementById('player-aura');
     aura.className = `aura aura-${color}`;
     aura.style.animation = 'none';
-    void aura.offsetWidth; // Trigger reflow
+    void aura.offsetWidth; 
     aura.style.animation = 'aura-burst 0.6s ease-out forwards';
 }
 
@@ -682,7 +659,6 @@ window.playSFX = function(weaponSprite) {
     let audio = new Audio(`music/${sfx}.mp3`); audio.volume = 0.5; audio.play().catch(e => console.log("SFX error", e));
 }
 
-// STAT CALCULATIONS WITH PASSIVES
 window.getTotalStat = function(statName) { 
     if (!game.player || !game.player.baseStats) return 0; 
     let base = game.player.baseStats[statName] || 0; 
@@ -694,14 +670,12 @@ window.getTotalStat = function(statName) {
         } 
     }); 
     
-    // Passives
     if (game.player.baseStats.playerClass === 'Berserker' && game.player.level >= 25) {
         if (statName === 'hp' || statName === 'defense') { base += Math.floor(game.player.baseStats[statName] * 0.25); }
     }
     if (game.player.baseStats.playerClass === 'Blademaster') {
         if (statName === 'attack') { base += Math.floor(game.player.baseStats.attack * 0.25); }
     }
-    
     return base; 
 }
 window.getMaxHp = function() { return window.getTotalStat('hp'); }; window.getAttackPower = function() { return window.getTotalStat('attack') + Math.floor(window.getTotalStat('str') / 2); }; window.getMagicAttack = function() { return window.getTotalStat('magic') + Math.floor(window.getTotalStat('int') / 2); }; window.getDefense = function() { return window.getTotalStat('defense'); }; window.getSpeed = function() { return window.getTotalStat('speed'); }; window.getBaseStat = function(lvl) { if (lvl >= 50) return 100; if (lvl >= 45) return 45; if (lvl >= 40) return 40; if (lvl >= 35) return 30; if (lvl >= 30) return 27; if (lvl >= 25) return 22; if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; if (lvl >= 5) return 8; return 5; }
@@ -932,8 +906,7 @@ window.leaveParty = function() {
                     
                     /* ✅ FIX: CROSS MAP GHOSTING WIPE */
                     for (let rId in game.remotePlayers) window.removeRemotePlayer(rId);
-                    document.querySelectorAll('.entity').forEach(el => { if (el.id.startsWith('remote_')) el.remove(); });
-                    document.querySelectorAll('.monster-container').forEach(el => el.remove());
+                    document.querySelectorAll('.entity').forEach(el => { if (el.id !== 'player-container') el.remove(); });
                     game.monsters = {};
                     
                     if(socket) socket.emit('playerTeleported', { mapId: 'town', x: game.player.x, y: game.player.y, mapData: safeMapData });
@@ -1129,7 +1102,7 @@ if(socket) {
         window.charData.skinColor = userData.skin_color || 'flesh'; window.charData.hairColor = userData.hair_color || 'black'; window.charData.hairStyle = userData.hair_style || '1'; 
         game.player.currentHp = window.getMaxHp(); 
         
-        window.updateSkillMenu(); 
+        window.updateSkillMenu(); // Initialize Hotbar based on loaded DB class
         
         let targetMapId = userData.map_id || 'town';
         
@@ -1179,7 +1152,7 @@ if(socket) {
 
             /* ✅ FIX: CROSS-MAP GHOSTING WIPE ON RESPAWN */
             for (let rId in game.remotePlayers) window.removeRemotePlayer(rId);
-            document.querySelectorAll('.entity').forEach(el => { if (el.id.startsWith('remote_')) el.remove(); });
+            document.querySelectorAll('.entity').forEach(el => { if (el.id !== 'player-container') el.remove(); });
 
             if(tp.mapId === 'town') {
                 document.querySelectorAll('.monster-container').forEach(el => el.remove());
@@ -1207,7 +1180,7 @@ if(socket) {
                     
                     /* ✅ FIX: CROSS-MAP GHOSTING WIPE */
                     for (let rId in game.remotePlayers) window.removeRemotePlayer(rId);
-                    document.querySelectorAll('.entity').forEach(el => { if (el.id.startsWith('remote_')) el.remove(); });
+                    document.querySelectorAll('.entity').forEach(el => { if (el.id !== 'player-container') el.remove(); });
 
                     if(nextMapId === 'town') {
                         document.querySelectorAll('.monster-container').forEach(el => el.remove());
@@ -1487,6 +1460,7 @@ window.updateSkillMenu = function() {
     for (let i = activeIndex; i < 2; i++) { document.getElementById(`hotbar-${i+1}`).style.display = 'none'; }
 }
 
+/* ✅ FIX: DYNAMIC COOLDOWN NUMBER TEXT INJECTED INTO HUD */
 function updateHotbarCooldowns() {
     let now = Date.now();
     game.player.activeSkills.forEach((s, index) => {
