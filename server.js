@@ -113,9 +113,9 @@ const MonsterDatabase = {
     // 10 second respawn
     "common_mobs1": { name: "Slime", category: "common_mobs", level: 5, maxHp: 100, atk: 25, def: 0, speed: 2.5, expYield: 25, goldYield: 15, aggroRadius: 250, chaseRadius: 400, attackRange: 55, width: 40, height: 40, respawnDelay: 10000, cssColor: '#ff69b4', cssBorder: '#c71585' },
     // 2 minute respawn (120,000 ms)
-    "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 1500, atk: 125, def: 20, speed: 2.8, expYield: 500, goldYield: 150, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
+    "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 1500, atk: 120, def: 15, speed: 2.8, expYield: 500, goldYield: 150, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
     // Aggressive, fast, massive aggro radius, no respawn until server reload/admin spawn
-    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 450, def: 100, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 800, chaseRadius: 1500, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
+    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 4000, def: 40, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 800, chaseRadius: 1500, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
 };
 
 function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
@@ -252,7 +252,7 @@ function updateMonsterAI(instId, m, now) {
     } else { 
         if (now - m.lastAttack > 1500) { 
             m.lastAttack = now; 
-            // ✅ SENDS THE EXACT MONSTER 'atk' TO FIX THE 1 DAMAGE BUG
+            // ✅ EMITS THE SERVER-SIDE 'atk' SO FRONTEND RECEIVES THE TRUE DAMAGE
             io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: target.id, targetX: target.x, targetY: target.y, atk: m.atk }); 
         } 
     }
@@ -285,7 +285,7 @@ io.on('connection', (socket) => {
         if (!worlds[instId].monstersSpawned) {
             worlds[instId].monstersSpawned = true;
             
-            // ✅ SPAWNS STATIONARY MERCHANT AT 960, 1000 WITH CORRECT HITBOX DIMS (80x120)
+            // ✅ SPAWNS STATIONARY MERCHANT AT EXACTLY 960, 1000 WITH CORRECT HITBOX DIMS (80x120)
             if (data.mapId === 'town') {
                 worlds[instId].monsters['npc_merchant'] = {
                     id: 'npc_merchant', isMerchant: true, name: 'Merchant', 
@@ -525,6 +525,7 @@ io.on('connection', (socket) => {
     socket.on('tradeSync', (data) => { const me = onlinePlayers[socket.id]; if(!me || !me.tradeTarget) return; const targetSid = findSocketIdByPlayerId(me.tradeTarget); if (targetSid) io.to(targetSid).emit('tradeSyncReceived', data); });
     socket.on('tradeCancel', () => { const me = onlinePlayers[socket.id]; if(!me || !me.tradeTarget) return; const targetSid = findSocketIdByPlayerId(me.tradeTarget); let tId = me.tradeTarget; me.tradeTarget = null; let targetPlayer = getPlayerById(tId); if(targetPlayer) targetPlayer.tradeTarget = null; if (targetSid) io.to(targetSid).emit('tradeCancelled'); });
     
+    // ✅ PARTY HP BARS ARE FED FROM HERE - FLawless Syncing logic
     socket.on('playerVitals', (data) => {
         const p = onlinePlayers[socket.id]; if (!p) return;
         p.currentHp = data.currentHp; p.maxHp = data.maxHp; p.level = data.level;
@@ -570,7 +571,7 @@ io.on('connection', (socket) => {
         p.instanceId = getInstanceId(p.id, tp.mapId); 
         socket.join(p.instanceId);
         
-        socket.emit('forceTeleport', tp); // Tells client to reload map locally
+        socket.emit('forceTeleport', tp); 
         socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
         supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
     });
