@@ -28,6 +28,7 @@
         .loader-bar-bg { width: 400px; height: 12px; background: #333; border-radius: 6px; overflow: hidden; border: 2px solid #555;}
         .loader-bar-fill { width: 0%; height: 100%; background: #4CAF50; transition: width 0.3s ease-out; }
 
+        /* --- INPUTS & BUTTONS --- */
         input[type="text"], input[type="password"], input[type="number"], select, button, textarea { font-family: 'MedievalSharp', cursive; }
         input[type="text"], input[type="password"], input[type="number"] { background: #111; color: #0f0; border: 1px solid #4CAF50; padding: 10px; border-radius: 4px; font-size: 18px; width: calc(100% - 22px); outline: none; margin-bottom: 15px; box-sizing: border-box; }
         input:read-only { color: #888; border-color: #555; background: #222; }
@@ -45,7 +46,7 @@
         .color-swatch:hover { transform: scale(1.1); } 
         .color-swatch.selected { border-color: white; }
 
-        /* --- AUTH SCREENS --- */
+        /* --- AUTH & CREATION SCREENS --- */
         .auth-container { position: relative; z-index: 10; width: 400px; padding: 30px; background: #1e1e1e; border-radius: 8px; border: 2px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: center; margin: auto; }
         .auth-container h1 { margin-top: 0; color: #4CAF50; font-size: 40px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .auth-link { color: #4CAF50; cursor: pointer; font-size: 16px; text-decoration: underline; margin-top: 15px; display: inline-block; } 
@@ -82,16 +83,24 @@
 
         .entity { position: absolute; transition: filter 0.1s; z-index: 100;} 
         #player-container { z-index: 105; transition: opacity 0.3s; }
+        
+        /* ✅ ADDED NPC MERCHANT SPECIFIC TAG */
         .name-tag { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 1px 1px 0 #000; z-index: 20; pointer-events: none; }
         .mob-name { color: #f44336; top: -30px; font-size: 12px;}
         .merchant-name { color: #4CAF50 !important; top: -30px; font-size: 14px; }
+
         .player-avatar-container { pointer-events: none; transform-origin: center bottom; position: relative; width: 48px; height: 96px; }
         .player-avatar-container::after { content: ''; position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); width: 30px; height: 8px; background: rgba(0, 0, 0, 0.4); border-radius: 50%; z-index: -2; }
 
-        /* --- MONSTERS CSS --- */
+        /* --- MONSTERS & SLIMES CSS --- */
         .monster-container { transition: filter 0.1s, transform 0.15s ease-out; }
         .hit-flash .monster-sprite-layer { filter: brightness(2) drop-shadow(0 0 5px red) !important; }
         @keyframes slime-bounce { 0% { transform: translateY(0) scaleY(0.9); } 100% { transform: translateY(-12px) scaleY(1.1); } }
+        
+        /* ✅ MODIFIED PET SLIME TO SUPPORT MELEE SLAM & HP BARS */
+        .pet-slime { position: absolute; width: 30px; height: 30px; background-color: #00ffff; border: 2px solid #00bfff; border-radius: 50% 50% 40% 40%; z-index: 90; transition: left 0.15s linear, top 0.15s linear, transform 0.1s; animation: slime-bounce 0.6s infinite alternate; pointer-events: none; margin-top: -15px; margin-left: -15px;}
+        .pet-hp-bar { position: absolute; bottom: -8px; left: 0; width: 100%; height: 4px; background: #333; border: 1px solid #000; border-radius: 2px; overflow: hidden; display: block; }
+        .pet-hp-fill { height: 100%; background: #4CAF50; width: 100%; }
 
         /* --- HUD & PANELS --- */
         #hud { position: absolute; top: 20px; left: 20px; width: 280px; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #555; z-index: 1000; }
@@ -109,7 +118,7 @@
         .party-hp-bar-bg { width: 100%; height: 8px; background: #333; border: 1px solid #000; border-radius: 4px; overflow: hidden; }
         .party-hp-bar-fill { height: 100%; background: #4CAF50; transition: width 0.2s; }
 
-        /* ✅ HOTBAR UI FOR SKILLS WITH COOLDOWN TEXT */
+        /* --- HOTBAR --- */
         #hotbar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 1000; display: none; }
         .hotbar-slot { width: 50px; height: 50px; background: rgba(0,0,0,0.8); border: 2px solid #555; border-radius: 5px; display: flex; justify-content: center; align-items: center; font-weight: bold; position: relative; overflow: hidden; }
         .hotbar-key { position: absolute; top: 2px; left: 4px; font-size: 12px; color: #ffeb3b; z-index: 2; }
@@ -117,7 +126,7 @@
         .cooldown-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: rgba(255,0,0,0.6); transition: height 0.1s linear; z-index: 3; }
         .cooldown-text { position: absolute; z-index: 4; font-size: 20px; font-weight: bold; color: white; text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; pointer-events: none; display: none; }
 
-        /* SKILL SCREEN UI */
+        /* --- SKILL SCREEN --- */
         #skill-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 550px; background: rgba(20,20,20,0.98); border: 2px solid #9c27b0; border-radius: 10px; padding: 20px; z-index: 1500; display: none; box-shadow: 0 0 30px #000; }
         .skill-class-card { background: #111; border: 1px solid #444; padding: 15px; margin-bottom: 15px; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
         .skill-class-card:hover { border-color: #9c27b0; background: #222; }
@@ -133,11 +142,6 @@
         @keyframes aura-burst { 0% { transform: translateX(-50%) scale(0.2); opacity: 1; } 100% { transform: translateX(-50%) scale(2.5); opacity: 0; } }
 
         .icicle { position: absolute; width: 15px; height: 40px; background: linear-gradient(to bottom, #fff, #00ffff); box-shadow: 0 0 10px #fff; border-radius: 2px 2px 50% 50%; pointer-events: none; z-index: 250; }
-        
-        /* Pet Slime Custom Styles */
-        .pet-slime { position: absolute; width: 30px; height: 30px; background-color: #00ffff; border: 2px solid #00bfff; border-radius: 50% 50% 40% 40%; z-index: 90; transition: left 0.15s linear, top 0.15s linear, transform 0.1s; animation: slime-bounce 0.6s infinite alternate; pointer-events: none; margin-top: -15px; margin-left: -15px;}
-        .pet-hp-bar { position: absolute; bottom: -8px; left: 0; width: 100%; height: 4px; background: #333; border: 1px solid #000; border-radius: 2px; overflow: hidden; display: block; }
-        .pet-hp-fill { height: 100%; background: #4CAF50; width: 100%; }
 
         /* --- EFFECTS --- */
         .spark { position: absolute; width: 16px; height: 16px; background-color: #fff; border-radius: 50%; box-shadow: 0 0 8px #ffeb3b, 0 0 15px #ff9800; pointer-events: none; z-index: 300; animation: spark-pop 0.3s ease-out forwards; }
@@ -151,7 +155,7 @@
         .rarity-godly { animation: godly-sparkle 1.5s infinite alternate; }
         @keyframes godly-sparkle { 0% { text-shadow: 0 0 2px #fff, 0 0 5px #e0ffff; } 100% { text-shadow: 0 0 8px #fff, 0 0 15px #00ffff, 0 0 20px #00ffff; } }
 
-        /* --- MENUS & WINDOWS --- */
+        /* --- INVENTORY, STATS, & INSPECT --- */
         #inventory-screen { position: absolute; top: 0; right: 0; width: 350px; height: 100%; background-color: rgba(25, 25, 25, 0.98); border-left: 2px solid #555; padding: 20px; z-index: 1000; display: none; box-sizing: border-box; box-shadow: -5px 0 20px rgba(0,0,0,0.8); overflow-y: auto; }
         #inventory-screen h2 { margin-top: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; font-size: 28px; }
         .inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
@@ -604,7 +608,7 @@ window.preloadMapAssets = function(mapData, callback) {
     if(loaderFill) loaderFill.style.width = '0%';
     
     let assets = [
-        mapData.image, 'animation/avatar_idlefront.png', 'animation/avatar_walk.png', 'animation/avatar_attack.png', 'animation/avatar_head.png',
+        mapData.image, 'animation/avatar_idlefront.png', 'animation/avatar_walk.png', 'animation/avatar_attack.png', 'animation/avatar_head.png', 'animation/avatar_hair2.png',
         'music/slash.mp3', 'music/lightning.mp3', 'music/splash.mp3' 
     ];
     
@@ -692,7 +696,6 @@ window.buyItem = function(type) {
     DatabaseManager.savePlayerData(game.player);
 }
 
-// ✅ SELLING LOOT FOR GOLD
 window.actionSell = function(e) {
     if (e) e.stopPropagation();
     const item = game.player.inventory[activeInvIndex];
@@ -775,7 +778,6 @@ window.getTotalStat = function(statName) {
     return base; 
 }
 
-// ✅ TRUE CLASS STAT SCALING
 window.getAttackPower = function() { return window.getTotalStat('attack') + Math.floor(window.getTotalStat('str') / 2); }; 
 window.getMagicAttack = function() { return window.getTotalStat('magic') + Math.floor(window.getTotalStat('int') / 2); }; 
 window.getMaxHp = function() { return window.getTotalStat('hp'); }; 
@@ -820,10 +822,7 @@ window.openItemAction = function(index, e) {
     const menu = document.getElementById('inv-context-menu');
     const item = game.player.inventory[index]; if (!item) return;
     document.getElementById('ctx-btn-equip').innerText = item.type === 'potion' ? "Use" : (item.type === 'material' ? "Enhance" : "Equip");
-    
-    // ✅ DYNAMIC SELL BUTTON ONLY IN SHOP
     document.getElementById('ctx-btn-sell').style.display = isShopping ? 'block' : 'none';
-    
     menu.style.display = 'flex'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
 }
 
@@ -893,9 +892,7 @@ dom.world.addEventListener('mousedown', (e) => {
             let group = game.keys.z ? 'normalSpawns' : (game.keys.x ? 'miniBossSpawns' : 'floorBossSpawns');
             if (!safeMapData[group]) safeMapData[group] = [];
             safeMapData[group].push({ x: hitX, y: hitY, monsterKey: mk });
-            window.buildCollisionLayers();
-            window.copyAdminData();
-            dom.log.innerText = `Spawn added to ${group} at ${hitX}, ${hitY}`;
+            window.buildCollisionLayers(); window.copyAdminData(); dom.log.innerText = `Spawn added to ${group} at ${hitX}, ${hitY}`;
             if(socket) socket.emit('adminSpawnMonster', { x: hitX, y: hitY, monsterKey: mk, instanceId: game.player.instanceId });
         }
     }
@@ -926,9 +923,7 @@ dom.world.addEventListener('mouseup', (e) => {
 window.undoLastBox = function() { if (!window.adminMode) return; if (safeMapData.teleports?.length > 0) { safeMapData.teleports.pop(); dom.log.innerText = "Undid last teleport."; } else if (safeMapData.collisions?.length > 0) { safeMapData.collisions.pop(); dom.log.innerText = "Undid last collision."; } window.buildCollisionLayers(); window.copyAdminData(); }
 window.clearAllBoxes = function() { if (!window.adminMode || !confirm("Clear ALL boxes?")) return; safeMapData.collisions = []; safeMapData.teleports = []; safeMapData.normalSpawns = []; safeMapData.miniBossSpawns = []; safeMapData.floorBossSpawns = []; window.buildCollisionLayers(); window.copyAdminData(); dom.log.innerText = "All boxes cleared."; }
 window.copyAdminData = function() { let mapId = safeMapData.id || 'town'; let varName = mapId === 'town' ? 'townMapData' : mapId + 'MapData'; let str = `var ${varName} = ` + JSON.stringify(safeMapData, null, 4) + `;\nif(typeof window !== 'undefined') window['${varName}'] = ${varName};`; dom.adminOutput.value = str; }
-
 window.adminSetPlayerLevel = function() { game.player.level = parseInt(document.getElementById('admin-player-level').value) || 1; game.player.maxExp = 100 + (game.player.level * 100); game.player.baseStats.hp = window.getBaseStat(game.player.level)*10; game.player.baseStats.str = window.getBaseStat(game.player.level); game.player.baseStats.int = window.getBaseStat(game.player.level); game.player.currentHp = window.getMaxHp(); window.updateUI(); window.updateSkillMenu(); DatabaseManager.savePlayerData(game.player); dom.log.innerText = `Level set to ${game.player.level}`; }
-
 window.adminGiveCustomItem = function() { let r = document.getElementById('admin-item-rarity').value; let t = document.getElementById('admin-item-type').value; let l = parseInt(document.getElementById('admin-item-level').value) || 1; let e = parseInt(document.getElementById('admin-item-enhance').value) || 0; let tmpl = window.ITEM_TEMPLATES[t]; let rPfx = r==="Starter"?"basic":r.toLowerCase(); let item = { id: Date.now() + Math.random(), name: `${r} Admin ${tmpl.baseName}`, type: tmpl.slot, sprite: rPfx+tmpl.spriteName, level: l, rarity: r, color: window.RARITY_COLORS[r], fixedStat: {}, enhanceLevel: e }; let sVal = window.getBaseStat(l); item.fixedStat[tmpl.statKey] = sVal; window.addLoot(item); dom.log.innerText = `Spawned ${item.name}!`; }
 
 window.isColliding = function(targetX, targetY) { const hitX = targetX + (game.player.width - game.player.w) / 2; const hitY = targetY + game.player.height - game.player.h; const cols = safeMapData.collisions || []; for (let box of cols) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; } return false; }
@@ -977,17 +972,13 @@ window.closeInspect = function() { dom.inspect.style.display = 'none'; };
 
 window.leaveParty = function() {
     if(socket) socket.emit('leaveParty');
-    dom.partyPanel.style.display = 'none';
-    dom.partyMembers.innerHTML = '';
-    game.party = null;
-    dom.log.innerText = "You left the party.";
+    dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; game.party = null; dom.log.innerText = "You left the party.";
     
     if (safeMapData.id !== 'town') {
         const transScreen = document.getElementById('map-transition');
         document.getElementById('transition-text').innerText = `Entering town...`;
         transScreen.style.display = 'flex'; setTimeout(() => { transScreen.style.opacity = '1'; }, 10);
         game.player.teleportCooldown = 4000;
-        
         setTimeout(() => {
             window.loadMapScript('town', () => {
                 safeMapData = window.MapDatabase['town']; game.player.x = safeMapData.spawnX || 960; game.player.y = safeMapData.spawnY || 1000;
@@ -1231,7 +1222,6 @@ if(socket) {
     socket.on('tradeCancelled', () => { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "The other player cancelled the trade."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); });
     socket.on('partyUpdate', (partyData) => { game.party = partyData || null; window.renderPartyUI(); });
     
-    // ✅ GOLD ACQUISITION ADDED
     socket.on('receiveExp', (data) => { 
         game.player.exp += data.amount; 
         if(data.gold) game.player.gold += data.gold;
@@ -1277,7 +1267,14 @@ if(socket) {
             currentIds.add(m.id); let mEl = document.getElementById('mob_' + m.id);
             if (!mEl) {
                 mEl = document.createElement('div'); mEl.id = 'mob_' + m.id; mEl.className = 'entity monster-container'; mEl.style.position = 'absolute'; mEl.style.cursor = m.isMerchant ? 'pointer' : 'crosshair'; mEl.style.zIndex = '50'; mEl.style.display = 'flex'; mEl.style.justifyContent = 'center'; mEl.style.alignItems = 'flex-end';
-                mEl.innerHTML = `<div class="name-tag ${m.isMerchant?'merchant-name':'mob-name'}">${m.name}${m.isMerchant?'':` Lv.${m.monsterKey === 'mini_boss1' ? '10' : m.monsterKey === 'floor_boss1' ? '15' : '5'}`}</div><div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div><div class="monster-ui-layer" style="position:absolute; top:-20px; left:0; width:100%; pointer-events:none;"><div class="bar-container" style="height:5px; border-radius:0; margin-bottom:0;"><div class="hp-fill monster-hp-fill" style="background-color:#f44336; height:100%; width:100%;"></div></div></div>`;
+                
+                // ✅ RENDER THE MERCHANT WITH AN AVATAR RIG
+                if (m.isMerchant) {
+                    mEl.innerHTML = `<div class="name-tag merchant-name">Merchant</div><div class="avatar-rig" style="transform: scale(0.9);"><img class="avatar-layer layer-head" src="animation/avatar_head.png" style="filter: sepia(1) hue-rotate(15deg) saturate(3) brightness(1.2)"><img class="avatar-layer layer-body" src="animation/avatar_idlefront.png" style="filter: sepia(1) hue-rotate(15deg) saturate(3) brightness(1.2)"><img class="avatar-layer layer-hair" src="animation/avatar_hair2.png" style="filter: brightness(0.2)"></div>`;
+                } else {
+                    mEl.innerHTML = `<div class="name-tag mob-name">${m.name} Lv.${m.monsterKey === 'mini_boss1' ? '10' : m.monsterKey === 'floor_boss1' ? '15' : '5'}</div><div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div><div class="monster-ui-layer" style="position:absolute; top:-20px; left:0; width:100%; pointer-events:none;"><div class="bar-container" style="height:5px; border-radius:0; margin-bottom:0;"><div class="hp-fill monster-hp-fill" style="background-color:#f44336; height:100%; width:100%;"></div></div></div>`;
+                }
+
                 mEl.addEventListener('pointerdown', (e) => { 
                     e.stopPropagation(); 
                     if(m.isMerchant) { window.openShop(); return; }
@@ -1289,51 +1286,52 @@ if(socket) {
             if (!m.alive) { mEl.style.display = 'none'; } else {
                 mEl.style.display = 'flex'; mEl.style.left = m.x + 'px'; mEl.style.top = m.y + 'px'; mEl.style.width = (m.width || 40) + 'px'; mEl.style.height = (m.height || 40) + 'px';
                 
-                const hpBarFill = mEl.querySelector('.monster-hp-fill'); 
-                if(hpBarFill) hpBarFill.style.width = (m.currentHp / Math.max(1, m.maxHp)) * 100 + '%';
-                
-                const uiLayer = mEl.querySelector('.monster-ui-layer');
-                if (m.isMerchant && uiLayer) uiLayer.style.display = 'none';
+                if (!m.isMerchant) {
+                    const hpBarFill = mEl.querySelector('.monster-hp-fill'); 
+                    if(hpBarFill) hpBarFill.style.width = (m.currentHp / Math.max(1, m.maxHp)) * 100 + '%';
 
-                const spriteLayer = mEl.querySelector('.monster-sprite-layer');
-                if (m.isMerchant) { spriteLayer.style.backgroundImage = 'none'; spriteLayer.style.backgroundColor = '#4CAF50'; spriteLayer.style.border = '2px solid #fff'; spriteLayer.style.borderRadius = '8px'; spriteLayer.style.animation = 'none'; }
-                else if (m.monsterKey.includes('common_mobs') || m.monsterKey.includes('mini_boss') || m.monsterKey.includes('floor_boss')) { spriteLayer.style.backgroundImage = 'none'; spriteLayer.style.backgroundColor = m.cssColor || '#ff69b4'; spriteLayer.style.border = `2px solid ${m.cssBorder || '#c71585'}`; spriteLayer.style.borderRadius = '50% 50% 40% 40%'; spriteLayer.style.animation = 'slime-bounce 0.5s infinite alternate'; } 
-                else { spriteLayer.style.backgroundColor = 'transparent'; spriteLayer.style.border = 'none'; spriteLayer.style.borderRadius = '0'; spriteLayer.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`; spriteLayer.style.animation = 'none'; }
+                    const spriteLayer = mEl.querySelector('.monster-sprite-layer');
+                    if (m.monsterKey.includes('common_mobs') || m.monsterKey.includes('mini_boss') || m.monsterKey.includes('floor_boss')) { spriteLayer.style.backgroundImage = 'none'; spriteLayer.style.backgroundColor = m.cssColor || '#ff69b4'; spriteLayer.style.border = `2px solid ${m.cssBorder || '#c71585'}`; spriteLayer.style.borderRadius = '50% 50% 40% 40%'; spriteLayer.style.animation = 'slime-bounce 0.5s infinite alternate'; } 
+                    else { spriteLayer.style.backgroundColor = 'transparent'; spriteLayer.style.border = 'none'; spriteLayer.style.borderRadius = '0'; spriteLayer.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`; spriteLayer.style.animation = 'none'; }
+                }
             }
         });
     });
 
     socket.on('monsterAttack', (data) => {
         if (!data || !game.monsters[data.monsterId]) return; const m = game.monsters[data.monsterId]; const mEl = document.getElementById('mob_' + m.id); if(!mEl) return;
-        const targetId = data.targetId; let tx = game.player.x + 24; let ty = game.player.y + 48; if (targetId !== game.player.id && game.remotePlayers[targetId]) { const rp = game.remotePlayers[targetId]; tx = rp.x + 24; ty = rp.y + 48; }
-        const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); let dx = tx - mcx, dy = ty - mcy; let dist = Math.hypot(dx, dy) || 1; let moveX = (dx / dist) * 20; let moveY = (dy / dist) * 20;
-        const spriteLayer = mEl.querySelector('.monster-sprite-layer'); if(spriteLayer) { spriteLayer.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`; setTimeout(() => { spriteLayer.style.transform = `translate(0px, 0px) scale(1)`; }, 150); }
         
-        if (targetId === game.player.id && game.player.currentHp > 0 && !game.isGhost) {
+        let tx = data.targetX; let ty = data.targetY;
+        const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); let dx = tx - mcx, dy = ty - mcy; let dist = Math.hypot(dx, dy) || 1; let moveX = (dx / dist) * 20; let moveY = (dy / dist) * 20;
+        
+        if(!m.isMerchant) {
+            const spriteLayer = mEl.querySelector('.monster-sprite-layer'); if(spriteLayer) { spriteLayer.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`; setTimeout(() => { spriteLayer.style.transform = `translate(0px, 0px) scale(1)`; }, 150); }
+        }
+
+        if (data.targetId === game.player.id && game.player.currentHp > 0 && !game.isGhost) {
             let now = Date.now();
             if (now < game.player.untargetableUntil) return; 
             
             const mobDmg = Math.max(1, (m.atk || 25) - window.getDefense()); 
-            
-            let dmgTaken = mobDmg;
-            if (game.player.activePets && game.player.activePets.length > 0) {
-                let pet = game.player.activePets[0];
-                pet.hp -= Math.floor(mobDmg / 2);
-                dmgTaken = Math.floor(mobDmg / 2);
-                window.spawnDamageText(pet.x + 15, pet.y, Math.floor(mobDmg / 2), '#ff0000');
-            }
-
-            game.player.currentHp = Math.max(0, game.player.currentHp - dmgTaken);
+            game.player.currentHp = Math.max(0, game.player.currentHp - mobDmg);
             
             if (game.player.currentHp <= 0 && now < game.player.immortalUntil) {
                 game.player.currentHp = 1; window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMORTAL", '#ffeb3b');
-            } else { window.spawnDamageText(game.player.x + 24, game.player.y - 10, dmgTaken, '#f44336'); }
+            } else { window.spawnDamageText(game.player.x + 24, game.player.y - 10, mobDmg, '#f44336'); }
             
             window.spawnSpark(game.player.x + 24, game.player.y + 48); window.updateUI(); window.emitVitalsIfNeeded(true);
+        } else if (game.player.activePets && game.player.activePets.length > 0) {
+            // ✅ PET TAKES DAMAGE INSTEAD
+            let pet = game.player.activePets.find(p => p.id === data.targetId);
+            if (pet) {
+                const mobDmg = Math.max(1, (m.atk || 25) - window.getDefense()); 
+                pet.hp -= mobDmg;
+                window.spawnDamageText(pet.x + 15, pet.y, mobDmg, '#ff0000');
+            }
         }
     });
 
-    socket.on('monsterHit', (data) => { if (!data || !game.monsters[data.monsterId]) return; const m = game.monsters[data.monsterId]; m.currentHp = data.newHp; m.maxHp = data.maxHp || m.maxHp; const mCenterX = m.x + (m.width / 2); const mCenterY = m.y + (m.height / 2); window.spawnDamageText(mCenterX, m.y - 10, data.damage, '#fff'); if (data.isPendant) window.spawnWhiteSplash(mCenterX, mCenterY); else window.spawnSpark(mCenterX, mCenterY); const mEl = document.getElementById('mob_' + m.id); if(mEl) { mEl.classList.add('hit-flash'); setTimeout(() => mEl.classList.remove('hit-flash'), 100); } window.updateUI(); });
+    socket.on('monsterHit', (data) => { if (!data || !game.monsters[data.monsterId]) return; const m = game.monsters[data.monsterId]; m.currentHp = data.newHp; m.maxHp = data.maxHp || m.maxHp; const mCenterX = m.x + (m.width / 2); const mCenterY = m.y + (m.height / 2); window.spawnDamageText(mCenterX, m.y - 10, data.damage, '#fff'); if (data.isPendant) window.spawnWhiteSplash(mCenterX, mCenterY); else window.spawnSpark(mCenterX, mCenterY); const mEl = document.getElementById('mob_' + m.id); if(mEl && !m.isMerchant) { mEl.classList.add('hit-flash'); setTimeout(() => mEl.classList.remove('hit-flash'), 100); } window.updateUI(); });
     socket.on('monsterDied', (data) => { if (!data || !game.monsters[data.monsterId]) return; game.monsters[data.monsterId].alive = false; const mEl = document.getElementById('mob_' + data.monsterId); if(mEl) mEl.style.display = 'none'; window.updateUI(); });
     socket.on('monsterSpawned', (m) => { if (!m || safeMapData.id === 'town') return; game.monsters[m.id] = m; const mEl = document.getElementById('mob_' + m.id); if(mEl) mEl.style.display = 'flex'; });
     socket.on('lootDropped', (item) => { if (item) window.addLoot(item); });
@@ -1446,7 +1444,7 @@ window.executeSkill = function(skillId, className) {
         let count = game.player.level >= 25 ? 2 : 1;
         
         for (let i=0; i<count; i++) {
-            let petId = Date.now() + i;
+            let petId = 'pet_' + Date.now() + i;
             let pEl = document.createElement('div'); pEl.className = 'pet-slime';
             pEl.innerHTML = '<div class="pet-hp-bar"><div class="pet-hp-fill" id="pet-hp"></div></div>';
             pEl.style.left = game.player.x + 'px'; pEl.style.top = game.player.y + 'px';
@@ -1503,7 +1501,7 @@ window.executeSkill = function(skillId, className) {
     
     if (skillId === 'ice1' || skillId === 'ice3' || skillId === 'bld3') {
         let closestMob = null; let minD = Infinity; const attackRadius = className === 'Ice Master' ? 300 : 80;
-        for(let mId in game.monsters) { let m = game.monsters[mId]; if(!m.alive) continue; let dist = Math.hypot((game.player.x+24) - (m.x+m.width/2), (game.player.y+48) - (m.y+m.height/2)); if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; } }
+        for(let mId in game.monsters) { let m = game.monsters[mId]; if(!m.alive || m.isMerchant) continue; let dist = Math.hypot((game.player.x+24) - (m.x+m.width/2), (game.player.y+48) - (m.y+m.height/2)); if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; } }
         
         if (closestMob) {
             let mCx = closestMob.x + (closestMob.width/2); let mCy = closestMob.y + (closestMob.height/2);
@@ -1568,7 +1566,7 @@ function gameLoop(ts) {
     }
 
     // ✅ LAST MAN GHOST EVACUATION
-    if (game.isGhost && game.party && game.party.members.length === 1) {
+    if (game.isGhost && game.party && game.party.members.length === 1 && safeMapData.id !== 'town') {
         dom.log.innerText = "You are the last one left. Returning to Town.";
         window.leaveParty();
     }
@@ -1595,7 +1593,7 @@ function gameLoop(ts) {
         if (canMoveY) game.player.y = nextY;
     }
 
-    // ✅ SUMMONER SLIME AI: Melee Slam & HP
+    // ✅ SUMMONER SLIME AI: Fast Melee Slam & HP
     if (game.player.activePets && game.player.activePets.length > 0) {
         let pClass = game.player.baseStats.playerClass;
         let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(pClass);
@@ -1611,7 +1609,7 @@ function gameLoop(ts) {
                     setTimeout(() => { 
                         p.dom.style.transform = 'scale(1)'; 
                         let rawDmg = isMagicClass ? window.getMagicAttack() : window.getAttackPower();
-                        if(socket) socket.emit('attackMonster', { monsterId: targetMob.id, damage: Math.floor(rawDmg * 0.25) }); 
+                        if(socket) socket.emit('attackMonster', { monsterId: targetMob.id, damage: Math.max(1, Math.floor(rawDmg * 0.25)) }); 
                     }, 200);
                 }
             } else {
@@ -1625,6 +1623,7 @@ function gameLoop(ts) {
             if (p.hp <= 0) {
                 p.skillRef.cooldownReadyAt = Date.now() + p.skillRef.cd; updateHotbarCooldowns();
                 p.dom.remove(); game.player.activePets.splice(idx, 1);
+                if(socket) socket.emit('syncPet', { id: p.id, alive: false });
             } else {
                 if (Math.random() < 0.05 && socket) socket.emit('syncPet', { id: p.id, x: p.x, y: p.y, alive: true });
             }
