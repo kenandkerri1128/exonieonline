@@ -110,7 +110,7 @@
 
         /* ✅ HOTBAR UI FOR SKILLS WITH COOLDOWN TEXT */
         #hotbar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 1000; display: none; }
-        .hotbar-slot { width: 50px; height: 50px; background: rgba(0,0,0,0.8); border: 2px solid #555; border-radius: 5px; display: none; justify-content: center; align-items: center; font-weight: bold; position: relative; overflow: hidden; }
+        .hotbar-slot { width: 50px; height: 50px; background: rgba(0,0,0,0.8); border: 2px solid #555; border-radius: 5px; display: flex; justify-content: center; align-items: center; font-weight: bold; position: relative; overflow: hidden; }
         .hotbar-key { position: absolute; top: 2px; left: 4px; font-size: 12px; color: #ffeb3b; z-index: 2; }
         .hotbar-name { position: absolute; bottom: 2px; width: 100%; text-align: center; font-size: 10px; color: white; z-index: 2; pointer-events: none; line-height: 1; }
         .cooldown-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: rgba(255,0,0,0.6); transition: height 0.1s linear; z-index: 3; }
@@ -544,12 +544,12 @@ let safeMapData = { id: "town", name: "Town of Exonie", image: "town_map.png", s
 
 let isInventoryOpen = false; let isSkillOpen = false; let isEnhancing = false; let activeInvIndex = -1; let attackCooldownActive = false; let isAttacking = false; let attackHeld = false; let isChatting = false; let autoAttackMode = false; let lastNetTs = 0; let lastSentState = 'idle'; let pendingPartyInvite = null; let pendingTradeInvite = null; let inTradeMode = false; let tradeTarget = null; let tradeMyItems = [null,null,null]; let tradeTheirItems = [null,null,null]; let lastVitalsSent = {hp:null,maxHp:null,level:null}; let lastVitalsTs = 0;
 let isDrawing = false; let startX = 0; let startY = 0; let currentBox = null; let drawType = 'collision';
-let currentBGM = null; let currentTrackName = ""; let loginTimeout; let activeTargetPlayerId = null;
+let currentBGM = null; let currentTrackName = ""; let activeTargetPlayerId = null;
 window.facingRight = false;
 window.isLoading = false; 
 
 window.game = { 
-    isRunning: false, isGhost: false, keys: { w: false, a: false, s: false, d: false }, 
+    isRunning: false, isGhost: false, keys: { w: false, a: false, s: false, d: false, z: false, x: false, c: false }, 
     player: { id: 'local_player', name: "Adventurer", level: 1, currentHp: 100, x: 960, y: 1000, width: 48, height: 96, w: 24, h: 20, teleportCooldown: 0, currentPortal: null, equips: { weapon: null }, currentBodySrc: '', playerClass: null, immortalUntil: 0, untargetableUntil: 0, activePets: [] }, 
     monsters: {}, remotePlayers: {}, party: null 
 };
@@ -557,7 +557,7 @@ window.game = {
 const DatabaseManager = { savePlayerData: function(playerObj) { playerObj.mapId = safeMapData.id || 'town'; if(socket) socket.emit('saveData', playerObj); if(socket) socket.emit('playerEquipUpdate', { equips: playerObj.equips }); } };
 
 // ==========================================
-// 2. REAL CACHE BUSTER MAP LOADER & ASSET PRELOADER
+// 2. REAL CACHE BUSTER MAP LOADER & ASSET PRELOADER (NOW FETCHES AUDIO!)
 // ==========================================
 window.loadMapScript = function(mapId, callback) {
     let scriptName = (mapId === 'town' ? 'townmap.js' : mapId + '.js') + '?v=' + Date.now();
@@ -598,19 +598,31 @@ window.preloadMapAssets = function(mapData, callback) {
         if(!wpn.includes('pendant')) assets.push(`weapon/${wpn}_attack.png`);
     }
 
+    // ✅ FIX: PRELOAD SKILL AUDIO SO IT NEVER DELAYS IN BATTLE
+    if (game.player.baseStats && game.player.baseStats.playerClass) {
+        let hairPrefix = window.charData.hairStyle === 'none' ? 'none' : `hair${window.charData.hairStyle}`;
+        let formattedClass = game.player.baseStats.playerClass.replace(/\s+/g, '').toLowerCase();
+        assets.push(`skills/${hairPrefix}_${formattedClass}.mp3`);
+    }
+
     let loaded = 0; let toLoad = assets.length;
     let failSafe = setTimeout(() => { window.isLoading = false; callback(); }, 5000); 
 
     if(toLoad === 0) { clearTimeout(failSafe); window.isLoading = false; return callback(); }
 
+    const checkDone = () => {
+        if(loaderFill) loaderFill.style.width = (loaded / toLoad) * 100 + '%';
+        if(loaded === toLoad) { clearTimeout(failSafe); window.isLoading = false; callback(); }
+    };
+
     assets.forEach(src => {
-        let img = new Image();
-        img.onload = img.onerror = () => {
-            loaded++;
-            if(loaderFill) loaderFill.style.width = (loaded / toLoad) * 100 + '%';
-            if(loaded === toLoad) { clearTimeout(failSafe); window.isLoading = false; callback(); }
-        };
-        img.src = src;
+        if (src.endsWith('.mp3')) {
+            fetch(src).then(() => { loaded++; checkDone(); }).catch(() => { loaded++; checkDone(); });
+        } else {
+            let img = new Image();
+            img.onload = img.onerror = () => { loaded++; checkDone(); };
+            img.src = src;
+        }
     });
 }
 
@@ -643,7 +655,7 @@ window.showAura = function(color) {
     const aura = document.getElementById('player-aura');
     aura.className = `aura aura-${color}`;
     aura.style.animation = 'none';
-    void aura.offsetWidth; 
+    void aura.offsetWidth; // Trigger reflow
     aura.style.animation = 'aura-burst 0.6s ease-out forwards';
 }
 
@@ -670,6 +682,7 @@ window.playSFX = function(weaponSprite) {
     let audio = new Audio(`music/${sfx}.mp3`); audio.volume = 0.5; audio.play().catch(e => console.log("SFX error", e));
 }
 
+// STAT CALCULATIONS WITH PASSIVES
 window.getTotalStat = function(statName) { 
     if (!game.player || !game.player.baseStats) return 0; 
     let base = game.player.baseStats[statName] || 0; 
@@ -681,12 +694,14 @@ window.getTotalStat = function(statName) {
         } 
     }); 
     
+    // Passives
     if (game.player.baseStats.playerClass === 'Berserker' && game.player.level >= 25) {
         if (statName === 'hp' || statName === 'defense') { base += Math.floor(game.player.baseStats[statName] * 0.25); }
     }
     if (game.player.baseStats.playerClass === 'Blademaster') {
         if (statName === 'attack') { base += Math.floor(game.player.baseStats.attack * 0.25); }
     }
+    
     return base; 
 }
 window.getMaxHp = function() { return window.getTotalStat('hp'); }; window.getAttackPower = function() { return window.getTotalStat('attack') + Math.floor(window.getTotalStat('str') / 2); }; window.getMagicAttack = function() { return window.getTotalStat('magic') + Math.floor(window.getTotalStat('int') / 2); }; window.getDefense = function() { return window.getTotalStat('defense'); }; window.getSpeed = function() { return window.getTotalStat('speed'); }; window.getBaseStat = function(lvl) { if (lvl >= 50) return 100; if (lvl >= 45) return 45; if (lvl >= 40) return 40; if (lvl >= 35) return 30; if (lvl >= 30) return 27; if (lvl >= 25) return 22; if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; if (lvl >= 5) return 8; return 5; }
@@ -781,16 +796,32 @@ window.buildCollisionLayers = function() {
     }
 }
 
+/* ✅ FIX: ADMIN Z/X/C SPAWN MARKER LOGIC ADDED */
 dom.world.addEventListener('mousedown', (e) => {
-    if (window.adminMode && e.altKey) {
-        isDrawing = true; startX = e.offsetX; startY = e.offsetY; drawType = e.shiftKey ? 'teleport' : 'collision';
-        currentBox = document.createElement('div'); currentBox.className = 'collision-box';
-        currentBox.style.left = startX + 'px'; currentBox.style.top = startY + 'px';
-        if (drawType === 'teleport') { currentBox.style.background = 'rgba(0, 0, 255, 0.4)'; currentBox.style.border = '2px dashed #00f'; } 
-        else { currentBox.style.background = 'rgba(255, 0, 0, 0.4)'; currentBox.style.border = '1px solid red'; }
-        document.getElementById('collision-layers').appendChild(currentBox);
+    if (window.adminMode) {
+        if (e.altKey) {
+            isDrawing = true; startX = e.offsetX; startY = e.offsetY; drawType = e.shiftKey ? 'teleport' : 'collision';
+            currentBox = document.createElement('div'); currentBox.className = 'collision-box';
+            currentBox.style.left = startX + 'px'; currentBox.style.top = startY + 'px';
+            if (drawType === 'teleport') { currentBox.style.background = 'rgba(0, 0, 255, 0.4)'; currentBox.style.border = '2px dashed #00f'; } 
+            else { currentBox.style.background = 'rgba(255, 0, 0, 0.4)'; currentBox.style.border = '1px solid red'; }
+            document.getElementById('collision-layers').appendChild(currentBox);
+        } 
+        else if (game.keys.z || game.keys.x || game.keys.c) {
+            const rect = dom.world.getBoundingClientRect();
+            const hitX = Math.round((e.clientX - rect.left) / CAMERA_ZOOM);
+            const hitY = Math.round((e.clientY - rect.top) / CAMERA_ZOOM);
+            let mk = document.getElementById('admin-monster-key').value;
+            let group = game.keys.z ? 'normalSpawns' : (game.keys.x ? 'miniBossSpawns' : 'floorBossSpawns');
+            if (!safeMapData[group]) safeMapData[group] = [];
+            safeMapData[group].push({ x: hitX, y: hitY, monsterKey: mk });
+            window.buildCollisionLayers();
+            window.copyAdminData();
+            dom.log.innerText = `Spawn added to ${group} at ${hitX}, ${hitY}`;
+        }
     }
 });
+
 dom.world.addEventListener('mousemove', (e) => {
     if (!isDrawing || !currentBox) return;
     const currentX = e.offsetX; const currentY = e.offsetY; const width = currentX - startX; const height = currentY - startY;
@@ -901,6 +932,7 @@ window.leaveParty = function() {
                     
                     /* ✅ FIX: CROSS MAP GHOSTING WIPE */
                     for (let rId in game.remotePlayers) window.removeRemotePlayer(rId);
+                    document.querySelectorAll('.entity').forEach(el => { if (el.id.startsWith('remote_')) el.remove(); });
                     document.querySelectorAll('.monster-container').forEach(el => el.remove());
                     game.monsters = {};
                     
@@ -981,6 +1013,7 @@ function setKeyState(e, isDown) {
             } 
         } 
         
+        /* ✅ FIX: SKILL COOLDOWN NOW USES .cd INSTEAD OF UNDEFINED */
         if (key === '1' || key === '2') {
             if (!game.isGhost && !window.isLoading && !isInventoryOpen && !isSkillOpen && !window.adminMode) {
                 let slotIndex = key === '1' ? 0 : 1;
@@ -988,7 +1021,7 @@ function setKeyState(e, isDown) {
                 if (skill) {
                     let now = Date.now();
                     if (now >= skill.cooldownReadyAt) {
-                        skill.cooldownReadyAt = now + skill.cooldown;
+                        skill.cooldownReadyAt = now + skill.cd; // WAS BUGGED AS skill.cooldown
                         skill.execute();
                         updateHotbarCooldowns();
                     } else {
@@ -1096,7 +1129,7 @@ if(socket) {
         window.charData.skinColor = userData.skin_color || 'flesh'; window.charData.hairColor = userData.hair_color || 'black'; window.charData.hairStyle = userData.hair_style || '1'; 
         game.player.currentHp = window.getMaxHp(); 
         
-        window.updateSkillMenu(); // Initialize Hotbar based on loaded DB class
+        window.updateSkillMenu(); 
         
         let targetMapId = userData.map_id || 'town';
         
@@ -1146,6 +1179,7 @@ if(socket) {
 
             /* ✅ FIX: CROSS-MAP GHOSTING WIPE ON RESPAWN */
             for (let rId in game.remotePlayers) window.removeRemotePlayer(rId);
+            document.querySelectorAll('.entity').forEach(el => { if (el.id.startsWith('remote_')) el.remove(); });
 
             if(tp.mapId === 'town') {
                 document.querySelectorAll('.monster-container').forEach(el => el.remove());
@@ -1173,6 +1207,7 @@ if(socket) {
                     
                     /* ✅ FIX: CROSS-MAP GHOSTING WIPE */
                     for (let rId in game.remotePlayers) window.removeRemotePlayer(rId);
+                    document.querySelectorAll('.entity').forEach(el => { if (el.id.startsWith('remote_')) el.remove(); });
 
                     if(nextMapId === 'town') {
                         document.querySelectorAll('.monster-container').forEach(el => el.remove());
@@ -1452,7 +1487,6 @@ window.updateSkillMenu = function() {
     for (let i = activeIndex; i < 2; i++) { document.getElementById(`hotbar-${i+1}`).style.display = 'none'; }
 }
 
-/* ✅ FIX: ADDED DYNAMIC NUMBER COUNTDOWN TO COOLDOWN UI */
 function updateHotbarCooldowns() {
     let now = Date.now();
     game.player.activeSkills.forEach((s, index) => {
