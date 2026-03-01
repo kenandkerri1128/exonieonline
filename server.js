@@ -115,7 +115,7 @@ const MonsterDatabase = {
     // 2 minute respawn (120,000 ms)
     "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 1500, atk: 120, def: 15, speed: 2.8, expYield: 500, goldYield: 150, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
     // Aggressive, fast, massive aggro radius, no respawn until server reload/admin spawn
-    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 4000, def: 40, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 800, chaseRadius: 1500, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
+    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 350, def: 100, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 800, chaseRadius: 1500, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
 };
 
 function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
@@ -625,3 +625,4 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
