@@ -11,623 +11,791 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY; 
+const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const onlinePlayers = {}; 
-const parties = {};        
-const playerParty = {};    
-
-// ==========================================
-// LOOT, GOLD & STAT GENERATION ENGINE
-// ==========================================
-const STAT_TYPES = ['attack', 'magic', 'defense', 'speed', 'int', 'str', 'hp'];
-const RARITY_COLORS = { "Starter": "#aaaaaa", "Basic": "#8B4513", "Rare": "#2196F3", "Unique": "#9c27b0", "Legendary": "#f44336", "Godly": "#e0ffff" };
-const ITEM_TEMPLATES = { 
-    sword: { slot: 'weapon', statKey: 'attack', baseName: 'Sword', spriteName: 'sword' }, 
-    staff: { slot: 'weapon', statKey: 'magic', baseName: 'Staff', spriteName: 'staff' }, 
-    pendant: { slot: 'weapon', statKey: 'magic', baseName: 'Pendant', spriteName: 'pendant' }, 
-    armor: { slot: 'armor', statKey: 'defense', baseName: 'Armor', spriteName: 'armor' }, 
-    leggings: { slot: 'leggings', statKey: 'hp', baseName: 'Leggings', spriteName: 'leggings' } 
-};
-
-function getBaseStat(lvl) { 
-    if (lvl >= 50) return 100; if (lvl >= 45) return 45; if (lvl >= 40) return 40; 
-    if (lvl >= 35) return 30; if (lvl >= 30) return 27; if (lvl >= 25) return 22; 
-    if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; 
-    if (lvl >= 5) return 8; return 5; 
+// --- Dictionary / Trie Setup ---
+class TrieNode {
+    constructor() { this.children = {}; this.isEndOfWord = false; }
+}
+class Trie {
+    constructor() { this.root = new TrieNode(); }
+    insert(word) {
+        let current = this.root;
+        for (let char of word) {
+            if (!current.children[char]) current.children[char] = new TrieNode();
+            current = current.children[char];
+        }
+        current.isEndOfWord = true;
+    }
+    search(word) {
+        let current = this.root;
+        for (let char of word) {
+            if (!current.children[char]) return false;
+            current = current.children[char];
+        }
+        return current.isEndOfWord;
+    }
 }
 
-function generateLoot(monster) {
-    const mLevel = monster.level || 5;
+const dictionaryTrie = new Trie();
+const allWords = [];
 
-    // 50% chance for a Refinement Stone Drop
-    if (Math.random() < 0.50) {
-        let stoneRarity = "Basic";
-        let r = Math.random();
-        
-        if (monster.category === "floor_boss") {
-            if(r < 0.10) stoneRarity = "Godly";
-            else if(r < 0.30) stoneRarity = "Legendary";
-            else if(r < 0.60) stoneRarity = "Unique";
-            else if(r < 0.85) stoneRarity = "Rare";
-            else stoneRarity = "Basic";
-        } else if (monster.category === "mini_boss") {
-            stoneRarity = r < 0.35 ? "Unique" : "Rare";
-        } else {
-            stoneRarity = r < 0.15 ? "Rare" : "Basic";
-        }
-
-        return { 
-            id: Date.now() + Math.random(), 
-            name: `Refinement Stone Lv.${mLevel}`, 
-            type: "material", level: mLevel, rarity: stoneRarity, color: RARITY_COLORS[stoneRarity], 
-            description: "Enhances equipment.", quantity: 1 
-        };
-    }
-
-    // 50% chance for Gear Drop
-    const keys = Object.keys(ITEM_TEMPLATES);
-    const typeKey = keys[Math.floor(Math.random() * keys.length)];
-    
-    let rarityRoll = Math.random();
-    let rarity = "Basic";
-    
-    if (monster.category === "floor_boss") {
-        if(rarityRoll < 0.10) rarity = "Godly";
-        else if(rarityRoll < 0.30) rarity = "Legendary";
-        else if(rarityRoll < 0.60) rarity = "Unique";
-        else if(rarityRoll < 0.85) rarity = "Rare";
-        else rarity = "Basic";
-    } else if (monster.category === "mini_boss") {
-        rarity = rarityRoll < 0.35 ? "Unique" : "Rare";
+try {
+    const dictPath = path.join(__dirname, 'words.txt');
+    if (fs.existsSync(dictPath)) {
+        const fileContent = fs.readFileSync(dictPath, 'utf-8');
+        const words = fileContent.split(/\r?\n/);
+        words.forEach(w => {
+            const cleanWord = w.trim().toUpperCase();
+            if (cleanWord) {
+                dictionaryTrie.insert(cleanWord);
+                allWords.push(cleanWord);
+            }
+        });
+        console.log(`Dictionary loaded successfully! Total words: ${allWords.length}`);
     } else {
-        rarity = rarityRoll < 0.15 ? "Rare" : "Basic";
+        console.warn("WARNING: words.txt not found.");
     }
-
-    const template = ITEM_TEMPLATES[typeKey];
-    const rarityPrefix = rarity === "Starter" ? "basic" : rarity.toLowerCase();
-    
-    let itemName = `${rarity === "Rare" ? "Slime" : "Basic"} ${template.baseName}`;
-    if (rarity !== "Rare" && rarity !== "Basic") itemName = `${rarity} ${template.baseName}`;
-
-    let item = { id: Date.now() + Math.random(), name: itemName, type: template.slot, sprite: rarityPrefix + template.spriteName, level: mLevel, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 };
-    
-    // ✅ STRICT PENDANT 50% PENALTY ENFORCED
-    let statVal = getBaseStat(mLevel) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0);
-    if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); 
-    item.fixedStat[template.statKey] = statVal;
-    
-    item.randomStat = {};
-    item.randomStat[STAT_TYPES[Math.floor(Math.random() * STAT_TYPES.length)]] = Math.floor(Math.random() * getBaseStat(mLevel)) + 1;
-    
-    return item;
+} catch (err) {
+    console.error("Error loading dictionary:", err);
 }
 
-// ==========================================
-// SCALED MONSTER DATABASE
-// ==========================================
-const MonsterDatabase = {
-    // 10 second respawn
-    "common_mobs1": { name: "Slime", category: "common_mobs", level: 5, maxHp: 100, atk: 25, def: 0, speed: 2.5, expYield: 25, goldYield: 15, aggroRadius: 250, chaseRadius: 400, attackRange: 55, width: 40, height: 40, respawnDelay: 10000, cssColor: '#ff69b4', cssBorder: '#c71585' },
-    // 2 minute respawn (120,000 ms)
-    "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 1500, atk: 120, def: 15, speed: 2.8, expYield: 500, goldYield: 150, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
-    // Aggressive, fast, massive aggro radius, no respawn until server reload/admin spawn
-    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 4000, def: 40, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 800, chaseRadius: 1500, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
-};
+const rooms = {}; 
+let matchmakingQueue = [];
+const onlineUsers = {}; 
 
-function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
-function getPlayerById(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return onlinePlayers[sid]; } return null; }
-
-function emitPartyUpdate(partyId) {
-    const party = parties[partyId]; if (!party) return; const members = [];
-    for (const pid of party.members) {
-        const p = getPlayerById(pid);
-        if (p) members.push({ id: p.id, name: p.name, level: p.level || 1, currentHp: p.currentHp ?? null, maxHp: p.maxHp ?? null, isGhost: !!p.isGhost });
-        else members.push({ id: pid, name: pid, level: 1, currentHp: null, maxHp: null, isGhost: false });
-    }
-    const payload = { partyId: party.id, leaderId: party.leaderId, name: `${party.leaderId}'s Party`, members };
-    for (const pid of party.members) { const sid = findSocketIdByPlayerId(pid); if (sid) io.to(sid).emit('partyUpdate', payload); }
+function getRankData(lp) {
+    if (lp <= 50) return { rank: "Novice Scribe", badge: "e.png" };
+    if (lp <= 100) return { rank: "Apprentice Lexis", badge: "eplus.png" };
+    if (lp <= 200) return { rank: "Word-Seeker", badge: "d.png" };
+    if (lp <= 300) return { rank: "Fluent Phrase-Maker", badge: "dplus.png" };
+    if (lp <= 400) return { rank: "Skilled Etymologist", badge: "c.png" };
+    if (lp <= 500) return { rank: "Master of Letters", badge: "cplus.png" };
+    if (lp <= 600) return { rank: "Eloquent Scholar", badge: "b.png" };
+    if (lp <= 700) return { rank: "Renowned Author", badge: "bplus.png" };
+    if (lp <= 800) return { rank: "Grand Lexicographer", badge: "a.png" };
+    if (lp <= 900) return { rank: "Sage of the Script", badge: "aplus.png" };
+    if (lp <= 999) return { rank: "Mythic Orator", badge: "s.png" };
+    return { rank: "Genesis Lexicon God", badge: "splus.png" };
 }
 
-function removeFromParty(playerId) {
-    const pid = playerParty[playerId]; if (!pid) return; const party = parties[pid]; if (!party) { delete playerParty[playerId]; return; }
-    party.members.delete(playerId); delete playerParty[playerId];
-    if (party.leaderId === playerId) { const next = party.members.values().next().value; party.leaderId = next || null; }
-    if (!party.leaderId || party.members.size <= 1) { for (const rem of party.members) { delete playerParty[rem]; const sid = findSocketIdByPlayerId(rem); if (sid) io.to(sid).emit('partyKickedOrLeft'); } delete parties[pid]; return; }
-    emitPartyUpdate(pid);
+function getWordScore(wordLength) {
+    if (wordLength < 3) return 0;
+    return wordLength - 2;
 }
 
-function getInstanceId(playerId, mapId) {
-    if (mapId === 'town') return 'town'; 
-    const partyId = playerParty[playerId];
-    return partyId ? `${mapId}_${partyId}` : `${mapId}_solo_${playerId}`; 
+function generateBoard() {
+    const vowels = "AAAAAEEEEEEIIIIIOOOOOUUUUY";
+    const consonants = "BBCCDDFFGGHHHJKLLLLMMNNNNPPQRRRRSSSSTTTTVVWXZ";
+    let board = "";
+    for (let i = 0; i < 12; i++) board += vowels.charAt(Math.floor(Math.random() * vowels.length));
+    for (let i = 0; i < 24; i++) board += consonants.charAt(Math.floor(Math.random() * consonants.length));
+    return board.split('').sort(() => 0.5 - Math.random()).join('');
 }
 
-const worlds = {}; 
+async function getPlayerWorldRank(username, lp) {
+    try {
+        const { data: user } = await supabase.from('Wordiers').select('wins, losses').eq('username', username).single();
+        const userWins = user && user.wins ? user.wins : 0;
+        const userLosses = user && user.losses ? user.losses : 0;
+        const userTotal = userWins + userLosses;
+        const userWinRate = userTotal > 0 ? (userWins / userTotal) : 0;
 
-function spawnMonster(instId, entityId, monsterKey, cfg) {
-    const stats = MonsterDatabase[monsterKey] || MonsterDatabase["common_mobs1"];
-    return { 
-        id: entityId, instanceId: instId, monsterKey, name: stats.name, category: stats.category, level: stats.level, x: cfg.spawnArea.minX, y: cfg.spawnArea.minY, homeX: cfg.spawnArea.minX, homeY: cfg.spawnArea.minY, 
-        width: stats.width, height: stats.height, maxHp: stats.maxHp, currentHp: stats.maxHp, atk: stats.atk, def: stats.def, speed: stats.speed, expYield: stats.expYield, goldYield: stats.goldYield,
-        aggroRadius: stats.aggroRadius, chaseRadius: stats.chaseRadius, attackRange: stats.attackRange, cssColor: stats.cssColor, cssBorder: stats.cssBorder,
-        lastAttack: 0, alive: true, threatTable: {}, forcedTargetId: null, forcedUntil: 0, targetId: null, respawnDelayMs: stats.respawnDelay, frozenUntil: 0 
-    };
-}
+        const { count: countGreaterLp, error: err1 } = await supabase
+            .from('Wordiers')
+            .select('*', { count: 'exact', head: true })
+            .gt('lp', lp);
+        
+        const { data: sameLpPlayers, error: err2 } = await supabase
+            .from('Wordiers')
+            .select('username, wins, losses')
+            .eq('lp', lp)
+            .neq('username', username);
 
-// ✅ FIX: INCLUDES `atk` SO FRONTEND CALCULATES REAL DAMAGE INSTEAD OF 1
-function serializeMonster(m) { return { id: m.id, monsterKey: m.monsterKey, name: m.name, isMerchant: m.isMerchant, x: m.x, y: m.y, width: m.width, height: m.height, maxHp: m.maxHp, currentHp: m.currentHp, atk: m.atk, def: m.def, alive: m.alive, targetId: m.targetId || null, cssColor: m.cssColor, cssBorder: m.cssBorder }; }
-
-function playersInInstance(instId) { return Object.values(onlinePlayers).filter(p => p.instanceId === instId); }
-
-function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
-    const cols = worlds[instId]?.collisions || [];
-    for (let box of cols) { if (mx < box.x + box.w && mx + mWidth > box.x && my < box.y + box.h && my + mHeight > box.y) return true; }
-    return false;
-}
-
-// ✅ PERFECTED AGGRO HIERARCHY: 1. Taunt -> 2. Pets -> 3. Highest Threat -> 4. Nearest Player
-function pickTarget(m, instId, now) {
-    for (const pid of Object.keys(m.threatTable)) { 
-        const p = getPlayerById(pid); 
-        if (!p || p.instanceId !== instId || p.isGhost || p.untargetableUntil > now || p.mapId === 'town') delete m.threatTable[pid]; 
-    }
-    
-    // 1. TAUNT
-    if (m.forcedUntil > now && m.forcedTargetId) {
-        const p = getPlayerById(m.forcedTargetId);
-        if (p && p.instanceId === instId && !p.isGhost && p.untargetableUntil <= now && p.mapId !== 'town' && (p.currentHp ?? 1) > 0) {
-            return { id: p.id, isPet: false, x: p.x + 24, y: p.y + 48 };
-        } else { m.forcedTargetId = null; }
-    }
-
-    const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2);
-
-    // 2. SUMMONER PET PRIORITY
-    const world = worlds[instId];
-    if (world && world.pets) {
-        let closestPet = null; let petDist = Infinity;
-        for (const petId in world.pets) {
-            const pet = world.pets[petId];
-            const dist = Math.hypot(pet.x - mcx, pet.y - mcy);
-            if (dist <= m.chaseRadius && dist < petDist) { closestPet = pet; petDist = dist; }
+        let higherWinRateCount = 0;
+        if (sameLpPlayers) {
+            for (let p of sameLpPlayers) {
+                const pWins = p.wins || 0;
+                const pLosses = p.losses || 0;
+                const pTotal = pWins + pLosses;
+                const pWinRate = pTotal > 0 ? (pWins / pTotal) : 0;
+                
+                if (pWinRate > userWinRate) {
+                    higherWinRateCount++;
+                } else if (pWinRate === userWinRate) {
+                    // Tertiary Tiebreaker: More games played ranks higher if Win Rate is identical
+                    if (pTotal > userTotal) higherWinRateCount++;
+                }
+            }
         }
-        if (closestPet) return { id: closestPet.id, isPet: true, x: closestPet.x, y: closestPet.y };
-    }
 
-    // 3. HIGHEST THREAT
-    let best = null; let bestThreat = -1; let bestDist = Infinity;
-    for (const pid of Object.keys(m.threatTable)) {
-        const threat = m.threatTable[pid] || 0; const p = getPlayerById(pid); 
-        if (!p || p.isGhost || p.untargetableUntil > now || p.mapId === 'town') continue;
-        const dist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
-        if (dist > m.chaseRadius) continue;
-        if (threat > bestThreat || (threat === bestThreat && dist < bestDist)) { best = p; bestThreat = threat; bestDist = dist; }
-    }
-    if (best) return { id: best.id, isPet: false, x: best.x + 24, y: best.y + 48 };
-    
-    // 4. NEAREST PLAYER
-    let nearest = null; let nearestDist = Infinity;
-    for (const p of playersInInstance(instId)) {
-        if (p.isGhost || p.untargetableUntil > now || p.mapId === 'town' || (p.currentHp ?? 1) <= 0) continue; 
-        const dist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
-        if (dist <= m.aggroRadius && dist < nearestDist) { nearest = p; nearestDist = dist; }
-    }
-    if (nearest) { m.threatTable[nearest.id] = Math.max(1, m.threatTable[nearest.id] || 0); return { id: nearest.id, isPet: false, x: nearest.x + 24, y: nearest.y + 48 }; }
-    
-    return null;
-}
-
-function updateMonsterAI(instId, m, now) {
-    if (!m.alive) return;
-    if (now < m.frozenUntil) return;
-
-    // ✅ MERCHANT NEVER MOVES
-    if (m.isMerchant) return; 
-
-    const target = pickTarget(m, instId, now); m.targetId = target ? target.id : null;
-    const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2);
-    
-    if (!target) { 
-        const dist = Math.hypot(m.homeX - m.x, m.homeY - m.y); 
-        if (dist > 2) { 
-            const ang = Math.atan2(m.homeY - m.y, m.homeX - m.x); 
-            let nx = m.x + Math.cos(ang) * m.speed; let ny = m.y + Math.sin(ang) * m.speed; 
-            if (!isMonsterColliding(instId, nx, m.y, m.width, m.height)) m.x = nx;
-            if (!isMonsterColliding(instId, m.x, ny, m.width, m.height)) m.y = ny;
-        } return; 
-    }
-    
-    const dist = Math.hypot(target.x - mcx, target.y - mcy);
-    if (dist > m.chaseRadius) { if (!target.isPet && m.threatTable[target.id]) m.threatTable[target.id] *= 0.9; if (!target.isPet && m.threatTable[target.id] < 1) delete m.threatTable[target.id]; return; }
-    
-    if (dist > m.attackRange) { 
-        const ang = Math.atan2(target.y - mcy, target.x - mcx); 
-        let nx = m.x + Math.cos(ang) * m.speed; let ny = m.y + Math.sin(ang) * m.speed; 
-        if (!isMonsterColliding(instId, nx, m.y, m.width, m.height)) m.x = nx;
-        if (!isMonsterColliding(instId, m.x, ny, m.width, m.height)) m.y = ny;
-    } else { 
-        if (now - m.lastAttack > 1500) { 
-            m.lastAttack = now; 
-            // ✅ EMITS THE SERVER-SIDE 'atk' SO FRONTEND RECEIVES THE TRUE DAMAGE
-            io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: target.id, targetX: target.x, targetY: target.y, atk: m.atk }); 
-        } 
+        if (err1) return "?";
+        return countGreaterLp + higherWinRateCount + 1;
+    } catch (e) {
+        return "?";
     }
 }
 
-setInterval(() => {
-    const now = Date.now();
-    for (const instId of Object.keys(worlds)) {
-        const world = worlds[instId];
-        for (const mid of Object.keys(world.monsters)) updateMonsterAI(instId, world.monsters[mid], now);
-        io.to(instId).emit('monsterState', Object.values(world.monsters).map(serializeMonster));
-    }
-}, 100);
+function broadcastRoomList() {
+    const availableRooms = Object.keys(rooms).filter(id => rooms[id].isCustom && rooms[id].status === 'waiting' && rooms[id].players.length < 8).map(id => ({
+        id: id, players: rooms[id].players.length, isLocked: !!rooms[id].password
+    }));
+    io.emit('roomListUpdate', availableRooms);
+}
 
 io.on('connection', (socket) => {
-    let currentUser = null; 
-
-    socket.on('saveMapFile', (data) => {
-        if (!data.mapId || !data.content) return;
-        const fileName = data.mapId === 'town' ? 'townmap.js' : `${data.mapId}.js`;
-        const filePath = path.join(__dirname, 'public', fileName);
-        try { fs.writeFileSync(filePath, data.content); } catch(err) {}
-    });
-
-    socket.on('syncMapData', (data) => {
-        const instId = data.instanceId; if (!instId) return;
-        if (!worlds[instId]) { worlds[instId] = { instanceId: instId, mapId: data.mapId, collisions: [], monsters: {}, pets: {}, monstersSpawned: false }; }
-        worlds[instId].collisions = data.collisions || [];
-
-        if (!worlds[instId].monstersSpawned) {
-            worlds[instId].monstersSpawned = true;
-            
-            // ✅ SPAWNS STATIONARY MERCHANT AT EXACTLY 960, 1000 WITH CORRECT HITBOX DIMS (80x120)
-            if (data.mapId === 'town') {
-                worlds[instId].monsters['npc_merchant'] = {
-                    id: 'npc_merchant', isMerchant: true, name: 'Merchant', 
-                    x: 960, y: 1000, homeX: 960, homeY: 1000, 
-                    width: 80, height: 120, speed: 0, maxHp: 9999, currentHp: 9999, atk: 0, alive: true
-                };
-            }
-
-            let mIndex = 0;
-            const spawnGroups = [ { arr: data.normalSpawns || [], fallback: 'common_mobs1' }, { arr: data.miniBossSpawns || [], fallback: 'mini_boss1' }, { arr: data.floorBossSpawns || [], fallback: 'floor_boss1' } ];
-            spawnGroups.forEach(group => {
-                group.arr.forEach(sp => {
-                    let mKey = sp.monsterKey || group.fallback; let mId = `${instId}_m_${mIndex++}`;
-                    if (!worlds[instId].monsters[mId]) {
-                        let cfg = { spawnArea: { minX: sp.x, maxX: sp.x, minY: sp.y, maxY: sp.y } };
-                        worlds[instId].monsters[mId] = spawnMonster(instId, mId, mKey, cfg);
-                    }
-                });
-            });
-        }
-    });
-
-    socket.on('adminSpawnMonster', (data) => {
-        const instId = data.instanceId; if (!instId || !worlds[instId]) return;
-        let mId = `${instId}_m_admin_${Date.now()}`;
-        let cfg = { spawnArea: { minX: data.x, maxX: data.x, minY: data.y, maxY: data.y } };
-        const newMob = spawnMonster(instId, mId, data.monsterKey, cfg);
-        worlds[instId].monsters[mId] = newMob;
-        io.to(instId).emit('monsterSpawned', serializeMonster(newMob));
-    });
-
-    socket.on('portalStep', (data) => {
-        const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return;
-        p.currentPortal = data.portalId;
-        const pid = playerParty[p.id];
-        
-        if (!pid) {
-            socket.emit('teleportApproved', data);
-        } else {
-            const party = parties[pid];
-            let allReady = true;
-            for (const memberId of party.members) {
-                const mp = getPlayerById(memberId);
-                if (mp && mp.instanceId === p.instanceId && mp.currentPortal !== data.portalId && !mp.isGhost) {
-                    allReady = false; break;
-                }
-            }
-            if (allReady) {
-                for (const memberId of party.members) {
-                    const msid = findSocketIdByPlayerId(memberId);
-                    if (msid) io.to(msid).emit('teleportApproved', data);
-                }
-            } else {
-                socket.emit('partyError', 'Waiting for all alive party members to gather on the portal...');
-            }
-        }
-    });
-
-    socket.on('portalLeave', () => { const p = onlinePlayers[socket.id]; if(p) p.currentPortal = null; });
+    let currentUser = null;
 
     socket.on('register', async (data) => {
-        try {
-            const { username, password } = data;
-            if (!username || !password) return socket.emit('authError', 'Invalid data.');
-            const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', username).single();
-            if (existingUser) return socket.emit('authError', 'Username is already taken!');
-            const { error } = await supabase.from('Exonians').insert([{ character_name: username, password: password }]);
-            if (error) return socket.emit('authError', `Database Error: ${error.message}`);
-            socket.emit('registerSuccess', username);
-        } catch(e) { socket.emit('authError', 'Server Error'); }
+        if (onlineUsers[data.username]) return socket.emit('authError', 'Account is already logged in on another device.');
+        
+        // FIX: Replaced .single() with an ilike array check to catch all case-insensitive duplicates and avoid crashing on existing dupes.
+        const { data: existingUsers } = await supabase.from('Wordiers').select('username').ilike('username', data.username);
+        if (existingUsers && existingUsers.length > 0) return socket.emit('authError', 'Username is already taken. Please choose another.');
+
+        const initialRankData = getRankData(0);
+        const { error } = await supabase.from('Wordiers').insert([{ username: data.username, password: data.password, lp: 0, rank: initialRankData.rank, wins: 0, losses: 0 }]);
+        
+        if (error) socket.emit('authError', 'Database error. Please try again.');
+        else {
+            currentUser = data.username;
+            onlineUsers[currentUser] = socket.id;
+            socket.emit('authSuccess', { username: currentUser, lp: 0, rank: initialRankData.rank, badge: initialRankData.badge, wins: 0, losses: 0 });
+            sendAdminUpdate();
+        }
     });
 
     socket.on('login', async (data) => {
-        try {
-            const { username, password } = data;
-            const { data: user, error } = await supabase.from('Exonians').select('*').eq('character_name', username).eq('password', password).single();
-            if (error || !user) return socket.emit('authError', 'Invalid username or password.');
-            currentUser = username;
-            if (!user.skin_color) socket.emit('needsCharacterCreation', username);
-            else socket.emit('characterSelect', user);
-        } catch(e) { socket.emit('authError', 'Server Error'); }
-    });
-
-    socket.on('enterWorld', (userData) => {
-        const mapId = userData.map_id || 'town';
-        const instId = getInstanceId(userData.character_name, mapId);
+        if (onlineUsers[data.username]) return socket.emit('authError', 'Account is already logged in on another device.');
+        const { data: user } = await supabase.from('Wordiers').select('*').eq('username', data.username).eq('password', data.password).single();
         
-        onlinePlayers[socket.id] = {
-            socketId: socket.id, id: userData.character_name, name: userData.character_name, mapId: mapId, instanceId: instId, isGhost: false, currentPortal: null,
-            x: userData.pos_x || 960, y: userData.pos_y || 1000, level: userData.level || 1, currentHp: userData.current_hp || 100, maxHp: 100, tradeTarget: null,
-            equips: userData.equips || { weapon: null, armor: null, leggings: null }, 
-            spriteData: { skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, weapon: userData.equips?.weapon?.sprite || null },
-            untargetableUntil: 0 
-        };
-        socket.join(instId); socket.emit('authSuccess', userData);
-        
-        socket.to(instId).emit('remotePlayerJoined', { id: onlinePlayers[socket.id].id, name: onlinePlayers[socket.id].name, mapId, instanceId: instId, x: onlinePlayers[socket.id].x, y: onlinePlayers[socket.id].y, spriteData: onlinePlayers[socket.id].spriteData, isGhost: false });
-        const playersInInst = Object.values(onlinePlayers).filter(p => p.instanceId === instId && p.id !== userData.character_name);
-        socket.emit('mapPlayersList', playersInInst.map(p => ({ id: p.id, name: p.name, mapId: p.mapId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost })));
-    });
-
-    socket.on('saveData', async (playerData) => {
-        if (!currentUser) return;
-        supabase.from('Exonians').update({ level: playerData.level, exp: playerData.exp, max_exp: playerData.maxExp, current_hp: playerData.currentHp, gold: playerData.gold, pos_x: playerData.x, pos_y: playerData.y, map_id: playerData.mapId, base_stats: playerData.baseStats, inventory: playerData.inventory, equips: playerData.equips }).eq('character_name', currentUser).then(()=>{});
-        
-        const p = onlinePlayers[socket.id];
-        if (p) { 
-            p.level = playerData.level; p.currentHp = playerData.currentHp; p.maxHp = playerData.maxHp || 100; p.equips = playerData.equips; 
-            if (playerData.equips?.weapon?.sprite) p.spriteData.weapon = playerData.equips.weapon.sprite; 
-        }
-        if (p) { const pid = playerParty[p.id]; if (pid) emitPartyUpdate(pid); }
-    });
-
-    socket.on('playerMoved', (data) => {
-        if (!onlinePlayers[socket.id]) return; const p = onlinePlayers[socket.id]; p.x = data.x; p.y = data.y; p.spriteData.weapon = data.weaponSprite;
-        socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: data.x, y: data.y, state: data.state, facingRight: data.facingRight, weaponSprite: data.weaponSprite });
-    });
-
-    socket.on('partyRevive', () => {
-        const p = onlinePlayers[socket.id]; if(!p) return;
-        if (p.mapId === 'town') return;
-
-        const pid = playerParty[p.id];
-        if (pid && parties[pid]) {
-            for (const memberId of parties[pid].members) {
-                const mp = getPlayerById(memberId);
-                if (mp && mp.isGhost && mp.mapId !== 'town') {
-                    mp.isGhost = false;
-                    mp.currentHp = Math.floor(mp.maxHp / 2) || 50; 
-                    io.to(mp.instanceId).emit('playerRevived', { id: mp.id, currentHp: mp.currentHp });
-                }
-            }
-            emitPartyUpdate(pid); 
-        }
-    });
-
-    socket.on('tauntMonsters', (data) => {
-        const p = onlinePlayers[socket.id]; if(!p || p.isGhost) return;
-        if (p.mapId === 'town') return; 
-        const world = worlds[p.instanceId]; if(!world) return;
-
-        for (let mId in world.monsters) {
-            let m = world.monsters[mId];
-            if (!m.alive || m.isMerchant) continue;
-            let dist = Math.hypot(p.x + 24 - (m.x + m.width/2), p.y + 48 - (m.y + m.height/2));
-            if (dist <= (data.radius || 300)) { m.forcedTargetId = p.id; m.forcedUntil = Date.now() + 10000; }
-        }
-    });
-
-    // ✅ SERVER PET TRACKING MEMORY
-    socket.on('syncPet', (data) => {
-        const p = onlinePlayers[socket.id]; if(!p) return;
-        if (p.mapId === 'town') return; 
-        const world = worlds[p.instanceId]; if(!world) return;
-        if (!world.pets) world.pets = {};
-        if (data.alive) { world.pets[data.id] = { id: data.id, ownerId: p.id, x: data.x, y: data.y }; } 
-        else { delete world.pets[data.id]; }
-        socket.to(p.instanceId).emit('remotePetSync', { ownerId: p.id, petData: data });
-    });
-
-    socket.on('setUntargetable', (data) => {
-        const p = onlinePlayers[socket.id];
-        if (p && p.mapId !== 'town') { p.untargetableUntil = Date.now() + (data.duration || 10000); }
-    });
-
-    socket.on('attackMonster', (payload) => {
-        const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return; 
-        if (p.mapId === 'town') return; 
-
-        const world = worlds[p.instanceId]; if (!world) return; 
-        const m = world.monsters[payload.monsterId]; 
-        
-        if (!m || !m.alive || m.isMerchant) return;
-        
-        const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); if (dist > 350) return;
-        const dmg = Math.max(1, Math.floor(Number(payload.damage) || 1)); m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
-        
-        if (payload.freeze) { m.frozenUntil = Date.now() + 3000; }
-
-        io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: !!payload.isPendant });
-        
-        if (m.currentHp <= 0) {
-            m.alive = false; m.targetId = null; m.threatTable = {}; m.forcedTargetId = null; m.forcedUntil = 0; m.frozenUntil = 0;
-            io.to(p.instanceId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
+        if (user) {
+            currentUser = user.username;
+            onlineUsers[currentUser] = socket.id;
+            const rankData = getRankData(user.lp);
+            if (user.rank !== rankData.rank) await supabase.from('Wordiers').update({ rank: rankData.rank }).eq('username', user.username);
             
-            const expAmount = m.expYield || 25;
-            const goldAmount = m.goldYield || 15; 
-            const pid = playerParty[p.id];
+            socket.emit('authSuccess', { username: currentUser, lp: user.lp, rank: rankData.rank, badge: rankData.badge, wins: user.wins || 0, losses: user.losses || 0 });
+            sendAdminUpdate();
+        } else {
+            socket.emit('authError', 'Invalid username or password.');
+        }
+    });
 
-            if (pid && parties[pid]) {
-                for (const memberId of parties[pid].members) { 
-                    const sid = findSocketIdByPlayerId(memberId); 
-                    if (sid) {
-                        io.to(sid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
-                        io.to(sid).emit('lootDropped', generateLoot(m));
+    socket.on('reconnectUser', async (data) => {
+        if (onlineUsers[data.username] && onlineUsers[data.username] !== socket.id) {
+            return socket.emit('authError', 'Account is already logged in on another device.');
+        }
+        const { data: user } = await supabase.from('Wordiers').select('*').eq('username', data.username).eq('password', data.password).single();
+        if (user) {
+            currentUser = user.username;
+            onlineUsers[currentUser] = socket.id;
+            socket.username = currentUser;
+
+            let activeRoom = null;
+            for (const roomId in rooms) {
+                if (rooms[roomId].players.includes(currentUser)) {
+                    if (rooms[roomId].status === 'playing') {
+                        activeRoom = rooms[roomId];
+                        socket.join(roomId);
+                        break;
+                    } else {
+                        handlePlayerLeave(socket, roomId);
                     }
                 }
-            } else { 
-                io.to(socket.id).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
-                io.to(socket.id).emit('lootDropped', generateLoot(m));
+            }
+            const rankData = getRankData(user.lp);
+            if (activeRoom) {
+                socket.emit('rejoinGame', {
+                    roomId: activeRoom.id, board: activeRoom.board, players: activeRoom.players, time: activeRoom.time,
+                    myScore: activeRoom.words[currentUser].length, myWords: activeRoom.words[currentUser],
+                    wins: user.wins || 0, losses: user.losses || 0
+                });
+            } else {
+                socket.emit('authSuccess', { username: currentUser, lp: user.lp, rank: rankData.rank, badge: rankData.badge, wins: user.wins || 0, losses: user.losses || 0 });
+            }
+            sendAdminUpdate();
+        } else {
+            socket.emit('authError', 'Session expired. Please log in again.');
+        }
+    });
+
+    socket.on('logout', () => {
+        if (currentUser) {
+            for (const roomId in rooms) {
+                if (rooms[roomId].players.includes(currentUser) && rooms[roomId].status === 'waiting') {
+                    handlePlayerLeave(socket, roomId);
+                }
+            }
+            delete onlineUsers[currentUser];
+        }
+        currentUser = null;
+        sendAdminUpdate();
+    });
+
+    socket.on('getLeaderboard', async () => {
+        // Fetch up to top 100 to accurately sort players with tied LP via Javascript
+        const { data: players } = await supabase.from('Wordiers').select('username, lp, rank, wins, losses').order('lp', { ascending: false }).limit(100);
+        if (players) {
+            players.sort((a, b) => {
+                if (b.lp !== a.lp) return b.lp - a.lp; // Primary: LP
+                
+                const aWins = a.wins || 0;
+                const aLosses = a.losses || 0;
+                const aTotal = aWins + aLosses;
+                const aWinRate = aTotal > 0 ? (aWins / aTotal) : 0;
+                
+                const bWins = b.wins || 0;
+                const bLosses = b.losses || 0;
+                const bTotal = bWins + bLosses;
+                const bWinRate = bTotal > 0 ? (bWins / bTotal) : 0;
+                
+                if (bWinRate !== aWinRate) return bWinRate - aWinRate; // Secondary: Win Rate
+                return bTotal - aTotal; // Tertiary: Most games played wins ties
+            });
+
+            const top10 = players.slice(0, 10);
+            const mappedPlayers = top10.map(p => ({ ...p, badge: getRankData(p.lp).badge }));
+            socket.emit('updateLeaderboard', mappedPlayers);
+        }
+    });
+
+    function beginGameSequence(roomId) {
+        const room = rooms[roomId];
+        if (!room) return;
+        room.isRankedWaiting = false; 
+        room.status = 'playing'; 
+        broadcastRoomList(); 
+        
+        io.to(roomId).emit('gameLoading', { roomId: roomId, board: room.board, players: room.players });
+        
+        setTimeout(() => {
+            if (rooms[roomId]) { 
+                io.to(roomId).emit('gameStart', { roomId: roomId, board: room.board, players: room.players, time: room.time });
+                startGameTimer(roomId);
+                if (room.isAI) startAILogic(roomId);
+            }
+        }, 3000); 
+    }
+
+    socket.on('findMatch', async () => {
+        if (!currentUser) return;
+        const { data: userData } = await supabase.from('Wordiers').select('lp').eq('username', currentUser).single();
+        const playerLp = userData ? userData.lp : 0;
+        socket.lp = playerLp; 
+        
+        const rankData = getRankData(playerLp);
+        const worldRank = await getPlayerWorldRank(currentUser, playerLp);
+        const pDetails = { lpRank: rankData.rank, worldRank: worldRank };
+        
+        let joinedRoomId = null;
+        for (const roomId in rooms) {
+            const room = rooms[roomId];
+            if (room.isRankedWaiting && room.status === 'waiting' && room.players.length < 4) {
+                if (Math.abs(room.baseLp - playerLp) <= 200) {
+                    joinedRoomId = roomId;
+                    break;
+                }
+            }
+        }
+        
+        if (joinedRoomId) {
+            const room = rooms[joinedRoomId];
+            socket.join(joinedRoomId);
+            room.players.push(currentUser);
+            room.scores[currentUser] = 0;
+            room.words[currentUser] = [];
+            room.readyStates[currentUser] = false;
+            room.playerDetails[currentUser] = pDetails;
+            io.to(joinedRoomId).emit('rankedLobbyUpdate', { roomId: joinedRoomId, players: room.players, readyStates: room.readyStates, playerDetails: room.playerDetails });
+            return;
+        }
+
+        if (!matchmakingQueue.find(s => s.id === socket.id)) {
+            matchmakingQueue.push(socket);
+            socket.username = currentUser;
+        }
+
+        let matchedGroup = [];
+        for (let i = 0; i < matchmakingQueue.length; i++) {
+            if (Math.abs(matchmakingQueue[i].lp - playerLp) <= 200) {
+                matchedGroup.push(matchmakingQueue[i]);
+            }
+        }
+
+        if (matchedGroup.length >= 2) {
+            matchedGroup.forEach(s => {
+                matchmakingQueue = matchmakingQueue.filter(q => q.id !== s.id);
+            });
+            
+            const roomId = 'ranked_' + Date.now();
+            rooms[roomId] = {
+                id: roomId,
+                players: matchedGroup.map(s => s.username),
+                readyStates: {},
+                playerDetails: {},
+                board: generateBoard(),
+                time: 120,
+                scores: {},
+                words: {},
+                isCustom: false,
+                isAI: false,
+                isRankedWaiting: true,
+                status: 'waiting',
+                baseLp: matchedGroup[0].lp 
+            };
+            
+            for (let s of matchedGroup) {
+                s.join(roomId);
+                rooms[roomId].scores[s.username] = 0;
+                rooms[roomId].words[s.username] = [];
+                rooms[roomId].readyStates[s.username] = false;
+                
+                const sLp = s.lp; 
+                const sWr = await getPlayerWorldRank(s.username, sLp);
+                rooms[roomId].playerDetails[s.username] = { lpRank: getRankData(sLp).rank, worldRank: sWr };
             }
             
-            if (m.respawnDelayMs !== -1) {
-                setTimeout(() => { const cfg = { spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY } }; const nm = spawnMonster(p.instanceId, m.id, m.monsterKey, cfg); world.monsters[m.id] = nm; io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm)); }, m.respawnDelayMs || 10000);
+            io.to(roomId).emit('rankedLobbyUpdate', { roomId, players: rooms[roomId].players, readyStates: rooms[roomId].readyStates, playerDetails: rooms[roomId].playerDetails });
+        } else {
+            socket.emit('searchingMatch'); 
+        }
+    });
+
+    socket.on('cancelMatch', () => {
+        matchmakingQueue = matchmakingQueue.filter(s => s.id !== socket.id);
+    });
+
+    function handlePlayerLeave(sock, roomId) {
+        const room = rooms[roomId];
+        if (!room || room.status !== 'waiting') return;
+        
+        const userToLeave = sock.username;
+        sock.leave(roomId);
+        
+        room.players = room.players.filter(p => p !== userToLeave);
+        
+        if (room.isRankedWaiting) {
+            delete room.readyStates[userToLeave];
+            if (room.playerDetails) delete room.playerDetails[userToLeave];
+        }
+        if (room.scores) delete room.scores[userToLeave];
+        if (room.words) delete room.words[userToLeave];
+        
+        if (room.players.length === 0) {
+            if (room.interval) clearInterval(room.interval);
+            if (room.aiIntervals) room.aiIntervals.forEach(clearInterval);
+            delete rooms[roomId];
+        } else {
+            if (room.isRankedWaiting) {
+                if (room.players.length === 1) {
+                    const lastUser = room.players[0];
+                    const lastSocketId = onlineUsers[lastUser];
+                    if (lastSocketId) {
+                        const lastSocket = io.sockets.sockets.get(lastSocketId);
+                        if (lastSocket) {
+                            lastSocket.leave(roomId);
+                            if (!matchmakingQueue.find(s => s.id === lastSocket.id)) {
+                                matchmakingQueue.push(lastSocket);
+                            }
+                            lastSocket.emit('searchingMatch');
+                        }
+                    }
+                    delete rooms[roomId];
+                } else {
+                    io.to(roomId).emit('rankedLobbyUpdate', { 
+                        roomId, 
+                        players: room.players, 
+                        readyStates: room.readyStates,
+                        playerDetails: room.playerDetails 
+                    });
+                }
+            } else {
+                if (room.host === userToLeave) room.host = room.players[0];
+                io.to(roomId).emit('playerJoined', room.players);
+            }
+        }
+        broadcastRoomList();
+    }
+
+    socket.on('leaveWaitingRoom', (roomId) => {
+        handlePlayerLeave(socket, roomId);
+    });
+
+    socket.on('readyRanked', (roomId) => {
+        const room = rooms[roomId];
+        if (room && room.isRankedWaiting) {
+            room.readyStates[currentUser] = true;
+            io.to(roomId).emit('rankedLobbyUpdate', { roomId, players: room.players, readyStates: room.readyStates, playerDetails: room.playerDetails });
+            
+            const allReady = room.players.every(p => room.readyStates[p]);
+            if (allReady && room.players.length >= 2) {
+                beginGameSequence(roomId);
             }
         }
     });
 
-    socket.on('inspectRequest', (data) => {
-        const targetId = data.targetId;
-        const target = getPlayerById(targetId);
-        if (target) {
-            socket.emit('inspectData', { id: target.id, name: target.name, level: target.level || 1, currentHp: target.currentHp || 0, maxHp: target.maxHp || 100, equips: target.equips || { weapon: null, armor: null, leggings: null } });
+    socket.on('getRoomList', () => {
+        broadcastRoomList();
+    });
+
+    socket.on('createRoom', (password) => {
+        if (!currentUser) return;
+        const roomId = 'custom_' + Date.now();
+        socket.join(roomId);
+        socket.username = currentUser;
+        rooms[roomId] = { 
+            id: roomId, players: [currentUser], board: generateBoard(), time: 120, 
+            scores: { [currentUser]: 0 }, words: { [currentUser]: [] }, isCustom: true, 
+            host: currentUser, isAI: false, isRankedWaiting: false, status: 'waiting',
+            password: password || null
+        };
+        socket.emit('roomCreated', roomId);
+        io.to(roomId).emit('playerJoined', rooms[roomId].players);
+        broadcastRoomList();
+        sendAdminUpdate();
+    });
+
+    socket.on('joinRoom', (data) => {
+        const { roomId, password } = data;
+        if (!currentUser || !rooms[roomId] || rooms[roomId].status !== 'waiting' || rooms[roomId].players.length >= 8) {
+            return socket.emit('roomError', 'Room unavailable or game has already started.');
+        }
+        if (rooms[roomId].password && rooms[roomId].password !== password) {
+            return socket.emit('roomError', 'Incorrect password.');
+        }
+        socket.join(roomId);
+        socket.username = currentUser;
+        rooms[roomId].players.push(currentUser);
+        rooms[roomId].scores[currentUser] = 0;
+        rooms[roomId].words[currentUser] = [];
+        io.to(roomId).emit('playerJoined', rooms[roomId].players);
+        broadcastRoomList();
+        sendAdminUpdate();
+    });
+
+    socket.on('startCustomGame', (roomId) => {
+        if (rooms[roomId] && rooms[roomId].host === currentUser) {
+            if (rooms[roomId].players.length >= 2) {
+                beginGameSequence(roomId);
+            } else {
+                socket.emit('roomError', 'A minimum of 2 players is required to start the game!');
+            }
         }
     });
 
-    socket.on('tradeRequest', (data) => {
-        const me = onlinePlayers[socket.id]; if (!me || !data.targetId) return;
-        const targetSid = findSocketIdByPlayerId(data.targetId);
-        if (!targetSid) return socket.emit('partyError', 'Target is not online.');
-        io.to(targetSid).emit('tradeInviteReceived', { fromId: me.id });
+    socket.on('startAIMatch', () => {
+        if (!currentUser) return;
+        const roomId = 'ai_' + Date.now();
+        socket.join(roomId);
+        socket.username = currentUser;
+
+        const aiPlayers = ['AI_Alpha', 'AI_Beta', 'AI_Gamma', 'AI_Delta'];
+        const players = [currentUser, ...aiPlayers];
+
+        rooms[roomId] = { id: roomId, players: players, board: generateBoard(), time: 120, scores: {}, words: {}, isCustom: false, isAI: true, isRankedWaiting: false, status: 'waiting', aiIntervals: [] };
+
+        players.forEach(p => {
+            rooms[roomId].scores[p] = 0;
+            rooms[roomId].words[p] = [];
+        });
+
+        beginGameSequence(roomId);
+        sendAdminUpdate();
     });
 
-    socket.on('tradeInviteResponse', (data) => {
-        const me = onlinePlayers[socket.id]; if (!me || !data.fromId) return;
-        const fromSid = findSocketIdByPlayerId(data.fromId);
-        const targetPlayer = getPlayerById(data.fromId);
-        if (!fromSid || !targetPlayer) return;
+    function startAILogic(roomId) {
+        const room = rooms[roomId];
+        if (!room || allWords.length === 0) return;
         
-        if (data.accept) {
-            me.tradeTarget = targetPlayer.id; targetPlayer.tradeTarget = me.id;
-            socket.emit('tradeStarted', { targetId: data.fromId });
-            io.to(fromSid).emit('tradeStarted', { targetId: me.id });
-        } else { io.to(fromSid).emit('partyError', `${me.id} declined your trade request.`); }
+        const aiPlayers = room.players.filter(p => p.startsWith('AI_'));
+        aiPlayers.forEach(ai => {
+            const interval = setInterval(() => {
+                if (!rooms[roomId]) return clearInterval(interval);
+                const randomWord = allWords[Math.floor(Math.random() * allWords.length)];
+                if (randomWord.length >= 3 && randomWord.length <= 5 && !room.words[ai].includes(randomWord)) {
+                    room.words[ai].push(randomWord);
+                    io.to(roomId).emit('spectatorUpdate', { player: ai, points: 1 });
+                }
+            }, 5000 + Math.random() * 6000); 
+            room.aiIntervals.push(interval);
+        });
+    }
+
+    socket.on('submitWord', (data) => {
+        const { roomId, word } = data;
+        const room = rooms[roomId];
+        if (!room || !currentUser) return;
+
+        const cleanWord = word.toUpperCase();
+        if (cleanWord.length < 3 || room.words[currentUser].includes(cleanWord) || !dictionaryTrie.search(cleanWord)) {
+            return socket.emit('wordResult', { success: false });
+        }
+
+        room.words[currentUser].push(cleanWord);
+
+        socket.emit('wordResult', { success: true, word: cleanWord });
+        socket.emit('myScoreUpdate', room.words[currentUser].length); 
+        io.to(roomId).emit('spectatorUpdate', { player: currentUser, points: 1 });
     });
 
-    socket.on('tradeSync', (data) => { const me = onlinePlayers[socket.id]; if(!me || !me.tradeTarget) return; const targetSid = findSocketIdByPlayerId(me.tradeTarget); if (targetSid) io.to(targetSid).emit('tradeSyncReceived', data); });
-    socket.on('tradeCancel', () => { const me = onlinePlayers[socket.id]; if(!me || !me.tradeTarget) return; const targetSid = findSocketIdByPlayerId(me.tradeTarget); let tId = me.tradeTarget; me.tradeTarget = null; let targetPlayer = getPlayerById(tId); if(targetPlayer) targetPlayer.tradeTarget = null; if (targetSid) io.to(targetSid).emit('tradeCancelled'); });
+    socket.on('quitMatch', async (roomId) => {
+        if (!currentUser || !rooms[roomId]) return;
+        const room = rooms[roomId];
+        room.scores[currentUser] = -9999; 
+        socket.leave(roomId);
+        
+        const lpChange = room.isAI ? 0 : (room.isCustom ? -5 : -20);
+        const { data: userData } = await supabase.from('Wordiers').select('lp, wins, losses').eq('username', currentUser).single();
+        let newLp = Math.max(0, (userData ? userData.lp : 0) + lpChange);
+        let newLosses = (userData ? userData.losses : 0) + (room.isAI ? 0 : 1);
+        const rankData = getRankData(newLp);
+        
+        await supabase.from('Wordiers').update({ lp: newLp, rank: rankData.rank, losses: newLosses }).eq('username', currentUser);
+        socket.emit('quitSuccess', { lp: newLp, rank: rankData.rank, badge: rankData.badge, penalty: lpChange });
+    });
+
+    function startGameTimer(roomId) {
+        const room = rooms[roomId];
+        if (!room) return;
+
+        room.interval = setInterval(() => {
+            if (!rooms[roomId]) {
+                clearInterval(room.interval);
+                return;
+            }
+            rooms[roomId].time--;
+            io.to(roomId).emit('timeUpdate', rooms[roomId].time);
+            if (rooms[roomId].time <= 0) {
+                clearInterval(rooms[roomId].interval);
+                handleGameOver(roomId);
+            }
+        }, 1000);
+    }
+
+    async function handleGameOver(roomId) {
+        const room = rooms[roomId];
+        if (!room) return;
+
+        if (room.isAI && room.aiIntervals) room.aiIntervals.forEach(clearInterval);
+        if (room.interval) clearInterval(room.interval);
+
+        const wordFreq = {};
+        const allPlayers = room.players;
+        
+        allPlayers.forEach(p => {
+            if (room.scores[p] !== -9999) { 
+                room.words[p].forEach(w => { wordFreq[w] = (wordFreq[w] || 0) + 1; });
+            }
+        });
+
+        room.detailedWords = {};
+        allPlayers.forEach(p => {
+            if (room.scores[p] === -9999) return;
+            
+            let finalScore = 0;
+            const detailedWords = [];
+            room.words[p].forEach(w => {
+                const isUnique = wordFreq[w] === 1;
+                const pts = isUnique ? getWordScore(w.length) : 0;
+                finalScore += pts;
+                detailedWords.push({ word: w, isUnique: isUnique, points: pts });
+            });
+            room.scores[p] = finalScore;
+            room.detailedWords[p] = detailedWords;
+        });
+
+        const sortedPlayers = Object.keys(room.scores).sort((a, b) => room.scores[b] - room.scores[a]);
+        const lpResults = {};
+
+        const activePlayers = sortedPlayers.filter(p => !p.startsWith('AI_'));
+        const pCount = activePlayers.length;
+
+        const scoreGroups = {};
+        activePlayers.forEach(p => {
+            const score = room.scores[p];
+            if (!scoreGroups[score]) scoreGroups[score] = [];
+            scoreGroups[score].push(p);
+        });
+
+        const uniqueScores = Object.keys(scoreGroups).map(Number).sort((a, b) => b - a);
+        const validPlayersCount = activePlayers.filter(p => onlineUsers[p] && room.scores[p] !== -9999).length;
+        const isTotalTie = uniqueScores.length === 1 && validPlayersCount > 1;
+
+        const lpAssignments = {};
+        const isWinAssignments = {};
+
+        if (isTotalTie) {
+            activePlayers.forEach(p => {
+                const disconnectPenalty = room.isCustom ? -5 : -20;
+                lpAssignments[p] = (!onlineUsers[p] || room.scores[p] === -9999) ? disconnectPenalty : 0;
+                isWinAssignments[p] = (!onlineUsers[p] || room.scores[p] === -9999) ? false : true;
+            });
+        } else {
+            let placesTaken = 0;
+            uniqueScores.forEach(score => {
+                const tiedPlayers = scoreGroups[score];
+                const numTied = tiedPlayers.length;
+                const place = placesTaken + 1;
+                const isLast = (placesTaken + numTied === pCount);
+
+                let assignedLp = 0;
+
+                if (room.isCustom) {
+                    if (place === 1) {
+                        assignedLp = 5;
+                    } else if (isLast && pCount > 1) {
+                        assignedLp = -5;
+                    } else {
+                        assignedLp = 0;
+                    }
+                } else {
+                    if (isLast) {
+                        assignedLp = -5;
+                    } else if (place === 1) {
+                        if (numTied === 1) assignedLp = 20;
+                        else if (numTied === 2) assignedLp = 10;
+                        else if (numTied === 3) assignedLp = 6;
+                    } else if (place === 2) {
+                        if (pCount === 4) {
+                            if (numTied === 1) assignedLp = 5;
+                            else if (numTied === 2) assignedLp = 2;
+                            else if (numTied === 3) assignedLp = 1;
+                        } else if (pCount === 3) {
+                            if (numTied === 1) assignedLp = 0;
+                        }
+                    } else if (place === 3) {
+                        assignedLp = 0;
+                    }
+                }
+
+                tiedPlayers.forEach(p => {
+                    if (!onlineUsers[p] || room.scores[p] === -9999) {
+                        lpAssignments[p] = room.isCustom ? -5 : -20;
+                        isWinAssignments[p] = false;
+                    } else {
+                        lpAssignments[p] = assignedLp;
+                        isWinAssignments[p] = assignedLp > 0; 
+                    }
+                });
+
+                placesTaken += numTied;
+            });
+        }
+
+        for (const player of sortedPlayers) {
+            if (player.startsWith('AI_')) {
+                lpResults[player] = { 
+                    username: player, score: room.scores[player], detailedWords: room.detailedWords[player] || [], 
+                    lpChange: 0, newLp: 0, rank: "AI Engine", badge: "e.png", wins: 0, losses: 0 
+                };
+                continue;
+            }
+
+            const isConnected = !!onlineUsers[player];
+            const hasForfeited = room.scores[player] === -9999;
+            
+            const { data: userData } = await supabase.from('Wordiers').select('lp, wins, losses').eq('username', player).single();
+            const currentLp = userData ? userData.lp : 0;
+            
+            let lpChange = 0;
+
+            if (room.isAI) {
+                if (!isConnected || hasForfeited) {
+                    lpChange = 0; 
+                } else {
+                    const score = room.scores[player];
+                    const baseLpChange = Math.floor(score / 10);
+                    
+                    if (currentLp >= 901) { 
+                        lpChange = score >= 50 ? baseLpChange : -baseLpChange;
+                    } else if (currentLp >= 701) { 
+                        lpChange = score >= 35 ? baseLpChange : -baseLpChange;
+                    } else if (currentLp >= 501) { 
+                        lpChange = score >= 25 ? baseLpChange : -baseLpChange;
+                    } else { 
+                        lpChange = score >= 10 ? baseLpChange : 0;
+                    }
+                }
+            } else {
+                lpChange = lpAssignments[player];
+            }
+
+            let newLp = Math.max(0, currentLp + lpChange);
+            let newWins = userData && userData.wins ? userData.wins : 0;
+            let newLosses = userData && userData.losses ? userData.losses : 0;
+            const rankData = getRankData(newLp);
+
+            if (!room.isAI && !hasForfeited) {
+                if (isWinAssignments[player]) newWins++;
+                else newLosses++;
+                await supabase.from('Wordiers').update({ lp: newLp, rank: rankData.rank, wins: newWins, losses: newLosses }).eq('username', player);
+            } else if (room.isAI && !hasForfeited) {
+                await supabase.from('Wordiers').update({ lp: newLp, rank: rankData.rank }).eq('username', player);
+            }
+            
+            lpResults[player] = { 
+                username: player,
+                score: hasForfeited ? 0 : room.scores[player], 
+                detailedWords: room.detailedWords[player] || [], 
+                lpChange: lpChange, 
+                newLp: newLp, 
+                rank: rankData.rank, 
+                badge: rankData.badge,
+                wins: newWins,
+                losses: newLosses
+            };
+        }
+
+        io.to(roomId).emit('gameOver', { results: lpResults, sortedPlayers: sortedPlayers });
+        delete rooms[roomId];
+        broadcastRoomList();
+        sendAdminUpdate();
+    }
+
+    function sendAdminUpdate() {
+        const activeRoomsData = Object.keys(rooms).map(id => ({ id, players: rooms[id].players, time: rooms[id].time }));
+        io.emit('adminDataUpdate', { users: Object.keys(onlineUsers), rooms: activeRoomsData });
+    }
+
+    socket.on('requestAdminData', () => { if (currentUser === 'Kei') sendAdminUpdate(); });
     
-    // ✅ PARTY HP BARS ARE FED FROM HERE - FLawless Syncing logic
-    socket.on('playerVitals', (data) => {
-        const p = onlinePlayers[socket.id]; if (!p) return;
-        p.currentHp = data.currentHp; p.maxHp = data.maxHp; p.level = data.level;
-        const pid = playerParty[p.id];
-        if (pid && parties[pid]) {
-            for (const memberId of parties[pid].members) {
-                if (memberId !== p.id) { const sid = findSocketIdByPlayerId(memberId); if (sid) io.to(sid).emit('partyMemberVitals', { id: p.id, currentHp: p.currentHp, maxHp: p.maxHp, level: p.level }); }
+    socket.on('adminKick', (targetUser) => {
+        if (currentUser !== 'Kei') return;
+        const targetSocketId = onlineUsers[targetUser];
+        if (targetSocketId) {
+            io.to(targetSocketId).emit('adminKicked');
+            io.sockets.sockets.get(targetSocketId)?.disconnect();
+        }
+    });
+
+    socket.on('disconnect', () => {
+        if (currentUser) {
+            for (const roomId in rooms) {
+                const room = rooms[roomId];
+                if (room.players.includes(currentUser)) {
+                    if (room.status === 'waiting') {
+                        handlePlayerLeave(socket, roomId);
+                    } else if (room.status === 'playing') {
+                        const humanStillOnline = room.players.some(p => p !== currentUser && !p.startsWith('AI_') && onlineUsers[p]);
+                        if (!humanStillOnline) {
+                            if (room.interval) clearInterval(room.interval);
+                            if (room.aiIntervals) room.aiIntervals.forEach(clearInterval);
+                            delete rooms[roomId];
+                        }
+                    }
+                }
             }
+            delete onlineUsers[currentUser];
         }
-    });
-
-    socket.on('chatMessage', (data) => { const p = onlinePlayers[socket.id]; if (!p || !data.text) return; io.to(p.instanceId).emit('chatMessage', { id: p.id, text: data.text }); });
-    socket.on('partyInvite', ({ targetId }) => { const me = onlinePlayers[socket.id]; if (!me || !targetId) return; const targetSid = findSocketIdByPlayerId(targetId); if (!targetSid) return socket.emit('partyError', 'Target is not online.'); io.to(targetSid).emit('partyInviteReceived', { fromId: me.id }); });
-    
-    socket.on('partyInviteResponse', ({ fromId, accept }) => {
-        const me = onlinePlayers[socket.id]; if (!me || !fromId) return; const fromSid = findSocketIdByPlayerId(fromId); const inviter = getPlayerById(fromId); if (!inviter || !fromSid) return;
-        if (!accept) { io.to(fromSid).emit('partyError', `${me.id} declined your party invite.`); return; }
-        let pid = playerParty[fromId]; if (!pid) { pid = `party_${Date.now()}_${Math.floor(Math.random() * 9999)}`; parties[pid] = { id: pid, leaderId: fromId, members: new Set([fromId]) }; playerParty[fromId] = pid; }
-        if (playerParty[me.id] && playerParty[me.id] !== pid) { removeFromParty(me.id); }
-        parties[pid].members.add(me.id); playerParty[me.id] = pid; emitPartyUpdate(pid);
-    });
-
-    socket.on('leaveParty', () => {
-        const p = onlinePlayers[socket.id];
-        if (p && playerParty[p.id]) {
-            removeFromParty(p.id);
-            if (p.mapId !== 'town') { socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); }
-        }
-    });
-
-    // ✅ ADDED FORCE TELEPORT LISTENER FOR THE UNSTUCK BUTTON
-    socket.on('forceTeleport', (tp) => {
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
-        
-        socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
-        
-        if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
-            for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
-        }
-
-        p.mapId = tp.mapId; p.x = tp.x; p.y = tp.y; p.currentPortal = null;
-        p.instanceId = getInstanceId(p.id, tp.mapId); 
-        socket.join(p.instanceId);
-        
-        socket.emit('forceTeleport', tp); 
-        socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
-        supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
-    });
-
-    socket.on('playerTeleported', async (data) => {
-        if (!onlinePlayers[socket.id]) return; const p = onlinePlayers[socket.id];
-        socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
-        
-        if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
-            for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
-        }
-
-        p.mapId = data.mapId; p.x = data.x; p.y = data.y; p.currentPortal = null;
-        p.instanceId = getInstanceId(p.id, data.mapId); 
-        socket.join(p.instanceId);
-        
-        socket.emit('requestMapSync', { mapId: data.mapId, instanceId: p.instanceId }); 
-        socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
-        
-        const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id);
-        socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
-        supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', currentUser).then(()=>{});
-    });
-
-    socket.on('respawnPlayer', () => {
-        const p = onlinePlayers[socket.id];
-        if (p) {
-            p.isGhost = false; p.currentHp = p.maxHp || 100;
-            if (p.mapId !== 'town') socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
-            else io.to(p.instanceId).emit('playerRevived', { id: p.id, currentHp: p.currentHp });
-        }
-    });
-
-    socket.on('playerDied', () => {
-        const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return;
-        p.isGhost = true; p.currentHp = 0;
-        io.to(p.instanceId).emit('remotePlayerGhosted', p.id);
-        
-        let instPlayers = playersInInstance(p.instanceId);
-        let allDead = instPlayers.every(pl => pl.isGhost);
-        if (allDead) { io.to(p.instanceId).emit('partyWiped'); }
-    });
-
-    socket.on('disconnect', async () => {
-        const p = onlinePlayers[socket.id];
-        if (p) {
-            socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
-            if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
-                for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
-            }
-            removeFromParty(p.id);
-            supabase.from('Exonians').update({ pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
-            delete onlinePlayers[socket.id];
-        }
+        matchmakingQueue = matchmakingQueue.filter(s => s.id !== socket.id);
+        broadcastRoomList();
+        sendAdminUpdate();
     });
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
