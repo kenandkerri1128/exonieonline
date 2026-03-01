@@ -333,7 +333,7 @@ io.on('connection', (socket) => {
         const filePath = path.join(__dirname, 'public', fileName);
         try { fs.writeFileSync(filePath, data.content); } catch(err) {}
     });
-    // ✅ HEALER PARTY HEAL LISTENER
+   // ✅ FIXED: HEALER PARTY HEAL (Broadcasts to everyone)
     socket.on('partyHeal', (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || p.isGhost || p.mapId === 'town') return;
@@ -341,20 +341,17 @@ io.on('connection', (socket) => {
         const pid = playerParty[p.id];
         if (pid && parties[pid]) {
             for (const memberId of parties[pid].members) {
-                if (memberId === p.id) continue; // Skip self
-
                 const mp = getPlayerById(memberId);
                 if (mp && !mp.isGhost && mp.instanceId === p.instanceId) {
                     const dist = Math.hypot(p.x - mp.x, p.y - mp.y);
                     if (dist <= (data.radius || 400)) {
                         mp.currentHp = Math.min(mp.maxHp, mp.currentHp + data.amount);
-                        const msid = findSocketIdByPlayerId(memberId);
-                        if (msid) io.to(msid).emit('monsterHit', { 
-                            monsterId: 'heal_event', 
-                            damage: `+${data.amount}`, 
-                            newHp: mp.currentHp, 
-                            maxHp: mp.maxHp, 
-                            isPendant: true 
+                        
+                        // ✅ Tell EVERYONE in the maze to show green heal text over this player
+                        io.to(p.instanceId).emit('playerHealed', { 
+                            id: mp.id, 
+                            amount: data.amount, 
+                            currentHp: mp.currentHp 
                         });
                     }
                 }
@@ -363,7 +360,7 @@ io.on('connection', (socket) => {
         }
     });
 
-    // ✅ PURIFICATION REVIVE LISTENER
+    // ✅ FIXED: PURIFICATION (Broadcasts revival to everyone)
     socket.on('partyRevive', () => {
         const p = onlinePlayers[socket.id];
         if (!p || p.mapId === 'town') return;
@@ -375,19 +372,32 @@ io.on('connection', (socket) => {
                 if (mp && mp.isGhost && mp.mapId !== 'town') {
                     mp.isGhost = false;
                     mp.currentHp = mp.maxHp; 
-                    const msid = findSocketIdByPlayerId(memberId);
-                    if (msid) {
-                        io.to(msid).emit('playerRevived', { 
-                            id: mp.id, 
-                            currentHp: mp.currentHp 
-                        });
-                    }
+                    
+                    // ✅ Tell EVERYONE in the maze to stop rendering this player as a ghost
+                    io.to(p.instanceId).emit('playerRevived', { 
+                        id: mp.id, 
+                        currentHp: mp.currentHp 
+                    });
                 }
             }
             emitPartyUpdate(pid); 
         }
     });
 
+    // ✅ NEW: BROADCAST SKILL ANIMATIONS
+    socket.on('broadcastSkill', (data) => {
+        const p = onlinePlayers[socket.id];
+        if (p) {
+            // Sends the animation data (aura, effect) to everyone else in the maze
+            socket.to(p.instanceId).emit('remoteSkillEffect', {
+                playerId: p.id,
+                skillId: data.skillId,
+                x: p.x,
+                y: p.y,
+                auraColor: data.auraColor
+            });
+        }
+    });
     socket.on('syncMapData', (data) => {
         const instId = data.instanceId; if (!instId) return;
         if (!worlds[instId]) { worlds[instId] = { instanceId: instId, mapId: data.mapId, collisions: [], monsters: {}, pets: {}, monstersSpawned: false }; }
@@ -778,6 +788,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
