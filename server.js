@@ -365,14 +365,31 @@ io.on('connection', (socket) => {
             else socket.emit('characterSelect', user);
         } catch(e) { socket.emit('authError', 'Server Error'); }
     });
-    socket.on('createCharacter', async (data) => {
+     socket.on('createCharacter', async (data) => {
         try {
             const { username, charData } = data;
+            
+            // ✅ 1. EQUIP STARTER GEAR (Sword, Armor, Leggings)
+            const starterEquips = {
+                weapon: { id: Date.now() + 1, name: "Starter Sword", type: "weapon", sprite: "startersword", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { attack: 3 } },
+                armor: { id: Date.now() + 2, name: "Starter Armor", type: "armor", sprite: "starterarmor", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { defense: 2 } },
+                leggings: { id: Date.now() + 3, name: "Starter Leggings", type: "leggings", sprite: "starterleggings", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { hp: 5 } }
+            };
+
+            // ✅ 2. INJECT STAFF AND PENDANT INTO INVENTORY SLOTS 1 & 2
+            const starterInventory = new Array(20).fill(null);
+            starterInventory[0] = { id: Date.now() + 4, name: "Starter Staff", type: "weapon", sprite: "starterstaff", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 3 } };
+            // Pendant has slightly lower stats by design since it's a healer/utility weapon!
+            starterInventory[1] = { id: Date.now() + 5, name: "Starter Pendant", type: "weapon", sprite: "starterpendant", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 2 } };
+
+            // ✅ 3. SAVE TO SUPABASE
             const { data: user, error } = await supabase.from('Exonians')
                 .update({ 
                     skin_color: charData.skinColor, 
                     hair_color: charData.hairColor, 
-                    hair_style: charData.hairStyle 
+                    hair_style: charData.hairStyle,
+                    equips: starterEquips,
+                    inventory: starterInventory 
                 })
                 .eq('character_name', username)
                 .select().single();
@@ -647,5 +664,6 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
