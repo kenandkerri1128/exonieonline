@@ -2,8 +2,8 @@ var floor1MapData = {
     "id": "floor1",
     "name": "Floor 1",
     "image": "floor1.png",
-    "spawnX": 742,
-    "spawnY": 427,
+    "spawnX": 40,
+    "spawnY": 345,
     "normalSpawns": [
         {
             "x": 810,
