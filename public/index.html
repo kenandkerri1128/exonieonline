@@ -394,7 +394,17 @@
                     <div class="color-swatch" style="background:#ffffff" onclick="window.setHairColor('white', this)"></div>
                 </div>
             </div>
-            <div class="panel-section"><h4>Hair Style</h4><div class="button-group" id="hair-button-container"><button class="btn" onclick="window.setHairStyle('none')" id="btn-hair-none">None</button></div></div>
+            <div class="panel-section">
+                <h4>Hair Style</h4>
+                <div class="button-group" id="hair-button-container">
+                    <button class="btn selected" onclick="window.setHairStyle('1')" id="btn-hair-1">Style 1</button>
+                    <button class="btn" onclick="window.setHairStyle('2')" id="btn-hair-2">Style 2</button>
+                    <button class="btn" onclick="window.setHairStyle('3')" id="btn-hair-3">Style 3</button>
+                    <button class="btn" onclick="window.setHairStyle('4')" id="btn-hair-4">Style 4</button>
+                    <button class="btn" onclick="window.setHairStyle('5')" id="btn-hair-5">Style 5</button>
+                    <button class="btn" onclick="window.setHairStyle('none')" id="btn-hair-none">None</button>
+                </div>
+            </div>
             <button class="btn btn-large" onclick="window.submitCharacterCreation()" style="margin-top: 10px;">FINISH CREATION</button>
         </div>
     </div>
@@ -1877,3 +1887,4 @@ function gameLoop(ts) {
 </script>
 </body>
 </html>
+
