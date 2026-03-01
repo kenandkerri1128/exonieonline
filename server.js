@@ -107,7 +107,7 @@ function generateLoot(monster) {
 }
 
 // ==========================================
-// SCALED MONSTER DATABASE (Updated Timers, Gold & Boss Aggro)
+// SCALED MONSTER DATABASE
 // ==========================================
 const MonsterDatabase = {
     // 10 second respawn
@@ -115,7 +115,7 @@ const MonsterDatabase = {
     // 2 minute respawn (120,000 ms)
     "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 1500, atk: 120, def: 15, speed: 2.8, expYield: 500, goldYield: 150, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
     // Aggressive, fast, massive aggro radius, no respawn until server reload/admin spawn
-    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 400, def: 40, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 800, chaseRadius: 1500, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
+    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 4000, def: 40, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 800, chaseRadius: 1500, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
 };
 
 function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
@@ -158,7 +158,16 @@ function spawnMonster(instId, entityId, monsterKey, cfg) {
     };
 }
 
-function serializeMonster(m) { return { id: m.id, monsterKey: m.monsterKey, name: m.name, isMerchant: m.isMerchant, x: m.x, y: m.y, width: m.width, height: m.height, maxHp: m.maxHp, currentHp: m.currentHp, alive: m.alive, targetId: m.targetId || null, cssColor: m.cssColor, cssBorder: m.cssBorder }; }
+// ✅ INCLUDES 'atk' SO FRONTEND CALCULATES REAL DAMAGE
+function serializeMonster(m) { 
+    return { 
+        id: m.id, monsterKey: m.monsterKey, name: m.name, x: m.x, y: m.y, 
+        width: m.width, height: m.height, maxHp: m.maxHp, currentHp: m.currentHp, 
+        atk: m.atk, def: m.def, alive: m.alive, targetId: m.targetId || null, 
+        cssColor: m.cssColor, cssBorder: m.cssBorder 
+    }; 
+}
+
 function playersInInstance(instId) { return Object.values(onlinePlayers).filter(p => p.instanceId === instId); }
 
 function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
@@ -167,56 +176,61 @@ function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
     return false;
 }
 
+// ✅ AGGRO HIERARCHY: 1. Taunt -> 2. Pets -> 3. Highest Threat -> 4. Nearest Player
 function pickTarget(m, instId, now) {
     for (const pid of Object.keys(m.threatTable)) { 
         const p = getPlayerById(pid); 
         if (!p || p.instanceId !== instId || p.isGhost || p.untargetableUntil > now || p.mapId === 'town') delete m.threatTable[pid]; 
     }
     
+    // 1. TAUNT
     if (m.forcedUntil > now && m.forcedTargetId) {
         const p = getPlayerById(m.forcedTargetId);
-        if (p && p.instanceId === instId && !p.isGhost && p.untargetableUntil <= now && p.mapId !== 'town' && (p.currentHp ?? 1) > 0) return p;
-        else m.forcedTargetId = null;
+        if (p && p.instanceId === instId && !p.isGhost && p.untargetableUntil <= now && p.mapId !== 'town' && (p.currentHp ?? 1) > 0) {
+            return { id: p.id, isPet: false, x: p.x + 24, y: p.y + 48 };
+        } else { m.forcedTargetId = null; }
     }
 
+    const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2);
+
+    // 2. SUMMONER PET PRIORITY
+    const world = worlds[instId];
+    if (world && world.pets) {
+        let closestPet = null; let petDist = Infinity;
+        for (const petId in world.pets) {
+            const pet = world.pets[petId];
+            const dist = Math.hypot(pet.x - mcx, pet.y - mcy);
+            if (dist <= m.chaseRadius && dist < petDist) { closestPet = pet; petDist = dist; }
+        }
+        if (closestPet) return { id: closestPet.id, isPet: true, x: closestPet.x, y: closestPet.y };
+    }
+
+    // 3. HIGHEST THREAT
     let best = null; let bestThreat = -1; let bestDist = Infinity;
     for (const pid of Object.keys(m.threatTable)) {
         const threat = m.threatTable[pid] || 0; const p = getPlayerById(pid); 
         if (!p || p.isGhost || p.untargetableUntil > now || p.mapId === 'town') continue;
-        const dist = Math.hypot((p.x + 24) - (m.x + (m.width / 2)), (p.y + 48) - (m.y + (m.height / 2)));
+        const dist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
         if (dist > m.chaseRadius) continue;
         if (threat > bestThreat || (threat === bestThreat && dist < bestDist)) { best = p; bestThreat = threat; bestDist = dist; }
     }
-    if (best) return best;
+    if (best) return { id: best.id, isPet: false, x: best.x + 24, y: best.y + 48 };
     
+    // 4. NEAREST PLAYER
     let nearest = null; let nearestDist = Infinity;
     for (const p of playersInInstance(instId)) {
         if (p.isGhost || p.untargetableUntil > now || p.mapId === 'town' || (p.currentHp ?? 1) <= 0) continue; 
-        const dist = Math.hypot((p.x + 24) - (m.x + (m.width / 2)), (p.y + 48) - (m.y + (m.height / 2)));
+        const dist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
         if (dist <= m.aggroRadius && dist < nearestDist) { nearest = p; nearestDist = dist; }
     }
-    if (nearest) { m.threatTable[nearest.id] = Math.max(1, m.threatTable[nearest.id] || 0); return nearest; }
+    if (nearest) { m.threatTable[nearest.id] = Math.max(1, m.threatTable[nearest.id] || 0); return { id: nearest.id, isPet: false, x: nearest.x + 24, y: nearest.y + 48 }; }
+    
     return null;
 }
 
 function updateMonsterAI(instId, m, now) {
     if (!m.alive) return;
     if (now < m.frozenUntil) return;
-
-    // ✅ SERVER-SIDE MERCHANT WANDERING AI
-    if (m.isMerchant) {
-        if (Math.random() < 0.02) {
-            m.targetX = m.homeX + (Math.random() * 400 - 200);
-            m.targetY = m.homeY + (Math.random() * 400 - 200);
-        }
-        if (m.targetX && m.targetY) {
-            const ang = Math.atan2(m.targetY - m.y, m.targetX - m.x);
-            let nx = m.x + Math.cos(ang) * m.speed; let ny = m.y + Math.sin(ang) * m.speed;
-            if (!isMonsterColliding(instId, nx, m.y, m.width, m.height)) m.x = nx;
-            if (!isMonsterColliding(instId, m.x, ny, m.width, m.height)) m.y = ny;
-        }
-        return;
-    }
 
     const target = pickTarget(m, instId, now); m.targetId = target ? target.id : null;
     const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2);
@@ -231,16 +245,20 @@ function updateMonsterAI(instId, m, now) {
         } return; 
     }
     
-    const dist = Math.hypot((target.x + 24) - mcx, (target.y + 48) - mcy);
-    if (dist > m.chaseRadius) { if (m.threatTable[target.id]) m.threatTable[target.id] *= 0.9; if (m.threatTable[target.id] < 1) delete m.threatTable[target.id]; return; }
+    const dist = Math.hypot(target.x - mcx, target.y - mcy);
+    if (dist > m.chaseRadius) { if (!target.isPet && m.threatTable[target.id]) m.threatTable[target.id] *= 0.9; if (!target.isPet && m.threatTable[target.id] < 1) delete m.threatTable[target.id]; return; }
     
     if (dist > m.attackRange) { 
-        const ang = Math.atan2((target.y + 48) - mcy, (target.x + 24) - mcx); 
+        const ang = Math.atan2(target.y - mcy, target.x - mcx); 
         let nx = m.x + Math.cos(ang) * m.speed; let ny = m.y + Math.sin(ang) * m.speed; 
         if (!isMonsterColliding(instId, nx, m.y, m.width, m.height)) m.x = nx;
         if (!isMonsterColliding(instId, m.x, ny, m.width, m.height)) m.y = ny;
     } else { 
-        if (now - m.lastAttack > 1500) { m.lastAttack = now; io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: target.id }); } 
+        if (now - m.lastAttack > 1500) { 
+            m.lastAttack = now; 
+            // EMITS SERVER-SIDE 'atk' SO FRONTEND RECEIVES THE TRUE DAMAGE
+            io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: target.id, targetX: target.x, targetY: target.y, atk: m.atk }); 
+        } 
     }
 }
 
@@ -265,20 +283,14 @@ io.on('connection', (socket) => {
 
     socket.on('syncMapData', (data) => {
         const instId = data.instanceId; if (!instId) return;
-        if (!worlds[instId]) { worlds[instId] = { instanceId: instId, mapId: data.mapId, collisions: [], monsters: {}, monstersSpawned: false }; }
+        if (!worlds[instId]) { worlds[instId] = { instanceId: instId, mapId: data.mapId, collisions: [], monsters: {}, pets: {}, monstersSpawned: false }; }
         worlds[instId].collisions = data.collisions || [];
+
+        // ✅ RESTORED TOWN SAFETY: No monsters spawn or process in Town.
+        if (data.mapId === 'town') return;
 
         if (!worlds[instId].monstersSpawned) {
             worlds[instId].monstersSpawned = true;
-            
-            // ✅ SPAWN WANDERING MERCHANT IF IN TOWN
-            if (data.mapId === 'town') {
-                worlds[instId].monsters['npc_merchant'] = {
-                    id: 'npc_merchant', isMerchant: true, name: 'Merchant', x: 800, y: 800, homeX: 960, homeY: 1000,
-                    width: 48, height: 48, speed: 1.2, maxHp: 9999, currentHp: 9999, alive: true
-                };
-            }
-
             let mIndex = 0;
             const spawnGroups = [ { arr: data.normalSpawns || [], fallback: 'common_mobs1' }, { arr: data.miniBossSpawns || [], fallback: 'mini_boss1' }, { arr: data.floorBossSpawns || [], fallback: 'floor_boss1' } ];
             spawnGroups.forEach(group => {
@@ -423,6 +435,10 @@ io.on('connection', (socket) => {
     socket.on('syncPet', (data) => {
         const p = onlinePlayers[socket.id]; if(!p) return;
         if (p.mapId === 'town') return; 
+        const world = worlds[p.instanceId]; if(!world) return;
+        if (!world.pets) world.pets = {};
+        if (data.alive) { world.pets[data.id] = { id: data.id, ownerId: p.id, x: data.x, y: data.y }; } 
+        else { delete world.pets[data.id]; }
         socket.to(p.instanceId).emit('remotePetSync', { ownerId: p.id, petData: data });
     });
 
@@ -438,8 +454,7 @@ io.on('connection', (socket) => {
         const world = worlds[p.instanceId]; if (!world) return; 
         const m = world.monsters[payload.monsterId]; 
         
-        // ✅ PREVENT ATTACKING THE MERCHANT
-        if (!m || !m.alive || m.isMerchant) return;
+        if (!m || !m.alive) return;
         
         const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); if (dist > 350) return;
         const dmg = Math.max(1, Math.floor(Number(payload.damage) || 1)); m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
@@ -505,6 +520,7 @@ io.on('connection', (socket) => {
 
     socket.on('tradeSync', (data) => { const me = onlinePlayers[socket.id]; if(!me || !me.tradeTarget) return; const targetSid = findSocketIdByPlayerId(me.tradeTarget); if (targetSid) io.to(targetSid).emit('tradeSyncReceived', data); });
     socket.on('tradeCancel', () => { const me = onlinePlayers[socket.id]; if(!me || !me.tradeTarget) return; const targetSid = findSocketIdByPlayerId(me.tradeTarget); let tId = me.tradeTarget; me.tradeTarget = null; let targetPlayer = getPlayerById(tId); if(targetPlayer) targetPlayer.tradeTarget = null; if (targetSid) io.to(targetSid).emit('tradeCancelled'); });
+    
     socket.on('playerVitals', (data) => {
         const p = onlinePlayers[socket.id]; if (!p) return;
         p.currentHp = data.currentHp; p.maxHp = data.maxHp; p.level = data.level;
@@ -535,9 +551,33 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('forceTeleport', (tp) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+        
+        socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
+        
+        if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
+            for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
+        }
+
+        p.mapId = tp.mapId; p.x = tp.x; p.y = tp.y; p.currentPortal = null;
+        p.instanceId = getInstanceId(p.id, tp.mapId); 
+        socket.join(p.instanceId);
+        
+        socket.emit('forceTeleport', tp); 
+        socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
+        supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
+    });
+
     socket.on('playerTeleported', async (data) => {
         if (!onlinePlayers[socket.id]) return; const p = onlinePlayers[socket.id];
         socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
+        
+        if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
+            for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
+        }
+
         p.mapId = data.mapId; p.x = data.x; p.y = data.y; p.currentPortal = null;
         p.instanceId = getInstanceId(p.id, data.mapId); 
         socket.join(p.instanceId);
@@ -573,6 +613,9 @@ io.on('connection', (socket) => {
         const p = onlinePlayers[socket.id];
         if (p) {
             socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
+            if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
+                for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
+            }
             removeFromParty(p.id);
             supabase.from('Exonians').update({ pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
             delete onlinePlayers[socket.id];
