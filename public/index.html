@@ -1729,17 +1729,54 @@ window.executeSkill = function(skillId, className) {
     if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
 
     if (skillId === 'heal1') {
+        // ✅ Maze-only restriction
+        if (safeMapData.id === 'town') { 
+            dom.log.innerText = "Heal is forbidden in Town!"; 
+            return; 
+        }
+        
         window.playVoice(className);
         let healAmt = game.player.level >= 25 ? 500 : 250;
+        
+        // 1. Heal Yourself locally
         game.player.currentHp = Math.min(window.getMaxHp(), game.player.currentHp + healAmt);
         window.spawnDamageText(game.player.x + 24, game.player.y - 10, `+${healAmt}`, '#4CAF50');
-        window.updateUI(); window.emitVitalsIfNeeded(true);
-        if(game.player.activePets) game.player.activePets.forEach(p => { p.hp += healAmt; window.spawnDamageText(p.x + 15, p.y, `+${healAmt}`, '#4CAF50'); });
+        window.updateUI(); 
+        window.emitVitalsIfNeeded(true);
+        
+        // 2. Heal Party Members via Server
+        if (socket && game.party) {
+            socket.emit('partyHeal', { amount: healAmt, radius: 400 });
+        }
+
+        // Heal local pets
+        if(game.player.activePets) {
+            game.player.activePets.forEach(p => { 
+                p.hp = Math.min(p.maxHp, p.hp + healAmt); 
+                window.spawnDamageText(p.x + 15, p.y, `+${healAmt}`, '#4CAF50'); 
+            });
+        }
     }
+
     if (skillId === 'heal3') {
-        window.playVoice(className); game.player.currentHp = window.getMaxHp();
-        window.spawnDamageText(game.player.x + 24, game.player.y - 10, "FULL HEAL", '#4CAF50'); window.updateUI(); window.emitVitalsIfNeeded(true);
-        if(socket) socket.emit('partyRevive');
+        // ✅ Maze-only restriction
+        if (safeMapData.id === 'town') { 
+            dom.log.innerText = "Purification cannot be used in Town!"; 
+            return; 
+        }
+
+        window.playVoice(className);
+        
+        // 1. Full Heal Yourself
+        game.player.currentHp = window.getMaxHp();
+        window.spawnDamageText(game.player.x + 24, game.player.y - 10, "FULL HEAL", '#4CAF50'); 
+        window.updateUI(); 
+        window.emitVitalsIfNeeded(true);
+        
+        // 2. Global Revive Teammates via Server
+        if(socket && game.party) {
+            socket.emit('partyRevive'); 
+        }
     }
 
     if (skillId === 'sum3') {
@@ -1934,6 +1971,7 @@ function gameLoop(ts) {
 </script>
 </body>
 </html>
+
 
 
 
