@@ -718,7 +718,7 @@ window.cleanupMap = function() {
 }
 
 // ==========================================
-// 3. SHOP & GOLD ECONOMY (DYNAMIC SCALING)
+// 3. SHOP & GOLD ECONOMY
 // ==========================================
 window.openShop = function() {
     isShopping = true;
@@ -1406,11 +1406,14 @@ if(socket) {
     });
 
     socket.on('monsterState', (monsters) => {
-        if (!Array.isArray(monsters)) return; 
+        // Stop rendering if loading a map to prevent overlap
+        if (window.isLoading || !Array.isArray(monsters)) return; 
         
         const currentIds = new Set();
         monsters.forEach(m => {
-            currentIds.add(m.id); let mEl = document.getElementById('mob_' + m.id);
+            currentIds.add(m.id); 
+            
+            let mEl = document.getElementById('mob_' + m.id);
             if (!mEl) {
                 mEl = document.createElement('div'); mEl.id = 'mob_' + m.id; mEl.className = 'entity monster-container'; mEl.style.position = 'absolute'; mEl.style.cursor = 'crosshair'; mEl.style.zIndex = '50'; mEl.style.display = 'flex'; mEl.style.justifyContent = 'center'; mEl.style.alignItems = 'flex-end';
                 
@@ -1432,6 +1435,15 @@ if(socket) {
                 const spriteLayer = mEl.querySelector('.monster-sprite-layer');
                 if (m.monsterKey.includes('common_mobs') || m.monsterKey.includes('mini_boss') || m.monsterKey.includes('floor_boss')) { spriteLayer.style.backgroundImage = 'none'; spriteLayer.style.backgroundColor = m.cssColor || '#ff69b4'; spriteLayer.style.border = `2px solid ${m.cssBorder || '#c71585'}`; spriteLayer.style.borderRadius = '50% 50% 40% 40%'; spriteLayer.style.animation = 'slime-bounce 0.5s infinite alternate'; } 
                 else { spriteLayer.style.backgroundColor = 'transparent'; spriteLayer.style.border = 'none'; spriteLayer.style.borderRadius = '0'; spriteLayer.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`; spriteLayer.style.animation = 'none'; }
+            }
+        });
+
+        // ✅ GARBAGE COLLECTION FIX: Removes old map monsters that the server stopped sending!
+        Object.keys(game.monsters).forEach(id => {
+            if (!currentIds.has(id)) {
+                let staleEl = document.getElementById('mob_' + id);
+                if (staleEl) staleEl.remove();
+                delete game.monsters[id];
             }
         });
     });
@@ -1475,7 +1487,7 @@ if(socket) {
         }
     });
 
-    socket.on('monsterHit', (data) => { if (!data || !game.monsters[data.monsterId]) return; const m = game.monsters[data.monsterId]; m.currentHp = data.newHp; m.maxHp = data.maxHp || m.maxHp; const mCenterX = m.x + (m.width / 2); const mCenterY = m.y + (m.height / 2); window.spawnDamageText(mCenterX, m.y - 10, data.damage, '#fff'); if (data.isPendant) window.spawnWhiteSplash(mCenterX, mCenterY); else window.spawnSpark(mCenterX, mCenterY); const mEl = document.getElementById('mob_' + m.id); if(mEl && !m.isMerchant) { mEl.classList.add('hit-flash'); setTimeout(() => mEl.classList.remove('hit-flash'), 100); } window.updateUI(); });
+    socket.on('monsterHit', (data) => { if (!data || !game.monsters[data.monsterId]) return; const m = game.monsters[data.monsterId]; m.currentHp = data.newHp; m.maxHp = data.maxHp || m.maxHp; const mCenterX = m.x + (m.width / 2); const mCenterY = m.y + (m.height / 2); window.spawnDamageText(mCenterX, m.y - 10, data.damage, '#fff'); if (data.isPendant) window.spawnWhiteSplash(mCenterX, mCenterY); else window.spawnSpark(mCenterX, mCenterY); const mEl = document.getElementById('mob_' + m.id); if(mEl) { mEl.classList.add('hit-flash'); setTimeout(() => mEl.classList.remove('hit-flash'), 100); } window.updateUI(); });
     socket.on('monsterDied', (data) => { if (!data || !game.monsters[data.monsterId]) return; game.monsters[data.monsterId].alive = false; const mEl = document.getElementById('mob_' + data.monsterId); if(mEl) mEl.style.display = 'none'; window.updateUI(); });
     socket.on('monsterSpawned', (m) => { if (!m || safeMapData.id === 'town') return; game.monsters[m.id] = m; const mEl = document.getElementById('mob_' + m.id); if(mEl) mEl.style.display = 'flex'; });
     socket.on('lootDropped', (item) => { if (item) window.addLoot(item); });
