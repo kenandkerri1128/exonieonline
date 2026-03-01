@@ -909,7 +909,14 @@ window.getTotalStat = function(statName) {
 window.getAttackPower = function() { return window.getTotalStat('attack') + Math.floor(window.getTotalStat('str') / 2); }; 
 window.getMagicAttack = function() { return window.getTotalStat('magic') + Math.floor(window.getTotalStat('int') / 2); }; 
 window.getMaxHp = function() { return window.getTotalStat('hp'); }; 
-window.getDefense = function() { return window.getTotalStat('defense'); }; 
+window.getDefense = function() { 
+    let def = window.getTotalStat('defense');
+    // ✅ BERSERKER 5x DEFENSE BUFF CHECK
+    if (game.player.tauntBuffUntil && Date.now() < game.player.tauntBuffUntil) {
+        def *= 5;
+    }
+    return def; 
+};
 window.getSpeed = function() { return window.getTotalStat('speed'); }; 
 window.getBaseStat = function(lvl) { if (lvl >= 50) return 100; if (lvl >= 45) return 45; if (lvl >= 40) return 40; if (lvl >= 35) return 30; if (lvl >= 30) return 27; if (lvl >= 25) return 22; if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; if (lvl >= 5) return 8; return 5; }
 
@@ -1618,8 +1625,8 @@ const CLASSES = {
         { id: 'ice2', name: "Chill!", unlock: 25, type: 'passive', desc: "Your attacks have a 25% chance to freeze enemies." },
         { id: 'ice3', name: "Icicle Storm", unlock: 50, cd: 100000, type: 'active', desc: "Drops 3 icicles on the enemy." }
     ]},
-    "Berserker": { weapon: "sword", aura: "red", skills: [
-        { id: 'ber1', name: "Callout!", unlock: 1, cd: 14000, type: 'active', desc: "Taunts all enemies in range to attack you for 10s." },
+   "Berserker": { weapon: "sword", aura: "red", skills: [
+        { id: 'ber1', name: "Callout!", unlock: 1, cd: 14000, type: 'active', desc: "Taunts enemies and multiplies Defense by 5x for 10s." },
         { id: 'ber2', name: "Bulk Up!", unlock: 25, type: 'passive', desc: "Increases base Defense and HP by 25%." },
         { id: 'ber3', name: "Immortal", unlock: 50, cd: 100000, type: 'active', desc: "Your HP cannot drop below 1 for 10 seconds." }
     ]},
@@ -1818,9 +1825,17 @@ window.executeSkill = function(skillId, className) {
         if(game.player.activePets) game.player.activePets.forEach(p => { p.enhancedUntil = Date.now() + 10000; window.spawnSpark(p.x+15, p.y+15); });
     }
 
-    if (skillId === 'ber1') {
-        window.playVoice(className); if(socket) socket.emit('tauntMonsters', { radius: 300 });
-        window.spawnDamageText(game.player.x + 24, game.player.y - 10, "TAUNT", '#ff9800');
+   if (skillId === 'ber1') {
+        window.playVoice(className); 
+        
+        // ✅ 1. Tell Server to pull aggro
+        if(socket) socket.emit('tauntMonsters', { radius: 300 });
+        
+        // ✅ 2. Apply local 10-second Defense Buff
+        game.player.tauntBuffUntil = Date.now() + 10000; 
+        
+        window.spawnDamageText(game.player.x + 24, game.player.y - 10, "DEF x5!", '#ffeb3b');
+        window.spawnSpark(game.player.x + 24, game.player.y + 48);
     }
     if (skillId === 'ber3') {
         window.playVoice(className); game.player.immortalUntil = Date.now() + 10000;
@@ -2005,6 +2020,7 @@ function gameLoop(ts) {
 </script>
 </body>
 </html>
+
 
 
 
