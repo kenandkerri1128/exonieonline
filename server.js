@@ -365,6 +365,28 @@ io.on('connection', (socket) => {
             else socket.emit('characterSelect', user);
         } catch(e) { socket.emit('authError', 'Server Error'); }
     });
+    socket.on('createCharacter', async (data) => {
+        try {
+            const { username, charData } = data;
+            const { data: user, error } = await supabase.from('Exonians')
+                .update({ 
+                    skin_color: charData.skinColor, 
+                    hair_color: charData.hairColor, 
+                    hair_style: charData.hairStyle 
+                })
+                .eq('character_name', username)
+                .select().single();
+            
+            if (error) return socket.emit('authError', 'Failed to create character.');
+            
+            if (user) {
+                // Tells the client to stop loading and show the Select Screen!
+                socket.emit('characterSelect', user);
+            }
+        } catch(e) { 
+            socket.emit('authError', 'Server Error during creation.'); 
+        }
+    });
 
     socket.on('enterWorld', (userData) => {
         const mapId = userData.map_id || 'town';
@@ -625,4 +647,5 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
