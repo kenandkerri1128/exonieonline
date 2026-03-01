@@ -1183,8 +1183,6 @@ function setKeyState(e, isDown) {
         if (key === 'p') window.toggleStats(); 
         if (key === 'i') window.toggleInventory(); 
         if (key === 'k') window.toggleSkillScreen(); 
-        
-        // ✅ ADDED "J" KEY FOR SHOP
         if (key === 'j') window.openShop(); 
 
         if (key === 'o') { 
@@ -1265,6 +1263,26 @@ window.removeRemotePlayer = function(id) { const p = game.remotePlayers[id]; if 
 // 8. SOCKET EVENTS & NETWORKING
 // ==========================================
 if(socket) {
+    // ✅ RESTORED AUTHENTICATION LISTENERS
+    socket.on('needsCharacterCreation', (username) => {
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('char-name-input').value = username;
+        document.getElementById('creation-screen').classList.add('active');
+    });
+
+    socket.on('authError', (msg) => {
+        alert(msg);
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('auth-screen').classList.add('active');
+    });
+
+    socket.on('registerSuccess', (username) => {
+        alert("Registration successful! Please log in.");
+        window.switchAuth('login');
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('auth-screen').classList.add('active');
+    });
+
     socket.on('characterSelect', (userData) => { 
         document.getElementById('loading-screen').style.display = 'none'; 
         document.getElementById('select-name-display').innerText = userData.character_name; document.getElementById('select-level-display').innerText = `Level ${userData.level || 1}`;
@@ -1406,14 +1424,12 @@ if(socket) {
     });
 
     socket.on('monsterState', (monsters) => {
-        // Stop rendering if loading a map to prevent overlap
-        if (window.isLoading || !Array.isArray(monsters)) return; 
+        // STOP PROCESSING IF WE ARE IN TOWN - THE MAP IS 100% SAFE.
+        if (!Array.isArray(monsters) || safeMapData.id === 'town') return; 
         
         const currentIds = new Set();
         monsters.forEach(m => {
-            currentIds.add(m.id); 
-            
-            let mEl = document.getElementById('mob_' + m.id);
+            currentIds.add(m.id); let mEl = document.getElementById('mob_' + m.id);
             if (!mEl) {
                 mEl = document.createElement('div'); mEl.id = 'mob_' + m.id; mEl.className = 'entity monster-container'; mEl.style.position = 'absolute'; mEl.style.cursor = 'crosshair'; mEl.style.zIndex = '50'; mEl.style.display = 'flex'; mEl.style.justifyContent = 'center'; mEl.style.alignItems = 'flex-end';
                 
@@ -1438,7 +1454,7 @@ if(socket) {
             }
         });
 
-        // ✅ GARBAGE COLLECTION FIX: Removes old map monsters that the server stopped sending!
+        // ✅ GARBAGE COLLECTION FIX: Instantly deletes ghost monsters bleeding through maps
         Object.keys(game.monsters).forEach(id => {
             if (!currentIds.has(id)) {
                 let staleEl = document.getElementById('mob_' + id);
@@ -1454,7 +1470,7 @@ if(socket) {
         
         if (targetId !== game.player.id && game.remotePlayers[targetId]) { const rp = game.remotePlayers[targetId]; tx = rp.x + 24; ty = rp.y + 48; }
 
-        // ✅ FIX 3: SLIME MORTALITY LOGIC
+        // ✅ SLIME MORTALITY LOGIC
         let hitPet = null;
         if (game.player.activePets) {
             hitPet = game.player.activePets.find(p => p.id === targetId);
@@ -1781,7 +1797,6 @@ function gameLoop(ts) {
         if (canMoveY) game.player.y = nextY;
     }
 
-    // ✅ SUMMONER SLIME AI
     if (game.player.activePets && game.player.activePets.length > 0) {
         let pClass = game.player.baseStats.playerClass;
         let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(pClass);
