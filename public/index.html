@@ -520,6 +520,7 @@
                     <option value="mini_boss1">Orc Chieftain</option>
                     <option value="floor_boss1">Dragon</option>
                 </select>
+                <input type="number" id="admin-monster-level" value="5" step="5" min="5" style="width: 50px;" title="Spawn Level">
             </div>
             <div style="display: flex; gap: 10px; margin-top:10px;">
                 <button class="btn" style="flex: 1;" onclick="window.undoLastBox()">Undo</button>
@@ -1021,7 +1022,12 @@ window.saveMapToServer = function() {
     if(socket) socket.emit('saveMapFile', { mapId: mapId, content: str });
     dom.log.innerText = "Map saved to server!";
 }
-
+// ✅ PREVENT BROWSER MENU IN ADMIN MODE
+    dom.world.addEventListener('contextmenu', (e) => {
+        if (document.getElementById('admin-panel').style.display === 'block') {
+            e.preventDefault();
+        }
+    });
 dom.world.addEventListener('mousedown', (e) => {
     if (window.adminMode) {
         if (e.altKey) {
@@ -1032,18 +1038,75 @@ dom.world.addEventListener('mousedown', (e) => {
             else { currentBox.style.background = 'rgba(255, 0, 0, 0.4)'; currentBox.style.border = '1px solid red'; }
             document.getElementById('collision-layers').appendChild(currentBox);
         } 
+            dom.world.addEventListener('mousedown', (e) => {
+
+    // ✅ NEW RIGHT-CLICK DELETE LOGIC (Placed at the very top)
+    if (window.adminMode && e.button === 2) { 
+        const rect = dom.world.getBoundingClientRect();
+        const hitX = Math.round((e.clientX - rect.left) / CAMERA_ZOOM);
+        const hitY = Math.round((e.clientY - rect.top) / CAMERA_ZOOM);
+        
+        let closestDist = 40; 
+        let targetArray = null;
+        let targetIndex = -1;
+
+        const checkNearest = (arr) => {
+            if (!arr) return;
+            arr.forEach((item, index) => {
+                let dist = Math.hypot(hitX - item.x, hitY - item.y);
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    targetArray = arr;
+                    targetIndex = index;
+                }
+            });
+        };
+
+        checkNearest(safeMapData.teleports);
+        checkNearest(safeMapData.normalSpawns);
+        checkNearest(safeMapData.miniBossSpawns);
+        checkNearest(safeMapData.floorBossSpawns);
+
+        if (targetIndex !== -1) {
+            targetArray.splice(targetIndex, 1);
+            window.buildCollisionLayers(); 
+            window.copyAdminData();        
+            dom.log.innerText = `Deleted map object at ${hitX}, ${hitY}`;
+        } else {
+            dom.log.innerText = "No spawn or teleport nearby to delete.";
+        }
+        return; // Stops the script here so it doesn't try to draw boxes below!
+    }
+    // -----------------------------------------------------
+    // YOUR EXISTING CODE CONTINUES HERE
+    // -----------------------------------------------------
+    if (window.adminMode) {
+        if (e.altKey) {
+            isDrawing = true; startX = e.offsetX; startY = e.offsetY; drawType = e.shiftKey ? 'teleport' : 'collision';
+            currentBox = document.createElement('div'); currentBox.className = 'collision-box';
+            currentBox.style.left = startX + 'px'; currentBox.style.top = startY + 'px';
+            if (drawType === 'teleport') { currentBox.style.background = 'rgba(0, 0, 255, 0.4)'; currentBox.style.border = '2px dashed #00f'; }
+            else { currentBox.style.background = 'rgba(255, 0, 0, 0.4)'; currentBox.style.border = '1px solid red'; }
+            document.getElementById('collision-layers').appendChild(currentBox);
+        }
+        // ... (the rest of your Z/X/C key logic stays the same)
         else if (game.keys.z || game.keys.x || game.keys.c) {
             const rect = dom.world.getBoundingClientRect();
             const hitX = Math.round((e.clientX - rect.left) / CAMERA_ZOOM);
             const hitY = Math.round((e.clientY - rect.top) / CAMERA_ZOOM);
             let mk = document.getElementById('admin-monster-key').value;
+            let mlvl = parseInt(document.getElementById('admin-monster-level').value) || 5; // ✅ Captures your custom level
             let group = game.keys.z ? 'normalSpawns' : (game.keys.x ? 'miniBossSpawns' : 'floorBossSpawns');
+            
             if (!safeMapData[group]) safeMapData[group] = [];
-            safeMapData[group].push({ x: hitX, y: hitY, monsterKey: mk });
+            safeMapData[group].push({ x: hitX, y: hitY, monsterKey: mk, level: mlvl }); // ✅ Saves the level to your map data
+            
             window.buildCollisionLayers();
             window.copyAdminData();
-            dom.log.innerText = `Spawn added to ${group} at ${hitX}, ${hitY}`;
-            if(socket) socket.emit('adminSpawnMonster', { x: hitX, y: hitY, monsterKey: mk, instanceId: game.player.instanceId });
+            dom.log.innerText = `Lv.${mlvl} Spawn added to ${group} at ${hitX}, ${hitY}`;
+            
+            // ✅ Sends the level to the server for live spawning
+            if(socket) socket.emit('adminSpawnMonster', { x: hitX, y: hitY, monsterKey: mk, level: mlvl, instanceId: game.player.instanceId });
         }
     }
 });
@@ -1507,7 +1570,8 @@ if(socket) {
             if (!mEl) {
                 mEl = document.createElement('div'); mEl.id = 'mob_' + m.id; mEl.className = 'entity monster-container'; mEl.style.position = 'absolute'; mEl.style.cursor = 'crosshair'; mEl.style.zIndex = '50'; mEl.style.display = 'flex'; mEl.style.justifyContent = 'center'; mEl.style.alignItems = 'flex-end';
                 
-                mEl.innerHTML = `<div class="name-tag mob-name">${m.name} Lv.${m.monsterKey === 'mini_boss1' ? '10' : m.monsterKey === 'floor_boss1' ? '15' : '5'}</div><div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div><div class="monster-ui-layer" style="position:absolute; top:-20px; left:0; width:100%; pointer-events:none;"><div class="bar-container" style="height:5px; border-radius:0; margin-bottom:0;"><div class="hp-fill monster-hp-fill" style="background-color:#f44336; height:100%; width:100%;"></div></div></div>`;
+               // ✅ Name tag now correctly reads m.level instead of hardcoding it!
+                mEl.innerHTML = `<div class="name-tag mob-name">${m.name} Lv.${m.level || 5}</div><div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div><div class="monster-ui-layer" style="position:absolute; top:-20px; left:0; width:100%; pointer-events:none;"><div class="bar-container" style="height:5px; border-radius:0; margin-bottom:0;"><div class="hp-fill monster-hp-fill" style="background-color:#f44336; height:100%; width:100%;"></div></div></div>`;
 
                 mEl.addEventListener('pointerdown', (e) => { 
                     e.stopPropagation(); 
@@ -2020,6 +2084,7 @@ function gameLoop(ts) {
 </script>
 </body>
 </html>
+
 
 
 
