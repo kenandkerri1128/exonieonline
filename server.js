@@ -461,6 +461,10 @@ io.on('connection', (socket) => {
     socket.on('enterWorld', (userData) => {
         const mapId = userData.map_id || 'town';
         const instId = getInstanceId(userData.character_name, mapId);
+
+        let startHp = userData.current_hp || 100;
+        // ✅ TOWN FOUNTAIN: Always login with Full HP if in Town
+        if (mapId === 'town') startHp = 100;
         
         onlinePlayers[socket.id] = {
             socketId: socket.id, id: userData.character_name, name: userData.character_name, mapId: mapId, instanceId: instId, isGhost: false, currentPortal: null,
@@ -666,6 +670,9 @@ io.on('connection', (socket) => {
         if (!onlinePlayers[socket.id]) return; const p = onlinePlayers[socket.id];
         socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
         
+        // ✅ TOWN FOUNTAIN: Restore HP when arriving in Town
+        if (p.mapId === 'town') p.currentHp = p.maxHp;
+        
         if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
             for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
         }
@@ -717,6 +724,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
