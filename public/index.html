@@ -96,11 +96,10 @@
         #hud { position: absolute; top: 20px; left: 20px; width: 280px; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #555; z-index: 1000; }
         .stat-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 18px; font-weight: bold;}
         .level-row { font-size: 16px; color: #ffd700; margin-bottom: 10px; display: flex; justify-content: space-between;}
-        .bar-container { width: 100%; height: 15px; background-color: #333; border-radius: 3px; overflow: hidden; border: 1px solid #000; margin-bottom: 10px;}
+        .bar-container { width: 100%; height: 15px; background: #333; border-radius: 3px; overflow: hidden; border: 1px solid #000; margin-bottom: 10px;}
         .hp-fill { height: 100%; background: #4CAF50; width: 100%; transition: width 0.2s ease-out; }
         .exp-fill { height: 100%; background: #9c27b0; width: 0%; transition: width 0.3s ease-out; }
 
-        /* ✅ COMBAT LOG + UNSTUCK BUTTON CONTAINER */
         #combat-log-wrapper { position: absolute; bottom: 20px; left: 20px; display: flex; align-items: center; gap: 10px; z-index: 1000; }
         #combat-log { color: #fff; font-size: 18px; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 5px; pointer-events: none; }
         #unstuck-btn { background-color: #ff9800; border-color: #ff9800; color: white; font-weight: bold; padding: 10px 15px; cursor: pointer; border-radius: 4px; pointer-events: auto; font-family: 'MedievalSharp', cursive; font-size: 16px; display: none; }
@@ -155,8 +154,8 @@
         .rarity-godly { animation: godly-sparkle 1.5s infinite alternate; }
         @keyframes godly-sparkle { 0% { text-shadow: 0 0 2px #fff, 0 0 5px #e0ffff; } 100% { text-shadow: 0 0 8px #fff, 0 0 15px #00ffff, 0 0 20px #00ffff; } }
 
-        /* --- MENUS & WINDOWS --- */
-        #inventory-screen { position: absolute; top: 0; right: 0; width: 350px; height: 100%; background-color: rgba(25, 25, 25, 0.98); border-left: 2px solid #555; padding: 20px; z-index: 1000; display: none; box-sizing: border-box; box-shadow: -5px 0 20px rgba(0,0,0,0.8); overflow-y: auto; }
+        /* ✅ INVENTORY WINDOW CSS UPDATED (PULLED OFF THE RIGHT WALL) */
+        #inventory-screen { position: absolute; top: 20px; right: 20px; width: 350px; height: calc(100% - 40px); background-color: rgba(25, 25, 25, 0.98); border: 2px solid #555; border-radius: 8px; padding: 20px; z-index: 1000; display: none; box-sizing: border-box; box-shadow: -5px 0 20px rgba(0,0,0,0.8); overflow-y: auto; }
         #inventory-screen h2 { margin-top: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; font-size: 28px; }
         .inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
         .inv-slot { width: 100%; aspect-ratio: 1; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 13px; text-align: center; cursor: pointer; user-select: none; color: white; padding: 4px; box-sizing: border-box; font-weight: bold; position: relative; }
@@ -291,23 +290,59 @@
                         <div style="font-size:12px; color:#aaa;">Heals 100 HP</div>
                     </div>
                 </div>
-                <button class="shop-buy-btn" onclick="window.buyItem('potion')">25 Gold</button>
+                <div style="display:flex; align-items:center; gap: 10px;">
+                    <input type="number" id="shop-potion-qty" value="1" min="1" max="99" style="width:50px; padding:4px; margin-bottom:0;" onchange="window.updatePotionPrice()">
+                    <button class="shop-buy-btn" id="shop-potion-buy-btn" onclick="window.buyItem('potion')">25 Gold</button>
+                </div>
             </div>
-            <div class="shop-item-row">
+
+            <div class="shop-item-row" style="flex-direction: column; align-items: stretch; gap: 15px;">
                 <div class="shop-item-info">
                     <div class="shop-item-icon" style="color:#e0e0e0;">💎</div>
                     <div>
-                        <div style="font-weight:bold; color:#e0e0e0;">Refinement Stone Lv.10</div>
-                        <div style="font-size:12px; color:#aaa;">Enhances equipment.</div>
+                        <div style="font-weight:bold; color:#e0e0e0;">Refinement Stone</div>
+                        <div style="font-size:12px; color:#aaa;">Enhances equipment. Prices scale!</div>
                     </div>
                 </div>
-                <button class="shop-buy-btn" onclick="window.buyItem('stone')">150 Gold</button>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between;">
+                    <div style="width: 48%;">
+                        <label style="font-size: 12px; color: #aaa;">Level:</label>
+                        <select id="shop-stone-level" onchange="window.updateStonePrice()" style="width: 100%; padding: 4px;">
+                            <option value="5">Lv 5</option>
+                            <option value="10" selected>Lv 10</option>
+                            <option value="15">Lv 15</option>
+                            <option value="20">Lv 20</option>
+                            <option value="25">Lv 25</option>
+                            <option value="30">Lv 30</option>
+                            <option value="35">Lv 35</option>
+                            <option value="40">Lv 40</option>
+                            <option value="45">Lv 45</option>
+                            <option value="50">Lv 50</option>
+                        </select>
+                    </div>
+                    <div style="width: 48%;">
+                        <label style="font-size: 12px; color: #aaa;">Rarity:</label>
+                        <select id="shop-stone-rarity" onchange="window.updateStonePrice()" style="width: 100%; padding: 4px;">
+                            <option value="Basic" selected>Basic</option>
+                            <option value="Rare">Rare</option>
+                            <option value="Unique">Unique</option>
+                            <option value="Legendary">Legendary</option>
+                            <option value="Godly">Godly</option>
+                        </select>
+                    </div>
+                    <div style="width: 48%; display: flex; flex-direction: column;">
+                        <label style="font-size: 12px; color: #aaa;">Quantity:</label>
+                        <input type="number" id="shop-stone-qty" value="1" min="1" max="99" onchange="window.updateStonePrice()" style="width: 100%; margin-bottom: 0; padding: 4px; box-sizing: border-box;">
+                    </div>
+                    <div style="width: 48%; display: flex; align-items: flex-end;">
+                        <button class="shop-buy-btn" id="shop-stone-buy-btn" style="width: 100%;" onclick="window.buyItem('stone')">150 Gold</button>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <p style="text-align:center; color:#4CAF50; font-size:13px; background:rgba(0,0,0,0.5); padding:8px; border-radius:4px;">Tip: Click items in your <b>Inventory (I)</b> to sell them while this shop is open!</p>
-        
-        <button class="btn btn-large" style="margin-top: 10px; padding: 10px; background:#555; border-color:#555;" onclick="window.closeShop()">Leave Shop</button>
+        <p style="text-align:center; color:#4CAF50; font-size:13px; background:rgba(0,0,0,0.5); padding:8px; border-radius:4px; margin-bottom: 0;">Tip: Click items in your <b>Inventory (I)</b> to sell them while this shop is open!</p>
+        <button class="btn btn-large" style="margin-top: 15px; padding: 10px; background:#555; border-color:#555;" onclick="window.closeShop()">Close Shop (J)</button>
     </div>
     
     <div id="auth-screen" class="screen active" style="background: url('town_map.png') center/cover; position: relative;">
@@ -532,7 +567,6 @@ window.onload = () => {
         window.attemptLogin(); 
     }
     
-    // ✅ Reveal the Unstuck button
     setTimeout(() => {
         let unstuckBtn = document.getElementById('unstuck-btn');
         if (unstuckBtn) unstuckBtn.style.display = 'block';
@@ -594,7 +628,6 @@ window.game = {
 
 const DatabaseManager = { savePlayerData: function(playerObj) { playerObj.mapId = safeMapData.id || 'town'; if(socket) socket.emit('saveData', playerObj); if(socket) socket.emit('playerEquipUpdate', { equips: playerObj.equips }); } };
 
-// ✅ BRAND NEW UNSTUCK FUNCTION
 window.forceUnstuck = function() {
     game.player.x = 960; game.player.y = 1000;
     if (safeMapData.id !== 'town') {
@@ -685,13 +718,15 @@ window.cleanupMap = function() {
 }
 
 // ==========================================
-// 3. SHOP & GOLD ECONOMY
+// 3. SHOP & GOLD ECONOMY (DYNAMIC SCALING)
 // ==========================================
 window.openShop = function() {
     isShopping = true;
     document.getElementById('shop-my-gold').innerText = game.player.gold || 0;
     document.getElementById('shop-screen').style.display = 'block';
     if (!isInventoryOpen) window.toggleInventory();
+    window.updatePotionPrice();
+    window.updateStonePrice();
 }
 
 window.closeShop = function() {
@@ -700,25 +735,60 @@ window.closeShop = function() {
     if (isInventoryOpen) window.renderInventory(); 
 }
 
-window.buyItem = function(type) {
-    let cost = type === 'potion' ? 25 : 150;
-    if (game.player.gold < cost) { dom.log.innerText = "Not enough gold!"; return; }
+window.updatePotionPrice = function() {
+    let qty = parseInt(document.getElementById('shop-potion-qty').value) || 1;
+    if (qty < 1) { qty = 1; document.getElementById('shop-potion-qty').value = 1; }
+    document.getElementById('shop-potion-buy-btn').innerText = (qty * 25) + " Gold";
+}
+
+window.updateStonePrice = function() {
+    let lvl = parseInt(document.getElementById('shop-stone-level').value) || 10;
+    let rarity = document.getElementById('shop-stone-rarity').value || 'Basic';
+    let qty = parseInt(document.getElementById('shop-stone-qty').value) || 1;
+    if (qty < 1) { qty = 1; document.getElementById('shop-stone-qty').value = 1; }
     
-    let item;
+    let basePrice = lvl * 15; 
+    let rMult = { "Basic": 1, "Rare": 3, "Unique": 8, "Legendary": 20, "Godly": 50 }[rarity] || 1;
+    let totalCost = basePrice * rMult * qty;
+    
+    document.getElementById('shop-stone-buy-btn').innerText = totalCost + " Gold";
+}
+
+window.buyItem = function(type) {
     if (type === 'potion') {
-        item = { id: Date.now(), name: "Health Potion", type: "potion", rarity: "Basic", color: "#fff", fixedStat: { hpHeal: 100 }, quantity: 1 };
-    } else {
-        item = { id: Date.now(), name: "Refinement Stone Lv.10", type: "material", rarity: "Basic", level: 10, color: "#e0e0e0", description: "Enhances equipment.", quantity: 1 };
+        let qty = parseInt(document.getElementById('shop-potion-qty').value) || 1;
+        let cost = qty * 25;
+        if (game.player.gold < cost) { dom.log.innerText = "Not enough gold!"; return; }
+        
+        let item = { id: Date.now(), name: "Health Potion", type: "potion", rarity: "Basic", color: "#fff", fixedStat: { hpHeal: 100 }, quantity: qty };
+        game.player.gold -= cost;
+        window.addLoot(item);
+        
+    } else if (type === 'stone') {
+        let lvl = parseInt(document.getElementById('shop-stone-level').value) || 10;
+        let rarity = document.getElementById('shop-stone-rarity').value || 'Basic';
+        let qty = parseInt(document.getElementById('shop-stone-qty').value) || 1;
+        
+        let basePrice = lvl * 15;
+        let rMult = { "Basic": 1, "Rare": 3, "Unique": 8, "Legendary": 20, "Godly": 50 }[rarity] || 1;
+        let cost = basePrice * rMult * qty;
+        
+        if (game.player.gold < cost) { dom.log.innerText = "Not enough gold!"; return; }
+        
+        let color = window.RARITY_COLORS[rarity] || "#fff";
+        let itemName = `${rarity === "Basic" ? "" : rarity + " "}Refinement Stone Lv.${lvl}`.trim();
+        
+        let item = { id: Date.now() + Math.random(), name: itemName, type: "material", rarity: rarity, level: lvl, color: color, description: "Enhances equipment.", quantity: qty };
+        
+        game.player.gold -= cost;
+        window.addLoot(item);
     }
     
-    game.player.gold -= cost;
-    window.addLoot(item);
     document.getElementById('shop-my-gold').innerText = game.player.gold;
     window.updateUI();
     DatabaseManager.savePlayerData(game.player);
 }
 
-// ✅ SELLING LOOT FOR GOLD
 window.actionSell = function(e) {
     if (e) e.stopPropagation();
     const item = game.player.inventory[activeInvIndex];
@@ -845,10 +915,7 @@ window.openItemAction = function(index, e) {
     const menu = document.getElementById('inv-context-menu');
     const item = game.player.inventory[index]; if (!item) return;
     document.getElementById('ctx-btn-equip').innerText = item.type === 'potion' ? "Use" : (item.type === 'material' ? "Enhance" : "Equip");
-    
-    // ✅ DYNAMIC SELL BUTTON ONLY IN SHOP
     document.getElementById('ctx-btn-sell').style.display = isShopping ? 'block' : 'none';
-    
     menu.style.display = 'flex'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
 }
 
@@ -1124,10 +1191,7 @@ function setKeyState(e, isDown) {
             if (game.player.name === "Kei") { 
                 window.adminMode = !window.adminMode; 
                 document.getElementById('admin-panel').style.display = window.adminMode ? 'block' : 'none';
-                
-                // ✅ FIX 4: INSTANTLY APPLIES RED BOXES
                 dom.world.classList.toggle('admin-active', window.adminMode);
-                
                 dom.log.innerText = window.adminMode ? "Admin Mode ON" : "Admin Mode OFF"; window.buildCollisionLayers(); 
             } else { dom.log.innerText = "Admin Mode restricted."; } 
         } 
@@ -1342,31 +1406,18 @@ if(socket) {
     });
 
     socket.on('monsterState', (monsters) => {
-        // ✅ FIX 1: REMOVED TOWN RESTRICTION SO MERCHANT CAN SPAWN!
         if (!Array.isArray(monsters)) return; 
         
         const currentIds = new Set();
         monsters.forEach(m => {
-            // ONLY allow the merchant to spawn in town. Block normal monsters.
-            if (safeMapData.id === 'town' && !m.isMerchant) return;
-            
             currentIds.add(m.id); let mEl = document.getElementById('mob_' + m.id);
             if (!mEl) {
-                mEl = document.createElement('div'); mEl.id = 'mob_' + m.id; mEl.className = 'entity monster-container'; mEl.style.position = 'absolute'; mEl.style.cursor = m.isMerchant ? 'pointer' : 'crosshair'; mEl.style.zIndex = '50'; mEl.style.display = 'flex'; mEl.style.justifyContent = 'center'; mEl.style.alignItems = 'flex-end';
+                mEl = document.createElement('div'); mEl.id = 'mob_' + m.id; mEl.className = 'entity monster-container'; mEl.style.position = 'absolute'; mEl.style.cursor = 'crosshair'; mEl.style.zIndex = '50'; mEl.style.display = 'flex'; mEl.style.justifyContent = 'center'; mEl.style.alignItems = 'flex-end';
                 
-                if (m.isMerchant) {
-                    mEl.innerHTML = `
-                        <div class="name-tag merchant-name" style="font-size: 16px; top: -45px;">Wandering Merchant</div>
-                        <div style="font-size: 60px; width: 80px; height: 120px; display: flex; justify-content: center; align-items: center; background: rgba(76, 175, 80, 0.2); border: 3px solid #4CAF50; border-radius: 15px; box-shadow: 0 0 20px #4CAF50; animation: merchantPulse 2s infinite alternate;">🧍‍♂️</div>
-                        <style>@keyframes merchantPulse { 0% { box-shadow: 0 0 10px #4CAF50; transform: scale(1); } 100% { box-shadow: 0 0 30px #4CAF50, 0 0 40px #81c784; transform: scale(1.05); } }</style>
-                    `;
-                } else {
-                    mEl.innerHTML = `<div class="name-tag mob-name">${m.name} Lv.${m.monsterKey === 'mini_boss1' ? '10' : m.monsterKey === 'floor_boss1' ? '15' : '5'}</div><div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div><div class="monster-ui-layer" style="position:absolute; top:-20px; left:0; width:100%; pointer-events:none;"><div class="bar-container" style="height:5px; border-radius:0; margin-bottom:0;"><div class="hp-fill monster-hp-fill" style="background-color:#f44336; height:100%; width:100%;"></div></div></div>`;
-                }
+                mEl.innerHTML = `<div class="name-tag mob-name">${m.name} Lv.${m.monsterKey === 'mini_boss1' ? '10' : m.monsterKey === 'floor_boss1' ? '15' : '5'}</div><div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div><div class="monster-ui-layer" style="position:absolute; top:-20px; left:0; width:100%; pointer-events:none;"><div class="bar-container" style="height:5px; border-radius:0; margin-bottom:0;"><div class="hp-fill monster-hp-fill" style="background-color:#f44336; height:100%; width:100%;"></div></div></div>`;
 
                 mEl.addEventListener('pointerdown', (e) => { 
                     e.stopPropagation(); 
-                    if(m.isMerchant) { window.openShop(); return; }
                     if(!window.isLoading){ attackHeld = true; window.attemptAttackTarget = m.id; window.attemptAttack(false); }
                 });
                 dom.world.appendChild(mEl);
@@ -1377,15 +1428,10 @@ if(socket) {
                 
                 const hpBarFill = mEl.querySelector('.monster-hp-fill'); 
                 if(hpBarFill) hpBarFill.style.width = (m.currentHp / Math.max(1, m.maxHp)) * 100 + '%';
-                
-                const uiLayer = mEl.querySelector('.monster-ui-layer');
-                if (m.isMerchant && uiLayer) uiLayer.style.display = 'none';
 
                 const spriteLayer = mEl.querySelector('.monster-sprite-layer');
-                if (!m.isMerchant) {
-                    if (m.monsterKey.includes('common_mobs') || m.monsterKey.includes('mini_boss') || m.monsterKey.includes('floor_boss')) { spriteLayer.style.backgroundImage = 'none'; spriteLayer.style.backgroundColor = m.cssColor || '#ff69b4'; spriteLayer.style.border = `2px solid ${m.cssBorder || '#c71585'}`; spriteLayer.style.borderRadius = '50% 50% 40% 40%'; spriteLayer.style.animation = 'slime-bounce 0.5s infinite alternate'; } 
-                    else { spriteLayer.style.backgroundColor = 'transparent'; spriteLayer.style.border = 'none'; spriteLayer.style.borderRadius = '0'; spriteLayer.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`; spriteLayer.style.animation = 'none'; }
-                }
+                if (m.monsterKey.includes('common_mobs') || m.monsterKey.includes('mini_boss') || m.monsterKey.includes('floor_boss')) { spriteLayer.style.backgroundImage = 'none'; spriteLayer.style.backgroundColor = m.cssColor || '#ff69b4'; spriteLayer.style.border = `2px solid ${m.cssBorder || '#c71585'}`; spriteLayer.style.borderRadius = '50% 50% 40% 40%'; spriteLayer.style.animation = 'slime-bounce 0.5s infinite alternate'; } 
+                else { spriteLayer.style.backgroundColor = 'transparent'; spriteLayer.style.border = 'none'; spriteLayer.style.borderRadius = '0'; spriteLayer.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`; spriteLayer.style.animation = 'none'; }
             }
         });
     });
@@ -1664,7 +1710,7 @@ window.attemptAttack = function(silent) {
     if (attackCooldownActive) return; 
     
     let closestMob = null; let minD = Infinity; const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : ''; const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant'); const isPendant = weaponSprite.includes('pendant'); const attackRadius = isRanged ? 250 : 80;
-    for(let mId in game.monsters) { let m = game.monsters[mId]; if(!m.alive || m.isMerchant) continue; let mCenterX = m.x + (m.width/2); let mCenterY = m.y + (m.height/2); let dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY); if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; } }
+    for(let mId in game.monsters) { let m = game.monsters[mId]; if(!m.alive) continue; let mCenterX = m.x + (m.width/2); let mCenterY = m.y + (m.height/2); let dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY); if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; } }
     if (!closestMob) { if(!silent) dom.log.innerText = "No target in range."; return; }
     
     isAttacking = true; attackCooldownActive = true; 
@@ -1729,7 +1775,7 @@ function gameLoop(ts) {
         let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(pClass);
         
         game.player.activePets.forEach((p, idx) => {
-            let targetMob = Object.values(game.monsters).find(m => m.alive && !m.isMerchant && Math.hypot(m.x-p.x, m.y-p.y) < 300);
+            let targetMob = Object.values(game.monsters).find(m => m.alive && Math.hypot(m.x-p.x, m.y-p.y) < 300);
             
             if (targetMob) {
                 let dist = Math.hypot(targetMob.x - p.x, targetMob.y - p.y);
