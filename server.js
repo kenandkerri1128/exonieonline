@@ -227,37 +227,90 @@ function pickTarget(m, instId, now) {
     
     return null;
 }
-
 function updateMonsterAI(instId, m, now) {
     if (!m.alive) return;
     if (now < m.frozenUntil) return;
 
-    const target = pickTarget(m, instId, now); m.targetId = target ? target.id : null;
-    const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2);
+    const target = pickTarget(m, instId, now); 
+    m.targetId = target ? target.id : null;
+    const mcx = m.x + (m.width / 2); 
+    const mcy = m.y + (m.height / 2);
     
     if (!target) { 
         const dist = Math.hypot(m.homeX - m.x, m.homeY - m.y); 
         if (dist > 2) { 
             const ang = Math.atan2(m.homeY - m.y, m.homeX - m.x); 
-            let nx = m.x + Math.cos(ang) * m.speed; let ny = m.y + Math.sin(ang) * m.speed; 
+            let nx = m.x + Math.cos(ang) * m.speed; 
+            let ny = m.y + Math.sin(ang) * m.speed; 
             if (!isMonsterColliding(instId, nx, m.y, m.width, m.height)) m.x = nx;
             if (!isMonsterColliding(instId, m.x, ny, m.width, m.height)) m.y = ny;
-        } return; 
+        } 
+        return; 
     }
     
+    // ✅ EARTHQUAKE AoE LOGIC (Triggered while aggroed)
+    if ((m.category === "mini_boss" || m.category === "floor_boss") && m.alive) {
+        // 15% chance to trigger if off cooldown (6 second internal cooldown)
+        if (now - (m.lastEarthquake || 0) > 6000) {
+            if (Math.random() < 0.15) {
+                m.lastEarthquake = now;
+                const aoeRadius = m.category === "floor_boss" ? 400 : 200;
+
+                // 1. Send visual signal to clients
+                io.to(instId).emit('monsterSkill', { 
+                    monsterId: m.id, 
+                    skillName: 'Earthquake', 
+                    x: mcx, 
+                    y: mcy, 
+                    radius: aoeRadius 
+                });
+
+                // 2. Damage all players in radius
+                const players = playersInInstance(instId);
+                players.forEach(p => {
+                    if (p.isGhost || p.mapId === 'town') return;
+                    const pDist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
+                    if (pDist <= aoeRadius) {
+                        const damage = Math.max(1, m.atk - (p.stats?.defense || 0));
+                        p.currentHp -= damage;
+                        io.to(instId).emit('monsterAttack', { 
+                            monsterId: m.id, 
+                            targetId: p.id, 
+                            targetX: p.x + 24, 
+                            targetY: p.y + 48, 
+                            atk: m.atk,
+                            isAoE: true 
+                        });
+                    }
+                });
+            }
+        }
+    }
+
     const dist = Math.hypot(target.x - mcx, target.y - mcy);
-    if (dist > m.chaseRadius) { if (!target.isPet && m.threatTable[target.id]) m.threatTable[target.id] *= 0.9; if (!target.isPet && m.threatTable[target.id] < 1) delete m.threatTable[target.id]; return; }
+    if (dist > m.chaseRadius) { 
+        if (!target.isPet && m.threatTable[target.id]) m.threatTable[target.id] *= 0.9; 
+        if (!target.isPet && m.threatTable[target.id] < 1) delete m.threatTable[target.id]; 
+        return; 
+    }
     
     if (dist > m.attackRange) { 
         const ang = Math.atan2(target.y - mcy, target.x - mcx); 
-        let nx = m.x + Math.cos(ang) * m.speed; let ny = m.y + Math.sin(ang) * m.speed; 
+        let nx = m.x + Math.cos(ang) * m.speed; 
+        let ny = m.y + Math.sin(ang) * m.speed; 
         if (!isMonsterColliding(instId, nx, m.y, m.width, m.height)) m.x = nx;
         if (!isMonsterColliding(instId, m.x, ny, m.width, m.height)) m.y = ny;
     } else { 
         if (now - m.lastAttack > 1500) { 
             m.lastAttack = now; 
             // EMITS SERVER-SIDE 'atk' SO FRONTEND RECEIVES THE TRUE DAMAGE
-            io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: target.id, targetX: target.x, targetY: target.y, atk: m.atk }); 
+            io.to(instId).emit('monsterAttack', { 
+                monsterId: m.id, 
+                targetId: target.id, 
+                targetX: target.x, 
+                targetY: target.y, 
+                atk: m.atk 
+            }); 
         } 
     }
 }
@@ -664,6 +717,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
