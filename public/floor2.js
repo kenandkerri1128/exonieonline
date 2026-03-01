@@ -1,7 +1,7 @@
-var floor1MapData = {
-    "id": "floor1",
-    "name": "Floor 1",
-    "image": "floor1.png",
+var floor2MapData = {
+    "id": "floor2",
+    "name": "Floor 2",
+    "image": "floor2.png",
     "spawnX": 742,
     "spawnY": 427,
     "normalSpawns": [
@@ -305,23 +305,5 @@ var floor1MapData = {
             "h": 49
         }
     ],
-    "teleports": [
-        {
-            "x": 37,
-            "y": 340,
-            "w": 34,
-            "h": 37,
-            "portalId": 2,
-            "targetMapId": "town"
-        },
-        {
-            "x": 1468,
-            "y": 2,
-            "w": 124,
-            "h": 24,
-            "portalId": 3,
-            "targetMapId": "floor2"
-        }
-    ]
 };
 if(typeof window !== 'undefined') window['floor1MapData'] = floor1MapData;
