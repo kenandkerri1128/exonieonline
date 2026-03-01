@@ -84,7 +84,7 @@
         #player-container { z-index: 105; transition: opacity 0.3s; }
         .name-tag { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 1px 1px 0 #000; z-index: 20; pointer-events: none; }
         .mob-name { color: #f44336; top: -30px; font-size: 12px;}
-        .merchant-name { color: #4CAF50 !important; top: -30px; font-size: 14px; }
+        .merchant-name { color: #4CAF50 !important; top: -45px; font-size: 16px; }
         .player-avatar-container { pointer-events: none; transform-origin: center bottom; position: relative; width: 48px; height: 96px; }
         .player-avatar-container::after { content: ''; position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); width: 30px; height: 8px; background: rgba(0, 0, 0, 0.4); border-radius: 50%; z-index: -2; }
 
@@ -98,10 +98,10 @@
         .stat-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 18px; font-weight: bold;}
         .level-row { font-size: 16px; color: #ffd700; margin-bottom: 10px; display: flex; justify-content: space-between;}
         .bar-container { width: 100%; height: 15px; background-color: #333; border-radius: 3px; overflow: hidden; border: 1px solid #000; margin-bottom: 10px;}
-        .hp-fill { height: 100%; background-color: #4CAF50; width: 100%; transition: width 0.2s ease-out; }
-        .exp-fill { height: 100%; background-color: #9c27b0; width: 0%; transition: width 0.3s ease-out; }
+        .hp-fill { height: 100%; background: #4CAF50; width: 100%; transition: width 0.2s ease-out; }
+        .exp-fill { height: 100%; background: #9c27b0; width: 0%; transition: width 0.3s ease-out; }
 
-        /* ✅ UPDATED COMBAT LOG FOR UNSTUCK BUTTON */
+        /* ✅ COMBAT LOG + UNSTUCK BUTTON CONTAINER */
         #combat-log-wrapper { position: absolute; bottom: 20px; left: 20px; display: flex; align-items: center; gap: 10px; z-index: 1000; }
         #combat-log { color: #fff; font-size: 18px; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 5px; pointer-events: none; }
         #unstuck-btn { background-color: #ff9800; border-color: #ff9800; color: white; font-weight: bold; padding: 10px 15px; cursor: pointer; border-radius: 4px; pointer-events: auto; font-family: 'MedievalSharp', cursive; font-size: 16px; display: none; }
@@ -174,6 +174,7 @@
         #inv-context-menu { display: none; position: absolute; background: #222; border: 1px solid #777; border-radius: 4px; z-index: 3000; flex-direction: column; width: 120px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
         .ctx-btn { background: none; border: none; color: white; padding: 10px; cursor: pointer; text-align: left; font-weight: bold; font-size: 16px; font-family: 'MedievalSharp', cursive; } 
         .ctx-btn:hover { background: #444; }
+        
         /* ✅ ADDED SPECIFIC SELL BUTTON STYLE */
         #ctx-btn-sell { color: gold; display: none; border-bottom: 1px solid #444; } 
         #ctx-btn-sell:hover { background: #333; color: #fff; }
@@ -406,9 +407,9 @@
             </div>
         </div>
 
-        <div style="position: absolute; bottom: 20px; left: 20px; display: flex; align-items: center; gap: 10px; z-index: 1000;">
-            <div id="combat-log" style="position: relative; bottom: auto; left: auto; color: #fff; font-size: 18px; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 5px; pointer-events: none;">Welcome to Exonie. WASD to move. Left click to attack.</div>
-            <button id="unstuck-btn" class="btn" style="background-color: #ff9800; border-color: #ff9800; color: white; font-weight: bold; padding: 10px 15px; cursor: pointer; border-radius: 4px; pointer-events: auto; display: none;" onclick="window.forceUnstuck()">Unstuck (Town)</button>
+        <div id="combat-log-wrapper">
+            <div id="combat-log">Welcome to Exonie. WASD to move. Left click to attack.</div>
+            <button id="unstuck-btn" onclick="window.forceUnstuck()">Unstuck (Town)</button>
         </div>
 
         <div id="hotbar">
@@ -531,7 +532,7 @@ window.onload = () => {
         document.getElementById('login-pass').value = savedP; 
         window.attemptLogin(); 
     }
-    
+
     // ✅ Reveal the Unstuck button
     setTimeout(() => {
         let unstuckBtn = document.getElementById('unstuck-btn');
@@ -1104,7 +1105,7 @@ function setKeyState(e, isDown) {
                 window.adminMode = !window.adminMode; 
                 document.getElementById('admin-panel').style.display = window.adminMode ? 'block' : 'none';
                 
-                // ✅ FIX: INSTANTLY APPLIES RED BOXES
+                // ✅ FIX 4: INSTANTLY APPLIES RED BOXES
                 dom.world.classList.toggle('admin-active', window.adminMode);
                 
                 dom.log.innerText = window.adminMode ? "Admin Mode ON" : "Admin Mode OFF"; window.buildCollisionLayers(); 
@@ -1326,7 +1327,7 @@ if(socket) {
         
         const currentIds = new Set();
         monsters.forEach(m => {
-            // Only allow the Merchant to spawn in town
+            // ✅ Only allow the NPC Merchant to spawn in town
             if (safeMapData.id === 'town' && !m.isMerchant) return;
             
             currentIds.add(m.id); let mEl = document.getElementById('mob_' + m.id);
@@ -1375,7 +1376,7 @@ if(socket) {
         
         if (targetId !== game.player.id && game.remotePlayers[targetId]) { const rp = game.remotePlayers[targetId]; tx = rp.x + 24; ty = rp.y + 48; }
 
-        // ✅ FIX 2: FIND OUT IF THE TARGET IS A SUMMONER SLIME
+        // ✅ FIX 3: SLIME DAMAGE LISTENER
         let hitPet = null;
         if (game.player.activePets) {
             hitPet = game.player.activePets.find(p => p.id === targetId);
@@ -1385,7 +1386,6 @@ if(socket) {
         const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); let dx = tx - mcx, dy = ty - mcy; let dist = Math.hypot(dx, dy) || 1; let moveX = (dx / dist) * 20; let moveY = (dy / dist) * 20;
         const spriteLayer = mEl.querySelector('.monster-sprite-layer'); if(spriteLayer) { spriteLayer.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`; setTimeout(() => { spriteLayer.style.transform = `translate(0px, 0px) scale(1)`; }, 150); }
         
-        // 1-Damage Bug Server Backup
         const serverAtk = data.atk || m.atk || 25;
 
         if (targetId === game.player.id && game.player.currentHp > 0 && !game.isGhost) {
@@ -1401,7 +1401,7 @@ if(socket) {
             
             window.spawnSpark(game.player.x + 24, game.player.y + 48); window.updateUI(); window.emitVitalsIfNeeded(true);
         } else if (hitPet) {
-            // ✅ FIX 3: SLIMES NOW TAKE REAL DAMAGE
+            // ✅ PET SLIMES NOW TAKE REAL DAMAGE
             const petDef = Math.floor(window.getDefense() * 0.25);
             const actualDmg = Math.max(1, serverAtk - petDef);
             hitPet.hp -= actualDmg;
@@ -1487,7 +1487,7 @@ window.chooseClass = function(cName) {
     window.renderSkillScreen(); window.updateSkillMenu(); window.updateUI(); dom.log.innerText = `You are now a ${cName}!`; window.spawnSpark(game.player.x + 24, game.player.y + 48);
 }
 
-// ✅ HOTBAR COOLDOWN ENGINE
+// COOLDOWN HELPER
 window.updateHotbarCooldowns = function() {
     if (!game.player.activeSkills) return;
     const now = Date.now();
@@ -1523,7 +1523,7 @@ window.updateSkillMenu = function() {
 
     if (!pClass || CLASSES[pClass].weapon !== wpnType) { dom.hotbar.style.display = 'none'; game.player.activeSkills = []; return; }
     
-    // ✅ FIX 4: PREVENT COOLDOWNS FROM RESETTING WHEN GAINING EXP
+    // ✅ FIX 2: PREVENT COOLDOWNS FROM RESETTING WHEN GAINING EXP OR REFRESHING UI
     let oldCDs = {};
     if (game.player.activeSkills && game.player.activeSkills.length > 0) {
         game.player.activeSkills.forEach(s => { oldCDs[s.id] = s.cooldownReadyAt; });
@@ -1533,7 +1533,7 @@ window.updateSkillMenu = function() {
     
     CLASSES[pClass].skills.forEach(s => {
         if (s.type === 'active' && game.player.level >= s.unlock && activeIndex < 2) {
-            let savedCD = oldCDs[s.id] || 0; // Restore old timestamp!
+            let savedCD = oldCDs[s.id] || 0; // Grab the old timestamp so it doesn't reset!
             game.player.activeSkills.push({ id: s.id, name: s.name, cd: s.cd, cooldownReadyAt: savedCD, execute: () => window.executeSkill(s.id, pClass) });
             document.getElementById(`hotbar-${activeIndex+1}`).style.display = 'flex'; document.getElementById(`hotbar-name-${activeIndex+1}`).innerText = s.name;
             activeIndex++;
@@ -1541,7 +1541,7 @@ window.updateSkillMenu = function() {
     });
 
     for (let i = activeIndex; i < 2; i++) { document.getElementById(`hotbar-${i+1}`).style.display = 'none'; }
-    window.updateHotbarCooldowns(); 
+    window.updateHotbarCooldowns();
 }
 
 // SKILL EXECUTION LOGIC
@@ -1703,7 +1703,6 @@ function gameLoop(ts) {
         if (canMoveY) game.player.y = nextY;
     }
 
-    // ✅ SUMMONER SLIME AI
     if (game.player.activePets && game.player.activePets.length > 0) {
         let pClass = game.player.baseStats.playerClass;
         let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(pClass);
