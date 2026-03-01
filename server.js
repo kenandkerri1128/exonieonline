@@ -150,11 +150,28 @@ const worlds = {};
 
 function spawnMonster(instId, entityId, monsterKey, cfg) {
     const stats = MonsterDatabase[monsterKey] || MonsterDatabase["common_mobs1"];
+    
+    // ✅ DYNAMIC LEVEL SCALING FOR ALL TIERS
+    const baseLevel = stats.level || 5;
+    const targetLevel = cfg.level || baseLevel;
+    // e.g., Mini Boss Base Lv 15. If Target is 30 -> 2x multiplier. If Target is 5 -> 0.33x multiplier.
+    const scale = targetLevel / baseLevel; 
+
     return { 
-        id: entityId, instanceId: instId, monsterKey, name: stats.name, category: stats.category, level: stats.level, x: cfg.spawnArea.minX, y: cfg.spawnArea.minY, homeX: cfg.spawnArea.minX, homeY: cfg.spawnArea.minY, 
-        width: stats.width, height: stats.height, maxHp: stats.maxHp, currentHp: stats.maxHp, atk: stats.atk, def: stats.def, speed: stats.speed, expYield: stats.expYield, goldYield: stats.goldYield,
-        aggroRadius: stats.aggroRadius, chaseRadius: stats.chaseRadius, attackRange: stats.attackRange, cssColor: stats.cssColor, cssBorder: stats.cssBorder,
-        lastAttack: 0, alive: true, threatTable: {}, forcedTargetId: null, forcedUntil: 0, targetId: null, respawnDelayMs: stats.respawnDelay, frozenUntil: 0 
+        id: entityId, instanceId: instId, monsterKey, name: stats.name, category: stats.category, 
+        level: targetLevel, // Saved for loot generation
+        x: cfg.spawnArea.minX, y: cfg.spawnArea.minY, homeX: cfg.spawnArea.minX, homeY: cfg.spawnArea.minY, 
+        width: stats.width, height: stats.height, 
+        maxHp: Math.max(1, Math.floor(stats.maxHp * scale)), 
+        currentHp: Math.max(1, Math.floor(stats.maxHp * scale)), 
+        atk: Math.max(1, Math.floor(stats.atk * scale)),     
+        def: Math.max(0, Math.floor(stats.def * scale)),     
+        speed: stats.speed, 
+        expYield: Math.max(1, Math.floor(stats.expYield * scale)),   
+        goldYield: Math.max(0, Math.floor(stats.goldYield * scale)), 
+        aggroRadius: stats.aggroRadius, chaseRadius: stats.chaseRadius, attackRange: stats.attackRange, 
+        cssColor: stats.cssColor, cssBorder: stats.cssBorder,
+        lastAttack: 0, lastEarthquake: 0, alive: true, threatTable: {}, forcedTargetId: null, forcedUntil: 0, targetId: null, respawnDelayMs: stats.respawnDelay, frozenUntil: 0 
     };
 }
 
@@ -398,10 +415,26 @@ io.on('connection', (socket) => {
             });
         }
     });
-    socket.on('syncMapData', (data) => {
-        const instId = data.instanceId; if (!instId) return;
-        if (!worlds[instId]) { worlds[instId] = { instanceId: instId, mapId: data.mapId, collisions: [], monsters: {}, pets: {}, monstersSpawned: false }; }
-        worlds[instId].collisions = data.collisions || [];
+    socket.on('syncMapData', (mapData) => {
+        if (!worlds[mapData.instanceId]) {
+            worlds[mapData.instanceId] = { collisions: mapData.collisions || [], teleports: mapData.teleports || [], monsters: {}, pets: {} };
+            
+            // ✅ Read the custom level for Normal, Mini, and Floor Bosses
+            const processSpawns = (spawnList) => {
+                (spawnList || []).forEach((sp, i) => {
+                    let mId = `${mapData.instanceId}_mob_${Date.now()}_${i}_${Math.random()}`;
+                    worlds[mapData.instanceId].monsters[mId] = spawnMonster(mapData.instanceId, mId, sp.monsterKey, { 
+                        spawnArea: { minX: sp.x, minY: sp.y }, 
+                        level: sp.level // <--- Injects the exact level you saved!
+                    });
+                });
+            };
+            
+            processSpawns(mapData.normalSpawns);
+            processSpawns(mapData.miniBossSpawns);
+            processSpawns(mapData.floorBossSpawns);
+        }
+    });
 
         // ✅ RESTORED TOWN SAFETY: No monsters spawn or process in Town.
         if (data.mapId === 'town') return;
@@ -422,13 +455,16 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('adminSpawnMonster', (data) => {
-        const instId = data.instanceId; if (!instId || !worlds[instId]) return;
-        let mId = `${instId}_m_admin_${Date.now()}`;
-        let cfg = { spawnArea: { minX: data.x, maxX: data.x, minY: data.y, maxY: data.y } };
-        const newMob = spawnMonster(instId, mId, data.monsterKey, cfg);
-        worlds[instId].monsters[mId] = newMob;
-        io.to(instId).emit('monsterSpawned', serializeMonster(newMob));
+ socket.on('adminSpawnMonster', (data) => {
+        if (!worlds[data.instanceId]) return;
+        const newMobId = 'admin_' + Date.now();
+        const newMob = spawnMonster(data.instanceId, newMobId, data.monsterKey, { 
+            spawnArea: { minX: data.x, minY: data.y },
+            level: data.level // ✅ Applies the level from your input box to live spawns!
+        });
+        worlds[data.instanceId].monsters[newMobId] = newMob;
+        
+        io.to(data.instanceId).emit('monsterSpawned', serializeMonster(newMob));
     });
 
     socket.on('portalStep', (data) => {
@@ -788,6 +824,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
