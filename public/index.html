@@ -84,7 +84,7 @@
         #player-container { z-index: 105; transition: opacity 0.3s; }
         .name-tag { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 1px 1px 0 #000; z-index: 20; pointer-events: none; }
         .mob-name { color: #f44336; top: -30px; font-size: 12px;}
-        .merchant-name { color: #4CAF50 !important; top: -45px; font-size: 16px; }
+        .merchant-name { color: #4CAF50 !important; top: -30px; font-size: 14px; }
         .player-avatar-container { pointer-events: none; transform-origin: center bottom; position: relative; width: 48px; height: 96px; }
         .player-avatar-container::after { content: ''; position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); width: 30px; height: 8px; background: rgba(0, 0, 0, 0.4); border-radius: 50%; z-index: -2; }
 
@@ -98,14 +98,9 @@
         .stat-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 18px; font-weight: bold;}
         .level-row { font-size: 16px; color: #ffd700; margin-bottom: 10px; display: flex; justify-content: space-between;}
         .bar-container { width: 100%; height: 15px; background-color: #333; border-radius: 3px; overflow: hidden; border: 1px solid #000; margin-bottom: 10px;}
-        .hp-fill { height: 100%; background: #4CAF50; width: 100%; transition: width 0.2s ease-out; }
-        .exp-fill { height: 100%; background: #9c27b0; width: 0%; transition: width 0.3s ease-out; }
-
-        /* ✅ COMBAT LOG + UNSTUCK BUTTON CONTAINER */
-        #combat-log-wrapper { position: absolute; bottom: 20px; left: 20px; display: flex; align-items: center; gap: 10px; z-index: 1000; }
-        #combat-log { color: #fff; font-size: 18px; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 5px; pointer-events: none; }
-        #unstuck-btn { background-color: #ff9800; border-color: #ff9800; color: white; font-weight: bold; padding: 10px 15px; cursor: pointer; border-radius: 4px; pointer-events: auto; font-family: 'MedievalSharp', cursive; font-size: 16px; display: none; }
-        #unstuck-btn:hover { background-color: #e68a00; }
+        .hp-fill { height: 100%; background-color: #4CAF50; width: 100%; transition: width 0.2s ease-out; }
+        .exp-fill { height: 100%; background-color: #9c27b0; width: 0%; transition: width 0.3s ease-out; }
+        #combat-log { position: absolute; bottom: 20px; left: 20px; color: #fff; font-size: 18px; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 5px; z-index: 1000; pointer-events: none; }
 
         #party-panel { margin-top: 15px; padding-top: 15px; border-top: 1px solid #444; display: none; }
         #party-title { font-size: 16px; font-weight: bold; color: #4CAF50; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
@@ -174,7 +169,6 @@
         #inv-context-menu { display: none; position: absolute; background: #222; border: 1px solid #777; border-radius: 4px; z-index: 3000; flex-direction: column; width: 120px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
         .ctx-btn { background: none; border: none; color: white; padding: 10px; cursor: pointer; text-align: left; font-weight: bold; font-size: 16px; font-family: 'MedievalSharp', cursive; } 
         .ctx-btn:hover { background: #444; }
-        
         /* ✅ ADDED SPECIFIC SELL BUTTON STYLE */
         #ctx-btn-sell { color: gold; display: none; border-bottom: 1px solid #444; } 
         #ctx-btn-sell:hover { background: #333; color: #fff; }
@@ -407,10 +401,7 @@
             </div>
         </div>
 
-        <div id="combat-log-wrapper">
-            <div id="combat-log">Welcome to Exonie. WASD to move. Left click to attack.</div>
-            <button id="unstuck-btn" onclick="window.forceUnstuck()">Unstuck (Town)</button>
-        </div>
+        <div id="combat-log">Welcome to Exonie. WASD to move. Left click to attack.</div>
 
         <div id="hotbar">
             <div class="hotbar-slot" id="hotbar-1">
@@ -532,12 +523,6 @@ window.onload = () => {
         document.getElementById('login-pass').value = savedP; 
         window.attemptLogin(); 
     }
-
-    // ✅ Reveal the Unstuck button
-    setTimeout(() => {
-        let unstuckBtn = document.getElementById('unstuck-btn');
-        if (unstuckBtn) unstuckBtn.style.display = 'block';
-    }, 1000);
 };
 
 window.logout = function() {
@@ -594,18 +579,6 @@ window.game = {
 };
 
 const DatabaseManager = { savePlayerData: function(playerObj) { playerObj.mapId = safeMapData.id || 'town'; if(socket) socket.emit('saveData', playerObj); if(socket) socket.emit('playerEquipUpdate', { equips: playerObj.equips }); } };
-
-// ✅ BRAND NEW UNSTUCK FUNCTION
-window.forceUnstuck = function() {
-    game.player.x = 960; game.player.y = 1000;
-    if (safeMapData.id !== 'town') {
-        if(socket) socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
-        dom.log.innerText = "Evacuating to Town...";
-    } else {
-        if(socket) socket.emit('playerMoved', { x: 960, y: 1000, state: 'idle', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
-        dom.log.innerText = "Unstuck! Returned to Town center.";
-    }
-};
 
 // ==========================================
 // 2. PURE DYNAMIC MAP LOADER & ASSETS
@@ -719,6 +692,7 @@ window.buyItem = function(type) {
     DatabaseManager.savePlayerData(game.player);
 }
 
+// ✅ SELLING LOOT FOR GOLD
 window.actionSell = function(e) {
     if (e) e.stopPropagation();
     const item = game.player.inventory[activeInvIndex];
@@ -801,6 +775,7 @@ window.getTotalStat = function(statName) {
     return base; 
 }
 
+// ✅ TRUE CLASS STAT SCALING
 window.getAttackPower = function() { return window.getTotalStat('attack') + Math.floor(window.getTotalStat('str') / 2); }; 
 window.getMagicAttack = function() { return window.getTotalStat('magic') + Math.floor(window.getTotalStat('int') / 2); }; 
 window.getMaxHp = function() { return window.getTotalStat('hp'); }; 
@@ -845,7 +820,10 @@ window.openItemAction = function(index, e) {
     const menu = document.getElementById('inv-context-menu');
     const item = game.player.inventory[index]; if (!item) return;
     document.getElementById('ctx-btn-equip').innerText = item.type === 'potion' ? "Use" : (item.type === 'material' ? "Enhance" : "Equip");
+    
+    // ✅ DYNAMIC SELL BUTTON ONLY IN SHOP
     document.getElementById('ctx-btn-sell').style.display = isShopping ? 'block' : 'none';
+    
     menu.style.display = 'flex'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
 }
 
@@ -1063,32 +1041,6 @@ window.addEventListener('keydown', (e) => {
     } 
 });
 
-// ✅ ADDED HOTBAR COOLDOWN HELPER
-window.updateHotbarCooldowns = function() {
-    if (!game.player.activeSkills) return;
-    const now = Date.now();
-    let running = false;
-    for (let i = 0; i < 2; i++) {
-        let skill = game.player.activeSkills[i];
-        if (skill) {
-            let overlay = document.getElementById(`cd-${i+1}`);
-            let txt = document.getElementById(`cdt-${i+1}`);
-            if (now < skill.cooldownReadyAt) {
-                let remaining = skill.cooldownReadyAt - now;
-                let pct = (remaining / skill.cd) * 100;
-                overlay.style.height = pct + '%';
-                txt.style.display = 'block';
-                txt.innerText = Math.ceil(remaining / 1000);
-                running = true;
-            } else {
-                overlay.style.height = '0%';
-                txt.style.display = 'none';
-            }
-        }
-    }
-    if (running) { requestAnimationFrame(window.updateHotbarCooldowns); }
-}
-
 function setKeyState(e, isDown) { 
     if (isChatting || (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA'))) return; 
     if (e.key === 'Tab' || e.code === 'Tab') { if (isDown) e.preventDefault(); game.keys['tab'] = isDown; return; } 
@@ -1104,10 +1056,6 @@ function setKeyState(e, isDown) {
             if (game.player.name === "Kei") { 
                 window.adminMode = !window.adminMode; 
                 document.getElementById('admin-panel').style.display = window.adminMode ? 'block' : 'none';
-                
-                // ✅ FIX 4: INSTANTLY APPLIES RED BOXES
-                dom.world.classList.toggle('admin-active', window.adminMode);
-                
                 dom.log.innerText = window.adminMode ? "Admin Mode ON" : "Admin Mode OFF"; window.buildCollisionLayers(); 
             } else { dom.log.innerText = "Admin Mode restricted."; } 
         } 
@@ -1121,7 +1069,7 @@ function setKeyState(e, isDown) {
                     if (now >= skill.cooldownReadyAt) {
                         skill.cooldownReadyAt = now + skill.cd;
                         skill.execute();
-                        window.updateHotbarCooldowns();
+                        updateHotbarCooldowns();
                     } else { dom.log.innerText = `${skill.name} is not ready yet!`; }
                 }
             }
@@ -1283,6 +1231,7 @@ if(socket) {
     socket.on('tradeCancelled', () => { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "The other player cancelled the trade."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); });
     socket.on('partyUpdate', (partyData) => { game.party = partyData || null; window.renderPartyUI(); });
     
+    // ✅ GOLD ACQUISITION ADDED
     socket.on('receiveExp', (data) => { 
         game.player.exp += data.amount; 
         if(data.gold) game.player.gold += data.gold;
@@ -1322,28 +1271,13 @@ if(socket) {
     });
 
     socket.on('monsterState', (monsters) => {
-        // ✅ FIX 1: REMOVED `|| safeMapData.id === 'town'` SO THE MERCHANT CAN SPAWN!
-        if (!Array.isArray(monsters)) return; 
-        
+        if (!Array.isArray(monsters) || safeMapData.id === 'town') return;
         const currentIds = new Set();
         monsters.forEach(m => {
-            // ✅ Only allow the NPC Merchant to spawn in town
-            if (safeMapData.id === 'town' && !m.isMerchant) return;
-            
             currentIds.add(m.id); let mEl = document.getElementById('mob_' + m.id);
             if (!mEl) {
                 mEl = document.createElement('div'); mEl.id = 'mob_' + m.id; mEl.className = 'entity monster-container'; mEl.style.position = 'absolute'; mEl.style.cursor = m.isMerchant ? 'pointer' : 'crosshair'; mEl.style.zIndex = '50'; mEl.style.display = 'flex'; mEl.style.justifyContent = 'center'; mEl.style.alignItems = 'flex-end';
-                
-                if (m.isMerchant) {
-                    mEl.innerHTML = `
-                        <div class="name-tag merchant-name" style="font-size: 16px; top: -45px;">Wandering Merchant</div>
-                        <div style="font-size: 60px; width: 80px; height: 120px; display: flex; justify-content: center; align-items: center; background: rgba(76, 175, 80, 0.2); border: 3px solid #4CAF50; border-radius: 15px; box-shadow: 0 0 20px #4CAF50; animation: merchantPulse 2s infinite alternate;">🧍‍♂️</div>
-                        <style>@keyframes merchantPulse { 0% { box-shadow: 0 0 10px #4CAF50; transform: scale(1); } 100% { box-shadow: 0 0 30px #4CAF50, 0 0 40px #81c784; transform: scale(1.05); } }</style>
-                    `;
-                } else {
-                    mEl.innerHTML = `<div class="name-tag mob-name">${m.name} Lv.${m.monsterKey === 'mini_boss1' ? '10' : m.monsterKey === 'floor_boss1' ? '15' : '5'}</div><div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div><div class="monster-ui-layer" style="position:absolute; top:-20px; left:0; width:100%; pointer-events:none;"><div class="bar-container" style="height:5px; border-radius:0; margin-bottom:0;"><div class="hp-fill monster-hp-fill" style="background-color:#f44336; height:100%; width:100%;"></div></div></div>`;
-                }
-
+                mEl.innerHTML = `<div class="name-tag ${m.isMerchant?'merchant-name':'mob-name'}">${m.name}${m.isMerchant?'':` Lv.${m.monsterKey === 'mini_boss1' ? '10' : m.monsterKey === 'floor_boss1' ? '15' : '5'}`}</div><div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div><div class="monster-ui-layer" style="position:absolute; top:-20px; left:0; width:100%; pointer-events:none;"><div class="bar-container" style="height:5px; border-radius:0; margin-bottom:0;"><div class="hp-fill monster-hp-fill" style="background-color:#f44336; height:100%; width:100%;"></div></div></div>`;
                 mEl.addEventListener('pointerdown', (e) => { 
                     e.stopPropagation(); 
                     if(m.isMerchant) { window.openShop(); return; }
@@ -1362,54 +1296,44 @@ if(socket) {
                 if (m.isMerchant && uiLayer) uiLayer.style.display = 'none';
 
                 const spriteLayer = mEl.querySelector('.monster-sprite-layer');
-                if (!m.isMerchant) {
-                    if (m.monsterKey.includes('common_mobs') || m.monsterKey.includes('mini_boss') || m.monsterKey.includes('floor_boss')) { spriteLayer.style.backgroundImage = 'none'; spriteLayer.style.backgroundColor = m.cssColor || '#ff69b4'; spriteLayer.style.border = `2px solid ${m.cssBorder || '#c71585'}`; spriteLayer.style.borderRadius = '50% 50% 40% 40%'; spriteLayer.style.animation = 'slime-bounce 0.5s infinite alternate'; } 
-                    else { spriteLayer.style.backgroundColor = 'transparent'; spriteLayer.style.border = 'none'; spriteLayer.style.borderRadius = '0'; spriteLayer.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`; spriteLayer.style.animation = 'none'; }
-                }
+                if (m.isMerchant) { spriteLayer.style.backgroundImage = 'none'; spriteLayer.style.backgroundColor = '#4CAF50'; spriteLayer.style.border = '2px solid #fff'; spriteLayer.style.borderRadius = '8px'; spriteLayer.style.animation = 'none'; }
+                else if (m.monsterKey.includes('common_mobs') || m.monsterKey.includes('mini_boss') || m.monsterKey.includes('floor_boss')) { spriteLayer.style.backgroundImage = 'none'; spriteLayer.style.backgroundColor = m.cssColor || '#ff69b4'; spriteLayer.style.border = `2px solid ${m.cssBorder || '#c71585'}`; spriteLayer.style.borderRadius = '50% 50% 40% 40%'; spriteLayer.style.animation = 'slime-bounce 0.5s infinite alternate'; } 
+                else { spriteLayer.style.backgroundColor = 'transparent'; spriteLayer.style.border = 'none'; spriteLayer.style.borderRadius = '0'; spriteLayer.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`; spriteLayer.style.animation = 'none'; }
             }
         });
     });
 
     socket.on('monsterAttack', (data) => {
         if (!data || !game.monsters[data.monsterId]) return; const m = game.monsters[data.monsterId]; const mEl = document.getElementById('mob_' + m.id); if(!mEl) return;
-        const targetId = data.targetId; let tx = game.player.x + 24; let ty = game.player.y + 48; 
-        
-        if (targetId !== game.player.id && game.remotePlayers[targetId]) { const rp = game.remotePlayers[targetId]; tx = rp.x + 24; ty = rp.y + 48; }
-
-        // ✅ FIX 3: SLIME DAMAGE LISTENER
-        let hitPet = null;
-        if (game.player.activePets) {
-            hitPet = game.player.activePets.find(p => p.id === targetId);
-            if (hitPet) { tx = hitPet.x + 15; ty = hitPet.y + 15; }
-        }
-
+        const targetId = data.targetId; let tx = game.player.x + 24; let ty = game.player.y + 48; if (targetId !== game.player.id && game.remotePlayers[targetId]) { const rp = game.remotePlayers[targetId]; tx = rp.x + 24; ty = rp.y + 48; }
         const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); let dx = tx - mcx, dy = ty - mcy; let dist = Math.hypot(dx, dy) || 1; let moveX = (dx / dist) * 20; let moveY = (dy / dist) * 20;
         const spriteLayer = mEl.querySelector('.monster-sprite-layer'); if(spriteLayer) { spriteLayer.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`; setTimeout(() => { spriteLayer.style.transform = `translate(0px, 0px) scale(1)`; }, 150); }
         
-        const serverAtk = data.atk || m.atk || 25;
-
         if (targetId === game.player.id && game.player.currentHp > 0 && !game.isGhost) {
             let now = Date.now();
             if (now < game.player.untargetableUntil) return; 
             
-            const mobDmg = Math.max(1, serverAtk - window.getDefense()); 
-            game.player.currentHp = Math.max(0, game.player.currentHp - mobDmg);
+            const mobDmg = Math.max(1, (m.atk || 25) - window.getDefense()); 
+            
+            let dmgTaken = mobDmg;
+            if (game.player.activePets && game.player.activePets.length > 0) {
+                let pet = game.player.activePets[0];
+                pet.hp -= Math.floor(mobDmg / 2);
+                dmgTaken = Math.floor(mobDmg / 2);
+                window.spawnDamageText(pet.x + 15, pet.y, Math.floor(mobDmg / 2), '#ff0000');
+            }
+
+            game.player.currentHp = Math.max(0, game.player.currentHp - dmgTaken);
             
             if (game.player.currentHp <= 0 && now < game.player.immortalUntil) {
                 game.player.currentHp = 1; window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMORTAL", '#ffeb3b');
-            } else { window.spawnDamageText(game.player.x + 24, game.player.y - 10, mobDmg, '#f44336'); }
+            } else { window.spawnDamageText(game.player.x + 24, game.player.y - 10, dmgTaken, '#f44336'); }
             
             window.spawnSpark(game.player.x + 24, game.player.y + 48); window.updateUI(); window.emitVitalsIfNeeded(true);
-        } else if (hitPet) {
-            // ✅ PET SLIMES NOW TAKE REAL DAMAGE
-            const petDef = Math.floor(window.getDefense() * 0.25);
-            const actualDmg = Math.max(1, serverAtk - petDef);
-            hitPet.hp -= actualDmg;
-            window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, actualDmg, '#ff0000');
         }
     });
 
-    socket.on('monsterHit', (data) => { if (!data || !game.monsters[data.monsterId]) return; const m = game.monsters[data.monsterId]; m.currentHp = data.newHp; m.maxHp = data.maxHp || m.maxHp; const mCenterX = m.x + (m.width / 2); const mCenterY = m.y + (m.height / 2); window.spawnDamageText(mCenterX, m.y - 10, data.damage, '#fff'); if (data.isPendant) window.spawnWhiteSplash(mCenterX, mCenterY); else window.spawnSpark(mCenterX, mCenterY); const mEl = document.getElementById('mob_' + m.id); if(mEl && !m.isMerchant) { mEl.classList.add('hit-flash'); setTimeout(() => mEl.classList.remove('hit-flash'), 100); } window.updateUI(); });
+    socket.on('monsterHit', (data) => { if (!data || !game.monsters[data.monsterId]) return; const m = game.monsters[data.monsterId]; m.currentHp = data.newHp; m.maxHp = data.maxHp || m.maxHp; const mCenterX = m.x + (m.width / 2); const mCenterY = m.y + (m.height / 2); window.spawnDamageText(mCenterX, m.y - 10, data.damage, '#fff'); if (data.isPendant) window.spawnWhiteSplash(mCenterX, mCenterY); else window.spawnSpark(mCenterX, mCenterY); const mEl = document.getElementById('mob_' + m.id); if(mEl) { mEl.classList.add('hit-flash'); setTimeout(() => mEl.classList.remove('hit-flash'), 100); } window.updateUI(); });
     socket.on('monsterDied', (data) => { if (!data || !game.monsters[data.monsterId]) return; game.monsters[data.monsterId].alive = false; const mEl = document.getElementById('mob_' + data.monsterId); if(mEl) mEl.style.display = 'none'; window.updateUI(); });
     socket.on('monsterSpawned', (m) => { if (!m || safeMapData.id === 'town') return; game.monsters[m.id] = m; const mEl = document.getElementById('mob_' + m.id); if(mEl) mEl.style.display = 'flex'; });
     socket.on('lootDropped', (item) => { if (item) window.addLoot(item); });
@@ -1487,32 +1411,6 @@ window.chooseClass = function(cName) {
     window.renderSkillScreen(); window.updateSkillMenu(); window.updateUI(); dom.log.innerText = `You are now a ${cName}!`; window.spawnSpark(game.player.x + 24, game.player.y + 48);
 }
 
-// COOLDOWN HELPER
-window.updateHotbarCooldowns = function() {
-    if (!game.player.activeSkills) return;
-    const now = Date.now();
-    let running = false;
-    for (let i = 0; i < 2; i++) {
-        let skill = game.player.activeSkills[i];
-        if (skill) {
-            let overlay = document.getElementById(`cd-${i+1}`);
-            let txt = document.getElementById(`cdt-${i+1}`);
-            if (now < skill.cooldownReadyAt) {
-                let remaining = skill.cooldownReadyAt - now;
-                let pct = (remaining / skill.cd) * 100;
-                overlay.style.height = pct + '%';
-                txt.style.display = 'block';
-                txt.innerText = Math.ceil(remaining / 1000);
-                running = true;
-            } else {
-                overlay.style.height = '0%';
-                txt.style.display = 'none';
-            }
-        }
-    }
-    if (running) { requestAnimationFrame(window.updateHotbarCooldowns); }
-}
-
 window.updateSkillMenu = function() {
     let pClass = game.player.baseStats.playerClass; let wpnType = null;
     if (game.player.equips.weapon && game.player.equips.weapon.sprite) {
@@ -1522,32 +1420,24 @@ window.updateSkillMenu = function() {
     }
 
     if (!pClass || CLASSES[pClass].weapon !== wpnType) { dom.hotbar.style.display = 'none'; game.player.activeSkills = []; return; }
-    
-    // ✅ FIX 2: PREVENT COOLDOWNS FROM RESETTING WHEN GAINING EXP OR REFRESHING UI
-    let oldCDs = {};
-    if (game.player.activeSkills && game.player.activeSkills.length > 0) {
-        game.player.activeSkills.forEach(s => { oldCDs[s.id] = s.cooldownReadyAt; });
-    }
-
     dom.hotbar.style.display = 'flex'; game.player.activeSkills = []; let activeIndex = 0;
     
     CLASSES[pClass].skills.forEach(s => {
         if (s.type === 'active' && game.player.level >= s.unlock && activeIndex < 2) {
-            let savedCD = oldCDs[s.id] || 0; // Grab the old timestamp so it doesn't reset!
-            game.player.activeSkills.push({ id: s.id, name: s.name, cd: s.cd, cooldownReadyAt: savedCD, execute: () => window.executeSkill(s.id, pClass) });
+            game.player.activeSkills.push({ id: s.id, name: s.name, cd: s.cd, cooldownReadyAt: 0, execute: () => window.executeSkill(s.id, pClass) });
             document.getElementById(`hotbar-${activeIndex+1}`).style.display = 'flex'; document.getElementById(`hotbar-name-${activeIndex+1}`).innerText = s.name;
             activeIndex++;
         }
     });
 
     for (let i = activeIndex; i < 2; i++) { document.getElementById(`hotbar-${i+1}`).style.display = 'none'; }
-    window.updateHotbarCooldowns();
 }
 
 // SKILL EXECUTION LOGIC
 window.executeSkill = function(skillId, className) {
     if (safeMapData.id === 'town') { dom.log.innerText = "You cannot use skills in Town!"; return; }
 
+    // ✅ SUMMONER OVERHAUL: Skill only goes on CD when Slime dies
     if (skillId === 'sum1') {
         if (game.player.activePets && game.player.activePets.length > 0) return;
         window.showAura(CLASSES[className].aura); window.playVoice(className);
@@ -1570,7 +1460,7 @@ window.executeSkill = function(skillId, className) {
     }
 
     let skillObj = game.player.activeSkills.find(s => s.id === skillId);
-    skillObj.cooldownReadyAt = Date.now() + skillObj.cd; window.updateHotbarCooldowns();
+    skillObj.cooldownReadyAt = Date.now() + skillObj.cd; updateHotbarCooldowns();
 
     window.showAura(CLASSES[className].aura);
     isAttacking = true; attackCooldownActive = true;
@@ -1651,6 +1541,7 @@ window.attemptAttack = function(silent) {
     if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
     window.playSFX(weaponSprite);
 
+    // ✅ TRUE CLASS SCALING FOR NORMAL ATTACKS
     let pClass = game.player.baseStats.playerClass;
     let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(pClass);
     const rawDmg = isMagicClass ? window.getMagicAttack() : window.getAttackPower();
@@ -1676,6 +1567,7 @@ function gameLoop(ts) {
         if(socket) socket.emit('playerDied'); 
     }
 
+    // ✅ LAST MAN GHOST EVACUATION
     if (game.isGhost && game.party && game.party.members.length === 1) {
         dom.log.innerText = "You are the last one left. Returning to Town.";
         window.leaveParty();
@@ -1703,6 +1595,7 @@ function gameLoop(ts) {
         if (canMoveY) game.player.y = nextY;
     }
 
+    // ✅ SUMMONER SLIME AI: Melee Slam & HP
     if (game.player.activePets && game.player.activePets.length > 0) {
         let pClass = game.player.baseStats.playerClass;
         let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(pClass);
@@ -1727,13 +1620,11 @@ function gameLoop(ts) {
             }
             
             p.dom.style.left = p.x + 'px'; p.dom.style.top = p.y + 'px';
-            let hpBar = p.dom.querySelector('#pet-hp');
-            if (hpBar) hpBar.style.width = (p.hp / p.maxHp) * 100 + '%';
+            p.dom.querySelector('#pet-hp').style.width = (p.hp / p.maxHp) * 100 + '%';
             
             if (p.hp <= 0) {
-                p.skillRef.cooldownReadyAt = Date.now() + p.skillRef.cd; window.updateHotbarCooldowns();
+                p.skillRef.cooldownReadyAt = Date.now() + p.skillRef.cd; updateHotbarCooldowns();
                 p.dom.remove(); game.player.activePets.splice(idx, 1);
-                if(socket) socket.emit('syncPet', { id: p.id, alive: false });
             } else {
                 if (Math.random() < 0.05 && socket) socket.emit('syncPet', { id: p.id, x: p.x, y: p.y, alive: true });
             }
