@@ -1447,14 +1447,46 @@ if(socket) {
         } else if (petEl) { petEl.remove(); }
     });
     
+  // ✅ SYNC REVIVAL (Removes ghost effect for everyone)
     socket.on('playerRevived', (data) => {
         if (data.id === game.player.id) {
-            game.isGhost = false; game.player.currentHp = data.currentHp; dom.playerContainer.style.opacity = '1';
+            game.isGhost = false; 
+            game.player.currentHp = data.currentHp || window.getMaxHp(); 
+            dom.playerContainer.style.opacity = '1';
             window.spawnDamageText(game.player.x + 24, game.player.y, "REVIVED", "#4CAF50");
-            window.updateUI(); window.emitVitalsIfNeeded(true);
         } else if (game.remotePlayers[data.id]) {
-            game.remotePlayers[data.id].isGhost = false; game.remotePlayers[data.id].dom.style.opacity = '1';
+            // ✅ This part fixes your teammates seeing you as a ghost!
+            game.remotePlayers[data.id].isGhost = false; 
+            game.remotePlayers[data.id].dom.style.opacity = '1';
             window.spawnDamageText(game.remotePlayers[data.id].x + 24, game.remotePlayers[data.id].y, "REVIVED", "#4CAF50");
+        }
+        window.updateUI();
+        window.renderPartyUI();
+    });
+
+    // ✅ SYNC HEALING TEXT
+    socket.on('playerHealed', (data) => {
+        const target = (data.id === game.player.id) ? game.player : game.remotePlayers[data.id];
+        if (target) {
+            if (data.id === game.player.id) game.player.currentHp = data.currentHp;
+            window.spawnDamageText(target.x + 24, target.y - 10, `+${data.amount}`, '#4CAF50');
+        }
+        window.updateUI();
+        window.renderPartyUI();
+    });
+
+    // ✅ SYNC REMOTE ANIMATIONS
+    socket.on('remoteSkillEffect', (data) => {
+        const p = game.remotePlayers[data.playerId];
+        if (p) {
+            // Show the aura on the remote player's character
+            const aura = p.dom.querySelector('.aura') || document.createElement('div');
+            aura.className = `aura aura-${data.auraColor}`;
+            if (!p.dom.querySelector('.aura')) p.dom.querySelector('.player-avatar-container').prepend(aura);
+            
+            aura.style.animation = 'none';
+            void aura.offsetWidth;
+            aura.style.animation = 'aura-burst 0.6s ease-out forwards';
         }
     });
 
@@ -1698,6 +1730,8 @@ window.updateSkillMenu = function() {
 // SKILL EXECUTION LOGIC
 window.executeSkill = function(skillId, className) {
     if (safeMapData.id === 'town') { dom.log.innerText = "You cannot use skills in Town!"; return; }
+    // ✅ Add this line inside window.executeSkill
+    if (socket) socket.emit('broadcastSkill', { skillId: skillId, auraColor: CLASSES[className].aura });
 
     if (skillId === 'sum1') {
         if (game.player.activePets && game.player.activePets.length > 0) return;
@@ -1971,6 +2005,7 @@ function gameLoop(ts) {
 </script>
 </body>
 </html>
+
 
 
 
