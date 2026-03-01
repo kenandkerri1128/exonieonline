@@ -11,17 +11,9 @@ var floor1MapData = {
             "monsterKey": "common_mobs1"
         },
         {
-            "x": 810,
-            "y": 545
-        },
-        {
             "x": 545,
             "y": 65.97222137451172,
             "monsterKey": "common_mobs1"
-        },
-        {
-            "x": 545,
-            "y": 65
         },
         {
             "x": 1904.7222900390625,
@@ -29,17 +21,9 @@ var floor1MapData = {
             "monsterKey": "common_mobs1"
         },
         {
-            "x": 1904,
-            "y": 796
-        },
-        {
             "x": 1927.6390380859375,
             "y": 1179.02783203125,
             "monsterKey": "common_mobs1"
-        },
-        {
-            "x": 1927,
-            "y": 1178
         },
         {
             "x": 509,
@@ -74,10 +58,6 @@ var floor1MapData = {
             "monsterKey": "common_mobs1"
         },
         {
-            "x": 189,
-            "y": 1210
-        },
-        {
             "x": 477,
             "y": 1129,
             "monsterKey": "common_mobs1"
@@ -88,10 +68,6 @@ var floor1MapData = {
             "x": 1509.444580078125,
             "y": 121.8055648803711,
             "monsterKey": "common_mobs1"
-        },
-        {
-            "x": 1509,
-            "y": 121
         },
         {
             "x": 1498,
