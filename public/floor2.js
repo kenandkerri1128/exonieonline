@@ -560,61 +560,50 @@ var floor2MapData = {
         {
             "x": 858,
             "y": 602,
-            "monsterKey": "common_mobs1"
         },
         {
             "x": 862,
             "y": 1056,
-            "monsterKey": "common_mobs1"
         },
         {
             "x": 599,
             "y": 1133,
-            "monsterKey": "common_mobs1"
         },
         {
             "x": 844,
             "y": 271,
-            "monsterKey": "common_mobs1"
         },
         {
             "x": 1390,
             "y": 1202,
-            "monsterKey": "common_mobs1"
         },
         {
             "x": 1215,
             "y": 1117,
-            "monsterKey": "common_mobs1"
         },
         {
             "x": 1369,
             "y": 996,
-            "monsterKey": "common_mobs1"
         }
     ],
     "miniBossSpawns": [
         {
             "x": 1002,
             "y": 187,
-            "monsterKey": "common_mobs1"
         },
         {
             "x": 1773,
             "y": 913,
-            "monsterKey": "common_mobs1"
         },
         {
             "x": 1384,
             "y": 808,
-            "monsterKey": "common_mobs1"
         }
     ],
     "floorBossSpawns": [
         {
             "x": 1788,
             "y": 578,
-            "monsterKey": "common_mobs1"
         }
     ]
 };
