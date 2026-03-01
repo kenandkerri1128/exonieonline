@@ -1510,6 +1510,28 @@ if(socket) {
             window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, actualDmg, '#ff0000');
         }
     });
+    socket.on('monsterSkill', (data) => {
+    if (data.skillName === 'Earthquake') {
+        // 1. Screen Shake Effect
+        const gameContainer = document.getElementById('game-container');
+        gameContainer.classList.add('screen-shake');
+        setTimeout(() => gameContainer.classList.remove('screen-shake'), 500);
+
+        // 2. Create Visual AoE Ring
+        const ring = document.createElement('div');
+        ring.className = 'earthquake-ring';
+        ring.style.left = (data.x - data.radius) + 'px';
+        ring.style.top = (data.y - data.radius) + 'px';
+        ring.style.width = (data.radius * 2) + 'px';
+        ring.style.height = (data.radius * 2) + 'px';
+        document.getElementById('world').appendChild(ring);
+
+        // Remove the visual after the animation finishes
+        setTimeout(() => ring.remove(), 800);
+        
+        console.log(`BOSS SKILL: ${data.skillName} triggered!`);
+    }
+});
 
     socket.on('monsterHit', (data) => { if (!data || !game.monsters[data.monsterId]) return; const m = game.monsters[data.monsterId]; m.currentHp = data.newHp; m.maxHp = data.maxHp || m.maxHp; const mCenterX = m.x + (m.width / 2); const mCenterY = m.y + (m.height / 2); window.spawnDamageText(mCenterX, m.y - 10, data.damage, '#fff'); if (data.isPendant) window.spawnWhiteSplash(mCenterX, mCenterY); else window.spawnSpark(mCenterX, mCenterY); const mEl = document.getElementById('mob_' + m.id); if(mEl) { mEl.classList.add('hit-flash'); setTimeout(() => mEl.classList.remove('hit-flash'), 100); } window.updateUI(); });
     socket.on('monsterDied', (data) => { if (!data || !game.monsters[data.monsterId]) return; game.monsters[data.monsterId].alive = false; const mEl = document.getElementById('mob_' + data.monsterId); if(mEl) mEl.style.display = 'none'; window.updateUI(); });
@@ -1885,5 +1907,6 @@ function gameLoop(ts) {
 </script>
 </body>
 </html>
+
 
 
