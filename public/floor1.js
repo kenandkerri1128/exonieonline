@@ -299,20 +299,28 @@ var floor1MapData = {
             "h": 29
         },
         {
-            "x": 21,
-            "y": 339,
-            "w": 14,
-            "h": 48
+            "x": 0,
+            "y": 338,
+            "w": 32,
+            "h": 49
         }
     ],
     "teleports": [
         {
-            "x": 43,
-            "y": 336,
-            "w": 17,
-            "h": 57,
+            "x": 37,
+            "y": 340,
+            "w": 34,
+            "h": 37,
             "portalId": 2,
             "targetMapId": "town"
+        },
+        {
+            "x": 1468,
+            "y": 2,
+            "w": 124,
+            "h": 24,
+            "portalId": 3,
+            "targetMapId": "floor2"
         }
     ]
 };
