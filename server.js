@@ -333,6 +333,60 @@ io.on('connection', (socket) => {
         const filePath = path.join(__dirname, 'public', fileName);
         try { fs.writeFileSync(filePath, data.content); } catch(err) {}
     });
+    // ✅ HEALER PARTY HEAL LISTENER
+    socket.on('partyHeal', (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.isGhost || p.mapId === 'town') return;
+
+        const pid = playerParty[p.id];
+        if (pid && parties[pid]) {
+            for (const memberId of parties[pid].members) {
+                if (memberId === p.id) continue; // Skip self
+
+                const mp = getPlayerById(memberId);
+                if (mp && !mp.isGhost && mp.instanceId === p.instanceId) {
+                    const dist = Math.hypot(p.x - mp.x, p.y - mp.y);
+                    if (dist <= (data.radius || 400)) {
+                        mp.currentHp = Math.min(mp.maxHp, mp.currentHp + data.amount);
+                        const msid = findSocketIdByPlayerId(memberId);
+                        if (msid) io.to(msid).emit('monsterHit', { 
+                            monsterId: 'heal_event', 
+                            damage: `+${data.amount}`, 
+                            newHp: mp.currentHp, 
+                            maxHp: mp.maxHp, 
+                            isPendant: true 
+                        });
+                    }
+                }
+            }
+            emitPartyUpdate(pid);
+        }
+    });
+
+    // ✅ PURIFICATION REVIVE LISTENER
+    socket.on('partyRevive', () => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.mapId === 'town') return;
+
+        const pid = playerParty[p.id];
+        if (pid && parties[pid]) {
+            for (const memberId of parties[pid].members) {
+                const mp = getPlayerById(memberId);
+                if (mp && mp.isGhost && mp.mapId !== 'town') {
+                    mp.isGhost = false;
+                    mp.currentHp = mp.maxHp; 
+                    const msid = findSocketIdByPlayerId(memberId);
+                    if (msid) {
+                        io.to(msid).emit('playerRevived', { 
+                            id: mp.id, 
+                            currentHp: mp.currentHp 
+                        });
+                    }
+                }
+            }
+            emitPartyUpdate(pid); 
+        }
+    });
 
     socket.on('syncMapData', (data) => {
         const instId = data.instanceId; if (!instId) return;
@@ -724,6 +778,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
