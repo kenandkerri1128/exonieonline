@@ -6,74 +6,33 @@ var floor1MapData = {
     "spawnY": 427,
     "normalSpawns": [
         {
-            "x": 810.2777709960938,
-            "y": 545.8333740234375,
-            "monsterKey": "common_mobs1"
+            "x": 810,
+            "y": 545
         },
         {
             "x": 545,
-            "y": 65.97222137451172,
-            "monsterKey": "common_mobs1"
+            "y": 65
         },
         {
-            "x": 1904.7222900390625,
-            "y": 797.0833740234375,
-            "monsterKey": "common_mobs1"
+            "x": 1904,
+            "y": 796
         },
         {
-            "x": 1927.6390380859375,
-            "y": 1179.02783203125,
-            "monsterKey": "common_mobs1"
+            "x": 1927,
+            "y": 1178
         },
-        {
-            "x": 509,
-            "y": 44,
-            "monsterKey": "common_mobs1"
-        },
-        {
-            "x": 875,
-            "y": 569,
-            "monsterKey": "common_mobs1"
-        },
-        {
-            "x": 1196,
-            "y": 824,
-            "monsterKey": "common_mobs1"
-        },
-        {
-            "x": 1846,
-            "y": 827,
-            "monsterKey": "common_mobs1"
-        },
-        {
-            "x": 1934,
-            "y": 1207,
-            "monsterKey": "common_mobs1"
-        }
     ],
     "miniBossSpawns": [
         {
-            "x": 189.58335876464844,
-            "y": 1210.5556640625,
-            "monsterKey": "common_mobs1"
+            "x": 189,
+            "y": 1210
         },
-        {
-            "x": 477,
-            "y": 1129,
-            "monsterKey": "common_mobs1"
-        }
     ],
     "floorBossSpawns": [
         {
-            "x": 1509.444580078125,
-            "y": 121.8055648803711,
-            "monsterKey": "common_mobs1"
+            "x": 1509,
+            "y": 121
         },
-        {
-            "x": 1498,
-            "y": 311,
-            "monsterKey": "common_mobs1"
-        }
     ],
     "collisions": [
         {
