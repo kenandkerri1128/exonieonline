@@ -123,7 +123,7 @@ function generateLoot(monster) {
 const MonsterDatabase = {
     "common_mobs1": { name: "Slime", category: "common_mobs", level: 5, maxHp: 100, atk: 25, def: 0, speed: 2.5, expYield: 25, goldYield: 15, aggroRadius: 250, chaseRadius: 400, attackRange: 55, width: 40, height: 40, respawnDelay: 10000, cssColor: '#ff69b4', cssBorder: '#c71585' },
     "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 1500, atk: 120, def: 15, speed: 2.8, expYield: 500, goldYield: 150, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
-    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 350, def: 100, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 800, chaseRadius: 1500, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
+    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 350, def: 100, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 800, chaseRadius: 1500, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' },
     // ==================
     // TYPE 2: BATS (Fast, Squishy, Melee)
     // ==================
@@ -766,6 +766,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
