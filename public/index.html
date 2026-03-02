@@ -91,6 +91,42 @@
         .monster-container { transition: filter 0.1s, transform 0.15s ease-out; }
         .hit-flash .monster-sprite-layer { filter: brightness(2) drop-shadow(0 0 5px red) !important; }
         @keyframes slime-bounce { 0% { transform: translateY(0) scaleY(0.9); } 100% { transform: translateY(-12px) scaleY(1.1); } }
+        /* --- SHADOW BAT CSS --- */
+        .bat-sprite {
+            border-radius: 50%; /* Main Body */
+            background-color: var(--mob-color, #111);
+            animation: bat-float 0.5s infinite ease-in-out alternate;
+        }
+        .bat-sprite::before, .bat-sprite::after {
+            content: ''; position: absolute; top: 15%; width: 80%; height: 60%;
+            background-color: inherit;
+            border-radius: 0 100% 0 100%; /* Sharp wing shape */
+            z-index: -1;
+        }
+        .bat-sprite::before { left: -60%; transform-origin: right center; animation: flap-l 0.15s infinite alternate; }
+        .bat-sprite::after { right: -60%; transform-origin: left center; border-radius: 100% 0 100% 0; animation: flap-r 0.15s infinite alternate; }
+        
+        @keyframes flap-l { 0% { transform: rotate(10deg); } 100% { transform: rotate(-50deg); } }
+        @keyframes flap-r { 0% { transform: rotate(-10deg); } 100% { transform: rotate(50deg); } }
+        @keyframes bat-float { 0% { transform: translateY(0); } 100% { transform: translateY(-15px); } }
+
+        /* --- FIRE ELEMENTAL CSS --- */
+        .fire-sprite {
+            border-radius: 0 50% 50% 50%; /* Teardrop shape */
+            transform: rotate(45deg); /* Point it upwards */
+            background: var(--mob-color, red);
+            box-shadow: inset -5px -5px 15px rgba(0,0,0,0.3), 0 0 20px var(--mob-color, red);
+            animation: fire-flicker 0.3s infinite alternate;
+        }
+        .fire-sprite::after {
+            content: ''; position: absolute; top: 25%; left: 25%; width: 50%; height: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 0 50% 50% 50%;
+        }
+        @keyframes fire-flicker {
+            0% { transform: rotate(45deg) scale(0.95); opacity: 0.9; }
+            100% { transform: rotate(45deg) scale(1.05) skew(-5deg, -5deg); opacity: 1; }
+        }
 
         /* --- HUD & PANELS --- */
         #hud { position: absolute; top: 20px; left: 20px; width: 280px; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #555; z-index: 1000; }
@@ -515,10 +551,16 @@
             <p style="font-size: 14px; color: #aaa; margin-bottom: 5px;"><b>Alt+Drag</b>: Block | <span style="color:#00ff00;"><b>Shift+Alt+Drag</b>: Portal</span></p>
             <div class="admin-tool-row" style="margin-bottom: 5px;">
                 <span style="color:#ff9800; font-weight:bold; font-size:12px;">Z/X/C+Click:</span>
-                <select id="admin-monster-key">
-                    <option value="common_mobs1">Slime</option>
-                    <option value="mini_boss1">Orc Chieftain</option>
-                    <option value="floor_boss1">Dragon</option>
+              <select id="admin-monster-key">
+                    <option value="common_mobs1">Slime (1)</option>
+                    <option value="mini_boss1">Orc Slime (1)</option>
+                    <option value="floor_boss1">Dragon Slime (1)</option>
+                    <option value="common_mobs2">Shadow Bat (2)</option>
+                    <option value="mini_boss2">Vampire Bat (2)</option>
+                    <option value="floor_boss2">Bloodwing Terror (2)</option>
+                    <option value="common_mobs3">Fire Sprite (3)</option>
+                    <option value="mini_boss3">Inferno Core (3)</option>
+                    <option value="floor_boss3">Astral Blaze (3)</option>
                 </select>
                 <input type="number" id="admin-monster-level" value="5" step="5" min="5" style="width: 50px;" title="Spawn Level">
             </div>
@@ -1662,10 +1704,41 @@ if(socket) {
                 const hpBarFill = mEl.querySelector('.monster-hp-fill'); 
                 if(hpBarFill) hpBarFill.style.width = (m.currentHp / Math.max(1, m.maxHp)) * 100 + '%';
 
-                const spriteLayer = mEl.querySelector('.monster-sprite-layer');
-                if (m.monsterKey.includes('common_mobs') || m.monsterKey.includes('mini_boss') || m.monsterKey.includes('floor_boss')) { spriteLayer.style.backgroundImage = 'none'; spriteLayer.style.backgroundColor = m.cssColor || '#ff69b4'; spriteLayer.style.border = `2px solid ${m.cssBorder || '#c71585'}`; spriteLayer.style.borderRadius = '50% 50% 40% 40%'; spriteLayer.style.animation = 'slime-bounce 0.5s infinite alternate'; } 
-                else { spriteLayer.style.backgroundColor = 'transparent'; spriteLayer.style.border = 'none'; spriteLayer.style.borderRadius = '0'; spriteLayer.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`; spriteLayer.style.animation = 'none'; }
-            }
+            const spriteLayer = mEl.querySelector('.monster-sprite-layer');
+                mEl.style.setProperty('--mob-color', m.cssColor); // ✅ Injects your DB colors dynamically!
+
+                if (m.monsterKey.includes('2')) {
+                    // ✅ SHADOW BAT (Monster 2)
+                    spriteLayer.className = 'monster-sprite-layer bat-sprite';
+                    spriteLayer.style.background = m.cssColor;
+                    spriteLayer.style.border = 'none';
+                    spriteLayer.style.animation = 'none'; // handled by CSS class
+                } 
+                else if (m.monsterKey.includes('3')) {
+                    // ✅ FIRE ELEMENTAL (Monster 3)
+                    spriteLayer.className = 'monster-sprite-layer fire-sprite';
+                    spriteLayer.style.background = m.cssColor; // Gradients work here too!
+                    spriteLayer.style.border = 'none';
+                    spriteLayer.style.animation = 'none'; // handled by CSS class
+                }
+                else if (m.monsterKey.includes('1') || m.monsterKey.includes('common_mobs') || m.monsterKey.includes('mini_boss') || m.monsterKey.includes('floor_boss')) { 
+                    // ✅ ORIGINAL SLIME (Monster 1 / Fallback)
+                    spriteLayer.className = 'monster-sprite-layer'; 
+                    spriteLayer.style.backgroundImage = 'none'; 
+                    spriteLayer.style.backgroundColor = m.cssColor || '#ff69b4'; 
+                    spriteLayer.style.border = `2px solid ${m.cssBorder || '#c71585'}`; 
+                    spriteLayer.style.borderRadius = '50% 50% 40% 40%'; 
+                    spriteLayer.style.animation = 'slime-bounce 0.5s infinite alternate'; 
+                } 
+                else { 
+                    // PNG Fallback
+                    spriteLayer.className = 'monster-sprite-layer';
+                    spriteLayer.style.backgroundColor = 'transparent';
+                    spriteLayer.style.border = 'none';
+                    spriteLayer.style.borderRadius = '0';
+                    spriteLayer.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`; 
+                    spriteLayer.style.animation = 'none'; 
+                }
         });
 
         // ✅ GARBAGE COLLECTION FIX: Instantly deletes ghost monsters bleeding through maps
@@ -2160,6 +2233,7 @@ function gameLoop(ts) {
 </script>
 </body>
 </html>
+
 
 
 
