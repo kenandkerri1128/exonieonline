@@ -1084,7 +1084,7 @@ dom.world.addEventListener('contextmenu', (e) => {
     if (window.adminMode) { e.preventDefault(); }
 });
 
-// ✅ LEFT & RIGHT CLICK LOGIC (Cleaned up!)
+// ✅ LEFT & RIGHT CLICK LOGIC
 dom.world.addEventListener('mousedown', (e) => {
     // RIGHT-CLICK DELETE
     if (window.adminMode && e.button === 2) { 
@@ -1117,7 +1117,7 @@ dom.world.addEventListener('mousedown', (e) => {
         } else {
             dom.log.innerText = "No spawn or teleport nearby to delete.";
         }
-        return; // This return is now safely inside the function!
+        return; 
     }
 
     // LEFT-CLICK DRAWING
@@ -1149,83 +1149,16 @@ dom.world.addEventListener('mousedown', (e) => {
         }
     }
 });
-    // ✅ NEW RIGHT-CLICK DELETE LOGIC (Placed at the very top)
-    if (window.adminMode && e.button === 2) { 
-        const rect = dom.world.getBoundingClientRect();
-        const hitX = Math.round((e.clientX - rect.left) / CAMERA_ZOOM);
-        const hitY = Math.round((e.clientY - rect.top) / CAMERA_ZOOM);
-        
-        let closestDist = 40; 
-        let targetArray = null;
-        let targetIndex = -1;
 
-        const checkNearest = (arr) => {
-            if (!arr) return;
-            arr.forEach((item, index) => {
-                let dist = Math.hypot(hitX - item.x, hitY - item.y);
-                if (dist < closestDist) {
-                    closestDist = dist;
-                    targetArray = arr;
-                    targetIndex = index;
-                }
-            });
-        };
-
-        checkNearest(safeMapData.teleports);
-        checkNearest(safeMapData.normalSpawns);
-        checkNearest(safeMapData.miniBossSpawns);
-        checkNearest(safeMapData.floorBossSpawns);
-
-        if (targetIndex !== -1) {
-            targetArray.splice(targetIndex, 1);
-            window.buildCollisionLayers(); 
-            window.copyAdminData();        
-            dom.log.innerText = `Deleted map object at ${hitX}, ${hitY}`;
-        } else {
-            dom.log.innerText = "No spawn or teleport nearby to delete.";
-        }
-        return; // Stops the script here so it doesn't try to draw boxes below!
-    }
-    // -----------------------------------------------------
-    // YOUR EXISTING CODE CONTINUES HERE
-    // -----------------------------------------------------
-    if (window.adminMode) {
-        if (e.altKey) {
-            isDrawing = true; startX = e.offsetX; startY = e.offsetY; drawType = e.shiftKey ? 'teleport' : 'collision';
-            currentBox = document.createElement('div'); currentBox.className = 'collision-box';
-            currentBox.style.left = startX + 'px'; currentBox.style.top = startY + 'px';
-            if (drawType === 'teleport') { currentBox.style.background = 'rgba(0, 0, 255, 0.4)'; currentBox.style.border = '2px dashed #00f'; }
-            else { currentBox.style.background = 'rgba(255, 0, 0, 0.4)'; currentBox.style.border = '1px solid red'; }
-            document.getElementById('collision-layers').appendChild(currentBox);
-        }
-        // ... (the rest of your Z/X/C key logic stays the same)
-        else if (game.keys.z || game.keys.x || game.keys.c) {
-            const rect = dom.world.getBoundingClientRect();
-            const hitX = Math.round((e.clientX - rect.left) / CAMERA_ZOOM);
-            const hitY = Math.round((e.clientY - rect.top) / CAMERA_ZOOM);
-            let mk = document.getElementById('admin-monster-key').value;
-            let mlvl = parseInt(document.getElementById('admin-monster-level').value) || 5; // ✅ Captures your custom level
-            let group = game.keys.z ? 'normalSpawns' : (game.keys.x ? 'miniBossSpawns' : 'floorBossSpawns');
-            
-            if (!safeMapData[group]) safeMapData[group] = [];
-            safeMapData[group].push({ x: hitX, y: hitY, monsterKey: mk, level: mlvl }); // ✅ Saves the level to your map data
-            
-            window.buildCollisionLayers();
-            window.copyAdminData();
-            dom.log.innerText = `Lv.${mlvl} Spawn added to ${group} at ${hitX}, ${hitY}`;
-            
-            // ✅ Sends the level to the server for live spawning
-            if(socket) socket.emit('adminSpawnMonster', { x: hitX, y: hitY, monsterKey: mk, level: mlvl, instanceId: game.player.instanceId });
-        }
-    }
-});
-
+// ✅ MOUSE MOVE LOGIC
 dom.world.addEventListener('mousemove', (e) => {
     if (!isDrawing || !currentBox) return;
     const currentX = e.offsetX; const currentY = e.offsetY; const width = currentX - startX; const height = currentY - startY;
     currentBox.style.width = Math.abs(width) + 'px'; currentBox.style.height = Math.abs(height) + 'px';
     currentBox.style.left = (width < 0 ? currentX : startX) + 'px'; currentBox.style.top = (height < 0 ? currentY : startY) + 'px';
 });
+
+// ✅ MOUSE UP LOGIC
 dom.world.addEventListener('mouseup', (e) => {
     if (isDrawing && currentBox) {
         isDrawing = false;
@@ -2225,6 +2158,7 @@ function gameLoop(ts) {
 </script>
 </body>
 </html>
+
 
 
 
