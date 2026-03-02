@@ -350,6 +350,7 @@ io.on('connection', (socket) => {
         const filePath = path.join(__dirname, 'public', fileName);
         try { fs.writeFileSync(filePath, data.content); } catch(err) {}
     });
+
    // ✅ FIXED: HEALER PARTY HEAL (Broadcasts to everyone)
     socket.on('partyHeal', (data) => {
         const p = onlinePlayers[socket.id];
@@ -415,6 +416,7 @@ io.on('connection', (socket) => {
             });
         }
     });
+
     socket.on('syncMapData', (mapData) => {
         if (!worlds[mapData.instanceId]) {
             worlds[mapData.instanceId] = { collisions: mapData.collisions || [], teleports: mapData.teleports || [], monsters: {}, pets: {} };
@@ -435,25 +437,8 @@ io.on('connection', (socket) => {
             processSpawns(mapData.floorBossSpawns);
         }
     });
-        if (data.mapId === 'town') return;
 
-        if (!worlds[instId].monstersSpawned) {
-            worlds[instId].monstersSpawned = true;
-            let mIndex = 0;
-            const spawnGroups = [ { arr: data.normalSpawns || [], fallback: 'common_mobs1' }, { arr: data.miniBossSpawns || [], fallback: 'mini_boss1' }, { arr: data.floorBossSpawns || [], fallback: 'floor_boss1' } ];
-            spawnGroups.forEach(group => {
-                group.arr.forEach(sp => {
-                    let mKey = sp.monsterKey || group.fallback; let mId = `${instId}_m_${mIndex++}`;
-                    if (!worlds[instId].monsters[mId]) {
-                        let cfg = { spawnArea: { minX: sp.x, maxX: sp.x, minY: sp.y, maxY: sp.y } };
-                        worlds[instId].monsters[mId] = spawnMonster(instId, mId, mKey, cfg);
-                    }
-                });
-            });
-        }
-    });
-
- socket.on('adminSpawnMonster', (data) => {
+    socket.on('adminSpawnMonster', (data) => {
         if (!worlds[data.instanceId]) return;
         const newMobId = 'admin_' + Date.now();
         const newMob = spawnMonster(data.instanceId, newMobId, data.monsterKey, { 
@@ -516,6 +501,7 @@ io.on('connection', (socket) => {
             else socket.emit('characterSelect', user);
         } catch(e) { socket.emit('authError', 'Server Error'); }
     });
+
      socket.on('createCharacter', async (data) => {
         try {
             const { username, charData } = data;
@@ -593,24 +579,6 @@ io.on('connection', (socket) => {
     socket.on('playerMoved', (data) => {
         if (!onlinePlayers[socket.id]) return; const p = onlinePlayers[socket.id]; p.x = data.x; p.y = data.y; p.spriteData.weapon = data.weaponSprite;
         socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: data.x, y: data.y, state: data.state, facingRight: data.facingRight, weaponSprite: data.weaponSprite });
-    });
-
-    socket.on('partyRevive', () => {
-        const p = onlinePlayers[socket.id]; if(!p) return;
-        if (p.mapId === 'town') return;
-
-        const pid = playerParty[p.id];
-        if (pid && parties[pid]) {
-            for (const memberId of parties[pid].members) {
-                const mp = getPlayerById(memberId);
-                if (mp && mp.isGhost && mp.mapId !== 'town') {
-                    mp.isGhost = false;
-                    mp.currentHp = Math.floor(mp.maxHp / 2) || 50; 
-                    io.to(mp.instanceId).emit('playerRevived', { id: mp.id, currentHp: mp.currentHp });
-                }
-            }
-            emitPartyUpdate(pid); 
-        }
     });
 
     socket.on('tauntMonsters', (data) => {
@@ -822,12 +790,3 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
-
-
-
-
-
-
-
-
-
