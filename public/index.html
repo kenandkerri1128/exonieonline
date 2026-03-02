@@ -1273,7 +1273,15 @@ window.setHairColor = function(color, element) { window.charData.hairColor = col
 window.setHairStyle = function(style) { window.charData.hairStyle = style; const hairLayer = document.getElementById('preview-hair'); if (style === 'none') { hairLayer.style.display = 'none'; } else { hairLayer.style.display = 'block'; hairLayer.src = `animation/avatar_hair${style}.png`; } document.querySelectorAll('#hair-button-container .btn').forEach(btn => btn.classList.remove('selected')); const activeBtn = document.getElementById(`btn-hair-${style}`); if(activeBtn) activeBtn.classList.add('selected'); };
 setTimeout(() => { let firstSkin = document.querySelector('#skin-color-group .color-swatch.selected'); let firstHair = document.querySelector('#hair-color-group .color-swatch.selected'); if (firstSkin) window.setSkinColor('flesh', firstSkin); if (firstHair) window.setHairColor('black', firstHair); }, 100);
 
-window.respawn = function() { document.getElementById('death-screen').style.display = 'none'; game.isGhost = false; dom.playerContainer.style.opacity = '1'; if(socket) socket.emit('respawnPlayer'); };
+window.respawn = function() { 
+    document.getElementById('death-screen').style.display = 'none'; 
+    game.isGhost = false; 
+    dom.playerContainer.style.opacity = '1'; 
+    game.player.currentHp = window.getMaxHp(); // ✅ Fix: Character back to 100%
+    window.updateUI(); // ✅ Fix: Resets the Red health bar
+    window.emitVitalsIfNeeded(true); // ✅ Fix: Tells the server you are alive
+    if(socket) socket.emit('respawnPlayer'); 
+};
 
 // ==========================================
 // 7. INPUT, NETWORKING & UI LISTENERS
@@ -2262,6 +2270,7 @@ window.addEventListener('click', (e) => {
 </script>
 </body>
 </html>
+
 
 
 
