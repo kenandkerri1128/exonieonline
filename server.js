@@ -435,8 +435,6 @@ io.on('connection', (socket) => {
             processSpawns(mapData.floorBossSpawns);
         }
     });
-
-        // ✅ RESTORED TOWN SAFETY: No monsters spawn or process in Town.
         if (data.mapId === 'town') return;
 
         if (!worlds[instId].monstersSpawned) {
@@ -824,6 +822,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
