@@ -1078,15 +1078,15 @@ window.saveMapToServer = function() {
     if(socket) socket.emit('saveMapFile', { mapId: mapId, content: str });
     dom.log.innerText = "Map saved to server!";
 }
+
 // ✅ PREVENT BROWSER MENU IN ADMIN MODE
 dom.world.addEventListener('contextmenu', (e) => {
-    if (document.getElementById('admin-panel').style.display === 'block') {
-        e.preventDefault();
-    }
+    if (window.adminMode) { e.preventDefault(); }
 });
 
+// ✅ LEFT & RIGHT CLICK LOGIC (Cleaned up!)
 dom.world.addEventListener('mousedown', (e) => {
-    // ✅ RIGHT-CLICK DELETE LOGIC
+    // RIGHT-CLICK DELETE
     if (window.adminMode && e.button === 2) { 
         const rect = dom.world.getBoundingClientRect();
         const hitX = Math.round((e.clientX - rect.left) / CAMERA_ZOOM);
@@ -1117,13 +1117,11 @@ dom.world.addEventListener('mousedown', (e) => {
         } else {
             dom.log.innerText = "No spawn or teleport nearby to delete.";
         }
-        return; // Stops the script here so it doesn't draw a box!
+        return; // This return is now safely inside the function!
     }
 
-    // -----------------------------------------------------
-    // LEFT-CLICK DRAWING & SPAWNING LOGIC
-    // -----------------------------------------------------
-    if (window.adminMode) {
+    // LEFT-CLICK DRAWING
+    if (window.adminMode && e.button === 0) {
         if (e.altKey) {
             isDrawing = true; startX = e.offsetX; startY = e.offsetY; drawType = e.shiftKey ? 'teleport' : 'collision';
             currentBox = document.createElement('div'); currentBox.className = 'collision-box';
@@ -1151,7 +1149,6 @@ dom.world.addEventListener('mousedown', (e) => {
         }
     }
 });
-
     // ✅ NEW RIGHT-CLICK DELETE LOGIC (Placed at the very top)
     if (window.adminMode && e.button === 2) { 
         const rect = dom.world.getBoundingClientRect();
@@ -2228,6 +2225,7 @@ function gameLoop(ts) {
 </script>
 </body>
 </html>
+
 
 
 
