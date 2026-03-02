@@ -1622,13 +1622,15 @@ if(socket) {
                 dom.world.appendChild(mEl);
             }
             game.monsters[m.id] = m;
-            if (!m.alive) { mEl.style.display = 'none'; } else {
+            if (!m.alive) { 
+                mEl.style.display = 'none'; 
+            } else {
                 mEl.style.display = 'flex'; mEl.style.left = m.x + 'px'; mEl.style.top = m.y + 'px'; mEl.style.width = (m.width || 40) + 'px'; mEl.style.height = (m.height || 40) + 'px';
                 
                 const hpBarFill = mEl.querySelector('.monster-hp-fill'); 
                 if(hpBarFill) hpBarFill.style.width = (m.currentHp / Math.max(1, m.maxHp)) * 100 + '%';
 
-            const spriteLayer = mEl.querySelector('.monster-sprite-layer');
+                const spriteLayer = mEl.querySelector('.monster-sprite-layer');
                 mEl.style.setProperty('--mob-color', m.cssColor); // ✅ Injects your DB colors dynamically!
 
                 if (m.monsterKey.includes('2')) {
@@ -1636,14 +1638,14 @@ if(socket) {
                     spriteLayer.className = 'monster-sprite-layer bat-sprite';
                     spriteLayer.style.background = m.cssColor;
                     spriteLayer.style.border = 'none';
-                    spriteLayer.style.animation = 'none'; // handled by CSS class
+                    spriteLayer.style.animation = 'none'; 
                 } 
                 else if (m.monsterKey.includes('3')) {
                     // ✅ FIRE ELEMENTAL (Monster 3)
                     spriteLayer.className = 'monster-sprite-layer fire-sprite';
-                    spriteLayer.style.background = m.cssColor; // Gradients work here too!
+                    spriteLayer.style.background = m.cssColor; 
                     spriteLayer.style.border = 'none';
-                    spriteLayer.style.animation = 'none'; // handled by CSS class
+                    spriteLayer.style.animation = 'none'; 
                 }
                 else if (m.monsterKey.includes('1') || m.monsterKey.includes('common_mobs') || m.monsterKey.includes('mini_boss') || m.monsterKey.includes('floor_boss')) { 
                     // ✅ ORIGINAL SLIME (Monster 1 / Fallback)
@@ -1663,6 +1665,7 @@ if(socket) {
                     spriteLayer.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`; 
                     spriteLayer.style.animation = 'none'; 
                 }
+            } // <--- THIS WAS THE MISSING BRACKET THAT BROKE THE FILE!
         });
 
         // ✅ GARBAGE COLLECTION FIX: Instantly deletes ghost monsters bleeding through maps
@@ -2157,6 +2160,7 @@ function gameLoop(ts) {
 </script>
 </body>
 </html>
+
 
 
 
