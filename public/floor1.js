@@ -46,7 +46,7 @@ var floor1MapData = {
         {
             "x": 481,
             "y": 1019,
-            "monsterKey": "mini_boss",
+            "monsterKey": "mini_boss1",
             "level": 15
         }
     ],
@@ -54,7 +54,7 @@ var floor1MapData = {
         {
             "x": 1484,
             "y": 382,
-            "monsterKey": "floor_boss",
+            "monsterKey": "floor_boss1",
             "level": 20
         }
     ],
