@@ -662,7 +662,7 @@ window.game = {
     monsters: {}, remotePlayers: {}, party: null 
 };
 
-const DatabaseManager = { savePlayerData: function(playerObj) { playerObj.mapId = safeMapData.id || 'town'; if(socket) socket.emit('saveData', playerObj); if(socket) socket.emit('playerEquipUpdate', { equips: playerObj.equips }); } };
+const DatabaseManager = { savePlayerData: function(playerObj) { playerObj.mapId = safeMapData.id || 'town'; playerObj.maxHp = window.getMaxHp(); if(socket) socket.emit('saveData', playerObj); if(socket) socket.emit('playerEquipUpdate', { equips: playerObj.equips }); } };
 
 window.forceUnstuck = function() {
     game.player.x = 960; game.player.y = 1000;
@@ -1488,7 +1488,8 @@ if(socket) {
                 document.getElementById('loading-screen').style.display = 'none'; dom.game.classList.add('active'); dom.world.style.backgroundImage = `url('${safeMapData.image}')`;
                 game.player.dom = dom.playerContainer; dom.playerBody.style.filter = skinFilters[window.charData.skinColor]; dom.playerHead.style.filter = skinFilters[window.charData.skinColor]; dom.playerHair.style.filter = hairFilters[window.charData.hairColor];
                 if (window.charData.hairStyle === 'none') dom.playerHair.style.display = 'none'; else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${window.charData.hairStyle}.png`; }
-                window.buildCollisionLayers(); window.updateEquipmentDisplay(); window.updateUI(); window.renderInventory();
+               window.buildCollisionLayers(); window.updateEquipmentDisplay(); window.updateUI(); window.renderInventory();
+                window.emitVitalsIfNeeded(true); // ✅ Forces the server to cache your true Max HP immediately!
                 if(safeMapData.id === 'town') { document.querySelectorAll('.monster-container').forEach(el => el.remove()); game.monsters = {}; }
                 socket.on('requestMapSync', (req) => { window.loadMapScript(req.mapId, () => { let mapPayload = Object.assign({}, window.MapDatabase[req.mapId], { instanceId: req.instanceId }); socket.emit('syncMapData', mapPayload); }); });
                 window.playBGM(safeMapData.id.includes('floor') ? 'floors' : 'town'); game.isRunning = true; requestAnimationFrame(gameLoop);
@@ -2159,6 +2160,7 @@ function gameLoop(ts) {
 </script>
 </body>
 </html>
+
 
 
 
