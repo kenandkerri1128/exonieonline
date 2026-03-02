@@ -634,49 +634,25 @@ var floor2MapData = {
         {
             "x": 998,
             "y": 199,
-            "monsterKey": "common_mobs1",
-            "level": 20
-        },
-        {
-            "x": 998,
-            "y": 199,
-            "monsterKey": "common_mobs1",
+            "monsterKey": "mini_boss",
             "level": 20
         },
         {
             "x": 1380,
             "y": 823,
-            "monsterKey": "common_mobs1",
-            "level": 20
-        },
-        {
-            "x": 1380,
-            "y": 823,
-            "monsterKey": "common_mobs1",
+            "monsterKey": "mini_boss",
             "level": 20
         },
         {
             "x": 1765,
             "y": 933,
-            "monsterKey": "common_mobs1",
-            "level": 20
-        },
-        {
-            "x": 1765,
-            "y": 933,
-            "monsterKey": "common_mobs1",
+            "monsterKey": "mini_boss",
             "level": 20
         },
         {
             "x": 1377,
             "y": 341,
-            "monsterKey": "common_mobs1",
-            "level": 20
-        },
-        {
-            "x": 1377,
-            "y": 341,
-            "monsterKey": "common_mobs1",
+            "monsterKey": "mini_boss",
             "level": 20
         }
     ],
@@ -684,15 +660,9 @@ var floor2MapData = {
         {
             "x": 1788,
             "y": 572,
-            "monsterKey": "common_mobs1",
+            "monsterKey": "floor_boss",
             "level": 30
         },
-        {
-            "x": 1788,
-            "y": 572,
-            "monsterKey": "common_mobs1",
-            "level": 30
-        }
     ]
 };
 if(typeof window !== 'undefined') window['floor2MapData'] = floor2MapData;
