@@ -95,7 +95,6 @@ function generateLoot(monster) {
 
     let item = { id: Date.now() + Math.random(), name: itemName, type: template.slot, sprite: rarityPrefix + template.spriteName, level: mLevel, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 };
     
-    // ✅ STRICT PENDANT 50% PENALTY ENFORCED
     let statVal = getBaseStat(mLevel) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0);
     if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); 
     item.fixedStat[template.statKey] = statVal;
@@ -110,11 +109,8 @@ function generateLoot(monster) {
 // SCALED MONSTER DATABASE
 // ==========================================
 const MonsterDatabase = {
-    // 10 second respawn
     "common_mobs1": { name: "Slime", category: "common_mobs", level: 5, maxHp: 100, atk: 25, def: 0, speed: 2.5, expYield: 25, goldYield: 15, aggroRadius: 250, chaseRadius: 400, attackRange: 55, width: 40, height: 40, respawnDelay: 10000, cssColor: '#ff69b4', cssBorder: '#c71585' },
-    // 2 minute respawn (120,000 ms)
     "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 1500, atk: 120, def: 15, speed: 2.8, expYield: 500, goldYield: 150, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
-    // Aggressive, fast, massive aggro radius, no respawn until server reload/admin spawn
     "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 5000, atk: 350, def: 100, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 800, chaseRadius: 1500, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' }
 };
 
@@ -150,16 +146,13 @@ const worlds = {};
 
 function spawnMonster(instId, entityId, monsterKey, cfg) {
     const stats = MonsterDatabase[monsterKey] || MonsterDatabase["common_mobs1"];
-    
-    // ✅ DYNAMIC LEVEL SCALING FOR ALL TIERS
     const baseLevel = stats.level || 5;
     const targetLevel = cfg.level || baseLevel;
-    // e.g., Mini Boss Base Lv 15. If Target is 30 -> 2x multiplier. If Target is 5 -> 0.33x multiplier.
     const scale = targetLevel / baseLevel; 
 
     return { 
         id: entityId, instanceId: instId, monsterKey, name: stats.name, category: stats.category, 
-        level: targetLevel, // Saved for loot generation
+        level: targetLevel, 
         x: cfg.spawnArea.minX, y: cfg.spawnArea.minY, homeX: cfg.spawnArea.minX, homeY: cfg.spawnArea.minY, 
         width: stats.width, height: stats.height, 
         maxHp: Math.max(1, Math.floor(stats.maxHp * scale)), 
@@ -175,13 +168,12 @@ function spawnMonster(instId, entityId, monsterKey, cfg) {
     };
 }
 
-// ✅ INCLUDES 'atk' SO FRONTEND CALCULATES REAL DAMAGE
 function serializeMonster(m) { 
     return { 
         id: m.id, monsterKey: m.monsterKey, name: m.name, x: m.x, y: m.y, 
         width: m.width, height: m.height, maxHp: m.maxHp, currentHp: m.currentHp, 
         atk: m.atk, def: m.def, alive: m.alive, targetId: m.targetId || null, 
-        cssColor: m.cssColor, cssBorder: m.cssBorder 
+        cssColor: m.cssColor, cssBorder: m.cssBorder, level: m.level 
     }; 
 }
 
@@ -193,14 +185,12 @@ function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
     return false;
 }
 
-// ✅ AGGRO HIERARCHY: 1. Taunt -> 2. Pets -> 3. Highest Threat -> 4. Nearest Player
 function pickTarget(m, instId, now) {
     for (const pid of Object.keys(m.threatTable)) { 
         const p = getPlayerById(pid); 
         if (!p || p.instanceId !== instId || p.isGhost || p.untargetableUntil > now || p.mapId === 'town') delete m.threatTable[pid]; 
     }
     
-    // 1. TAUNT
     if (m.forcedUntil > now && m.forcedTargetId) {
         const p = getPlayerById(m.forcedTargetId);
         if (p && p.instanceId === instId && !p.isGhost && p.untargetableUntil <= now && p.mapId !== 'town' && (p.currentHp ?? 1) > 0) {
@@ -210,7 +200,6 @@ function pickTarget(m, instId, now) {
 
     const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2);
 
-    // 2. SUMMONER PET PRIORITY
     const world = worlds[instId];
     if (world && world.pets) {
         let closestPet = null; let petDist = Infinity;
@@ -222,7 +211,6 @@ function pickTarget(m, instId, now) {
         if (closestPet) return { id: closestPet.id, isPet: true, x: closestPet.x, y: closestPet.y };
     }
 
-    // 3. HIGHEST THREAT
     let best = null; let bestThreat = -1; let bestDist = Infinity;
     for (const pid of Object.keys(m.threatTable)) {
         const threat = m.threatTable[pid] || 0; const p = getPlayerById(pid); 
@@ -233,7 +221,6 @@ function pickTarget(m, instId, now) {
     }
     if (best) return { id: best.id, isPet: false, x: best.x + 24, y: best.y + 48 };
     
-    // 4. NEAREST PLAYER
     let nearest = null; let nearestDist = Infinity;
     for (const p of playersInInstance(instId)) {
         if (p.isGhost || p.untargetableUntil > now || p.mapId === 'town' || (p.currentHp ?? 1) <= 0) continue; 
@@ -244,6 +231,7 @@ function pickTarget(m, instId, now) {
     
     return null;
 }
+
 function updateMonsterAI(instId, m, now) {
     if (!m.alive) return;
     if (now < m.frozenUntil) return;
@@ -265,24 +253,14 @@ function updateMonsterAI(instId, m, now) {
         return; 
     }
     
-    // ✅ EARTHQUAKE AoE LOGIC (Triggered while aggroed)
     if ((m.category === "mini_boss" || m.category === "floor_boss") && m.alive) {
-        // 15% chance to trigger if off cooldown (6 second internal cooldown)
         if (now - (m.lastEarthquake || 0) > 6000) {
             if (Math.random() < 0.15) {
                 m.lastEarthquake = now;
                 const aoeRadius = m.category === "floor_boss" ? 400 : 200;
 
-                // 1. Send visual signal to clients
-                io.to(instId).emit('monsterSkill', { 
-                    monsterId: m.id, 
-                    skillName: 'Earthquake', 
-                    x: mcx, 
-                    y: mcy, 
-                    radius: aoeRadius 
-                });
+                io.to(instId).emit('monsterSkill', { monsterId: m.id, skillName: 'Earthquake', x: mcx, y: mcy, radius: aoeRadius });
 
-                // 2. Damage all players in radius
                 const players = playersInInstance(instId);
                 players.forEach(p => {
                     if (p.isGhost || p.mapId === 'town') return;
@@ -290,14 +268,7 @@ function updateMonsterAI(instId, m, now) {
                     if (pDist <= aoeRadius) {
                         const damage = Math.max(1, m.atk - (p.stats?.defense || 0));
                         p.currentHp -= damage;
-                        io.to(instId).emit('monsterAttack', { 
-                            monsterId: m.id, 
-                            targetId: p.id, 
-                            targetX: p.x + 24, 
-                            targetY: p.y + 48, 
-                            atk: m.atk,
-                            isAoE: true 
-                        });
+                        io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: p.id, targetX: p.x + 24, targetY: p.y + 48, atk: m.atk, isAoE: true });
                     }
                 });
             }
@@ -320,14 +291,7 @@ function updateMonsterAI(instId, m, now) {
     } else { 
         if (now - m.lastAttack > 1500) { 
             m.lastAttack = now; 
-            // EMITS SERVER-SIDE 'atk' SO FRONTEND RECEIVES THE TRUE DAMAGE
-            io.to(instId).emit('monsterAttack', { 
-                monsterId: m.id, 
-                targetId: target.id, 
-                targetX: target.x, 
-                targetY: target.y, 
-                atk: m.atk 
-            }); 
+            io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: target.id, targetX: target.x, targetY: target.y, atk: m.atk }); 
         } 
     }
 }
@@ -351,7 +315,6 @@ io.on('connection', (socket) => {
         try { fs.writeFileSync(filePath, data.content); } catch(err) {}
     });
 
-   // ✅ FIXED: HEALER PARTY HEAL (Broadcasts to everyone)
     socket.on('partyHeal', (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || p.isGhost || p.mapId === 'town') return;
@@ -364,13 +327,7 @@ io.on('connection', (socket) => {
                     const dist = Math.hypot(p.x - mp.x, p.y - mp.y);
                     if (dist <= (data.radius || 400)) {
                         mp.currentHp = Math.min(mp.maxHp, mp.currentHp + data.amount);
-                        
-                        // ✅ Tell EVERYONE in the maze to show green heal text over this player
-                        io.to(p.instanceId).emit('playerHealed', { 
-                            id: mp.id, 
-                            amount: data.amount, 
-                            currentHp: mp.currentHp 
-                        });
+                        io.to(p.instanceId).emit('playerHealed', { id: mp.id, amount: data.amount, currentHp: mp.currentHp });
                     }
                 }
             }
@@ -378,7 +335,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    // ✅ FIXED: PURIFICATION (Broadcasts revival to everyone)
     socket.on('partyRevive', () => {
         const p = onlinePlayers[socket.id];
         if (!p || p.mapId === 'town') return;
@@ -390,30 +346,17 @@ io.on('connection', (socket) => {
                 if (mp && mp.isGhost && mp.mapId !== 'town') {
                     mp.isGhost = false;
                     mp.currentHp = mp.maxHp; 
-                    
-                    // ✅ Tell EVERYONE in the maze to stop rendering this player as a ghost
-                    io.to(p.instanceId).emit('playerRevived', { 
-                        id: mp.id, 
-                        currentHp: mp.currentHp 
-                    });
+                    io.to(p.instanceId).emit('playerRevived', { id: mp.id, currentHp: mp.currentHp });
                 }
             }
             emitPartyUpdate(pid); 
         }
     });
 
-    // ✅ NEW: BROADCAST SKILL ANIMATIONS
     socket.on('broadcastSkill', (data) => {
         const p = onlinePlayers[socket.id];
         if (p) {
-            // Sends the animation data (aura, effect) to everyone else in the maze
-            socket.to(p.instanceId).emit('remoteSkillEffect', {
-                playerId: p.id,
-                skillId: data.skillId,
-                x: p.x,
-                y: p.y,
-                auraColor: data.auraColor
-            });
+            socket.to(p.instanceId).emit('remoteSkillEffect', { playerId: p.id, skillId: data.skillId, x: p.x, y: p.y, auraColor: data.auraColor });
         }
     });
 
@@ -421,13 +364,12 @@ io.on('connection', (socket) => {
         if (!worlds[mapData.instanceId]) {
             worlds[mapData.instanceId] = { collisions: mapData.collisions || [], teleports: mapData.teleports || [], monsters: {}, pets: {} };
             
-            // ✅ Read the custom level for Normal, Mini, and Floor Bosses
             const processSpawns = (spawnList) => {
                 (spawnList || []).forEach((sp, i) => {
                     let mId = `${mapData.instanceId}_mob_${Date.now()}_${i}_${Math.random()}`;
                     worlds[mapData.instanceId].monsters[mId] = spawnMonster(mapData.instanceId, mId, sp.monsterKey, { 
                         spawnArea: { minX: sp.x, minY: sp.y }, 
-                        level: sp.level // <--- Injects the exact level you saved!
+                        level: sp.level 
                     });
                 });
             };
@@ -443,7 +385,7 @@ io.on('connection', (socket) => {
         const newMobId = 'admin_' + Date.now();
         const newMob = spawnMonster(data.instanceId, newMobId, data.monsterKey, { 
             spawnArea: { minX: data.x, minY: data.y },
-            level: data.level // ✅ Applies the level from your input box to live spawns!
+            level: data.level 
         });
         worlds[data.instanceId].monsters[newMobId] = newMob;
         
@@ -480,46 +422,56 @@ io.on('connection', (socket) => {
     socket.on('portalLeave', () => { const p = onlinePlayers[socket.id]; if(p) p.currentPortal = null; });
 
     socket.on('register', async (data) => {
+        console.log(`[REGISTER ATTEMPT] User: ${data.username}`);
         try {
             const { username, password } = data;
             if (!username || !password) return socket.emit('authError', 'Invalid data.');
             const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', username).single();
             if (existingUser) return socket.emit('authError', 'Username is already taken!');
             const { error } = await supabase.from('Exonians').insert([{ character_name: username, password: password }]);
-            if (error) return socket.emit('authError', `Database Error: ${error.message}`);
+            if (error) {
+                console.error(`[REGISTER ERROR] DB failed for ${username}:`, error.message);
+                return socket.emit('authError', `Database Error: ${error.message}`);
+            }
             socket.emit('registerSuccess', username);
-        } catch(e) { socket.emit('authError', 'Server Error'); }
+        } catch(e) { 
+            console.error(`[REGISTER CRASH]`, e);
+            socket.emit('authError', 'Server Error'); 
+        }
     });
 
     socket.on('login', async (data) => {
+        console.log(`[LOGIN ATTEMPT] User: ${data.username}`);
         try {
             const { username, password } = data;
             const { data: user, error } = await supabase.from('Exonians').select('*').eq('character_name', username).eq('password', password).single();
-            if (error || !user) return socket.emit('authError', 'Invalid username or password.');
+            if (error || !user) {
+                console.error(`[LOGIN FAILED] Invalid credentials for ${username}. Error:`, error?.message || 'No user found');
+                return socket.emit('authError', 'Invalid username or password.');
+            }
+            console.log(`[LOGIN SUCCESS] ${username} authenticated successfully.`);
             currentUser = username;
             if (!user.skin_color) socket.emit('needsCharacterCreation', username);
             else socket.emit('characterSelect', user);
-        } catch(e) { socket.emit('authError', 'Server Error'); }
+        } catch(e) { 
+            console.error(`[LOGIN CRASH] Exception thrown for ${data.username}:`, e);
+            socket.emit('authError', 'Server Error'); 
+        }
     });
 
-     socket.on('createCharacter', async (data) => {
+    socket.on('createCharacter', async (data) => {
         try {
             const { username, charData } = data;
-            
-            // ✅ 1. EQUIP STARTER GEAR (Sword, Armor, Leggings)
             const starterEquips = {
                 weapon: { id: Date.now() + 1, name: "Starter Sword", type: "weapon", sprite: "startersword", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { attack: 3 } },
                 armor: { id: Date.now() + 2, name: "Starter Armor", type: "armor", sprite: "starterarmor", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { defense: 2 } },
                 leggings: { id: Date.now() + 3, name: "Starter Leggings", type: "leggings", sprite: "starterleggings", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { hp: 5 } }
             };
 
-            // ✅ 2. INJECT STAFF AND PENDANT INTO INVENTORY SLOTS 1 & 2
             const starterInventory = new Array(20).fill(null);
             starterInventory[0] = { id: Date.now() + 4, name: "Starter Staff", type: "weapon", sprite: "starterstaff", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 3 } };
-            // Pendant has slightly lower stats by design since it's a healer/utility weapon!
             starterInventory[1] = { id: Date.now() + 5, name: "Starter Pendant", type: "weapon", sprite: "starterpendant", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 2 } };
 
-            // ✅ 3. SAVE TO SUPABASE
             const { data: user, error } = await supabase.from('Exonians')
                 .update({ 
                     skin_color: charData.skinColor, 
@@ -532,11 +484,7 @@ io.on('connection', (socket) => {
                 .select().single();
             
             if (error) return socket.emit('authError', 'Failed to create character.');
-            
-            if (user) {
-                // Tells the client to stop loading and show the Select Screen!
-                socket.emit('characterSelect', user);
-            }
+            if (user) socket.emit('characterSelect', user);
         } catch(e) { 
             socket.emit('authError', 'Server Error during creation.'); 
         }
@@ -547,12 +495,13 @@ io.on('connection', (socket) => {
         const instId = getInstanceId(userData.character_name, mapId);
 
         let startHp = userData.current_hp || 100;
-        // ✅ TOWN FOUNTAIN: Always login with Full HP if in Town
         if (mapId === 'town') startHp = 100;
+        
+        currentUser = userData.character_name; // ✅ Re-enforces session state
         
         onlinePlayers[socket.id] = {
             socketId: socket.id, id: userData.character_name, name: userData.character_name, mapId: mapId, instanceId: instId, isGhost: false, currentPortal: null,
-            x: userData.pos_x || 960, y: userData.pos_y || 1000, level: userData.level || 1, currentHp: userData.current_hp || 100, maxHp: 100, tradeTarget: null,
+            x: userData.pos_x || 960, y: userData.pos_y || 1000, level: userData.level || 1, currentHp: startHp, maxHp: 100, tradeTarget: null,
             equips: userData.equips || { weapon: null, armor: null, leggings: null }, 
             spriteData: { skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, weapon: userData.equips?.weapon?.sprite || null },
             untargetableUntil: 0 
@@ -736,7 +685,6 @@ io.on('connection', (socket) => {
         if (!onlinePlayers[socket.id]) return; const p = onlinePlayers[socket.id];
         socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
         
-        // ✅ TOWN FOUNTAIN: Restore HP when arriving in Town
         if (p.mapId === 'town') p.currentHp = p.maxHp;
         
         if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
