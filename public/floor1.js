@@ -12,26 +12,8 @@ var floor1MapData = {
             "level": 5
         },
         {
-            "x": 492,
-            "y": 213,
-            "monsterKey": "common_mobs1",
-            "level": 5
-        },
-        {
             "x": 648,
             "y": 415,
-            "monsterKey": "common_mobs1",
-            "level": 5
-        },
-        {
-            "x": 648,
-            "y": 415,
-            "monsterKey": "common_mobs1",
-            "level": 5
-        },
-        {
-            "x": 340,
-            "y": 505,
             "monsterKey": "common_mobs1",
             "level": 5
         },
@@ -48,18 +30,6 @@ var floor1MapData = {
             "level": 5
         },
         {
-            "x": 1179,
-            "y": 861,
-            "monsterKey": "common_mobs1",
-            "level": 5
-        },
-        {
-            "x": 1786,
-            "y": 871,
-            "monsterKey": "common_mobs1",
-            "level": 5
-        },
-        {
             "x": 1786,
             "y": 871,
             "monsterKey": "common_mobs1",
@@ -71,24 +41,12 @@ var floor1MapData = {
             "monsterKey": "common_mobs1",
             "level": 5
         },
-        {
-            "x": 1478,
-            "y": 1141,
-            "monsterKey": "common_mobs1",
-            "level": 5
-        }
     ],
     "miniBossSpawns": [
         {
             "x": 481,
             "y": 1019,
-            "monsterKey": "common_mobs1",
-            "level": 15
-        },
-        {
-            "x": 481,
-            "y": 1019,
-            "monsterKey": "common_mobs1",
+            "monsterKey": "mini_boss",
             "level": 15
         }
     ],
@@ -96,13 +54,7 @@ var floor1MapData = {
         {
             "x": 1484,
             "y": 382,
-            "monsterKey": "common_mobs1",
-            "level": 20
-        },
-        {
-            "x": 1484,
-            "y": 382,
-            "monsterKey": "common_mobs1",
+            "monsterKey": "floor_boss",
             "level": 20
         }
     ],
