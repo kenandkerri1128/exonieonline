@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#121212">
+<link rel="apple-touch-icon" href="favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exonie Online - Alpha Engine</title>
@@ -253,6 +256,34 @@
         .inspect-title { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
         .inspect-item-name { font-weight: bold; font-size: 16px; } .inspect-sub { color: #aaa; font-size: 13px; }
         .inspect-stat { font-size: 13px; color: #e0e0e0; margin-top: 6px; line-height: 1.3; } .inspect-stat b { color: #4CAF50; } .inspect-empty { color: #888; font-style: italic; }
+        /* --- MOBILE UI CONTROLS --- */
+#mobile-controls {
+    position: absolute; bottom: 30px; left: 30px; width: 150px; height: 150px;
+    background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%; z-index: 2000; display: none; touch-action: none;
+}
+#joystick-knob {
+    position: absolute; top: 50%; left: 50%; width: 60px; height: 60px;
+    background: rgba(76, 175, 80, 0.6); border-radius: 50%;
+    transform: translate(-50%, -50%); pointer-events: none;
+}
+#mobile-actions {
+    position: absolute; bottom: 30px; right: 30px; display: none;
+    flex-direction: column; gap: 15px; z-index: 2000;
+}
+.m-btn {
+    width: 60px; height: 60px; border-radius: 50%; background: rgba(0,0,0,0.7);
+    border: 2px solid #4CAF50; color: white; font-size: 12px; font-weight: bold;
+    display: flex; justify-content: center; align-items: center; text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5); user-select: none;
+}
+.m-btn:active { background: #4CAF50; transform: scale(0.9); }
+.m-btn-large { width: 80px; height: 80px; border-color: #ff9800; font-size: 14px; }
+
+/* Show mobile controls only on touch devices */
+@media (pointer: coarse) {
+    #mobile-controls, #mobile-actions { display: flex; }
+}
 
         /* --- MERCHANT SHOP --- */
         #shop-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; background: rgba(20,20,20,0.98); border: 2px solid #4CAF50; border-radius: 8px; padding: 20px; z-index: 2000; display: none; box-shadow: 0 0 30px #000; }
@@ -415,8 +446,9 @@
             <input type="text" id="login-user" placeholder="Username" maxlength="16">
             <input type="password" id="login-pass" placeholder="Password">
             <button class="btn btn-large" onclick="window.attemptLogin()">LOGIN</button>
-            <span class="auth-link" onclick="window.switchAuth('register')">Create an Account</span>
-        </div>
+           <span class="auth-link" onclick="window.switchAuth('register')">Create an Account</span>
+    <button id="install-btn" class="btn" style="display: none; margin-top: 10px; background: #2196F3; width: 100%;">Download App</button>
+</div>
         <div class="auth-container" id="register-form" style="display: none;">
             <h1>Join Exonie</h1>
             <input type="text" id="reg-user" placeholder="Username" maxlength="16">
@@ -497,6 +529,19 @@
     </div>
 
     <div id="game-screen" class="screen">
+        <div id="mobile-controls"><div id="joystick-knob"></div></div>
+<div id="mobile-actions">
+    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+        <div class="m-btn" onclick="window.toggleInventory()">Inv</div>
+        <div class="m-btn" onclick="window.toggleSkillScreen()">Skill</div>
+        <div class="m-btn" onclick="window.openShop()">Shop</div>
+    </div>
+    <div style="display: flex; align-items: flex-end; gap: 15px;">
+        <div class="m-btn" style="border-color: #9c27b0;" onclick="window.executeSkill(game.player.activeSkills[0]?.id, game.player.baseStats.playerClass)">S1</div>
+        <div class="m-btn m-btn-large" onclick="window.attemptAttack(false)">ATK</div>
+        <div class="m-btn" style="border-color: #f44336;" onclick="autoAttackMode = !autoAttackMode; dom.log.innerText = 'Auto-Attack: ' + (autoAttackMode ? 'ON' : 'OFF');">Auto</div>
+    </div>
+</div>
         <div id="hud">
             <div class="level-row"><span id="ui-name-display" style="color:#fff;">Player</span><span>Lv. <span id="ui-level-text">1</span></span></div>
             <div class="stat-row"><span>HP</span> <span id="ui-hp-text">100 / 100</span></div>
@@ -1641,10 +1686,14 @@ if(socket) {
                // ✅ Name tag now correctly reads m.level instead of hardcoding it!
                 mEl.innerHTML = `<div class="name-tag mob-name">${m.name} Lv.${m.level || 5}</div><div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div><div class="monster-ui-layer" style="position:absolute; top:-20px; left:0; width:100%; pointer-events:none;"><div class="bar-container" style="height:5px; border-radius:0; margin-bottom:0;"><div class="hp-fill monster-hp-fill" style="background-color:#f44336; height:100%; width:100%;"></div></div></div>`;
 
-                mEl.addEventListener('pointerdown', (e) => { 
-                    e.stopPropagation(); 
-                    if(!window.isLoading){ attackHeld = true; window.attemptAttackTarget = m.id; window.attemptAttack(false); }
-                });
+             // Replace the pointerdown inside monsterState loop:
+mEl.addEventListener('pointerdown', (e) => { 
+    e.stopPropagation(); 
+    if(!window.isLoading){ 
+        window.attemptAttackTarget = m.id; 
+        window.attemptAttack(false); 
+    }
+});
                 dom.world.appendChild(mEl);
             }
             game.monsters[m.id] = m;
@@ -2183,9 +2232,36 @@ function gameLoop(ts) {
     
     requestAnimationFrame(gameLoop);
 }
+    // ✅ PWA INSTALL LOGIC
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later.
+    deferredPrompt = e;
+    // Update UI notify the user they can install the PWA
+    document.querySelectorAll('#install-btn').forEach(btn => btn.style.display = 'block');
+});
+
+window.addEventListener('click', (e) => {
+    if (e.target.id === 'install-btn') {
+        // Show the install prompt
+        deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+            } else {
+                console.log('User dismissed the install prompt');
+            }
+            deferredPrompt = null;
+        });
+    }
+});
 </script>
 </body>
 </html>
+
 
 
 
