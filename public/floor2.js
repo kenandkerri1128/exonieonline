@@ -564,26 +564,8 @@ var floor2MapData = {
             "level": 10
         },
         {
-            "x": 822,
-            "y": 599,
-            "monsterKey": "common_mobs1",
-            "level": 10
-        },
-        {
             "x": 859,
             "y": 1139,
-            "monsterKey": "common_mobs1",
-            "level": 10
-        },
-        {
-            "x": 859,
-            "y": 1139,
-            "monsterKey": "common_mobs1",
-            "level": 10
-        },
-        {
-            "x": 630,
-            "y": 1104,
             "monsterKey": "common_mobs1",
             "level": 10
         },
@@ -600,18 +582,6 @@ var floor2MapData = {
             "level": 10
         },
         {
-            "x": 1372,
-            "y": 1201,
-            "monsterKey": "common_mobs1",
-            "level": 10
-        },
-        {
-            "x": 1278,
-            "y": 181,
-            "monsterKey": "common_mobs1",
-            "level": 10
-        },
-        {
             "x": 1278,
             "y": 181,
             "monsterKey": "common_mobs1",
@@ -623,36 +593,30 @@ var floor2MapData = {
             "monsterKey": "common_mobs1",
             "level": 10
         },
-        {
-            "x": 1399,
-            "y": 182,
-            "monsterKey": "common_mobs1",
-            "level": 10
-        }
     ],
     "miniBossSpawns": [
         {
             "x": 998,
             "y": 199,
-            "monsterKey": "mini_boss",
+            "monsterKey": "mini_boss1",
             "level": 20
         },
         {
             "x": 1380,
             "y": 823,
-            "monsterKey": "mini_boss",
+            "monsterKey": "mini_boss1",
             "level": 20
         },
         {
             "x": 1765,
             "y": 933,
-            "monsterKey": "mini_boss",
+            "monsterKey": "mini_boss1",
             "level": 20
         },
         {
             "x": 1377,
             "y": 341,
-            "monsterKey": "mini_boss",
+            "monsterKey": "mini_boss1",
             "level": 20
         }
     ],
@@ -660,7 +624,7 @@ var floor2MapData = {
         {
             "x": 1788,
             "y": 572,
-            "monsterKey": "floor_boss",
+            "monsterKey": "floor_boss1",
             "level": 30
         },
     ]
