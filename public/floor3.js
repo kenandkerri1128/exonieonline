@@ -782,12 +782,12 @@ var floor3MapData = {
     ],
     "teleports": [
         {
-            "x": 646,
-            "y": 487,
-            "w": 30,
-            "h": 35,
+            "x": 641,
+            "y": 489,
+            "w": 37,
+            "h": 40,
             "portalId": 6,
-            "targetMapId": "floor3"
+            "targetMapId": "floor2"
         }
     ],
     "normalSpawns": [
