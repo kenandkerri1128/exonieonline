@@ -558,52 +558,140 @@ var floor2MapData = {
     ],
     "normalSpawns": [
         {
-            "x": 858,
-            "y": 602,
+            "x": 822,
+            "y": 599,
+            "monsterKey": "common_mobs1",
+            "level": 10
         },
         {
-            "x": 862,
-            "y": 1056,
+            "x": 822,
+            "y": 599,
+            "monsterKey": "common_mobs1",
+            "level": 10
         },
         {
-            "x": 599,
-            "y": 1133,
+            "x": 859,
+            "y": 1139,
+            "monsterKey": "common_mobs1",
+            "level": 10
         },
         {
-            "x": 844,
-            "y": 271,
+            "x": 859,
+            "y": 1139,
+            "monsterKey": "common_mobs1",
+            "level": 10
         },
         {
-            "x": 1390,
-            "y": 1202,
+            "x": 630,
+            "y": 1104,
+            "monsterKey": "common_mobs1",
+            "level": 10
         },
         {
-            "x": 1215,
-            "y": 1117,
+            "x": 630,
+            "y": 1104,
+            "monsterKey": "common_mobs1",
+            "level": 10
         },
         {
-            "x": 1369,
-            "y": 996,
+            "x": 1372,
+            "y": 1201,
+            "monsterKey": "common_mobs1",
+            "level": 10
+        },
+        {
+            "x": 1372,
+            "y": 1201,
+            "monsterKey": "common_mobs1",
+            "level": 10
+        },
+        {
+            "x": 1278,
+            "y": 181,
+            "monsterKey": "common_mobs1",
+            "level": 10
+        },
+        {
+            "x": 1278,
+            "y": 181,
+            "monsterKey": "common_mobs1",
+            "level": 10
+        },
+        {
+            "x": 1399,
+            "y": 182,
+            "monsterKey": "common_mobs1",
+            "level": 10
+        },
+        {
+            "x": 1399,
+            "y": 182,
+            "monsterKey": "common_mobs1",
+            "level": 10
         }
     ],
     "miniBossSpawns": [
         {
-            "x": 1002,
-            "y": 187,
+            "x": 998,
+            "y": 199,
+            "monsterKey": "common_mobs1",
+            "level": 20
         },
         {
-            "x": 1773,
-            "y": 913,
+            "x": 998,
+            "y": 199,
+            "monsterKey": "common_mobs1",
+            "level": 20
         },
         {
-            "x": 1384,
-            "y": 808,
+            "x": 1380,
+            "y": 823,
+            "monsterKey": "common_mobs1",
+            "level": 20
+        },
+        {
+            "x": 1380,
+            "y": 823,
+            "monsterKey": "common_mobs1",
+            "level": 20
+        },
+        {
+            "x": 1765,
+            "y": 933,
+            "monsterKey": "common_mobs1",
+            "level": 20
+        },
+        {
+            "x": 1765,
+            "y": 933,
+            "monsterKey": "common_mobs1",
+            "level": 20
+        },
+        {
+            "x": 1377,
+            "y": 341,
+            "monsterKey": "common_mobs1",
+            "level": 20
+        },
+        {
+            "x": 1377,
+            "y": 341,
+            "monsterKey": "common_mobs1",
+            "level": 20
         }
     ],
     "floorBossSpawns": [
         {
             "x": 1788,
-            "y": 578,
+            "y": 572,
+            "monsterKey": "common_mobs1",
+            "level": 30
+        },
+        {
+            "x": 1788,
+            "y": 572,
+            "monsterKey": "common_mobs1",
+            "level": 30
         }
     ]
 };
