@@ -372,12 +372,6 @@ var floor2MapData = {
             "h": 663
         },
         {
-            "x": 1622,
-            "y": 242,
-            "w": 376,
-            "h": 191
-        },
-        {
             "x": 1465,
             "y": 276,
             "w": 37,
@@ -544,6 +538,24 @@ var floor2MapData = {
             "y": 552,
             "w": 64,
             "h": 22
+        },
+        {
+            "x": 1624,
+            "y": 263,
+            "w": 129,
+            "h": 196
+        },
+        {
+            "x": 1759,
+            "y": 263,
+            "w": 150,
+            "h": 40
+        },
+        {
+            "x": 1821,
+            "y": 309,
+            "w": 148,
+            "h": 121
         }
     ],
     "teleports": [
@@ -554,6 +566,14 @@ var floor2MapData = {
             "h": 35,
             "portalId": 4,
             "targetMapId": "floor1"
+        },
+        {
+            "x": 1758,
+            "y": 313,
+            "w": 59,
+            "h": 77,
+            "portalId": 5,
+            "targetMapId": "floor3"
         }
     ],
     "normalSpawns": [
@@ -592,7 +612,7 @@ var floor2MapData = {
             "y": 182,
             "monsterKey": "common_mobs1",
             "level": 10
-        },
+        }
     ],
     "miniBossSpawns": [
         {
@@ -626,7 +646,7 @@ var floor2MapData = {
             "y": 572,
             "monsterKey": "floor_boss1",
             "level": 30
-        },
+        }
     ]
 };
 if(typeof window !== 'undefined') window['floor2MapData'] = floor2MapData;
