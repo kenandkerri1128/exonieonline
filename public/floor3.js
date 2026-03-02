@@ -842,12 +842,6 @@ var floor3MapData = {
     ],
     "miniBossSpawns": [
         {
-            "x": 1522,
-            "y": 536,
-            "monsterKey": "mini_boss2",
-            "level": 30
-        },
-        {
             "x": 864,
             "y": 897,
             "monsterKey": "mini_boss2",
