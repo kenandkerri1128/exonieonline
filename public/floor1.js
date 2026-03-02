@@ -6,33 +6,105 @@ var floor1MapData = {
     "spawnY": 345,
     "normalSpawns": [
         {
-            "x": 810,
-            "y": 545
+            "x": 492,
+            "y": 213,
+            "monsterKey": "common_mobs1",
+            "level": 5
         },
         {
-            "x": 545,
-            "y": 65
+            "x": 492,
+            "y": 213,
+            "monsterKey": "common_mobs1",
+            "level": 5
         },
         {
-            "x": 1904,
-            "y": 796
+            "x": 648,
+            "y": 415,
+            "monsterKey": "common_mobs1",
+            "level": 5
         },
         {
-            "x": 1927,
-            "y": 1178
+            "x": 648,
+            "y": 415,
+            "monsterKey": "common_mobs1",
+            "level": 5
         },
+        {
+            "x": 340,
+            "y": 505,
+            "monsterKey": "common_mobs1",
+            "level": 5
+        },
+        {
+            "x": 340,
+            "y": 505,
+            "monsterKey": "common_mobs1",
+            "level": 5
+        },
+        {
+            "x": 1179,
+            "y": 861,
+            "monsterKey": "common_mobs1",
+            "level": 5
+        },
+        {
+            "x": 1179,
+            "y": 861,
+            "monsterKey": "common_mobs1",
+            "level": 5
+        },
+        {
+            "x": 1786,
+            "y": 871,
+            "monsterKey": "common_mobs1",
+            "level": 5
+        },
+        {
+            "x": 1786,
+            "y": 871,
+            "monsterKey": "common_mobs1",
+            "level": 5
+        },
+        {
+            "x": 1478,
+            "y": 1141,
+            "monsterKey": "common_mobs1",
+            "level": 5
+        },
+        {
+            "x": 1478,
+            "y": 1141,
+            "monsterKey": "common_mobs1",
+            "level": 5
+        }
     ],
     "miniBossSpawns": [
         {
-            "x": 189,
-            "y": 1210
+            "x": 481,
+            "y": 1019,
+            "monsterKey": "common_mobs1",
+            "level": 15
         },
+        {
+            "x": 481,
+            "y": 1019,
+            "monsterKey": "common_mobs1",
+            "level": 15
+        }
     ],
     "floorBossSpawns": [
         {
-            "x": 1509,
-            "y": 121
+            "x": 1484,
+            "y": 382,
+            "monsterKey": "common_mobs1",
+            "level": 20
         },
+        {
+            "x": 1484,
+            "y": 382,
+            "monsterKey": "common_mobs1",
+            "level": 20
+        }
     ],
     "collisions": [
         {
