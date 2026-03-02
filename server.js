@@ -360,23 +360,26 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('syncMapData', (mapData) => {
+   socket.on('syncMapData', (mapData) => {
         if (!worlds[mapData.instanceId]) {
             worlds[mapData.instanceId] = { collisions: mapData.collisions || [], teleports: mapData.teleports || [], monsters: {}, pets: {} };
             
-            const processSpawns = (spawnList) => {
+            // ✅ ADDED FALLBACK KEYS: This ensures old maps don't crash the renderer!
+            const processSpawns = (spawnList, fallbackKey) => {
                 (spawnList || []).forEach((sp, i) => {
                     let mId = `${mapData.instanceId}_mob_${Date.now()}_${i}_${Math.random()}`;
-                    worlds[mapData.instanceId].monsters[mId] = spawnMonster(mapData.instanceId, mId, sp.monsterKey, { 
+                    let mKey = sp.monsterKey || fallbackKey; // <--- Uses fallback if old map is missing the key
+                    worlds[mapData.instanceId].monsters[mId] = spawnMonster(mapData.instanceId, mId, mKey, { 
                         spawnArea: { minX: sp.x, minY: sp.y }, 
                         level: sp.level 
                     });
                 });
             };
             
-            processSpawns(mapData.normalSpawns);
-            processSpawns(mapData.miniBossSpawns);
-            processSpawns(mapData.floorBossSpawns);
+            // Passes the exact fallbacks needed for older map data
+            processSpawns(mapData.normalSpawns, 'common_mobs1');
+            processSpawns(mapData.miniBossSpawns, 'mini_boss1');
+            processSpawns(mapData.floorBossSpawns, 'floor_boss1');
         }
     });
 
@@ -738,3 +741,4 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
