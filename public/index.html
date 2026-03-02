@@ -1086,7 +1086,7 @@ dom.world.addEventListener('contextmenu', (e) => {
 
 // ✅ LEFT & RIGHT CLICK LOGIC
 dom.world.addEventListener('mousedown', (e) => {
-    // RIGHT-CLICK DELETE
+   // RIGHT-CLICK DELETE
     if (window.adminMode && e.button === 2) { 
         const rect = dom.world.getBoundingClientRect();
         const hitX = Math.round((e.clientX - rect.left) / CAMERA_ZOOM);
@@ -1096,6 +1096,7 @@ dom.world.addEventListener('mousedown', (e) => {
         let targetArray = null;
         let targetIndex = -1;
 
+        // Helper 1: For point-based objects (Spawns)
         const checkNearest = (arr) => {
             if (!arr) return;
             arr.forEach((item, index) => {
@@ -1104,18 +1105,38 @@ dom.world.addEventListener('mousedown', (e) => {
             });
         };
 
-        checkNearest(safeMapData.teleports);
-        checkNearest(safeMapData.normalSpawns);
-        checkNearest(safeMapData.miniBossSpawns);
-        checkNearest(safeMapData.floorBossSpawns);
+        // Helper 2: For box-based objects (Collisions & Teleports)
+        const checkInsideBox = (arr) => {
+            if (!arr) return;
+            arr.forEach((item, index) => {
+                if (item.w && item.h) { 
+                    if (hitX >= item.x && hitX <= item.x + item.w && hitY >= item.y && hitY <= item.y + item.h) {
+                        targetArray = arr;
+                        targetIndex = index;
+                    }
+                }
+            });
+        };
 
+        // 1. Check if we clicked inside a Box first (Walls or Teleports)
+        checkInsideBox(safeMapData.collisions);
+        if (targetIndex === -1) checkInsideBox(safeMapData.teleports);
+
+        // 2. If no box was clicked, check for nearby Spawns
+        if (targetIndex === -1) {
+            checkNearest(safeMapData.normalSpawns);
+            checkNearest(safeMapData.miniBossSpawns);
+            checkNearest(safeMapData.floorBossSpawns);
+        }
+
+        // 3. Execute the deletion if a target was found
         if (targetIndex !== -1) {
             targetArray.splice(targetIndex, 1);
             window.buildCollisionLayers(); 
             window.copyAdminData();        
             dom.log.innerText = `Deleted map object at ${hitX}, ${hitY}`;
         } else {
-            dom.log.innerText = "No spawn or teleport nearby to delete.";
+            dom.log.innerText = "No object here to delete.";
         }
         return; 
     }
@@ -2160,6 +2181,7 @@ function gameLoop(ts) {
 </script>
 </body>
 </html>
+
 
 
 
