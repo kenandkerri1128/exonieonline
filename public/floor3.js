@@ -790,8 +790,77 @@ var floor3MapData = {
             "targetMapId": "floor3"
         }
     ],
-    "normalSpawns": [],
-    "miniBossSpawns": [],
-    "floorBossSpawns": []
+    "normalSpawns": [
+        {
+            "x": 1737,
+            "y": 861,
+            "monsterKey": "common_mobs2",
+            "level": 15
+        },
+        {
+            "x": 1874,
+            "y": 1004,
+            "monsterKey": "common_mobs2",
+            "level": 15
+        },
+        {
+            "x": 1381,
+            "y": 1209,
+            "monsterKey": "common_mobs2",
+            "level": 15
+        },
+        {
+            "x": 1418,
+            "y": 204,
+            "monsterKey": "common_mobs2",
+            "level": 15
+        },
+        {
+            "x": 1041,
+            "y": 627,
+            "monsterKey": "common_mobs2",
+            "level": 15
+        },
+        {
+            "x": 217,
+            "y": 272,
+            "monsterKey": "common_mobs2",
+            "level": 15
+        },
+        {
+            "x": 179,
+            "y": 432,
+            "monsterKey": "common_mobs2",
+            "level": 15
+        },
+        {
+            "x": 1222,
+            "y": 1112,
+            "monsterKey": "common_mobs2",
+            "level": 15
+        }
+    ],
+    "miniBossSpawns": [
+        {
+            "x": 1522,
+            "y": 536,
+            "monsterKey": "mini_boss2",
+            "level": 30
+        },
+        {
+            "x": 864,
+            "y": 897,
+            "monsterKey": "mini_boss2",
+            "level": 30
+        }
+    ],
+    "floorBossSpawns": [
+        {
+            "x": 1766,
+            "y": 371,
+            "monsterKey": "floor_boss2",
+            "level": 40
+        }
+    ]
 };
 if(typeof window !== 'undefined') window['floor3MapData'] = floor3MapData;
