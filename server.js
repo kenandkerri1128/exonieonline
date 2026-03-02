@@ -95,12 +95,24 @@ function generateLoot(monster) {
 
     let item = { id: Date.now() + Math.random(), name: itemName, type: template.slot, sprite: rarityPrefix + template.spriteName, level: mLevel, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 };
     
+   // ✅ STRICT PENDANT 50% PENALTY ENFORCED
     let statVal = getBaseStat(mLevel) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0);
     if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); 
     item.fixedStat[template.statKey] = statVal;
     
+    // ✅ NEW: MULTIPLE BONUS STATS FOR HIGH RARITY
     item.randomStat = {};
-    item.randomStat[STAT_TYPES[Math.floor(Math.random() * STAT_TYPES.length)]] = Math.floor(Math.random() * getBaseStat(mLevel)) + 1;
+    let numStats = 1;
+    if (rarity === "Legendary") numStats = 2;
+    if (rarity === "Godly") numStats = 3;
+
+    // Clone the stat types so we can pick unique ones without repeating
+    let availableStats = [...STAT_TYPES]; 
+    for (let i = 0; i < numStats; i++) {
+        let rIdx = Math.floor(Math.random() * availableStats.length);
+        let sKey = availableStats.splice(rIdx, 1)[0]; // Pulls the stat out of the list
+        item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(mLevel)) + 1;
+    }
     
     return item;
 }
@@ -741,4 +753,5 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
