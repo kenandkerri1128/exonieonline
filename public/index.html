@@ -1120,8 +1120,8 @@ dom.world.addEventListener('mousedown', (e) => {
         return; 
     }
 
-    // LEFT-CLICK DRAWING
-    if (window.adminMode && e.button === 0) {
+    // LEFT-CLICK DRAWING & SPAWNING
+    if (window.adminMode && e.button !== 2) {
         if (e.altKey) {
             isDrawing = true; startX = e.offsetX; startY = e.offsetY; drawType = e.shiftKey ? 'teleport' : 'collision';
             currentBox = document.createElement('div'); currentBox.className = 'collision-box';
@@ -1149,7 +1149,6 @@ dom.world.addEventListener('mousedown', (e) => {
         }
     }
 });
-
 // ✅ MOUSE MOVE LOGIC
 dom.world.addEventListener('mousemove', (e) => {
     if (!isDrawing || !currentBox) return;
@@ -2158,6 +2157,7 @@ function gameLoop(ts) {
 </script>
 </body>
 </html>
+
 
 
 
