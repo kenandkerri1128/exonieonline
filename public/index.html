@@ -1086,7 +1086,7 @@ dom.world.addEventListener('contextmenu', (e) => {
 });
 
 dom.world.addEventListener('mousedown', (e) => {
-    // ✅ NEW RIGHT-CLICK DELETE LOGIC (Placed at the very top)
+    // ✅ RIGHT-CLICK DELETE LOGIC
     if (window.adminMode && e.button === 2) { 
         const rect = dom.world.getBoundingClientRect();
         const hitX = Math.round((e.clientX - rect.left) / CAMERA_ZOOM);
@@ -1100,11 +1100,7 @@ dom.world.addEventListener('mousedown', (e) => {
             if (!arr) return;
             arr.forEach((item, index) => {
                 let dist = Math.hypot(hitX - item.x, hitY - item.y);
-                if (dist < closestDist) {
-                    closestDist = dist;
-                    targetArray = arr;
-                    targetIndex = index;
-                }
+                if (dist < closestDist) { closestDist = dist; targetArray = arr; targetIndex = index; }
             });
         };
 
@@ -1121,7 +1117,7 @@ dom.world.addEventListener('mousedown', (e) => {
         } else {
             dom.log.innerText = "No spawn or teleport nearby to delete.";
         }
-        return; // Stops the script here so it doesn't try to draw boxes below!
+        return; // Stops the script here so it doesn't draw a box!
     }
 
     // -----------------------------------------------------
@@ -1155,7 +1151,6 @@ dom.world.addEventListener('mousedown', (e) => {
         }
     }
 });
-    dom.world.addEventListener('mousedown', (e) => {
 
     // ✅ NEW RIGHT-CLICK DELETE LOGIC (Placed at the very top)
     if (window.adminMode && e.button === 2) { 
@@ -2233,6 +2228,7 @@ function gameLoop(ts) {
 </script>
 </body>
 </html>
+
 
 
 
