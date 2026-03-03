@@ -313,6 +313,32 @@
 
         #trade-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 550px; background: rgba(20,20,20,0.98); border: 2px solid #2196F3; z-index: 4500; padding: 20px; box-shadow: 0 0 30px black; display: none; border-radius: 8px; }
         .trade-side { flex: 1; background: #111; padding: 10px; border: 1px solid #444; border-radius: 5px; }
+        /* ========================================== */
+        /* MOBILE RESPONSIVE OVERRIDES (UI & SCREENS) */
+        /* ========================================== */
+        @media (max-width: 950px) {
+            /* 1. Shrink the HUD Top Left */
+            #hud { width: 140px !important; padding: 8px !important; top: 10px !important; left: 10px !important; }
+            .stat-row { font-size: 11px !important; margin-bottom: 2px !important; }
+            .level-row { font-size: 12px !important; margin-bottom: 4px !important; }
+            .bar-container { height: 6px !important; margin-bottom: 6px !important; }
+            #hud div[style*="font-size: 14px"] { display: none !important; } /* Hides PC hotkey text */
+
+            /* 2. Fix Auth and Registration Forms */
+            .auth-container { width: 85% !important; padding: 20px !important; }
+            .auth-container h1 { font-size: 28px !important; }
+
+            /* 3. Stack Character Creation & Selection vertically */
+            #creation-screen, #select-screen { flex-direction: column !important; }
+            .stage-area { width: 100% !important; height: 45% !important; border-right: none !important; border-bottom: 2px solid #333 !important; }
+            .controls-area { width: 100% !important; height: 55% !important; padding: 15px !important; }
+            
+            /* 4. Un-block the "Enter World" button */
+            #select-name-display { font-size: 32px !important; margin-bottom: 0 !important; }
+            #select-level-display { font-size: 16px !important; margin-bottom: 10px !important; }
+            #select-rig { transform: scale(1) !important; margin-bottom: 10px !important; }
+            .btn-large { font-size: 14px !important; padding: 10px !important; margin-top: 5px !important; }
+        }
     </style>
 </head>
 <body>
@@ -1308,6 +1334,57 @@ window.respawn = function() {
     window.emitVitalsIfNeeded(true); // ✅ Fix: Tells the server you are alive
     if(socket) socket.emit('respawnPlayer'); 
 };
+    // ✅ MOBILE JOYSTICK LOGIC FIX
+let joystickActive = false;
+const joyStick = document.getElementById('mobile-controls');
+const joyKnob = document.getElementById('joystick-knob');
+
+joyStick.addEventListener('touchstart', (e) => { 
+    e.preventDefault(); e.stopPropagation(); 
+    joystickActive = true; moveJoystick(e); 
+}, { passive: false });
+
+joyStick.addEventListener('touchmove', (e) => { 
+    e.preventDefault(); e.stopPropagation(); 
+    if (joystickActive) moveJoystick(e); 
+}, { passive: false });
+
+joyStick.addEventListener('touchend', (e) => { 
+    e.preventDefault(); e.stopPropagation();
+    joystickActive = false; 
+    joyKnob.style.left = '50%'; joyKnob.style.top = '50%';
+    game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false; 
+});
+
+function moveJoystick(e) {
+    if (!joystickActive) return;
+    const rect = joyStick.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const touch = e.touches[0];
+    
+    let dx = touch.clientX - centerX;
+    let dy = touch.clientY - centerY;
+    
+    // Joystick base is 85px. Cap knob movement to ~25px from center.
+    const dist = Math.min(25, Math.hypot(dx, dy)); 
+    const angle = Math.atan2(dy, dx);
+    
+    joyKnob.style.left = `calc(50% + ${Math.cos(angle) * dist}px)`;
+    joyKnob.style.top = `calc(50% + ${Math.sin(angle) * dist}px)`;
+    
+    // Apply a slight deadzone (ignore tiny twitches)
+    const normX = dx / 25; 
+    const normY = dy / 25;
+    
+    game.keys.w = normY < -0.3; 
+    game.keys.s = normY > 0.3;
+    game.keys.a = normX < -0.3; 
+    game.keys.d = normX > 0.3;
+    
+    if (game.keys.a) window.facingRight = false;
+    if (game.keys.d) window.facingRight = true;
+}
 
 // ==========================================
 // 7. INPUT, NETWORKING & UI LISTENERS
@@ -2296,6 +2373,7 @@ window.addEventListener('click', (e) => {
 </script>
 </body>
 </html>
+
 
 
 
