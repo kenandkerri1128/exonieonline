@@ -220,6 +220,7 @@
     75% { transform: translate(3px, 2px) rotate(0deg); }
     100% { transform: translate(1px, -1px) rotate(-1deg); }
 }
+        
 
         /* ✅ INVENTORY WINDOW CSS UPDATED (PULLED OFF THE RIGHT WALL) */
         #inventory-screen { position: absolute; top: 20px; right: 20px; width: 350px; height: calc(100% - 40px); background-color: rgba(25, 25, 25, 0.98); border: 2px solid #555; border-radius: 8px; padding: 20px; z-index: 1000; display: none; box-sizing: border-box; box-shadow: -5px 0 20px rgba(0,0,0,0.8); overflow-y: auto; }
@@ -250,6 +251,34 @@
         #stat-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; background-color: rgba(30, 30, 30, 0.98); border: 2px solid #555; border-radius: 8px; padding: 20px; z-index: 1000; display: none; box-shadow: 0 0 20px black; }
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 18px; margin-bottom: 20px;}
         .stat-grid div span { color: #4CAF50; float: right; font-weight: bold;}
+        /* PATREON BUTTON STYLE */
+        .patreon-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background-color: #FF424D; /* Official Patreon Red */
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 15px;
+            border: none;
+            transition: transform 0.2s, background-color 0.2s;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .patreon-btn:hover { background-color: #e33b43; transform: translateY(-2px); }
+        .patreon-btn:active { transform: translateY(0); }
+        .patreon-logo { width: 20px; height: 20px; fill: white; }
+
+        /* Mobile specific adjustment for the button text */
+        @media (max-width: 950px) {
+            .patreon-btn { font-size: 14px; padding: 8px; }
+        }
 
         #inspect-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 520px; background-color: rgba(20, 20, 20, 0.98); border: 2px solid #777; border-radius: 10px; padding: 16px; z-index: 1200; display: none; box-shadow: 0 0 25px rgba(0,0,0,0.9); }
         #inspect-content { max-height: 60vh; overflow-y: auto; padding-right: 6px; }
@@ -717,6 +746,14 @@
                 <div>Defense: <span id="stat-def">0</span></div><div>Speed: <span id="stat-spd">0</span></div>
                 <div>Strength (STR): <span id="stat-str">0</span></div><div>Intelligence (INT): <span id="stat-int">0</span></div>
             </div>
+
+            <a href="https://www.patreon.com/c/xeniegaming" target="_blank" class="patreon-btn">
+                <svg class="patreon-logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 .48v23.04h4.22V.48H0zm15.385 0c-4.764 0-8.641 3.88-8.641 8.65 0 4.755 3.877 8.636 8.641 8.636 4.75 0 8.615-3.881 8.615-8.637 0-4.77-3.865-8.649-8.615-8.649z"/>
+                </svg>
+                Support on Patreon
+            </a>
+
             <button class="btn btn-large" style="margin-top: 10px; padding: 10px;" onclick="window.toggleStats()">Close (P)</button>
             <button class="btn btn-large" style="margin-top: 10px; padding: 10px; background:#f44336; border-color:#f44336;" onclick="window.logout()">Logout</button>
         </div>
@@ -2378,6 +2415,7 @@ window.addEventListener('click', (e) => {
 </script>
 </body>
 </html>
+
 
 
 
