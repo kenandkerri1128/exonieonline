@@ -288,8 +288,8 @@
         .m-btn:active { background: rgba(76, 175, 80, 0.9); transform: scale(0.9); }
         .m-btn-large { width: 48px; height: 48px; border-color: rgba(255, 152, 0, 0.8); font-size: 11px; }
 
-        /* Show mobile controls only on touch devices */
-        @media (pointer: coarse) {
+        /* Show mobile controls on touch devices OR small mobile screens */
+        @media (pointer: coarse), (max-width: 950px) {
             #mobile-controls, #mobile-actions { display: flex; }
         }
 
@@ -2296,6 +2296,7 @@ window.addEventListener('click', (e) => {
 </script>
 </body>
 </html>
+
 
 
 
