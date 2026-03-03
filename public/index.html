@@ -772,7 +772,9 @@ const skinFilters = { 'flesh': 'sepia(1) hue-rotate(-25deg) saturate(2.5) bright
 const hairFilters = { 'black': 'brightness(0.2)', 'blonde': 'sepia(1) hue-rotate(15deg) saturate(3) brightness(1.5)', 'brown': 'sepia(1) hue-rotate(330deg) saturate(2) brightness(0.6)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2) brightness(1)', 'white': 'grayscale(1) brightness(1.8) contrast(0.9)' };
 
 window.charData = { skinColor: 'flesh', hairColor: 'black', hairStyle: '1' }; 
-window.adminMode = false; const CAMERA_ZOOM = 1.8; const STAT_TYPES = ['attack', 'magic', 'defense', 'speed', 'int', 'str', 'hp'];
+window.adminMode = false; 
+let CAMERA_ZOOM = window.innerWidth <= 950 ? 1.2 : 1.8; 
+const STAT_TYPES = ['attack', 'magic', 'defense', 'speed', 'int', 'str', 'hp'];
 window.RARITY_COLORS = { "Starter": "#aaaaaa", "Basic": "#8B4513", "Rare": "#2196F3", "Unique": "#9c27b0", "Legendary": "#f44336", "Godly": "#e0ffff" };
 window.ITEM_TEMPLATES = { sword: { slot: 'weapon', statKey: 'attack', baseName: 'Sword', spriteName: 'sword' }, staff: { slot: 'weapon', statKey: 'magic', baseName: 'Staff', spriteName: 'staff' }, pendant: { slot: 'weapon', statKey: 'magic', baseName: 'Pendant', spriteName: 'pendant' }, armor: { slot: 'armor', statKey: 'defense', baseName: 'Armor', spriteName: 'armor' }, leggings: { slot: 'leggings', statKey: 'hp', baseName: 'Leggings', spriteName: 'leggings' } };
 
@@ -1334,7 +1336,7 @@ window.respawn = function() {
     window.emitVitalsIfNeeded(true); // ✅ Fix: Tells the server you are alive
     if(socket) socket.emit('respawnPlayer'); 
 };
-    // ✅ MOBILE JOYSTICK LOGIC FIX
+ // ✅ MOBILE JOYSTICK LOGIC FIX (GPU ACCELERATED FOR ZERO LAG)
 let joystickActive = false;
 const joyStick = document.getElementById('mobile-controls');
 const joyKnob = document.getElementById('joystick-knob');
@@ -1352,7 +1354,8 @@ joyStick.addEventListener('touchmove', (e) => {
 joyStick.addEventListener('touchend', (e) => { 
     e.preventDefault(); e.stopPropagation();
     joystickActive = false; 
-    joyKnob.style.left = '50%'; joyKnob.style.top = '50%';
+    // GPU Reset to center (No layout thrashing)
+    joyKnob.style.transform = `translate3d(-50%, -50%, 0)`;
     game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false; 
 });
 
@@ -1366,14 +1369,17 @@ function moveJoystick(e) {
     let dx = touch.clientX - centerX;
     let dy = touch.clientY - centerY;
     
-    // Joystick base is 85px. Cap knob movement to ~25px from center.
+    // Cap movement to 25px radius
     const dist = Math.min(25, Math.hypot(dx, dy)); 
     const angle = Math.atan2(dy, dx);
     
-    joyKnob.style.left = `calc(50% + ${Math.cos(angle) * dist}px)`;
-    joyKnob.style.top = `calc(50% + ${Math.sin(angle) * dist}px)`;
+    let moveX = Math.cos(angle) * dist;
+    let moveY = Math.sin(angle) * dist;
     
-    // Apply a slight deadzone (ignore tiny twitches)
+    // GPU Accelerated DOM Update (Uses Graphics Card instead of CPU)
+    joyKnob.style.transform = `translate3d(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px), 0)`;
+    
+    // Slight deadzone
     const normX = dx / 25; 
     const normY = dy / 25;
     
@@ -1385,7 +1391,6 @@ function moveJoystick(e) {
     if (game.keys.a) window.facingRight = false;
     if (game.keys.d) window.facingRight = true;
 }
-
 // ==========================================
 // 7. INPUT, NETWORKING & UI LISTENERS
 // ==========================================
@@ -2373,6 +2378,7 @@ window.addEventListener('click', (e) => {
 </script>
 </body>
 </html>
+
 
 
 
