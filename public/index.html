@@ -368,6 +368,27 @@
             #select-rig { transform: scale(1) !important; margin-bottom: 10px !important; }
             .btn-large { font-size: 14px !important; padding: 10px !important; margin-top: 5px !important; }
         }
+        /* --- PERFORMANCE & FPS CSS --- */
+        #fps-counter {
+            position: absolute; bottom: -20px; right: 0;
+            font-size: 10px; color: #4CAF50; font-family: monospace; font-weight: bold;
+        }
+
+        /* GPU Optimization Hints */
+        .entity, .monster-container, .player-avatar-container, .aura, .spark {
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+        }
+
+        /* LOW-END MODE OVERRIDES */
+        body.low-perf .monster-sprite-layer, 
+        body.low-perf .bat-sprite, 
+        body.low-perf .fire-sprite {
+            animation: none !important; 
+        }
+        body.low-perf .aura, body.low-perf .spark, body.low-perf .white-splash { 
+            display: none !important; 
+        }
     </style>
 </head>
 <body>
@@ -617,6 +638,7 @@
             </div>
         </div>
         <div id="hud">
+            <span id="fps-counter">FPS: 60</span>
             <div class="level-row"><span id="ui-name-display" style="color:#fff;">Player</span><span>Lv. <span id="ui-level-text">1</span></span></div>
             <div class="stat-row"><span>HP</span> <span id="ui-hp-text">100 / 100</span></div>
             <div class="bar-container"><div id="ui-hp-bar" class="hp-fill"></div></div>
@@ -754,7 +776,9 @@
                 </svg>
                 Support on Patreon
             </a>
-
+<button id="low-perf-btn" class="btn" style="width: 100%; margin-top: 10px; background: #555;" onclick="window.toggleLowEndMode()">
+                Low-End Mode: OFF
+            </button>
             <button class="btn btn-large" style="margin-top: 10px; padding: 10px;" onclick="window.toggleStats()">Close (P)</button>
             <button class="btn btn-large" style="margin-top: 10px; padding: 10px; background:#f44336; border-color:#f44336;" onclick="window.logout()">Logout</button>
         </div>
@@ -2387,6 +2411,79 @@ function gameLoop(ts) {
     
     requestAnimationFrame(gameLoop);
 }
+    // ==========================================
+// 11. PERFORMANCE & OPTIMIZATION TOOLS
+// ==========================================
+let lastLoopTime = performance.now();
+let frameCount = 0;
+let fpsDisplay = document.getElementById('fps-counter');
+
+// Check if phone was already marked as "Low-End" in memory
+let lowEndMode = localStorage.getItem('exonie_low_end') === 'true'; 
+let lowFpsTimer = 0;
+
+function updateFPS() {
+    let now = performance.now();
+    frameCount++;
+    
+    if (now - lastLoopTime >= 1000) {
+        let currentFps = frameCount;
+        if(fpsDisplay) {
+            fpsDisplay.innerText = `FPS: ${currentFps}`;
+            fpsDisplay.style.color = currentFps > 45 ? '#4CAF50' : (currentFps > 25 ? '#ffeb3b' : '#f44336');
+        }
+
+        // AUTO-DETECT LAG (If below 20 FPS for 5 continuous seconds)
+        if (!lowEndMode && currentFps < 20) {
+            lowFpsTimer++;
+            if (lowFpsTimer >= 5) {
+                window.toggleLowEndMode(true); 
+                if(dom.log) dom.log.innerText = "Performance alert: Auto-Optimization enabled.";
+            }
+        } else {
+            lowFpsTimer = 0; 
+        }
+
+        frameCount = 0;
+        lastLoopTime = now;
+    }
+    requestAnimationFrame(updateFPS);
+}
+updateFPS();
+
+window.toggleLowEndMode = function(isAuto = false) {
+    lowEndMode = isAuto ? true : !lowEndMode; 
+    localStorage.setItem('exonie_low_end', lowEndMode); 
+    
+    const btn = document.getElementById('low-perf-btn');
+    
+    if (lowEndMode) {
+        document.body.classList.add('low-perf');
+        if (btn) {
+            btn.innerText = isAuto ? "Auto-Optimized: ON" : "Low-End Mode: ON";
+            btn.style.background = "#4CAF50";
+        }
+        lowFpsTimer = 0;
+    } else {
+        document.body.classList.remove('low-perf');
+        if (btn) {
+            btn.innerText = "Low-End Mode: OFF";
+            btn.style.background = "#555";
+        }
+    }
+};
+
+// Apply saved setting immediately on load
+if (lowEndMode) {
+    document.body.classList.add('low-perf');
+    setTimeout(() => {
+        const btn = document.getElementById('low-perf-btn');
+        if (btn) {
+            btn.innerText = "Low-End Mode: ON";
+            btn.style.background = "#4CAF50";
+        }
+    }, 1000);
+}
     // ✅ PWA INSTALL LOGIC
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -2416,6 +2513,7 @@ window.addEventListener('click', (e) => {
 </script>
 </body>
 </html>
+
 
 
 
