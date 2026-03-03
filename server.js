@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const activeLogins = new Set(); // Tracks currently logged-in usernames
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
@@ -449,43 +450,58 @@ io.on('connection', (socket) => {
 
     socket.on('portalLeave', () => { const p = onlinePlayers[socket.id]; if(p) p.currentPortal = null; });
 
-    socket.on('register', async (data) => {
-        console.log(`[REGISTER ATTEMPT] User: ${data.username}`);
-        try {
-            const { username, password } = data;
-            if (!username || !password) return socket.emit('authError', 'Invalid data.');
-            const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', username).single();
-            if (existingUser) return socket.emit('authError', 'Username is already taken!');
-            const { error } = await supabase.from('Exonians').insert([{ character_name: username, password: password }]);
-            if (error) {
-                console.error(`[REGISTER ERROR] DB failed for ${username}:`, error.message);
-                return socket.emit('authError', `Database Error: ${error.message}`);
-            }
-            socket.emit('registerSuccess', username);
-        } catch(e) { 
-            console.error(`[REGISTER CRASH]`, e);
-            socket.emit('authError', 'Server Error'); 
+   socket.on('register', async (data) => {
+    console.log(`[REGISTER ATTEMPT] User: ${data.username}`);
+    try {
+        const { username, password } = data;
+        if (!username || !password) return socket.emit('authError', 'Invalid data.');
+        
+        const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', username).single();
+        if (existingUser) return socket.emit('authError', 'Username is already taken!');
+        
+        const { error } = await supabase.from('Exonians').insert([{ character_name: username, password: password }]);
+        if (error) {
+            console.error(`[REGISTER ERROR] DB failed for ${username}:`, error.message);
+            return socket.emit('authError', `Database Error: ${error.message}`);
         }
-    });
+        socket.emit('registerSuccess', username);
+    } catch(e) {
+        console.error(`[REGISTER CRASH]`, e);
+        socket.emit('authError', 'Server Error');
+    }
+});
 
     socket.on('login', async (data) => {
-        console.log(`[LOGIN ATTEMPT] User: ${data.username}`);
-        try {
-            const { username, password } = data;
-            const { data: user, error } = await supabase.from('Exonians').select('*').eq('character_name', username).eq('password', password).single();
-            if (error || !user) {
-                console.error(`[LOGIN FAILED] Invalid credentials for ${username}. Error:`, error?.message || 'No user found');
-                return socket.emit('authError', 'Invalid username or password.');
-            }
-            console.log(`[LOGIN SUCCESS] ${username} authenticated successfully.`);
-            currentUser = username;
-            if (!user.skin_color) socket.emit('needsCharacterCreation', username);
-            else socket.emit('characterSelect', user);
-        } catch(e) { 
-            console.error(`[LOGIN CRASH] Exception thrown for ${data.username}:`, e);
-            socket.emit('authError', 'Server Error'); 
+    console.log(`[LOGIN ATTEMPT] User: ${data.username}`);
+    try {
+        const { username, password } = data;
+
+        // ✅ NEW: Block if they are already logged in
+        if (activeLogins.has(username)) {
+            console.log(`[LOGIN BLOCKED] ${username} is already online.`);
+            return socket.emit('authError', 'This account is currently online elsewhere!');
         }
-    });
+
+        const { data: user, error } = await supabase.from('Exonians').select('*').eq('character_name', username).eq('password', password).single();
+        if (error || !user) {
+            console.error(`[LOGIN FAILED] Invalid credentials for ${username}. Error:`, error?.message || 'No user found');
+            return socket.emit('authError', 'Invalid username or password.');
+        }
+        
+        console.log(`[LOGIN SUCCESS] ${username} authenticated successfully.`);
+        
+        // ✅ NEW: Mark the user as actively online
+        activeLogins.add(username);
+        socket.username = username; 
+        
+        currentUser = username;
+        if (!user.skin_color) socket.emit('needsCharacterCreation', username);
+        else socket.emit('characterSelect', user);
+    } catch(e) {
+        console.error(`[LOGIN CRASH] Exception thrown for ${data.username}:`, e);
+        socket.emit('authError', 'Server Error');
+    }
+});
 
     socket.on('createCharacter', async (data) => {
         try {
@@ -751,21 +767,27 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', async () => {
-        const p = onlinePlayers[socket.id];
-        if (p) {
-            socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
-            if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
-                for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
-            }
-            removeFromParty(p.id);
-            supabase.from('Exonians').update({ pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
-            delete onlinePlayers[socket.id];
+    // ✅ NEW: Free up the account so they can log back in
+    if (socket.username) {
+        activeLogins.delete(socket.username);
+    }
+
+    const p = onlinePlayers[socket.id];
+    if (p) {
+        socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
+        if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
+            for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
         }
-    });
+        removeFromParty(p.id);
+        supabase.from('Exonians').update({ pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
+        delete onlinePlayers[socket.id];
+    }
+});
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
