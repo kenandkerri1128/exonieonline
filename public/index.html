@@ -257,36 +257,36 @@
         .inspect-title { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
         .inspect-item-name { font-weight: bold; font-size: 16px; } .inspect-sub { color: #aaa; font-size: 13px; }
         .inspect-stat { font-size: 13px; color: #e0e0e0; margin-top: 6px; line-height: 1.3; } .inspect-stat b { color: #4CAF50; } .inspect-empty { color: #888; font-style: italic; }
-       /* --- MOBILE UI CONTROLS --- */
+      /* --- MOBILE UI CONTROLS --- */
         #mobile-controls {
-            position: absolute; bottom: 20px; left: 20px; width: 130px; height: 130px;
-            background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.3);
+            position: absolute; bottom: 15px; left: 15px; width: 85px; height: 85px;
+            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 50%; z-index: 2000; display: none; touch-action: none;
         }
         #joystick-knob {
-            position: absolute; top: 50%; left: 50%; width: 50px; height: 50px;
-            background: rgba(76, 175, 80, 0.6); border-radius: 50%;
+            position: absolute; top: 50%; left: 50%; width: 35px; height: 35px;
+            background: rgba(76, 175, 80, 0.5); border-radius: 50%;
             transform: translate(-50%, -50%); pointer-events: none;
         }
         #mobile-actions {
-            position: absolute; bottom: 20px; right: 20px; display: none;
-            flex-direction: column; gap: 8px; z-index: 2000;
-            max-height: 85vh; /* ✅ Shrinks to fit screen height */
-            overflow-y: auto; /* ✅ Makes it scrollable */
-            overflow-x: hidden; padding-right: 5px; align-items: flex-end;
+            position: absolute; bottom: 15px; right: 15px; display: none;
+            flex-direction: column; gap: 6px; z-index: 2000;
+            max-height: 80vh; /* Extremely safe for landscape mode */
+            overflow-y: auto; /* Makes it scrollable if screen is very short */
+            overflow-x: hidden; padding-right: 4px; align-items: flex-end;
         }
-        /* ✅ Hides the ugly scrollbar on mobile while keeping scroll functionality */
+        /* Hides the scrollbar while keeping the scroll ability */
         #mobile-actions::-webkit-scrollbar { width: 0px; background: transparent; }
         
-        .m-row { display: flex; gap: 8px; justify-content: flex-end; width: 100%; }
+        .m-row { display: flex; gap: 6px; justify-content: flex-end; width: 100%; }
         .m-btn {
-            width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,0.7);
-            border: 2px solid #4CAF50; color: white; font-size: 11px; font-weight: bold;
+            width: 34px; height: 34px; border-radius: 50%; background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(76, 175, 80, 0.8); color: white; font-size: 9px; font-weight: bold;
             display: flex; justify-content: center; align-items: center; text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5); user-select: none; flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5); user-select: none; flex-shrink: 0;
         }
-        .m-btn:active { background: #4CAF50; transform: scale(0.9); }
-        .m-btn-large { width: 65px; height: 65px; border-color: #ff9800; font-size: 14px; }
+        .m-btn:active { background: rgba(76, 175, 80, 0.9); transform: scale(0.9); }
+        .m-btn-large { width: 48px; height: 48px; border-color: rgba(255, 152, 0, 0.8); font-size: 11px; }
 
         /* Show mobile controls only on touch devices */
         @media (pointer: coarse) {
@@ -862,10 +862,19 @@ window.cleanupMap = function() {
 // 3. SHOP & GOLD ECONOMY
 // ==========================================
 window.openShop = function() {
+    // ✅ TOGGLE FIX: If shopping is already open, close it and stop!
+    if (isShopping) {
+        window.closeShop();
+        return; 
+    }
+    
     isShopping = true;
     document.getElementById('shop-my-gold').innerText = game.player.gold || 0;
     document.getElementById('shop-screen').style.display = 'block';
+    
+    // Automatically opens inventory alongside shop for easy selling
     if (!isInventoryOpen) window.toggleInventory();
+    
     window.updatePotionPrice();
     window.updateStonePrice();
 }
@@ -2287,6 +2296,7 @@ window.addEventListener('click', (e) => {
 </script>
 </body>
 </html>
+
 
 
 
