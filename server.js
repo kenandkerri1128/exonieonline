@@ -382,9 +382,17 @@ io.on('connection', (socket) => {
         if (!global.playerFriends[me.id]) global.playerFriends[me.id] = new Set();
         if (!global.playerFriends[data.targetId]) global.playerFriends[data.targetId] = new Set();
 
-        // Add mutually
+        // Add mutually to active memory
         global.playerFriends[me.id].add(data.targetId);
         global.playerFriends[data.targetId].add(me.id);
+
+        // Convert the Sets back to Arrays so Supabase can read them
+        const myFriendsArray = Array.from(global.playerFriends[me.id]);
+        const targetFriendsArray = Array.from(global.playerFriends[data.targetId]);
+
+        // ✅ SAVE TO SUPABASE DATABASE FOR BOTH PLAYERS
+        supabase.from('Exonians').update({ friends: myFriendsArray }).eq('character_name', me.id).then(()=>{});
+        supabase.from('Exonians').update({ friends: targetFriendsArray }).eq('character_name', data.targetId).then(()=>{});
 
         socket.emit('systemMessage', `Added ${data.targetId} to friends list.`);
         sendFriendsUpdateTo(me.id);
@@ -553,37 +561,40 @@ io.on('connection', (socket) => {
 });
 
     socket.on('login', async (data) => {
-    console.log(`[LOGIN ATTEMPT] User: ${data.username}`);
-    try {
-        const { username, password } = data;
+        console.log(`[LOGIN ATTEMPT] User: ${data.username}`);
+        try {
+            const { username, password } = data;
 
-        // ✅ NEW: Block if they are already logged in
-        if (activeLogins.has(username)) {
-            console.log(`[LOGIN BLOCKED] ${username} is already online.`);
-            return socket.emit('authError', 'This account is currently online elsewhere!');
+            // Block if they are already logged in
+            if (activeLogins.has(username)) {
+                console.log(`[LOGIN BLOCKED] ${username} is already online.`);
+                return socket.emit('authError', 'This account is currently online elsewhere!');
+            }
+
+            const { data: user, error } = await supabase.from('Exonians').select('*').eq('character_name', username).eq('password', password).single();
+            if (error || !user) {
+                console.error(`[LOGIN FAILED] Invalid credentials for ${username}. Error:`, error?.message || 'No user found');
+                return socket.emit('authError', 'Invalid username or password.');
+            }
+            
+            console.log(`[LOGIN SUCCESS] ${username} authenticated successfully.`);
+            
+            // Mark the user as actively online
+            activeLogins.add(username);
+            socket.username = username; 
+            
+            // ✅ LOAD FRIENDS FROM SUPABASE DATABASE
+            if (!global.playerFriends) global.playerFriends = {};
+            global.playerFriends[username] = new Set(user.friends || []);
+
+            currentUser = username;
+            if (!user.skin_color) socket.emit('needsCharacterCreation', username);
+            else socket.emit('characterSelect', user);
+        } catch(e) {
+            console.error(`[LOGIN CRASH] Exception thrown for ${data.username}:`, e);
+            socket.emit('authError', 'Server Error');
         }
-
-        const { data: user, error } = await supabase.from('Exonians').select('*').eq('character_name', username).eq('password', password).single();
-        if (error || !user) {
-            console.error(`[LOGIN FAILED] Invalid credentials for ${username}. Error:`, error?.message || 'No user found');
-            return socket.emit('authError', 'Invalid username or password.');
-        }
-        
-        console.log(`[LOGIN SUCCESS] ${username} authenticated successfully.`);
-        
-        // ✅ NEW: Mark the user as actively online
-        activeLogins.add(username);
-        socket.username = username; 
-        
-        currentUser = username;
-        if (!user.skin_color) socket.emit('needsCharacterCreation', username);
-        else socket.emit('characterSelect', user);
-    } catch(e) {
-        console.error(`[LOGIN CRASH] Exception thrown for ${data.username}:`, e);
-        socket.emit('authError', 'Server Error');
-    }
-});
-
+    });
     socket.on('createCharacter', async (data) => {
         try {
             const { username, charData } = data;
@@ -868,6 +879,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
