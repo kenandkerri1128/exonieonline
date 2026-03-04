@@ -342,7 +342,7 @@
 
         #trade-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 550px; background: rgba(20,20,20,0.98); border: 2px solid #2196F3; z-index: 4500; padding: 20px; box-shadow: 0 0 30px black; display: none; border-radius: 8px; }
         .trade-side { flex: 1; background: #111; padding: 10px; border: 1px solid #444; border-radius: 5px; }
-        /* ========================================== */
+       /* ========================================== */
         /* MOBILE RESPONSIVE OVERRIDES (UI & SCREENS) */
         /* ========================================== */
         @media (max-width: 950px) {
@@ -367,6 +367,26 @@
             #select-level-display { font-size: 16px !important; margin-bottom: 10px !important; }
             #select-rig { transform: scale(1) !important; margin-bottom: 10px !important; }
             .btn-large { font-size: 14px !important; padding: 10px !important; margin-top: 5px !important; }
+
+            /* 5. Shrink Inventory */
+            #inventory-screen { 
+                width: 270px !important; 
+                right: 10px !important; 
+                padding: 10px !important; 
+            }
+            #inventory-screen h2 { font-size: 20px !important; margin-bottom: 5px !important; padding-bottom: 5px !important; }
+            .equip-box { padding: 5px 2px !important; font-size: 11px !important; }
+
+            /* 6. Move Shop Left & Shrink */
+            #shop-screen { 
+                width: 300px !important; 
+                left: 10px !important; /* Pins to the left side */
+                transform: translateY(-50%) !important; /* Removes horizontal centering */
+                padding: 12px !important; 
+            }
+            #shop-screen h2 { font-size: 18px !important; margin-bottom: 5px !important; }
+            .shop-item-row { padding: 8px 0 !important; }
+            .shop-buy-btn { font-size: 13px !important; padding: 6px 10px !important; }
         }
         /* --- PERFORMANCE & FPS CSS --- */
         #fps-counter {
@@ -2513,6 +2533,7 @@ window.addEventListener('click', (e) => {
 </script>
 </body>
 </html>
+
 
 
 
