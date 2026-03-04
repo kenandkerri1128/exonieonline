@@ -409,6 +409,34 @@
         body.low-perf .aura, body.low-perf .spark, body.low-perf .white-splash { 
             display: none !important; 
         }
+        /* --- FRIENDS SYSTEM & UI --- */
+        #friends-screen { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            width: 350px; background: rgba(20,20,20,0.98); border: 2px solid #2196F3; 
+            border-radius: 8px; padding: 20px; z-index: 2500; display: none; 
+            box-shadow: 0 0 30px #000; max-height: 60vh; overflow-y: auto; 
+        }
+        #friends-screen h2 { margin-top: 0; color: #2196F3; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .friend-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #333; }
+        .friend-row:last-child { border-bottom: none; }
+        .friend-info { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 16px; font-weight: bold; }
+        
+        /* The Glowing Dot */
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .status-dot.online { background: #4CAF50; box-shadow: 0 0 8px #4CAF50; }
+        .status-dot.offline { background: #555; }
+        
+        .dm-btn { background: #9c27b0; border: none; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: 'MedievalSharp', cursive; }
+        .dm-btn:hover { background: #7b1fa2; }
+        
+        /* Direct Message Chat Color */
+        .chat-dm { color: #e040fb !important; font-weight: bold; }
+
+        @media (max-width: 950px) {
+            #friends-screen { width: 280px !important; padding: 10px !important; }
+            .friend-info { font-size: 14px !important; }
+            .dm-btn { font-size: 12px !important; padding: 5px 8px !important; }
+        }
     </style>
 </head>
 <body>
@@ -469,9 +497,10 @@
         <button class="ctx-btn" id="ctx-btn-throw" style="color: #f44336;" onmousedown="window.actionThrow(event)">Throw</button>
     </div>
     
-    <div id="player-context-menu">
+  <div id="player-context-menu">
         <button class="ctx-btn" style="border-bottom: 1px solid #444;" onmousedown="window.inspectTargetPlayer()">Inspect</button>
         <button class="ctx-btn" style="border-bottom: 1px solid #444;" onmousedown="window.inviteTargetToParty()">Invite Party</button>
+        <button class="ctx-btn" style="border-bottom: 1px solid #444;" onmousedown="window.requestAddFriend()">Add Friend</button>
         <button class="ctx-btn" onmousedown="window.requestTrade()">Trade</button>
     </div>
 
@@ -542,7 +571,13 @@
         <p style="text-align:center; color:#4CAF50; font-size:13px; background:rgba(0,0,0,0.5); padding:8px; border-radius:4px; margin-bottom: 0;">Tip: Click items in your <b>Inventory (I)</b> to sell them while this shop is open!</p>
         <button class="btn btn-large" style="margin-top: 15px; padding: 10px; background:#555; border-color:#555;" onclick="window.closeShop()">Close Shop (J)</button>
     </div>
-    
+    <div id="friends-screen">
+        <h2>Friends List</h2>
+        <div id="friends-list-container">
+            <p style="text-align:center; color:#aaa;">Loading friends...</p>
+        </div>
+        <button class="btn btn-large" style="background:#555; border-color:#555;" onclick="window.toggleFriends()">Close (F)</button>
+    </div>
     <div id="auth-screen" class="screen active" style="background: url('town_map.png') center/cover; position: relative;">
         <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); z-index: 1;"></div>
         <div class="auth-container" id="login-form">
@@ -641,9 +676,10 @@
                 <div class="m-btn" onclick="window.openShop()">Shop</div>
             </div>
             
-            <div class="m-row">
+          <div class="m-row">
                 <div class="m-btn" onclick="window.toggleInventory()">Inv</div>
                 <div class="m-btn" onclick="window.toggleSkillScreen()">Skills</div>
+                <div class="m-btn" style="border-color: #2196F3;" onclick="window.toggleFriends()">Frnd</div>
             </div>
 
             <div class="m-row">
@@ -664,7 +700,7 @@
             <div class="bar-container"><div id="ui-hp-bar" class="hp-fill"></div></div>
             <div class="stat-row"><span>EXP</span> <span id="ui-exp-text">0 / 100</span></div>
             <div class="bar-container" style="height: 6px;"><div id="ui-exp-bar" class="exp-fill"></div></div>
-            <div style="font-size: 14px; color: #aaa; margin-top: 8px; font-weight: bold;">[I] Inventory - [P] Profile Page - [K] Skills - [B] Auto Attack - [J] Shop</div>
+            <div style="font-size: 14px; color: #aaa; margin-top: 8px; font-weight: bold;">[I] Inventory - [P] Profile Page - [K] Skills - [B] Auto Attack - [J] Shop - [F] Friends List</div>
             
             <div id="party-panel">
                 <div id="party-title">Party</div>
@@ -1476,6 +1512,44 @@ function moveJoystick(e) {
 // ==========================================
 // 7. INPUT, NETWORKING & UI LISTENERS
 // ==========================================
+    // ✅ FRIENDS & DM LOGIC
+let isFriendsOpen = false;
+
+window.toggleFriends = function() {
+    isFriendsOpen = !isFriendsOpen;
+    document.getElementById('friends-screen').style.display = isFriendsOpen ? 'block' : 'none';
+    if (isFriendsOpen && socket) {
+        socket.emit('getFriendsList'); // Fetch fresh online status when opening
+    }
+};
+
+window.requestAddFriend = function() {
+    if (!activeTargetPlayerId) return;
+    document.getElementById('player-context-menu').style.display = 'none';
+    if(socket) socket.emit('addFriend', { targetId: activeTargetPlayerId });
+};
+
+window.promptDM = function(targetName) {
+    let msg = prompt(`Send Direct Message to ${targetName}:`);
+    if (msg && msg.trim() !== '') {
+        if(socket) socket.emit('sendDM', { targetId: targetName, message: msg.trim() });
+    }
+};
+
+// Play an audio ping when receiving a DM (Using your splash sound as a placeholder ping)
+window.playDMSound = function() {
+    let audio = new Audio('music/splash.mp3'); 
+    audio.volume = 0.9; 
+    audio.play().catch(e => {});
+};
+
+// Hook the 'F' key to open friends list
+const originalSetKeyState = window.setKeyState; // Backup your existing key listener
+window.addEventListener('keydown', (e) => {
+    if (!isChatting && e.key.toLowerCase() === 'f') {
+        window.toggleFriends();
+    }
+});
 window.openPlayerContextMenu = function(targetId, e) { activeTargetPlayerId = targetId; const menu = document.getElementById('player-context-menu'); menu.style.display = 'flex'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px'; }; 
 
 window.inspectTargetPlayer = function() { 
@@ -1741,6 +1815,41 @@ if(socket) {
     socket.on('partyError', (msg) => { dom.log.innerText = msg; });
     socket.on('partyKickedOrLeft', () => { dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; game.party = null; dom.log.innerText = "You are no longer in a party."; });
     socket.on('chatMessage', (data) => { if (data.id === game.player.id) return; const p = game.remotePlayers[data.id]; if (p) window.showBubble(p, data.text); });
+    // ✅ FRIENDS SOCKET LISTENERS
+    socket.on('friendsListUpdate', (friendsList) => {
+        const container = document.getElementById('friends-list-container');
+        container.innerHTML = '';
+        
+        if (!friendsList || friendsList.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#aaa;">Your friends list is empty.</p>';
+            return;
+        }
+
+        friendsList.forEach(f => {
+            const row = document.createElement('div');
+            row.className = 'friend-row';
+            row.innerHTML = `
+                <div class="friend-info">
+                    <div class="status-dot ${f.online ? 'online' : 'offline'}"></div>
+                    ${f.id}
+                </div>
+                <button class="dm-btn" onclick="window.promptDM('${f.id}')">DM</button>
+            `;
+            container.appendChild(row);
+        });
+    });
+
+    socket.on('receiveDM', (data) => {
+        // Log to combat chat and play sound
+        dom.log.innerHTML = `<span class="chat-dm">[DM] ${data.from}: ${data.message}</span>`;
+        if (!data.from.startsWith('To ')) {
+            window.playDMSound(); // Only ping if you are receiving, not sending
+        }
+    });
+
+    socket.on('systemMessage', (msg) => {
+        dom.log.innerHTML = `<span style="color:#ffeb3b;">[System] ${msg}</span>`;
+    });
 
     socket.on('forceTeleport', (tp) => { 
         window.loadMapScript(tp.mapId, () => { 
@@ -2533,6 +2642,7 @@ window.addEventListener('click', (e) => {
 </script>
 </body>
 </html>
+
 
 
 
