@@ -816,8 +816,53 @@ var floor4MapData = {
             "targetMapId": "floor5"
         }
     ],
-    "normalSpawns": [],
-    "miniBossSpawns": [],
-    "floorBossSpawns": []
+    "normalSpawns": [
+        {
+            "x": 283,
+            "y": 706,
+            "monsterKey": "common_mobs2",
+            "level": 35
+        },
+        {
+            "x": 279,
+            "y": 348,
+            "monsterKey": "common_mobs2",
+            "level": 35
+        },
+        {
+            "x": 1023,
+            "y": 652,
+            "monsterKey": "common_mobs2",
+            "level": 35
+        },
+        {
+            "x": 462,
+            "y": 1081,
+            "monsterKey": "common_mobs2",
+            "level": 35
+        },
+        {
+            "x": 1281,
+            "y": 976,
+            "monsterKey": "common_mobs2",
+            "level": 35
+        }
+    ],
+    "miniBossSpawns": [
+        {
+            "x": 897,
+            "y": 1007,
+            "monsterKey": "mini_boss2",
+            "level": 45
+        }
+    ],
+    "floorBossSpawns": [
+        {
+            "x": 1721,
+            "y": 796,
+            "monsterKey": "floor_boss2",
+            "level": 55
+        }
+    ]
 };
 if(typeof window !== 'undefined') window['floor4MapData'] = floor4MapData;
