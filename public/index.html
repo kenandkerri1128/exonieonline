@@ -1536,11 +1536,49 @@ window.promptDM = function(targetName) {
     }
 };
 
-// Play an audio ping when receiving a DM (Using your splash sound as a placeholder ping)
+// ✅ PLAY A SHARP, SYNTHESIZED NOTIFICATION PING
 window.playDMSound = function() {
-    let audio = new Audio('music/splash.mp3'); 
-    audio.volume = 0.9; 
-    audio.play().catch(e => {});
+    try {
+        // 1. Generate a loud "Ding!" sound without needing an mp3 file
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+        
+        // Resume context in case browser paused it
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        oscillator.type = 'triangle'; 
+        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Start pitch
+        oscillator.frequency.exponentialRampToValueAtTime(1174.66, audioCtx.currentTime + 0.1); // Spike the pitch
+
+        gainNode.gain.setValueAtTime(0.7, audioCtx.currentTime); // Volume (70%)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); // Fade out quickly
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.5);
+
+        // 2. VISUAL NOTIFICATION: Flash the chat log background purple
+        const chatLog = document.getElementById('chat-log');
+        if (chatLog) {
+            chatLog.style.backgroundColor = 'rgba(156, 39, 176, 0.4)'; // Purple flash
+            chatLog.style.transition = 'background-color 0s'; // Instant on
+            
+            setTimeout(() => {
+                chatLog.style.transition = 'background-color 0.5s ease'; // Slow fade off
+                chatLog.style.backgroundColor = 'transparent';
+            }, 150);
+        }
+
+    } catch (e) {
+        console.warn("Browser blocked audio notification.", e);
+    }
 };
 
 // Hook the 'F' key to open friends list
@@ -2642,6 +2680,7 @@ window.addEventListener('click', (e) => {
 </script>
 </body>
 </html>
+
 
 
 
