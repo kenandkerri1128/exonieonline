@@ -598,15 +598,23 @@ io.on('connection', (socket) => {
     socket.on('createCharacter', async (data) => {
         try {
             const { username, charData } = data;
+            
+            // ✅ Leave 'weapon' null so their hands are empty, but keep basic clothes on
             const starterEquips = {
-                weapon: { id: Date.now() + 1, name: "Starter Sword", type: "weapon", sprite: "startersword", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { attack: 3 } },
-                armor: { id: Date.now() + 2, name: "Starter Armor", type: "armor", sprite: "starterarmor", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { defense: 2 } },
-                leggings: { id: Date.now() + 3, name: "Starter Leggings", type: "leggings", sprite: "starterleggings", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { hp: 5 } }
+                weapon: null, 
+                armor: { id: Date.now() + Math.random(), name: "Starter Armor", type: "armor", sprite: "starterarmor", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { defense: 2 } },
+                leggings: { id: Date.now() + Math.random(), name: "Starter Leggings", type: "leggings", sprite: "starterleggings", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { hp: 5 } }
             };
 
-            const starterInventory = new Array(20).fill(null);
-            starterInventory[0] = { id: Date.now() + 4, name: "Starter Staff", type: "weapon", sprite: "starterstaff", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 3 } };
-            starterInventory[1] = { id: Date.now() + 5, name: "Starter Pendant", type: "weapon", sprite: "starterpendant", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 2 } };
+            const starterInventory = [];
+            for (let i = 0; i < 20; i++) {
+                starterInventory.push(null);
+            }
+            
+            // ✅ Pack ALL THREE weapons into the first three inventory slots
+            starterInventory[0] = { id: Date.now() + Math.random(), name: "Starter Sword", type: "weapon", sprite: "startersword", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { attack: 3 } };
+            starterInventory[1] = { id: Date.now() + Math.random(), name: "Starter Staff", type: "weapon", sprite: "starterstaff", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 3 } };
+            starterInventory[2] = { id: Date.now() + Math.random(), name: "Starter Pendant", type: "weapon", sprite: "starterpendant", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 2 } };
 
             const { data: user, error } = await supabase.from('Exonians')
                 .update({ 
@@ -619,10 +627,16 @@ io.on('connection', (socket) => {
                 .eq('character_name', username)
                 .select().single();
             
-            if (error) return socket.emit('authError', 'Failed to create character.');
+            if (error) {
+                console.error("[CREATE CHAR ERROR] Supabase rejected the items:", error);
+                return socket.emit('authError', 'Failed to save starter items. Check server console.');
+            }
+            
             if (user) socket.emit('characterSelect', user);
+            
         } catch(e) { 
-            socket.emit('authError', 'Server Error during creation.'); 
+            console.error("[CREATE CHAR CRASH]", e);
+            socket.emit('authError', 'Server Error during character creation.'); 
         }
     });
 
@@ -879,6 +893,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
