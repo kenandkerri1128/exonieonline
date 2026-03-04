@@ -42,20 +42,32 @@ function getBaseStat(lvl) {
 }
 
 function generateLoot(monster) {
-    const mLevel = monster.level || 5;
+    // ==========================================
+    // 1. CALCULATE ITEM DROP LEVEL (90% Same, 10% Lower)
+    // ==========================================
+    let baseLevel = monster.level || 5;
+    let mLevel = baseLevel;
+    
+    // 10% chance to drop a lower level tier (subtracts up to 5 levels, minimum 1)
+    if (Math.random() > 0.90) {
+        mLevel = Math.max(1, baseLevel - 5);
+    }
 
-    // 50% chance for a Refinement Stone Drop
+    // ==========================================
+    // 2. REFINEMENT STONE DROP (50% Chance)
+    // ==========================================
     if (Math.random() < 0.50) {
         let stoneRarity = "Basic";
         let r = Math.random();
         
         if (monster.category === "floor_boss") {
-            if(r < 0.10) stoneRarity = "Godly";
-            else if(r < 0.30) stoneRarity = "Legendary";
-            else if(r < 0.60) stoneRarity = "Unique";
-            else if(r < 0.85) stoneRarity = "Rare";
-            else stoneRarity = "Basic";
-        } else if (monster.category === "_boss") {
+            // 👑 FLOOR BOSS DROP RATES FOR STONES
+            if (r <= 0.05) stoneRarity = "Godly";          // 5% chance
+            else if (r <= 0.30) stoneRarity = "Legendary"; // 25% chance
+            else if (r <= 0.60) stoneRarity = "Unique";    // 30% chance
+            else if (r <= 0.85) stoneRarity = "Rare";      // 25% chance
+            else stoneRarity = "Basic";                    // 15% chance
+        } else if (monster.category === "mini_boss") {
             stoneRarity = r < 0.35 ? "Unique" : "Rare";
         } else {
             stoneRarity = r < 0.15 ? "Rare" : "Basic";
@@ -69,7 +81,9 @@ function generateLoot(monster) {
         };
     }
 
-    // 50% chance for Gear Drop
+    // ==========================================
+    // 3. GEAR DROP (50% Chance)
+    // ==========================================
     const keys = Object.keys(ITEM_TEMPLATES);
     const typeKey = keys[Math.floor(Math.random() * keys.length)];
     
@@ -77,11 +91,12 @@ function generateLoot(monster) {
     let rarity = "Basic";
     
     if (monster.category === "floor_boss") {
-        if(rarityRoll < 0.10) rarity = "Godly";
-        else if(rarityRoll < 0.30) rarity = "Legendary";
-        else if(rarityRoll < 0.60) rarity = "Unique";
-        else if(rarityRoll < 0.85) rarity = "Rare";
-        else rarity = "Basic";
+        // 👑 FLOOR BOSS DROP RATES FOR GEAR
+        if (rarityRoll <= 0.05) rarity = "Godly";          // 5% chance
+        else if (rarityRoll <= 0.30) rarity = "Legendary"; // 25% chance
+        else if (rarityRoll <= 0.60) rarity = "Unique";    // 30% chance
+        else if (rarityRoll <= 0.85) rarity = "Rare";      // 25% chance
+        else rarity = "Basic";                             // 15% chance
     } else if (monster.category === "mini_boss") {
         rarity = rarityRoll < 0.35 ? "Unique" : "Rare";
     } else {
@@ -96,12 +111,12 @@ function generateLoot(monster) {
 
     let item = { id: Date.now() + Math.random(), name: itemName, type: template.slot, sprite: rarityPrefix + template.spriteName, level: mLevel, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 };
     
-   // ✅ STRICT PENDANT 50% PENALTY ENFORCED
+    // ✅ STRICT PENDANT 50% PENALTY ENFORCED
     let statVal = getBaseStat(mLevel) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0);
     if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); 
     item.fixedStat[template.statKey] = statVal;
     
-    // ✅ NEW: MULTIPLE BONUS STATS FOR HIGH RARITY
+    // ✅ MULTIPLE BONUS STATS FOR HIGH RARITY
     item.randomStat = {};
     let numStats = 1;
     if (rarity === "Legendary") numStats = 2;
@@ -787,6 +802,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
