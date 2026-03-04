@@ -1909,7 +1909,7 @@ if(socket) {
                 window.emitVitalsIfNeeded(true); // ✅ Forces the server to cache your true Max HP immediately!
                 if(safeMapData.id === 'town') { document.querySelectorAll('.monster-container').forEach(el => el.remove()); game.monsters = {}; }
                 socket.on('requestMapSync', (req) => { window.loadMapScript(req.mapId, () => { let mapPayload = Object.assign({}, window.MapDatabase[req.mapId], { instanceId: req.instanceId }); socket.emit('syncMapData', mapPayload); }); });
-                window.playBGM(safeMapData.id.includes('floor') ? 'floors' : 'town'); game.isRunning = true; requestAnimationFrame(gameLoop);
+                window.playBGM(safeMapData.id.includes('floor') ? 'floors' : 'town'); game.isRunning = true; window.showMapAnnouncement(safeMapData.id); requestAnimationFrame(gameLoop);
             });
         });
     });
@@ -2635,24 +2635,55 @@ function gameLoop(ts) {
         });
     }
 
+   // ✅ NEW 2-SECOND PORTAL DELAY LOGIC
     if (game.player.teleportCooldown > 0) game.player.teleportCooldown -= 16;
-    if (game.player.teleportCooldown <= 0 && isMoving && !game.isGhost) {
-        const hitX = game.player.x + 12; const hitY = game.player.y + 76; const tps = safeMapData.teleports || []; let onPortal = null;
-        for (let box of tps) { if (hitX < box.x + box.w && hitX + 24 > box.x && hitY < box.y + box.h && hitY + 20 > box.y) onPortal = box; }
+    if (game.player.teleportCooldown <= 0 && !game.isGhost) {
+        const hitX = game.player.x + 12; const hitY = game.player.y + 76; 
+        const tps = safeMapData.teleports || []; 
+        let onPortal = null;
+        
+        for (let box of tps) { 
+            if (hitX < box.x + box.w && hitX + 24 > box.x && hitY < box.y + box.h && hitY + 20 > box.y) onPortal = box; 
+        }
+        
+        const uiTimer = document.getElementById('portal-timer-ui');
+        const uiSec = document.getElementById('portal-timer-sec');
+
         if (onPortal) { 
+            // 1. Initialize the timer if they just stepped on it
             if (game.player.currentPortal !== onPortal.portalId) { 
                 game.player.currentPortal = onPortal.portalId; 
-                if(socket) socket.emit('portalStep', { portalId: onPortal.portalId, targetMapId: onPortal.targetMapId }); 
+                game.player.portalEntryTime = Date.now(); // Start the clock
+                uiTimer.style.display = 'block';
             } 
+            
+            // 2. Calculate time spent on portal
+            if (game.player.portalEntryTime) {
+                let elapsed = Date.now() - game.player.portalEntryTime;
+                let remaining = Math.max(0, 2000 - elapsed);
+                
+                // 3. Update the UI Text (e.g., "1.5s")
+                if (uiSec) uiSec.innerText = (remaining / 1000).toFixed(1);
+                
+                // 4. Trigger teleport if 2 seconds have passed
+                if (remaining <= 0 && !game.player.isTeleporting) {
+                    game.player.isTeleporting = true; // Lock it so it only fires once
+                    uiTimer.style.display = 'none';
+                    if(socket) socket.emit('portalStep', { portalId: onPortal.portalId, targetMapId: onPortal.targetMapId }); 
+                }
+            }
         } 
         else { 
+            // Player stepped OFF the portal - Cancel everything!
             if (game.player.currentPortal !== null) { 
                 game.player.currentPortal = null; 
+                game.player.portalEntryTime = null;
+                game.player.isTeleporting = false;
+                uiTimer.style.display = 'none';
                 if(socket) socket.emit('portalLeave'); 
             } 
         }
     }
-
     dom.playerContainer.style.left = game.player.x + 'px'; dom.playerContainer.style.top = game.player.y + 'px'; 
     const cameraX = Math.floor((window.innerWidth / 2) - (game.player.x * CAMERA_ZOOM) - (game.player.width * CAMERA_ZOOM / 2)); 
     const cameraY = Math.floor((window.innerHeight / 2) - (game.player.y * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2)); 
@@ -2777,6 +2808,7 @@ window.addEventListener('click', (e) => {
 </script>
 </body>
 </html>
+
 
 
 
