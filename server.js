@@ -348,7 +348,73 @@ setInterval(() => {
 
 io.on('connection', (socket) => {
     let currentUser = null; 
+// ✅ BACKEND FRIENDS & DM LOGIC
+    // Note: For now, friendships are stored in-memory. 
+    // If the server restarts, players will need to re-add friends.
+    if (!global.playerFriends) global.playerFriends = {};
 
+    function sendFriendsUpdateTo(username) {
+        const sid = findSocketIdByPlayerId(username);
+        if (!sid) return;
+
+        // 👑 ADMIN OVERRIDE: Kei sees all online players in the server
+        if (username === 'Kei') {
+            const allOnline = Object.values(onlinePlayers)
+                .filter(p => p.id !== 'Kei') // Don't show Kei to themselves
+                .map(p => ({ id: p.id, online: true }));
+            io.to(sid).emit('friendsListUpdate', allOnline);
+            return;
+        }
+
+        // Standard Player Logic
+        const myFriends = global.playerFriends[username] ? Array.from(global.playerFriends[username]) : [];
+        const friendData = myFriends.map(f => ({
+            id: f,
+            online: activeLogins.has(f)
+        }));
+        io.to(sid).emit('friendsListUpdate', friendData);
+    }
+
+    socket.on('addFriend', (data) => {
+        const me = onlinePlayers[socket.id];
+        if (!me || !data.targetId) return;
+
+        if (!global.playerFriends[me.id]) global.playerFriends[me.id] = new Set();
+        if (!global.playerFriends[data.targetId]) global.playerFriends[data.targetId] = new Set();
+
+        // Add mutually
+        global.playerFriends[me.id].add(data.targetId);
+        global.playerFriends[data.targetId].add(me.id);
+
+        socket.emit('systemMessage', `Added ${data.targetId} to friends list.`);
+        sendFriendsUpdateTo(me.id);
+
+        const targetSid = findSocketIdByPlayerId(data.targetId);
+        if (targetSid) {
+            io.to(targetSid).emit('systemMessage', `${me.id} added you as a friend.`);
+            sendFriendsUpdateTo(data.targetId);
+        }
+    });
+
+    socket.on('sendDM', (data) => {
+        const me = onlinePlayers[socket.id];
+        if (!me || !data.targetId || !data.message) return;
+
+        const targetSid = findSocketIdByPlayerId(data.targetId);
+        if (targetSid) {
+            // Send to target
+            io.to(targetSid).emit('receiveDM', { from: me.id, message: data.message });
+            // Echo back to sender
+            socket.emit('receiveDM', { from: `To ${data.targetId}`, message: data.message }); 
+        } else {
+            socket.emit('systemMessage', `${data.targetId} is currently offline.`);
+        }
+    });
+
+    socket.on('getFriendsList', () => {
+        const me = onlinePlayers[socket.id];
+        if (me) sendFriendsUpdateTo(me.id);
+    });
     socket.on('saveMapFile', (data) => {
         if (!data.mapId || !data.content) return;
         const fileName = data.mapId === 'town' ? 'townmap.js' : `${data.mapId}.js`;
@@ -802,6 +868,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
