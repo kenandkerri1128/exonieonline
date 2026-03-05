@@ -353,25 +353,42 @@ io.on('connection', (socket) => {
     // If the server restarts, players will need to re-add friends.
     if (!global.playerFriends) global.playerFriends = {};
 
-    function sendFriendsUpdateTo(username) {
+   function sendFriendsUpdateTo(username) {
         const sid = findSocketIdByPlayerId(username);
         if (!sid) return;
 
-        // 👑 ADMIN OVERRIDE: Kei sees all online players in the server
+        // 👑 ADMIN OVERRIDE: Kei sees all online players in the server (Now with Levels!)
         if (username === 'Kei') {
             const allOnline = Object.values(onlinePlayers)
                 .filter(p => p.id !== 'Kei') // Don't show Kei to themselves
-                .map(p => ({ id: p.id, online: true }));
+                .map(p => ({ id: p.id, online: true, level: p.level || 1 }));
             io.to(sid).emit('friendsListUpdate', allOnline);
             return;
         }
 
-        // Standard Player Logic
+        // Standard Player Logic (Now with Levels!)
         const myFriends = global.playerFriends[username] ? Array.from(global.playerFriends[username]) : [];
-        const friendData = myFriends.map(f => ({
-            id: f,
-            online: activeLogins.has(f)
-        }));
+        const friendData = myFriends.map(f => {
+            let isOnline = activeLogins.has(f);
+            let currentLevel = 1;
+            
+            // Loop through active online players to grab their live level if they are online
+            if (isOnline) {
+                for (let activeId in onlinePlayers) {
+                    if (onlinePlayers[activeId].id === f) {
+                        currentLevel = onlinePlayers[activeId].level || 1;
+                        break;
+                    }
+                }
+            }
+
+            return { 
+                id: f, 
+                online: isOnline, 
+                level: currentLevel 
+            };
+        });
+        
         io.to(sid).emit('friendsListUpdate', friendData);
     }
 
@@ -803,7 +820,11 @@ io.on('connection', (socket) => {
         if (playerParty[me.id] && playerParty[me.id] !== pid) { removeFromParty(me.id); }
         parties[pid].members.add(me.id); playerParty[me.id] = pid; emitPartyUpdate(pid);
     });
-
+// ✅ GLOBAL ADMIN BROADCAST
+    socket.on('adminBroadcast', (data) => {
+        // Broadcasts an unmissable yellow system message to EVERY single player online
+        io.emit('systemMessage', `[SERVER ANNOUNCEMENT] ${data.text}`);
+    });
     socket.on('leaveParty', () => {
         const p = onlinePlayers[socket.id];
         if (p && playerParty[p.id]) {
@@ -893,6 +914,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
