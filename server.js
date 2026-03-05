@@ -353,11 +353,12 @@ io.on('connection', (socket) => {
     // If the server restarts, players will need to re-add friends.
     if (!global.playerFriends) global.playerFriends = {};
 
-   function sendFriendsUpdateTo(username) {
+  // ✅ MADE ASYNC TO FETCH OFFLINE LEVELS FROM SUPABASE
+    async function sendFriendsUpdateTo(username) {
         const sid = findSocketIdByPlayerId(username);
         if (!sid) return;
 
-        // 👑 ADMIN OVERRIDE: Kei sees all online players in the server (Now with Levels!)
+        // 👑 ADMIN OVERRIDE: Kei sees all online players in the server
         if (username === 'Kei') {
             const allOnline = Object.values(onlinePlayers)
                 .filter(p => p.id !== 'Kei') // Don't show Kei to themselves
@@ -366,27 +367,41 @@ io.on('connection', (socket) => {
             return;
         }
 
-        // Standard Player Logic (Now with Levels!)
+        // Standard Player Logic
         const myFriends = global.playerFriends[username] ? Array.from(global.playerFriends[username]) : [];
+        
+        if (myFriends.length === 0) {
+            io.to(sid).emit('friendsListUpdate', []);
+            return;
+        }
+
+        // ✅ BATCH FETCH ALL FRIEND LEVELS FROM DB
+        const { data: dbFriends } = await supabase
+            .from('Exonians')
+            .select('character_name, level')
+            .in('character_name', myFriends);
+
         const friendData = myFriends.map(f => {
             let isOnline = activeLogins.has(f);
             let currentLevel = 1;
             
-            // Loop through active online players to grab their live level if they are online
             if (isOnline) {
+                // Get live level if they are online
                 for (let activeId in onlinePlayers) {
                     if (onlinePlayers[activeId].id === f) {
                         currentLevel = onlinePlayers[activeId].level || 1;
                         break;
                     }
                 }
+            } else {
+                // Get database level if they are offline
+                if (dbFriends) {
+                    const dbF = dbFriends.find(row => row.character_name === f);
+                    if (dbF) currentLevel = dbF.level || 1;
+                }
             }
 
-            return { 
-                id: f, 
-                online: isOnline, 
-                level: currentLevel 
-            };
+            return { id: f, online: isOnline, level: currentLevel };
         });
         
         io.to(sid).emit('friendsListUpdate', friendData);
@@ -922,6 +937,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
