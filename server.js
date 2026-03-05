@@ -827,14 +827,25 @@ io.on('connection', (socket) => {
                     const sid = findSocketIdByPlayerId(memberId); 
                     if (sid) {
                         io.to(sid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
-                        io.to(sid).emit('lootDropped', generateLoot(m));
+                        let drop = generateLoot(m);
+                        io.to(sid).emit('lootDropped', drop);
+                        
+                        // 🌟 BROADCAST PARTY DROPS
+                        if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
+                            io.emit('rareLootBroadcast', { playerName: memberId, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
+                        }
                     }
                 }
             } else { 
                 io.to(socket.id).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
-                io.to(socket.id).emit('lootDropped', generateLoot(m));
+                let drop = generateLoot(m);
+                io.to(socket.id).emit('lootDropped', drop);
+                
+                // 🌟 BROADCAST SOLO DROPS
+                if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
+                    io.emit('rareLootBroadcast', { playerName: p.name || p.id, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
+                }
             }
-            
             if (m.respawnDelayMs !== -1) {
                 setTimeout(() => { const cfg = { spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY } }; const nm = spawnMonster(p.instanceId, m.id, m.monsterKey, cfg); world.monsters[m.id] = nm; io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm)); }, m.respawnDelayMs || 10000);
             }
@@ -996,6 +1007,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
