@@ -220,6 +220,37 @@
     75% { transform: translate(3px, 2px) rotate(0deg); }
     100% { transform: translate(1px, -1px) rotate(-1deg); }
 }
+        /* --- RARE LOOT BROADCAST (MOVED OUT OF MOBILE QUERY) --- */
+        #loot-broadcast { 
+            position: fixed; 
+            top: 25%; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: 2147483647; /* Maximum possible layer, above EVERYTHING */
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            pointer-events: none; 
+            width: 100%;
+        }
+        .loot-announcement { 
+            background: rgba(0, 0, 0, 0.85); 
+            border: 2px solid; 
+            padding: 20px 50px; 
+            border-radius: 8px; 
+            margin-bottom: 10px; 
+            text-align: center; 
+            white-space: nowrap; 
+            animation: epicDrop 3s ease-in-out forwards; 
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8); 
+        }
+        @keyframes epicDrop { 
+            0% { opacity: 0; transform: scale(0.5) translateY(-50px); } 
+            10% { opacity: 1; transform: scale(1.2) translateY(0); } 
+            20% { transform: scale(1); } 
+            80% { opacity: 1; transform: scale(1); } 
+            100% { opacity: 0; transform: scale(0.8) translateY(-30px); } 
+        }
         
 
         /* ✅ INVENTORY WINDOW CSS UPDATED (PULLED OFF THE RIGHT WALL) */
@@ -366,37 +397,6 @@
             z-index: 1500;
             pointer-events: none;
             top: 40px !important;
-        }
-           /* --- RARE LOOT BROADCAST --- */
-        #loot-broadcast { 
-            position: fixed; /* ✅ Locks it to your screen, ignoring camera movement! */
-            top: 25%; /* ✅ Placed right in the upper-middle of the screen */
-            left: 50%; 
-            transform: translateX(-50%); 
-            z-index: 9000; /* Ensures it is above absolutely everything */
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            pointer-events: none; 
-            width: 100%;
-        }
-        .loot-announcement { 
-            background: rgba(0, 0, 0, 0.85); 
-            border: 2px solid; 
-            padding: 20px 50px; /* Made the box slightly thicker and more epic */
-            border-radius: 8px; 
-            margin-bottom: 10px; 
-            text-align: center; 
-            white-space: nowrap; 
-            animation: epicDrop 3s ease-in-out forwards; 
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8); 
-        }
-        @keyframes epicDrop { 
-            0% { opacity: 0; transform: scale(0.5) translateY(-50px); } 
-            10% { opacity: 1; transform: scale(1.2) translateY(0); } 
-            20% { transform: scale(1); } 
-            80% { opacity: 1; transform: scale(1); } 
-            100% { opacity: 0; transform: scale(0.8) translateY(-30px); } 
         }
             /* 1. Shrink the HUD Top Left */
             #hud { width: 140px !important; padding: 8px !important; top: 10px !important; left: 10px !important; }
@@ -1986,9 +1986,25 @@ if(socket) {
         document.getElementById('creation-screen').classList.add('active');
     });
     // 🌟 RARE LOOT GLOBAL BROADCAST LISTENER (CRASH FIXED)
+    // 🌟 RARE LOOT GLOBAL BROADCAST (BULLETPROOF & HIGH READABILITY)
     socket.on('rareLootBroadcast', (data) => {
-        const container = document.getElementById('loot-broadcast');
-        if (!container) return;
+        // 1. FORCE THE CONTAINER TO EXIST (Fixes the Town visibility bug!)
+        let container = document.getElementById('loot-broadcast');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'loot-broadcast';
+            container.style.position = 'fixed';
+            container.style.top = '25%';
+            container.style.left = '50%';
+            container.style.transform = 'translateX(-50%)';
+            container.style.zIndex = '2147483647'; // Maximum possible layer
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.alignItems = 'center';
+            container.style.pointerEvents = 'none';
+            container.style.width = '100%';
+            document.body.appendChild(container);
+        }
         
         const ann = document.createElement('div');
         ann.className = 'loot-announcement';
@@ -1997,19 +2013,22 @@ if(socket) {
         
         let glowClass = data.rarity === 'Godly' ? 'rarity-godly' : '';
         
+        // 2. ADDED HEAVY BLACK BORDERS AND SHADOWS FOR READABILITY
         ann.innerHTML = `
-            <div style="color: #e0e0e0; font-size: 16px; margin-bottom: 5px;">${data.playerName} just got</div>
-            <div style="color: ${data.color}; font-size: 28px; font-weight: bold;" class="${glowClass}">${data.itemName} Lv. ${data.level}</div>
+            <div style="color: #e0e0e0; font-size: 16px; margin-bottom: 5px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 2px 2px 4px #000;">
+                ${data.playerName} just got
+            </div>
+            <div style="color: ${data.color}; font-size: 28px; font-weight: bold; -webkit-text-stroke: 1px black; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 15px ${data.color};" class="${glowClass}">
+                ${data.itemName} Lv. ${data.level}
+            </div>
         `;
         
         container.appendChild(ann);
         
-        // Safely log it to the combat log without crashing!
         if (dom && dom.log) {
             dom.log.innerText = `[SERVER] ${data.playerName} obtained ${data.itemName}!`;
         }
         
-        // ✅ EXACTLY 3 SECONDS: Removes itself properly now that the crash is gone
         setTimeout(() => { 
             if (ann && ann.parentNode) {
                 ann.parentNode.removeChild(ann); 
@@ -2983,9 +3002,9 @@ window.addEventListener('click', (e) => {
         <button class="btn btn-large" style="width: 200px; margin-top: 10px;" onclick="window.closeWelcomeMessage()">CLOSE</button>
     </div>
 </div>
-    <div id="loot-broadcast" style="position: fixed; top: 25%; left: 50%; transform: translateX(-50%); z-index: 99999; display: flex; flex-direction: column; align-items: center; pointer-events: none; width: 100%;"></div>
     </body>
 </html>
+
 
 
 
