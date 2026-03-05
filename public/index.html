@@ -7,7 +7,7 @@
    <link rel="icon" type="image/png" href="favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Exonie Online - Alpha Engine</title>
+    <title>Exonie Online</title>
 
     <script src="/socket.io/socket.io.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
@@ -1886,7 +1886,6 @@ if(socket) {
     });
 
     socket.on('authSuccess', (userData) => {
-        window.showWelcomeMessage(); // ✅ Trigger the popup on login
         game.player.id = userData.character_name || "Unknown"; game.player.name = userData.character_name || "Unknown"; document.getElementById('player-name-tag').innerText = game.player.name; document.getElementById('ui-name-display').innerText = game.player.name;
         game.player.level = userData.level || 1; game.player.exp = userData.exp || 0; game.player.maxExp = userData.max_exp || 200; game.player.gold = userData.gold || 0; 
         game.player.baseStats = userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }; 
@@ -1905,6 +1904,7 @@ if(socket) {
                 if(safeMapData.id === 'town') { document.querySelectorAll('.monster-container').forEach(el => el.remove()); game.monsters = {}; }
                 socket.on('requestMapSync', (req) => { window.loadMapScript(req.mapId, () => { let mapPayload = Object.assign({}, window.MapDatabase[req.mapId], { instanceId: req.instanceId }); socket.emit('syncMapData', mapPayload); }); });
                 window.playBGM(safeMapData.id.includes('floor') ? 'floors' : 'town'); game.isRunning = true; window.showMapAnnouncement(safeMapData.id); requestAnimationFrame(gameLoop);
+socket.emit('requestNews'); // ✅ Asks the server for the news exactly when the player enters the town!
             });
         });
     });
@@ -2827,6 +2827,7 @@ window.addEventListener('click', (e) => {
 </div>
 </body>
 </html>
+
 
 
 
