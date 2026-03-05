@@ -1946,6 +1946,7 @@ window.showMapAnnouncement = function(mapId) {
     socket.on('partyKickedOrLeft', () => { dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; game.party = null; dom.log.innerText = "You are no longer in a party."; });
     socket.on('chatMessage', (data) => { if (data.id === game.player.id) return; const p = game.remotePlayers[data.id]; if (p) window.showBubble(p, data.text); });
     // ✅ FRIENDS SOCKET LISTENERS
+    // ✅ FRIENDS SOCKET LISTENERS (UPDATED TO ALWAYS SHOW LEVELS)
     socket.on('friendsListUpdate', (friendsList) => {
         const container = document.getElementById('friends-list-container');
         container.innerHTML = '';
@@ -1959,8 +1960,9 @@ window.showMapAnnouncement = function(mapId) {
             const row = document.createElement('div');
             row.className = 'friend-row';
             
-            // ✅ Only show level if they are online, otherwise it remains clean
-            let levelHtml = f.online ? `<span style="color:#ffd700; font-size:12px; margin-left: 5px;">(Lv.${f.level})</span>` : '';
+            // ✅ Always show level! (Gold if online, Gray if offline)
+            let lvlColor = f.online ? '#ffd700' : '#888';
+            let levelHtml = `<span style="color:${lvlColor}; font-size:12px; margin-left: 5px;">(Lv.${f.level})</span>`;
 
             row.innerHTML = `
                 <div class="friend-info">
@@ -2827,6 +2829,7 @@ window.addEventListener('click', (e) => {
 </div>
 </body>
 </html>
+
 
 
 
