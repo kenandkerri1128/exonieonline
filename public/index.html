@@ -367,6 +367,16 @@
             pointer-events: none;
             top: 40px !important;
         }
+            /* --- RARE LOOT BROADCAST --- */
+        #loot-broadcast { position: absolute; top: 20%; left: 50%; transform: translateX(-50%); z-index: 7000; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+        .loot-announcement { background: rgba(0, 0, 0, 0.85); border: 2px solid; padding: 15px 40px; border-radius: 8px; margin-bottom: 10px; text-align: center; white-space: nowrap; animation: epicDrop 4s ease-in-out forwards; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+        @keyframes epicDrop { 
+            0% { opacity: 0; transform: scale(0.5) translateY(-50px); } 
+            10% { opacity: 1; transform: scale(1.2) translateY(0); } 
+            20% { transform: scale(1); } 
+            80% { opacity: 1; transform: scale(1); } 
+            100% { opacity: 0; transform: scale(0.8) translateY(-30px); } 
+        }
             /* 1. Shrink the HUD Top Left */
             #hud { width: 140px !important; padding: 8px !important; top: 10px !important; left: 10px !important; }
             .stat-row { font-size: 11px !important; margin-bottom: 2px !important; }
@@ -735,6 +745,8 @@
         <div id="map-announcement">
             <h1 id="map-announcement-text">Town</h1>
         </div>
+
+        <div id="loot-broadcast"></div>
 
         <div id="portal-timer-ui" style="display: none;">
             Teleporting in <span id="portal-timer-sec">2.0</span>s...
@@ -1219,12 +1231,15 @@ window.getBaseStat = function(lvl) { if (lvl >= 50) return 100; if (lvl >= 45) r
 // ==========================================
 // 5. INVENTORY & EQUIPMENT
 // ==========================================
-window.addLoot = function(item) { item.quantity = item.quantity || 1; if (item.type === 'potion' || item.type === 'material') { const inv = game.player.inventory || []; let existingIndex = inv.findIndex(i => i && i.name === item.name); if (existingIndex !== -1) { game.player.inventory[existingIndex].quantity += item.quantity; dom.log.innerText = `Looted: ${item.name} (x${game.player.inventory[existingIndex].quantity})!`; if (isInventoryOpen) window.renderInventory(); return; } } const inv = game.player.inventory || []; const emptySlot = inv.findIndex(i => i === null); if (emptySlot !== -1) { game.player.inventory[emptySlot] = item; dom.log.innerText = `Looted: ${item.name}!`; if (isInventoryOpen) window.renderInventory(); } else { dom.log.innerText = `Inventory full! Lost ${item.name}.`; } }
+window.addLoot = function(item) { item.quantity = item.quantity || 1;
+if (item.type === 'potion' || item.type === 'material' || item.type === 'consumable') { const inv = game.player.inventory || []; let existingIndex = inv.findIndex(i => i && i.name === item.name); if (existingIndex !== -1) { game.player.inventory[existingIndex].quantity += item.quantity; dom.log.innerText = `Looted: ${item.name} (x${game.player.inventory[existingIndex].quantity})!`; if (isInventoryOpen) window.renderInventory(); return; } } const inv = game.player.inventory || []; const emptySlot = inv.findIndex(i => i === null); if (emptySlot !== -1) { game.player.inventory[emptySlot] = item; dom.log.innerText = `Looted: ${item.name}!`; if (isInventoryOpen) window.renderInventory(); } else { dom.log.innerText = `Inventory full! Lost ${item.name}.`; } }
 window.getItemTooltip = function(item) { 
     if(!item) return ""; 
     let html = `<strong class="${item.rarity === "Godly" ? "rarity-godly" : ""}" style="color:${item.color}; font-size: 13px;">${item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name}</strong><br><span style="color:#888;">Lv. ${item.level || 1} ${item.rarity || 'Normal'}</span><br><br>`; 
     if(item.type === 'material') return html + `<span style="color:#aaa;"><em>${item.description}</em></span>`; 
     if(item.type === 'potion') return html + `Heals ${item.fixedStat.hpHeal} HP`; 
+    // ADD THIS NEW LINE:
+    if(item.type === 'consumable') return html + `<span style="color:#ffeb3b;"><em>${item.description}</em></span>`;
     
     if(item.fixedStat) { 
         for(let key in item.fixedStat) html += `+${item.fixedStat[key]} ${key.toUpperCase()}<br>`; 
@@ -1266,7 +1281,7 @@ window.openItemAction = function(index, e) {
     e.stopPropagation(); activeInvIndex = index;
     const menu = document.getElementById('inv-context-menu');
     const item = game.player.inventory[index]; if (!item) return;
-    document.getElementById('ctx-btn-equip').innerText = item.type === 'potion' ? "Use" : (item.type === 'material' ? "Enhance" : "Equip");
+    document.getElementById('ctx-btn-equip').innerText = (item.type === 'potion' || item.type === 'consumable') ? "Use" : (item.type === 'material' ? "Enhance" : "Equip");
     document.getElementById('ctx-btn-sell').style.display = isShopping ? 'block' : 'none';
     menu.style.display = 'flex'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
 }
@@ -1274,8 +1289,7 @@ window.openItemAction = function(index, e) {
 window.actionEquip = function(e) { if (e) e.stopPropagation(); if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; if (game.player.inventory[activeInvIndex].type === 'material') { isEnhancing = true; dom.log.innerText = `Select equipment to enhance!`; window.renderInventory(); } else { window.useItem(activeInvIndex); } document.getElementById('inv-context-menu').style.display = 'none'; }
 window.actionThrow = function(e) { if (e) e.stopPropagation(); if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; dom.log.innerText = `Threw away ${game.player.inventory[activeInvIndex].name}.`; game.player.inventory[activeInvIndex] = null; activeInvIndex = -1; window.renderInventory(); DatabaseManager.savePlayerData(game.player); document.getElementById('inv-context-menu').style.display = 'none'; }
 window.unequipItem = function(slot) { const eq = game.player.equips[slot]; if (!eq) return; const inv = game.player.inventory || []; const emptySlot = inv.findIndex(i => i === null); if (emptySlot === -1) { dom.log.innerText = "Inventory full!"; return; } game.player.inventory[emptySlot] = eq; game.player.equips[slot] = null; dom.log.innerText = `Unequipped ${eq.name}.`; window.updateEquipmentDisplay(); window.renderInventory(); window.updateSkillMenu(); DatabaseManager.savePlayerData(game.player); }
-window.useItem = function(index) { const item = game.player.inventory[index]; if (!item) return; if (item.level && item.level > game.player.level) { dom.log.innerText = `Level ${item.level} required!`; return; } if (item.type === 'potion') { game.player.currentHp = Math.min(window.getMaxHp(), game.player.currentHp + item.fixedStat.hpHeal); item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, `+${item.fixedStat.hpHeal} HP`, '#4CAF50'); dom.log.innerText = `Used ${item.name}!`; window.updateUI(); window.emitVitalsIfNeeded(true); } else { const currentEquip = game.player.equips[item.type]; game.player.equips[item.type] = item; game.player.inventory[index] = currentEquip; dom.log.innerText = `Equipped ${item.name}!`; window.updateEquipmentDisplay(); window.emitVitalsIfNeeded(true); window.updateSkillMenu(); } window.renderInventory(); DatabaseManager.savePlayerData(game.player); }
-
+window.useItem = function(index) { const item = game.player.inventory[index]; if (!item) return; if (item.type === 'consumable' && item.name === "Class Reset Book") { if (!game.player.baseStats.playerClass) { dom.log.innerText = "You don't have a class to reset yet!"; return; } game.player.baseStats.playerClass = null; game.player.activeSkills = []; item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, "CLASS RESET", '#ffeb3b'); dom.log.innerText = `You reset your class! Open Skills (K) to pick a new one.`; window.renderInventory(); window.updateSkillMenu(); if (typeof isSkillOpen !== 'undefined' && isSkillOpen) window.renderSkillScreen(); DatabaseManager.savePlayerData(game.player); return; } if (item.level && item.level > game.player.level) { dom.log.innerText = `Level ${item.level} required!`; return; } if (item.type === 'potion') { game.player.currentHp = Math.min(window.getMaxHp(), game.player.currentHp + item.fixedStat.hpHeal); item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, `+${item.fixedStat.hpHeal} HP`, '#4CAF50'); dom.log.innerText = `Used ${item.name}!`; window.updateUI(); window.emitVitalsIfNeeded(true); } else { const currentEquip = game.player.equips[item.type]; game.player.equips[item.type] = item; game.player.inventory[index] = currentEquip; dom.log.innerText = `Equipped ${item.name}!`; window.updateEquipmentDisplay(); window.emitVitalsIfNeeded(true); window.updateSkillMenu(); } window.renderInventory(); DatabaseManager.savePlayerData(game.player); }
 window.attemptEnhance = function(targetIndex, e) { 
     e.stopPropagation(); let stone = game.player.inventory[activeInvIndex]; let targetItem = game.player.inventory[targetIndex]; 
     if (!stone || !targetItem || stone.type !== 'material' || targetItem.type === 'material' || targetItem.type === 'potion' || targetItem.rarity === "Starter" || (stone.rarity||'') !== (targetItem.rarity||'') || (stone.level||0) !== (targetItem.level||0) || (targetItem.enhanceLevel||0) >= 20) { isEnhancing = false; window.renderInventory(); return; } 
@@ -2921,6 +2935,7 @@ window.addEventListener('click', (e) => {
 </div>
 </body>
 </html>
+
 
 
 
