@@ -42,6 +42,54 @@ function getBaseStat(lvl) {
 }
 
 function generateLoot(monster) {
+    // 🌟 GOLDEN SLIME CUSTOM LOOT TABLE
+    if (monster.monsterKey === "common_mobs_golden") {
+        let mLevel = monster.level || 1;
+        let roll = Math.random();
+
+        // 5% Chance: Class Reset Book
+        if (roll < 0.05) {
+            return { 
+                id: Date.now() + Math.random(), 
+                name: "Class Reset Book", 
+                type: "consumable", 
+                rarity: "Godly", 
+                color: RARITY_COLORS["Godly"], 
+                description: "Resets your chosen class so you can pick a new one.", 
+                quantity: 1 
+            };
+        } 
+        
+        // 95% Chance: 45% Legendary or 50% Unique
+        let rarity = (roll < 0.50) ? "Legendary" : "Unique"; 
+        
+        const keys = Object.keys(ITEM_TEMPLATES);
+        const typeKey = keys[Math.floor(Math.random() * keys.length)];
+        const template = ITEM_TEMPLATES[typeKey];
+        
+        let item = { 
+            id: Date.now() + Math.random(), 
+            name: `${rarity} ${template.baseName}`, 
+            type: template.slot, 
+            sprite: rarity.toLowerCase() + template.spriteName, 
+            level: mLevel, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 
+        };
+        
+        let statVal = getBaseStat(mLevel) + ({ "Unique": 5, "Legendary": 8 }[rarity] || 0);
+        if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); 
+        item.fixedStat[template.statKey] = statVal;
+        
+        item.randomStat = {};
+        let numStats = rarity === "Legendary" ? 2 : 1;
+        let availableStats = [...STAT_TYPES]; 
+        for (let i = 0; i < numStats; i++) {
+            let rIdx = Math.floor(Math.random() * availableStats.length);
+            let sKey = availableStats.splice(rIdx, 1)[0]; 
+            item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(mLevel)) + 1;
+        }
+        return item;
+    }
+    
     // ==========================================
     // 1. CALCULATE ITEM DROP LEVEL (90% Same, 10% Lower)
     // ==========================================
@@ -138,6 +186,8 @@ function generateLoot(monster) {
 // ==========================================
 const MonsterDatabase = {
     "common_mobs1": { name: "Slime", category: "common_mobs", level: 5, maxHp: 100, atk: 15, def: 0, speed: 2.5, expYield: 25, goldYield: 15, aggroRadius: 250, chaseRadius: 400, attackRange: 55, width: 40, height: 40, respawnDelay: 10000, cssColor: '#ff69b4', cssBorder: '#c71585' },
+    // 🌟 THE GOLDEN SLIME
+    "common_mobs_golden": { name: "Golden Slime", category: "common_mobs", level: 5, maxHp: 100, atk: 15, def: 0, speed: 4.0, expYield: 500, goldYield: 1500, aggroRadius: 250, chaseRadius: 500, attackRange: 55, width: 40, height: 40, respawnDelay: 10000, cssColor: '#ffd700', cssBorder: '#b8860b' },
     "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 15500, atk: 250, def: 35, speed: 2.8, expYield: 500, goldYield: 150, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
     "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 35000, atk: 550, def: 100, speed: 3.5, expYield: 3000, goldYield: 1000, aggroRadius: 500, chaseRadius: 700, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' },
     // ==================
@@ -186,7 +236,15 @@ function getInstanceId(playerId, mapId) {
 const worlds = {}; 
 
 function spawnMonster(instId, entityId, monsterKey, cfg) {
-    const stats = MonsterDatabase[monsterKey] || MonsterDatabase["common_mobs1"];
+    let stats = MonsterDatabase[monsterKey] || MonsterDatabase["common_mobs1"];
+    
+    // 🌟 1% CHANCE TO OVERRIDE ANY COMMON MOB WITH THE GOLDEN SLIME
+    if (stats.category === "common_mobs" && monsterKey !== "common_mobs_golden") {
+        if (Math.random() < 0.01) { 
+            monsterKey = "common_mobs_golden";
+            stats = MonsterDatabase["common_mobs_golden"];
+        }
+    }
     const baseLevel = stats.level || 5;
     const targetLevel = cfg.level || baseLevel;
     const scale = targetLevel / baseLevel; 
@@ -938,6 +996,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
