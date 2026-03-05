@@ -235,7 +235,8 @@ function getInstanceId(playerId, mapId) {
 
 const worlds = {}; 
 
-function spawnMonster(instId, entityId, monsterKey, cfg) {
+function spawnMonster(instId, entityId, originalKey, cfg) {
+    let monsterKey = originalKey; // 🌟 Store the original key to prevent mutations!
     let stats = MonsterDatabase[monsterKey] || MonsterDatabase["common_mobs1"];
     
     // 🌟 1% CHANCE TO OVERRIDE ANY COMMON MOB WITH THE GOLDEN SLIME
@@ -245,13 +246,16 @@ function spawnMonster(instId, entityId, monsterKey, cfg) {
             stats = MonsterDatabase["common_mobs_golden"];
         }
     }
+    
     const baseLevel = stats.level || 5;
     const targetLevel = cfg.level || baseLevel;
     const scale = targetLevel / baseLevel; 
 
     return { 
-        id: entityId, instanceId: instId, monsterKey, name: stats.name, category: stats.category, 
-        level: targetLevel, 
+        id: entityId, instanceId: instId, monsterKey, 
+        originalKey: originalKey, // ✅ SAVES THE BASE MONSTER IDENTITY
+        name: stats.name, category: stats.category, 
+        level: targetLevel,
         x: cfg.spawnArea.minX, y: cfg.spawnArea.minY, homeX: cfg.spawnArea.minX, homeY: cfg.spawnArea.minY, 
         width: stats.width, height: stats.height, 
         maxHp: Math.max(1, Math.floor(stats.maxHp * scale)), 
@@ -266,7 +270,6 @@ function spawnMonster(instId, entityId, monsterKey, cfg) {
         lastAttack: 0, lastEarthquake: 0, alive: true, threatTable: {}, forcedTargetId: null, forcedUntil: 0, targetId: null, respawnDelayMs: stats.respawnDelay, frozenUntil: 0 
     };
 }
-
 function serializeMonster(m) { 
     return { 
         id: m.id, monsterKey: m.monsterKey, name: m.name, x: m.x, y: m.y, 
@@ -847,7 +850,15 @@ io.on('connection', (socket) => {
                 }
             }
             if (m.respawnDelayMs !== -1) {
-                setTimeout(() => { const cfg = { spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY } }; const nm = spawnMonster(p.instanceId, m.id, m.monsterKey, cfg); world.monsters[m.id] = nm; io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm)); }, m.respawnDelayMs || 10000);
+                setTimeout(() => { 
+                    // ✅ PASSES LEVEL SO HIGH LEVEL SPAWNS DON'T RESET TO LVL 5
+                    const cfg = { spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY }, level: m.level }; 
+                    
+                    // ✅ USES originalKey SO GOLDEN SLIMES REVERT BACK TO NORMAL MOBS
+                    const nm = spawnMonster(p.instanceId, m.id, m.originalKey || m.monsterKey, cfg); 
+                    world.monsters[m.id] = nm; 
+                    io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm)); 
+                }, m.respawnDelayMs || 10000);
             }
         }
     });
@@ -1007,6 +1018,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
