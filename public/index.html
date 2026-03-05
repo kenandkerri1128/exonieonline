@@ -367,9 +367,30 @@
             pointer-events: none;
             top: 40px !important;
         }
-            /* --- RARE LOOT BROADCAST --- */
-        #loot-broadcast { position: absolute; top: 20%; left: 50%; transform: translateX(-50%); z-index: 7000; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
-        .loot-announcement { background: rgba(0, 0, 0, 0.85); border: 2px solid; padding: 15px 40px; border-radius: 8px; margin-bottom: 10px; text-align: center; white-space: nowrap; animation: epicDrop 4s ease-in-out forwards; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+           /* --- RARE LOOT BROADCAST --- */
+        #loot-broadcast { 
+            position: fixed; /* ✅ Locks it to your screen, ignoring camera movement! */
+            top: 25%; /* ✅ Placed right in the upper-middle of the screen */
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: 9000; /* Ensures it is above absolutely everything */
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            pointer-events: none; 
+            width: 100%;
+        }
+        .loot-announcement { 
+            background: rgba(0, 0, 0, 0.85); 
+            border: 2px solid; 
+            padding: 20px 50px; /* Made the box slightly thicker and more epic */
+            border-radius: 8px; 
+            margin-bottom: 10px; 
+            text-align: center; 
+            white-space: nowrap; 
+            animation: epicDrop 4s ease-in-out forwards; 
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8); 
+        }
         @keyframes epicDrop { 
             0% { opacity: 0; transform: scale(0.5) translateY(-50px); } 
             10% { opacity: 1; transform: scale(1.2) translateY(0); } 
@@ -2960,6 +2981,7 @@ window.addEventListener('click', (e) => {
 </div>
 </body>
 </html>
+
 
 
 
