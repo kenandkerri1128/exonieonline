@@ -907,13 +907,14 @@ io.on('connection', (socket) => {
         let allDead = instPlayers.every(pl => pl.isGhost);
         if (allDead) { io.to(p.instanceId).emit('partyWiped'); }
     });
-// ✅ FETCH NEWS ONLY WHEN THE PLAYER ENTERS THE WORLD
+// ✅ FETCH ALL NEWS AND SEND AS A QUEUE
     socket.on('requestNews', async () => {
         try {
-            const { data: news } = await supabase.from('Game_News').select('*').order('id', { ascending: false }).limit(1).single();
-            socket.emit('latestNews', news || { title: "Greetings, Exonian!", content: "Welcome to Exonie." });
+            // Fetches all rows, ordered by ID (1, 2, 3...)
+            const { data: newsList } = await supabase.from('Game_News').select('*').order('id', { ascending: true });
+            socket.emit('latestNews', newsList || []);
         } catch(e) {
-            socket.emit('latestNews', { title: "Greetings, Exonian!", content: "Welcome to Exonie." });
+            socket.emit('latestNews', []);
         }
     });
     socket.on('disconnect', async () => {
@@ -937,6 +938,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
