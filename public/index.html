@@ -1831,11 +1831,20 @@ window.addRemotePlayer = function(pData) {
 };
 window.removeRemotePlayer = function(id) { const p = game.remotePlayers[id]; if (p && p.dom) p.dom.remove(); delete game.remotePlayers[id]; };
     // ✅ WELCOME MESSAGE LOGIC
-window.showWelcomeMessage = function() {
+// ✅ WELCOME MESSAGE LOGIC (DYNAMIC VERSION)
+socket.on('latestNews', (news) => {
     const modal = document.getElementById('welcome-modal');
-    if (modal) modal.style.display = 'flex';
-};
+    const title = document.getElementById('news-title');
+    const content = document.getElementById('news-content');
 
+    if (modal && title && content) {
+        title.innerText = news.title || "Greetings, Exonian!";
+        content.innerHTML = news.content || "Welcome to the world of Exonie."; 
+        modal.style.display = 'flex';
+    }
+});
+
+// ✅ KEEP THIS! So players can close the message
 window.closeWelcomeMessage = function() {
     const modal = document.getElementById('welcome-modal');
     if (modal) modal.style.display = 'none';
@@ -2807,14 +2816,10 @@ window.addEventListener('click', (e) => {
 </script>
     <div id="welcome-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center;">
     <div style="background: #1e1e1e; border: 3px solid #4CAF50; border-radius: 10px; width: 90%; max-width: 500px; padding: 30px; position: relative; box-shadow: 0 0 30px rgba(76, 175, 80, 0.4); text-align: center;">
-        <h1 id="news-title" style="color: #4CAF50; margin-top: 0; font-size: 32px; letter-spacing: 2px;">Greetings, Exonian!</h1>
+        <h1 id="news-title" style="color: #4CAF50; margin-top: 0; font-size: 32px; letter-spacing: 2px;">Loading...</h1>
         
         <div id="news-content" style="color: #e0e0e0; font-size: 18px; line-height: 1.6; margin: 20px 0; max-height: 300px; overflow-y: auto; text-align: left; padding-right: 10px;">
-            Welcome to the <b>Exonie Online Alpha</b>! <br><br>
-            • Use <b>WASD</b> to explore the world.<br>
-            • Click monsters to attack.<br>
-            • Reach <b>Level 50</b> to unlock max stats!<br><br>
-            <span style="color: #ffd700;">Update:</span> Stacking chat history and friend levels are now live!
+            Please wait, fetching latest news...
         </div>
 
         <button class="btn btn-large" style="width: 200px; margin-top: 10px;" onclick="window.closeWelcomeMessage()">ENTER EXONIE</button>
@@ -2822,6 +2827,7 @@ window.addEventListener('click', (e) => {
 </div>
 </body>
 </html>
+
 
 
 
