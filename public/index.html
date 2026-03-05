@@ -1832,23 +1832,52 @@ window.addRemotePlayer = function(pData) {
 window.removeRemotePlayer = function(id) { const p = game.remotePlayers[id]; if (p && p.dom) p.dom.remove(); delete game.remotePlayers[id]; };
     // ✅ WELCOME MESSAGE LOGIC
 // ✅ WELCOME MESSAGE LOGIC (DYNAMIC VERSION)
-socket.on('latestNews', (news) => {
-    const modal = document.getElementById('welcome-modal');
-    const title = document.getElementById('news-title');
-    const content = document.getElementById('news-content');
+// ✅ SEQUENTIAL NEWS QUEUE LOGIC
+    window.newsQueue = [];
 
-    if (modal && title && content) {
-        title.innerText = news.title || "Greetings, Exonian!";
-        content.innerHTML = news.content || "Welcome to the world of Exonie."; 
-        modal.style.display = 'flex';
-    }
-});
+    socket.on('latestNews', (newsArray) => {
+        // If there's no news in the database, don't show the modal at all
+        if (!Array.isArray(newsArray) || newsArray.length === 0) return;
+        
+        window.newsQueue = newsArray; // Load the array of messages
+        window.showNextNews();        // Trigger the first one
+    });
 
-// ✅ KEEP THIS! So players can close the message
-window.closeWelcomeMessage = function() {
-    const modal = document.getElementById('welcome-modal');
-    if (modal) modal.style.display = 'none';
-};
+    window.showNextNews = function() {
+        const modal = document.getElementById('welcome-modal');
+        
+        // If the queue is empty, close the modal and let them play
+        if (window.newsQueue.length === 0) {
+            if (modal) modal.style.display = 'none';
+            return;
+        }
+
+        // Pull the first message out of the queue
+        const currentNews = window.newsQueue.shift(); 
+        
+        const title = document.getElementById('news-title');
+        const content = document.getElementById('news-content');
+        const btn = modal.querySelector('button'); // Grab the button inside the modal
+
+        if (modal && title && content) {
+            title.innerText = currentNews.title || "Announcement";
+            
+            // Check for lowercase 'content' or fallback to other names you might have used in Supabase
+            content.innerHTML = currentNews.content || currentNews.Content || currentNews.context || ""; 
+            
+            // Change button text dynamically: "NEXT" if more news, "ENTER" if it's the last one
+            if (btn) {
+                btn.innerText = window.newsQueue.length > 0 ? "NEXT MESSAGE ➔" : "ENTER EXONIE";
+            }
+            
+            modal.style.display = 'flex';
+        }
+    };
+
+    // Make the button trigger the next news item instead of immediately closing
+    window.closeWelcomeMessage = function() {
+        window.showNextNews();
+    };
 
 // ==========================================
 // 8. SOCKET EVENTS & NETWORKING
@@ -2829,6 +2858,7 @@ window.addEventListener('click', (e) => {
 </div>
 </body>
 </html>
+
 
 
 
