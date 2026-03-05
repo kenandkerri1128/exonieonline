@@ -19,14 +19,21 @@
         .screen { width: 100%; height: 100%; display: none; } 
         .screen.active { display: flex; }
 
-        /* --- DEATH & TRANSITION SCREENS --- */
-        #death-screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); color: red; z-index: 9000; flex-direction: column; justify-content: center; align-items: center; display: none; }
+        /* --- DEATH & TRANSITION SCREENS (NOW CAMERA-PROOF) --- */
+        #death-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); color: red; z-index: 2147483647; flex-direction: column; justify-content: center; align-items: center; display: none; }
         #death-screen h1 { font-size: 80px; letter-spacing: 10px; margin-bottom: 30px; text-shadow: 0 0 20px red; }
         
-        #loading-screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #111; color: #fff; z-index: 5000; flex-direction: column; justify-content: center; align-items: center; }
-        #map-transition { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; color: #f44336; z-index: 6000; flex-direction: column; justify-content: center; align-items: center; display: none; opacity: 0; transition: opacity 1s ease-in-out; }
+        #loading-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #111; color: #fff; z-index: 2147483647; flex-direction: column; justify-content: center; align-items: center; }
+        
+        #map-transition { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; color: #f44336; z-index: 2147483647; flex-direction: column; justify-content: center; align-items: center; display: none; opacity: 0; transition: opacity 1s ease-in-out; }
         .transition-title { font-size: 50px; font-weight: bold; letter-spacing: 5px; text-transform: uppercase; animation: pulseText 2s infinite; }
         @keyframes pulseText { 0% { opacity: 0.5; text-shadow: 0 0 5px #f44336; } 50% { opacity: 1; text-shadow: 0 0 20px #ff9800; } 100% { opacity: 0.5; text-shadow: 0 0 5px #f44336; } }
+
+        /* --- MAP ANNOUNCEMENTS (FLOATING TEXT OVER WORLD) --- */
+        #permanent-map-name { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.85); border: 2px solid #4CAF50; color: #fff; padding: 6px 20px; border-radius: 8px; font-size: 16px; font-weight: bold; z-index: 8500; pointer-events: none; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 15px rgba(0,0,0,0.8); }
+        
+        #map-announcement { position: fixed; top: 25%; left: 50%; transform: translateX(-50%); z-index: 8500; pointer-events: none; opacity: 0; transition: opacity 1s ease-in-out; width: 100%; text-align: center; }
+        #map-announcement h1 { color: #e0e0e0; font-size: 48px; font-weight: bold; letter-spacing: 6px; text-transform: uppercase; margin: 0; -webkit-text-stroke: 1.5px black; text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 0 25px #4CAF50; animation: pulseText 2s infinite; }
 
         .loader-title { font-size: 32px; font-weight: bold; margin-bottom: 20px; color: #4CAF50; letter-spacing: 2px;}
         .loader-bar-bg { width: 400px; height: 12px; background: #333; border-radius: 6px; overflow: hidden; border: 2px solid #555;}
@@ -3004,6 +3011,7 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
