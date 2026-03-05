@@ -1830,6 +1830,16 @@ window.addRemotePlayer = function(pData) {
     if (wpnSprite) { const fixedWpn = wpnSprite.replace('starter', 'basic'); weapon.style.display = 'block'; weapon.src = `weapon/${fixedWpn}.png`; game.remotePlayers[pData.id].currentWeaponSrc = weapon.src; }
 };
 window.removeRemotePlayer = function(id) { const p = game.remotePlayers[id]; if (p && p.dom) p.dom.remove(); delete game.remotePlayers[id]; };
+    // ✅ WELCOME MESSAGE LOGIC
+window.showWelcomeMessage = function() {
+    const modal = document.getElementById('welcome-modal');
+    if (modal) modal.style.display = 'flex';
+};
+
+window.closeWelcomeMessage = function() {
+    const modal = document.getElementById('welcome-modal');
+    if (modal) modal.style.display = 'none';
+};
 
 // ==========================================
 // 8. SOCKET EVENTS & NETWORKING
@@ -1867,6 +1877,7 @@ if(socket) {
     });
 
     socket.on('authSuccess', (userData) => {
+        window.showWelcomeMessage(); // ✅ Trigger the popup on login
         game.player.id = userData.character_name || "Unknown"; game.player.name = userData.character_name || "Unknown"; document.getElementById('player-name-tag').innerText = game.player.name; document.getElementById('ui-name-display').innerText = game.player.name;
         game.player.level = userData.level || 1; game.player.exp = userData.exp || 0; game.player.maxExp = userData.max_exp || 200; game.player.gold = userData.gold || 0; 
         game.player.baseStats = userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }; 
@@ -2794,8 +2805,24 @@ window.addEventListener('click', (e) => {
     }
 });
 </script>
+    <div id="welcome-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center;">
+    <div style="background: #1e1e1e; border: 3px solid #4CAF50; border-radius: 10px; width: 90%; max-width: 500px; padding: 30px; position: relative; box-shadow: 0 0 30px rgba(76, 175, 80, 0.4); text-align: center;">
+        <h1 id="news-title" style="color: #4CAF50; margin-top: 0; font-size: 32px; letter-spacing: 2px;">Greetings, Exonian!</h1>
+        
+        <div id="news-content" style="color: #e0e0e0; font-size: 18px; line-height: 1.6; margin: 20px 0; max-height: 300px; overflow-y: auto; text-align: left; padding-right: 10px;">
+            Welcome to the <b>Exonie Online Alpha</b>! <br><br>
+            • Use <b>WASD</b> to explore the world.<br>
+            • Click monsters to attack.<br>
+            • Reach <b>Level 50</b> to unlock max stats!<br><br>
+            <span style="color: #ffd700;">Update:</span> Stacking chat history and friend levels are now live!
+        </div>
+
+        <button class="btn btn-large" style="width: 200px; margin-top: 10px;" onclick="window.closeWelcomeMessage()">ENTER EXONIE</button>
+    </div>
+</div>
 </body>
 </html>
+
 
 
 
