@@ -604,10 +604,6 @@ io.on('connection', (socket) => {
             if (!global.playerFriends) global.playerFriends = {};
             global.playerFriends[username] = new Set(user.friends || []);
 
-           // ✅ FETCH LATEST NEWS FROM SUPABASE
-            const { data: news } = await supabase.from('Game_News').select('*').limit(1).single();
-            socket.emit('latestNews', news || { title: "Welcome!", content: "Enjoy your stay in Exonie." });
-
             currentUser = username;
             if (!user.skin_color) socket.emit('needsCharacterCreation', username);
             else socket.emit('characterSelect', user);
@@ -896,7 +892,15 @@ io.on('connection', (socket) => {
         let allDead = instPlayers.every(pl => pl.isGhost);
         if (allDead) { io.to(p.instanceId).emit('partyWiped'); }
     });
-
+// ✅ FETCH NEWS ONLY WHEN THE PLAYER ENTERS THE WORLD
+    socket.on('requestNews', async () => {
+        try {
+            const { data: news } = await supabase.from('Game_News').select('*').limit(1).single();
+            socket.emit('latestNews', news || { title: "Greetings, Exonian!", content: "Welcome to Exonie." });
+        } catch(e) {
+            socket.emit('latestNews', { title: "Greetings, Exonian!", content: "Welcome to Exonie." });
+        }
+    });
     socket.on('disconnect', async () => {
     // ✅ NEW: Free up the account so they can log back in
     if (socket.username) {
@@ -918,6 +922,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
