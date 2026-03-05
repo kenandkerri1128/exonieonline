@@ -1698,9 +1698,22 @@ window.addEventListener('keydown', (e) => {
         if (dom.game.classList.contains('active')) { 
             if (isChatting) { 
                 let msg = chatInputDom.value.trim(); 
-                if (msg !== '' && socket) { socket.emit('chatMessage', { text: msg }); window.showBubble(game.player, msg); } 
+                if (msg !== '' && socket) { 
+                    if (window.adminMode) {
+                        // ✅ ADMIN BROADCAST: Sends to everyone
+                        socket.emit('adminBroadcast', { text: msg });
+                        window.addLogMessage(`<span style="color:#ffeb3b; font-weight:bold;">[Admin Broadcast] ${msg}</span>`);
+                    } else {
+                        // NORMAL CHAT: Local instance bubble
+                        socket.emit('chatMessage', { text: msg }); 
+                        window.showBubble(game.player, msg); 
+                    }
+                } 
                 chatInputDom.value = ''; chatContainerDom.style.display = 'none'; chatInputDom.blur(); isChatting = false; 
-            } else { chatContainerDom.style.display = 'block'; chatInputDom.focus(); isChatting = true; game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false; } 
+            } else { 
+                chatContainerDom.style.display = 'block'; chatInputDom.focus(); isChatting = true; 
+                game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false; 
+            } 
         } 
     } 
 });
@@ -2779,6 +2792,7 @@ window.addEventListener('click', (e) => {
 </script>
 </body>
 </html>
+
 
 
 
