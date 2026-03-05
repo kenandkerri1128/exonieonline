@@ -1938,10 +1938,14 @@ window.showMapAnnouncement = function(mapId) {
         friendsList.forEach(f => {
             const row = document.createElement('div');
             row.className = 'friend-row';
+            
+            // ✅ Only show level if they are online, otherwise it remains clean
+            let levelHtml = f.online ? `<span style="color:#ffd700; font-size:12px; margin-left: 5px;">(Lv.${f.level})</span>` : '';
+
             row.innerHTML = `
                 <div class="friend-info">
                     <div class="status-dot ${f.online ? 'online' : 'offline'}"></div>
-                    ${f.id}
+                    ${f.id} ${levelHtml}
                 </div>
                 <button class="dm-btn" onclick="window.promptDM('${f.id}')">DM</button>
             `;
@@ -2792,6 +2796,7 @@ window.addEventListener('click', (e) => {
 </script>
 </body>
 </html>
+
 
 
 
