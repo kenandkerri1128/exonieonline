@@ -1966,7 +1966,32 @@ if(socket) {
         document.getElementById('char-name-input').value = username;
         document.getElementById('creation-screen').classList.add('active');
     });
-
+// 🌟 RARE LOOT GLOBAL BROADCAST LISTENER
+    socket.on('rareLootBroadcast', (data) => {
+        const container = document.getElementById('loot-broadcast');
+        if (!container) return;
+        
+        const ann = document.createElement('div');
+        ann.className = 'loot-announcement';
+        ann.style.borderColor = data.color || '#fff';
+        ann.style.boxShadow = `0 0 20px ${data.color}`;
+        
+        let glowClass = data.rarity === 'Godly' ? 'rarity-godly' : '';
+        
+        ann.innerHTML = `
+            <div style="color: #e0e0e0; font-size: 16px; margin-bottom: 5px;">${data.playerName} just got</div>
+            <div style="color: ${data.color}; font-size: 28px; font-weight: bold;" class="${glowClass}">${data.itemName} Lv. ${data.level}</div>
+        `;
+        
+        container.appendChild(ann);
+        
+        // Also permanently print it to the chat log history!
+        window.addLogMessage(`<span style="color:${data.color}; font-weight:bold; font-size: 12px;">[SERVER] ${data.playerName} obtained ${data.itemName} Lv.${data.level}!</span>`);
+        
+        // Remove from screen after animation ends (4 seconds)
+        setTimeout(() => { ann.remove(); }, 4000);
+    });
+    
     socket.on('authError', (msg) => {
         alert(msg);
         document.getElementById('loading-screen').style.display = 'none';
@@ -2935,6 +2960,7 @@ window.addEventListener('click', (e) => {
 </div>
 </body>
 </html>
+
 
 
 
