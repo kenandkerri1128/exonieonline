@@ -241,7 +241,7 @@ function spawnMonster(instId, entityId, originalKey, cfg) {
     
     // 🌟 1% CHANCE TO OVERRIDE ANY COMMON MOB WITH THE GOLDEN SLIME
     if (stats.category === "common_mobs" && monsterKey !== "common_mobs_golden") {
-        if (Math.random() < 0.01) { 
+        if (Math.random() < 0.002) { 
             monsterKey = "common_mobs_golden";
             stats = MonsterDatabase["common_mobs_golden"];
         }
@@ -1018,6 +1018,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
