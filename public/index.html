@@ -1481,7 +1481,7 @@ window.adminGiveCustomItem = function() {
     if (t === 'pendant') statVal = Math.floor(statVal / 2); 
     item.fixedStat[tmpl.statKey] = statVal; 
 
-    // 3. Generate Random Bonus Stats based on Rarity (Just like monster drops)
+    // 3. Generate Random Bonus Stats based on Rarity
     item.randomStat = {};
     if (r !== "Starter") {
         let numStats = 1;
@@ -1491,13 +1491,28 @@ window.adminGiveCustomItem = function() {
         let availableStats = ['attack', 'magic', 'defense', 'speed', 'int', 'str', 'hp']; 
         for (let i = 0; i < numStats; i++) {
             let rIdx = Math.floor(Math.random() * availableStats.length);
-            let sKey = availableStats.splice(rIdx, 1)[0]; // Pull stat out so it doesn't duplicate
+            let sKey = availableStats.splice(rIdx, 1)[0]; 
             item.randomStat[sKey] = Math.floor(Math.random() * window.getBaseStat(l)) + 1;
         }
     }
 
+    // 4. APPLY ENHANCEMENT STATS (+X)
+    if (e > 0) {
+        const bonusPerLevel = { "Starter": 1, "Basic": 1, "Rare": 3, "Unique": 5, "Legendary": 8, "Godly": 15 }[r] || 1;
+        const totalBonus = bonusPerLevel * e;
+
+        // Apply enhancement bonus to the main fixed stat
+        for (const k in item.fixedStat) {
+            if (typeof item.fixedStat[k] === 'number') item.fixedStat[k] += totalBonus;
+        }
+        // Apply enhancement bonus to ALL random bonus stats!
+        for (const k in item.randomStat) {
+            if (typeof item.randomStat[k] === 'number') item.randomStat[k] += totalBonus;
+        }
+    }
+
     window.addLoot(item); 
-    dom.log.innerText = `[Admin] Spawned ${item.name} with bonus stats!`; 
+    dom.log.innerText = `[Admin] Spawned ${item.name} +${e} with true stats!`; 
 }
 
 window.isColliding = function(targetX, targetY) { const hitX = targetX + (game.player.width - game.player.w) / 2; const hitY = targetY + game.player.height - game.player.h; const cols = safeMapData.collisions || []; for (let box of cols) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; } return false; }
@@ -2906,6 +2921,7 @@ window.addEventListener('click', (e) => {
 </div>
 </body>
 </html>
+
 
 
 
