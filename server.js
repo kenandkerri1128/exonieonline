@@ -540,12 +540,18 @@ io.on('connection', (socket) => {
         try { fs.writeFileSync(filePath, data.content); } catch(err) {}
     });
 
-    socket.on('partyHeal', (data) => {
+   socket.on('partyHeal', (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || p.isGhost || p.mapId === 'town') return;
 
+        // 🛡️ ANTI-CHEAT: ENFORCE 20s COOLDOWN (18s server-side leniency)
+        const now = Date.now();
+        if (p.skillCooldowns['partyHeal'] && now < p.skillCooldowns['partyHeal']) return;
+        p.skillCooldowns['partyHeal'] = now + 18000; 
+
         const pid = playerParty[p.id];
         if (pid && parties[pid]) {
+            // ... (keep the rest of your partyHeal loop exactly the same)
             for (const memberId of parties[pid].members) {
                 const mp = getPlayerById(memberId);
                 if (mp && !mp.isGhost && mp.instanceId === p.instanceId) {
@@ -564,8 +570,14 @@ io.on('connection', (socket) => {
         const p = onlinePlayers[socket.id];
         if (!p || p.mapId === 'town') return;
 
+        // 🛡️ ANTI-CHEAT: ENFORCE 100s COOLDOWN (95s leniency)
+        const now = Date.now();
+        if (p.skillCooldowns['partyRevive'] && now < p.skillCooldowns['partyRevive']) return;
+        p.skillCooldowns['partyRevive'] = now + 95000;
+
         const pid = playerParty[p.id];
         if (pid && parties[pid]) {
+            // ... (keep the rest of your partyRevive loop exactly the same)
             for (const memberId of parties[pid].members) {
                 const mp = getPlayerById(memberId);
                 if (mp && mp.isGhost && mp.mapId !== 'town') {
@@ -577,7 +589,6 @@ io.on('connection', (socket) => {
             emitPartyUpdate(pid); 
         }
     });
-
     socket.on('broadcastSkill', (data) => {
         const p = onlinePlayers[socket.id];
         if (p) {
@@ -769,10 +780,12 @@ io.on('connection', (socket) => {
             socketId: socket.id, id: userData.character_name, name: userData.character_name, mapId: mapId, instanceId: instId, isGhost: false, currentPortal: null,
             x: userData.pos_x || 960, y: userData.pos_y || 1000, level: userData.level || 1, currentHp: startHp, maxHp: 100, tradeTarget: null,
            equips: userData.equips || { weapon: null, armor: null, leggings: null }, 
-            baseStats: userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }, // ✅ CACHED FOR ANTI-CHEAT
+           baseStats: userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }, // ✅ CACHED FOR ANTI-CHEAT
             gold: userData.gold || 0, // ✅ CACHED FOR ANTI-CHEAT
             spriteData: { skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, weapon: userData.equips?.weapon?.sprite || null },
-            untargetableUntil: 0 
+            untargetableUntil: 0,
+            // 🛡️ ANTI-CHEAT: RATE LIMITERS
+            attackTokens: 3, lastTokenRefill: Date.now(), skillCooldowns: {}
         };
         socket.join(instId); socket.emit('authSuccess', userData);
         
@@ -781,13 +794,19 @@ io.on('connection', (socket) => {
         socket.emit('mapPlayersList', playersInInst.map(p => ({ id: p.id, name: p.name, mapId: p.mapId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost })));
     });
 
-    socket.on('saveData', async (playerData) => {
+   socket.on('saveData', async (playerData) => {
         if (!currentUser) return;
         const p = onlinePlayers[socket.id];
         if (!p) return;
 
+        // 🛡️ ANTI-CHEAT: SAVE RATE LIMITER
+        const now = Date.now();
+        if (p.lastSaveTime && now - p.lastSaveTime < 5000) {
+            return; // Block hackers from spamming the save function!
+        }
+        p.lastSaveTime = now;
+
         // 🛡️ ANTI-CHEAT: ECONOMY & STAT VALIDATION
-        // Prevent sudden impossible jumps in stats/gold
         let safeGold = playerData.gold;
         if (safeGold > p.gold + 50000 && p.id !== "Kei") { // Max legit spike is selling a Godly item
             console.log(`[HACK BLOCKED] ${p.id} tried to spawn ${safeGold - p.gold} gold.`);
@@ -857,8 +876,14 @@ io.on('connection', (socket) => {
     socket.on('tauntMonsters', (data) => {
         const p = onlinePlayers[socket.id]; if(!p || p.isGhost) return;
         if (p.mapId === 'town') return; 
-        const world = worlds[p.instanceId]; if(!world) return;
 
+        // 🛡️ ANTI-CHEAT: ENFORCE 14s COOLDOWN (12s leniency)
+        const now = Date.now();
+        if (p.skillCooldowns['tauntMonsters'] && now < p.skillCooldowns['tauntMonsters']) return;
+        p.skillCooldowns['tauntMonsters'] = now + 12000;
+
+        const world = worlds[p.instanceId]; if(!world) return;
+        // ... (keep the rest of your tauntMonsters loop the same)
         for (let mId in world.monsters) {
             let m = world.monsters[mId];
             if (!m.alive) continue;
@@ -867,26 +892,56 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('syncPet', (data) => {
+   socket.on('syncPet', (data) => {
         const p = onlinePlayers[socket.id]; if(!p) return;
         if (p.mapId === 'town') return; 
         const world = worlds[p.instanceId]; if(!world) return;
         if (!world.pets) world.pets = {};
-        if (data.alive) { world.pets[data.id] = { id: data.id, ownerId: p.id, x: data.x, y: data.y }; } 
+        
+        // 🛡️ ANTI-CHEAT: MAX 2 PETS PER PLAYER
+        if (data.alive) { 
+            let myPetCount = Object.values(world.pets).filter(pet => pet.ownerId === p.id).length;
+            if (myPetCount >= 2 && !world.pets[data.id]) return; // Block spawning more than 2!
+            world.pets[data.id] = { id: data.id, ownerId: p.id, x: data.x, y: data.y }; 
+        } 
         else { delete world.pets[data.id]; }
+        
         socket.to(p.instanceId).emit('remotePetSync', { ownerId: p.id, petData: data });
     });
 
     socket.on('setUntargetable', (data) => {
         const p = onlinePlayers[socket.id];
-        if (p && p.mapId !== 'town') { p.untargetableUntil = Date.now() + (data.duration || 10000); }
+        if (p && p.mapId !== 'town') { 
+            // 🛡️ ANTI-CHEAT: ENFORCE 15s COOLDOWN (13s leniency)
+            const now = Date.now();
+            if (p.skillCooldowns['setUntargetable'] && now < p.skillCooldowns['setUntargetable']) return;
+            p.skillCooldowns['setUntargetable'] = now + 13000;
+
+            p.untargetableUntil = Date.now() + (data.duration || 10000); 
+        }
     });
 
     socket.on('attackMonster', (payload) => {
         const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return; 
         if (p.mapId === 'town') return; 
 
-        const world = worlds[p.instanceId]; if (!world) return; 
+        // 🛡️ ANTI-CHEAT: ATTACK SPEED RATE LIMITER (TOKEN BUCKET)
+        const now = Date.now();
+        p.lastTokenRefill = p.lastTokenRefill || now;
+        const timePassed = now - p.lastTokenRefill;
+        const tokensToAdd = Math.floor(timePassed / 800); // Regenerate 1 attack every 800ms
+        
+        if (tokensToAdd > 0) {
+            p.attackTokens = Math.min(3, (p.attackTokens || 0) + tokensToAdd); // Max 3 burst attacks
+            p.lastTokenRefill = now - (timePassed % 800);
+        }
+        
+        if (p.attackTokens <= 0) {
+            return; // 🛑 SPAM BLOCKED! They are attacking too fast.
+        }
+        p.attackTokens--; // Consume an attack token
+
+        const world = worlds[p.instanceId]; if (!world) return;
         const m = world.monsters[payload.monsterId]; 
         
         if (!m || !m.alive) return;
@@ -1001,7 +1056,20 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('chatMessage', (data) => { const p = onlinePlayers[socket.id]; if (!p || !data.text) return; io.to(p.instanceId).emit('chatMessage', { id: p.id, text: data.text }); });
+    socket.on('chatMessage', (data) => { 
+        const p = onlinePlayers[socket.id]; 
+        if (!p || !data.text) return; 
+        
+        // 🛡️ ANTI-CHEAT: CHAT SPAM & BOMB PROTECTION
+        const now = Date.now();
+        if (p.lastChatTime && now - p.lastChatTime < 500) return; // Max 1 message per 0.5s
+        p.lastChatTime = now;
+
+        // Force string type and slice it to a max of 120 characters
+        let safeText = String(data.text).slice(0, 120); 
+        
+        io.to(p.instanceId).emit('chatMessage', { id: p.id, text: safeText }); 
+    });
     socket.on('partyInvite', ({ targetId }) => { const me = onlinePlayers[socket.id]; if (!me || !targetId) return; const targetSid = findSocketIdByPlayerId(targetId); if (!targetSid) return socket.emit('partyError', 'Target is not online.'); io.to(targetSid).emit('partyInviteReceived', { fromId: me.id }); });
     
     socket.on('partyInviteResponse', ({ fromId, accept }) => {
@@ -1158,6 +1226,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
