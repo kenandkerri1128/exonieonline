@@ -1028,7 +1028,7 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('forceTeleport', (tp) => {
+   socket.on('forceTeleport', (tp) => {
         const p = onlinePlayers[socket.id];
         if (!p) return;
         
@@ -1044,6 +1044,11 @@ io.on('connection', (socket) => {
         
         socket.emit('forceTeleport', tp); 
         socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
+        
+        // 🌟 FIX: Ensures the newly teleported player loads the room's population!
+        const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id);
+        socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
+        
         supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
     });
 
@@ -1073,8 +1078,43 @@ io.on('connection', (socket) => {
         const p = onlinePlayers[socket.id];
         if (p) {
             p.isGhost = false; p.currentHp = p.maxHp || 100;
-            if (p.mapId !== 'town') socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
-            else io.to(p.instanceId).emit('playerRevived', { id: p.id, currentHp: p.currentHp });
+            if (p.mapId !== 'town') {
+                // 🌟 FIX: Pull the player out of the Boss Room immediately!
+                socket.leave(p.instanceId); 
+                socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
+                
+                if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
+                    for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
+                }
+
+                // 🌟 FIX: Fully move them to Town on the Server-Side
+                p.mapId = 'town'; p.x = 960; p.y = 1000; p.currentPortal = null;
+                p.instanceId = getInstanceId(p.id, 'town'); 
+                socket.join(p.instanceId);
+                
+                // Tell the client to execute the teleport
+                socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); 
+                
+                // Tell everyone in Town that you arrived
+                socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
+                
+                // 🌟 FIX: Send the respawning player the list of everyone currently standing in Town!
+                const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id);
+                socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
+                
+                supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
+            } else {
+                io.to(p.instanceId).emit('playerRevived', { id: p.id, currentHp: p.currentHp });
+            }
+        }
+    });
+    // 🌟 NEW: IN-PLACE REVIVAL FOR JUICE
+    socket.on('localRevive', () => {
+        const p = onlinePlayers[socket.id];
+        if (p && p.isGhost) {
+            p.isGhost = false;
+            p.currentHp = p.maxHp || 100;
+            io.to(p.instanceId).emit('playerRevived', { id: p.id, currentHp: p.currentHp });
         }
     });
 
@@ -1118,6 +1158,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
