@@ -234,6 +234,23 @@ function getInstanceId(playerId, mapId) {
 }
 
 const worlds = {}; 
+// 🛡️ ANTI-CHEAT: SERVER-SIDE STAT CALCULATOR
+function getServerTotalStat(p, statName) { 
+    if (!p || !p.baseStats) return 0; 
+    let base = p.baseStats[statName] || 0; 
+    ['weapon', 'armor', 'leggings'].forEach(slot => { 
+        let eq = p.equips?.[slot]; 
+        if (eq) { 
+            if (eq.fixedStat && typeof eq.fixedStat[statName] === 'number') base += eq.fixedStat[statName]; 
+            if (eq.randomStat && typeof eq.randomStat[statName] === 'number') base += eq.randomStat[statName]; 
+        } 
+    }); 
+    if (p.baseStats.playerClass === 'Berserker' && p.level >= 25 && (statName === 'hp' || statName === 'defense')) base += Math.floor(p.baseStats[statName] * 0.25);
+    if (p.baseStats.playerClass === 'Blademaster' && statName === 'attack') base += Math.floor(p.baseStats.attack * 0.25);
+    return base; 
+}
+function getServerAttackPower(p) { return getServerTotalStat(p, 'attack') + Math.floor(getServerTotalStat(p, 'str') / 2); }
+function getServerMagicAttack(p) { return getServerTotalStat(p, 'magic') + Math.floor(getServerTotalStat(p, 'int') / 2); }
 
 function spawnMonster(instId, entityId, originalKey, cfg) {
     let monsterKey = originalKey; // 🌟 Store the original key to prevent mutations!
@@ -751,7 +768,9 @@ io.on('connection', (socket) => {
         onlinePlayers[socket.id] = {
             socketId: socket.id, id: userData.character_name, name: userData.character_name, mapId: mapId, instanceId: instId, isGhost: false, currentPortal: null,
             x: userData.pos_x || 960, y: userData.pos_y || 1000, level: userData.level || 1, currentHp: startHp, maxHp: 100, tradeTarget: null,
-            equips: userData.equips || { weapon: null, armor: null, leggings: null }, 
+           equips: userData.equips || { weapon: null, armor: null, leggings: null }, 
+            baseStats: userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }, // ✅ CACHED FOR ANTI-CHEAT
+            gold: userData.gold || 0, // ✅ CACHED FOR ANTI-CHEAT
             spriteData: { skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, weapon: userData.equips?.weapon?.sprite || null },
             untargetableUntil: 0 
         };
@@ -764,16 +783,44 @@ io.on('connection', (socket) => {
 
     socket.on('saveData', async (playerData) => {
         if (!currentUser) return;
-        supabase.from('Exonians').update({ level: playerData.level, exp: playerData.exp, max_exp: playerData.maxExp, current_hp: playerData.currentHp, gold: playerData.gold, pos_x: playerData.x, pos_y: playerData.y, map_id: playerData.mapId, base_stats: playerData.baseStats, inventory: playerData.inventory, equips: playerData.equips }).eq('character_name', currentUser).then(()=>{});
-        
         const p = onlinePlayers[socket.id];
-        if (p) { 
-            p.level = playerData.level; p.currentHp = playerData.currentHp; p.maxHp = playerData.maxHp || 100; p.equips = playerData.equips; 
-            if (playerData.equips?.weapon?.sprite) p.spriteData.weapon = playerData.equips.weapon.sprite; 
-        }
-        if (p) { const pid = playerParty[p.id]; if (pid) emitPartyUpdate(pid); }
-    });
+        if (!p) return;
 
+        // 🛡️ ANTI-CHEAT: ECONOMY & STAT VALIDATION
+        // Prevent sudden impossible jumps in stats/gold
+        let safeGold = playerData.gold;
+        if (safeGold > p.gold + 50000 && p.id !== "Kei") { // Max legit spike is selling a Godly item
+            console.log(`[HACK BLOCKED] ${p.id} tried to spawn ${safeGold - p.gold} gold.`);
+            safeGold = p.gold; // Reject the hacked gold
+        }
+        
+        let safeLevel = playerData.level;
+        if (safeLevel > 50 && p.id !== "Kei") safeLevel = 50; // Hard cap level to 50
+        
+        // Prevent editing Base Stats directly to massive numbers
+        let safeBaseStats = playerData.baseStats;
+        if (safeBaseStats && p.id !== "Kei") {
+            if (safeBaseStats.str > 150) safeBaseStats.str = 150;
+            if (safeBaseStats.int > 150) safeBaseStats.int = 150;
+            if (safeBaseStats.attack > 150) safeBaseStats.attack = 150;
+        }
+
+        // Save sanitized data to database
+        supabase.from('Exonians').update({ 
+            level: safeLevel, exp: playerData.exp, max_exp: playerData.maxExp, 
+            current_hp: playerData.currentHp, gold: safeGold, 
+            pos_x: playerData.x, pos_y: playerData.y, map_id: playerData.mapId, 
+            base_stats: safeBaseStats, inventory: playerData.inventory, equips: playerData.equips 
+        }).eq('character_name', currentUser).then(()=>{});
+        
+        // Update server cache
+        p.level = safeLevel; p.currentHp = playerData.currentHp; p.maxHp = playerData.maxHp || 100; 
+        p.equips = playerData.equips; p.gold = safeGold; p.baseStats = safeBaseStats;
+        if (playerData.equips?.weapon?.sprite) p.spriteData.weapon = playerData.equips.weapon.sprite; 
+        
+        const pid = playerParty[p.id]; if (pid) emitPartyUpdate(pid);
+    });
+    
     socket.on('playerMoved', (data) => {
         if (!onlinePlayers[socket.id]) return; 
         const p = onlinePlayers[socket.id]; 
@@ -844,8 +891,23 @@ io.on('connection', (socket) => {
         
         if (!m || !m.alive) return;
         
-        const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); if (dist > 350) return;
-        const dmg = Math.max(1, Math.floor(Number(payload.damage) || 1)); m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
+       const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); if (dist > 350) return;
+        
+        // 🛡️ ANTI-CHEAT: DAMAGE VALIDATION
+        let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(p.baseStats?.playerClass);
+        let serverAtkPwr = isMagicClass ? getServerMagicAttack(p) : getServerAttackPower(p);
+        
+        // The highest multiplier a player can have is 5x (Blademaster Mega Slash). We add a little buffer for RNG variance.
+        let maxPossibleDamage = Math.max(50, Math.floor(serverAtkPwr * 6)); 
+        
+        let clientDmg = Math.floor(Number(payload.damage) || 1);
+        if (clientDmg > maxPossibleDamage && p.id !== "Kei") {
+            console.log(`[HACK BLOCKED] ${p.id} tried to do ${clientDmg} dmg. Capped at ${maxPossibleDamage}.`);
+            clientDmg = maxPossibleDamage;
+        }
+
+        const dmg = Math.max(1, clientDmg); 
+        m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
         
         if (payload.freeze) { m.frozenUntil = Date.now() + 3000; }
 
@@ -1056,6 +1118,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
