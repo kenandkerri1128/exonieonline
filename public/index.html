@@ -1025,7 +1025,7 @@ window.preloadMapAssets = function(mapData, callback) {
     
     let assets = [
         mapData.image, 'animation/avatar_idlefront.png', 'animation/avatar_walk.png', 'animation/avatar_attack.png', 'animation/avatar_head.png',
-        'music/slash.mp3', 'music/lightning.mp3', 'music/splash.mp3' 
+        'music/slash.mp3', 'music/lightning.mp3', 'music/splash.mp3', 'music/bump.mp3' 
     ];
     
     let mKeys = new Set();
@@ -2414,6 +2414,15 @@ mEl.addEventListener('pointerdown', (e) => {
         const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); let dx = tx - mcx, dy = ty - mcy; let dist = Math.hypot(dx, dy) || 1; let moveX = (dx / dist) * 20; let moveY = (dy / dist) * 20;
         const spriteLayer = mEl.querySelector('.monster-sprite-layer'); if(spriteLayer) { spriteLayer.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`; setTimeout(() => { spriteLayer.style.transform = `translate(0px, 0px) scale(1)`; }, 150); }
         
+        // 🌟 NEW: DYNAMIC MONSTER HIT SOUNDS
+        let sfxFile = 'bump'; // Default for Slimes (Type 1 & Golden)
+        if (m.monsterKey.includes('2')) sfxFile = 'lightning'; // Bats (Type 2)
+        else if (m.monsterKey.includes('3')) sfxFile = 'splash'; // Fire Remnants (Type 3)
+        
+        let hitSound = new Audio(`music/${sfxFile}.mp3`);
+        hitSound.volume = 0.4; // Slightly lower volume so it doesn't overpower the player's attacks
+        hitSound.play().catch(e => {});
+
         const serverAtk = data.atk || m.atk || 25;
 
         if (targetId === game.player.id && game.player.currentHp > 0 && !game.isGhost) {
@@ -3021,6 +3030,7 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
