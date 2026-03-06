@@ -796,6 +796,12 @@ var floor4MapData = {
             "y": 1076,
             "w": 76,
             "h": 139
+        },
+        {
+            "x": 1624,
+            "y": 1319,
+            "w": 182,
+            "h": 15
         }
     ],
     "teleports": [
@@ -808,10 +814,10 @@ var floor4MapData = {
             "targetMapId": "floor3"
         },
         {
-            "x": 1623,
-            "y": 1307,
-            "w": 183,
-            "h": 24,
+            "x": 1624,
+            "y": 1279,
+            "w": 182,
+            "h": 36,
             "portalId": 9,
             "targetMapId": "floor5"
         }
