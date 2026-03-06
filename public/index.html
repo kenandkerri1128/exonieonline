@@ -501,10 +501,11 @@
 <body>
 <div id="game-container">
     <div id="chat-input-container"><input type="text" id="chat-input" placeholder="Press Enter to Chat..." autocomplete="off"></div>
-    
     <div id="death-screen" class="screen">
         <h1>YOU DIED</h1>
         <button class="btn btn-large" style="width:250px; background:#f44336; font-size: 24px;" onclick="window.respawn()">Respawn in Town</button>
+        
+        <button id="revive-juice-btn" class="btn btn-large" style="width:250px; background:#9c27b0; font-size: 24px; display:none; margin-top: 15px;" onclick="window.useRevivalJuice()">Drink Revival Juice</button>
     </div>
 
     <div id="invite-dialog" class="popup-dialog">
@@ -1315,7 +1316,8 @@ window.openItemAction = function(index, e) {
 window.actionEquip = function(e) { if (e) e.stopPropagation(); if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; if (game.player.inventory[activeInvIndex].type === 'material') { isEnhancing = true; dom.log.innerText = `Select equipment to enhance!`; window.renderInventory(); } else { window.useItem(activeInvIndex); } document.getElementById('inv-context-menu').style.display = 'none'; }
 window.actionThrow = function(e) { if (e) e.stopPropagation(); if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; dom.log.innerText = `Threw away ${game.player.inventory[activeInvIndex].name}.`; game.player.inventory[activeInvIndex] = null; activeInvIndex = -1; window.renderInventory(); DatabaseManager.savePlayerData(game.player); document.getElementById('inv-context-menu').style.display = 'none'; }
 window.unequipItem = function(slot) { const eq = game.player.equips[slot]; if (!eq) return; const inv = game.player.inventory || []; const emptySlot = inv.findIndex(i => i === null); if (emptySlot === -1) { dom.log.innerText = "Inventory full!"; return; } game.player.inventory[emptySlot] = eq; game.player.equips[slot] = null; dom.log.innerText = `Unequipped ${eq.name}.`; window.updateEquipmentDisplay(); window.renderInventory(); window.updateSkillMenu(); DatabaseManager.savePlayerData(game.player); }
-window.useItem = function(index) { const item = game.player.inventory[index]; if (!item) return; if (item.type === 'consumable' && item.name === "Class Reset Book") { if (!game.player.baseStats.playerClass) { dom.log.innerText = "You don't have a class to reset yet!"; return; } game.player.baseStats.playerClass = null; game.player.activeSkills = []; item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, "CLASS RESET", '#ffeb3b'); dom.log.innerText = `You reset your class! Open Skills (K) to pick a new one.`; window.renderInventory(); window.updateSkillMenu(); if (typeof isSkillOpen !== 'undefined' && isSkillOpen) window.renderSkillScreen(); DatabaseManager.savePlayerData(game.player); return; } if (item.level && item.level > game.player.level) { dom.log.innerText = `Level ${item.level} required!`; return; } if (item.type === 'potion') { game.player.currentHp = Math.min(window.getMaxHp(), game.player.currentHp + item.fixedStat.hpHeal); item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, `+${item.fixedStat.hpHeal} HP`, '#4CAF50'); dom.log.innerText = `Used ${item.name}!`; window.updateUI(); window.emitVitalsIfNeeded(true); } else { const currentEquip = game.player.equips[item.type]; game.player.equips[item.type] = item; game.player.inventory[index] = currentEquip; dom.log.innerText = `Equipped ${item.name}!`; window.updateEquipmentDisplay(); window.emitVitalsIfNeeded(true); window.updateSkillMenu(); } window.renderInventory(); DatabaseManager.savePlayerData(game.player); }
+window.useRevivalJuice = function(invIndex = -1) { if (!game.isGhost) { dom.log.innerText = "You can only use this when you are dead!"; return; } let juiceIndex = invIndex; if (juiceIndex === -1) { juiceIndex = game.player.inventory.findIndex(i => i && i.name === "Revival Juice"); } if (juiceIndex !== -1) { let item = game.player.inventory[juiceIndex]; item.quantity--; if (item.quantity <= 0) game.player.inventory[juiceIndex] = null; document.getElementById('death-screen').style.display = 'none'; game.isGhost = false; game.player.currentHp = window.getMaxHp(); dom.playerContainer.style.opacity = '1'; window.spawnDamageText(game.player.x + 24, game.player.y, "REVIVED", "#ffeb3b"); dom.log.innerText = "You drank the Revival Juice and came back to life!"; window.renderInventory(); window.updateUI(); window.emitVitalsIfNeeded(true); if (socket) socket.emit('localRevive'); DatabaseManager.savePlayerData(game.player); } };
+window.useItem = function(index) { const item = game.player.inventory[index]; if (!item) return; if (item.type === 'consumable' && item.name === "Revival Juice") { window.useRevivalJuice(index); return; } if (item.type === 'consumable' && item.name === "Class Reset Book") { if (!game.player.baseStats.playerClass) { dom.log.innerText = "You don't have a class to reset yet!"; return; } game.player.baseStats.playerClass = null; game.player.activeSkills = []; item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, "CLASS RESET", '#ffeb3b'); dom.log.innerText = `You reset your class! Open Skills (K) to pick a new one.`; window.renderInventory(); window.updateSkillMenu(); if (typeof isSkillOpen !== 'undefined' && isSkillOpen) window.renderSkillScreen(); DatabaseManager.savePlayerData(game.player); return; } if (item.level && item.level > game.player.level) { dom.log.innerText = `Level ${item.level} required!`; return; } if (item.type === 'potion') { game.player.currentHp = Math.min(window.getMaxHp(), game.player.currentHp + item.fixedStat.hpHeal); item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, `+${item.fixedStat.hpHeal} HP`, '#4CAF50'); dom.log.innerText = `Used ${item.name}!`; window.updateUI(); window.emitVitalsIfNeeded(true); } else { const currentEquip = game.player.equips[item.type]; game.player.equips[item.type] = item; game.player.inventory[index] = currentEquip; dom.log.innerText = `Equipped ${item.name}!`; window.updateEquipmentDisplay(); window.emitVitalsIfNeeded(true); window.updateSkillMenu(); } window.renderInventory(); DatabaseManager.savePlayerData(game.player); }
 window.attemptEnhance = function(targetIndex, e) { 
     e.stopPropagation(); let stone = game.player.inventory[activeInvIndex]; let targetItem = game.player.inventory[targetIndex]; 
     if (!stone || !targetItem || stone.type !== 'material' || targetItem.type === 'material' || targetItem.type === 'potion' || targetItem.rarity === "Starter" || (stone.rarity||'') !== (targetItem.rarity||'') || (stone.level||0) !== (targetItem.level||0) || (targetItem.enhanceLevel||0) >= 20) { isEnhancing = false; window.renderInventory(); return; } 
@@ -2123,7 +2125,15 @@ window.showMapAnnouncement = function(mapId) {
     socket.on('remotePlayerJoined', (p) => window.addRemotePlayer(p));
     socket.on('remotePlayerLeft', (id) => window.removeRemotePlayer(id));
     socket.on('remotePlayerGhosted', (pid) => { const rp = document.getElementById('remote_' + pid); if(rp) rp.style.opacity = '0.5'; if(game.remotePlayers[pid]) game.remotePlayers[pid].isGhost = true; window.renderPartyUI(); });
-    socket.on('partyWiped', () => { document.getElementById('death-screen').style.display = 'flex'; });
+    socket.on('partyWiped', () => { 
+        const juiceBtn = document.getElementById('revive-juice-btn');
+        if (juiceBtn) {
+            // Check if player has the juice in their inventory
+            let hasJuice = game.player.inventory.some(i => i && i.name === "Revival Juice");
+            juiceBtn.style.display = hasJuice ? 'block' : 'none';
+        }
+        document.getElementById('death-screen').style.display = 'flex'; 
+    });
     socket.on('partyError', (msg) => { dom.log.innerText = msg; });
     socket.on('partyKickedOrLeft', () => { dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; game.party = null; dom.log.innerText = "You are no longer in a party."; });
     socket.on('chatMessage', (data) => { if (data.id === game.player.id) return; const p = game.remotePlayers[data.id]; if (p) window.showBubble(p, data.text); });
@@ -3011,6 +3021,7 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
