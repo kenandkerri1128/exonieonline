@@ -1558,7 +1558,19 @@ window.adminGiveCustomItem = function() {
 }
 
 window.isColliding = function(targetX, targetY) { const hitX = targetX + (game.player.width - game.player.w) / 2; const hitY = targetY + game.player.height - game.player.h; const cols = safeMapData.collisions || []; for (let box of cols) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; } return false; }
-window.spawnDamageText = function(x, y, amount, color) { const txt = document.createElement('div'); txt.className = 'damage-text'; txt.innerText = amount; txt.style.left = (x - 10) + 'px'; txt.style.top = y + 'px'; txt.style.color = color; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 1000); }
+window.spawnDamageText = function(x, y, amount, color) { 
+    const txt = document.createElement('div'); 
+    txt.className = 'damage-text'; 
+    txt.innerText = amount; 
+    // 🌟 ADDED JITTER: Pushes text slightly left/right so party hits don't overlap!
+    let jitterX = (Math.random() * 40) - 20; 
+    let jitterY = (Math.random() * 20) - 10;
+    txt.style.left = (x - 10 + jitterX) + 'px'; 
+    txt.style.top = (y + jitterY) + 'px'; 
+    txt.style.color = color; 
+    dom.world.appendChild(txt); 
+    setTimeout(() => txt.remove(), 1000); 
+}
 window.spawnSpark = function(x, y) { const spark = document.createElement('div'); spark.className = 'spark'; spark.style.left = (x + (Math.random() * 20 - 10)) + 'px'; spark.style.top = (y + (Math.random() * 20 - 10)) + 'px'; dom.world.appendChild(spark); setTimeout(() => spark.remove(), 300); }
 window.spawnWhiteSplash = function(x, y) { const splash = document.createElement('div'); splash.className = 'white-splash'; splash.style.left = x + 'px'; splash.style.top = y + 'px'; dom.world.appendChild(splash); setTimeout(() => splash.remove(), 300); }
 window.shootOrb = function(startX, startY, endX, endY) { const orb = document.createElement('div'); orb.className = 'magic-orb'; orb.style.left = startX + 'px'; orb.style.top = startY + 'px'; dom.world.appendChild(orb); const animation = orb.animate([{ left: startX + 'px', top: startY + 'px' }, { left: endX + 'px', top: endY + 'px' }], { duration: 500, easing: 'ease-in' }); animation.onfinish = () => orb.remove(); }
@@ -3030,6 +3042,7 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
