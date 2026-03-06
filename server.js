@@ -564,6 +564,9 @@ io.on('connection', (socket) => {
     socket.on('broadcastSkill', (data) => {
         const p = onlinePlayers[socket.id];
         if (p) {
+            // 🛡️ SECURITY: Block skill animations if they are in the safe zone!
+            if (p.mapId === 'town') return; 
+
             socket.to(p.instanceId).emit('remoteSkillEffect', { playerId: p.id, skillId: data.skillId, x: p.x, y: p.y, auraColor: data.auraColor });
         }
     });
@@ -591,7 +594,10 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('adminSpawnMonster', (data) => {
+   socket.on('adminSpawnMonster', (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.id !== "Kei") return; // 🛡️ SECURITY: Only the real Kei can do this!
+
         if (!worlds[data.instanceId]) return;
         const newMobId = 'admin_' + Date.now();
         const newMob = spawnMonster(data.instanceId, newMobId, data.monsterKey, { 
@@ -769,7 +775,35 @@ io.on('connection', (socket) => {
     });
 
     socket.on('playerMoved', (data) => {
-        if (!onlinePlayers[socket.id]) return; const p = onlinePlayers[socket.id]; p.x = data.x; p.y = data.y; p.spriteData.weapon = data.weaponSprite;
+        if (!onlinePlayers[socket.id]) return; 
+        const p = onlinePlayers[socket.id]; 
+
+        // 🛡️ SERVER-SIDE ANTI-WALLHACK
+        const world = worlds[p.instanceId];
+        if (world && world.collisions && !p.isGhost) {
+            const hitX = data.x + 12; // Player Hitbox X offset
+            const hitY = data.y + 76; // Player Hitbox Y offset
+            let isHacking = false;
+            
+            for (let box of world.collisions) {
+                // If the player's requested position is inside a wall...
+                if (hitX < box.x + box.w && hitX + 24 > box.x && hitY < box.y + box.h && hitY + 20 > box.y) {
+                    isHacking = true; break;
+                }
+            }
+            
+            // If they hit a wall, REJECT the movement and snap them back to their last known legal position!
+            if (isHacking) {
+                // Only admins named Kei are allowed to noclip
+                if (p.id !== "Kei") {
+                    socket.emit('forceTeleport', { mapId: p.mapId, x: p.x, y: p.y });
+                    return; 
+                }
+            }
+        }
+
+        // If movement is legal, update server and broadcast to others
+        p.x = data.x; p.y = data.y; p.spriteData.weapon = data.weaponSprite;
         socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: data.x, y: data.y, state: data.state, facingRight: data.facingRight, weaponSprite: data.weaponSprite });
     });
 
@@ -916,7 +950,11 @@ io.on('connection', (socket) => {
         parties[pid].members.add(me.id); playerParty[me.id] = pid; emitPartyUpdate(pid);
     });
 // ✅ GLOBAL ADMIN BROADCAST
+   // ✅ GLOBAL ADMIN BROADCAST
     socket.on('adminBroadcast', (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.id !== "Kei") return; // 🛡️ SECURITY: Only the real Kei can do this!
+
         // Broadcasts an unmissable yellow system message to EVERY single player online
         io.emit('systemMessage', `[SERVER ANNOUNCEMENT] ${data.text}`);
     });
@@ -1018,6 +1056,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
