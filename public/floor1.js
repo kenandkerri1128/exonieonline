@@ -40,7 +40,7 @@ var floor1MapData = {
             "y": 1141,
             "monsterKey": "common_mobs1",
             "level": 5
-        },
+        }
     ],
     "miniBossSpawns": [
         {
@@ -262,6 +262,12 @@ var floor1MapData = {
             "y": 338,
             "w": 32,
             "h": 49
+        },
+        {
+            "x": 1457,
+            "y": 1,
+            "w": 158,
+            "h": 9
         }
     ],
     "teleports": [
@@ -274,10 +280,10 @@ var floor1MapData = {
             "targetMapId": "town"
         },
         {
-            "x": 1468,
-            "y": 2,
-            "w": 124,
-            "h": 24,
+            "x": 1460,
+            "y": 19,
+            "w": 145,
+            "h": 20,
             "portalId": 3,
             "targetMapId": "floor2"
         }
