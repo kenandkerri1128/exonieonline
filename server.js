@@ -207,6 +207,9 @@ const MonsterDatabase = {
 
 function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
 function getPlayerById(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return onlinePlayers[sid]; } return null; }
+function playersInInstance(instId) { 
+    return Object.values(onlinePlayers).filter(p => p.instanceId === instId); 
+}
 
 function emitPartyUpdate(partyId) {
     const party = parties[partyId]; if (!party) return; const members = [];
@@ -258,7 +261,7 @@ function spawnMonster(instId, entityId, originalKey, cfg) {
     
     // 🌟 1% CHANCE TO OVERRIDE ANY COMMON MOB WITH THE GOLDEN SLIME
     if (stats.category === "common_mobs" && monsterKey !== "common_mobs_golden") {
-        if (Math.random() < 0.002) { 
+        if (Math.random() < 0.0009) { 
             monsterKey = "common_mobs_golden";
             stats = MonsterDatabase["common_mobs_golden"];
         }
@@ -296,7 +299,29 @@ function serializeMonster(m) { 
     }; 
 }
 
-function playersInInstance(instId) { return Object.values(onlinePlayers).filter(p => p.instanceId === instId); }
+function checkAndResetInstance(instId) {
+    if (!worlds[instId] || instId === 'town') return; // Don't reset the safe zone
+    
+    // Check if there are any REAL players left (ignoring invisible admins)
+    const activePlayers = playersInInstance(instId).filter(p => !p.isHiddenAdmin);
+    
+    if (activePlayers.length === 0) {
+        // The room is empty! Reset all ALIVE monsters to full health and spawn points.
+        for (let mId in worlds[instId].monsters) {
+            let m = worlds[instId].monsters[mId];
+            if (m.alive) {
+                m.currentHp = m.maxHp;
+                m.threatTable = {};
+                m.targetId = null;
+                m.forcedTargetId = null;
+                m.forcedUntil = 0;
+                m.frozenUntil = 0;
+                m.x = m.homeX; // Snap back to spawn
+                m.y = m.homeY;
+            }
+        }
+    }
+}
 
 function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
     const cols = worlds[instId]?.collisions || [];
@@ -307,12 +332,14 @@ function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
 function pickTarget(m, instId, now) {
     for (const pid of Object.keys(m.threatTable)) { 
         const p = getPlayerById(pid); 
-        if (!p || p.instanceId !== instId || p.isGhost || p.untargetableUntil > now || p.mapId === 'town') delete m.threatTable[pid]; 
+        // 🌟 ADDED !p.isHiddenAdmin
+        if (!p || p.instanceId !== instId || p.isGhost || p.isHiddenAdmin || p.untargetableUntil > now || p.mapId === 'town') delete m.threatTable[pid]; 
     }
     
     if (m.forcedUntil > now && m.forcedTargetId) {
         const p = getPlayerById(m.forcedTargetId);
-        if (p && p.instanceId === instId && !p.isGhost && p.untargetableUntil <= now && p.mapId !== 'town' && (p.currentHp ?? 1) > 0) {
+        // 🌟 ADDED !p.isHiddenAdmin
+        if (p && p.instanceId === instId && !p.isGhost && !p.isHiddenAdmin && p.untargetableUntil <= now && p.mapId !== 'town' && (p.currentHp ?? 1) > 0) {
             return { id: p.id, isPet: false, x: p.x + 24, y: p.y + 48 };
         } else { m.forcedTargetId = null; }
     }
@@ -333,7 +360,8 @@ function pickTarget(m, instId, now) {
     let best = null; let bestThreat = -1; let bestDist = Infinity;
     for (const pid of Object.keys(m.threatTable)) {
         const threat = m.threatTable[pid] || 0; const p = getPlayerById(pid); 
-        if (!p || p.isGhost || p.untargetableUntil > now || p.mapId === 'town') continue;
+        // 🌟 ADDED !p.isHiddenAdmin
+        if (!p || p.isGhost || p.isHiddenAdmin || p.untargetableUntil > now || p.mapId === 'town') continue;
         const dist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
         if (dist > m.chaseRadius) continue;
         if (threat > bestThreat || (threat === bestThreat && dist < bestDist)) { best = p; bestThreat = threat; bestDist = dist; }
@@ -342,7 +370,8 @@ function pickTarget(m, instId, now) {
     
     let nearest = null; let nearestDist = Infinity;
     for (const p of playersInInstance(instId)) {
-        if (p.isGhost || p.untargetableUntil > now || p.mapId === 'town' || (p.currentHp ?? 1) <= 0) continue; 
+        // 🌟 ADDED !p.isHiddenAdmin
+        if (p.isGhost || p.isHiddenAdmin || p.untargetableUntil > now || p.mapId === 'town' || (p.currentHp ?? 1) <= 0) continue; 
         const dist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
         if (dist <= m.aggroRadius && dist < nearestDist) { nearest = p; nearestDist = dist; }
     }
@@ -380,12 +409,13 @@ function updateMonsterAI(instId, m, now) {
 
                 io.to(instId).emit('monsterSkill', { monsterId: m.id, skillName: 'Earthquake', x: mcx, y: mcy, radius: aoeRadius });
 
-                const players = playersInInstance(instId);
+               const players = playersInInstance(instId);
                 players.forEach(p => {
-                    if (p.isGhost || p.mapId === 'town') return;
+                    // 🌟 ADDED p.isHiddenAdmin bypass so Earthquake ignores you
+                    if (p.isGhost || p.isHiddenAdmin || p.mapId === 'town') return;
                     const pDist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
                     if (pDist <= aoeRadius) {
-                        const damage = Math.max(1, m.atk - (p.stats?.defense || 0));
+                        const damage = Math.max(1, m.atk - getServerTotalStat(p, 'defense'));
                         p.currentHp -= damage;
                         io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: p.id, targetX: p.x + 24, targetY: p.y + 48, atk: m.atk, isAoE: true });
                     }
@@ -432,58 +462,132 @@ io.on('connection', (socket) => {
     if (!global.playerFriends) global.playerFriends = {};
 
   // ✅ MADE ASYNC TO FETCH OFFLINE LEVELS FROM SUPABASE
+ // ✅ ENHANCED FRIENDS LIST (MAP, CLASS, & SPECTATE DATA)
     async function sendFriendsUpdateTo(username) {
         const sid = findSocketIdByPlayerId(username);
         if (!sid) return;
 
-        // 👑 ADMIN OVERRIDE: Kei sees all online players in the server
+        // 👑 ADMIN OVERRIDE: Kei sees all online players with full data
         if (username === 'Kei') {
             const allOnline = Object.values(onlinePlayers)
-                .filter(p => p.id !== 'Kei') // Don't show Kei to themselves
-                .map(p => ({ id: p.id, online: true, level: p.level || 1 }));
+                .filter(p => p.id !== 'Kei') 
+                .map(p => ({ 
+                    id: p.id, online: true, level: p.level || 1, 
+                    mapId: p.mapId || 'Unknown', pClass: p.baseStats?.playerClass || 'Novice' 
+                }));
             io.to(sid).emit('friendsListUpdate', allOnline);
             return;
         }
 
-        // Standard Player Logic
         const myFriends = global.playerFriends[username] ? Array.from(global.playerFriends[username]) : [];
-        
-        if (myFriends.length === 0) {
-            io.to(sid).emit('friendsListUpdate', []);
-            return;
-        }
+        if (myFriends.length === 0) { io.to(sid).emit('friendsListUpdate', []); return; }
 
-        // ✅ BATCH FETCH ALL FRIEND LEVELS FROM DB
+        // ✅ BATCH FETCH FULL DATA FROM DB
         const { data: dbFriends } = await supabase
             .from('Exonians')
-            .select('character_name, level')
+            .select('character_name, level, map_id, base_stats')
             .in('character_name', myFriends);
 
         const friendData = myFriends.map(f => {
             let isOnline = activeLogins.has(f);
-            let currentLevel = 1;
+            let currentLevel = 1, currentMap = 'Unknown', currentClass = 'Novice';
             
             if (isOnline) {
-                // Get live level if they are online
                 for (let activeId in onlinePlayers) {
                     if (onlinePlayers[activeId].id === f) {
                         currentLevel = onlinePlayers[activeId].level || 1;
+                        currentMap = onlinePlayers[activeId].mapId || 'Unknown';
+                        currentClass = onlinePlayers[activeId].baseStats?.playerClass || 'Novice';
                         break;
                     }
                 }
-            } else {
-                // Get database level if they are offline
-                if (dbFriends) {
-                    const dbF = dbFriends.find(row => row.character_name === f);
-                    if (dbF) currentLevel = dbF.level || 1;
+            } else if (dbFriends) {
+                const dbF = dbFriends.find(row => row.character_name === f);
+                if (dbF) {
+                    currentLevel = dbF.level || 1;
+                    currentMap = dbF.map_id || 'Unknown';
+                    currentClass = dbF.base_stats?.playerClass || 'Novice';
                 }
             }
-
-            return { id: f, online: isOnline, level: currentLevel };
+            return { id: f, online: isOnline, level: currentLevel, mapId: currentMap, pClass: currentClass };
         });
-        
         io.to(sid).emit('friendsListUpdate', friendData);
     }
+    // 🛡️ SYSTEM MAILBOX: Fetch messages for the specific player
+    socket.on('getMail', async () => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+
+        try {
+            // Fetches unclaimed mail specifically for this character name
+            const { data: mails, error } = await supabase
+                .from('System_Mail')
+                .select('*')
+                .eq('recipient_name', p.id)
+                .eq('is_claimed', false);
+
+            if (error) throw error;
+            socket.emit('mailList', mails || []);
+        } catch (e) {
+            console.error(`[MAIL ERROR] Failed to fetch mail for ${p.id}:`, e.message);
+            socket.emit('mailList', []);
+        }
+    });
+
+    // 🛡️ SYSTEM MAILBOX: Secure Claiming Logic
+    socket.on('claimMail', async (mailId) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+
+        try {
+            // 1. Double-check the mail exists and belongs to this player
+            const { data: mail, error } = await supabase
+                .from('System_Mail')
+                .select('*')
+                .eq('id', mailId)
+                .eq('recipient_name', p.id)
+                .eq('is_claimed', false)
+                .single();
+
+            if (error || !mail) return socket.emit('systemMessage', "Mail not found or already claimed.");
+
+            // 2. If there is an item attached, perform a server-side inventory check
+            if (mail.attached_item) {
+                const inv = p.inventory || [];
+                const emptySlot = inv.findIndex(slot => slot === null);
+
+                // 🛑 ANTI-HACK: Prevent claiming if inventory is full
+                if (emptySlot === -1) {
+                    return socket.emit('systemMessage', "Inventory full! Clear space to claim this item.");
+                }
+
+                // 3. Move the item into the server's player cache
+                p.inventory[emptySlot] = mail.attached_item;
+            }
+
+            // 4. Mark mail as claimed in the Database
+            const { error: updateError } = await supabase
+                .from('System_Mail')
+                .update({ is_claimed: true })
+                .eq('id', mailId);
+
+            if (updateError) throw updateError;
+
+            // 5. Update the Database with the new inventory and notify the client
+            await supabase
+                .from('Exonians')
+                .update({ inventory: p.inventory })
+                .eq('character_name', p.id);
+
+            socket.emit('mailClaimSuccess', mailId);
+            socket.emit('syncInventory', p.inventory); // Forces frontend bag to refresh
+            socket.emit('systemMessage', "Mail successfully claimed!");
+
+        } catch (e) {
+            console.error(`[CLAIM ERROR] ${p.id} failed to claim mail ${mailId}:`, e.message);
+            socket.emit('systemMessage', "Server error during claim.");
+        }
+    });
 
     socket.on('addFriend', (data) => {
         const me = onlinePlayers[socket.id];
@@ -534,50 +638,62 @@ io.on('connection', (socket) => {
         if (me) sendFriendsUpdateTo(me.id);
     });
     socket.on('saveMapFile', (data) => {
+        const p = onlinePlayers[socket.id];
+        // 🛡️ ANTI-CHEAT: ONLY THE REAL SERVER ADMIN CAN SAVE MAPS
+        if (!p || p.id !== "Kei") {
+            console.log(`[CRITICAL WARNING] ${socket.id} attempted to overwrite map ${data.mapId}!`);
+            return; 
+        }
         if (!data.mapId || !data.content) return;
         const fileName = data.mapId === 'town' ? 'townmap.js' : `${data.mapId}.js`;
         const filePath = path.join(__dirname, 'public', fileName);
         try { fs.writeFileSync(filePath, data.content); } catch(err) {}
     });
 
-   socket.on('partyHeal', (data) => {
+  socket.on('partyHeal', () => { 
         const p = onlinePlayers[socket.id];
-        if (!p || p.isGhost || p.mapId === 'town') return;
+        // 👇 UPDATE THIS LINE TO BLOCK NON-HEALERS 👇
+        if (!p || p.isGhost || p.mapId === 'town' || p.baseStats?.playerClass !== 'Healer') return;
 
-        // 🛡️ ANTI-CHEAT: ENFORCE 20s COOLDOWN (18s server-side leniency)
         const now = Date.now();
         if (p.skillCooldowns['partyHeal'] && now < p.skillCooldowns['partyHeal']) return;
         p.skillCooldowns['partyHeal'] = now + 18000; 
 
+        // 🛡️ SERVER CALCULATES THE HEAL AMOUNT AND RADIUS
+        let trueHealAmt = p.level >= 25 ? 500 : 250;
+        let safeRadius = 400;
+
+        // Heal caster first
+        p.currentHp = Math.min(p.maxHp || 100, p.currentHp + trueHealAmt);
+        io.to(p.instanceId).emit('playerHealed', { id: p.id, amount: trueHealAmt, currentHp: p.currentHp });
+
         const pid = playerParty[p.id];
         if (pid && parties[pid]) {
-            // ... (keep the rest of your partyHeal loop exactly the same)
             for (const memberId of parties[pid].members) {
+                if (memberId === p.id) continue;
                 const mp = getPlayerById(memberId);
                 if (mp && !mp.isGhost && mp.instanceId === p.instanceId) {
                     const dist = Math.hypot(p.x - mp.x, p.y - mp.y);
-                    if (dist <= (data.radius || 400)) {
-                        mp.currentHp = Math.min(mp.maxHp, mp.currentHp + data.amount);
-                        io.to(p.instanceId).emit('playerHealed', { id: mp.id, amount: data.amount, currentHp: mp.currentHp });
+                    if (dist <= safeRadius) {
+                        mp.currentHp = Math.min(mp.maxHp || 100, mp.currentHp + trueHealAmt);
+                        io.to(p.instanceId).emit('playerHealed', { id: mp.id, amount: trueHealAmt, currentHp: mp.currentHp });
                     }
                 }
             }
             emitPartyUpdate(pid);
         }
     });
-
     socket.on('partyRevive', () => {
         const p = onlinePlayers[socket.id];
         if (!p || p.mapId === 'town') return;
 
-        // 🛡️ ANTI-CHEAT: ENFORCE 100s COOLDOWN (95s leniency)
+        // 🛡️ 100s COOLDOWN (95s leniency)
         const now = Date.now();
         if (p.skillCooldowns['partyRevive'] && now < p.skillCooldowns['partyRevive']) return;
         p.skillCooldowns['partyRevive'] = now + 95000;
 
         const pid = playerParty[p.id];
         if (pid && parties[pid]) {
-            // ... (keep the rest of your partyRevive loop exactly the same)
             for (const memberId of parties[pid].members) {
                 const mp = getPlayerById(memberId);
                 if (mp && mp.isGhost && mp.mapId !== 'town') {
@@ -592,8 +708,12 @@ io.on('connection', (socket) => {
     socket.on('broadcastSkill', (data) => {
         const p = onlinePlayers[socket.id];
         if (p) {
-            // 🛡️ SECURITY: Block skill animations if they are in the safe zone!
             if (p.mapId === 'town') return; 
+            
+            // 🛡️ Max 1 aura effect per second. Stops hackers from crashing clients with visual spam!
+            const now = Date.now();
+            if (p.skillCooldowns['visualSpam'] && now < p.skillCooldowns['visualSpam']) return;
+            p.skillCooldowns['visualSpam'] = now + 1000;
 
             socket.to(p.instanceId).emit('remoteSkillEffect', { playerId: p.id, skillId: data.skillId, x: p.x, y: p.y, auraColor: data.auraColor });
         }
@@ -768,25 +888,34 @@ io.on('connection', (socket) => {
     });
 
     socket.on('enterWorld', (userData) => {
-        const mapId = userData.map_id || 'town';
+        // 🛡️ STRICT LOGIN RULE: Everyone spawns in Town! No exceptions.
+        const mapId = 'town';
         const instId = getInstanceId(userData.character_name, mapId);
 
-        let startHp = userData.current_hp || 100;
-        if (mapId === 'town') startHp = 100;
+        let startHp = userData.max_hp || 100; // Full heal in town
         
-        currentUser = userData.character_name; // ✅ Re-enforces session state
+        currentUser = userData.character_name; 
         
         onlinePlayers[socket.id] = {
-            socketId: socket.id, id: userData.character_name, name: userData.character_name, mapId: mapId, instanceId: instId, isGhost: false, currentPortal: null,
-            x: userData.pos_x || 960, y: userData.pos_y || 1000, level: userData.level || 1, currentHp: startHp, maxHp: 100, tradeTarget: null,
-           equips: userData.equips || { weapon: null, armor: null, leggings: null }, 
-           baseStats: userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }, // ✅ CACHED FOR ANTI-CHEAT
-            gold: userData.gold || 0, // ✅ CACHED FOR ANTI-CHEAT
-            spriteData: { skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, weapon: userData.equips?.weapon?.sprite || null },
+            socketId: socket.id, id: userData.character_name, name: userData.character_name, 
+            mapId: mapId, instanceId: instId, isGhost: false, currentPortal: null,
+            x: 960, y: 1000, // 🛡️ FORCE SPAWN
+            level: userData.level || 1, currentHp: startHp, maxHp: userData.max_hp || 100, tradeTarget: null,
+            equips: userData.equips || { weapon: null, armor: null, leggings: null }, 
+            baseStats: userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }, 
+            gold: userData.gold || 0, 
+            spriteData: { 
+                skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, 
+                weapon: userData.equips?.weapon?.sprite || null,
+                aura: userData.equips?.armor?.aura || null 
+            },
             untargetableUntil: 0,
-            // 🛡️ ANTI-CHEAT: RATE LIMITERS
             attackTokens: 3, lastTokenRefill: Date.now(), skillCooldowns: {}
         };
+        
+        // 🛡️ FORCE DB UPDATE IMMEDIATELY SO CLIENT CAN'T OVERRIDE IT
+        supabase.from('Exonians').update({ map_id: 'town', pos_x: 960, pos_y: 1000, current_hp: startHp }).eq('character_name', currentUser).then(()=>{});
+
         socket.join(instId); socket.emit('authSuccess', userData);
         
         socket.to(instId).emit('remotePlayerJoined', { id: onlinePlayers[socket.id].id, name: onlinePlayers[socket.id].name, mapId, instanceId: instId, x: onlinePlayers[socket.id].x, y: onlinePlayers[socket.id].y, spriteData: onlinePlayers[socket.id].spriteData, isGhost: false });
@@ -805,7 +934,15 @@ io.on('connection', (socket) => {
             return; // Block hackers from spamming the save function!
         }
         p.lastSaveTime = now;
-
+// 🛡️ ANTI-CHEAT: VALIDATE COSMETIC AURAS
+        const validAuras = ['lightning']; // Add new auras here next month!
+        let safeAura = playerData.equips?.armor?.aura || null;
+        if (safeAura && !validAuras.includes(safeAura)) {
+            console.log(`[HACK BLOCKED] ${p.id} tried to inject fake aura: ${safeAura}`);
+            safeAura = null;
+            if (playerData.equips && playerData.equips.armor) delete playerData.equips.armor.aura;
+        }
+        p.spriteData.aura = safeAura; // Sync to live server cache
         // 🛡️ ANTI-CHEAT: ECONOMY & STAT VALIDATION
         let safeGold = playerData.gold;
         if (safeGold > p.gold + 50000 && p.id !== "Kei") { // Max legit spike is selling a Godly item
@@ -840,7 +977,7 @@ io.on('connection', (socket) => {
         const pid = playerParty[p.id]; if (pid) emitPartyUpdate(pid);
     });
     
-    socket.on('playerMoved', (data) => {
+   socket.on('playerMoved', (data) => {
         if (!onlinePlayers[socket.id]) return; 
         const p = onlinePlayers[socket.id]; 
 
@@ -870,38 +1007,48 @@ io.on('connection', (socket) => {
 
         // If movement is legal, update server and broadcast to others
         p.x = data.x; p.y = data.y; p.spriteData.weapon = data.weaponSprite;
-        socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: data.x, y: data.y, state: data.state, facingRight: data.facingRight, weaponSprite: data.weaponSprite });
+        
+       // 🌟 ADMIN SPECTATOR FIX & AURA SYNC: Include spriteData in the broadcast!
+        if (!p.isHiddenAdmin) {
+            socket.to(p.instanceId).emit('remotePlayerMoved', { 
+                id: p.id, x: data.x, y: data.y, state: data.state, 
+                facingRight: data.facingRight, weaponSprite: data.weaponSprite,
+                spriteData: p.spriteData // <--- THIS WAS MISSING! It syncs the Aura!
+            });
+        }
     });
 
-    socket.on('tauntMonsters', (data) => {
+   socket.on('tauntMonsters', () => { // 🛡️ Ignored client data
         const p = onlinePlayers[socket.id]; if(!p || p.isGhost) return;
-        if (p.mapId === 'town') return; 
+        if (p.mapId === 'town' || p.baseStats?.playerClass !== 'Berserker') return; 
 
-        // 🛡️ ANTI-CHEAT: ENFORCE 14s COOLDOWN (12s leniency)
         const now = Date.now();
         if (p.skillCooldowns['tauntMonsters'] && now < p.skillCooldowns['tauntMonsters']) return;
-        p.skillCooldowns['tauntMonsters'] = now + 12000;
+        p.skillCooldowns['tauntMonsters'] = now + 13000;
 
         const world = worlds[p.instanceId]; if(!world) return;
-        // ... (keep the rest of your tauntMonsters loop the same)
         for (let mId in world.monsters) {
             let m = world.monsters[mId];
             if (!m.alive) continue;
             let dist = Math.hypot(p.x + 24 - (m.x + m.width/2), p.y + 48 - (m.y + m.height/2));
-            if (dist <= (data.radius || 300)) { m.forcedTargetId = p.id; m.forcedUntil = Date.now() + 10000; }
+            if (dist <= 300) { m.forcedTargetId = p.id; m.forcedUntil = Date.now() + 10000; } // 🛡️ Server enforces 300 radius
         }
     });
 
-   socket.on('syncPet', (data) => {
+  socket.on('syncPet', (data) => {
         const p = onlinePlayers[socket.id]; if(!p) return;
         if (p.mapId === 'town') return; 
         const world = worlds[p.instanceId]; if(!world) return;
         if (!world.pets) world.pets = {};
         
-        // 🛡️ ANTI-CHEAT: MAX 2 PETS PER PLAYER
+        // 🛡️ 25s COOLDOWN (23s leniency) ON NEW SUMMONS
         if (data.alive) { 
+            const now = Date.now();
+            if (p.skillCooldowns['summonPet'] && now < p.skillCooldowns['summonPet']) return;
+            p.skillCooldowns['summonPet'] = now + 23000;
+
             let myPetCount = Object.values(world.pets).filter(pet => pet.ownerId === p.id).length;
-            if (myPetCount >= 2 && !world.pets[data.id]) return; // Block spawning more than 2!
+            if (myPetCount >= 2 && !world.pets[data.id]) return; 
             world.pets[data.id] = { id: data.id, ownerId: p.id, x: data.x, y: data.y }; 
         } 
         else { delete world.pets[data.id]; }
@@ -909,71 +1056,101 @@ io.on('connection', (socket) => {
         socket.to(p.instanceId).emit('remotePetSync', { ownerId: p.id, petData: data });
     });
 
-    socket.on('setUntargetable', (data) => {
+    socket.on('setUntargetable', () => { // 🛡️ Ignored client data
         const p = onlinePlayers[socket.id];
-        if (p && p.mapId !== 'town') { 
-            // 🛡️ ANTI-CHEAT: ENFORCE 15s COOLDOWN (13s leniency)
+        if (p && p.mapId !== 'town' && p.baseStats?.playerClass === 'Blademaster') { 
             const now = Date.now();
             if (p.skillCooldowns['setUntargetable'] && now < p.skillCooldowns['setUntargetable']) return;
-            p.skillCooldowns['setUntargetable'] = now + 13000;
+            p.skillCooldowns['setUntargetable'] = now + 14000;
 
-            p.untargetableUntil = Date.now() + (data.duration || 10000); 
+            p.untargetableUntil = Date.now() + 10000; // 🛡️ Server enforces 10s
         }
     });
 
-    socket.on('attackMonster', (payload) => {
+  socket.on('attackMonster', (payload) => {
         const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return; 
         if (p.mapId === 'town') return; 
-
-        // 🛡️ ANTI-CHEAT: ATTACK SPEED RATE LIMITER (TOKEN BUCKET)
         const now = Date.now();
-        p.lastTokenRefill = p.lastTokenRefill || now;
-        const timePassed = now - p.lastTokenRefill;
-        const tokensToAdd = Math.floor(timePassed / 800); // Regenerate 1 attack every 800ms
-        
-        if (tokensToAdd > 0) {
-            p.attackTokens = Math.min(3, (p.attackTokens || 0) + tokensToAdd); // Max 3 burst attacks
-            p.lastTokenRefill = now - (timePassed % 800);
+
+        // 👇 WRAP THE ANTI-CHEAT SO PETS DON'T EAT YOUR SWINGS 👇
+        if (payload.skillId !== 'pet') {
+            // 🛡️ ANTI-CHEAT: MACRO BLOCKER
+            if (p.lastAttackTime && now - p.lastAttackTime < 300) return;
+            p.lastAttackTime = now;
+
+            // 🛡️ ANTI-CHEAT: TOKEN BUCKET
+            p.lastTokenRefill = p.lastTokenRefill || now;
+            const timePassed = now - p.lastTokenRefill;
+            const tokensToAdd = Math.floor(timePassed / 700); 
+            if (tokensToAdd > 0) {
+                p.attackTokens = Math.min(3, (p.attackTokens || 0) + tokensToAdd); 
+                p.lastTokenRefill = now - (timePassed % 700);
+            }
+            if (p.attackTokens <= 0) return;
+            p.attackTokens--; 
         }
-        
-        if (p.attackTokens <= 0) {
-            return; // 🛑 SPAM BLOCKED! They are attacking too fast.
-        }
-        p.attackTokens--; // Consume an attack token
+        // 👆 END OF WRAPPER 👆
 
         const world = worlds[p.instanceId]; if (!world) return;
         const m = world.monsters[payload.monsterId]; 
-        
         if (!m || !m.alive) return;
         
-       const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); if (dist > 350) return;
+        const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); 
+        if (dist > 350) return;
         
-        // 🛡️ ANTI-CHEAT: DAMAGE VALIDATION
+        // 🛡️ 100% SERVER-SIDE MATH: The client's opinions are ignored entirely.
         let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(p.baseStats?.playerClass);
         let serverAtkPwr = isMagicClass ? getServerMagicAttack(p) : getServerAttackPower(p);
+        let isPendant = p.equips?.weapon?.sprite?.includes('pendant') || false;
         
-        // The highest multiplier a player can have is 5x (Blademaster Mega Slash). We add a little buffer for RNG variance.
-        let maxPossibleDamage = Math.max(50, Math.floor(serverAtkPwr * 6)); 
-        
-        let clientDmg = Math.floor(Number(payload.damage) || 1);
-        if (clientDmg > maxPossibleDamage && p.id !== "Kei") {
-            console.log(`[HACK BLOCKED] ${p.id} tried to do ${clientDmg} dmg. Capped at ${maxPossibleDamage}.`);
-            clientDmg = maxPossibleDamage;
+        // Base Swing (90% to 110%)
+        let trueDmg = Math.floor(serverAtkPwr * (0.9 + Math.random() * 0.2));
+        let pClass = p.baseStats?.playerClass;
+
+        // Skill Multipliers applied on the server with Identity Checking
+        if (payload.skillId === 'bld3') {
+            if (pClass !== 'Blademaster') return; // Hacker check!
+            if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && p.id !== "Kei") {
+                trueDmg = Math.floor(serverAtkPwr);
+            } else {
+                trueDmg = Math.floor(serverAtkPwr * 5);
+                p.skillCooldowns['heavyAttack'] = now + 49000; // 50s CD
+            }
+        } else if (payload.skillId === 'ice1') {
+            if (pClass !== 'Ice Master') return; // Hacker check!
+            if (p.skillCooldowns['ice1'] && now < p.skillCooldowns['ice1'] && p.id !== "Kei") {
+                trueDmg = Math.floor(serverAtkPwr); // Hacker spamming? Revert to basic damage.
+            } else {
+                trueDmg = Math.floor(serverAtkPwr * 2);
+                p.skillCooldowns['ice1'] = now + 23000; // 25s CD
+            }
+        } else if (payload.skillId === 'ice3') {
+            if (pClass !== 'Ice Master') return; // Hacker check!
+            if (p.skillCooldowns['ice3'] && now < p.skillCooldowns['ice3'] && p.id !== "Kei") {
+                trueDmg = Math.floor(serverAtkPwr); 
+            } else {
+                trueDmg = Math.floor(serverAtkPwr * 6); // 3 icicles * 2x damage = 6x total
+                p.skillCooldowns['ice3'] = now + 98000; // 100s CD
+            }
+        } else if (payload.skillId === 'pet') {
+            trueDmg = Math.floor(serverAtkPwr * 0.25);
         }
 
-        const dmg = Math.max(1, clientDmg); 
+        const dmg = Math.max(1, trueDmg - (m.def || 0)); 
         m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
         
-        if (payload.freeze) { m.frozenUntil = Date.now() + 3000; }
+        // Server controls Freeze logic exclusively
+        if (p.baseStats?.playerClass === 'Ice Master' && p.level >= 25 && (payload.skillId === 'basic' || payload.skillId === 'ice1' || payload.skillId === 'ice3')) {
+            if (Math.random() < 0.25) m.frozenUntil = Date.now() + 3000;
+        }
 
-        io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: !!payload.isPendant });
+        io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: isPendant });
         
         if (m.currentHp <= 0) {
             m.alive = false; m.targetId = null; m.threatTable = {}; m.forcedTargetId = null; m.forcedUntil = 0; m.frozenUntil = 0;
             io.to(p.instanceId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
             
-            const expAmount = m.expYield || 25;
-            const goldAmount = m.goldYield || 15; 
+            const expAmount = m.expYield || 25; const goldAmount = m.goldYield || 15; 
             const pid = playerParty[p.id];
 
             if (pid && parties[pid]) {
@@ -981,10 +1158,7 @@ io.on('connection', (socket) => {
                     const sid = findSocketIdByPlayerId(memberId); 
                     if (sid) {
                         io.to(sid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
-                        let drop = generateLoot(m);
-                        io.to(sid).emit('lootDropped', drop);
-                        
-                        // 🌟 BROADCAST PARTY DROPS
+                        let drop = generateLoot(m); io.to(sid).emit('lootDropped', drop);
                         if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
                             io.emit('rareLootBroadcast', { playerName: memberId, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
                         }
@@ -992,23 +1166,16 @@ io.on('connection', (socket) => {
                 }
             } else { 
                 io.to(socket.id).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
-                let drop = generateLoot(m);
-                io.to(socket.id).emit('lootDropped', drop);
-                
-                // 🌟 BROADCAST SOLO DROPS
+                let drop = generateLoot(m); io.to(socket.id).emit('lootDropped', drop);
                 if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
                     io.emit('rareLootBroadcast', { playerName: p.name || p.id, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
                 }
             }
             if (m.respawnDelayMs !== -1) {
                 setTimeout(() => { 
-                    // ✅ PASSES LEVEL SO HIGH LEVEL SPAWNS DON'T RESET TO LVL 5
                     const cfg = { spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY }, level: m.level }; 
-                    
-                    // ✅ USES originalKey SO GOLDEN SLIMES REVERT BACK TO NORMAL MOBS
                     const nm = spawnMonster(p.instanceId, m.id, m.originalKey || m.monsterKey, cfg); 
-                    world.monsters[m.id] = nm; 
-                    io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm)); 
+                    world.monsters[m.id] = nm; io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm)); 
                 }, m.respawnDelayMs || 10000);
             }
         }
@@ -1100,6 +1267,7 @@ io.on('connection', (socket) => {
         const p = onlinePlayers[socket.id];
         if (!p) return;
         
+        const oldInstId = p.instanceId; // 🌟 SAVE OLD INSTANCE
         socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
         
         if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
@@ -1109,6 +1277,8 @@ io.on('connection', (socket) => {
         p.mapId = tp.mapId; p.x = tp.x; p.y = tp.y; p.currentPortal = null;
         p.instanceId = getInstanceId(p.id, tp.mapId); 
         socket.join(p.instanceId);
+        
+        checkAndResetInstance(oldInstId); // 🌟 RUN THE RESET CHECK
         
         socket.emit('forceTeleport', tp); 
         socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
@@ -1122,6 +1292,8 @@ io.on('connection', (socket) => {
 
     socket.on('playerTeleported', async (data) => {
         if (!onlinePlayers[socket.id]) return; const p = onlinePlayers[socket.id];
+        
+        const oldInstId = p.instanceId; // 🌟 SAVE OLD INSTANCE
         socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
         
         if (p.mapId === 'town') p.currentHp = p.maxHp;
@@ -1133,6 +1305,8 @@ io.on('connection', (socket) => {
         p.mapId = data.mapId; p.x = data.x; p.y = data.y; p.currentPortal = null;
         p.instanceId = getInstanceId(p.id, data.mapId); 
         socket.join(p.instanceId);
+        
+        checkAndResetInstance(oldInstId); // 🌟 RUN THE RESET CHECK
         
         socket.emit('requestMapSync', { mapId: data.mapId, instanceId: p.instanceId }); 
         socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
@@ -1147,7 +1321,7 @@ io.on('connection', (socket) => {
         if (p) {
             p.isGhost = false; p.currentHp = p.maxHp || 100;
             if (p.mapId !== 'town') {
-                // 🌟 FIX: Pull the player out of the Boss Room immediately!
+                const oldInstId = p.instanceId; // 🌟 SAVE OLD INSTANCE
                 socket.leave(p.instanceId); 
                 socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
                 
@@ -1155,10 +1329,11 @@ io.on('connection', (socket) => {
                     for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
                 }
 
-                // 🌟 FIX: Fully move them to Town on the Server-Side
                 p.mapId = 'town'; p.x = 960; p.y = 1000; p.currentPortal = null;
                 p.instanceId = getInstanceId(p.id, 'town'); 
                 socket.join(p.instanceId);
+                
+                checkAndResetInstance(oldInstId); // 🌟 RUN THE RESET CHECK
                 
                 // Tell the client to execute the teleport
                 socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); 
@@ -1205,24 +1380,233 @@ io.on('connection', (socket) => {
             socket.emit('latestNews', []);
         }
     });
-    socket.on('disconnect', async () => {
-    // ✅ NEW: Free up the account so they can log back in
-    if (socket.username) {
-        activeLogins.delete(socket.username);
-    }
+    // 🌟 ADMIN SPECTATE ENGINE
+    socket.on('requestSpectate', (targetId) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.id !== "Kei") return;
+        const target = getPlayerById(targetId);
+        if (!target) return;
 
-    const p = onlinePlayers[socket.id];
-    if (p) {
-        socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
-        if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
-            for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
+        // Save admin's true location before ghosting
+        if (!p.savedSpectatePos) {
+            p.savedSpectatePos = { mapId: p.mapId, x: p.x, y: p.y, instanceId: p.instanceId };
         }
-        removeFromParty(p.id);
-        supabase.from('Exonians').update({ pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
-        delete onlinePlayers[socket.id];
-    }
-});
-});
+        p.isHiddenAdmin = true; // 👻 Turns Admin completely invisible to the server
 
+        // Leave current map silently
+        socket.leave(p.instanceId); 
+        socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
+
+        // Move to target map silently
+        p.mapId = target.mapId; p.x = target.x; p.y = target.y; p.instanceId = target.instanceId;
+        socket.join(p.instanceId);
+
+        // Tell admin to teleport, but include the spectate flag!
+        socket.emit('forceTeleport', { mapId: p.mapId, x: p.x, y: p.y, spectateTarget: targetId });
+
+        // Load the map players for the admin, but filter out other hidden admins
+        const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id && !remote.isHiddenAdmin);
+        socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
+    });
+
+    socket.on('stopSpectate', () => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.id !== "Kei" || !p.savedSpectatePos) return;
+
+        p.isHiddenAdmin = false;
+        let tp = p.savedSpectatePos;
+        p.savedSpectatePos = null;
+
+        // Revert silent teleport
+        socket.leave(p.instanceId);
+        p.mapId = tp.mapId; p.x = tp.x; p.y = tp.y; p.instanceId = tp.instanceId;
+        socket.join(p.instanceId);
+
+        socket.emit('forceTeleport', { mapId: p.mapId, x: p.x, y: p.y });
+        
+        // Re-announce Admin arrival to the original map
+        socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
+        const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id && !remote.isHiddenAdmin);
+        socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
+    });
+    socket.on('requestEnhance', (data) => {
+        const p = onlinePlayers[socket.id]; if (!p) return;
+        
+        let stone = p.inventory[data.stoneIndex];
+        let targetItem = p.inventory[data.targetIndex];
+
+        if (!stone || !targetItem || stone.type !== 'material') return;
+
+        // Take the stone
+        stone.quantity--; 
+        if (stone.quantity <= 0) p.inventory[data.stoneIndex] = null; 
+
+        let eLvl = targetItem.enhanceLevel || 0; 
+        let successChance = 1.0; let destroyChance = 0.0;
+        if (eLvl >= 6) { successChance = Math.max(0.15, 1.0 - ((eLvl - 5) * 0.15)); destroyChance = Math.min(0.40, ((eLvl - 5) * 0.05)); }
+        
+        // 🛡️ SERVER ROLLS THE DICE
+        let roll = Math.random();
+        
+        if (roll < destroyChance) { 
+            p.inventory[data.targetIndex] = null; 
+            socket.emit('systemMessage', `CRITICAL FAILURE! ${targetItem.name} +${eLvl} shattered!`);
+        } 
+        else if (roll < destroyChance + successChance) { 
+            targetItem.enhanceLevel = eLvl + 1; 
+            const bonus = { "Starter": 1, "Basic": 1, "Rare": 3, "Unique": 5, "Legendary": 8, "Godly": 15 }[targetItem.rarity] || 1; 
+            if (targetItem.fixedStat) { for (const k in targetItem.fixedStat) { if (typeof targetItem.fixedStat[k] === 'number') targetItem.fixedStat[k] += bonus; } } 
+            if (targetItem.randomStat) { for (const k in targetItem.randomStat) { if (typeof targetItem.randomStat[k] === 'number') targetItem.randomStat[k] += bonus; } } 
+            socket.emit('systemMessage', `SUCCESS! Item is now +${targetItem.enhanceLevel}!`);
+        } 
+        else { 
+            socket.emit('systemMessage', `FAILED! ${targetItem.name} +${eLvl} enhancement failed.`);
+        }
+
+        // Save true data to DB and push back to client
+        supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
+        socket.emit('syncInventory', p.inventory);
+    });
+    // 🛡️ SERVER-SIDE ECONOMY: Buying
+    socket.on('requestPurchase', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+
+        let cost = data.totalCost;
+        // Verify gold on server
+        if (p.gold >= cost) {
+            p.gold -= cost; 
+            // Server-side inventory update
+            const inv = p.inventory || [];
+            const emptySlot = inv.findIndex(i => i === null);
+            if (emptySlot !== -1) {
+                p.inventory[emptySlot] = data.item;
+                socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
+                supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
+            } else {
+                socket.emit('systemMessage', "Inventory full!");
+            }
+        } else {
+            socket.emit('systemMessage', "Insufficient Gold (Server Verified).");
+        }
+    });
+
+    // 🛡️ SERVER-SIDE ECONOMY: Selling
+    socket.on('requestSell', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.item) return;
+
+        // Server calculates true value based on Rarity/Level, ignoring client claims
+        let baseVal = (data.item.level || 1) * 2;
+        let multiplier = { "Starter": 1, "Basic": 2, "Rare": 5, "Unique": 10, "Legendary": 25, "Godly": 100 }[data.item.rarity] || 1;
+        let sellPrice = baseVal * multiplier;
+        if (data.item.quantity) sellPrice *= data.item.quantity;
+
+        p.gold += sellPrice;
+        p.inventory[data.index] = null; // Remove item on server
+
+        supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
+        socket.emit('sellSuccess', { newGold: p.gold, inventory: p.inventory, price: sellPrice });
+    });
+    // 🛡️ SERVER-SIDE TRADE: THE SWAP
+   // 🛡️ SERVER-SIDE TRADE: THE SECURE ITEM SWAP
+    socket.on('requestConfirmTrade', () => {
+        const me = onlinePlayers[socket.id];
+        if (!me || !me.tradeTarget) return;
+        const them = getPlayerById(me.tradeTarget);
+        if (!them) return;
+
+        let myOffer = me.currentTradeOffer || { gold: 0, items: [] };
+        let theirOffer = them.currentTradeOffer || { gold: 0, items: [] };
+
+        // 1. Swap Gold safely
+        me.gold += parseInt(theirOffer.gold) || 0;
+        me.gold -= parseInt(myOffer.gold) || 0;
+        them.gold += parseInt(myOffer.gold) || 0;
+        them.gold -= parseInt(theirOffer.gold) || 0;
+        if (me.gold < 0) me.gold = 0; 
+        if (them.gold < 0) them.gold = 0;
+
+        // 🛡️ 2. VERIFY AND EXTRACT VALID ITEMS ONLY (Anti-Dupe)
+        let myValidItems = [];
+        let theirValidItems = [];
+
+        if (myOffer.items && Array.isArray(myOffer.items)) {
+            myOffer.items.forEach(offeredItem => {
+                if (offeredItem && offeredItem.id) {
+                    let realIdx = me.inventory.findIndex(invItem => invItem && invItem.id === offeredItem.id);
+                    if (realIdx !== -1) {
+                        myValidItems.push(me.inventory[realIdx]);
+                        me.inventory[realIdx] = null; // Remove from sender
+                    }
+                }
+            });
+        }
+
+        if (theirOffer.items && Array.isArray(theirOffer.items)) {
+            theirOffer.items.forEach(offeredItem => {
+                if (offeredItem && offeredItem.id) {
+                    let realIdx = them.inventory.findIndex(invItem => invItem && invItem.id === offeredItem.id);
+                    if (realIdx !== -1) {
+                        theirValidItems.push(them.inventory[realIdx]);
+                        them.inventory[realIdx] = null; // Remove from sender
+                    }
+                }
+            });
+        }
+
+        // 3. Deposit Items into the opposite inventories
+        theirValidItems.forEach(item => {
+            const emptyIdx = me.inventory.findIndex(i => i === null);
+            if (emptyIdx !== -1) me.inventory[emptyIdx] = item;
+        });
+
+        myValidItems.forEach(item => {
+            const emptyIdx = them.inventory.findIndex(i => i === null);
+            if (emptyIdx !== -1) them.inventory[emptyIdx] = item;
+        });
+
+        // 4. Clear trade memory to prevent double-confirm bugs
+        me.currentTradeOffer = null;
+        them.currentTradeOffer = null;
+        me.tradeTarget = null;
+        them.tradeTarget = null;
+
+        // 5. Save to Database
+        supabase.from('Exonians').update({ gold: me.gold, inventory: me.inventory }).eq('character_name', me.id).then(()=>{});
+        supabase.from('Exonians').update({ gold: them.gold, inventory: them.inventory }).eq('character_name', them.id).then(()=>{});
+        
+        // 6. Notify clients to refresh
+        socket.emit('tradeDone', { newGold: me.gold, newInventory: me.inventory });
+        const targetSocketId = findSocketIdByPlayerId(them.id);
+        if (targetSocketId) {
+            io.to(targetSocketId).emit('tradeDone', { newGold: them.gold, newInventory: them.inventory });
+        }
+    });
+   socket.on('disconnect', async () => {
+        if (socket.username) { activeLogins.delete(socket.username); }
+
+        const p = onlinePlayers[socket.id];
+        if (p) {
+            const oldInstId = p.instanceId; 
+            socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
+            if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
+                for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
+            }
+            removeFromParty(p.id);
+            
+            // 🛡️ ANTI-CHEAT: If they disconnect while dead, FORCE Town coordinates into the DB
+            let saveMap = p.mapId; let saveX = p.x; let saveY = p.y;
+            if (p.isGhost) {
+                saveMap = 'town'; saveX = 960; saveY = 1000;
+            }
+            
+            supabase.from('Exonians').update({ map_id: saveMap, pos_x: saveX, pos_y: saveY }).eq('character_name', p.id).then(()=>{});
+            delete onlinePlayers[socket.id];
+            
+            checkAndResetInstance(oldInstId); 
+        }
+    });
+});
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
