@@ -992,18 +992,9 @@
         </div>
     </div>
 </div>
-    <div id="mailbox-screen">
-        <h2>System Mail</h2>
-        <div id="mail-list-container">
-            <p style="text-align:center; color:#aaa;">No messages.</p>
-        </div>
-        <button class="btn btn-large" style="background:#555; border-color:#555;" onclick="window.toggleMailbox()">Close (M)</button>
-    </div>
 <script>
   const socket = io(); 
     let isMailboxOpen = false, isChatting = false;
-    let isInventoryOpen = false, isSkillOpen = false, isEnhancing = false, isShopping = false;
-    let activeInvIndex = -1, attackCooldownActive = false, isAttacking = false, attackHeld = false, autoAttackMode = false;
     let lastNetTs = 0, lastSentState = 'idle', pendingPartyInvite = null, pendingTradeInvite = null, inTradeMode = false, tradeTarget = null;
     let tradeMyItems = [null,null,null], tradeTheirItems = [null,null,null], lastVitalsSent = {hp:null,maxHp:null,level:null}, lastVitalsTs = 0;
 
@@ -3305,4 +3296,5 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
