@@ -1195,33 +1195,60 @@ window.updateStonePrice = function() {
 }
 
 window.buyItem = function(type) {
-    let cost = 0; let item = null;
     if (type === 'potion') {
         let qty = parseInt(document.getElementById('shop-potion-qty').value) || 1;
-        cost = qty * 25;
-        item = { id: Date.now(), name: "Health Potion", type: "potion", rarity: "Basic", color: "#fff", fixedStat: { hpHeal: 100 }, quantity: qty };
+        let cost = qty * 25;
+        if (game.player.gold < cost) { dom.log.innerText = "Not enough gold!"; return; }
+        
+        let item = { id: Date.now(), name: "Health Potion", type: "potion", rarity: "Basic", color: "#fff", fixedStat: { hpHeal: 100 }, quantity: qty };
+        game.player.gold -= cost;
+        window.addLoot(item);
+        
     } else if (type === 'stone') {
         let lvl = parseInt(document.getElementById('shop-stone-level').value) || 10;
         let rarity = document.getElementById('shop-stone-rarity').value || 'Basic';
         let qty = parseInt(document.getElementById('shop-stone-qty').value) || 1;
+        
         let basePrice = lvl * 15;
         let rMult = { "Basic": 1, "Rare": 3, "Unique": 8, "Legendary": 20, "Godly": 50 }[rarity] || 1;
-        cost = basePrice * rMult * qty;
-        item = { id: Date.now() + Math.random(), name: (rarity === "Basic" ? "" : rarity + " ") + "Refinement Stone Lv." + lvl, type: "material", rarity: rarity, level: lvl, color: window.RARITY_COLORS[rarity], quantity: qty };
+        let cost = basePrice * rMult * qty;
+        
+        if (game.player.gold < cost) { dom.log.innerText = "Not enough gold!"; return; }
+        
+        let color = window.RARITY_COLORS[rarity] || "#fff";
+        let itemName = `${rarity === "Basic" ? "" : rarity + " "}Refinement Stone Lv.${lvl}`.trim();
+        
+        let item = { id: Date.now() + Math.random(), name: itemName, type: "material", rarity: rarity, level: lvl, color: color, description: "Enhances equipment.", quantity: qty };
+        
+        game.player.gold -= cost;
+        window.addLoot(item);
     }
-
-    if (game.player.gold < cost) { dom.log.innerText = "Not enough gold!"; return; }
-    // 🛡️ ASK SERVER FOR PERMISSION
-    if (socket) socket.emit('requestPurchase', { totalCost: cost, item: item });
+    
+    document.getElementById('shop-my-gold').innerText = game.player.gold;
+    window.updateUI();
+    DatabaseManager.savePlayerData(game.player);
 }
 
 window.actionSell = function(e) {
     if (e) e.stopPropagation();
     const item = game.player.inventory[activeInvIndex];
     if (!item) return;
-    // 🛡️ ASK SERVER TO SELL
-    if (socket) socket.emit('requestSell', { item: item, index: activeInvIndex });
+    
+    let baseVal = (item.level || 1) * 2;
+    let multiplier = { "Starter": 1, "Basic": 2, "Rare": 5, "Unique": 10, "Legendary": 25, "Godly": 100 }[item.rarity] || 1;
+    let sellPrice = baseVal * multiplier;
+    if (item.quantity && item.quantity > 1) sellPrice *= item.quantity;
+    
+    game.player.gold += sellPrice;
+    dom.log.innerText = `Sold ${item.name} for ${sellPrice} Gold.`;
+    game.player.inventory[activeInvIndex] = null;
+    activeInvIndex = -1;
+    
     document.getElementById('inv-context-menu').style.display = 'none';
+    document.getElementById('shop-my-gold').innerText = game.player.gold || 0;
+    window.renderInventory();
+    window.updateUI();
+    DatabaseManager.savePlayerData(game.player);
 }
 
 // ==========================================
@@ -1913,9 +1940,40 @@ window.leaveParty = function() {
 window.respondInvite = function(accept) { document.getElementById('invite-dialog').style.display = 'none'; if (pendingPartyInvite) { if(socket) socket.emit('partyInviteResponse', { fromId: pendingPartyInvite, accept }); pendingPartyInvite = null; } }; 
 window.respondTrade = function(accept) { document.getElementById('trade-dialog').style.display = 'none'; if (pendingTradeInvite) { if(socket) socket.emit('tradeInviteResponse', { fromId: pendingTradeInvite, accept }); if (accept) { tradeTarget = pendingTradeInvite; inTradeMode = true; document.getElementById('trade-target-name').innerText = tradeTarget; document.getElementById('trade-screen').style.display = 'block'; window.renderTradeSlots(); window.renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.log.innerText = "Trade declined."; } pendingTradeInvite = null; } }; 
 window.closeTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade cancelled."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); if(socket) socket.emit('tradeCancel'); }; 
-window.confirmTrade = function() {
-    // 🛡️ STOP DOING LOGIC HERE! JUST ASK THE SERVER TO FINALIZE.
-    if(socket) socket.emit('requestConfirmTrade');
+window.confirmTrade = function() { 
+    // ✅ PRE-TRADE CHECK: Calculate incoming items and empty slots
+    let incomingItems = tradeTheirItems.filter(item => item !== null);
+    let emptySlots = game.player.inventory.filter(slot => slot === null).length;
+
+    // 🛑 If we don't have enough space, cancel the trade immediately to prevent item loss
+    if (emptySlots < incomingItems.length) {
+        dom.log.innerText = "Trade Cancelled: Your inventory is full!";
+        window.closeTrade(); // This safely refunds your items and closes the window
+        return;
+    }
+
+    inTradeMode = false; 
+    document.getElementById('trade-screen').style.display = 'none'; 
+    dom.log.innerText = "Trade completed successfully!"; 
+    
+    // Process incoming items
+    incomingItems.forEach(item => { window.addLoot(item); }); 
+    
+    // Process Gold
+    game.player.gold += parseInt(document.getElementById('trade-their-gold').innerText) || 0; 
+    game.player.gold -= parseInt(document.getElementById('trade-my-gold').value) || 0; 
+    if (game.player.gold < 0) game.player.gold = 0; 
+    
+    // Clear trade windows
+    tradeMyItems = [null, null, null]; 
+    document.getElementById('trade-my-gold').value = 0; 
+    tradeTheirItems = [null, null, null]; 
+    document.getElementById('trade-their-gold').innerText = "0"; 
+    
+    // Save and update
+    window.renderInventory(); 
+    window.updateUI(); 
+    DatabaseManager.savePlayerData(game.player); 
 };
 window.addTradeItem = function(invIndex) { if (!inTradeMode) return; const item = game.player.inventory[invIndex]; if (!item) return; const emptyTradeSlot = tradeMyItems.findIndex(i => i === null); if (emptyTradeSlot === -1) { dom.log.innerText = "Trade offer full!"; return; } tradeMyItems[emptyTradeSlot] = item; game.player.inventory[invIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
 window.removeFromTrade = function(tradeIndex) { if (!inTradeMode) return; const item = tradeMyItems[tradeIndex]; if (!item) return; window.addLoot(item); tradeMyItems[tradeIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
@@ -2134,21 +2192,6 @@ window.removeRemotePlayer = function(id) { const p = game.remotePlayers[id]; if 
 // 8. SOCKET EVENTS & NETWORKING
 // ==========================================
 if(socket) {
-    socket.on('purchaseSuccess', (data) => {
-        game.player.gold = data.newGold;
-        game.player.inventory = data.inventory;
-        window.updateUI();
-        window.renderInventory();
-        dom.log.innerText = "Purchase successful!";
-    });
-
-    socket.on('sellSuccess', (data) => {
-        game.player.gold = data.newGold;
-        game.player.inventory = data.inventory;
-        dom.log.innerText = `Item sold for ${data.price} Gold.`;
-        window.updateUI();
-        window.renderInventory();
-    });
     socket.on('syncInventory', (serverInventory) => {
         game.player.inventory = serverInventory;
         window.updateEquipmentDisplay();
@@ -2830,10 +2873,33 @@ window.executeSkill = function(skillId, className) {
     if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
 
     if (skillId === 'heal1') {
-        if (safeMapData.id === 'town') { dom.log.innerText = "Heal is forbidden in Town!"; return; }
+        // ✅ Maze-only restriction
+        if (safeMapData.id === 'town') { 
+            dom.log.innerText = "Heal is forbidden in Town!"; 
+            return; 
+        }
+        
         window.playVoice(className);
-        // 🛡️ FRONTEND DOES NOT HEAL LOCALLY ANYMORE. WAITS FOR SERVER.
-        if (socket) socket.emit('partyHeal');
+        let healAmt = game.player.level >= 25 ? 500 : 250;
+        
+        // 1. Heal Yourself locally
+        game.player.currentHp = Math.min(window.getMaxHp(), game.player.currentHp + healAmt);
+        window.spawnDamageText(game.player.x + 24, game.player.y - 10, `+${healAmt}`, '#4CAF50');
+        window.updateUI(); 
+        window.emitVitalsIfNeeded(true);
+        
+        // 2. Heal Party Members via Server
+        if (socket && game.party) {
+            socket.emit('partyHeal', { amount: healAmt, radius: 400 });
+        }
+
+        // Heal local pets
+        if(game.player.activePets) {
+            game.player.activePets.forEach(p => { 
+                p.hp = Math.min(p.maxHp, p.hp + healAmt); 
+                window.spawnDamageText(p.x + 15, p.y, `+${healAmt}`, '#4CAF50'); 
+            });
+        }
     }
 
     if (skillId === 'heal3') {
@@ -2892,20 +2958,18 @@ window.executeSkill = function(skillId, className) {
         if (closestMob) {
             let mCx = closestMob.x + (closestMob.width/2); let mCy = closestMob.y + (closestMob.height/2);
             if (className === 'Ice Master') {
-                window.playVoice(className); let count = skillId === 'ice3' ? 3 : 1; 
+                window.playVoice(className); let count = skillId === 'ice3' ? 3 : 1; let dmg = window.getMagicAttack() * 2;
                 for (let i=0; i<count; i++) {
                     setTimeout(() => {
                         let ice = document.createElement('div'); ice.className = 'icicle'; ice.style.left = mCx + 'px'; ice.style.top = (mCy - 100) + 'px'; dom.world.appendChild(ice);
                         let anim = ice.animate([{ top: (mCy - 100) + 'px' }, { top: mCy + 'px' }], { duration: 300, easing: 'ease-in' });
-                        // 🛡️ SEND SKILL ID, SERVER DOES THE MATH
-                        anim.onfinish = () => { ice.remove(); if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId }); };
+                        anim.onfinish = () => { ice.remove(); if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: true, freeze: true }); };
                     }, i * 200);
                 }
             }
             if (skillId === 'bld3') {
-                window.playVoice(className);
-                window.spawnWhiteSplash(mCx, mCy); 
-                if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId });
+                window.playVoice(className); let dmg = window.getAttackPower() * 5;
+                window.spawnWhiteSplash(mCx, mCy); if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: false });
             }
         }
     }
@@ -2919,25 +2983,31 @@ window.attemptAttack = function(silent) {
     if (game.player.currentHp <= 0 || isInventoryOpen || window.adminMode || game.isGhost || window.isLoading) return;
     if (attackCooldownActive) return; 
     
-    let closestMob = null; let minD = Infinity; const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : ''; const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant'); const attackRadius = isRanged ? 250 : 80;
+    let closestMob = null; let minD = Infinity; const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : ''; const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant'); const isPendant = weaponSprite.includes('pendant'); const attackRadius = isRanged ? 250 : 80;
     for(let mId in game.monsters) { let m = game.monsters[mId]; if(!m.alive) continue; let mCenterX = m.x + (m.width/2); let mCenterY = m.y + (m.height/2); let dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY); if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; } }
     if (!closestMob) { if(!silent) dom.log.innerText = "No target in range."; return; }
     
     isAttacking = true; attackCooldownActive = true; 
-    if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: weaponSprite });
+    if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
     window.playSFX(weaponSprite);
 
+    let pClass = game.player.baseStats.playerClass;
+    let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(pClass);
+    const rawDmg = isMagicClass ? window.getMagicAttack() : window.getAttackPower();
+    
+    const dmg = Math.max(1, Math.floor(rawDmg * (0.9 + Math.random() * 0.2)) - (closestMob.def || 0));
     const mCenterX = closestMob.x + (closestMob.width/2); const mCenterY = closestMob.y + (closestMob.height/2);
+    let applyFreeze = (pClass === 'Ice Master' && game.player.level >= 25 && Math.random() < 0.25);
 
     if (isRanged) { 
         window.shootOrb(pCenterX, pCenterY - 15, mCenterX, mCenterY); 
-        // 🛡️ FRONTEND SENDS NO DAMAGE. JUST THE TARGET AND SKILL TYPE.
-        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: 'basic' }); }, 500); 
+        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: isPendant, freeze: applyFreeze }); }, 500); 
     } else { 
-        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: 'basic' }); }, 300); 
+        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: isPendant, freeze: applyFreeze }); }, 300); 
     }
     setTimeout(() => { isAttacking = false; }, 500); setTimeout(() => { attackCooldownActive = false; }, 1000);
 }
+
 function gameLoop(ts) {
     if (!game.isRunning) return;
 
@@ -2987,7 +3057,8 @@ function gameLoop(ts) {
                     p.dom.style.transform = 'scale(1.5) translateY(-20px)'; 
                     setTimeout(() => { 
                         p.dom.style.transform = 'scale(1)'; 
-                        if(socket) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'pet' }); 
+                        let rawDmg = isMagicClass ? window.getMagicAttack() : window.getAttackPower();
+                        if(socket) socket.emit('attackMonster', { monsterId: targetMob.id, damage: Math.floor(rawDmg * 0.25) }); 
                     }, 200);
                 }
             } else {
