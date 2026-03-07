@@ -1428,6 +1428,35 @@ io.on('connection', (socket) => {
         supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
         socket.emit('sellSuccess', { newGold: p.gold, inventory: p.inventory, price: sellPrice });
     });
+    // 🛡️ SERVER-SIDE TRADE: THE SWAP
+    socket.on('requestConfirmTrade', () => {
+        const me = onlinePlayers[socket.id];
+        if (!me || !me.tradeTarget) return;
+        const them = getPlayerById(me.tradeTarget);
+        if (!them) return;
+
+        // 1. Swap Gold safely
+        let myOfferedGold = parseInt(me.currentTradeOffer?.gold) || 0;
+        let theirOfferedGold = parseInt(them.currentTradeOffer?.gold) || 0;
+
+        me.gold = Math.max(0, me.gold + theirOfferedGold - myOfferedGold);
+        them.gold = Math.max(0, them.gold + myOfferedGold - theirOfferedGold);
+
+        // 2. Clear trade targets to prevent double-clicking
+        me.tradeTarget = null;
+        them.tradeTarget = null;
+
+        // 3. Save to database
+        supabase.from('Exonians').update({ gold: me.gold }).eq('character_name', me.id).then(()=>{});
+        supabase.from('Exonians').update({ gold: them.gold }).eq('character_name', them.id).then(()=>{});
+
+        // 4. Tell both players the trade is finished
+        socket.emit('tradeDone');
+        const targetSocketId = findSocketIdByPlayerId(them.id);
+        if (targetSocketId) {
+            io.to(targetSocketId).emit('tradeDone');
+        }
+    });
    socket.on('disconnect', async () => {
         if (socket.username) { activeLogins.delete(socket.username); }
 
@@ -1455,6 +1484,7 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
