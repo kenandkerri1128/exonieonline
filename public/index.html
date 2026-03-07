@@ -203,23 +203,44 @@
         /* --- COSMETIC AURAS --- */
         .cosmetic-aura {
             position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-            width: 70px; height: 110px; pointer-events: none; z-index: 8; display: none;
+            width: 70px; height: 110px; pointer-events: none; display: none;
+            z-index: 10;
         }
         .aura-lightning { display: block; }
+        
+        /* Godly Aura Glow Behind the Player */
         .aura-lightning::before {
-            content: ''; position: absolute; top: -10%; left: -10%; width: 120%; height: 120%;
-            border: 2px dashed rgba(0, 255, 255, 0.8);
-            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-            animation: electric-spin 0.4s linear infinite;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5), inset 0 0 10px rgba(0, 255, 255, 0.5);
+            content: ''; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+            width: 60px; height: 90px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.4) 0%, rgba(0, 0, 0, 0) 70%);
+            box-shadow: 0 0 20px 10px rgba(0, 255, 255, 0.6), 0 0 40px 15px rgba(255, 255, 255, 0.3);
+            z-index: -5; /* Pushes the glow cleanly behind the avatar */
+            animation: godly-pulse 1.2s infinite alternate;
+            mix-blend-mode: screen;
         }
+
+        /* Lightning Bolts Striking the Body */
         .aura-lightning::after {
-            content: ''; position: absolute; top: -5%; left: -5%; width: 110%; height: 110%;
-            border: 2px dashed rgba(255, 255, 255, 0.9);
-            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-            animation: electric-spin 0.3s linear infinite reverse;
+            content: ''; position: absolute; width: 14px; height: 40px;
+            background: #fff;
+            filter: drop-shadow(0 0 5px #00ffff) drop-shadow(0 0 10px #00ffff);
+            clip-path: polygon(50% 0%, 100% 0, 60% 40%, 100% 40%, 40% 100%, 50% 60%, 0% 60%);
+            opacity: 0; z-index: 15;
+            animation: flash-strike 1.5s infinite;
         }
-        @keyframes electric-spin { 100% { transform: rotate(360deg); } }
+
+        @keyframes godly-pulse {
+            0% { opacity: 0.6; transform: translateX(-50%) scale(0.9); filter: brightness(1); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1.1); filter: brightness(1.5); }
+        }
+
+        @keyframes flash-strike {
+            0%, 4%, 11%, 49%, 56%, 100% { opacity: 0; }
+            5% { opacity: 1; top: 15%; left: -5%; transform: scale(0.8) rotate(20deg); }
+            10% { opacity: 1; top: 15%; left: -5%; transform: scale(0.8) rotate(20deg); }
+            50% { opacity: 1; top: 45%; left: 75%; transform: scale(1.1) rotate(-15deg) scaleX(-1); }
+            55% { opacity: 1; top: 45%; left: 75%; transform: scale(1.1) rotate(-15deg) scaleX(-1); }
+        }
         /* Earthquake Visual Ring */
 .earthquake-ring {
     position: absolute;
@@ -3191,6 +3212,7 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
