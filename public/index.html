@@ -1142,29 +1142,27 @@
     };
 
     window.loadMapScript = function(mapId, callback) {
-    let scriptName = (mapId === 'town' ? 'townmap.js' : mapId + '.js') + '?v=' + Date.now();
-    let script = document.createElement('script'); script.src = scriptName;
-    
-    // The failsafe map data so the game never crashes
-    const fallbackMap = { id: mapId, name: mapId, image: mapId === 'town' ? 'town_map.png' : mapId + '.png', spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
+        let scriptName = (mapId === 'town' ? 'townmap.js' : mapId + '.js') + '?v=' + Date.now();
+        let script = document.createElement('script'); script.src = scriptName;
+        
+        // 🛡️ Failsafe Map Data prevents infinite loading screens
+        const fallbackMap = { id: mapId, name: mapId, image: mapId === 'town' ? 'town_map.png' : mapId + '.png', spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
 
-    script.onload = () => { 
-        let varName = mapId === 'town' ? 'townMapData' : mapId + 'MapData'; 
-        if (typeof window[varName] !== 'undefined') {
-            window.MapDatabase[mapId] = JSON.parse(JSON.stringify(window[varName])); 
-        } else {
-            window.MapDatabase[mapId] = fallbackMap; // <-- This fallback fixes the freeze!
-        }
-        callback(); 
-    };
-    
-    script.onerror = () => { 
-        window.MapDatabase[mapId] = fallbackMap; 
-        callback(); 
-    };
-    
-    document.head.appendChild(script);
-}
+        script.onload = () => { 
+            let varName = mapId === 'town' ? 'townMapData' : mapId + 'MapData'; 
+            if (typeof window[varName] !== 'undefined') {
+                window.MapDatabase[mapId] = JSON.parse(JSON.stringify(window[varName])); 
+            } else {
+                window.MapDatabase[mapId] = fallbackMap; 
+            }
+            callback(); 
+        };
+        script.onerror = () => { 
+            window.MapDatabase[mapId] = fallbackMap; 
+            callback(); 
+        };
+        document.head.appendChild(script);
+    }
 
     window.preloadMapAssets = function(mapData, callback) {
         window.isLoading = true;
@@ -2292,19 +2290,24 @@ if(socket) {
         game.player.inventory = userData.inventory || new Array(20).fill(null); game.player.equips = userData.equips || { weapon: null, armor: null, leggings: null };
         window.charData.skinColor = userData.skin_color || 'flesh'; window.charData.hairColor = userData.hair_color || 'black'; window.charData.hairStyle = userData.hair_style || '1'; 
         game.player.currentHp = window.getMaxHp(); window.updateSkillMenu(); 
-        let targetMapId = userData.map_id || 'town';
+        
+        // 🛡️ FRONTEND SYNC: Obey the Backend's Strict Town Login rule
+        let targetMapId = 'town';
+        game.player.x = 960; 
+        game.player.y = 1000;
+        
         window.loadMapScript(targetMapId, () => {
-            safeMapData = window.MapDatabase[targetMapId]; game.player.x = userData.pos_x ?? safeMapData.spawnX ?? 960; game.player.y = userData.pos_y ?? safeMapData.spawnY ?? 1000;
+            safeMapData = window.MapDatabase[targetMapId] || { id: "town", name: "Town", image: "town_map.png", spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
             window.preloadMapAssets(safeMapData, () => {
                 document.getElementById('loading-screen').style.display = 'none'; dom.game.classList.add('active'); dom.world.style.backgroundImage = `url('${safeMapData.image}')`;
                 game.player.dom = dom.playerContainer; dom.playerBody.style.filter = skinFilters[window.charData.skinColor]; dom.playerHead.style.filter = skinFilters[window.charData.skinColor]; dom.playerHair.style.filter = hairFilters[window.charData.hairColor];
                 if (window.charData.hairStyle === 'none') dom.playerHair.style.display = 'none'; else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${window.charData.hairStyle}.png`; }
                 window.buildCollisionLayers(); window.updateEquipmentDisplay(); window.updateUI(); window.renderInventory();
-                window.emitVitalsIfNeeded(true); // ✅ Forces the server to cache your true Max HP immediately!
+                window.emitVitalsIfNeeded(true); 
                 if(safeMapData.id === 'town') { document.querySelectorAll('.monster-container').forEach(el => el.remove()); game.monsters = {}; }
                 socket.on('requestMapSync', (req) => { window.loadMapScript(req.mapId, () => { let mapPayload = Object.assign({}, window.MapDatabase[req.mapId], { instanceId: req.instanceId }); socket.emit('syncMapData', mapPayload); }); });
-                window.playBGM(safeMapData.id.includes('floor') ? 'floors' : 'town'); game.isRunning = true; window.showMapAnnouncement(safeMapData.id); requestAnimationFrame(gameLoop);
-socket.emit('requestNews'); // ✅ Asks the server for the news exactly when the player enters the town!
+                window.playBGM('town'); game.isRunning = true; window.showMapAnnouncement(safeMapData.id); requestAnimationFrame(gameLoop);
+                socket.emit('requestNews'); 
             });
         });
     });
@@ -2828,4 +2831,5 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
