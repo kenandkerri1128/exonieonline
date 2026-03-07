@@ -943,11 +943,10 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('tauntMonsters', (data) => {
+   socket.on('tauntMonsters', () => { // 🛡️ Ignored client data
         const p = onlinePlayers[socket.id]; if(!p || p.isGhost) return;
-        if (p.mapId === 'town') return; 
+        if (p.mapId === 'town' || p.baseStats?.playerClass !== 'Berserker') return; 
 
-        // 🛡️ 14s COOLDOWN (13s leniency)
         const now = Date.now();
         if (p.skillCooldowns['tauntMonsters'] && now < p.skillCooldowns['tauntMonsters']) return;
         p.skillCooldowns['tauntMonsters'] = now + 13000;
@@ -957,7 +956,7 @@ io.on('connection', (socket) => {
             let m = world.monsters[mId];
             if (!m.alive) continue;
             let dist = Math.hypot(p.x + 24 - (m.x + m.width/2), p.y + 48 - (m.y + m.height/2));
-            if (dist <= (data.radius || 300)) { m.forcedTargetId = p.id; m.forcedUntil = Date.now() + 10000; }
+            if (dist <= 300) { m.forcedTargetId = p.id; m.forcedUntil = Date.now() + 10000; } // 🛡️ Server enforces 300 radius
         }
     });
 
@@ -982,15 +981,14 @@ io.on('connection', (socket) => {
         socket.to(p.instanceId).emit('remotePetSync', { ownerId: p.id, petData: data });
     });
 
-    socket.on('setUntargetable', (data) => {
+    socket.on('setUntargetable', () => { // 🛡️ Ignored client data
         const p = onlinePlayers[socket.id];
-        if (p && p.mapId !== 'town') { 
-            // 🛡️ 15s COOLDOWN (14s leniency)
+        if (p && p.mapId !== 'town' && p.baseStats?.playerClass === 'Blademaster') { 
             const now = Date.now();
             if (p.skillCooldowns['setUntargetable'] && now < p.skillCooldowns['setUntargetable']) return;
             p.skillCooldowns['setUntargetable'] = now + 14000;
 
-            p.untargetableUntil = Date.now() + (data.duration || 10000); 
+            p.untargetableUntil = Date.now() + 10000; // 🛡️ Server enforces 10s
         }
     });
 
@@ -1491,6 +1489,7 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
