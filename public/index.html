@@ -2387,7 +2387,6 @@ window.showMapAnnouncement = function(mapId) {
         const cAuraEl = p.rig.querySelector('.cosmetic-aura');
         if (cAuraEl) cAuraEl.className = data.spriteData?.aura ? `cosmetic-aura aura-${data.spriteData.aura}` : 'cosmetic-aura';
     });
-    });
 
     socket.on('inspectData', (data) => { if (!data) return; dom.inspect.style.display = 'block'; dom.inspectTitle.innerText = `Inspect: ${data.name || data.id || "Unknown"}`; const equips = data.equips || {}; const slots = [ { key: 'weapon', label: 'Weapon' }, { key: 'armor', label: 'Armor' }, { key: 'leggings', label: 'Leggings' } ]; function fmtStatBlock(item) { if (!item) return `<div class="inspect-empty">None</div>`; const rarityColor = item.color || (window.RARITY_COLORS[item.rarity] || "#fff"); const nameClass = item.rarity === "Godly" ? "rarity-godly" : ""; const displayName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name; let html = `<div class="inspect-title"><div class="inspect-item-name ${nameClass}" style="color:${rarityColor};">${displayName}</div><div class="inspect-sub">Lv.${item.level || 1} ${item.rarity || "Unknown"}</div></div><div class="inspect-stat">`; if (item.fixedStat) { for (const k in item.fixedStat) html += `<div><b>Fixed:</b> +${item.fixedStat[k]} ${k.toUpperCase()}</div>`; } if (item.randomStat) { for (const k in item.randomStat) html += `<div><b>Random:</b> +${item.randomStat[k]} ${k.toUpperCase()}</div>`; } if (item.sprite) { html += `<div style="color:#888; margin-top:6px;">Sprite: ${item.sprite}.png</div>`; } html += `</div>`; return html; } let out = `<div style="font-size:14px; color:#ccc; margin-bottom:10px; text-align:center;">Level ${data.level || 1} &nbsp; | &nbsp; HP ${data.currentHp ?? "?"} / ${data.maxHp ?? "?"}</div>`; slots.forEach(s => { out += `<div class="inspect-equip"><div style="font-weight:bold; color:#ffeb3b; margin-bottom:6px;">${s.label}</div>${fmtStatBlock(equips[s.key])}</div>`; }); dom.inspectContent.innerHTML = out; });
     socket.on('partyInviteReceived', (payload) => { pendingPartyInvite = payload?.fromId || "Unknown"; document.getElementById('invite-text').innerText = `${pendingPartyInvite} invited you to a party.`; document.getElementById('invite-dialog').style.display = 'block'; });
@@ -3192,6 +3191,7 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
