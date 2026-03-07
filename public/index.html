@@ -1397,11 +1397,16 @@ window.attemptApplyAura = function(targetIndex, e) {
         dom.log.innerText = "That armor already has an aura! Extract it first."; window.isApplyingAura = false; window.renderInventory(); return;
     }
     
-    stone.quantity--; if (stone.quantity <= 0) game.player.inventory[activeInvIndex] = null;
-    
+    // Apply the visual aura properties to the armor
     targetItem.aura = stone.auraId;
     targetItem.originalName = targetItem.name;
     targetItem.name = "Lightning " + targetItem.name;
+    
+    // ✅ FIX: Safely calculate quantity and enforce deletion
+    stone.quantity = (stone.quantity || 1) - 1; 
+    if (stone.quantity <= 0) {
+        game.player.inventory[activeInvIndex] = null;
+    }
     
     dom.log.innerText = `Applied Lightning Aura to your armor!`;
     window.spawnWhiteSplash(game.player.x + 24, game.player.y + 48);
@@ -1418,7 +1423,8 @@ window.extractAura = function(e) {
     let emptySlot = game.player.inventory.findIndex(i => i === null);
     if (emptySlot === -1) { dom.log.innerText = "Inventory full! Cannot extract."; return; }
     
-    let auraStone = { id: Date.now(), name: "Lightning Aura Stone", type: 'aura', auraId: item.aura, sprite: 'aurastone', level: 1, rarity: 'Legendary', color: '#00ffff', description: "Click to apply to an Armor. Purely cosmetic." };
+    // ✅ FIX: Added "quantity: 1" to the extracted stone so it can be consumed next time
+    let auraStone = { id: Date.now(), name: "Lightning Aura Stone", type: 'aura', auraId: item.aura, sprite: 'aurastone', level: 1, rarity: 'Legendary', color: '#00ffff', description: "Click to apply to an Armor. Purely cosmetic.", quantity: 1 };
     
     item.name = item.originalName || item.name.replace("Lightning ", "");
     delete item.aura; delete item.originalName;
@@ -3212,6 +3218,7 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
