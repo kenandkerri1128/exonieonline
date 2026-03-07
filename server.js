@@ -1036,8 +1036,20 @@ io.on('connection', (socket) => {
                 trueDmg = Math.floor(serverAtkPwr * 5);
                 p.skillCooldowns['heavyAttack'] = now + 49000; // 50s CD
             }
-        } else if (payload.skillId === 'ice1' || payload.skillId === 'ice3') {
-            trueDmg = Math.floor(serverAtkPwr * 2);
+        } else if (payload.skillId === 'ice1') {
+            if (p.skillCooldowns['ice1'] && now < p.skillCooldowns['ice1'] && p.id !== "Kei") {
+                trueDmg = Math.floor(serverAtkPwr); // Hacker spamming? Revert to basic damage.
+            } else {
+                trueDmg = Math.floor(serverAtkPwr * 2);
+                p.skillCooldowns['ice1'] = now + 23000; // 25s CD
+            }
+        } else if (payload.skillId === 'ice3') {
+            if (p.skillCooldowns['ice3'] && now < p.skillCooldowns['ice3'] && p.id !== "Kei") {
+                trueDmg = Math.floor(serverAtkPwr); 
+            } else {
+                trueDmg = Math.floor(serverAtkPwr * 6); // 3 icicles * 2x damage = 6x total
+                p.skillCooldowns['ice3'] = now + 98000; // 100s CD
+            }
         } else if (payload.skillId === 'pet') {
             trueDmg = Math.floor(serverAtkPwr * 0.25);
         }
@@ -1470,6 +1482,7 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
