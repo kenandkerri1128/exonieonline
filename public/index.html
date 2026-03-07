@@ -201,45 +201,59 @@
         .rarity-godly { animation: godly-sparkle 1.5s infinite alternate; }
         @keyframes godly-sparkle { 0% { text-shadow: 0 0 2px #fff, 0 0 5px #e0ffff; } 100% { text-shadow: 0 0 8px #fff, 0 0 15px #00ffff, 0 0 20px #00ffff; } }
         /* --- COSMETIC AURAS --- */
-        .cosmetic-aura {
-            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-            width: 70px; height: 110px; pointer-events: none; display: none;
-            z-index: 10;
-        }
-        .aura-lightning { display: block; }
         
-        /* Godly Aura Glow Behind the Player */
-        .aura-lightning::before {
-            content: ''; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
-            width: 60px; height: 90px; border-radius: 50%;
-            background: radial-gradient(circle, rgba(0, 255, 255, 0.4) 0%, rgba(0, 0, 0, 0) 70%);
-            box-shadow: 0 0 20px 10px rgba(0, 255, 255, 0.6), 0 0 40px 15px rgba(255, 255, 255, 0.3);
-            z-index: -5; /* Pushes the glow cleanly behind the avatar */
-            animation: godly-pulse 1.2s infinite alternate;
-            mix-blend-mode: screen;
+        /* 1. THE CHARGED AVATAR (Outline Glow) */
+        /* Applies tight, sprite-traced shadows directly to the player-rig div */
+        .player-rig.aura-lightning {
+            /* Layer 1: Sharp Cyan Core | Layer 2: Softer White Neon Field */
+            filter: 
+                drop-shadow(0 0 1px #00ffff) 
+                drop-shadow(0 0 3px #00ffff) 
+                drop-shadow(0 0 6px #ffffff);
+            animation: integrated-static-pulse 1.5s infinite alternate;
         }
 
-        /* Lightning Bolts Striking the Body */
-        .aura-lightning::after {
-            content: ''; position: absolute; width: 14px; height: 40px;
-            background: #fff;
-            filter: drop-shadow(0 0 5px #00ffff) drop-shadow(0 0 10px #00ffff);
-            clip-path: polygon(50% 0%, 100% 0, 60% 40%, 100% 40%, 40% 100%, 50% 60%, 0% 60%);
-            opacity: 0; z-index: 15;
-            animation: flash-strike 1.5s infinite;
+        /* 2. THE RUNNING CURRENTS ("Skin" over the body) */
+        .cosmetic-aura {
+            position: absolute; inset: 0; /* Cover entire rig */
+            pointer-events: none; display: none; z-index: 10;
+        }
+        
+        /* Specialized container for the lightning effect */
+        .aura-lightning .cosmetic-aura { display: block; overflow: hidden; }
+
+        /* Creates tiny white horizontal lines that run up the body */
+        .aura-lightning .cosmetic-aura::after {
+            content: ''; position: absolute; inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 15%,
+                rgba(255, 255, 255, 1) 16%, /* The sharp current line */
+                rgba(0, 255, 255, 0.8) 17%, /* Cyan trail */
+                transparent 18%,
+                transparent 100%
+            );
+            background-size: 100% 40px; /* Controls spacing between current bands */
+            animation: electric-current-run 0.8s linear infinite;
+            
+            /* Use a Screen mask to only show currents over the character sprite pixels */
+            -webkit-mask-image: inherit; /* Inherits main sprite image mask if set, or just contains within div */
+            mask-image: inherit;
         }
 
-        @keyframes godly-pulse {
-            0% { opacity: 0.6; transform: translateX(-50%) scale(0.9); filter: brightness(1); }
-            100% { opacity: 1; transform: translateX(-50%) scale(1.1); filter: brightness(1.5); }
+        /* 3. ANIMATIONS */
+        
+        /* Makes the drop-shadow field breathe subtly */
+        @keyframes integrated-static-pulse {
+            0% { filter: drop-shadow(0 0 1px #00ffff) drop-shadow(0 0 2px #00ffff) drop-shadow(0 0 4px #ffffff); opacity: 0.9; }
+            100% { filter: drop-shadow(0 0 1px #00ffff) drop-shadow(0 0 4px #00ffff) drop-shadow(0 0 8px #ffffff); opacity: 1; }
         }
 
-        @keyframes flash-strike {
-            0%, 4%, 11%, 49%, 56%, 100% { opacity: 0; }
-            5% { opacity: 1; top: 15%; left: -5%; transform: scale(0.8) rotate(20deg); }
-            10% { opacity: 1; top: 15%; left: -5%; transform: scale(0.8) rotate(20deg); }
-            50% { opacity: 1; top: 45%; left: 75%; transform: scale(1.1) rotate(-15deg) scaleX(-1); }
-            55% { opacity: 1; top: 45%; left: 75%; transform: scale(1.1) rotate(-15deg) scaleX(-1); }
+        /* Rapidly scrolls the linear gradient texture vertically */
+        @keyframes electric-current-run {
+            0% { background-position: 0 0px; }
+            100% { background-position: 0 40px; } /* Moves texture up one full band */
         }
         /* Earthquake Visual Ring */
 .earthquake-ring {
@@ -3218,6 +3232,7 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
