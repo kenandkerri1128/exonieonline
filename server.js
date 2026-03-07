@@ -376,7 +376,6 @@ function pickTarget(m, instId, now) {
     
     return null;
 }
-}
 
 function updateMonsterAI(instId, m, now) {
     if (!m.alive) return;
@@ -1329,6 +1328,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
