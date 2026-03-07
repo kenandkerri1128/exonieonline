@@ -1111,7 +1111,7 @@ io.on('connection', (socket) => {
         if (payload.skillId === 'bld3') {
             if (pClass !== 'Blademaster') return; // Hacker check!
             if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && p.id !== "Kei") {
-                trueDmg = Math.floor(serverAtkPwr);
+                // Block cooldown bypasses
             } else {
                 trueDmg = Math.floor(serverAtkPwr * 5);
                 p.skillCooldowns['heavyAttack'] = now + 49000; // 50s CD
@@ -1509,78 +1509,32 @@ io.on('connection', (socket) => {
         socket.emit('sellSuccess', { newGold: p.gold, inventory: p.inventory, price: sellPrice });
     });
     // 🛡️ SERVER-SIDE TRADE: THE SWAP
-   // 🛡️ SERVER-SIDE TRADE: THE SECURE ITEM SWAP
     socket.on('requestConfirmTrade', () => {
         const me = onlinePlayers[socket.id];
         if (!me || !me.tradeTarget) return;
         const them = getPlayerById(me.tradeTarget);
         if (!them) return;
 
-        let myOffer = me.currentTradeOffer || { gold: 0, items: [] };
-        let theirOffer = them.currentTradeOffer || { gold: 0, items: [] };
-
         // 1. Swap Gold safely
-        me.gold += parseInt(theirOffer.gold) || 0;
-        me.gold -= parseInt(myOffer.gold) || 0;
-        them.gold += parseInt(myOffer.gold) || 0;
-        them.gold -= parseInt(theirOffer.gold) || 0;
-        if (me.gold < 0) me.gold = 0; 
-        if (them.gold < 0) them.gold = 0;
+        let myOfferedGold = parseInt(me.currentTradeOffer?.gold) || 0;
+        let theirOfferedGold = parseInt(them.currentTradeOffer?.gold) || 0;
 
-        // 🛡️ 2. VERIFY AND EXTRACT VALID ITEMS ONLY (Anti-Dupe)
-        let myValidItems = [];
-        let theirValidItems = [];
+        me.gold = Math.max(0, me.gold + theirOfferedGold - myOfferedGold);
+        them.gold = Math.max(0, them.gold + myOfferedGold - theirOfferedGold);
 
-        if (myOffer.items && Array.isArray(myOffer.items)) {
-            myOffer.items.forEach(offeredItem => {
-                if (offeredItem && offeredItem.id) {
-                    let realIdx = me.inventory.findIndex(invItem => invItem && invItem.id === offeredItem.id);
-                    if (realIdx !== -1) {
-                        myValidItems.push(me.inventory[realIdx]);
-                        me.inventory[realIdx] = null; // Remove from sender
-                    }
-                }
-            });
-        }
-
-        if (theirOffer.items && Array.isArray(theirOffer.items)) {
-            theirOffer.items.forEach(offeredItem => {
-                if (offeredItem && offeredItem.id) {
-                    let realIdx = them.inventory.findIndex(invItem => invItem && invItem.id === offeredItem.id);
-                    if (realIdx !== -1) {
-                        theirValidItems.push(them.inventory[realIdx]);
-                        them.inventory[realIdx] = null; // Remove from sender
-                    }
-                }
-            });
-        }
-
-        // 3. Deposit Items into the opposite inventories
-        theirValidItems.forEach(item => {
-            const emptyIdx = me.inventory.findIndex(i => i === null);
-            if (emptyIdx !== -1) me.inventory[emptyIdx] = item;
-        });
-
-        myValidItems.forEach(item => {
-            const emptyIdx = them.inventory.findIndex(i => i === null);
-            if (emptyIdx !== -1) them.inventory[emptyIdx] = item;
-        });
-
-        // 4. Clear trade memory to prevent double-confirm bugs
-        me.currentTradeOffer = null;
-        them.currentTradeOffer = null;
+        // 2. Clear trade targets to prevent double-clicking
         me.tradeTarget = null;
         them.tradeTarget = null;
 
-        // 5. Save to Database
-        supabase.from('Exonians').update({ gold: me.gold, inventory: me.inventory }).eq('character_name', me.id).then(()=>{});
-        supabase.from('Exonians').update({ gold: them.gold, inventory: them.inventory }).eq('character_name', them.id).then(()=>{});
-        
-        // 6. Notify clients to refresh
-        socket.emit('tradeDone', { newGold: me.gold, newInventory: me.inventory });
+        // 3. Save to database
+        supabase.from('Exonians').update({ gold: me.gold }).eq('character_name', me.id).then(()=>{});
+        supabase.from('Exonians').update({ gold: them.gold }).eq('character_name', them.id).then(()=>{});
+
+        // 4. Tell both players the trade is finished
+        socket.emit('tradeDone');
         const targetSocketId = findSocketIdByPlayerId(them.id);
         if (targetSocketId) {
-            io.to(targetSocketId).emit('tradeDone', { newGold: them.gold, newInventory: them.inventory });
+            io.to(targetSocketId).emit('tradeDone');
         }
     });
    socket.on('disconnect', async () => {
@@ -1610,9 +1564,6 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
-
-
-
 
 
 
