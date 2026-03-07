@@ -207,6 +207,9 @@ const MonsterDatabase = {
 
 function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
 function getPlayerById(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return onlinePlayers[sid]; } return null; }
+function playersInInstance(instId) { 
+    return Object.values(onlinePlayers).filter(p => p.instanceId === instId); 
+}
 
 function emitPartyUpdate(partyId) {
     const party = parties[partyId]; if (!party) return; const members = [];
@@ -1328,6 +1331,7 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
