@@ -76,7 +76,20 @@
         .layer-leggings { height: 120%; bottom: -45%; z-index: 5; }
         .layer-armor { height: 120%; bottom: -45%; z-index: 6; } 
         .layer-weapon { height: 120%; bottom: -45%; z-index: 7; }
-
+/* --- MAILBOX SYSTEM UI --- */
+        #mailbox-screen { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            width: 380px; background: rgba(20,20,20,0.98); border: 2px solid #ffd700; 
+            border-radius: 8px; padding: 20px; z-index: 2600; display: none; 
+            box-shadow: 0 0 30px #000; max-height: 70vh; overflow-y: auto; 
+        }
+        #mailbox-screen h2 { margin-top: 0; color: #ffd700; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .mail-row { background: #1a1a1a; padding: 12px; border: 1px solid #333; border-radius: 5px; margin-bottom: 10px; }
+        .mail-sender { color: #ffd700; font-size: 12px; margin-bottom: 5px; font-weight: bold; }
+        .mail-msg { color: #eee; font-size: 14px; line-height: 1.4; margin-bottom: 10px; }
+        .mail-item-preview { background: #222; border: 1px dashed #ffd700; padding: 5px; text-align: center; color: #ffd700; font-size: 13px; margin-bottom: 10px; }
+        .claim-btn { background: #4CAF50; border: none; color: white; padding: 8px; width: 100%; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: 'MedievalSharp', cursive; }
+        .claim-btn:disabled { background: #555; cursor: not-allowed; }
         /* --- GAME WORLD --- */
         #game-screen { position: relative; width: 100%; height: 100%; background-color: #000; }
         #world { position: absolute; width: 2000px; height: 1333px; background-size: 100% 100%; transform-origin: top left; transition: background-image 0.5s; }
@@ -200,6 +213,65 @@
         .level-up-text { position: absolute; color: #ffd700; font-weight: bold; font-size: 28px; text-shadow: 0 0 10px #ff9800; pointer-events: none; animation: floatUp 2s forwards; z-index: 500; }
         .rarity-godly { animation: godly-sparkle 1.5s infinite alternate; }
         @keyframes godly-sparkle { 0% { text-shadow: 0 0 2px #fff, 0 0 5px #e0ffff; } 100% { text-shadow: 0 0 8px #fff, 0 0 15px #00ffff, 0 0 20px #00ffff; } }
+       /* --- COSMETIC AURAS --- */
+        .cosmetic-aura {
+            position: absolute; inset: 0;
+            pointer-events: none; z-index: 10; display: none;
+        }
+
+        /* 1. OUTLINE GLOW (Traces the black outline perfectly) */
+        .avatar-rig:has(.aura-lightning) {
+            filter: drop-shadow(0 0 2px #00ffff) drop-shadow(0 0 5px #00ffff);
+            animation: aura-outline-pulse 1.2s infinite alternate;
+        }
+
+        /* Show the aura container when active */
+        .cosmetic-aura.aura-lightning { display: block; }
+
+        /* 2. THE ELECTRIC CURRENTS (Small zaps running on the body) */
+        .cosmetic-aura.aura-lightning::before,
+        .cosmetic-aura.aura-lightning::after {
+            content: ''; position: absolute;
+            background: #ffffff;
+            box-shadow: 0 0 8px 2px #00ffff;
+            border-radius: 2px;
+            opacity: 0; z-index: 15;
+        }
+
+        /* Vertical running sparks */
+        .cosmetic-aura.aura-lightning::before {
+            width: 2px; height: 12px;
+            animation: body-zap-1 0.7s infinite linear;
+        }
+
+        /* Horizontal running sparks */
+        .cosmetic-aura.aura-lightning::after {
+            width: 12px; height: 2px;
+            animation: body-zap-2 1.1s infinite linear;
+        }
+
+        @keyframes aura-outline-pulse {
+            0% { filter: drop-shadow(0 0 1px #00ffff) drop-shadow(0 0 3px #00ffff); }
+            100% { filter: drop-shadow(0 0 3px #00ffff) drop-shadow(0 0 8px #00ffff) drop-shadow(0 0 15px #ffffff); }
+        }
+
+        @keyframes body-zap-1 {
+            0%, 100% { opacity: 0; top: 10%; left: 30%; }
+            10% { opacity: 1; top: 20%; left: 35%; transform: scaleY(1.5) rotate(15deg); }
+            15% { opacity: 0; }
+            50% { opacity: 0; top: 60%; left: 70%; }
+            60% { opacity: 1; top: 70%; left: 60%; transform: scaleY(2) rotate(-20deg); }
+            65% { opacity: 0; }
+        }
+
+        @keyframes body-zap-2 {
+            0%, 100% { opacity: 0; top: 40%; left: 10%; }
+            20% { opacity: 1; top: 45%; left: 20%; transform: scaleX(1.5) rotate(-15deg); }
+            25% { opacity: 0; }
+            70% { opacity: 0; top: 80%; left: 50%; }
+            80% { opacity: 1; top: 75%; left: 60%; transform: scaleX(2) rotate(25deg); }
+            85% { opacity: 0; }
+        }
         /* Earthquake Visual Ring */
 .earthquake-ring {
     position: absolute;
@@ -507,7 +579,9 @@
         
         <button id="revive-juice-btn" class="btn btn-large" style="width:250px; background:#9c27b0; font-size: 24px; display:none; margin-top: 15px;" onclick="window.useRevivalJuice()">Drink Revival Juice</button>
     </div>
-
+<div id="spectate-ui" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:9000; background:rgba(244,67,54,0.9); color:white; padding:15px 30px; border-radius:8px; font-weight:bold; font-size:20px; cursor:pointer; box-shadow:0 0 20px red;" onclick="window.stopSpectating()">
+        🛑 STOP SPECTATING
+    </div>
     <div id="invite-dialog" class="popup-dialog">
         <p id="invite-text" style="font-size: 20px; margin-top: 0; margin-bottom: 20px;">Player invited you to party.</p>
         <div style="display: flex; justify-content: center;">
@@ -551,9 +625,10 @@
         </div>
     </div>
 
-    <div id="inv-context-menu">
+   <div id="inv-context-menu">
         <button class="ctx-btn" id="ctx-btn-sell" onmousedown="window.actionSell(event)">Sell for Gold</button>
         <button class="ctx-btn" id="ctx-btn-equip" style="border-bottom: 1px solid #444;" onmousedown="window.actionEquip(event)">Equip</button>
+        <button class="ctx-btn" id="ctx-btn-extract-aura" style="border-bottom: 1px solid #444; color:#00ffff; display:none;" onmousedown="window.extractAura(event)">Extract Aura</button>
         <button class="ctx-btn" id="ctx-btn-throw" style="color: #f44336;" onmousedown="window.actionThrow(event)">Throw</button>
     </div>
     
@@ -732,6 +807,7 @@
         <div id="mobile-actions">
             <div class="m-row">
                 <div class="m-btn" style="border-color: #ff9800;" onclick="window.forceUnstuck()">Fix</div>
+                <div class="m-btn" style="border-color: #ffd700;" onclick="window.toggleMailbox()">Mail</div>
                 <div class="m-btn" onclick="window.toggleStats()">Stats</div>
                 <div class="m-btn" onclick="window.openShop()">Shop</div>
             </div>
@@ -815,6 +891,7 @@
                         <option value="pendant">Pendant</option>
                         <option value="armor">Armor</option>
                         <option value="leggings">Leggings</option>
+                        <option value="aura_lightning">Aura: Lightning</option>
                     </select>
                     <button class="btn selected" onclick="window.adminGiveCustomItem()">Spawn</button>
                 </div>
@@ -866,6 +943,7 @@
             <div id="player-container" class="entity" style="left: 960px; top: 1000px;">
                 <div id="player-name-tag" class="name-tag">Player</div>
                 <div id="player-avatar-container" class="player-avatar-container avatar-rig">
+                    <div id="player-cosmetic-aura" class="cosmetic-aura"></div>
                     <div id="player-aura" class="aura"></div>
                     <img id="player-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" style="opacity:0">
                     <img id="player-head" class="avatar-layer layer-head" src="animation/avatar_head.png" style="opacity:0">
@@ -914,7 +992,73 @@
         </div>
     </div>
 </div>
+    <div id="mailbox-screen">
+        <h2>System Mail</h2>
+        <div id="mail-list-container">
+            <p style="text-align:center; color:#aaa;">No messages.</p>
+        </div>
+        <button class="btn btn-large" style="background:#555; border-color:#555;" onclick="window.toggleMailbox()">Close (M)</button>
+    </div>
 <script>
+    let isMailboxOpen = false;
+
+window.toggleMailbox = function() {
+    isMailboxOpen = !isMailboxOpen;
+    document.getElementById('mailbox-screen').style.display = isMailboxOpen ? 'block' : 'none';
+    if (isMailboxOpen && socket) {
+        socket.emit('getMail'); // Ask server for player-specific mail
+    }
+};
+
+// Add 'M' key listener for Mail
+window.addEventListener('keydown', (e) => {
+    if (!isChatting && e.key.toLowerCase() === 'm') {
+        window.toggleMailbox();
+    }
+});
+
+socket.on('mailList', (mails) => {
+    const container = document.getElementById('mail-list-container');
+    container.innerHTML = '';
+    if (!mails || mails.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#aaa;">Your inbox is empty.</p>';
+        return;
+    }
+
+    mails.forEach(mail => {
+        const row = document.createElement('div');
+        row.className = 'mail-row';
+        
+        let itemHtml = '';
+        if (mail.attached_item) {
+            itemHtml = `<div class="mail-item-preview">Attached: ${mail.attached_item.name}</div>`;
+        }
+
+        row.innerHTML = `
+            <div class="mail-sender">FROM: SYSTEM</div>
+            <div class="mail-msg">${mail.message_text}</div>
+            ${itemHtml}
+            <button class="claim-btn" id="claim-${mail.id}" onclick="window.claimMail(${mail.id})">
+                ${mail.attached_item ? 'CLAIM ITEM' : 'MARK AS READ'}
+            </button>
+        `;
+        container.appendChild(row);
+    });
+});
+
+window.claimMail = function(mailId) {
+    if (socket) socket.emit('claimMail', mailId);
+};
+
+socket.on('mailClaimSuccess', (mailId) => {
+    const btn = document.getElementById(`claim-${mailId}`);
+    if (btn) {
+        btn.innerText = "CLAIMED";
+        btn.disabled = true;
+    }
+    dom.log.innerText = "Mail claimed successfully!";
+    window.renderInventory(); // Refresh inventory to show new item
+});
 // ==========================================
 // 1. SYSTEM INITIALIZATION & CORE DATA
 // ==========================================
@@ -981,8 +1125,14 @@ let isDrawing = false, startX = 0, startY = 0, currentBox = null, drawType = 'co
 let currentBGM = null, currentTrackName = "", activeTargetPlayerId = null;
 window.facingRight = false, window.isLoading = false; 
 
+// 🌟 ADMIN SPECTATE VARIABLES
+window.isSpectating = false;
+window.spectateTargetId = null;
+window.startSpectate = function(targetId) { if (socket) socket.emit('requestSpectate', targetId); window.toggleFriends(); };
+window.stopSpectating = function() { if (socket) socket.emit('stopSpectate'); };
+
 window.game = { 
-    isRunning: false, isGhost: false, keys: { w: false, a: false, s: false, d: false, z: false, x: false, c: false }, 
+    isRunning: false, isGhost: false, keys: { w: false, a: false, s: false, d: false, z: false, x: false, c: false },
     player: { id: 'local_player', name: "Adventurer", level: 1, currentHp: 100, x: 960, y: 1000, width: 48, height: 96, w: 24, h: 20, teleportCooldown: 0, currentPortal: null, equips: { weapon: null }, currentBodySrc: '', playerClass: null, immortalUntil: 0, untargetableUntil: 0, activePets: [] }, 
     monsters: {}, remotePlayers: {}, party: null 
 };
@@ -1125,68 +1275,48 @@ window.updateStonePrice = function() {
 }
 
 window.buyItem = function(type) {
+    let cost = 0; let item = null;
     if (type === 'potion') {
         let qty = parseInt(document.getElementById('shop-potion-qty').value) || 1;
-        let cost = qty * 25;
-        if (game.player.gold < cost) { dom.log.innerText = "Not enough gold!"; return; }
-        
-        let item = { id: Date.now(), name: "Health Potion", type: "potion", rarity: "Basic", color: "#fff", fixedStat: { hpHeal: 100 }, quantity: qty };
-        game.player.gold -= cost;
-        window.addLoot(item);
-        
+        cost = qty * 25;
+        item = { id: Date.now(), name: "Health Potion", type: "potion", rarity: "Basic", color: "#fff", fixedStat: { hpHeal: 100 }, quantity: qty };
     } else if (type === 'stone') {
         let lvl = parseInt(document.getElementById('shop-stone-level').value) || 10;
         let rarity = document.getElementById('shop-stone-rarity').value || 'Basic';
         let qty = parseInt(document.getElementById('shop-stone-qty').value) || 1;
-        
         let basePrice = lvl * 15;
         let rMult = { "Basic": 1, "Rare": 3, "Unique": 8, "Legendary": 20, "Godly": 50 }[rarity] || 1;
-        let cost = basePrice * rMult * qty;
-        
-        if (game.player.gold < cost) { dom.log.innerText = "Not enough gold!"; return; }
-        
-        let color = window.RARITY_COLORS[rarity] || "#fff";
-        let itemName = `${rarity === "Basic" ? "" : rarity + " "}Refinement Stone Lv.${lvl}`.trim();
-        
-        let item = { id: Date.now() + Math.random(), name: itemName, type: "material", rarity: rarity, level: lvl, color: color, description: "Enhances equipment.", quantity: qty };
-        
-        game.player.gold -= cost;
-        window.addLoot(item);
+        cost = basePrice * rMult * qty;
+        item = { id: Date.now() + Math.random(), name: (rarity === "Basic" ? "" : rarity + " ") + "Refinement Stone Lv." + lvl, type: "material", rarity: rarity, level: lvl, color: window.RARITY_COLORS[rarity], quantity: qty };
     }
-    
-    document.getElementById('shop-my-gold').innerText = game.player.gold;
-    window.updateUI();
-    DatabaseManager.savePlayerData(game.player);
+
+    if (game.player.gold < cost) { dom.log.innerText = "Not enough gold!"; return; }
+    // 🛡️ ASK SERVER FOR PERMISSION
+    if (socket) socket.emit('requestPurchase', { totalCost: cost, item: item });
 }
 
 window.actionSell = function(e) {
     if (e) e.stopPropagation();
     const item = game.player.inventory[activeInvIndex];
     if (!item) return;
-    
-    let baseVal = (item.level || 1) * 2;
-    let multiplier = { "Starter": 1, "Basic": 2, "Rare": 5, "Unique": 10, "Legendary": 25, "Godly": 100 }[item.rarity] || 1;
-    let sellPrice = baseVal * multiplier;
-    if (item.quantity && item.quantity > 1) sellPrice *= item.quantity;
-    
-    game.player.gold += sellPrice;
-    dom.log.innerText = `Sold ${item.name} for ${sellPrice} Gold.`;
-    game.player.inventory[activeInvIndex] = null;
-    activeInvIndex = -1;
-    
+    // 🛡️ ASK SERVER TO SELL
+    if (socket) socket.emit('requestSell', { item: item, index: activeInvIndex });
     document.getElementById('inv-context-menu').style.display = 'none';
-    document.getElementById('shop-my-gold').innerText = game.player.gold || 0;
-    window.renderInventory();
-    window.updateUI();
-    DatabaseManager.savePlayerData(game.player);
 }
 
 // ==========================================
 // 4. ANIMATION ENGINE & STAT SCALING
 // ==========================================
 window.updateAnimationFrames = function(state) {
+    // 🌟 AURA UPDATE LOGIC
+    let currentAura = game.player.equips?.armor?.aura || null;
+    let cAuraEl = document.getElementById('player-cosmetic-aura');
+    if (cAuraEl) {
+        cAuraEl.className = currentAura ? `cosmetic-aura aura-${currentAura}` : 'cosmetic-aura';
+    }
+
     dom.playerAvatarContainer.style.transform = window.facingRight ? 'scaleX(-1)' : 'scaleX(1)';
-    let rawWpn = game.player.equips?.weapon ? game.player.equips.weapon.sprite : null; 
+    let rawWpn = game.player.equips?.weapon ? game.player.equips.weapon.sprite : null;
     let wpn = rawWpn ? rawWpn.replace('starter', 'basic') : null; 
     let pulseActive = (Math.floor(Date.now() / 250) % 2 === 0);
     let bodySrc = 'animation/avatar_idlefront.png'; 
@@ -1258,8 +1388,7 @@ window.getBaseStat = function(lvl) { if (lvl >= 50) return 100; if (lvl >= 45) r
 // ==========================================
 // 5. INVENTORY & EQUIPMENT
 // ==========================================
-window.addLoot = function(item) { item.quantity = item.quantity || 1;
-if (item.type === 'potion' || item.type === 'material' || item.type === 'consumable') { const inv = game.player.inventory || []; let existingIndex = inv.findIndex(i => i && i.name === item.name); if (existingIndex !== -1) { game.player.inventory[existingIndex].quantity += item.quantity; dom.log.innerText = `Looted: ${item.name} (x${game.player.inventory[existingIndex].quantity})!`; if (isInventoryOpen) window.renderInventory(); return; } } const inv = game.player.inventory || []; const emptySlot = inv.findIndex(i => i === null); if (emptySlot !== -1) { game.player.inventory[emptySlot] = item; dom.log.innerText = `Looted: ${item.name}!`; if (isInventoryOpen) window.renderInventory(); } else { dom.log.innerText = `Inventory full! Lost ${item.name}.`; } }
+window.addLoot = function(item) { item.quantity = item.quantity || 1; if (item.type === 'potion' || item.type === 'material' || item.type === 'consumable') { const inv = game.player.inventory || []; let existingIndex = inv.findIndex(i => i && i.name === item.name); if (existingIndex !== -1) { game.player.inventory[existingIndex].quantity += item.quantity; dom.log.innerText = `Looted: ${item.name} (x${game.player.inventory[existingIndex].quantity})!`; if (isInventoryOpen) window.renderInventory(); if (['Unique', 'Legendary', 'Godly'].includes(item.rarity)) DatabaseManager.savePlayerData(game.player); return; } } const inv = game.player.inventory || []; const emptySlot = inv.findIndex(i => i === null); if (emptySlot !== -1) { game.player.inventory[emptySlot] = item; dom.log.innerText = `Looted: ${item.name}!`; if (isInventoryOpen) window.renderInventory(); if (['Unique', 'Legendary', 'Godly'].includes(item.rarity)) DatabaseManager.savePlayerData(game.player); } else { dom.log.innerText = `Inventory full! Lost ${item.name}.`; } }
 window.getItemTooltip = function(item) { 
     if(!item) return ""; 
     let html = `<strong class="${item.rarity === "Godly" ? "rarity-godly" : ""}" style="color:${item.color}; font-size: 13px;">${item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name}</strong><br><span style="color:#888;">Lv. ${item.level || 1} ${item.rarity || 'Normal'}</span><br><br>`; 
@@ -1293,6 +1422,7 @@ window.renderInventory = function() {
         if (item) {
             if (inTradeMode) { slot.style.border = "1px solid #2196F3"; slot.onclick = () => window.addTradeItem(i); } 
             else if (isEnhancing) { slot.style.border = "1px dashed #ffeb3b"; slot.onclick = (e) => window.attemptEnhance(i, e); } 
+            else if (window.isApplyingAura) { slot.style.border = "1px dashed #00ffff"; slot.onclick = (e) => window.attemptApplyAura(i, e); }
             else { slot.style.borderBottom = `3px solid ${item.color || '#fff'}`; slot.onclick = (e) => window.openItemAction(i, e); }
             slot.appendChild(document.createTextNode(item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name));
             let tip = document.createElement('div'); tip.className = 'tooltip'; tip.innerHTML = window.getItemTooltip(item);
@@ -1308,29 +1438,112 @@ window.openItemAction = function(index, e) {
     e.stopPropagation(); activeInvIndex = index;
     const menu = document.getElementById('inv-context-menu');
     const item = game.player.inventory[index]; if (!item) return;
-    document.getElementById('ctx-btn-equip').innerText = (item.type === 'potion' || item.type === 'consumable') ? "Use" : (item.type === 'material' ? "Enhance" : "Equip");
+    
+    document.getElementById('ctx-btn-equip').innerText = (item.type === 'potion' || item.type === 'consumable') ? "Use" : (item.type === 'material' ? "Enhance" : (item.type === 'aura' ? "Apply Aura" : "Equip"));
     document.getElementById('ctx-btn-sell').style.display = isShopping ? 'block' : 'none';
+    document.getElementById('ctx-btn-extract-aura').style.display = (item.type === 'armor' && item.aura) ? 'block' : 'none';
+    
     menu.style.display = 'flex'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
 }
 
-window.actionEquip = function(e) { if (e) e.stopPropagation(); if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; if (game.player.inventory[activeInvIndex].type === 'material') { isEnhancing = true; dom.log.innerText = `Select equipment to enhance!`; window.renderInventory(); } else { window.useItem(activeInvIndex); } document.getElementById('inv-context-menu').style.display = 'none'; }
+window.actionEquip = function(e) { 
+    if (e) e.stopPropagation(); 
+    if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; 
+    let item = game.player.inventory[activeInvIndex];
+    if (item.type === 'material') { isEnhancing = true; dom.log.innerText = `Select equipment to enhance!`; window.renderInventory(); } 
+    else if (item.type === 'aura') { window.isApplyingAura = true; dom.log.innerText = `Select an Armor to apply the Aura!`; window.renderInventory(); }
+    else { window.useItem(activeInvIndex); } 
+    document.getElementById('inv-context-menu').style.display = 'none'; 
+}
+window.isApplyingAura = false;
+window.attemptApplyAura = function(targetIndex, e) {
+    e.stopPropagation();
+    let stone = game.player.inventory[activeInvIndex];
+    let targetItem = game.player.inventory[targetIndex];
+    
+    if (!stone || !targetItem || stone.type !== 'aura' || targetItem.type !== 'armor') {
+        window.isApplyingAura = false; window.renderInventory(); dom.log.innerText = "Aura application cancelled."; return;
+    }
+    if (targetItem.aura) {
+        dom.log.innerText = "That armor already has an aura! Extract it first."; window.isApplyingAura = false; window.renderInventory(); return;
+    }
+    
+    // Apply the visual aura properties to the armor
+    targetItem.aura = stone.auraId;
+    targetItem.originalName = targetItem.name;
+    targetItem.name = "Lightning " + targetItem.name;
+    
+    // ✅ FIX: Safely calculate quantity and enforce deletion
+    stone.quantity = (stone.quantity || 1) - 1; 
+    if (stone.quantity <= 0) {
+        game.player.inventory[activeInvIndex] = null;
+    }
+    
+    dom.log.innerText = `Applied Lightning Aura to your armor!`;
+    window.spawnWhiteSplash(game.player.x + 24, game.player.y + 48);
+    
+    window.isApplyingAura = false; window.updateEquipmentDisplay(); window.renderInventory(); DatabaseManager.savePlayerData(game.player);
+}
+
+window.extractAura = function(e) {
+    if (e) e.stopPropagation();
+    if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return;
+    let item = game.player.inventory[activeInvIndex];
+    if (!item.aura) return;
+    
+    let emptySlot = game.player.inventory.findIndex(i => i === null);
+    if (emptySlot === -1) { dom.log.innerText = "Inventory full! Cannot extract."; return; }
+    
+    // ✅ FIX: Added "quantity: 1" to the extracted stone so it can be consumed next time
+    let auraStone = { id: Date.now(), name: "Lightning Aura Stone", type: 'aura', auraId: item.aura, sprite: 'aurastone', level: 1, rarity: 'Legendary', color: '#00ffff', description: "Click to apply to an Armor. Purely cosmetic.", quantity: 1 };
+    
+    item.name = item.originalName || item.name.replace("Lightning ", "");
+    delete item.aura; delete item.originalName;
+    
+    game.player.inventory[emptySlot] = auraStone;
+    dom.log.innerText = "Aura extracted safely!";
+    document.getElementById('inv-context-menu').style.display = 'none';
+    window.updateEquipmentDisplay(); window.renderInventory(); DatabaseManager.savePlayerData(game.player);
+}
 window.actionThrow = function(e) { if (e) e.stopPropagation(); if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; dom.log.innerText = `Threw away ${game.player.inventory[activeInvIndex].name}.`; game.player.inventory[activeInvIndex] = null; activeInvIndex = -1; window.renderInventory(); DatabaseManager.savePlayerData(game.player); document.getElementById('inv-context-menu').style.display = 'none'; }
 window.unequipItem = function(slot) { const eq = game.player.equips[slot]; if (!eq) return; const inv = game.player.inventory || []; const emptySlot = inv.findIndex(i => i === null); if (emptySlot === -1) { dom.log.innerText = "Inventory full!"; return; } game.player.inventory[emptySlot] = eq; game.player.equips[slot] = null; dom.log.innerText = `Unequipped ${eq.name}.`; window.updateEquipmentDisplay(); window.renderInventory(); window.updateSkillMenu(); DatabaseManager.savePlayerData(game.player); }
 window.useRevivalJuice = function(invIndex = -1) { if (!game.isGhost) { dom.log.innerText = "You can only use this when you are dead!"; return; } let juiceIndex = invIndex; if (juiceIndex === -1) { juiceIndex = game.player.inventory.findIndex(i => i && i.name === "Revival Juice"); } if (juiceIndex !== -1) { let item = game.player.inventory[juiceIndex]; item.quantity--; if (item.quantity <= 0) game.player.inventory[juiceIndex] = null; document.getElementById('death-screen').style.display = 'none'; game.isGhost = false; game.player.currentHp = window.getMaxHp(); dom.playerContainer.style.opacity = '1'; window.spawnDamageText(game.player.x + 24, game.player.y, "REVIVED", "#ffeb3b"); dom.log.innerText = "You drank the Revival Juice and came back to life!"; window.renderInventory(); window.updateUI(); window.emitVitalsIfNeeded(true); if (socket) socket.emit('localRevive'); DatabaseManager.savePlayerData(game.player); } };
-window.useItem = function(index) { const item = game.player.inventory[index]; if (!item) return; if (item.type === 'consumable' && item.name === "Revival Juice") { window.useRevivalJuice(index); return; } if (item.type === 'consumable' && item.name === "Class Reset Book") { if (!game.player.baseStats.playerClass) { dom.log.innerText = "You don't have a class to reset yet!"; return; } game.player.baseStats.playerClass = null; game.player.activeSkills = []; item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, "CLASS RESET", '#ffeb3b'); dom.log.innerText = `You reset your class! Open Skills (K) to pick a new one.`; window.renderInventory(); window.updateSkillMenu(); if (typeof isSkillOpen !== 'undefined' && isSkillOpen) window.renderSkillScreen(); DatabaseManager.savePlayerData(game.player); return; } if (item.level && item.level > game.player.level) { dom.log.innerText = `Level ${item.level} required!`; return; } if (item.type === 'potion') { game.player.currentHp = Math.min(window.getMaxHp(), game.player.currentHp + item.fixedStat.hpHeal); item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, `+${item.fixedStat.hpHeal} HP`, '#4CAF50'); dom.log.innerText = `Used ${item.name}!`; window.updateUI(); window.emitVitalsIfNeeded(true); } else { const currentEquip = game.player.equips[item.type]; game.player.equips[item.type] = item; game.player.inventory[index] = currentEquip; dom.log.innerText = `Equipped ${item.name}!`; window.updateEquipmentDisplay(); window.emitVitalsIfNeeded(true); window.updateSkillMenu(); } window.renderInventory(); DatabaseManager.savePlayerData(game.player); }
+window.useItem = function(index) { const item = game.player.inventory[index]; if (!item) return; if (item.type === 'consumable' && item.name === "Revival Juice") { window.useRevivalJuice(index); return; } if (item.type === 'consumable' && item.name === "Class Reset Book") { if (!game.player.baseStats.playerClass) { dom.log.innerText = "You don't have a class to reset yet!"; return; } game.player.baseStats.playerClass = null; game.player.activeSkills = []; item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, "CLASS RESET", '#ffeb3b'); dom.log.innerText = `You reset your class! Open Skills (K) to pick a new one.`; window.renderInventory(); window.updateSkillMenu(); if (typeof isSkillOpen !== 'undefined' && isSkillOpen) window.renderSkillScreen(); DatabaseManager.savePlayerData(game.player); return; } if (item.level && item.level > game.player.level) { dom.log.innerText = `Level ${item.level} required!`; return; } if (item.type === 'potion') { 
+            // 🛡️ FRONTEND ONLY ASKS TO USE IT.
+            dom.log.innerText = `Using ${item.name}...`;
+            // Temporary visual feedback, server handles actual quantity
+            game.player.currentHp = Math.min(window.getMaxHp(), game.player.currentHp + item.fixedStat.hpHeal);
+            window.spawnDamageText(game.player.x + 24, game.player.y - 20, `+${item.fixedStat.hpHeal} HP`, '#4CAF50');
+            window.updateUI(); window.emitVitalsIfNeeded(true);
+            
+            item.quantity--;
+            if (item.quantity <= 0) game.player.inventory[index] = null;
+            window.renderInventory();
+            DatabaseManager.savePlayerData(game.player); // The server validates this rate limit!
+        } else { 
+            const currentEquip = game.player.equips[item.type]; 
+            game.player.equips[item.type] = item; 
+            game.player.inventory[index] = currentEquip; 
+            dom.log.innerText = `Equipped ${item.name}!`; 
+            window.updateEquipmentDisplay(); window.emitVitalsIfNeeded(true); window.updateSkillMenu(); 
+            window.renderInventory(); DatabaseManager.savePlayerData(game.player); 
+        } 
+    }
 window.attemptEnhance = function(targetIndex, e) { 
-    e.stopPropagation(); let stone = game.player.inventory[activeInvIndex]; let targetItem = game.player.inventory[targetIndex]; 
-    if (!stone || !targetItem || stone.type !== 'material' || targetItem.type === 'material' || targetItem.type === 'potion' || targetItem.rarity === "Starter" || (stone.rarity||'') !== (targetItem.rarity||'') || (stone.level||0) !== (targetItem.level||0) || (targetItem.enhanceLevel||0) >= 20) { isEnhancing = false; window.renderInventory(); return; } 
-    stone.quantity--; if (stone.quantity <= 0) game.player.inventory[activeInvIndex] = null; 
-    let eLvl = targetItem.enhanceLevel || 0; let successChance = 1.0; let destroyChance = 0.0;
-    if (eLvl >= 6) { successChance = Math.max(0.15, 1.0 - ((eLvl - 5) * 0.15)); destroyChance = Math.min(0.40, ((eLvl - 5) * 0.05)); }
-    let roll = Math.random();
-    if (roll < destroyChance) { game.player.inventory[targetIndex] = null; dom.log.innerText = `CRITICAL FAILURE! ${targetItem.name} +${eLvl} shattered!`; window.spawnDamageText(game.player.x + 24, game.player.y, "DESTROYED", "#f44336"); } 
-    else if (roll < destroyChance + successChance) { targetItem.enhanceLevel = eLvl + 1; const bonus = { "Starter": 1, "Basic": 1, "Rare": 3, "Unique": 5, "Legendary": 8, "Godly": 15 }[targetItem.rarity] || 1; if (targetItem.fixedStat) { for (const k in targetItem.fixedStat) { if (typeof targetItem.fixedStat[k] === 'number') targetItem.fixedStat[k] += bonus; } } if (targetItem.randomStat) { for (const k in targetItem.randomStat) { if (typeof targetItem.randomStat[k] === 'number') targetItem.randomStat[k] += bonus; } } dom.log.innerText = `SUCCESS! ${targetItem.name} is now +${targetItem.enhanceLevel}!`; window.spawnSpark(game.player.x + 24, game.player.y); } 
-    else { dom.log.innerText = `FAILED! ${targetItem.name} +${eLvl} enhancement failed.`; window.spawnDamageText(game.player.x + 24, game.player.y, "FAILED", "#aaaaaa"); }
-    isEnhancing = false; window.updateEquipmentDisplay(); window.renderInventory(); DatabaseManager.savePlayerData(game.player); window.emitVitalsIfNeeded(true); 
-}
+    e.stopPropagation(); 
+    let stone = game.player.inventory[activeInvIndex]; 
+    let targetItem = game.player.inventory[targetIndex]; 
+    
+    if (!stone || !targetItem || stone.type !== 'material' || targetItem.type === 'material' || targetItem.type === 'potion' || targetItem.rarity === "Starter" || (stone.rarity||'') !== (targetItem.rarity||'') || (stone.level||0) !== (targetItem.level||0) || (targetItem.enhanceLevel||0) >= 20) { 
+        isEnhancing = false; window.renderInventory(); return; 
+    } 
 
+    // 🛡️ ASK THE SERVER TO DO THE MATH AND ROLL THE DICE
+    if(socket) socket.emit('requestEnhance', { stoneIndex: activeInvIndex, targetIndex: targetIndex });
+    
+    isEnhancing = false; 
+    window.renderInventory(); 
+}
 window.updateEquipmentDisplay = function() { try { const buildDisplayStr = (item) => item ? (item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name) : 'None'; let w = game.player.equips.weapon; let a = game.player.equips.armor; let l = game.player.equips.leggings; document.getElementById('eq-weapon-slot').innerText = buildDisplayStr(w); if(w) document.getElementById('eq-weapon-slot').style.color = w.color; document.getElementById('eq-armor-slot').innerText = buildDisplayStr(a); if(a) document.getElementById('eq-armor-slot').style.color = a.color; document.getElementById('eq-leggings-slot').innerText = buildDisplayStr(l); if(l) document.getElementById('eq-leggings-slot').style.color = l.color; dom.playerArmor.style.display = 'none'; dom.playerLeggings.style.display = 'none'; const createTip = (item, boxId) => { let box = document.getElementById(boxId); let tip = box.querySelector('.tooltip'); if(!tip) { tip = document.createElement('div'); tip.className = 'tooltip'; box.appendChild(tip); } if(item) tip.innerHTML = window.getItemTooltip(item); else tip.remove(); }; createTip(w, 'eq-box-weapon'); createTip(a, 'eq-box-armor'); createTip(l, 'eq-box-leggings'); let newMax = window.getMaxHp(); if(game.player.currentHp > newMax) game.player.currentHp = newMax; window.updateUI(); } catch(err) {} }
 window.updateUI = function() { document.getElementById('ui-hp-text').innerText = `${game.player.currentHp} / ${window.getMaxHp()}`; document.getElementById('ui-hp-bar').style.width = (game.player.currentHp / Math.max(1, window.getMaxHp())) * 100 + '%'; document.getElementById('ui-hp-bar').style.backgroundColor = (game.player.currentHp < (window.getMaxHp()*0.3)) ? '#f44336' : '#4CAF50'; document.getElementById('ui-level-text').innerText = game.player.level; document.getElementById('ui-exp-text').innerText = `${game.player.exp} / ${game.player.maxExp}`; document.getElementById('ui-exp-bar').style.width = (game.player.exp / Math.max(1, game.player.maxExp)) * 100 + '%'; document.getElementById('ui-gold-text').innerText = game.player.gold || 0; if (game.party && game.party.members) { let me = game.party.members.find(x => x.id === game.player.id); if (me) { me.currentHp = game.player.currentHp; me.maxHp = window.getMaxHp(); me.level = game.player.level; window.renderPartyUI(); } } }
 window.toggleStats = function() { if (dom.statScreen.style.display === 'block') { dom.statScreen.style.display = 'none'; } else { document.getElementById('stat-lvl').innerText = game.player.level; document.getElementById('stat-maxhp').innerText = window.getMaxHp(); document.getElementById('stat-atk').innerText = window.getAttackPower(); document.getElementById('stat-matk').innerText = window.getMagicAttack(); document.getElementById('stat-def').innerText = window.getDefense(); document.getElementById('stat-spd').innerText = window.getSpeed(); document.getElementById('stat-str').innerText = window.getTotalStat('str'); document.getElementById('stat-int').innerText = window.getTotalStat('int'); dom.statScreen.style.display = 'block'; } }
@@ -1499,6 +1712,19 @@ window.adminSetPlayerLevel = function() { game.player.level = parseInt(document.
 window.adminGiveCustomItem = function() { 
     let r = document.getElementById('admin-item-rarity').value; 
     let t = document.getElementById('admin-item-type').value; 
+    
+    // 🌟 AURA STONE SPAWNER
+    if (t.startsWith('aura_')) {
+        let auraType = t.split('_')[1];
+        let item = {
+            id: Date.now() + Math.random(), name: `Lightning Aura Stone`, type: 'aura', auraId: auraType,
+            sprite: 'aurastone', level: 1, rarity: 'Legendary', color: '#00ffff',
+            description: "Click to apply to an Armor. Purely cosmetic."
+        };
+        window.addLoot(item);
+        dom.log.innerText = `[Admin] Spawned Lightning Aura Stone!`;
+        return;
+    }
     let l = parseInt(document.getElementById('admin-item-level').value) || 1; 
     let e = parseInt(document.getElementById('admin-item-enhance').value) || 0; 
     let tmpl = window.ITEM_TEMPLATES[t]; 
@@ -1787,7 +2013,10 @@ window.leaveParty = function() {
 window.respondInvite = function(accept) { document.getElementById('invite-dialog').style.display = 'none'; if (pendingPartyInvite) { if(socket) socket.emit('partyInviteResponse', { fromId: pendingPartyInvite, accept }); pendingPartyInvite = null; } }; 
 window.respondTrade = function(accept) { document.getElementById('trade-dialog').style.display = 'none'; if (pendingTradeInvite) { if(socket) socket.emit('tradeInviteResponse', { fromId: pendingTradeInvite, accept }); if (accept) { tradeTarget = pendingTradeInvite; inTradeMode = true; document.getElementById('trade-target-name').innerText = tradeTarget; document.getElementById('trade-screen').style.display = 'block'; window.renderTradeSlots(); window.renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.log.innerText = "Trade declined."; } pendingTradeInvite = null; } }; 
 window.closeTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade cancelled."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); if(socket) socket.emit('tradeCancel'); }; 
-window.confirmTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade completed visually."; tradeTheirItems.forEach(item => { if (item) window.addLoot(item); }); game.player.gold += parseInt(document.getElementById('trade-their-gold').innerText) || 0; game.player.gold -= parseInt(document.getElementById('trade-my-gold').value) || 0; if (game.player.gold < 0) game.player.gold = 0; tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); window.updateUI(); DatabaseManager.savePlayerData(game.player); }; 
+window.confirmTrade = function() {
+    // 🛡️ STOP DOING LOGIC HERE! JUST ASK THE SERVER TO FINALIZE.
+    if(socket) socket.emit('requestConfirmTrade');
+};
 window.addTradeItem = function(invIndex) { if (!inTradeMode) return; const item = game.player.inventory[invIndex]; if (!item) return; const emptyTradeSlot = tradeMyItems.findIndex(i => i === null); if (emptyTradeSlot === -1) { dom.log.innerText = "Trade offer full!"; return; } tradeMyItems[emptyTradeSlot] = item; game.player.inventory[invIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
 window.removeFromTrade = function(tradeIndex) { if (!inTradeMode) return; const item = tradeMyItems[tradeIndex]; if (!item) return; window.addLoot(item); tradeMyItems[tradeIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
 document.getElementById('trade-my-gold').addEventListener('input', (e) => { let val = parseInt(e.target.value) || 0; if (val > game.player.gold) { val = game.player.gold; e.target.value = val; } window.syncTrade(); }); 
@@ -1936,6 +2165,11 @@ window.addRemotePlayer = function(pData) {
     head.style.filter = skinFilters[skin] || skinFilters['flesh']; body.style.filter = skinFilters[skin] || skinFilters['flesh']; hair.style.filter = hairFilters[hairColor] || hairFilters['black'];
     weapon.style.display = 'none';
     
+    // 🌟 CREATE REMOTE PLAYER AURA
+    const cAura = document.createElement('div'); cAura.className = 'cosmetic-aura';
+    if (pData.spriteData && pData.spriteData.aura) cAura.classList.add(`aura-${pData.spriteData.aura}`);
+    rig.appendChild(cAura);
+    
     hair.style.opacity = '1'; head.style.opacity = '1'; body.style.opacity = '1'; weapon.style.opacity = '1';
 
     rig.appendChild(hair); rig.appendChild(head); rig.appendChild(body); rig.appendChild(weapon); container.appendChild(rig); dom.world.appendChild(container);
@@ -2000,6 +2234,26 @@ window.removeRemotePlayer = function(id) { const p = game.remotePlayers[id]; if 
 // 8. SOCKET EVENTS & NETWORKING
 // ==========================================
 if(socket) {
+    socket.on('purchaseSuccess', (data) => {
+        game.player.gold = data.newGold;
+        game.player.inventory = data.inventory;
+        window.updateUI();
+        window.renderInventory();
+        dom.log.innerText = "Purchase successful!";
+    });
+
+    socket.on('sellSuccess', (data) => {
+        game.player.gold = data.newGold;
+        game.player.inventory = data.inventory;
+        dom.log.innerText = `Item sold for ${data.price} Gold.`;
+        window.updateUI();
+        window.renderInventory();
+    });
+    socket.on('syncInventory', (serverInventory) => {
+        game.player.inventory = serverInventory;
+        window.updateEquipmentDisplay();
+        window.renderInventory();
+    });
     // ✅ RESTORED AUTHENTICATION LISTENERS
     socket.on('needsCharacterCreation', (username) => {
         document.getElementById('loading-screen').style.display = 'none';
@@ -2149,31 +2403,37 @@ window.showMapAnnouncement = function(mapId) {
     socket.on('partyError', (msg) => { dom.log.innerText = msg; });
     socket.on('partyKickedOrLeft', () => { dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; game.party = null; dom.log.innerText = "You are no longer in a party."; });
     socket.on('chatMessage', (data) => { if (data.id === game.player.id) return; const p = game.remotePlayers[data.id]; if (p) window.showBubble(p, data.text); });
-    // ✅ FRIENDS SOCKET LISTENERS
-    // ✅ FRIENDS SOCKET LISTENERS (UPDATED TO ALWAYS SHOW LEVELS)
+   // ✅ NEW DETAILED FRIENDS LIST
     socket.on('friendsListUpdate', (friendsList) => {
         const container = document.getElementById('friends-list-container');
         container.innerHTML = '';
-        
-        if (!friendsList || friendsList.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color:#aaa;">Your friends list is empty.</p>';
-            return;
-        }
+        if (!friendsList || friendsList.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Your friends list is empty.</p>'; return; }
 
         friendsList.forEach(f => {
             const row = document.createElement('div');
             row.className = 'friend-row';
-            
-            // ✅ Always show level! (Gold if online, Gray if offline)
             let lvlColor = f.online ? '#ffd700' : '#888';
             let levelHtml = `<span style="color:${lvlColor}; font-size:12px; margin-left: 5px;">(Lv.${f.level})</span>`;
+            
+            // Format Map and Class beautifully
+            let classFmt = f.pClass ? `<span style="color:#aaa; font-size:11px;">${f.pClass}</span>` : `<span style="color:#555; font-size:11px;">Novice</span>`;
+            let mapFmt = f.online ? `<span style="color:#2196F3; font-size:11px;">[${f.mapId || 'Town'}]</span>` : '';
+
+            // 👑 Admin Spectate Button
+            let spectateBtn = (game.player.name === 'Kei' && f.online) ? `<button class="dm-btn" style="background:#f44336; margin-bottom:5px;" onclick="window.startSpectate('${f.id}')">👁️ Spectate</button>` : '';
 
             row.innerHTML = `
-                <div class="friend-info">
-                    <div class="status-dot ${f.online ? 'online' : 'offline'}"></div>
-                    ${f.id} ${levelHtml}
+                <div class="friend-info" style="flex-direction:column; align-items:flex-start; gap:2px;">
+                    <div style="display:flex; align-items:center; gap:5px;">
+                        <div class="status-dot ${f.online ? 'online' : 'offline'}"></div>
+                        ${f.id} ${levelHtml}
+                    </div>
+                    <div style="margin-left: 17px; display:flex; gap: 8px;">${classFmt} ${mapFmt}</div>
                 </div>
-                <button class="dm-btn" onclick="window.promptDM('${f.id}')">DM</button>
+                <div style="display:flex; flex-direction:column;">
+                    ${spectateBtn}
+                    <button class="dm-btn" onclick="window.promptDM('${f.id}')">DM</button>
+                </div>
             `;
             container.appendChild(row);
         });
@@ -2194,18 +2454,33 @@ window.showMapAnnouncement = function(mapId) {
     socket.on('forceTeleport', (tp) => { 
         window.loadMapScript(tp.mapId, () => { 
             safeMapData = window.MapDatabase[tp.mapId]; 
-            if (tp.mapId === 'town' && safeMapData.teleports) {
+            if (tp.mapId === 'town' && safeMapData.teleports && !tp.spectateTarget) {
                 const p1 = safeMapData.teleports.find(p => p.portalId === 1);
                 if (p1) { game.player.x = p1.x + (p1.w / 2) - (game.player.width / 2); game.player.y = p1.y + p1.h - game.player.height + 5; } else { game.player.x = tp.x; game.player.y = tp.y; }
             } else { game.player.x = tp.x; game.player.y = tp.y; }
+            
+            // 🌟 ADMIN SPECTATE HANDLER
+            if (tp.spectateTarget) {
+                window.isSpectating = true;
+                window.spectateTargetId = tp.spectateTarget;
+                dom.playerContainer.style.display = 'none'; // Hide your body
+                document.getElementById('spectate-ui').style.display = 'block';
+                dom.log.innerText = `[ADMIN] Now Spectating: ${tp.spectateTarget}`;
+            } else {
+                window.isSpectating = false;
+                window.spectateTargetId = null;
+                dom.playerContainer.style.display = 'block'; // Restore body
+                document.getElementById('spectate-ui').style.display = 'none';
+            }
+
             window.cleanupMap();
             dom.world.style.backgroundImage = `url('${safeMapData.image}')`; window.buildCollisionLayers(); 
             window.playBGM(tp.mapId.includes('floor') ? 'floors' : 'town'); 
-            
-            // ✅ UPDATES THE UI WITH THE NEW MAP NAME
             window.showMapAnnouncement(tp.mapId);
 
-            socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'idle', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
+            if (!window.isSpectating) {
+                socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'idle', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
+            }
         }); 
     });
     
@@ -2250,6 +2525,10 @@ window.showMapAnnouncement = function(mapId) {
             if (p.currentWeaponSrc !== wpnSrc) { p.weapon.src = wpnSrc; p.currentWeaponSrc = wpnSrc; } 
             if (!p.spriteData) p.spriteData = {}; p.spriteData.weapon = fixedWpn; 
         } else { p.weapon.style.display = 'none'; p.currentWeaponSrc = ''; if (p.spriteData) p.spriteData.weapon = null; }
+
+        // 🌟 SYNC REMOTE PLAYER AURA
+        const cAuraEl = p.rig.querySelector('.cosmetic-aura');
+        if (cAuraEl) cAuraEl.className = data.spriteData?.aura ? `cosmetic-aura aura-${data.spriteData.aura}` : 'cosmetic-aura';
     });
 
     socket.on('inspectData', (data) => { if (!data) return; dom.inspect.style.display = 'block'; dom.inspectTitle.innerText = `Inspect: ${data.name || data.id || "Unknown"}`; const equips = data.equips || {}; const slots = [ { key: 'weapon', label: 'Weapon' }, { key: 'armor', label: 'Armor' }, { key: 'leggings', label: 'Leggings' } ]; function fmtStatBlock(item) { if (!item) return `<div class="inspect-empty">None</div>`; const rarityColor = item.color || (window.RARITY_COLORS[item.rarity] || "#fff"); const nameClass = item.rarity === "Godly" ? "rarity-godly" : ""; const displayName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name; let html = `<div class="inspect-title"><div class="inspect-item-name ${nameClass}" style="color:${rarityColor};">${displayName}</div><div class="inspect-sub">Lv.${item.level || 1} ${item.rarity || "Unknown"}</div></div><div class="inspect-stat">`; if (item.fixedStat) { for (const k in item.fixedStat) html += `<div><b>Fixed:</b> +${item.fixedStat[k]} ${k.toUpperCase()}</div>`; } if (item.randomStat) { for (const k in item.randomStat) html += `<div><b>Random:</b> +${item.randomStat[k]} ${k.toUpperCase()}</div>`; } if (item.sprite) { html += `<div style="color:#888; margin-top:6px;">Sprite: ${item.sprite}.png</div>`; } html += `</div>`; return html; } let out = `<div style="font-size:14px; color:#ccc; margin-bottom:10px; text-align:center;">Level ${data.level || 1} &nbsp; | &nbsp; HP ${data.currentHp ?? "?"} / ${data.maxHp ?? "?"}</div>`; slots.forEach(s => { out += `<div class="inspect-equip"><div style="font-weight:bold; color:#ffeb3b; margin-bottom:6px;">${s.label}</div>${fmtStatBlock(equips[s.key])}</div>`; }); dom.inspectContent.innerHTML = out; });
@@ -2651,33 +2930,10 @@ window.executeSkill = function(skillId, className) {
     if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
 
     if (skillId === 'heal1') {
-        // ✅ Maze-only restriction
-        if (safeMapData.id === 'town') { 
-            dom.log.innerText = "Heal is forbidden in Town!"; 
-            return; 
-        }
-        
+        if (safeMapData.id === 'town') { dom.log.innerText = "Heal is forbidden in Town!"; return; }
         window.playVoice(className);
-        let healAmt = game.player.level >= 25 ? 500 : 250;
-        
-        // 1. Heal Yourself locally
-        game.player.currentHp = Math.min(window.getMaxHp(), game.player.currentHp + healAmt);
-        window.spawnDamageText(game.player.x + 24, game.player.y - 10, `+${healAmt}`, '#4CAF50');
-        window.updateUI(); 
-        window.emitVitalsIfNeeded(true);
-        
-        // 2. Heal Party Members via Server
-        if (socket && game.party) {
-            socket.emit('partyHeal', { amount: healAmt, radius: 400 });
-        }
-
-        // Heal local pets
-        if(game.player.activePets) {
-            game.player.activePets.forEach(p => { 
-                p.hp = Math.min(p.maxHp, p.hp + healAmt); 
-                window.spawnDamageText(p.x + 15, p.y, `+${healAmt}`, '#4CAF50'); 
-            });
-        }
+        // 🛡️ FRONTEND DOES NOT HEAL LOCALLY ANYMORE. WAITS FOR SERVER.
+        if (socket) socket.emit('partyHeal');
     }
 
     if (skillId === 'heal3') {
@@ -2736,18 +2992,20 @@ window.executeSkill = function(skillId, className) {
         if (closestMob) {
             let mCx = closestMob.x + (closestMob.width/2); let mCy = closestMob.y + (closestMob.height/2);
             if (className === 'Ice Master') {
-                window.playVoice(className); let count = skillId === 'ice3' ? 3 : 1; let dmg = window.getMagicAttack() * 2;
+                window.playVoice(className); let count = skillId === 'ice3' ? 3 : 1; 
                 for (let i=0; i<count; i++) {
                     setTimeout(() => {
                         let ice = document.createElement('div'); ice.className = 'icicle'; ice.style.left = mCx + 'px'; ice.style.top = (mCy - 100) + 'px'; dom.world.appendChild(ice);
                         let anim = ice.animate([{ top: (mCy - 100) + 'px' }, { top: mCy + 'px' }], { duration: 300, easing: 'ease-in' });
-                        anim.onfinish = () => { ice.remove(); if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: true, freeze: true }); };
+                        // 🛡️ SEND SKILL ID, SERVER DOES THE MATH
+                        anim.onfinish = () => { ice.remove(); if (i === count - 1 && socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId }); };
                     }, i * 200);
                 }
             }
             if (skillId === 'bld3') {
-                window.playVoice(className); let dmg = window.getAttackPower() * 5;
-                window.spawnWhiteSplash(mCx, mCy); if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: false });
+                window.playVoice(className);
+                window.spawnWhiteSplash(mCx, mCy); 
+                if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId });
             }
         }
     }
@@ -2761,31 +3019,25 @@ window.attemptAttack = function(silent) {
     if (game.player.currentHp <= 0 || isInventoryOpen || window.adminMode || game.isGhost || window.isLoading) return;
     if (attackCooldownActive) return; 
     
-    let closestMob = null; let minD = Infinity; const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : ''; const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant'); const isPendant = weaponSprite.includes('pendant'); const attackRadius = isRanged ? 250 : 80;
+    let closestMob = null; let minD = Infinity; const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : ''; const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant'); const attackRadius = isRanged ? 250 : 80;
     for(let mId in game.monsters) { let m = game.monsters[mId]; if(!m.alive) continue; let mCenterX = m.x + (m.width/2); let mCenterY = m.y + (m.height/2); let dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY); if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; } }
     if (!closestMob) { if(!silent) dom.log.innerText = "No target in range."; return; }
     
     isAttacking = true; attackCooldownActive = true; 
-    if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
+    if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: weaponSprite });
     window.playSFX(weaponSprite);
 
-    let pClass = game.player.baseStats.playerClass;
-    let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(pClass);
-    const rawDmg = isMagicClass ? window.getMagicAttack() : window.getAttackPower();
-    
-    const dmg = Math.max(1, Math.floor(rawDmg * (0.9 + Math.random() * 0.2)) - (closestMob.def || 0));
     const mCenterX = closestMob.x + (closestMob.width/2); const mCenterY = closestMob.y + (closestMob.height/2);
-    let applyFreeze = (pClass === 'Ice Master' && game.player.level >= 25 && Math.random() < 0.25);
 
     if (isRanged) { 
         window.shootOrb(pCenterX, pCenterY - 15, mCenterX, mCenterY); 
-        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: isPendant, freeze: applyFreeze }); }, 500); 
+        // 🛡️ FRONTEND SENDS NO DAMAGE. JUST THE TARGET AND SKILL TYPE.
+        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: 'basic' }); }, 500); 
     } else { 
-        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: isPendant, freeze: applyFreeze }); }, 300); 
+        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: 'basic' }); }, 300); 
     }
     setTimeout(() => { isAttacking = false; }, 500); setTimeout(() => { attackCooldownActive = false; }, 1000);
 }
-
 function gameLoop(ts) {
     if (!game.isRunning) return;
 
@@ -2835,8 +3087,7 @@ function gameLoop(ts) {
                     p.dom.style.transform = 'scale(1.5) translateY(-20px)'; 
                     setTimeout(() => { 
                         p.dom.style.transform = 'scale(1)'; 
-                        let rawDmg = isMagicClass ? window.getMagicAttack() : window.getAttackPower();
-                        if(socket) socket.emit('attackMonster', { monsterId: targetMob.id, damage: Math.floor(rawDmg * 0.25) }); 
+                        if(socket) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'pet' }); 
                     }, 200);
                 }
             } else {
@@ -2908,9 +3159,22 @@ function gameLoop(ts) {
         }
     }
     dom.playerContainer.style.left = game.player.x + 'px'; dom.playerContainer.style.top = game.player.y + 'px'; 
-    const cameraX = Math.floor((window.innerWidth / 2) - (game.player.x * CAMERA_ZOOM) - (game.player.width * CAMERA_ZOOM / 2)); 
-    const cameraY = Math.floor((window.innerHeight / 2) - (game.player.y * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2)); 
+
+    // 🌟 SPECTATOR CAMERA LOCK
+    let camTargetX = game.player.x;
+    let camTargetY = game.player.y;
+
+    if (window.isSpectating && window.spectateTargetId && game.remotePlayers[window.spectateTargetId]) {
+        camTargetX = game.remotePlayers[window.spectateTargetId].x;
+        camTargetY = game.remotePlayers[window.spectateTargetId].y;
+    }
+
+    const cameraX = Math.floor((window.innerWidth / 2) - (camTargetX * CAMERA_ZOOM) - (game.player.width * CAMERA_ZOOM / 2)); 
+    const cameraY = Math.floor((window.innerHeight / 2) - (camTargetY * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2)); 
     dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`;
+
+    // Block movement controls if spectating
+    if (window.isSpectating) { isMoving = false; canInputMove = false; }
 
     if (!game.isGhost) {
         if (autoAttackMode && !window.adminMode && !isInventoryOpen && !window.isLoading) window.attemptAttack(true);
