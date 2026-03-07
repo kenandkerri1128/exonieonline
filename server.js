@@ -575,32 +575,24 @@ io.on('connection', (socket) => {
         try { fs.writeFileSync(filePath, data.content); } catch(err) {}
     });
 
-  socket.on('partyHeal', () => { 
+  socket.on('partyHeal', (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || p.isGhost || p.mapId === 'town') return;
 
+        // 🛡️ 20s COOLDOWN (18s leniency)
         const now = Date.now();
         if (p.skillCooldowns['partyHeal'] && now < p.skillCooldowns['partyHeal']) return;
         p.skillCooldowns['partyHeal'] = now + 18000; 
 
-        // 🛡️ SERVER CALCULATES THE HEAL AMOUNT AND RADIUS
-        let trueHealAmt = p.level >= 25 ? 500 : 250;
-        let safeRadius = 400;
-
-        // Heal caster first
-        p.currentHp = Math.min(p.maxHp || 100, p.currentHp + trueHealAmt);
-        io.to(p.instanceId).emit('playerHealed', { id: p.id, amount: trueHealAmt, currentHp: p.currentHp });
-
         const pid = playerParty[p.id];
         if (pid && parties[pid]) {
             for (const memberId of parties[pid].members) {
-                if (memberId === p.id) continue;
                 const mp = getPlayerById(memberId);
                 if (mp && !mp.isGhost && mp.instanceId === p.instanceId) {
                     const dist = Math.hypot(p.x - mp.x, p.y - mp.y);
-                    if (dist <= safeRadius) {
-                        mp.currentHp = Math.min(mp.maxHp || 100, mp.currentHp + trueHealAmt);
-                        io.to(p.instanceId).emit('playerHealed', { id: mp.id, amount: trueHealAmt, currentHp: mp.currentHp });
+                    if (dist <= (data.radius || 400)) {
+                        mp.currentHp = Math.min(mp.maxHp, mp.currentHp + data.amount);
+                        io.to(p.instanceId).emit('playerHealed', { id: mp.id, amount: data.amount, currentHp: mp.currentHp });
                     }
                 }
             }
@@ -993,82 +985,87 @@ io.on('connection', (socket) => {
         }
     });
 
-   socket.on('attackMonster', (payload) => {
+    socket.on('attackMonster', (payload) => {
         const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return; 
         if (p.mapId === 'town') return; 
+
         const now = Date.now();
 
-        // 🛡️ ANTI-CHEAT: MACRO BLOCKER
-        if (p.lastAttackTime && now - p.lastAttackTime < 300) return;
+        // 🛡️ ANTI-CHEAT 1: THE MACHINE-GUN BLOCKER
+        // Absolutely NO attacks can be processed faster than 300ms apart. 
+        // This permanently stops macro-clickers and packet-spammers.
+        if (p.lastAttackTime && now - p.lastAttackTime < 300) {
+            return; // 🛑 Blocked!
+        }
         p.lastAttackTime = now;
 
-        // 🛡️ ANTI-CHEAT: TOKEN BUCKET
+        // 🛡️ ANTI-CHEAT 2: SUSTAINED FATIGUE LIMITER
+        // Over a long fight, they can only average 1 attack every 700ms.
         p.lastTokenRefill = p.lastTokenRefill || now;
         const timePassed = now - p.lastTokenRefill;
         const tokensToAdd = Math.floor(timePassed / 700); 
+        
         if (tokensToAdd > 0) {
             p.attackTokens = Math.min(3, (p.attackTokens || 0) + tokensToAdd); 
             p.lastTokenRefill = now - (timePassed % 700);
         }
-        if (p.attackTokens <= 0) return;
+        
+        if (p.attackTokens <= 0) {
+            return; // 🛑 Blocked! They swung too many times in a row.
+        }
         p.attackTokens--; 
 
         const world = worlds[p.instanceId]; if (!world) return;
         const m = world.monsters[payload.monsterId]; 
+        
         if (!m || !m.alive) return;
         
-        const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); 
-        if (dist > 350) return;
+        const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); if (dist > 350) return;
         
-        // 🛡️ 100% SERVER-SIDE MATH: The client's opinions are ignored entirely.
+        // 🛡️ ANTI-CHEAT 3: HEAVY SKILL SPAM BLOCKER
         let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(p.baseStats?.playerClass);
         let serverAtkPwr = isMagicClass ? getServerMagicAttack(p) : getServerAttackPower(p);
-        let isPendant = p.equips?.weapon?.sprite?.includes('pendant') || false;
         
-        // Base Swing (90% to 110%)
-        let trueDmg = Math.floor(serverAtkPwr * (0.9 + Math.random() * 0.2));
+        let clientDmg = Math.floor(Number(payload.damage) || 1);
 
-        // Skill Multipliers applied on the server
-        if (payload.skillId === 'bld3') {
-            if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && p.id !== "Kei") {
-                // Block cooldown bypasses
+        // If they try to do massive skill damage (like Mega Slash)...
+        if (clientDmg > serverAtkPwr * 1.5 && p.id !== "Kei") {
+            if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack']) {
+                // Hacker is spamming an ultimate skill! 
+                clientDmg = Math.floor(serverAtkPwr); // Down-scale their hacked damage to a weak basic attack
             } else {
-                trueDmg = Math.floor(serverAtkPwr * 5);
-                p.skillCooldowns['heavyAttack'] = now + 49000; // 50s CD
+                p.skillCooldowns['heavyAttack'] = now + 15000; // Require 15 seconds before another heavy damage hit
             }
-        } else if (payload.skillId === 'ice1') {
-            if (p.skillCooldowns['ice1'] && now < p.skillCooldowns['ice1'] && p.id !== "Kei") {
-                trueDmg = Math.floor(serverAtkPwr); // Hacker spamming? Revert to basic damage.
-            } else {
-                trueDmg = Math.floor(serverAtkPwr * 2);
-                p.skillCooldowns['ice1'] = now + 23000; // 25s CD
-            }
-        } else if (payload.skillId === 'ice3') {
-            if (p.skillCooldowns['ice3'] && now < p.skillCooldowns['ice3'] && p.id !== "Kei") {
-                trueDmg = Math.floor(serverAtkPwr); 
-            } else {
-                trueDmg = Math.floor(serverAtkPwr * 6); // 3 icicles * 2x damage = 6x total
-                p.skillCooldowns['ice3'] = now + 98000; // 100s CD
-            }
-        } else if (payload.skillId === 'pet') {
-            trueDmg = Math.floor(serverAtkPwr * 0.25);
         }
 
-        const dmg = Math.max(1, trueDmg - (m.def || 0)); 
+        // Hard cap on absolute max damage possible
+        let maxPossibleDamage = Math.max(50, Math.floor(serverAtkPwr * 6)); 
+        if (clientDmg > maxPossibleDamage && p.id !== "Kei") {
+            clientDmg = maxPossibleDamage;
+        }
+
+        const dmg = Math.max(1, clientDmg); 
         m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
         
-        // Server controls Freeze logic exclusively
-        if (p.baseStats?.playerClass === 'Ice Master' && p.level >= 25 && (payload.skillId === 'basic' || payload.skillId === 'ice1' || payload.skillId === 'ice3')) {
-            if (Math.random() < 0.25) m.frozenUntil = Date.now() + 3000;
+        // 🛡️ ANTI-CHEAT 4: SERVER-SIDE FREEZE VERIFICATION
+        // Hackers send "freeze: true" to permanently freeze bosses. 
+        if (payload.freeze) {
+            // ONLY Ice Masters level 25+ can freeze, and the SERVER decides the 25% chance!
+            if (p.baseStats?.playerClass === 'Ice Master' && p.level >= 25) {
+                if (Math.random() < 0.25) { 
+                    m.frozenUntil = Date.now() + 3000;
+                }
+            }
         }
 
-        io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: isPendant });
+        io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: !!payload.isPendant });
         
         if (m.currentHp <= 0) {
             m.alive = false; m.targetId = null; m.threatTable = {}; m.forcedTargetId = null; m.forcedUntil = 0; m.frozenUntil = 0;
             io.to(p.instanceId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
             
-            const expAmount = m.expYield || 25; const goldAmount = m.goldYield || 15; 
+            const expAmount = m.expYield || 25;
+            const goldAmount = m.goldYield || 15; 
             const pid = playerParty[p.id];
 
             if (pid && parties[pid]) {
@@ -1076,7 +1073,9 @@ io.on('connection', (socket) => {
                     const sid = findSocketIdByPlayerId(memberId); 
                     if (sid) {
                         io.to(sid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
-                        let drop = generateLoot(m); io.to(sid).emit('lootDropped', drop);
+                        let drop = generateLoot(m);
+                        io.to(sid).emit('lootDropped', drop);
+                        
                         if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
                             io.emit('rareLootBroadcast', { playerName: memberId, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
                         }
@@ -1084,7 +1083,9 @@ io.on('connection', (socket) => {
                 }
             } else { 
                 io.to(socket.id).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
-                let drop = generateLoot(m); io.to(socket.id).emit('lootDropped', drop);
+                let drop = generateLoot(m);
+                io.to(socket.id).emit('lootDropped', drop);
+                
                 if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
                     io.emit('rareLootBroadcast', { playerName: p.name || p.id, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
                 }
@@ -1093,7 +1094,8 @@ io.on('connection', (socket) => {
                 setTimeout(() => { 
                     const cfg = { spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY }, level: m.level }; 
                     const nm = spawnMonster(p.instanceId, m.id, m.originalKey || m.monsterKey, cfg); 
-                    world.monsters[m.id] = nm; io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm)); 
+                    world.monsters[m.id] = nm; 
+                    io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm)); 
                 }, m.respawnDelayMs || 10000);
             }
         }
@@ -1384,76 +1386,6 @@ io.on('connection', (socket) => {
         // Save true data to DB and push back to client
         supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
         socket.emit('syncInventory', p.inventory);
-    });
-    // 🛡️ SERVER-SIDE ECONOMY: Buying
-    socket.on('requestPurchase', async (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
-
-        let cost = data.totalCost;
-        // Verify gold on server
-        if (p.gold >= cost) {
-            p.gold -= cost; 
-            // Server-side inventory update
-            const inv = p.inventory || [];
-            const emptySlot = inv.findIndex(i => i === null);
-            if (emptySlot !== -1) {
-                p.inventory[emptySlot] = data.item;
-                socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
-                supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
-            } else {
-                socket.emit('systemMessage', "Inventory full!");
-            }
-        } else {
-            socket.emit('systemMessage', "Insufficient Gold (Server Verified).");
-        }
-    });
-
-    // 🛡️ SERVER-SIDE ECONOMY: Selling
-    socket.on('requestSell', async (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || !data.item) return;
-
-        // Server calculates true value based on Rarity/Level, ignoring client claims
-        let baseVal = (data.item.level || 1) * 2;
-        let multiplier = { "Starter": 1, "Basic": 2, "Rare": 5, "Unique": 10, "Legendary": 25, "Godly": 100 }[data.item.rarity] || 1;
-        let sellPrice = baseVal * multiplier;
-        if (data.item.quantity) sellPrice *= data.item.quantity;
-
-        p.gold += sellPrice;
-        p.inventory[data.index] = null; // Remove item on server
-
-        supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
-        socket.emit('sellSuccess', { newGold: p.gold, inventory: p.inventory, price: sellPrice });
-    });
-    // 🛡️ SERVER-SIDE TRADE: THE SWAP
-    socket.on('requestConfirmTrade', () => {
-        const me = onlinePlayers[socket.id];
-        if (!me || !me.tradeTarget) return;
-        const them = getPlayerById(me.tradeTarget);
-        if (!them) return;
-
-        // 1. Swap Gold safely
-        let myOfferedGold = parseInt(me.currentTradeOffer?.gold) || 0;
-        let theirOfferedGold = parseInt(them.currentTradeOffer?.gold) || 0;
-
-        me.gold = Math.max(0, me.gold + theirOfferedGold - myOfferedGold);
-        them.gold = Math.max(0, them.gold + myOfferedGold - theirOfferedGold);
-
-        // 2. Clear trade targets to prevent double-clicking
-        me.tradeTarget = null;
-        them.tradeTarget = null;
-
-        // 3. Save to database
-        supabase.from('Exonians').update({ gold: me.gold }).eq('character_name', me.id).then(()=>{});
-        supabase.from('Exonians').update({ gold: them.gold }).eq('character_name', them.id).then(()=>{});
-
-        // 4. Tell both players the trade is finished
-        socket.emit('tradeDone');
-        const targetSocketId = findSocketIdByPlayerId(them.id);
-        if (targetSocketId) {
-            io.to(targetSocketId).emit('tradeDone');
-        }
     });
    socket.on('disconnect', async () => {
         if (socket.username) { activeLogins.delete(socket.username); }
