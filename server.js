@@ -563,6 +563,12 @@ io.on('connection', (socket) => {
         if (me) sendFriendsUpdateTo(me.id);
     });
     socket.on('saveMapFile', (data) => {
+        const p = onlinePlayers[socket.id];
+        // 🛡️ ANTI-CHEAT: ONLY THE REAL SERVER ADMIN CAN SAVE MAPS
+        if (!p || p.id !== "Kei") {
+            console.log(`[CRITICAL WARNING] ${socket.id} attempted to overwrite map ${data.mapId}!`);
+            return; 
+        }
         if (!data.mapId || !data.content) return;
         const fileName = data.mapId === 'town' ? 'townmap.js' : `${data.mapId}.js`;
         const filePath = path.join(__dirname, 'public', fileName);
@@ -1370,6 +1376,7 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
