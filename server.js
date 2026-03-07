@@ -296,7 +296,29 @@ function serializeMonster(m) {
     }; 
 }
 
-function playersInInstance(instId) { return Object.values(onlinePlayers).filter(p => p.instanceId === instId); }
+function checkAndResetInstance(instId) {
+    if (!worlds[instId] || instId === 'town') return; // Don't reset the safe zone
+    
+    // Check if there are any REAL players left (ignoring invisible admins)
+    const activePlayers = playersInInstance(instId).filter(p => !p.isHiddenAdmin);
+    
+    if (activePlayers.length === 0) {
+        // The room is empty! Reset all ALIVE monsters to full health and spawn points.
+        for (let mId in worlds[instId].monsters) {
+            let m = worlds[instId].monsters[mId];
+            if (m.alive) {
+                m.currentHp = m.maxHp;
+                m.threatTable = {};
+                m.targetId = null;
+                m.forcedTargetId = null;
+                m.forcedUntil = 0;
+                m.frozenUntil = 0;
+                m.x = m.homeX; // Snap back to spawn
+                m.y = m.homeY;
+            }
+        }
+    }
+}
 
 function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
     const cols = worlds[instId]?.collisions || [];
@@ -1125,6 +1147,7 @@ io.on('connection', (socket) => {
         const p = onlinePlayers[socket.id];
         if (!p) return;
         
+        const oldInstId = p.instanceId; // 🌟 SAVE OLD INSTANCE
         socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
         
         if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
@@ -1134,6 +1157,8 @@ io.on('connection', (socket) => {
         p.mapId = tp.mapId; p.x = tp.x; p.y = tp.y; p.currentPortal = null;
         p.instanceId = getInstanceId(p.id, tp.mapId); 
         socket.join(p.instanceId);
+        
+        checkAndResetInstance(oldInstId); // 🌟 RUN THE RESET CHECK
         
         socket.emit('forceTeleport', tp); 
         socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
@@ -1147,6 +1172,8 @@ io.on('connection', (socket) => {
 
     socket.on('playerTeleported', async (data) => {
         if (!onlinePlayers[socket.id]) return; const p = onlinePlayers[socket.id];
+        
+        const oldInstId = p.instanceId; // 🌟 SAVE OLD INSTANCE
         socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
         
         if (p.mapId === 'town') p.currentHp = p.maxHp;
@@ -1158,6 +1185,8 @@ io.on('connection', (socket) => {
         p.mapId = data.mapId; p.x = data.x; p.y = data.y; p.currentPortal = null;
         p.instanceId = getInstanceId(p.id, data.mapId); 
         socket.join(p.instanceId);
+        
+        checkAndResetInstance(oldInstId); // 🌟 RUN THE RESET CHECK
         
         socket.emit('requestMapSync', { mapId: data.mapId, instanceId: p.instanceId }); 
         socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
@@ -1172,7 +1201,7 @@ io.on('connection', (socket) => {
         if (p) {
             p.isGhost = false; p.currentHp = p.maxHp || 100;
             if (p.mapId !== 'town') {
-                // 🌟 FIX: Pull the player out of the Boss Room immediately!
+                const oldInstId = p.instanceId; // 🌟 SAVE OLD INSTANCE
                 socket.leave(p.instanceId); 
                 socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
                 
@@ -1180,10 +1209,11 @@ io.on('connection', (socket) => {
                     for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
                 }
 
-                // 🌟 FIX: Fully move them to Town on the Server-Side
                 p.mapId = 'town'; p.x = 960; p.y = 1000; p.currentPortal = null;
                 p.instanceId = getInstanceId(p.id, 'town'); 
                 socket.join(p.instanceId);
+                
+                checkAndResetInstance(oldInstId); // 🌟 RUN THE RESET CHECK
                 
                 // Tell the client to execute the teleport
                 socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); 
@@ -1279,27 +1309,27 @@ io.on('connection', (socket) => {
         const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id && !remote.isHiddenAdmin);
         socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
     });
-    socket.on('disconnect', async () => {
-    // ✅ NEW: Free up the account so they can log back in
-    if (socket.username) {
-        activeLogins.delete(socket.username);
-    }
+   socket.on('disconnect', async () => {
+        if (socket.username) { activeLogins.delete(socket.username); }
 
-    const p = onlinePlayers[socket.id];
-    if (p) {
-        socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
-        if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
-            for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
+        const p = onlinePlayers[socket.id];
+        if (p) {
+            const oldInstId = p.instanceId; // 🌟 SAVE OLD INSTANCE
+            socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
+            if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
+                for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
+            }
+            removeFromParty(p.id);
+            supabase.from('Exonians').update({ pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
+            delete onlinePlayers[socket.id];
+            
+            checkAndResetInstance(oldInstId); // 🌟 RUN THE RESET CHECK
         }
-        removeFromParty(p.id);
-        supabase.from('Exonians').update({ pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
-        delete onlinePlayers[socket.id];
-    }
-});
-});
+    });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
