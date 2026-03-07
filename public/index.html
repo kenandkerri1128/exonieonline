@@ -1428,27 +1428,7 @@ window.extractAura = function(e) {
 window.actionThrow = function(e) { if (e) e.stopPropagation(); if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; dom.log.innerText = `Threw away ${game.player.inventory[activeInvIndex].name}.`; game.player.inventory[activeInvIndex] = null; activeInvIndex = -1; window.renderInventory(); DatabaseManager.savePlayerData(game.player); document.getElementById('inv-context-menu').style.display = 'none'; }
 window.unequipItem = function(slot) { const eq = game.player.equips[slot]; if (!eq) return; const inv = game.player.inventory || []; const emptySlot = inv.findIndex(i => i === null); if (emptySlot === -1) { dom.log.innerText = "Inventory full!"; return; } game.player.inventory[emptySlot] = eq; game.player.equips[slot] = null; dom.log.innerText = `Unequipped ${eq.name}.`; window.updateEquipmentDisplay(); window.renderInventory(); window.updateSkillMenu(); DatabaseManager.savePlayerData(game.player); }
 window.useRevivalJuice = function(invIndex = -1) { if (!game.isGhost) { dom.log.innerText = "You can only use this when you are dead!"; return; } let juiceIndex = invIndex; if (juiceIndex === -1) { juiceIndex = game.player.inventory.findIndex(i => i && i.name === "Revival Juice"); } if (juiceIndex !== -1) { let item = game.player.inventory[juiceIndex]; item.quantity--; if (item.quantity <= 0) game.player.inventory[juiceIndex] = null; document.getElementById('death-screen').style.display = 'none'; game.isGhost = false; game.player.currentHp = window.getMaxHp(); dom.playerContainer.style.opacity = '1'; window.spawnDamageText(game.player.x + 24, game.player.y, "REVIVED", "#ffeb3b"); dom.log.innerText = "You drank the Revival Juice and came back to life!"; window.renderInventory(); window.updateUI(); window.emitVitalsIfNeeded(true); if (socket) socket.emit('localRevive'); DatabaseManager.savePlayerData(game.player); } };
-window.useItem = function(index) { const item = game.player.inventory[index]; if (!item) return; if (item.type === 'consumable' && item.name === "Revival Juice") { window.useRevivalJuice(index); return; } if (item.type === 'consumable' && item.name === "Class Reset Book") { if (!game.player.baseStats.playerClass) { dom.log.innerText = "You don't have a class to reset yet!"; return; } game.player.baseStats.playerClass = null; game.player.activeSkills = []; item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, "CLASS RESET", '#ffeb3b'); dom.log.innerText = `You reset your class! Open Skills (K) to pick a new one.`; window.renderInventory(); window.updateSkillMenu(); if (typeof isSkillOpen !== 'undefined' && isSkillOpen) window.renderSkillScreen(); DatabaseManager.savePlayerData(game.player); return; } if (item.level && item.level > game.player.level) { dom.log.innerText = `Level ${item.level} required!`; return; } if (item.type === 'potion') { 
-            // 🛡️ FRONTEND ONLY ASKS TO USE IT.
-            dom.log.innerText = `Using ${item.name}...`;
-            // Temporary visual feedback, server handles actual quantity
-            game.player.currentHp = Math.min(window.getMaxHp(), game.player.currentHp + item.fixedStat.hpHeal);
-            window.spawnDamageText(game.player.x + 24, game.player.y - 20, `+${item.fixedStat.hpHeal} HP`, '#4CAF50');
-            window.updateUI(); window.emitVitalsIfNeeded(true);
-            
-            item.quantity--;
-            if (item.quantity <= 0) game.player.inventory[index] = null;
-            window.renderInventory();
-            DatabaseManager.savePlayerData(game.player); // The server validates this rate limit!
-        } else { 
-            const currentEquip = game.player.equips[item.type]; 
-            game.player.equips[item.type] = item; 
-            game.player.inventory[index] = currentEquip; 
-            dom.log.innerText = `Equipped ${item.name}!`; 
-            window.updateEquipmentDisplay(); window.emitVitalsIfNeeded(true); window.updateSkillMenu(); 
-            window.renderInventory(); DatabaseManager.savePlayerData(game.player); 
-        } 
-    }
+window.useItem = function(index) { const item = game.player.inventory[index]; if (!item) return; if (item.type === 'consumable' && item.name === "Revival Juice") { window.useRevivalJuice(index); return; } if (item.type === 'consumable' && item.name === "Class Reset Book") { if (!game.player.baseStats.playerClass) { dom.log.innerText = "You don't have a class to reset yet!"; return; } game.player.baseStats.playerClass = null; game.player.activeSkills = []; item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, "CLASS RESET", '#ffeb3b'); dom.log.innerText = `You reset your class! Open Skills (K) to pick a new one.`; window.renderInventory(); window.updateSkillMenu(); if (typeof isSkillOpen !== 'undefined' && isSkillOpen) window.renderSkillScreen(); DatabaseManager.savePlayerData(game.player); return; } if (item.level && item.level > game.player.level) { dom.log.innerText = `Level ${item.level} required!`; return; } if (item.type === 'potion') { game.player.currentHp = Math.min(window.getMaxHp(), game.player.currentHp + item.fixedStat.hpHeal); item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, `+${item.fixedStat.hpHeal} HP`, '#4CAF50'); dom.log.innerText = `Used ${item.name}!`; window.updateUI(); window.emitVitalsIfNeeded(true); } else { const currentEquip = game.player.equips[item.type]; game.player.equips[item.type] = item; game.player.inventory[index] = currentEquip; dom.log.innerText = `Equipped ${item.name}!`; window.updateEquipmentDisplay(); window.emitVitalsIfNeeded(true); window.updateSkillMenu(); } window.renderInventory(); DatabaseManager.savePlayerData(game.player); }
 window.attemptEnhance = function(targetIndex, e) { 
     e.stopPropagation(); 
     let stone = game.player.inventory[activeInvIndex]; 
@@ -2918,7 +2898,7 @@ window.executeSkill = function(skillId, className) {
                         let ice = document.createElement('div'); ice.className = 'icicle'; ice.style.left = mCx + 'px'; ice.style.top = (mCy - 100) + 'px'; dom.world.appendChild(ice);
                         let anim = ice.animate([{ top: (mCy - 100) + 'px' }, { top: mCy + 'px' }], { duration: 300, easing: 'ease-in' });
                         // 🛡️ SEND SKILL ID, SERVER DOES THE MATH
-                        anim.onfinish = () => { ice.remove(); if (i === count - 1 && socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId }); };
+                        anim.onfinish = () => { ice.remove(); if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId }); };
                     }, i * 200);
                 }
             }
