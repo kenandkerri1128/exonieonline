@@ -804,40 +804,88 @@ io.on('connection', (socket) => {
     });
 
     socket.on('enterWorld', (userData) => {
-        // 🛡️ STRICT LOGIN RULE: Everyone spawns in Town! No exceptions.
-        const mapId = 'town';
-        const instId = getInstanceId(userData.character_name, mapId);
+    const mapId = 'town';
+    const instId = getInstanceId(userData.character_name, mapId);
 
-        let startHp = userData.max_hp || 100; // Full heal in town
-        
-        currentUser = userData.character_name; 
-        
-        onlinePlayers[socket.id] = {
-            socketId: socket.id, id: userData.character_name, name: userData.character_name, 
-            mapId: mapId, instanceId: instId, isGhost: false, currentPortal: null,
-            x: 960, y: 1000, // 🛡️ FORCE SPAWN
-            level: userData.level || 1, currentHp: startHp, maxHp: userData.max_hp || 100, tradeTarget: null,
-            equips: userData.equips || { weapon: null, armor: null, leggings: null }, 
-            baseStats: userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }, 
-            gold: userData.gold || 0, 
-            spriteData: { 
-                skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, 
-                weapon: userData.equips?.weapon?.sprite || null,
-                aura: userData.equips?.armor?.aura || null 
-            },
-            untargetableUntil: 0,
-            attackTokens: 3, lastTokenRefill: Date.now(), skillCooldowns: {}
-        };
-        
-        // 🛡️ FORCE DB UPDATE IMMEDIATELY SO CLIENT CAN'T OVERRIDE IT
-        supabase.from('Exonians').update({ map_id: 'town', pos_x: 960, pos_y: 1000, current_hp: startHp }).eq('character_name', currentUser).then(()=>{});
+    let startHp = userData.max_hp || 100;
 
-        socket.join(instId); socket.emit('authSuccess', userData);
-        
-        socket.to(instId).emit('remotePlayerJoined', { id: onlinePlayers[socket.id].id, name: onlinePlayers[socket.id].name, mapId, instanceId: instId, x: onlinePlayers[socket.id].x, y: onlinePlayers[socket.id].y, spriteData: onlinePlayers[socket.id].spriteData, isGhost: false });
-        const playersInInst = Object.values(onlinePlayers).filter(p => p.instanceId === instId && p.id !== userData.character_name);
-        socket.emit('mapPlayersList', playersInInst.map(p => ({ id: p.id, name: p.name, mapId: p.mapId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost })));
-    });
+    currentUser = userData.character_name;
+
+    onlinePlayers[socket.id] = {
+        socketId: socket.id,
+        id: userData.character_name,
+        name: userData.character_name,
+        mapId: mapId,
+        instanceId: instId,
+        isGhost: false,
+        currentPortal: null,
+        x: 960,
+        y: 1000,
+        level: userData.level || 1,
+        currentHp: startHp,
+        maxHp: userData.max_hp || 100,
+        tradeTarget: null,
+        equips: userData.equips || { weapon: null, armor: null, leggings: null },
+        inventory: userData.inventory || new Array(20).fill(null),
+        baseStats: userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null },
+        gold: userData.gold || 0,
+        spriteData: {
+            skin: userData.skin_color,
+            hair: userData.hair_color,
+            style: userData.hair_style,
+            weapon: userData.equips?.weapon?.sprite || null,
+            aura: userData.equips?.armor?.aura || null
+        },
+        untargetableUntil: 0,
+        attackTokens: 3,
+        lastTokenRefill: Date.now(),
+        skillCooldowns: {}
+    };
+
+    supabase
+        .from('Exonians')
+        .update({ map_id: 'town', pos_x: 960, pos_y: 1000, current_hp: startHp })
+        .eq('character_name', currentUser)
+        .then(() => {});
+
+    socket.join(instId);
+
+    socket.emit('authSuccess', {
+        ...userData,
+        map_id: 'town',
+        pos_x: 960,
+        pos_y: 1000,
+        current_hp: startHp,
+        max_hp: userData.max_hp || 100,
+        inventory: userData.inventory || new Array(20).fill(null),
+        equips: userData.equips || { weapon: null, armor: null, leggings: null }
+    });
+
+    socket.to(instId).emit('remotePlayerJoined', {
+        id: onlinePlayers[socket.id].id,
+        name: onlinePlayers[socket.id].name,
+        mapId,
+        instanceId: instId,
+        x: onlinePlayers[socket.id].x,
+        y: onlinePlayers[socket.id].y,
+        spriteData: onlinePlayers[socket.id].spriteData,
+        isGhost: false
+    });
+
+    const playersInInst = Object.values(onlinePlayers).filter(
+        p => p.instanceId === instId && p.id !== userData.character_name
+    );
+
+    socket.emit('mapPlayersList', playersInInst.map(p => ({
+        id: p.id,
+        name: p.name,
+        mapId: p.mapId,
+        x: p.x,
+        y: p.y,
+        spriteData: p.spriteData,
+        isGhost: p.isGhost
+    })));
+});
 
    socket.on('saveData', async (playerData) => {
         if (!currentUser) return;
@@ -1414,3 +1462,4 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
