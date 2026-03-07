@@ -1141,11 +1141,11 @@
         }
     };
 
-    window.loadMapScript = function(mapId, callback) {
+   window.loadMapScript = function(mapId, callback) {
         let scriptName = (mapId === 'town' ? 'townmap.js' : mapId + '.js') + '?v=' + Date.now();
         let script = document.createElement('script'); script.src = scriptName;
         
-        // 🛡️ Failsafe Map Data prevents infinite loading screens
+        // 🛡️ THE ULTIMATE FALLBACK: If the map file is missing or broken, use this.
         const fallbackMap = { id: mapId, name: mapId, image: mapId === 'town' ? 'town_map.png' : mapId + '.png', spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
 
         script.onload = () => { 
@@ -1169,21 +1169,24 @@
         const loaderFill = document.getElementById('loader-fill');
         if(loaderFill) loaderFill.style.width = '0%';
         
+        // Failsafe if mapData is still somehow undefined
+        let safeImage = (mapData && mapData.image) ? mapData.image : 'town_map.png';
+        
         let assets = [
-            mapData.image, 'animation/avatar_idlefront.png', 'animation/avatar_walk.png', 'animation/avatar_attack.png', 'animation/avatar_head.png',
+            safeImage, 'animation/avatar_idlefront.png', 'animation/avatar_walk.png', 'animation/avatar_attack.png', 'animation/avatar_head.png',
             'music/slash.mp3', 'music/lightning.mp3', 'music/splash.mp3', 'music/bump.mp3' 
         ];
         
         let mKeys = new Set();
-        (mapData.normalSpawns || []).forEach(s => mKeys.add(s.monsterKey || 'common_mobs1'));
-        (mapData.miniBossSpawns || []).forEach(s => mKeys.add(s.monsterKey || 'mini_boss1'));
-        (mapData.floorBossSpawns || []).forEach(s => mKeys.add(s.monsterKey || 'floor_boss1'));
+        (mapData && mapData.normalSpawns ? mapData.normalSpawns : []).forEach(s => mKeys.add(s.monsterKey || 'common_mobs1'));
+        (mapData && mapData.miniBossSpawns ? mapData.miniBossSpawns : []).forEach(s => mKeys.add(s.monsterKey || 'mini_boss1'));
+        (mapData && mapData.floorBossSpawns ? mapData.floorBossSpawns : []).forEach(s => mKeys.add(s.monsterKey || 'floor_boss1'));
         
         mKeys.forEach(k => {
             if(!k.includes('common_mobs') && !k.includes('mini_boss') && !k.includes('floor_boss')) assets.push(`monsters/${k}.png`);
         });
 
-        if(game.player.equips && game.player.equips.weapon) {
+        if(game.player.equips && game.player.equips.weapon && game.player.equips.weapon.sprite) {
             let wpn = game.player.equips.weapon.sprite.replace('starter', 'basic');
             assets.push(`weapon/${wpn}.png`);
             if(!wpn.includes('pendant')) assets.push(`weapon/${wpn}_attack.png`);
@@ -2291,13 +2294,15 @@ if(socket) {
         window.charData.skinColor = userData.skin_color || 'flesh'; window.charData.hairColor = userData.hair_color || 'black'; window.charData.hairStyle = userData.hair_style || '1'; 
         game.player.currentHp = window.getMaxHp(); window.updateSkillMenu(); 
         
-        // 🛡️ FRONTEND SYNC: Obey the Backend's Strict Town Login rule
-        let targetMapId = 'town';
-        game.player.x = 960; 
-        game.player.y = 1000;
+        let targetMapId = 'town'; // 🛡️ FRONTEND SYNC: Obey the Backend's Strict Town Login rule
         
         window.loadMapScript(targetMapId, () => {
+            // 🛡️ Extra Failsafe so the loading screen never freezes
             safeMapData = window.MapDatabase[targetMapId] || { id: "town", name: "Town", image: "town_map.png", spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
+            
+            game.player.x = 960; 
+            game.player.y = 1000;
+            
             window.preloadMapAssets(safeMapData, () => {
                 document.getElementById('loading-screen').style.display = 'none'; dom.game.classList.add('active'); dom.world.style.backgroundImage = `url('${safeMapData.image}')`;
                 game.player.dom = dom.playerContainer; dom.playerBody.style.filter = skinFilters[window.charData.skinColor]; dom.playerHead.style.filter = skinFilters[window.charData.skinColor]; dom.playerHair.style.filter = hairFilters[window.charData.hairColor];
@@ -2831,5 +2836,6 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
