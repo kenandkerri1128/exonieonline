@@ -513,81 +513,6 @@ io.on('connection', (socket) => {
         });
         io.to(sid).emit('friendsListUpdate', friendData);
     }
-    // 🛡️ SYSTEM MAILBOX: Fetch messages for the specific player
-    socket.on('getMail', async () => {
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
-
-        try {
-            // Fetches unclaimed mail specifically for this character name
-            const { data: mails, error } = await supabase
-                .from('System_Mail')
-                .select('*')
-                .eq('recipient_name', p.id)
-                .eq('is_claimed', false);
-
-            if (error) throw error;
-            socket.emit('mailList', mails || []);
-        } catch (e) {
-            console.error(`[MAIL ERROR] Failed to fetch mail for ${p.id}:`, e.message);
-            socket.emit('mailList', []);
-        }
-    });
-
-    // 🛡️ SYSTEM MAILBOX: Secure Claiming Logic
-    socket.on('claimMail', async (mailId) => {
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
-
-        try {
-            // 1. Double-check the mail exists and belongs to this player
-            const { data: mail, error } = await supabase
-                .from('System_Mail')
-                .select('*')
-                .eq('id', mailId)
-                .eq('recipient_name', p.id)
-                .eq('is_claimed', false)
-                .single();
-
-            if (error || !mail) return socket.emit('systemMessage', "Mail not found or already claimed.");
-
-            // 2. If there is an item attached, perform a server-side inventory check
-            if (mail.attached_item) {
-                const inv = p.inventory || [];
-                const emptySlot = inv.findIndex(slot => slot === null);
-
-                // 🛑 ANTI-HACK: Prevent claiming if inventory is full
-                if (emptySlot === -1) {
-                    return socket.emit('systemMessage', "Inventory full! Clear space to claim this item.");
-                }
-
-                // 3. Move the item into the server's player cache
-                p.inventory[emptySlot] = mail.attached_item;
-            }
-
-            // 4. Mark mail as claimed in the Database
-            const { error: updateError } = await supabase
-                .from('System_Mail')
-                .update({ is_claimed: true })
-                .eq('id', mailId);
-
-            if (updateError) throw updateError;
-
-            // 5. Update the Database with the new inventory and notify the client
-            await supabase
-                .from('Exonians')
-                .update({ inventory: p.inventory })
-                .eq('character_name', p.id);
-
-            socket.emit('mailClaimSuccess', mailId);
-            socket.emit('syncInventory', p.inventory); // Forces frontend bag to refresh
-            socket.emit('systemMessage', "Mail successfully claimed!");
-
-        } catch (e) {
-            console.error(`[CLAIM ERROR] ${p.id} failed to claim mail ${mailId}:`, e.message);
-            socket.emit('systemMessage', "Server error during claim.");
-        }
-    });
 
     socket.on('addFriend', (data) => {
         const me = onlinePlayers[socket.id];
@@ -1018,10 +943,11 @@ io.on('connection', (socket) => {
         }
     });
 
-   socket.on('tauntMonsters', () => { // 🛡️ Ignored client data
+    socket.on('tauntMonsters', (data) => {
         const p = onlinePlayers[socket.id]; if(!p || p.isGhost) return;
-        if (p.mapId === 'town' || p.baseStats?.playerClass !== 'Berserker') return; 
+        if (p.mapId === 'town') return; 
 
+        // 🛡️ 14s COOLDOWN (13s leniency)
         const now = Date.now();
         if (p.skillCooldowns['tauntMonsters'] && now < p.skillCooldowns['tauntMonsters']) return;
         p.skillCooldowns['tauntMonsters'] = now + 13000;
@@ -1031,7 +957,7 @@ io.on('connection', (socket) => {
             let m = world.monsters[mId];
             if (!m.alive) continue;
             let dist = Math.hypot(p.x + 24 - (m.x + m.width/2), p.y + 48 - (m.y + m.height/2));
-            if (dist <= 300) { m.forcedTargetId = p.id; m.forcedUntil = Date.now() + 10000; } // 🛡️ Server enforces 300 radius
+            if (dist <= (data.radius || 300)) { m.forcedTargetId = p.id; m.forcedUntil = Date.now() + 10000; }
         }
     });
 
@@ -1056,14 +982,15 @@ io.on('connection', (socket) => {
         socket.to(p.instanceId).emit('remotePetSync', { ownerId: p.id, petData: data });
     });
 
-    socket.on('setUntargetable', () => { // 🛡️ Ignored client data
+    socket.on('setUntargetable', (data) => {
         const p = onlinePlayers[socket.id];
-        if (p && p.mapId !== 'town' && p.baseStats?.playerClass === 'Blademaster') { 
+        if (p && p.mapId !== 'town') { 
+            // 🛡️ 15s COOLDOWN (14s leniency)
             const now = Date.now();
             if (p.skillCooldowns['setUntargetable'] && now < p.skillCooldowns['setUntargetable']) return;
             p.skillCooldowns['setUntargetable'] = now + 14000;
 
-            p.untargetableUntil = Date.now() + 10000; // 🛡️ Server enforces 10s
+            p.untargetableUntil = Date.now() + (data.duration || 10000); 
         }
     });
 
