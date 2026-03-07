@@ -1111,7 +1111,7 @@ io.on('connection', (socket) => {
         if (payload.skillId === 'bld3') {
             if (pClass !== 'Blademaster') return; // Hacker check!
             if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && p.id !== "Kei") {
-                // Block cooldown bypasses
+                trueDmg = Math.floor(serverAtkPwr);
             } else {
                 trueDmg = Math.floor(serverAtkPwr * 5);
                 p.skillCooldowns['heavyAttack'] = now + 49000; // 50s CD
@@ -1610,6 +1610,7 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
