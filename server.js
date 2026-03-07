@@ -577,8 +577,7 @@ io.on('connection', (socket) => {
 
   socket.on('partyHeal', () => { 
         const p = onlinePlayers[socket.id];
-        // 👇 UPDATE THIS LINE TO BLOCK NON-HEALERS 👇
-        if (!p || p.isGhost || p.mapId === 'town' || p.baseStats?.playerClass !== 'Healer') return;
+        if (!p || p.isGhost || p.mapId === 'town') return;
 
         const now = Date.now();
         if (p.skillCooldowns['partyHeal'] && now < p.skillCooldowns['partyHeal']) return;
@@ -994,29 +993,25 @@ io.on('connection', (socket) => {
         }
     });
 
-  socket.on('attackMonster', (payload) => {
+   socket.on('attackMonster', (payload) => {
         const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return; 
         if (p.mapId === 'town') return; 
         const now = Date.now();
 
-        // 👇 WRAP THE ANTI-CHEAT SO PETS DON'T EAT YOUR SWINGS 👇
-        if (payload.skillId !== 'pet') {
-            // 🛡️ ANTI-CHEAT: MACRO BLOCKER
-            if (p.lastAttackTime && now - p.lastAttackTime < 300) return;
-            p.lastAttackTime = now;
+        // 🛡️ ANTI-CHEAT: MACRO BLOCKER
+        if (p.lastAttackTime && now - p.lastAttackTime < 300) return;
+        p.lastAttackTime = now;
 
-            // 🛡️ ANTI-CHEAT: TOKEN BUCKET
-            p.lastTokenRefill = p.lastTokenRefill || now;
-            const timePassed = now - p.lastTokenRefill;
-            const tokensToAdd = Math.floor(timePassed / 700); 
-            if (tokensToAdd > 0) {
-                p.attackTokens = Math.min(3, (p.attackTokens || 0) + tokensToAdd); 
-                p.lastTokenRefill = now - (timePassed % 700);
-            }
-            if (p.attackTokens <= 0) return;
-            p.attackTokens--; 
+        // 🛡️ ANTI-CHEAT: TOKEN BUCKET
+        p.lastTokenRefill = p.lastTokenRefill || now;
+        const timePassed = now - p.lastTokenRefill;
+        const tokensToAdd = Math.floor(timePassed / 700); 
+        if (tokensToAdd > 0) {
+            p.attackTokens = Math.min(3, (p.attackTokens || 0) + tokensToAdd); 
+            p.lastTokenRefill = now - (timePassed % 700);
         }
-        // 👆 END OF WRAPPER 👆
+        if (p.attackTokens <= 0) return;
+        p.attackTokens--; 
 
         const world = worlds[p.instanceId]; if (!world) return;
         const m = world.monsters[payload.monsterId]; 
@@ -1032,11 +1027,9 @@ io.on('connection', (socket) => {
         
         // Base Swing (90% to 110%)
         let trueDmg = Math.floor(serverAtkPwr * (0.9 + Math.random() * 0.2));
-        let pClass = p.baseStats?.playerClass;
 
-        // Skill Multipliers applied on the server with Identity Checking
+        // Skill Multipliers applied on the server
         if (payload.skillId === 'bld3') {
-            if (pClass !== 'Blademaster') return; // Hacker check!
             if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && p.id !== "Kei") {
                 // Block cooldown bypasses
             } else {
@@ -1044,7 +1037,6 @@ io.on('connection', (socket) => {
                 p.skillCooldowns['heavyAttack'] = now + 49000; // 50s CD
             }
         } else if (payload.skillId === 'ice1') {
-            if (pClass !== 'Ice Master') return; // Hacker check!
             if (p.skillCooldowns['ice1'] && now < p.skillCooldowns['ice1'] && p.id !== "Kei") {
                 trueDmg = Math.floor(serverAtkPwr); // Hacker spamming? Revert to basic damage.
             } else {
@@ -1052,7 +1044,6 @@ io.on('connection', (socket) => {
                 p.skillCooldowns['ice1'] = now + 23000; // 25s CD
             }
         } else if (payload.skillId === 'ice3') {
-            if (pClass !== 'Ice Master') return; // Hacker check!
             if (p.skillCooldowns['ice3'] && now < p.skillCooldowns['ice3'] && p.id !== "Kei") {
                 trueDmg = Math.floor(serverAtkPwr); 
             } else {
