@@ -1113,11 +1113,6 @@ window.ITEM_TEMPLATES = { sword: { slot: 'weapon', statKey: 'attack', baseName: 
 
 window.MapDatabase = window.MapDatabase || {}; 
 let safeMapData = { id: "town", name: "Town of Exonie", image: "town_map.png", spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
-
-let isInventoryOpen = false, isSkillOpen = false, isEnhancing = false, isShopping = false;
-let activeInvIndex = -1, attackCooldownActive = false, isAttacking = false, attackHeld = false, autoAttackMode = false;
-let lastNetTs = 0, lastSentState = 'idle', pendingPartyInvite = null, pendingTradeInvite = null, inTradeMode = false, tradeTarget = null;
-let tradeMyItems = [null,null,null], tradeTheirItems = [null,null,null], lastVitalsSent = {hp:null,maxHp:null,level:null}, lastVitalsTs = 0;
 let isDrawing = false, startX = 0, startY = 0, currentBox = null, drawType = 'collision';
 let currentBGM = null, currentTrackName = "", activeTargetPlayerId = null;
 window.facingRight = false, window.isLoading = false; 
@@ -3303,4 +3298,5 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
