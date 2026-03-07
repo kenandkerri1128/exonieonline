@@ -1023,6 +1023,130 @@
         inspectTitle: document.getElementById('inspect-title'), partyPanel: document.getElementById('party-panel'), partyMembers: document.getElementById('party-members'), 
         adminOutput: document.getElementById('admin-output'), skillScreen: document.getElementById('skill-screen'), hotbar: document.getElementById('hotbar')
     };
+    // --- THE CLASSES DATABASE ---
+const CLASSES = {
+    "Paladin": { 
+        weapon: "sword", 
+        aura: "gold", 
+        skills: [
+            { id: 'pal1', name: "Holy Guard", unlock: 1, type: 'passive', desc: "Increases Defense by 20%." },
+            { id: 'pal2', name: "Light Shield", unlock: 25, cd: 20000, type: 'active', desc: "Creates a shield absorbing 50% damage for 8s." },
+            { id: 'pal3', name: "Justice Strike", unlock: 50, cd: 35000, type: 'active', desc: "Deals 3x Attack and heals 10% HP." }
+        ]
+    },
+    "Blademaster": { 
+        weapon: "sword", 
+        aura: "red", 
+        skills: [
+            { id: 'bld1', name: "Sharpen Up!", unlock: 1, type: 'passive', desc: "Increases base Attack by 25%." },
+            { id: 'bld2', name: "Blur!", unlock: 25, cd: 15000, type: 'active', desc: "Become an untargetable ghost for 10 seconds." },
+            { id: 'bld3', name: "Mega Slash", unlock: 50, cd: 50000, type: 'active', desc: "Slashes the enemy for 5x Attack Power." }
+        ]
+    },
+    "Archmage": { 
+        weapon: "staff", 
+        aura: "blue", 
+        skills: [
+            { id: 'mag1', name: "Mana Flow", unlock: 1, type: 'passive', desc: "Cooldowns are reduced by 15%." },
+            { id: 'mag2', name: "Fireball", unlock: 10, cd: 5000, type: 'active', desc: "Launch a blast dealing 2x Magic Damage." },
+            { id: 'mag3', name: "Meteor", unlock: 60, cd: 60000, type: 'active', desc: "Huge AOE damage based on 8x Attack." }
+        ]
+    },
+    "High Priest": { 
+        weapon: "pendant", 
+        aura: "white", 
+        skills: [
+            { id: 'pri1', name: "Devotion", unlock: 1, type: 'passive', desc: "All healing effects increased by 40%." },
+            { id: 'pri2', name: "Heal", unlock: 5, cd: 10000, type: 'active', desc: "Restore 30% of Max HP instantly." },
+            { id: 'pri3', name: "Resurrection", unlock: 100, cd: 300000, type: 'active', desc: "Cheat death once every 5 minutes." }
+        ]
+    }
+};
+
+// --- TOGGLE & UI LOGIC ---
+let isSkillOpen = false;
+
+window.toggleSkillScreen = function() {
+    isSkillOpen = !isSkillOpen;
+    if (dom.skillScreen) {
+        dom.skillScreen.style.display = isSkillOpen ? 'block' : 'none';
+        if (isSkillOpen) {
+            window.renderSkillScreen();
+        }
+    } else {
+        console.error("Skill Screen element not found in DOM!");
+    }
+};
+
+window.renderSkillScreen = function() {
+    // Check base_stats on Supabase structure as requested
+    let pClass = game.player.baseStats ? game.player.baseStats.playerClass : null;
+    let wpnType = null;
+
+    if (game.player.equips && game.player.equips.weapon && game.player.equips.weapon.sprite) {
+        let sprite = game.player.equips.weapon.sprite.toLowerCase();
+        if (sprite.includes('sword')) wpnType = 'sword';
+        else if (sprite.includes('staff')) wpnType = 'staff';
+        else if (sprite.includes('pendant')) wpnType = 'pendant';
+    }
+
+    const activeArea = document.getElementById('active-class-area');
+    const selectionArea = document.getElementById('class-selection-area');
+    const classList = document.getElementById('available-classes');
+
+    if (!pClass || !CLASSES[pClass]) {
+        if (activeArea) activeArea.style.display = 'none';
+        if (selectionArea) selectionArea.display = 'block';
+        if (classList) {
+            classList.innerHTML = '';
+            if (!wpnType) {
+                classList.innerHTML = '<p style="color:#f44336; text-align:center;">Equip a weapon to choose a Class.</p>';
+                return;
+            }
+            for (let c in CLASSES) {
+                if (CLASSES[c].weapon === wpnType) {
+                    let btn = document.createElement('div');
+                    btn.className = 'skill-class-card';
+                    btn.innerHTML = `<h3 style="margin:0; color:#ff9800;">${c}</h3><p style="color:#aaa; font-size:13px;">Weapon: ${wpnType}</p>`;
+                    btn.onclick = () => window.chooseClass(c);
+                    classList.appendChild(btn);
+                }
+            }
+        }
+    } else {
+        if (selectionArea) selectionArea.style.display = 'none';
+        if (activeArea) {
+            activeArea.style.display = 'block';
+            document.getElementById('active-class-name').innerText = pClass;
+            let list = document.getElementById('class-skills-list');
+            list.innerHTML = '';
+            CLASSES[pClass].skills.forEach(s => {
+                let unlocked = game.player.level >= s.unlock;
+                let color = unlocked ? '#4CAF50' : '#f44336';
+                list.innerHTML += `
+                    <div class="skill-row">
+                        <div>
+                            <div style="font-weight:bold; color:${color};">${s.name} ${s.type === 'passive' ? '(P)' : '(A)'}</div>
+                            <div class="skill-desc">${s.desc}</div>
+                        </div>
+                        <div style="text-align:right; font-size:12px; color:#aaa;">Lv.${s.unlock}</div>
+                    </div>`;
+            });
+        }
+    }
+};
+
+window.chooseClass = function(cName) {
+    if (!confirm(`Commit to the path of the ${cName}?`)) return;
+    // Saving to the baseStats object as per your Supabase rule
+    if(!game.player.baseStats) game.player.baseStats = {};
+    game.player.baseStats.playerClass = cName;
+    
+    if (window.DatabaseManager) DatabaseManager.savePlayerData(game.player);
+    window.renderSkillScreen();
+    if (window.updateSkillMenu) window.updateSkillMenu();
+    dom.log.innerText = `Class changed to ${cName}!`;
+};
 
     window.game = { 
         isRunning: false, isGhost: false, keys: { w: false, a: false, s: false, d: false, z: false, x: false, c: false },
@@ -2290,6 +2414,12 @@ if(socket) {
         game.player.id = userData.character_name || "Unknown"; game.player.name = userData.character_name || "Unknown"; document.getElementById('player-name-tag').innerText = game.player.name; document.getElementById('ui-name-display').innerText = game.player.name;
         game.player.level = userData.level || 1; game.player.exp = userData.exp || 0; game.player.maxExp = userData.max_exp || 200; game.player.gold = userData.gold || 0; 
         game.player.baseStats = userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }; 
+        
+        // 🛡️ IF DATABASE HAS A CORRUPTED CLASS, RESET IT SO WE DON'T CRASH
+        if (game.player.baseStats.playerClass && !CLASSES[game.player.baseStats.playerClass]) {
+            game.player.baseStats.playerClass = null;
+        }
+
         game.player.inventory = userData.inventory || new Array(20).fill(null); game.player.equips = userData.equips || { weapon: null, armor: null, leggings: null };
         window.charData.skinColor = userData.skin_color || 'flesh'; window.charData.hairColor = userData.hair_color || 'black'; window.charData.hairStyle = userData.hair_style || '1'; 
         game.player.currentHp = window.getMaxHp(); window.updateSkillMenu(); 
@@ -2297,7 +2427,7 @@ if(socket) {
         let targetMapId = 'town'; // 🛡️ FRONTEND SYNC: Obey the Backend's Strict Town Login rule
         
         window.loadMapScript(targetMapId, () => {
-            // 🛡️ Extra Failsafe so the loading screen never freezes
+            // 🛡️ Extra Failsafe so the loading screen never freezes if townmap.js errors
             safeMapData = window.MapDatabase[targetMapId] || { id: "town", name: "Town", image: "town_map.png", spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
             
             game.player.x = 960; 
@@ -2836,6 +2966,7 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
