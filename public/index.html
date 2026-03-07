@@ -2898,7 +2898,7 @@ window.executeSkill = function(skillId, className) {
                         let ice = document.createElement('div'); ice.className = 'icicle'; ice.style.left = mCx + 'px'; ice.style.top = (mCy - 100) + 'px'; dom.world.appendChild(ice);
                         let anim = ice.animate([{ top: (mCy - 100) + 'px' }, { top: mCy + 'px' }], { duration: 300, easing: 'ease-in' });
                         // 🛡️ SEND SKILL ID, SERVER DOES THE MATH
-                        anim.onfinish = () => { ice.remove(); if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId }); };
+                        anim.onfinish = () => { ice.remove(); if (i === count - 1 && socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId }); };
                     }, i * 200);
                 }
             }
@@ -3206,6 +3206,7 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
