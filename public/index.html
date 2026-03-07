@@ -76,20 +76,7 @@
         .layer-leggings { height: 120%; bottom: -45%; z-index: 5; }
         .layer-armor { height: 120%; bottom: -45%; z-index: 6; } 
         .layer-weapon { height: 120%; bottom: -45%; z-index: 7; }
-/* --- MAILBOX SYSTEM UI --- */
-        #mailbox-screen { 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            width: 380px; background: rgba(20,20,20,0.98); border: 2px solid #ffd700; 
-            border-radius: 8px; padding: 20px; z-index: 2600; display: none; 
-            box-shadow: 0 0 30px #000; max-height: 70vh; overflow-y: auto; 
-        }
-        #mailbox-screen h2 { margin-top: 0; color: #ffd700; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; }
-        .mail-row { background: #1a1a1a; padding: 12px; border: 1px solid #333; border-radius: 5px; margin-bottom: 10px; }
-        .mail-sender { color: #ffd700; font-size: 12px; margin-bottom: 5px; font-weight: bold; }
-        .mail-msg { color: #eee; font-size: 14px; line-height: 1.4; margin-bottom: 10px; }
-        .mail-item-preview { background: #222; border: 1px dashed #ffd700; padding: 5px; text-align: center; color: #ffd700; font-size: 13px; margin-bottom: 10px; }
-        .claim-btn { background: #4CAF50; border: none; color: white; padding: 8px; width: 100%; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: 'MedievalSharp', cursive; }
-        .claim-btn:disabled { background: #555; cursor: not-allowed; }
+
         /* --- GAME WORLD --- */
         #game-screen { position: relative; width: 100%; height: 100%; background-color: #000; }
         #world { position: absolute; width: 2000px; height: 1333px; background-size: 100% 100%; transform-origin: top left; transition: background-image 0.5s; }
@@ -213,64 +200,60 @@
         .level-up-text { position: absolute; color: #ffd700; font-weight: bold; font-size: 28px; text-shadow: 0 0 10px #ff9800; pointer-events: none; animation: floatUp 2s forwards; z-index: 500; }
         .rarity-godly { animation: godly-sparkle 1.5s infinite alternate; }
         @keyframes godly-sparkle { 0% { text-shadow: 0 0 2px #fff, 0 0 5px #e0ffff; } 100% { text-shadow: 0 0 8px #fff, 0 0 15px #00ffff, 0 0 20px #00ffff; } }
-       /* --- COSMETIC AURAS --- */
+        /* --- COSMETIC AURAS --- */
+        
+        /* 1. THE CHARGED AVATAR (Outline Glow) */
+        /* Applies tight, sprite-traced shadows directly to the player-rig div */
+        .player-rig.aura-lightning {
+            /* Layer 1: Sharp Cyan Core | Layer 2: Softer White Neon Field */
+            filter: 
+                drop-shadow(0 0 1px #00ffff) 
+                drop-shadow(0 0 3px #00ffff) 
+                drop-shadow(0 0 6px #ffffff);
+            animation: integrated-static-pulse 1.5s infinite alternate;
+        }
+
+        /* 2. THE RUNNING CURRENTS ("Skin" over the body) */
         .cosmetic-aura {
-            position: absolute; inset: 0;
-            pointer-events: none; z-index: 10; display: none;
+            position: absolute; inset: 0; /* Cover entire rig */
+            pointer-events: none; display: none; z-index: 10;
+        }
+        
+        /* Specialized container for the lightning effect */
+        .aura-lightning .cosmetic-aura { display: block; overflow: hidden; }
+
+        /* Creates tiny white horizontal lines that run up the body */
+        .aura-lightning .cosmetic-aura::after {
+            content: ''; position: absolute; inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 15%,
+                rgba(255, 255, 255, 1) 16%, /* The sharp current line */
+                rgba(0, 255, 255, 0.8) 17%, /* Cyan trail */
+                transparent 18%,
+                transparent 100%
+            );
+            background-size: 100% 40px; /* Controls spacing between current bands */
+            animation: electric-current-run 0.8s linear infinite;
+            
+            /* Use a Screen mask to only show currents over the character sprite pixels */
+            -webkit-mask-image: inherit; /* Inherits main sprite image mask if set, or just contains within div */
+            mask-image: inherit;
         }
 
-        /* 1. OUTLINE GLOW (Traces the black outline perfectly) */
-        .avatar-rig:has(.aura-lightning) {
-            filter: drop-shadow(0 0 2px #00ffff) drop-shadow(0 0 5px #00ffff);
-            animation: aura-outline-pulse 1.2s infinite alternate;
+        /* 3. ANIMATIONS */
+        
+        /* Makes the drop-shadow field breathe subtly */
+        @keyframes integrated-static-pulse {
+            0% { filter: drop-shadow(0 0 1px #00ffff) drop-shadow(0 0 2px #00ffff) drop-shadow(0 0 4px #ffffff); opacity: 0.9; }
+            100% { filter: drop-shadow(0 0 1px #00ffff) drop-shadow(0 0 4px #00ffff) drop-shadow(0 0 8px #ffffff); opacity: 1; }
         }
 
-        /* Show the aura container when active */
-        .cosmetic-aura.aura-lightning { display: block; }
-
-        /* 2. THE ELECTRIC CURRENTS (Small zaps running on the body) */
-        .cosmetic-aura.aura-lightning::before,
-        .cosmetic-aura.aura-lightning::after {
-            content: ''; position: absolute;
-            background: #ffffff;
-            box-shadow: 0 0 8px 2px #00ffff;
-            border-radius: 2px;
-            opacity: 0; z-index: 15;
-        }
-
-        /* Vertical running sparks */
-        .cosmetic-aura.aura-lightning::before {
-            width: 2px; height: 12px;
-            animation: body-zap-1 0.7s infinite linear;
-        }
-
-        /* Horizontal running sparks */
-        .cosmetic-aura.aura-lightning::after {
-            width: 12px; height: 2px;
-            animation: body-zap-2 1.1s infinite linear;
-        }
-
-        @keyframes aura-outline-pulse {
-            0% { filter: drop-shadow(0 0 1px #00ffff) drop-shadow(0 0 3px #00ffff); }
-            100% { filter: drop-shadow(0 0 3px #00ffff) drop-shadow(0 0 8px #00ffff) drop-shadow(0 0 15px #ffffff); }
-        }
-
-        @keyframes body-zap-1 {
-            0%, 100% { opacity: 0; top: 10%; left: 30%; }
-            10% { opacity: 1; top: 20%; left: 35%; transform: scaleY(1.5) rotate(15deg); }
-            15% { opacity: 0; }
-            50% { opacity: 0; top: 60%; left: 70%; }
-            60% { opacity: 1; top: 70%; left: 60%; transform: scaleY(2) rotate(-20deg); }
-            65% { opacity: 0; }
-        }
-
-        @keyframes body-zap-2 {
-            0%, 100% { opacity: 0; top: 40%; left: 10%; }
-            20% { opacity: 1; top: 45%; left: 20%; transform: scaleX(1.5) rotate(-15deg); }
-            25% { opacity: 0; }
-            70% { opacity: 0; top: 80%; left: 50%; }
-            80% { opacity: 1; top: 75%; left: 60%; transform: scaleX(2) rotate(25deg); }
-            85% { opacity: 0; }
+        /* Rapidly scrolls the linear gradient texture vertically */
+        @keyframes electric-current-run {
+            0% { background-position: 0 0px; }
+            100% { background-position: 0 40px; } /* Moves texture up one full band */
         }
         /* Earthquake Visual Ring */
 .earthquake-ring {
@@ -807,7 +790,6 @@
         <div id="mobile-actions">
             <div class="m-row">
                 <div class="m-btn" style="border-color: #ff9800;" onclick="window.forceUnstuck()">Fix</div>
-                <div class="m-btn" style="border-color: #ffd700;" onclick="window.toggleMailbox()">Mail</div>
                 <div class="m-btn" onclick="window.toggleStats()">Stats</div>
                 <div class="m-btn" onclick="window.openShop()">Shop</div>
             </div>
@@ -992,73 +974,7 @@
         </div>
     </div>
 </div>
-    <div id="mailbox-screen">
-        <h2>System Mail</h2>
-        <div id="mail-list-container">
-            <p style="text-align:center; color:#aaa;">No messages.</p>
-        </div>
-        <button class="btn btn-large" style="background:#555; border-color:#555;" onclick="window.toggleMailbox()">Close (M)</button>
-    </div>
 <script>
-    let isMailboxOpen = false;
-
-window.toggleMailbox = function() {
-    isMailboxOpen = !isMailboxOpen;
-    document.getElementById('mailbox-screen').style.display = isMailboxOpen ? 'block' : 'none';
-    if (isMailboxOpen && socket) {
-        socket.emit('getMail'); // Ask server for player-specific mail
-    }
-};
-
-// Add 'M' key listener for Mail
-window.addEventListener('keydown', (e) => {
-    if (!isChatting && e.key.toLowerCase() === 'm') {
-        window.toggleMailbox();
-    }
-});
-
-socket.on('mailList', (mails) => {
-    const container = document.getElementById('mail-list-container');
-    container.innerHTML = '';
-    if (!mails || mails.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#aaa;">Your inbox is empty.</p>';
-        return;
-    }
-
-    mails.forEach(mail => {
-        const row = document.createElement('div');
-        row.className = 'mail-row';
-        
-        let itemHtml = '';
-        if (mail.attached_item) {
-            itemHtml = `<div class="mail-item-preview">Attached: ${mail.attached_item.name}</div>`;
-        }
-
-        row.innerHTML = `
-            <div class="mail-sender">FROM: SYSTEM</div>
-            <div class="mail-msg">${mail.message_text}</div>
-            ${itemHtml}
-            <button class="claim-btn" id="claim-${mail.id}" onclick="window.claimMail(${mail.id})">
-                ${mail.attached_item ? 'CLAIM ITEM' : 'MARK AS READ'}
-            </button>
-        `;
-        container.appendChild(row);
-    });
-});
-
-window.claimMail = function(mailId) {
-    if (socket) socket.emit('claimMail', mailId);
-};
-
-socket.on('mailClaimSuccess', (mailId) => {
-    const btn = document.getElementById(`claim-${mailId}`);
-    if (btn) {
-        btn.innerText = "CLAIMED";
-        btn.disabled = true;
-    }
-    dom.log.innerText = "Mail claimed successfully!";
-    window.renderInventory(); // Refresh inventory to show new item
-});
 // ==========================================
 // 1. SYSTEM INITIALIZATION & CORE DATA
 // ==========================================
@@ -1275,33 +1191,60 @@ window.updateStonePrice = function() {
 }
 
 window.buyItem = function(type) {
-    let cost = 0; let item = null;
     if (type === 'potion') {
         let qty = parseInt(document.getElementById('shop-potion-qty').value) || 1;
-        cost = qty * 25;
-        item = { id: Date.now(), name: "Health Potion", type: "potion", rarity: "Basic", color: "#fff", fixedStat: { hpHeal: 100 }, quantity: qty };
+        let cost = qty * 25;
+        if (game.player.gold < cost) { dom.log.innerText = "Not enough gold!"; return; }
+        
+        let item = { id: Date.now(), name: "Health Potion", type: "potion", rarity: "Basic", color: "#fff", fixedStat: { hpHeal: 100 }, quantity: qty };
+        game.player.gold -= cost;
+        window.addLoot(item);
+        
     } else if (type === 'stone') {
         let lvl = parseInt(document.getElementById('shop-stone-level').value) || 10;
         let rarity = document.getElementById('shop-stone-rarity').value || 'Basic';
         let qty = parseInt(document.getElementById('shop-stone-qty').value) || 1;
+        
         let basePrice = lvl * 15;
         let rMult = { "Basic": 1, "Rare": 3, "Unique": 8, "Legendary": 20, "Godly": 50 }[rarity] || 1;
-        cost = basePrice * rMult * qty;
-        item = { id: Date.now() + Math.random(), name: (rarity === "Basic" ? "" : rarity + " ") + "Refinement Stone Lv." + lvl, type: "material", rarity: rarity, level: lvl, color: window.RARITY_COLORS[rarity], quantity: qty };
+        let cost = basePrice * rMult * qty;
+        
+        if (game.player.gold < cost) { dom.log.innerText = "Not enough gold!"; return; }
+        
+        let color = window.RARITY_COLORS[rarity] || "#fff";
+        let itemName = `${rarity === "Basic" ? "" : rarity + " "}Refinement Stone Lv.${lvl}`.trim();
+        
+        let item = { id: Date.now() + Math.random(), name: itemName, type: "material", rarity: rarity, level: lvl, color: color, description: "Enhances equipment.", quantity: qty };
+        
+        game.player.gold -= cost;
+        window.addLoot(item);
     }
-
-    if (game.player.gold < cost) { dom.log.innerText = "Not enough gold!"; return; }
-    // 🛡️ ASK SERVER FOR PERMISSION
-    if (socket) socket.emit('requestPurchase', { totalCost: cost, item: item });
+    
+    document.getElementById('shop-my-gold').innerText = game.player.gold;
+    window.updateUI();
+    DatabaseManager.savePlayerData(game.player);
 }
 
 window.actionSell = function(e) {
     if (e) e.stopPropagation();
     const item = game.player.inventory[activeInvIndex];
     if (!item) return;
-    // 🛡️ ASK SERVER TO SELL
-    if (socket) socket.emit('requestSell', { item: item, index: activeInvIndex });
+    
+    let baseVal = (item.level || 1) * 2;
+    let multiplier = { "Starter": 1, "Basic": 2, "Rare": 5, "Unique": 10, "Legendary": 25, "Godly": 100 }[item.rarity] || 1;
+    let sellPrice = baseVal * multiplier;
+    if (item.quantity && item.quantity > 1) sellPrice *= item.quantity;
+    
+    game.player.gold += sellPrice;
+    dom.log.innerText = `Sold ${item.name} for ${sellPrice} Gold.`;
+    game.player.inventory[activeInvIndex] = null;
+    activeInvIndex = -1;
+    
     document.getElementById('inv-context-menu').style.display = 'none';
+    document.getElementById('shop-my-gold').innerText = game.player.gold || 0;
+    window.renderInventory();
+    window.updateUI();
+    DatabaseManager.savePlayerData(game.player);
 }
 
 // ==========================================
@@ -1508,42 +1451,20 @@ window.extractAura = function(e) {
 window.actionThrow = function(e) { if (e) e.stopPropagation(); if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; dom.log.innerText = `Threw away ${game.player.inventory[activeInvIndex].name}.`; game.player.inventory[activeInvIndex] = null; activeInvIndex = -1; window.renderInventory(); DatabaseManager.savePlayerData(game.player); document.getElementById('inv-context-menu').style.display = 'none'; }
 window.unequipItem = function(slot) { const eq = game.player.equips[slot]; if (!eq) return; const inv = game.player.inventory || []; const emptySlot = inv.findIndex(i => i === null); if (emptySlot === -1) { dom.log.innerText = "Inventory full!"; return; } game.player.inventory[emptySlot] = eq; game.player.equips[slot] = null; dom.log.innerText = `Unequipped ${eq.name}.`; window.updateEquipmentDisplay(); window.renderInventory(); window.updateSkillMenu(); DatabaseManager.savePlayerData(game.player); }
 window.useRevivalJuice = function(invIndex = -1) { if (!game.isGhost) { dom.log.innerText = "You can only use this when you are dead!"; return; } let juiceIndex = invIndex; if (juiceIndex === -1) { juiceIndex = game.player.inventory.findIndex(i => i && i.name === "Revival Juice"); } if (juiceIndex !== -1) { let item = game.player.inventory[juiceIndex]; item.quantity--; if (item.quantity <= 0) game.player.inventory[juiceIndex] = null; document.getElementById('death-screen').style.display = 'none'; game.isGhost = false; game.player.currentHp = window.getMaxHp(); dom.playerContainer.style.opacity = '1'; window.spawnDamageText(game.player.x + 24, game.player.y, "REVIVED", "#ffeb3b"); dom.log.innerText = "You drank the Revival Juice and came back to life!"; window.renderInventory(); window.updateUI(); window.emitVitalsIfNeeded(true); if (socket) socket.emit('localRevive'); DatabaseManager.savePlayerData(game.player); } };
-window.useItem = function(index) { const item = game.player.inventory[index]; if (!item) return; if (item.type === 'consumable' && item.name === "Revival Juice") { window.useRevivalJuice(index); return; } if (item.type === 'consumable' && item.name === "Class Reset Book") { if (!game.player.baseStats.playerClass) { dom.log.innerText = "You don't have a class to reset yet!"; return; } game.player.baseStats.playerClass = null; game.player.activeSkills = []; item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, "CLASS RESET", '#ffeb3b'); dom.log.innerText = `You reset your class! Open Skills (K) to pick a new one.`; window.renderInventory(); window.updateSkillMenu(); if (typeof isSkillOpen !== 'undefined' && isSkillOpen) window.renderSkillScreen(); DatabaseManager.savePlayerData(game.player); return; } if (item.level && item.level > game.player.level) { dom.log.innerText = `Level ${item.level} required!`; return; } if (item.type === 'potion') { 
-            // 🛡️ FRONTEND ONLY ASKS TO USE IT.
-            dom.log.innerText = `Using ${item.name}...`;
-            // Temporary visual feedback, server handles actual quantity
-            game.player.currentHp = Math.min(window.getMaxHp(), game.player.currentHp + item.fixedStat.hpHeal);
-            window.spawnDamageText(game.player.x + 24, game.player.y - 20, `+${item.fixedStat.hpHeal} HP`, '#4CAF50');
-            window.updateUI(); window.emitVitalsIfNeeded(true);
-            
-            item.quantity--;
-            if (item.quantity <= 0) game.player.inventory[index] = null;
-            window.renderInventory();
-            DatabaseManager.savePlayerData(game.player); // The server validates this rate limit!
-        } else { 
-            const currentEquip = game.player.equips[item.type]; 
-            game.player.equips[item.type] = item; 
-            game.player.inventory[index] = currentEquip; 
-            dom.log.innerText = `Equipped ${item.name}!`; 
-            window.updateEquipmentDisplay(); window.emitVitalsIfNeeded(true); window.updateSkillMenu(); 
-            window.renderInventory(); DatabaseManager.savePlayerData(game.player); 
-        } 
-    }
+window.useItem = function(index) { const item = game.player.inventory[index]; if (!item) return; if (item.type === 'consumable' && item.name === "Revival Juice") { window.useRevivalJuice(index); return; } if (item.type === 'consumable' && item.name === "Class Reset Book") { if (!game.player.baseStats.playerClass) { dom.log.innerText = "You don't have a class to reset yet!"; return; } game.player.baseStats.playerClass = null; game.player.activeSkills = []; item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, "CLASS RESET", '#ffeb3b'); dom.log.innerText = `You reset your class! Open Skills (K) to pick a new one.`; window.renderInventory(); window.updateSkillMenu(); if (typeof isSkillOpen !== 'undefined' && isSkillOpen) window.renderSkillScreen(); DatabaseManager.savePlayerData(game.player); return; } if (item.level && item.level > game.player.level) { dom.log.innerText = `Level ${item.level} required!`; return; } if (item.type === 'potion') { game.player.currentHp = Math.min(window.getMaxHp(), game.player.currentHp + item.fixedStat.hpHeal); item.quantity--; if (item.quantity <= 0) game.player.inventory[index] = null; window.spawnDamageText(game.player.x + 24, game.player.y - 20, `+${item.fixedStat.hpHeal} HP`, '#4CAF50'); dom.log.innerText = `Used ${item.name}!`; window.updateUI(); window.emitVitalsIfNeeded(true); } else { const currentEquip = game.player.equips[item.type]; game.player.equips[item.type] = item; game.player.inventory[index] = currentEquip; dom.log.innerText = `Equipped ${item.name}!`; window.updateEquipmentDisplay(); window.emitVitalsIfNeeded(true); window.updateSkillMenu(); } window.renderInventory(); DatabaseManager.savePlayerData(game.player); }
 window.attemptEnhance = function(targetIndex, e) { 
-    e.stopPropagation(); 
-    let stone = game.player.inventory[activeInvIndex]; 
-    let targetItem = game.player.inventory[targetIndex]; 
-    
-    if (!stone || !targetItem || stone.type !== 'material' || targetItem.type === 'material' || targetItem.type === 'potion' || targetItem.rarity === "Starter" || (stone.rarity||'') !== (targetItem.rarity||'') || (stone.level||0) !== (targetItem.level||0) || (targetItem.enhanceLevel||0) >= 20) { 
-        isEnhancing = false; window.renderInventory(); return; 
-    } 
-
-    // 🛡️ ASK THE SERVER TO DO THE MATH AND ROLL THE DICE
-    if(socket) socket.emit('requestEnhance', { stoneIndex: activeInvIndex, targetIndex: targetIndex });
-    
-    isEnhancing = false; 
-    window.renderInventory(); 
+    e.stopPropagation(); let stone = game.player.inventory[activeInvIndex]; let targetItem = game.player.inventory[targetIndex]; 
+    if (!stone || !targetItem || stone.type !== 'material' || targetItem.type === 'material' || targetItem.type === 'potion' || targetItem.rarity === "Starter" || (stone.rarity||'') !== (targetItem.rarity||'') || (stone.level||0) !== (targetItem.level||0) || (targetItem.enhanceLevel||0) >= 20) { isEnhancing = false; window.renderInventory(); return; } 
+    stone.quantity--; if (stone.quantity <= 0) game.player.inventory[activeInvIndex] = null; 
+    let eLvl = targetItem.enhanceLevel || 0; let successChance = 1.0; let destroyChance = 0.0;
+    if (eLvl >= 6) { successChance = Math.max(0.15, 1.0 - ((eLvl - 5) * 0.15)); destroyChance = Math.min(0.40, ((eLvl - 5) * 0.05)); }
+    let roll = Math.random();
+    if (roll < destroyChance) { game.player.inventory[targetIndex] = null; dom.log.innerText = `CRITICAL FAILURE! ${targetItem.name} +${eLvl} shattered!`; window.spawnDamageText(game.player.x + 24, game.player.y, "DESTROYED", "#f44336"); } 
+    else if (roll < destroyChance + successChance) { targetItem.enhanceLevel = eLvl + 1; const bonus = { "Starter": 1, "Basic": 1, "Rare": 3, "Unique": 5, "Legendary": 8, "Godly": 15 }[targetItem.rarity] || 1; if (targetItem.fixedStat) { for (const k in targetItem.fixedStat) { if (typeof targetItem.fixedStat[k] === 'number') targetItem.fixedStat[k] += bonus; } } if (targetItem.randomStat) { for (const k in targetItem.randomStat) { if (typeof targetItem.randomStat[k] === 'number') targetItem.randomStat[k] += bonus; } } dom.log.innerText = `SUCCESS! ${targetItem.name} is now +${targetItem.enhanceLevel}!`; window.spawnSpark(game.player.x + 24, game.player.y); } 
+    else { dom.log.innerText = `FAILED! ${targetItem.name} +${eLvl} enhancement failed.`; window.spawnDamageText(game.player.x + 24, game.player.y, "FAILED", "#aaaaaa"); }
+    isEnhancing = false; window.updateEquipmentDisplay(); window.renderInventory(); DatabaseManager.savePlayerData(game.player); window.emitVitalsIfNeeded(true); 
 }
+
 window.updateEquipmentDisplay = function() { try { const buildDisplayStr = (item) => item ? (item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name) : 'None'; let w = game.player.equips.weapon; let a = game.player.equips.armor; let l = game.player.equips.leggings; document.getElementById('eq-weapon-slot').innerText = buildDisplayStr(w); if(w) document.getElementById('eq-weapon-slot').style.color = w.color; document.getElementById('eq-armor-slot').innerText = buildDisplayStr(a); if(a) document.getElementById('eq-armor-slot').style.color = a.color; document.getElementById('eq-leggings-slot').innerText = buildDisplayStr(l); if(l) document.getElementById('eq-leggings-slot').style.color = l.color; dom.playerArmor.style.display = 'none'; dom.playerLeggings.style.display = 'none'; const createTip = (item, boxId) => { let box = document.getElementById(boxId); let tip = box.querySelector('.tooltip'); if(!tip) { tip = document.createElement('div'); tip.className = 'tooltip'; box.appendChild(tip); } if(item) tip.innerHTML = window.getItemTooltip(item); else tip.remove(); }; createTip(w, 'eq-box-weapon'); createTip(a, 'eq-box-armor'); createTip(l, 'eq-box-leggings'); let newMax = window.getMaxHp(); if(game.player.currentHp > newMax) game.player.currentHp = newMax; window.updateUI(); } catch(err) {} }
 window.updateUI = function() { document.getElementById('ui-hp-text').innerText = `${game.player.currentHp} / ${window.getMaxHp()}`; document.getElementById('ui-hp-bar').style.width = (game.player.currentHp / Math.max(1, window.getMaxHp())) * 100 + '%'; document.getElementById('ui-hp-bar').style.backgroundColor = (game.player.currentHp < (window.getMaxHp()*0.3)) ? '#f44336' : '#4CAF50'; document.getElementById('ui-level-text').innerText = game.player.level; document.getElementById('ui-exp-text').innerText = `${game.player.exp} / ${game.player.maxExp}`; document.getElementById('ui-exp-bar').style.width = (game.player.exp / Math.max(1, game.player.maxExp)) * 100 + '%'; document.getElementById('ui-gold-text').innerText = game.player.gold || 0; if (game.party && game.party.members) { let me = game.party.members.find(x => x.id === game.player.id); if (me) { me.currentHp = game.player.currentHp; me.maxHp = window.getMaxHp(); me.level = game.player.level; window.renderPartyUI(); } } }
 window.toggleStats = function() { if (dom.statScreen.style.display === 'block') { dom.statScreen.style.display = 'none'; } else { document.getElementById('stat-lvl').innerText = game.player.level; document.getElementById('stat-maxhp').innerText = window.getMaxHp(); document.getElementById('stat-atk').innerText = window.getAttackPower(); document.getElementById('stat-matk').innerText = window.getMagicAttack(); document.getElementById('stat-def').innerText = window.getDefense(); document.getElementById('stat-spd').innerText = window.getSpeed(); document.getElementById('stat-str').innerText = window.getTotalStat('str'); document.getElementById('stat-int').innerText = window.getTotalStat('int'); dom.statScreen.style.display = 'block'; } }
@@ -2013,10 +1934,7 @@ window.leaveParty = function() {
 window.respondInvite = function(accept) { document.getElementById('invite-dialog').style.display = 'none'; if (pendingPartyInvite) { if(socket) socket.emit('partyInviteResponse', { fromId: pendingPartyInvite, accept }); pendingPartyInvite = null; } }; 
 window.respondTrade = function(accept) { document.getElementById('trade-dialog').style.display = 'none'; if (pendingTradeInvite) { if(socket) socket.emit('tradeInviteResponse', { fromId: pendingTradeInvite, accept }); if (accept) { tradeTarget = pendingTradeInvite; inTradeMode = true; document.getElementById('trade-target-name').innerText = tradeTarget; document.getElementById('trade-screen').style.display = 'block'; window.renderTradeSlots(); window.renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.log.innerText = "Trade declined."; } pendingTradeInvite = null; } }; 
 window.closeTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade cancelled."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); if(socket) socket.emit('tradeCancel'); }; 
-window.confirmTrade = function() {
-    // 🛡️ STOP DOING LOGIC HERE! JUST ASK THE SERVER TO FINALIZE.
-    if(socket) socket.emit('requestConfirmTrade');
-};
+window.confirmTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade completed visually."; tradeTheirItems.forEach(item => { if (item) window.addLoot(item); }); game.player.gold += parseInt(document.getElementById('trade-their-gold').innerText) || 0; game.player.gold -= parseInt(document.getElementById('trade-my-gold').value) || 0; if (game.player.gold < 0) game.player.gold = 0; tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); window.updateUI(); DatabaseManager.savePlayerData(game.player); }; 
 window.addTradeItem = function(invIndex) { if (!inTradeMode) return; const item = game.player.inventory[invIndex]; if (!item) return; const emptyTradeSlot = tradeMyItems.findIndex(i => i === null); if (emptyTradeSlot === -1) { dom.log.innerText = "Trade offer full!"; return; } tradeMyItems[emptyTradeSlot] = item; game.player.inventory[invIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
 window.removeFromTrade = function(tradeIndex) { if (!inTradeMode) return; const item = tradeMyItems[tradeIndex]; if (!item) return; window.addLoot(item); tradeMyItems[tradeIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
 document.getElementById('trade-my-gold').addEventListener('input', (e) => { let val = parseInt(e.target.value) || 0; if (val > game.player.gold) { val = game.player.gold; e.target.value = val; } window.syncTrade(); }); 
@@ -2234,26 +2152,6 @@ window.removeRemotePlayer = function(id) { const p = game.remotePlayers[id]; if 
 // 8. SOCKET EVENTS & NETWORKING
 // ==========================================
 if(socket) {
-    socket.on('purchaseSuccess', (data) => {
-        game.player.gold = data.newGold;
-        game.player.inventory = data.inventory;
-        window.updateUI();
-        window.renderInventory();
-        dom.log.innerText = "Purchase successful!";
-    });
-
-    socket.on('sellSuccess', (data) => {
-        game.player.gold = data.newGold;
-        game.player.inventory = data.inventory;
-        dom.log.innerText = `Item sold for ${data.price} Gold.`;
-        window.updateUI();
-        window.renderInventory();
-    });
-    socket.on('syncInventory', (serverInventory) => {
-        game.player.inventory = serverInventory;
-        window.updateEquipmentDisplay();
-        window.renderInventory();
-    });
     // ✅ RESTORED AUTHENTICATION LISTENERS
     socket.on('needsCharacterCreation', (username) => {
         document.getElementById('loading-screen').style.display = 'none';
@@ -2930,10 +2828,33 @@ window.executeSkill = function(skillId, className) {
     if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
 
     if (skillId === 'heal1') {
-        if (safeMapData.id === 'town') { dom.log.innerText = "Heal is forbidden in Town!"; return; }
+        // ✅ Maze-only restriction
+        if (safeMapData.id === 'town') { 
+            dom.log.innerText = "Heal is forbidden in Town!"; 
+            return; 
+        }
+        
         window.playVoice(className);
-        // 🛡️ FRONTEND DOES NOT HEAL LOCALLY ANYMORE. WAITS FOR SERVER.
-        if (socket) socket.emit('partyHeal');
+        let healAmt = game.player.level >= 25 ? 500 : 250;
+        
+        // 1. Heal Yourself locally
+        game.player.currentHp = Math.min(window.getMaxHp(), game.player.currentHp + healAmt);
+        window.spawnDamageText(game.player.x + 24, game.player.y - 10, `+${healAmt}`, '#4CAF50');
+        window.updateUI(); 
+        window.emitVitalsIfNeeded(true);
+        
+        // 2. Heal Party Members via Server
+        if (socket && game.party) {
+            socket.emit('partyHeal', { amount: healAmt, radius: 400 });
+        }
+
+        // Heal local pets
+        if(game.player.activePets) {
+            game.player.activePets.forEach(p => { 
+                p.hp = Math.min(p.maxHp, p.hp + healAmt); 
+                window.spawnDamageText(p.x + 15, p.y, `+${healAmt}`, '#4CAF50'); 
+            });
+        }
     }
 
     if (skillId === 'heal3') {
@@ -2992,20 +2913,18 @@ window.executeSkill = function(skillId, className) {
         if (closestMob) {
             let mCx = closestMob.x + (closestMob.width/2); let mCy = closestMob.y + (closestMob.height/2);
             if (className === 'Ice Master') {
-                window.playVoice(className); let count = skillId === 'ice3' ? 3 : 1; 
+                window.playVoice(className); let count = skillId === 'ice3' ? 3 : 1; let dmg = window.getMagicAttack() * 2;
                 for (let i=0; i<count; i++) {
                     setTimeout(() => {
                         let ice = document.createElement('div'); ice.className = 'icicle'; ice.style.left = mCx + 'px'; ice.style.top = (mCy - 100) + 'px'; dom.world.appendChild(ice);
                         let anim = ice.animate([{ top: (mCy - 100) + 'px' }, { top: mCy + 'px' }], { duration: 300, easing: 'ease-in' });
-                        // 🛡️ SEND SKILL ID, SERVER DOES THE MATH
-                        anim.onfinish = () => { ice.remove(); if (i === count - 1 && socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId }); };
+                        anim.onfinish = () => { ice.remove(); if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: true, freeze: true }); };
                     }, i * 200);
                 }
             }
             if (skillId === 'bld3') {
-                window.playVoice(className);
-                window.spawnWhiteSplash(mCx, mCy); 
-                if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId });
+                window.playVoice(className); let dmg = window.getAttackPower() * 5;
+                window.spawnWhiteSplash(mCx, mCy); if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: false });
             }
         }
     }
@@ -3019,25 +2938,31 @@ window.attemptAttack = function(silent) {
     if (game.player.currentHp <= 0 || isInventoryOpen || window.adminMode || game.isGhost || window.isLoading) return;
     if (attackCooldownActive) return; 
     
-    let closestMob = null; let minD = Infinity; const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : ''; const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant'); const attackRadius = isRanged ? 250 : 80;
+    let closestMob = null; let minD = Infinity; const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : ''; const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant'); const isPendant = weaponSprite.includes('pendant'); const attackRadius = isRanged ? 250 : 80;
     for(let mId in game.monsters) { let m = game.monsters[mId]; if(!m.alive) continue; let mCenterX = m.x + (m.width/2); let mCenterY = m.y + (m.height/2); let dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY); if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; } }
     if (!closestMob) { if(!silent) dom.log.innerText = "No target in range."; return; }
     
     isAttacking = true; attackCooldownActive = true; 
-    if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: weaponSprite });
+    if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
     window.playSFX(weaponSprite);
 
+    let pClass = game.player.baseStats.playerClass;
+    let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(pClass);
+    const rawDmg = isMagicClass ? window.getMagicAttack() : window.getAttackPower();
+    
+    const dmg = Math.max(1, Math.floor(rawDmg * (0.9 + Math.random() * 0.2)) - (closestMob.def || 0));
     const mCenterX = closestMob.x + (closestMob.width/2); const mCenterY = closestMob.y + (closestMob.height/2);
+    let applyFreeze = (pClass === 'Ice Master' && game.player.level >= 25 && Math.random() < 0.25);
 
     if (isRanged) { 
         window.shootOrb(pCenterX, pCenterY - 15, mCenterX, mCenterY); 
-        // 🛡️ FRONTEND SENDS NO DAMAGE. JUST THE TARGET AND SKILL TYPE.
-        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: 'basic' }); }, 500); 
+        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: isPendant, freeze: applyFreeze }); }, 500); 
     } else { 
-        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: 'basic' }); }, 300); 
+        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: isPendant, freeze: applyFreeze }); }, 300); 
     }
     setTimeout(() => { isAttacking = false; }, 500); setTimeout(() => { attackCooldownActive = false; }, 1000);
 }
+
 function gameLoop(ts) {
     if (!game.isRunning) return;
 
@@ -3087,7 +3012,8 @@ function gameLoop(ts) {
                     p.dom.style.transform = 'scale(1.5) translateY(-20px)'; 
                     setTimeout(() => { 
                         p.dom.style.transform = 'scale(1)'; 
-                        if(socket) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'pet' }); 
+                        let rawDmg = isMagicClass ? window.getMagicAttack() : window.getAttackPower();
+                        if(socket) socket.emit('attackMonster', { monsterId: targetMob.id, damage: Math.floor(rawDmg * 0.25) }); 
                     }, 200);
                 }
             } else {
