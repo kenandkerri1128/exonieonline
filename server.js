@@ -1349,6 +1349,44 @@ io.on('connection', (socket) => {
         const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id && !remote.isHiddenAdmin);
         socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
     });
+    socket.on('requestEnhance', (data) => {
+        const p = onlinePlayers[socket.id]; if (!p) return;
+        
+        let stone = p.inventory[data.stoneIndex];
+        let targetItem = p.inventory[data.targetIndex];
+
+        if (!stone || !targetItem || stone.type !== 'material') return;
+
+        // Take the stone
+        stone.quantity--; 
+        if (stone.quantity <= 0) p.inventory[data.stoneIndex] = null; 
+
+        let eLvl = targetItem.enhanceLevel || 0; 
+        let successChance = 1.0; let destroyChance = 0.0;
+        if (eLvl >= 6) { successChance = Math.max(0.15, 1.0 - ((eLvl - 5) * 0.15)); destroyChance = Math.min(0.40, ((eLvl - 5) * 0.05)); }
+        
+        // 🛡️ SERVER ROLLS THE DICE
+        let roll = Math.random();
+        
+        if (roll < destroyChance) { 
+            p.inventory[data.targetIndex] = null; 
+            socket.emit('systemMessage', `CRITICAL FAILURE! ${targetItem.name} +${eLvl} shattered!`);
+        } 
+        else if (roll < destroyChance + successChance) { 
+            targetItem.enhanceLevel = eLvl + 1; 
+            const bonus = { "Starter": 1, "Basic": 1, "Rare": 3, "Unique": 5, "Legendary": 8, "Godly": 15 }[targetItem.rarity] || 1; 
+            if (targetItem.fixedStat) { for (const k in targetItem.fixedStat) { if (typeof targetItem.fixedStat[k] === 'number') targetItem.fixedStat[k] += bonus; } } 
+            if (targetItem.randomStat) { for (const k in targetItem.randomStat) { if (typeof targetItem.randomStat[k] === 'number') targetItem.randomStat[k] += bonus; } } 
+            socket.emit('systemMessage', `SUCCESS! Item is now +${targetItem.enhanceLevel}!`);
+        } 
+        else { 
+            socket.emit('systemMessage', `FAILED! ${targetItem.name} +${eLvl} enhancement failed.`);
+        }
+
+        // Save true data to DB and push back to client
+        supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
+        socket.emit('syncInventory', p.inventory);
+    });
    socket.on('disconnect', async () => {
         if (socket.username) { activeLogins.delete(socket.username); }
 
@@ -1376,6 +1414,7 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
