@@ -2192,6 +2192,11 @@ window.removeRemotePlayer = function(id) { const p = game.remotePlayers[id]; if 
 // 8. SOCKET EVENTS & NETWORKING
 // ==========================================
 if(socket) {
+    socket.on('syncInventory', (serverInventory) => {
+        game.player.inventory = serverInventory;
+        window.updateEquipmentDisplay();
+        window.renderInventory();
+    });
     // ✅ RESTORED AUTHENTICATION LISTENERS
     socket.on('needsCharacterCreation', (username) => {
         document.getElementById('loading-screen').style.display = 'none';
@@ -3272,6 +3277,7 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
