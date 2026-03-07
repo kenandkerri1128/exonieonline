@@ -200,6 +200,26 @@
         .level-up-text { position: absolute; color: #ffd700; font-weight: bold; font-size: 28px; text-shadow: 0 0 10px #ff9800; pointer-events: none; animation: floatUp 2s forwards; z-index: 500; }
         .rarity-godly { animation: godly-sparkle 1.5s infinite alternate; }
         @keyframes godly-sparkle { 0% { text-shadow: 0 0 2px #fff, 0 0 5px #e0ffff; } 100% { text-shadow: 0 0 8px #fff, 0 0 15px #00ffff, 0 0 20px #00ffff; } }
+        /* --- COSMETIC AURAS --- */
+        .cosmetic-aura {
+            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 70px; height: 110px; pointer-events: none; z-index: 8; display: none;
+        }
+        .aura-lightning { display: block; }
+        .aura-lightning::before {
+            content: ''; position: absolute; top: -10%; left: -10%; width: 120%; height: 120%;
+            border: 2px dashed rgba(0, 255, 255, 0.8);
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            animation: electric-spin 0.4s linear infinite;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5), inset 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        .aura-lightning::after {
+            content: ''; position: absolute; top: -5%; left: -5%; width: 110%; height: 110%;
+            border: 2px dashed rgba(255, 255, 255, 0.9);
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+            animation: electric-spin 0.3s linear infinite reverse;
+        }
+        @keyframes electric-spin { 100% { transform: rotate(360deg); } }
         /* Earthquake Visual Ring */
 .earthquake-ring {
     position: absolute;
@@ -553,9 +573,10 @@
         </div>
     </div>
 
-    <div id="inv-context-menu">
+   <div id="inv-context-menu">
         <button class="ctx-btn" id="ctx-btn-sell" onmousedown="window.actionSell(event)">Sell for Gold</button>
         <button class="ctx-btn" id="ctx-btn-equip" style="border-bottom: 1px solid #444;" onmousedown="window.actionEquip(event)">Equip</button>
+        <button class="ctx-btn" id="ctx-btn-extract-aura" style="border-bottom: 1px solid #444; color:#00ffff; display:none;" onmousedown="window.extractAura(event)">Extract Aura</button>
         <button class="ctx-btn" id="ctx-btn-throw" style="color: #f44336;" onmousedown="window.actionThrow(event)">Throw</button>
     </div>
     
@@ -817,6 +838,7 @@
                         <option value="pendant">Pendant</option>
                         <option value="armor">Armor</option>
                         <option value="leggings">Leggings</option>
+                        <option value="aura_lightning">Aura: Lightning</option>
                     </select>
                     <button class="btn selected" onclick="window.adminGiveCustomItem()">Spawn</button>
                 </div>
@@ -868,6 +890,7 @@
             <div id="player-container" class="entity" style="left: 960px; top: 1000px;">
                 <div id="player-name-tag" class="name-tag">Player</div>
                 <div id="player-avatar-container" class="player-avatar-container avatar-rig">
+                    <div id="player-cosmetic-aura" class="cosmetic-aura"></div>
                     <div id="player-aura" class="aura"></div>
                     <img id="player-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" style="opacity:0">
                     <img id="player-head" class="avatar-layer layer-head" src="animation/avatar_head.png" style="opacity:0">
@@ -1193,8 +1216,15 @@ window.actionSell = function(e) {
 // 4. ANIMATION ENGINE & STAT SCALING
 // ==========================================
 window.updateAnimationFrames = function(state) {
+    // 🌟 AURA UPDATE LOGIC
+    let currentAura = game.player.equips?.armor?.aura || null;
+    let cAuraEl = document.getElementById('player-cosmetic-aura');
+    if (cAuraEl) {
+        cAuraEl.className = currentAura ? `cosmetic-aura aura-${currentAura}` : 'cosmetic-aura';
+    }
+
     dom.playerAvatarContainer.style.transform = window.facingRight ? 'scaleX(-1)' : 'scaleX(1)';
-    let rawWpn = game.player.equips?.weapon ? game.player.equips.weapon.sprite : null; 
+    let rawWpn = game.player.equips?.weapon ? game.player.equips.weapon.sprite : null;
     let wpn = rawWpn ? rawWpn.replace('starter', 'basic') : null; 
     let pulseActive = (Math.floor(Date.now() / 250) % 2 === 0);
     let bodySrc = 'animation/avatar_idlefront.png'; 
@@ -1300,6 +1330,7 @@ window.renderInventory = function() {
         if (item) {
             if (inTradeMode) { slot.style.border = "1px solid #2196F3"; slot.onclick = () => window.addTradeItem(i); } 
             else if (isEnhancing) { slot.style.border = "1px dashed #ffeb3b"; slot.onclick = (e) => window.attemptEnhance(i, e); } 
+            else if (window.isApplyingAura) { slot.style.border = "1px dashed #00ffff"; slot.onclick = (e) => window.attemptApplyAura(i, e); }
             else { slot.style.borderBottom = `3px solid ${item.color || '#fff'}`; slot.onclick = (e) => window.openItemAction(i, e); }
             slot.appendChild(document.createTextNode(item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name));
             let tip = document.createElement('div'); tip.className = 'tooltip'; tip.innerHTML = window.getItemTooltip(item);
@@ -1315,12 +1346,67 @@ window.openItemAction = function(index, e) {
     e.stopPropagation(); activeInvIndex = index;
     const menu = document.getElementById('inv-context-menu');
     const item = game.player.inventory[index]; if (!item) return;
-    document.getElementById('ctx-btn-equip').innerText = (item.type === 'potion' || item.type === 'consumable') ? "Use" : (item.type === 'material' ? "Enhance" : "Equip");
+    
+    document.getElementById('ctx-btn-equip').innerText = (item.type === 'potion' || item.type === 'consumable') ? "Use" : (item.type === 'material' ? "Enhance" : (item.type === 'aura' ? "Apply Aura" : "Equip"));
     document.getElementById('ctx-btn-sell').style.display = isShopping ? 'block' : 'none';
+    document.getElementById('ctx-btn-extract-aura').style.display = (item.type === 'armor' && item.aura) ? 'block' : 'none';
+    
     menu.style.display = 'flex'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
 }
 
-window.actionEquip = function(e) { if (e) e.stopPropagation(); if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; if (game.player.inventory[activeInvIndex].type === 'material') { isEnhancing = true; dom.log.innerText = `Select equipment to enhance!`; window.renderInventory(); } else { window.useItem(activeInvIndex); } document.getElementById('inv-context-menu').style.display = 'none'; }
+window.actionEquip = function(e) { 
+    if (e) e.stopPropagation(); 
+    if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; 
+    let item = game.player.inventory[activeInvIndex];
+    if (item.type === 'material') { isEnhancing = true; dom.log.innerText = `Select equipment to enhance!`; window.renderInventory(); } 
+    else if (item.type === 'aura') { window.isApplyingAura = true; dom.log.innerText = `Select an Armor to apply the Aura!`; window.renderInventory(); }
+    else { window.useItem(activeInvIndex); } 
+    document.getElementById('inv-context-menu').style.display = 'none'; 
+}
+window.isApplyingAura = false;
+window.attemptApplyAura = function(targetIndex, e) {
+    e.stopPropagation();
+    let stone = game.player.inventory[activeInvIndex];
+    let targetItem = game.player.inventory[targetIndex];
+    
+    if (!stone || !targetItem || stone.type !== 'aura' || targetItem.type !== 'armor') {
+        window.isApplyingAura = false; window.renderInventory(); dom.log.innerText = "Aura application cancelled."; return;
+    }
+    if (targetItem.aura) {
+        dom.log.innerText = "That armor already has an aura! Extract it first."; window.isApplyingAura = false; window.renderInventory(); return;
+    }
+    
+    stone.quantity--; if (stone.quantity <= 0) game.player.inventory[activeInvIndex] = null;
+    
+    targetItem.aura = stone.auraId;
+    targetItem.originalName = targetItem.name;
+    targetItem.name = "Lightning " + targetItem.name;
+    
+    dom.log.innerText = `Applied Lightning Aura to your armor!`;
+    window.spawnWhiteSplash(game.player.x + 24, game.player.y + 48);
+    
+    window.isApplyingAura = false; window.updateEquipmentDisplay(); window.renderInventory(); DatabaseManager.savePlayerData(game.player);
+}
+
+window.extractAura = function(e) {
+    if (e) e.stopPropagation();
+    if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return;
+    let item = game.player.inventory[activeInvIndex];
+    if (!item.aura) return;
+    
+    let emptySlot = game.player.inventory.findIndex(i => i === null);
+    if (emptySlot === -1) { dom.log.innerText = "Inventory full! Cannot extract."; return; }
+    
+    let auraStone = { id: Date.now(), name: "Lightning Aura Stone", type: 'aura', auraId: item.aura, sprite: 'aurastone', level: 1, rarity: 'Legendary', color: '#00ffff', description: "Click to apply to an Armor. Purely cosmetic." };
+    
+    item.name = item.originalName || item.name.replace("Lightning ", "");
+    delete item.aura; delete item.originalName;
+    
+    game.player.inventory[emptySlot] = auraStone;
+    dom.log.innerText = "Aura extracted safely!";
+    document.getElementById('inv-context-menu').style.display = 'none';
+    window.updateEquipmentDisplay(); window.renderInventory(); DatabaseManager.savePlayerData(game.player);
+}
 window.actionThrow = function(e) { if (e) e.stopPropagation(); if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; dom.log.innerText = `Threw away ${game.player.inventory[activeInvIndex].name}.`; game.player.inventory[activeInvIndex] = null; activeInvIndex = -1; window.renderInventory(); DatabaseManager.savePlayerData(game.player); document.getElementById('inv-context-menu').style.display = 'none'; }
 window.unequipItem = function(slot) { const eq = game.player.equips[slot]; if (!eq) return; const inv = game.player.inventory || []; const emptySlot = inv.findIndex(i => i === null); if (emptySlot === -1) { dom.log.innerText = "Inventory full!"; return; } game.player.inventory[emptySlot] = eq; game.player.equips[slot] = null; dom.log.innerText = `Unequipped ${eq.name}.`; window.updateEquipmentDisplay(); window.renderInventory(); window.updateSkillMenu(); DatabaseManager.savePlayerData(game.player); }
 window.useRevivalJuice = function(invIndex = -1) { if (!game.isGhost) { dom.log.innerText = "You can only use this when you are dead!"; return; } let juiceIndex = invIndex; if (juiceIndex === -1) { juiceIndex = game.player.inventory.findIndex(i => i && i.name === "Revival Juice"); } if (juiceIndex !== -1) { let item = game.player.inventory[juiceIndex]; item.quantity--; if (item.quantity <= 0) game.player.inventory[juiceIndex] = null; document.getElementById('death-screen').style.display = 'none'; game.isGhost = false; game.player.currentHp = window.getMaxHp(); dom.playerContainer.style.opacity = '1'; window.spawnDamageText(game.player.x + 24, game.player.y, "REVIVED", "#ffeb3b"); dom.log.innerText = "You drank the Revival Juice and came back to life!"; window.renderInventory(); window.updateUI(); window.emitVitalsIfNeeded(true); if (socket) socket.emit('localRevive'); DatabaseManager.savePlayerData(game.player); } };
@@ -1506,6 +1592,19 @@ window.adminSetPlayerLevel = function() { game.player.level = parseInt(document.
 window.adminGiveCustomItem = function() { 
     let r = document.getElementById('admin-item-rarity').value; 
     let t = document.getElementById('admin-item-type').value; 
+    
+    // 🌟 AURA STONE SPAWNER
+    if (t.startsWith('aura_')) {
+        let auraType = t.split('_')[1];
+        let item = {
+            id: Date.now() + Math.random(), name: `Lightning Aura Stone`, type: 'aura', auraId: auraType,
+            sprite: 'aurastone', level: 1, rarity: 'Legendary', color: '#00ffff',
+            description: "Click to apply to an Armor. Purely cosmetic."
+        };
+        window.addLoot(item);
+        dom.log.innerText = `[Admin] Spawned Lightning Aura Stone!`;
+        return;
+    }
     let l = parseInt(document.getElementById('admin-item-level').value) || 1; 
     let e = parseInt(document.getElementById('admin-item-enhance').value) || 0; 
     let tmpl = window.ITEM_TEMPLATES[t]; 
@@ -1943,6 +2042,11 @@ window.addRemotePlayer = function(pData) {
     head.style.filter = skinFilters[skin] || skinFilters['flesh']; body.style.filter = skinFilters[skin] || skinFilters['flesh']; hair.style.filter = hairFilters[hairColor] || hairFilters['black'];
     weapon.style.display = 'none';
     
+    // 🌟 CREATE REMOTE PLAYER AURA
+    const cAura = document.createElement('div'); cAura.className = 'cosmetic-aura';
+    if (pData.spriteData && pData.spriteData.aura) cAura.classList.add(`aura-${pData.spriteData.aura}`);
+    rig.appendChild(cAura);
+    
     hair.style.opacity = '1'; head.style.opacity = '1'; body.style.opacity = '1'; weapon.style.opacity = '1';
 
     rig.appendChild(hair); rig.appendChild(head); rig.appendChild(body); rig.appendChild(weapon); container.appendChild(rig); dom.world.appendChild(container);
@@ -2278,6 +2382,11 @@ window.showMapAnnouncement = function(mapId) {
             if (p.currentWeaponSrc !== wpnSrc) { p.weapon.src = wpnSrc; p.currentWeaponSrc = wpnSrc; } 
             if (!p.spriteData) p.spriteData = {}; p.spriteData.weapon = fixedWpn; 
         } else { p.weapon.style.display = 'none'; p.currentWeaponSrc = ''; if (p.spriteData) p.spriteData.weapon = null; }
+
+        // 🌟 SYNC REMOTE PLAYER AURA
+        const cAuraEl = p.rig.querySelector('.cosmetic-aura');
+        if (cAuraEl) cAuraEl.className = data.spriteData?.aura ? `cosmetic-aura aura-${data.spriteData.aura}` : 'cosmetic-aura';
+    });
     });
 
     socket.on('inspectData', (data) => { if (!data) return; dom.inspect.style.display = 'block'; dom.inspectTitle.innerText = `Inspect: ${data.name || data.id || "Unknown"}`; const equips = data.equips || {}; const slots = [ { key: 'weapon', label: 'Weapon' }, { key: 'armor', label: 'Armor' }, { key: 'leggings', label: 'Leggings' } ]; function fmtStatBlock(item) { if (!item) return `<div class="inspect-empty">None</div>`; const rarityColor = item.color || (window.RARITY_COLORS[item.rarity] || "#fff"); const nameClass = item.rarity === "Godly" ? "rarity-godly" : ""; const displayName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name; let html = `<div class="inspect-title"><div class="inspect-item-name ${nameClass}" style="color:${rarityColor};">${displayName}</div><div class="inspect-sub">Lv.${item.level || 1} ${item.rarity || "Unknown"}</div></div><div class="inspect-stat">`; if (item.fixedStat) { for (const k in item.fixedStat) html += `<div><b>Fixed:</b> +${item.fixedStat[k]} ${k.toUpperCase()}</div>`; } if (item.randomStat) { for (const k in item.randomStat) html += `<div><b>Random:</b> +${item.randomStat[k]} ${k.toUpperCase()}</div>`; } if (item.sprite) { html += `<div style="color:#888; margin-top:6px;">Sprite: ${item.sprite}.png</div>`; } html += `</div>`; return html; } let out = `<div style="font-size:14px; color:#ccc; margin-bottom:10px; text-align:center;">Level ${data.level || 1} &nbsp; | &nbsp; HP ${data.currentHp ?? "?"} / ${data.maxHp ?? "?"}</div>`; slots.forEach(s => { out += `<div class="inspect-equip"><div style="font-weight:bold; color:#ffeb3b; margin-bottom:6px;">${s.label}</div>${fmtStatBlock(equips[s.key])}</div>`; }); dom.inspectContent.innerHTML = out; });
@@ -3083,6 +3192,7 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
