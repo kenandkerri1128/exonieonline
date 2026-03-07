@@ -882,9 +882,13 @@ io.on('connection', (socket) => {
         // If movement is legal, update server and broadcast to others
         p.x = data.x; p.y = data.y; p.spriteData.weapon = data.weaponSprite;
         
-        // 🌟 ADMIN SPECTATOR FIX: Only broadcast movement if you aren't a hidden admin
+       // 🌟 ADMIN SPECTATOR FIX & AURA SYNC: Include spriteData in the broadcast!
         if (!p.isHiddenAdmin) {
-            socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: data.x, y: data.y, state: data.state, facingRight: data.facingRight, weaponSprite: data.weaponSprite });
+            socket.to(p.instanceId).emit('remotePlayerMoved', { 
+                id: p.id, x: data.x, y: data.y, state: data.state, 
+                facingRight: data.facingRight, weaponSprite: data.weaponSprite,
+                spriteData: p.spriteData // <--- THIS WAS MISSING! It syncs the Aura!
+            });
         }
     });
 
@@ -1290,6 +1294,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
