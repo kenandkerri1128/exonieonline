@@ -307,12 +307,14 @@ function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
 function pickTarget(m, instId, now) {
     for (const pid of Object.keys(m.threatTable)) { 
         const p = getPlayerById(pid); 
-        if (!p || p.instanceId !== instId || p.isGhost || p.untargetableUntil > now || p.mapId === 'town') delete m.threatTable[pid]; 
+        // 🌟 ADDED !p.isHiddenAdmin
+        if (!p || p.instanceId !== instId || p.isGhost || p.isHiddenAdmin || p.untargetableUntil > now || p.mapId === 'town') delete m.threatTable[pid]; 
     }
     
     if (m.forcedUntil > now && m.forcedTargetId) {
         const p = getPlayerById(m.forcedTargetId);
-        if (p && p.instanceId === instId && !p.isGhost && p.untargetableUntil <= now && p.mapId !== 'town' && (p.currentHp ?? 1) > 0) {
+        // 🌟 ADDED !p.isHiddenAdmin
+        if (p && p.instanceId === instId && !p.isGhost && !p.isHiddenAdmin && p.untargetableUntil <= now && p.mapId !== 'town' && (p.currentHp ?? 1) > 0) {
             return { id: p.id, isPet: false, x: p.x + 24, y: p.y + 48 };
         } else { m.forcedTargetId = null; }
     }
@@ -333,7 +335,8 @@ function pickTarget(m, instId, now) {
     let best = null; let bestThreat = -1; let bestDist = Infinity;
     for (const pid of Object.keys(m.threatTable)) {
         const threat = m.threatTable[pid] || 0; const p = getPlayerById(pid); 
-        if (!p || p.isGhost || p.untargetableUntil > now || p.mapId === 'town') continue;
+        // 🌟 ADDED !p.isHiddenAdmin
+        if (!p || p.isGhost || p.isHiddenAdmin || p.untargetableUntil > now || p.mapId === 'town') continue;
         const dist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
         if (dist > m.chaseRadius) continue;
         if (threat > bestThreat || (threat === bestThreat && dist < bestDist)) { best = p; bestThreat = threat; bestDist = dist; }
@@ -342,13 +345,15 @@ function pickTarget(m, instId, now) {
     
     let nearest = null; let nearestDist = Infinity;
     for (const p of playersInInstance(instId)) {
-        if (p.isGhost || p.untargetableUntil > now || p.mapId === 'town' || (p.currentHp ?? 1) <= 0) continue; 
+        // 🌟 ADDED !p.isHiddenAdmin
+        if (p.isGhost || p.isHiddenAdmin || p.untargetableUntil > now || p.mapId === 'town' || (p.currentHp ?? 1) <= 0) continue; 
         const dist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
         if (dist <= m.aggroRadius && dist < nearestDist) { nearest = p; nearestDist = dist; }
     }
     if (nearest) { m.threatTable[nearest.id] = Math.max(1, m.threatTable[nearest.id] || 0); return { id: nearest.id, isPet: false, x: nearest.x + 24, y: nearest.y + 48 }; }
     
     return null;
+}
 }
 
 function updateMonsterAI(instId, m, now) {
@@ -380,9 +385,10 @@ function updateMonsterAI(instId, m, now) {
 
                 io.to(instId).emit('monsterSkill', { monsterId: m.id, skillName: 'Earthquake', x: mcx, y: mcy, radius: aoeRadius });
 
-                const players = playersInInstance(instId);
+               const players = playersInInstance(instId);
                 players.forEach(p => {
-                    if (p.isGhost || p.mapId === 'town') return;
+                    // 🌟 ADDED p.isHiddenAdmin bypass so Earthquake ignores you
+                    if (p.isGhost || p.isHiddenAdmin || p.mapId === 'town') return;
                     const pDist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
                     if (pDist <= aoeRadius) {
                         const damage = Math.max(1, m.atk - (p.stats?.defense || 0));
@@ -1294,6 +1300,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
