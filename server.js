@@ -415,7 +415,7 @@ function updateMonsterAI(instId, m, now) {
                     if (p.isGhost || p.isHiddenAdmin || p.mapId === 'town') return;
                     const pDist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
                     if (pDist <= aoeRadius) {
-                        const damage = Math.max(1, m.atk - (p.stats?.defense || 0));
+                        const damage = Math.max(1, m.atk - getServerTotalStat(p, 'defense'));
                         p.currentHp -= damage;
                         io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: p.id, targetX: p.x + 24, targetY: p.y + 48, atk: m.atk, isAoE: true });
                     }
@@ -1331,6 +1331,7 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
