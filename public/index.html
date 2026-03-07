@@ -507,7 +507,9 @@
         
         <button id="revive-juice-btn" class="btn btn-large" style="width:250px; background:#9c27b0; font-size: 24px; display:none; margin-top: 15px;" onclick="window.useRevivalJuice()">Drink Revival Juice</button>
     </div>
-
+<div id="spectate-ui" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:9000; background:rgba(244,67,54,0.9); color:white; padding:15px 30px; border-radius:8px; font-weight:bold; font-size:20px; cursor:pointer; box-shadow:0 0 20px red;" onclick="window.stopSpectating()">
+        🛑 STOP SPECTATING
+    </div>
     <div id="invite-dialog" class="popup-dialog">
         <p id="invite-text" style="font-size: 20px; margin-top: 0; margin-bottom: 20px;">Player invited you to party.</p>
         <div style="display: flex; justify-content: center;">
@@ -981,8 +983,14 @@ let isDrawing = false, startX = 0, startY = 0, currentBox = null, drawType = 'co
 let currentBGM = null, currentTrackName = "", activeTargetPlayerId = null;
 window.facingRight = false, window.isLoading = false; 
 
+// 🌟 ADMIN SPECTATE VARIABLES
+window.isSpectating = false;
+window.spectateTargetId = null;
+window.startSpectate = function(targetId) { if (socket) socket.emit('requestSpectate', targetId); window.toggleFriends(); };
+window.stopSpectating = function() { if (socket) socket.emit('stopSpectate'); };
+
 window.game = { 
-    isRunning: false, isGhost: false, keys: { w: false, a: false, s: false, d: false, z: false, x: false, c: false }, 
+    isRunning: false, isGhost: false, keys: { w: false, a: false, s: false, d: false, z: false, x: false, c: false },
     player: { id: 'local_player', name: "Adventurer", level: 1, currentHp: 100, x: 960, y: 1000, width: 48, height: 96, w: 24, h: 20, teleportCooldown: 0, currentPortal: null, equips: { weapon: null }, currentBodySrc: '', playerClass: null, immortalUntil: 0, untargetableUntil: 0, activePets: [] }, 
     monsters: {}, remotePlayers: {}, party: null 
 };
@@ -2148,31 +2156,37 @@ window.showMapAnnouncement = function(mapId) {
     socket.on('partyError', (msg) => { dom.log.innerText = msg; });
     socket.on('partyKickedOrLeft', () => { dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; game.party = null; dom.log.innerText = "You are no longer in a party."; });
     socket.on('chatMessage', (data) => { if (data.id === game.player.id) return; const p = game.remotePlayers[data.id]; if (p) window.showBubble(p, data.text); });
-    // ✅ FRIENDS SOCKET LISTENERS
-    // ✅ FRIENDS SOCKET LISTENERS (UPDATED TO ALWAYS SHOW LEVELS)
+   // ✅ NEW DETAILED FRIENDS LIST
     socket.on('friendsListUpdate', (friendsList) => {
         const container = document.getElementById('friends-list-container');
         container.innerHTML = '';
-        
-        if (!friendsList || friendsList.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color:#aaa;">Your friends list is empty.</p>';
-            return;
-        }
+        if (!friendsList || friendsList.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Your friends list is empty.</p>'; return; }
 
         friendsList.forEach(f => {
             const row = document.createElement('div');
             row.className = 'friend-row';
-            
-            // ✅ Always show level! (Gold if online, Gray if offline)
             let lvlColor = f.online ? '#ffd700' : '#888';
             let levelHtml = `<span style="color:${lvlColor}; font-size:12px; margin-left: 5px;">(Lv.${f.level})</span>`;
+            
+            // Format Map and Class beautifully
+            let classFmt = f.pClass ? `<span style="color:#aaa; font-size:11px;">${f.pClass}</span>` : `<span style="color:#555; font-size:11px;">Novice</span>`;
+            let mapFmt = f.online ? `<span style="color:#2196F3; font-size:11px;">[${f.mapId || 'Town'}]</span>` : '';
+
+            // 👑 Admin Spectate Button
+            let spectateBtn = (game.player.name === 'Kei' && f.online) ? `<button class="dm-btn" style="background:#f44336; margin-bottom:5px;" onclick="window.startSpectate('${f.id}')">👁️ Spectate</button>` : '';
 
             row.innerHTML = `
-                <div class="friend-info">
-                    <div class="status-dot ${f.online ? 'online' : 'offline'}"></div>
-                    ${f.id} ${levelHtml}
+                <div class="friend-info" style="flex-direction:column; align-items:flex-start; gap:2px;">
+                    <div style="display:flex; align-items:center; gap:5px;">
+                        <div class="status-dot ${f.online ? 'online' : 'offline'}"></div>
+                        ${f.id} ${levelHtml}
+                    </div>
+                    <div style="margin-left: 17px; display:flex; gap: 8px;">${classFmt} ${mapFmt}</div>
                 </div>
-                <button class="dm-btn" onclick="window.promptDM('${f.id}')">DM</button>
+                <div style="display:flex; flex-direction:column;">
+                    ${spectateBtn}
+                    <button class="dm-btn" onclick="window.promptDM('${f.id}')">DM</button>
+                </div>
             `;
             container.appendChild(row);
         });
@@ -2193,18 +2207,33 @@ window.showMapAnnouncement = function(mapId) {
     socket.on('forceTeleport', (tp) => { 
         window.loadMapScript(tp.mapId, () => { 
             safeMapData = window.MapDatabase[tp.mapId]; 
-            if (tp.mapId === 'town' && safeMapData.teleports) {
+            if (tp.mapId === 'town' && safeMapData.teleports && !tp.spectateTarget) {
                 const p1 = safeMapData.teleports.find(p => p.portalId === 1);
                 if (p1) { game.player.x = p1.x + (p1.w / 2) - (game.player.width / 2); game.player.y = p1.y + p1.h - game.player.height + 5; } else { game.player.x = tp.x; game.player.y = tp.y; }
             } else { game.player.x = tp.x; game.player.y = tp.y; }
+            
+            // 🌟 ADMIN SPECTATE HANDLER
+            if (tp.spectateTarget) {
+                window.isSpectating = true;
+                window.spectateTargetId = tp.spectateTarget;
+                dom.playerContainer.style.display = 'none'; // Hide your body
+                document.getElementById('spectate-ui').style.display = 'block';
+                dom.log.innerText = `[ADMIN] Now Spectating: ${tp.spectateTarget}`;
+            } else {
+                window.isSpectating = false;
+                window.spectateTargetId = null;
+                dom.playerContainer.style.display = 'block'; // Restore body
+                document.getElementById('spectate-ui').style.display = 'none';
+            }
+
             window.cleanupMap();
             dom.world.style.backgroundImage = `url('${safeMapData.image}')`; window.buildCollisionLayers(); 
             window.playBGM(tp.mapId.includes('floor') ? 'floors' : 'town'); 
-            
-            // ✅ UPDATES THE UI WITH THE NEW MAP NAME
             window.showMapAnnouncement(tp.mapId);
 
-            socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'idle', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
+            if (!window.isSpectating) {
+                socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'idle', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
+            }
         }); 
     });
     
@@ -2907,9 +2936,22 @@ function gameLoop(ts) {
         }
     }
     dom.playerContainer.style.left = game.player.x + 'px'; dom.playerContainer.style.top = game.player.y + 'px'; 
-    const cameraX = Math.floor((window.innerWidth / 2) - (game.player.x * CAMERA_ZOOM) - (game.player.width * CAMERA_ZOOM / 2)); 
-    const cameraY = Math.floor((window.innerHeight / 2) - (game.player.y * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2)); 
+
+    // 🌟 SPECTATOR CAMERA LOCK
+    let camTargetX = game.player.x;
+    let camTargetY = game.player.y;
+
+    if (window.isSpectating && window.spectateTargetId && game.remotePlayers[window.spectateTargetId]) {
+        camTargetX = game.remotePlayers[window.spectateTargetId].x;
+        camTargetY = game.remotePlayers[window.spectateTargetId].y;
+    }
+
+    const cameraX = Math.floor((window.innerWidth / 2) - (camTargetX * CAMERA_ZOOM) - (game.player.width * CAMERA_ZOOM / 2)); 
+    const cameraY = Math.floor((window.innerHeight / 2) - (camTargetY * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2)); 
     dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`;
+
+    // Block movement controls if spectating
+    if (window.isSpectating) { isMoving = false; canInputMove = false; }
 
     if (!game.isGhost) {
         if (autoAttackMode && !window.adminMode && !isInventoryOpen && !window.isLoading) window.attemptAttack(true);
@@ -3041,6 +3083,7 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
