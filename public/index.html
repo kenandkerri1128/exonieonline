@@ -1769,7 +1769,7 @@ window.respawn = function() { 
     document.getElementById('death-screen').style.display = 'none'; 
     game.isGhost = false; 
     dom.playerContainer.style.opacity = '1'; 
-    game.player.currentHp = window.getMaxHp(); // ✅ Fix: Character back to 100%
+   game.player.currentHp = userData.current_hp ?? window.getMaxHp(); // ✅ Fix: Character back to 100%
     window.updateUI(); // ✅ Fix: Resets the Red health bar
     window.emitVitalsIfNeeded(true); // ✅ Fix: Tells the server you are alive
     if(socket) socket.emit('respawnPlayer'); 
@@ -3347,5 +3347,6 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
