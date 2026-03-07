@@ -513,81 +513,6 @@ io.on('connection', (socket) => {
         });
         io.to(sid).emit('friendsListUpdate', friendData);
     }
-    // 🛡️ SYSTEM MAILBOX: Fetch messages for the specific player
-    socket.on('getMail', async () => {
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
-
-        try {
-            // Fetches unclaimed mail specifically for this character name
-            const { data: mails, error } = await supabase
-                .from('System_Mail')
-                .select('*')
-                .eq('recipient_name', p.id)
-                .eq('is_claimed', false);
-
-            if (error) throw error;
-            socket.emit('mailList', mails || []);
-        } catch (e) {
-            console.error(`[MAIL ERROR] Failed to fetch mail for ${p.id}:`, e.message);
-            socket.emit('mailList', []);
-        }
-    });
-
-    // 🛡️ SYSTEM MAILBOX: Secure Claiming Logic
-    socket.on('claimMail', async (mailId) => {
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
-
-        try {
-            // 1. Double-check the mail exists and belongs to this player
-            const { data: mail, error } = await supabase
-                .from('System_Mail')
-                .select('*')
-                .eq('id', mailId)
-                .eq('recipient_name', p.id)
-                .eq('is_claimed', false)
-                .single();
-
-            if (error || !mail) return socket.emit('systemMessage', "Mail not found or already claimed.");
-
-            // 2. If there is an item attached, perform a server-side inventory check
-            if (mail.attached_item) {
-                const inv = p.inventory || [];
-                const emptySlot = inv.findIndex(slot => slot === null);
-
-                // 🛑 ANTI-HACK: Prevent claiming if inventory is full
-                if (emptySlot === -1) {
-                    return socket.emit('systemMessage', "Inventory full! Clear space to claim this item.");
-                }
-
-                // 3. Move the item into the server's player cache
-                p.inventory[emptySlot] = mail.attached_item;
-            }
-
-            // 4. Mark mail as claimed in the Database
-            const { error: updateError } = await supabase
-                .from('System_Mail')
-                .update({ is_claimed: true })
-                .eq('id', mailId);
-
-            if (updateError) throw updateError;
-
-            // 5. Update the Database with the new inventory and notify the client
-            await supabase
-                .from('Exonians')
-                .update({ inventory: p.inventory })
-                .eq('character_name', p.id);
-
-            socket.emit('mailClaimSuccess', mailId);
-            socket.emit('syncInventory', p.inventory); // Forces frontend bag to refresh
-            socket.emit('systemMessage', "Mail successfully claimed!");
-
-        } catch (e) {
-            console.error(`[CLAIM ERROR] ${p.id} failed to claim mail ${mailId}:`, e.message);
-            socket.emit('systemMessage', "Server error during claim.");
-        }
-    });
 
     socket.on('addFriend', (data) => {
         const me = onlinePlayers[socket.id];
@@ -1018,10 +943,11 @@ io.on('connection', (socket) => {
         }
     });
 
-   socket.on('tauntMonsters', () => { // 🛡️ Ignored client data
+    socket.on('tauntMonsters', (data) => {
         const p = onlinePlayers[socket.id]; if(!p || p.isGhost) return;
-        if (p.mapId === 'town' || p.baseStats?.playerClass !== 'Berserker') return; 
+        if (p.mapId === 'town') return; 
 
+        // 🛡️ 14s COOLDOWN (13s leniency)
         const now = Date.now();
         if (p.skillCooldowns['tauntMonsters'] && now < p.skillCooldowns['tauntMonsters']) return;
         p.skillCooldowns['tauntMonsters'] = now + 13000;
@@ -1031,7 +957,7 @@ io.on('connection', (socket) => {
             let m = world.monsters[mId];
             if (!m.alive) continue;
             let dist = Math.hypot(p.x + 24 - (m.x + m.width/2), p.y + 48 - (m.y + m.height/2));
-            if (dist <= 300) { m.forcedTargetId = p.id; m.forcedUntil = Date.now() + 10000; } // 🛡️ Server enforces 300 radius
+            if (dist <= (data.radius || 300)) { m.forcedTargetId = p.id; m.forcedUntil = Date.now() + 10000; }
         }
     });
 
@@ -1056,14 +982,15 @@ io.on('connection', (socket) => {
         socket.to(p.instanceId).emit('remotePetSync', { ownerId: p.id, petData: data });
     });
 
-    socket.on('setUntargetable', () => { // 🛡️ Ignored client data
+    socket.on('setUntargetable', (data) => {
         const p = onlinePlayers[socket.id];
-        if (p && p.mapId !== 'town' && p.baseStats?.playerClass === 'Blademaster') { 
+        if (p && p.mapId !== 'town') { 
+            // 🛡️ 15s COOLDOWN (14s leniency)
             const now = Date.now();
             if (p.skillCooldowns['setUntargetable'] && now < p.skillCooldowns['setUntargetable']) return;
             p.skillCooldowns['setUntargetable'] = now + 14000;
 
-            p.untargetableUntil = Date.now() + 10000; // 🛡️ Server enforces 10s
+            p.untargetableUntil = Date.now() + (data.duration || 10000); 
         }
     });
 
@@ -1111,7 +1038,7 @@ io.on('connection', (socket) => {
         if (payload.skillId === 'bld3') {
             if (pClass !== 'Blademaster') return; // Hacker check!
             if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && p.id !== "Kei") {
-                trueDmg = Math.floor(serverAtkPwr);
+                // Block cooldown bypasses
             } else {
                 trueDmg = Math.floor(serverAtkPwr * 5);
                 p.skillCooldowns['heavyAttack'] = now + 49000; // 50s CD
@@ -1509,78 +1436,32 @@ io.on('connection', (socket) => {
         socket.emit('sellSuccess', { newGold: p.gold, inventory: p.inventory, price: sellPrice });
     });
     // 🛡️ SERVER-SIDE TRADE: THE SWAP
-   // 🛡️ SERVER-SIDE TRADE: THE SECURE ITEM SWAP
     socket.on('requestConfirmTrade', () => {
         const me = onlinePlayers[socket.id];
         if (!me || !me.tradeTarget) return;
         const them = getPlayerById(me.tradeTarget);
         if (!them) return;
 
-        let myOffer = me.currentTradeOffer || { gold: 0, items: [] };
-        let theirOffer = them.currentTradeOffer || { gold: 0, items: [] };
-
         // 1. Swap Gold safely
-        me.gold += parseInt(theirOffer.gold) || 0;
-        me.gold -= parseInt(myOffer.gold) || 0;
-        them.gold += parseInt(myOffer.gold) || 0;
-        them.gold -= parseInt(theirOffer.gold) || 0;
-        if (me.gold < 0) me.gold = 0; 
-        if (them.gold < 0) them.gold = 0;
+        let myOfferedGold = parseInt(me.currentTradeOffer?.gold) || 0;
+        let theirOfferedGold = parseInt(them.currentTradeOffer?.gold) || 0;
 
-        // 🛡️ 2. VERIFY AND EXTRACT VALID ITEMS ONLY (Anti-Dupe)
-        let myValidItems = [];
-        let theirValidItems = [];
+        me.gold = Math.max(0, me.gold + theirOfferedGold - myOfferedGold);
+        them.gold = Math.max(0, them.gold + myOfferedGold - theirOfferedGold);
 
-        if (myOffer.items && Array.isArray(myOffer.items)) {
-            myOffer.items.forEach(offeredItem => {
-                if (offeredItem && offeredItem.id) {
-                    let realIdx = me.inventory.findIndex(invItem => invItem && invItem.id === offeredItem.id);
-                    if (realIdx !== -1) {
-                        myValidItems.push(me.inventory[realIdx]);
-                        me.inventory[realIdx] = null; // Remove from sender
-                    }
-                }
-            });
-        }
-
-        if (theirOffer.items && Array.isArray(theirOffer.items)) {
-            theirOffer.items.forEach(offeredItem => {
-                if (offeredItem && offeredItem.id) {
-                    let realIdx = them.inventory.findIndex(invItem => invItem && invItem.id === offeredItem.id);
-                    if (realIdx !== -1) {
-                        theirValidItems.push(them.inventory[realIdx]);
-                        them.inventory[realIdx] = null; // Remove from sender
-                    }
-                }
-            });
-        }
-
-        // 3. Deposit Items into the opposite inventories
-        theirValidItems.forEach(item => {
-            const emptyIdx = me.inventory.findIndex(i => i === null);
-            if (emptyIdx !== -1) me.inventory[emptyIdx] = item;
-        });
-
-        myValidItems.forEach(item => {
-            const emptyIdx = them.inventory.findIndex(i => i === null);
-            if (emptyIdx !== -1) them.inventory[emptyIdx] = item;
-        });
-
-        // 4. Clear trade memory to prevent double-confirm bugs
-        me.currentTradeOffer = null;
-        them.currentTradeOffer = null;
+        // 2. Clear trade targets to prevent double-clicking
         me.tradeTarget = null;
         them.tradeTarget = null;
 
-        // 5. Save to Database
-        supabase.from('Exonians').update({ gold: me.gold, inventory: me.inventory }).eq('character_name', me.id).then(()=>{});
-        supabase.from('Exonians').update({ gold: them.gold, inventory: them.inventory }).eq('character_name', them.id).then(()=>{});
-        
-        // 6. Notify clients to refresh
-        socket.emit('tradeDone', { newGold: me.gold, newInventory: me.inventory });
+        // 3. Save to database
+        supabase.from('Exonians').update({ gold: me.gold }).eq('character_name', me.id).then(()=>{});
+        supabase.from('Exonians').update({ gold: them.gold }).eq('character_name', them.id).then(()=>{});
+
+        // 4. Tell both players the trade is finished
+        socket.emit('tradeDone');
         const targetSocketId = findSocketIdByPlayerId(them.id);
         if (targetSocketId) {
-            io.to(targetSocketId).emit('tradeDone', { newGold: them.gold, newInventory: them.inventory });
+            io.to(targetSocketId).emit('tradeDone');
         }
     });
    socket.on('disconnect', async () => {
