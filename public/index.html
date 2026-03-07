@@ -1142,19 +1142,29 @@
     };
 
     window.loadMapScript = function(mapId, callback) {
-        let scriptName = (mapId === 'town' ? 'townmap.js' : mapId + '.js') + '?v=' + Date.now();
-        let script = document.createElement('script'); script.src = scriptName;
-        script.onload = () => { 
-            let varName = mapId === 'town' ? 'townMapData' : mapId + 'MapData'; 
-            if (typeof window[varName] !== 'undefined') window.MapDatabase[mapId] = JSON.parse(JSON.stringify(window[varName])); 
-            callback(); 
-        };
-        script.onerror = () => { 
-            window.MapDatabase[mapId] = { id: mapId, name: mapId, image: mapId === 'town' ? 'town_map.png' : mapId + '.png', spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] }; 
-            callback(); 
-        };
-        document.head.appendChild(script);
-    }
+    let scriptName = (mapId === 'town' ? 'townmap.js' : mapId + '.js') + '?v=' + Date.now();
+    let script = document.createElement('script'); script.src = scriptName;
+    
+    // The failsafe map data so the game never crashes
+    const fallbackMap = { id: mapId, name: mapId, image: mapId === 'town' ? 'town_map.png' : mapId + '.png', spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
+
+    script.onload = () => { 
+        let varName = mapId === 'town' ? 'townMapData' : mapId + 'MapData'; 
+        if (typeof window[varName] !== 'undefined') {
+            window.MapDatabase[mapId] = JSON.parse(JSON.stringify(window[varName])); 
+        } else {
+            window.MapDatabase[mapId] = fallbackMap; // <-- This fallback fixes the freeze!
+        }
+        callback(); 
+    };
+    
+    script.onerror = () => { 
+        window.MapDatabase[mapId] = fallbackMap; 
+        callback(); 
+    };
+    
+    document.head.appendChild(script);
+}
 
     window.preloadMapAssets = function(mapData, callback) {
         window.isLoading = true;
@@ -2818,3 +2828,4 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
