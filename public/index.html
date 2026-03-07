@@ -2830,33 +2830,10 @@ window.executeSkill = function(skillId, className) {
     if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
 
     if (skillId === 'heal1') {
-        // ✅ Maze-only restriction
-        if (safeMapData.id === 'town') { 
-            dom.log.innerText = "Heal is forbidden in Town!"; 
-            return; 
-        }
-        
+        if (safeMapData.id === 'town') { dom.log.innerText = "Heal is forbidden in Town!"; return; }
         window.playVoice(className);
-        let healAmt = game.player.level >= 25 ? 500 : 250;
-        
-        // 1. Heal Yourself locally
-        game.player.currentHp = Math.min(window.getMaxHp(), game.player.currentHp + healAmt);
-        window.spawnDamageText(game.player.x + 24, game.player.y - 10, `+${healAmt}`, '#4CAF50');
-        window.updateUI(); 
-        window.emitVitalsIfNeeded(true);
-        
-        // 2. Heal Party Members via Server
-        if (socket && game.party) {
-            socket.emit('partyHeal', { amount: healAmt, radius: 400 });
-        }
-
-        // Heal local pets
-        if(game.player.activePets) {
-            game.player.activePets.forEach(p => { 
-                p.hp = Math.min(p.maxHp, p.hp + healAmt); 
-                window.spawnDamageText(p.x + 15, p.y, `+${healAmt}`, '#4CAF50'); 
-            });
-        }
+        // 🛡️ FRONTEND DOES NOT HEAL LOCALLY ANYMORE. WAITS FOR SERVER.
+        if (socket) socket.emit('partyHeal');
     }
 
     if (skillId === 'heal3') {
@@ -2915,18 +2892,20 @@ window.executeSkill = function(skillId, className) {
         if (closestMob) {
             let mCx = closestMob.x + (closestMob.width/2); let mCy = closestMob.y + (closestMob.height/2);
             if (className === 'Ice Master') {
-                window.playVoice(className); let count = skillId === 'ice3' ? 3 : 1; let dmg = window.getMagicAttack() * 2;
+                window.playVoice(className); let count = skillId === 'ice3' ? 3 : 1; 
                 for (let i=0; i<count; i++) {
                     setTimeout(() => {
                         let ice = document.createElement('div'); ice.className = 'icicle'; ice.style.left = mCx + 'px'; ice.style.top = (mCy - 100) + 'px'; dom.world.appendChild(ice);
                         let anim = ice.animate([{ top: (mCy - 100) + 'px' }, { top: mCy + 'px' }], { duration: 300, easing: 'ease-in' });
-                        anim.onfinish = () => { ice.remove(); if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: true, freeze: true }); };
+                        // 🛡️ SEND SKILL ID, SERVER DOES THE MATH
+                        anim.onfinish = () => { ice.remove(); if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId }); };
                     }, i * 200);
                 }
             }
             if (skillId === 'bld3') {
-                window.playVoice(className); let dmg = window.getAttackPower() * 5;
-                window.spawnWhiteSplash(mCx, mCy); if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: false });
+                window.playVoice(className);
+                window.spawnWhiteSplash(mCx, mCy); 
+                if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId });
             }
         }
     }
@@ -2940,31 +2919,25 @@ window.attemptAttack = function(silent) {
     if (game.player.currentHp <= 0 || isInventoryOpen || window.adminMode || game.isGhost || window.isLoading) return;
     if (attackCooldownActive) return; 
     
-    let closestMob = null; let minD = Infinity; const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : ''; const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant'); const isPendant = weaponSprite.includes('pendant'); const attackRadius = isRanged ? 250 : 80;
+    let closestMob = null; let minD = Infinity; const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : ''; const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant'); const attackRadius = isRanged ? 250 : 80;
     for(let mId in game.monsters) { let m = game.monsters[mId]; if(!m.alive) continue; let mCenterX = m.x + (m.width/2); let mCenterY = m.y + (m.height/2); let dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY); if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; } }
     if (!closestMob) { if(!silent) dom.log.innerText = "No target in range."; return; }
     
     isAttacking = true; attackCooldownActive = true; 
-    if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
+    if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: weaponSprite });
     window.playSFX(weaponSprite);
 
-    let pClass = game.player.baseStats.playerClass;
-    let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(pClass);
-    const rawDmg = isMagicClass ? window.getMagicAttack() : window.getAttackPower();
-    
-    const dmg = Math.max(1, Math.floor(rawDmg * (0.9 + Math.random() * 0.2)) - (closestMob.def || 0));
     const mCenterX = closestMob.x + (closestMob.width/2); const mCenterY = closestMob.y + (closestMob.height/2);
-    let applyFreeze = (pClass === 'Ice Master' && game.player.level >= 25 && Math.random() < 0.25);
 
     if (isRanged) { 
         window.shootOrb(pCenterX, pCenterY - 15, mCenterX, mCenterY); 
-        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: isPendant, freeze: applyFreeze }); }, 500); 
+        // 🛡️ FRONTEND SENDS NO DAMAGE. JUST THE TARGET AND SKILL TYPE.
+        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: 'basic' }); }, 500); 
     } else { 
-        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, damage: dmg, isPendant: isPendant, freeze: applyFreeze }); }, 300); 
+        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: 'basic' }); }, 300); 
     }
     setTimeout(() => { isAttacking = false; }, 500); setTimeout(() => { attackCooldownActive = false; }, 1000);
 }
-
 function gameLoop(ts) {
     if (!game.isRunning) return;
 
@@ -3014,8 +2987,7 @@ function gameLoop(ts) {
                     p.dom.style.transform = 'scale(1.5) translateY(-20px)'; 
                     setTimeout(() => { 
                         p.dom.style.transform = 'scale(1)'; 
-                        let rawDmg = isMagicClass ? window.getMagicAttack() : window.getAttackPower();
-                        if(socket) socket.emit('attackMonster', { monsterId: targetMob.id, damage: Math.floor(rawDmg * 0.25) }); 
+                        if(socket) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'pet' }); 
                     }, 200);
                 }
             } else {
@@ -3234,6 +3206,7 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
