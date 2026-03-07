@@ -781,7 +781,11 @@ io.on('connection', (socket) => {
            equips: userData.equips || { weapon: null, armor: null, leggings: null }, 
            baseStats: userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }, // ✅ CACHED FOR ANTI-CHEAT
             gold: userData.gold || 0, // ✅ CACHED FOR ANTI-CHEAT
-            spriteData: { skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, weapon: userData.equips?.weapon?.sprite || null },
+            spriteData: { 
+                skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, 
+                weapon: userData.equips?.weapon?.sprite || null,
+                aura: userData.equips?.armor?.aura || null // 🌟 Caches Aura for broadcasting
+            },
             untargetableUntil: 0,
             // 🛡️ ANTI-CHEAT: RATE LIMITERS
             attackTokens: 3, lastTokenRefill: Date.now(), skillCooldowns: {}
@@ -804,7 +808,15 @@ io.on('connection', (socket) => {
             return; // Block hackers from spamming the save function!
         }
         p.lastSaveTime = now;
-
+// 🛡️ ANTI-CHEAT: VALIDATE COSMETIC AURAS
+        const validAuras = ['lightning']; // Add new auras here next month!
+        let safeAura = playerData.equips?.armor?.aura || null;
+        if (safeAura && !validAuras.includes(safeAura)) {
+            console.log(`[HACK BLOCKED] ${p.id} tried to inject fake aura: ${safeAura}`);
+            safeAura = null;
+            if (playerData.equips && playerData.equips.armor) delete playerData.equips.armor.aura;
+        }
+        p.spriteData.aura = safeAura; // Sync to live server cache
         // 🛡️ ANTI-CHEAT: ECONOMY & STAT VALIDATION
         let safeGold = playerData.gold;
         if (safeGold > p.gold + 50000 && p.id !== "Kei") { // Max legit spike is selling a Godly item
@@ -1278,6 +1290,7 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
