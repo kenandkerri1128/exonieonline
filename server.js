@@ -575,24 +575,32 @@ io.on('connection', (socket) => {
         try { fs.writeFileSync(filePath, data.content); } catch(err) {}
     });
 
-  socket.on('partyHeal', (data) => {
+  socket.on('partyHeal', () => { 
         const p = onlinePlayers[socket.id];
         if (!p || p.isGhost || p.mapId === 'town') return;
 
-        // 🛡️ 20s COOLDOWN (18s leniency)
         const now = Date.now();
         if (p.skillCooldowns['partyHeal'] && now < p.skillCooldowns['partyHeal']) return;
         p.skillCooldowns['partyHeal'] = now + 18000; 
 
+        // 🛡️ SERVER CALCULATES THE HEAL AMOUNT AND RADIUS
+        let trueHealAmt = p.level >= 25 ? 500 : 250;
+        let safeRadius = 400;
+
+        // Heal caster first
+        p.currentHp = Math.min(p.maxHp || 100, p.currentHp + trueHealAmt);
+        io.to(p.instanceId).emit('playerHealed', { id: p.id, amount: trueHealAmt, currentHp: p.currentHp });
+
         const pid = playerParty[p.id];
         if (pid && parties[pid]) {
             for (const memberId of parties[pid].members) {
+                if (memberId === p.id) continue;
                 const mp = getPlayerById(memberId);
                 if (mp && !mp.isGhost && mp.instanceId === p.instanceId) {
                     const dist = Math.hypot(p.x - mp.x, p.y - mp.y);
-                    if (dist <= (data.radius || 400)) {
-                        mp.currentHp = Math.min(mp.maxHp, mp.currentHp + data.amount);
-                        io.to(p.instanceId).emit('playerHealed', { id: mp.id, amount: data.amount, currentHp: mp.currentHp });
+                    if (dist <= safeRadius) {
+                        mp.currentHp = Math.min(mp.maxHp || 100, mp.currentHp + trueHealAmt);
+                        io.to(p.instanceId).emit('playerHealed', { id: mp.id, amount: trueHealAmt, currentHp: mp.currentHp });
                     }
                 }
             }
@@ -985,87 +993,70 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('attackMonster', (payload) => {
+   socket.on('attackMonster', (payload) => {
         const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return; 
         if (p.mapId === 'town') return; 
-
         const now = Date.now();
 
-        // 🛡️ ANTI-CHEAT 1: THE MACHINE-GUN BLOCKER
-        // Absolutely NO attacks can be processed faster than 300ms apart. 
-        // This permanently stops macro-clickers and packet-spammers.
-        if (p.lastAttackTime && now - p.lastAttackTime < 300) {
-            return; // 🛑 Blocked!
-        }
+        // 🛡️ ANTI-CHEAT: MACRO BLOCKER
+        if (p.lastAttackTime && now - p.lastAttackTime < 300) return;
         p.lastAttackTime = now;
 
-        // 🛡️ ANTI-CHEAT 2: SUSTAINED FATIGUE LIMITER
-        // Over a long fight, they can only average 1 attack every 700ms.
+        // 🛡️ ANTI-CHEAT: TOKEN BUCKET
         p.lastTokenRefill = p.lastTokenRefill || now;
         const timePassed = now - p.lastTokenRefill;
         const tokensToAdd = Math.floor(timePassed / 700); 
-        
         if (tokensToAdd > 0) {
             p.attackTokens = Math.min(3, (p.attackTokens || 0) + tokensToAdd); 
             p.lastTokenRefill = now - (timePassed % 700);
         }
-        
-        if (p.attackTokens <= 0) {
-            return; // 🛑 Blocked! They swung too many times in a row.
-        }
+        if (p.attackTokens <= 0) return;
         p.attackTokens--; 
 
         const world = worlds[p.instanceId]; if (!world) return;
         const m = world.monsters[payload.monsterId]; 
-        
         if (!m || !m.alive) return;
         
-        const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); if (dist > 350) return;
+        const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); 
+        if (dist > 350) return;
         
-        // 🛡️ ANTI-CHEAT 3: HEAVY SKILL SPAM BLOCKER
+        // 🛡️ 100% SERVER-SIDE MATH: The client's opinions are ignored entirely.
         let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(p.baseStats?.playerClass);
         let serverAtkPwr = isMagicClass ? getServerMagicAttack(p) : getServerAttackPower(p);
+        let isPendant = p.equips?.weapon?.sprite?.includes('pendant') || false;
         
-        let clientDmg = Math.floor(Number(payload.damage) || 1);
+        // Base Swing (90% to 110%)
+        let trueDmg = Math.floor(serverAtkPwr * (0.9 + Math.random() * 0.2));
 
-        // If they try to do massive skill damage (like Mega Slash)...
-        if (clientDmg > serverAtkPwr * 1.5 && p.id !== "Kei") {
-            if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack']) {
-                // Hacker is spamming an ultimate skill! 
-                clientDmg = Math.floor(serverAtkPwr); // Down-scale their hacked damage to a weak basic attack
+        // Skill Multipliers applied on the server
+        if (payload.skillId === 'bld3') {
+            if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && p.id !== "Kei") {
+                // Block cooldown bypasses
             } else {
-                p.skillCooldowns['heavyAttack'] = now + 15000; // Require 15 seconds before another heavy damage hit
+                trueDmg = Math.floor(serverAtkPwr * 5);
+                p.skillCooldowns['heavyAttack'] = now + 49000; // 50s CD
             }
+        } else if (payload.skillId === 'ice1' || payload.skillId === 'ice3') {
+            trueDmg = Math.floor(serverAtkPwr * 2);
+        } else if (payload.skillId === 'pet') {
+            trueDmg = Math.floor(serverAtkPwr * 0.25);
         }
 
-        // Hard cap on absolute max damage possible
-        let maxPossibleDamage = Math.max(50, Math.floor(serverAtkPwr * 6)); 
-        if (clientDmg > maxPossibleDamage && p.id !== "Kei") {
-            clientDmg = maxPossibleDamage;
-        }
-
-        const dmg = Math.max(1, clientDmg); 
+        const dmg = Math.max(1, trueDmg - (m.def || 0)); 
         m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
         
-        // 🛡️ ANTI-CHEAT 4: SERVER-SIDE FREEZE VERIFICATION
-        // Hackers send "freeze: true" to permanently freeze bosses. 
-        if (payload.freeze) {
-            // ONLY Ice Masters level 25+ can freeze, and the SERVER decides the 25% chance!
-            if (p.baseStats?.playerClass === 'Ice Master' && p.level >= 25) {
-                if (Math.random() < 0.25) { 
-                    m.frozenUntil = Date.now() + 3000;
-                }
-            }
+        // Server controls Freeze logic exclusively
+        if (p.baseStats?.playerClass === 'Ice Master' && p.level >= 25 && (payload.skillId === 'basic' || payload.skillId === 'ice1' || payload.skillId === 'ice3')) {
+            if (Math.random() < 0.25) m.frozenUntil = Date.now() + 3000;
         }
 
-        io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: !!payload.isPendant });
+        io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: isPendant });
         
         if (m.currentHp <= 0) {
             m.alive = false; m.targetId = null; m.threatTable = {}; m.forcedTargetId = null; m.forcedUntil = 0; m.frozenUntil = 0;
             io.to(p.instanceId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
             
-            const expAmount = m.expYield || 25;
-            const goldAmount = m.goldYield || 15; 
+            const expAmount = m.expYield || 25; const goldAmount = m.goldYield || 15; 
             const pid = playerParty[p.id];
 
             if (pid && parties[pid]) {
@@ -1073,9 +1064,7 @@ io.on('connection', (socket) => {
                     const sid = findSocketIdByPlayerId(memberId); 
                     if (sid) {
                         io.to(sid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
-                        let drop = generateLoot(m);
-                        io.to(sid).emit('lootDropped', drop);
-                        
+                        let drop = generateLoot(m); io.to(sid).emit('lootDropped', drop);
                         if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
                             io.emit('rareLootBroadcast', { playerName: memberId, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
                         }
@@ -1083,9 +1072,7 @@ io.on('connection', (socket) => {
                 }
             } else { 
                 io.to(socket.id).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
-                let drop = generateLoot(m);
-                io.to(socket.id).emit('lootDropped', drop);
-                
+                let drop = generateLoot(m); io.to(socket.id).emit('lootDropped', drop);
                 if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
                     io.emit('rareLootBroadcast', { playerName: p.name || p.id, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
                 }
@@ -1094,8 +1081,7 @@ io.on('connection', (socket) => {
                 setTimeout(() => { 
                     const cfg = { spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY }, level: m.level }; 
                     const nm = spawnMonster(p.instanceId, m.id, m.originalKey || m.monsterKey, cfg); 
-                    world.monsters[m.id] = nm; 
-                    io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm)); 
+                    world.monsters[m.id] = nm; io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm)); 
                 }, m.respawnDelayMs || 10000);
             }
         }
@@ -1484,6 +1470,7 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
