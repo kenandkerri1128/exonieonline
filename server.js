@@ -1,5 +1,3 @@
-Before going to part 2, please check if this is all good
-
 require('dotenv').config();
 const express = require('express');
 const activeLogins = new Set(); // Tracks currently logged-in usernames
@@ -260,7 +258,7 @@ function spawnMonster(instId, entityId, originalKey, cfg) {
     
     // 🌟 1% CHANCE TO OVERRIDE ANY COMMON MOB WITH THE GOLDEN SLIME
     if (stats.category === "common_mobs" && monsterKey !== "common_mobs_golden") {
-        if (Math.random() < 0.0005) { 
+        if (Math.random() < 0.002) { 
             monsterKey = "common_mobs_golden";
             stats = MonsterDatabase["common_mobs_golden"];
         }
@@ -434,55 +432,56 @@ io.on('connection', (socket) => {
     if (!global.playerFriends) global.playerFriends = {};
 
   // ✅ MADE ASYNC TO FETCH OFFLINE LEVELS FROM SUPABASE
- // ✅ ENHANCED FRIENDS LIST (MAP, CLASS, & SPECTATE DATA)
     async function sendFriendsUpdateTo(username) {
         const sid = findSocketIdByPlayerId(username);
         if (!sid) return;
 
-        // 👑 ADMIN OVERRIDE: Kei sees all online players with full data
+        // 👑 ADMIN OVERRIDE: Kei sees all online players in the server
         if (username === 'Kei') {
             const allOnline = Object.values(onlinePlayers)
-                .filter(p => p.id !== 'Kei') 
-                .map(p => ({ 
-                    id: p.id, online: true, level: p.level || 1, 
-                    mapId: p.mapId || 'Unknown', pClass: p.baseStats?.playerClass || 'Novice' 
-                }));
+                .filter(p => p.id !== 'Kei') // Don't show Kei to themselves
+                .map(p => ({ id: p.id, online: true, level: p.level || 1 }));
             io.to(sid).emit('friendsListUpdate', allOnline);
             return;
         }
 
+        // Standard Player Logic
         const myFriends = global.playerFriends[username] ? Array.from(global.playerFriends[username]) : [];
-        if (myFriends.length === 0) { io.to(sid).emit('friendsListUpdate', []); return; }
+        
+        if (myFriends.length === 0) {
+            io.to(sid).emit('friendsListUpdate', []);
+            return;
+        }
 
-        // ✅ BATCH FETCH FULL DATA FROM DB
+        // ✅ BATCH FETCH ALL FRIEND LEVELS FROM DB
         const { data: dbFriends } = await supabase
             .from('Exonians')
-            .select('character_name, level, map_id, base_stats')
+            .select('character_name, level')
             .in('character_name', myFriends);
 
         const friendData = myFriends.map(f => {
             let isOnline = activeLogins.has(f);
-            let currentLevel = 1, currentMap = 'Unknown', currentClass = 'Novice';
+            let currentLevel = 1;
             
             if (isOnline) {
+                // Get live level if they are online
                 for (let activeId in onlinePlayers) {
                     if (onlinePlayers[activeId].id === f) {
                         currentLevel = onlinePlayers[activeId].level || 1;
-                        currentMap = onlinePlayers[activeId].mapId || 'Unknown';
-                        currentClass = onlinePlayers[activeId].baseStats?.playerClass || 'Novice';
                         break;
                     }
                 }
-            } else if (dbFriends) {
-                const dbF = dbFriends.find(row => row.character_name === f);
-                if (dbF) {
-                    currentLevel = dbF.level || 1;
-                    currentMap = dbF.map_id || 'Unknown';
-                    currentClass = dbF.base_stats?.playerClass || 'Novice';
+            } else {
+                // Get database level if they are offline
+                if (dbFriends) {
+                    const dbF = dbFriends.find(row => row.character_name === f);
+                    if (dbF) currentLevel = dbF.level || 1;
                 }
             }
-            return { id: f, online: isOnline, level: currentLevel, mapId: currentMap, pClass: currentClass };
+
+            return { id: f, online: isOnline, level: currentLevel };
         });
+        
         io.to(sid).emit('friendsListUpdate', friendData);
     }
 
@@ -841,7 +840,7 @@ io.on('connection', (socket) => {
         const pid = playerParty[p.id]; if (pid) emitPartyUpdate(pid);
     });
     
-   socket.on('playerMoved', (data) => {
+    socket.on('playerMoved', (data) => {
         if (!onlinePlayers[socket.id]) return; 
         const p = onlinePlayers[socket.id]; 
 
@@ -871,11 +870,7 @@ io.on('connection', (socket) => {
 
         // If movement is legal, update server and broadcast to others
         p.x = data.x; p.y = data.y; p.spriteData.weapon = data.weaponSprite;
-        
-        // 🌟 ADMIN SPECTATOR FIX: Only broadcast movement if you aren't a hidden admin
-        if (!p.isHiddenAdmin) {
-            socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: data.x, y: data.y, state: data.state, facingRight: data.facingRight, weaponSprite: data.weaponSprite });
-        }
+        socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: data.x, y: data.y, state: data.state, facingRight: data.facingRight, weaponSprite: data.weaponSprite });
     });
 
     socket.on('tauntMonsters', (data) => {
@@ -1209,55 +1204,6 @@ io.on('connection', (socket) => {
         } catch(e) {
             socket.emit('latestNews', []);
         }
-    });
-    // 🌟 ADMIN SPECTATE ENGINE
-    socket.on('requestSpectate', (targetId) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || p.id !== "Kei") return;
-        const target = getPlayerById(targetId);
-        if (!target) return;
-
-        // Save admin's true location before ghosting
-        if (!p.savedSpectatePos) {
-            p.savedSpectatePos = { mapId: p.mapId, x: p.x, y: p.y, instanceId: p.instanceId };
-        }
-        p.isHiddenAdmin = true; // 👻 Turns Admin completely invisible to the server
-
-        // Leave current map silently
-        socket.leave(p.instanceId); 
-        socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
-
-        // Move to target map silently
-        p.mapId = target.mapId; p.x = target.x; p.y = target.y; p.instanceId = target.instanceId;
-        socket.join(p.instanceId);
-
-        // Tell admin to teleport, but include the spectate flag!
-        socket.emit('forceTeleport', { mapId: p.mapId, x: p.x, y: p.y, spectateTarget: targetId });
-
-        // Load the map players for the admin, but filter out other hidden admins
-        const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id && !remote.isHiddenAdmin);
-        socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
-    });
-
-    socket.on('stopSpectate', () => {
-        const p = onlinePlayers[socket.id];
-        if (!p || p.id !== "Kei" || !p.savedSpectatePos) return;
-
-        p.isHiddenAdmin = false;
-        let tp = p.savedSpectatePos;
-        p.savedSpectatePos = null;
-
-        // Revert silent teleport
-        socket.leave(p.instanceId);
-        p.mapId = tp.mapId; p.x = tp.x; p.y = tp.y; p.instanceId = tp.instanceId;
-        socket.join(p.instanceId);
-
-        socket.emit('forceTeleport', { mapId: p.mapId, x: p.x, y: p.y });
-        
-        // Re-announce Admin arrival to the original map
-        socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
-        const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id && !remote.isHiddenAdmin);
-        socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
     });
     socket.on('disconnect', async () => {
     // ✅ NEW: Free up the account so they can log back in
