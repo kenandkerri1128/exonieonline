@@ -1000,96 +1000,98 @@
         <button class="btn btn-large" style="background:#555; border-color:#555;" onclick="window.toggleMailbox()">Close (M)</button>
     </div>
 <script>
+    // --- 1. CORE VARIABLES & SOCKET ---
     const socket = io();
     let isMailboxOpen = false, isChatting = false;
-window.toggleMailbox = function() {
-    isMailboxOpen = !isMailboxOpen;
-    document.getElementById('mailbox-screen').style.display = isMailboxOpen ? 'block' : 'none';
-    if (isMailboxOpen && socket) {
-        socket.emit('getMail'); // Ask server for player-specific mail
-    }
-};
+    let isInventoryOpen = false, isSkillOpen = false, isEnhancing = false, isShopping = false;
+    let activeInvIndex = -1, attackCooldownActive = false, isAttacking = false, attackHeld = false, autoAttackMode = false;
+    let lastNetTs = 0, lastSentState = 'idle', pendingPartyInvite = null, pendingTradeInvite = null, inTradeMode = false, tradeTarget = null;
+    let tradeMyItems = [null,null,null], tradeTheirItems = [null,null,null], lastVitalsSent = {hp:null,maxHp:null,level:null}, lastVitalsTs = 0;
 
-// Add 'M' key listener for Mail
-window.addEventListener('keydown', (e) => {
-    if (!isChatting && e.key.toLowerCase() === 'm') {
-        window.toggleMailbox();
-    }
-});
+    // --- 2. MAILBOX LOGIC ---
+    window.toggleMailbox = function() {
+        isMailboxOpen = !isMailboxOpen;
+        document.getElementById('mailbox-screen').style.display = isMailboxOpen ? 'block' : 'none';
+        if (isMailboxOpen && socket) {
+            socket.emit('getMail'); 
+        }
+    };
 
-socket.on('mailList', (mails) => {
-    const container = document.getElementById('mail-list-container');
-    container.innerHTML = '';
-    if (!mails || mails.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#aaa;">Your inbox is empty.</p>';
-        return;
-    }
+    window.addEventListener('keydown', (e) => {
+        if (!isChatting && e.key.toLowerCase() === 'm') {
+            window.toggleMailbox();
+        }
+    });
 
-    mails.forEach(mail => {
-        const row = document.createElement('div');
-        row.className = 'mail-row';
-        
-        let itemHtml = '';
-        if (mail.attached_item) {
-            itemHtml = `<div class="mail-item-preview">Attached: ${mail.attached_item.name}</div>`;
-        }
+    socket.on('mailList', (mails) => {
+        const container = document.getElementById('mail-list-container');
+        container.innerHTML = '';
+        if (!mails || mails.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#aaa;">Your inbox is empty.</p>';
+            return;
+        }
+        mails.forEach(mail => {
+            const row = document.createElement('div');
+            row.className = 'mail-row';
+            let itemHtml = '';
+            if (mail.attached_item) {
+                itemHtml = `<div class="mail-item-preview">Attached: ${mail.attached_item.name}</div>`;
+            }
+            row.innerHTML = `
+                <div class="mail-sender">FROM: SYSTEM</div>
+                <div class="mail-msg">${mail.message_text}</div>
+                ${itemHtml}
+                <button class="claim-btn" id="claim-${mail.id}" onclick="window.claimMail(${mail.id})">
+                    ${mail.attached_item ? 'CLAIM ITEM' : 'MARK AS READ'}
+                </button>
+            `;
+            container.appendChild(row);
+        });
+    });
 
-        row.innerHTML = `
-            <div class="mail-sender">FROM: SYSTEM</div>
-            <div class="mail-msg">${mail.message_text}</div>
-            ${itemHtml}
-            <button class="claim-btn" id="claim-${mail.id}" onclick="window.claimMail(${mail.id})">
-                ${mail.attached_item ? 'CLAIM ITEM' : 'MARK AS READ'}
-            </button>
-        `;
-        container.appendChild(row);
-    });
-});
+    window.claimMail = function(mailId) {
+        if (socket) socket.emit('claimMail', mailId);
+    };
 
-window.claimMail = function(mailId) {
-    if (socket) socket.emit('claimMail', mailId);
-};
+    socket.on('mailClaimSuccess', (mailId) => {
+        const btn = document.getElementById(`claim-${mailId}`);
+        if (btn) {
+            btn.innerText = "CLAIMED";
+            btn.disabled = true;
+        }
+        dom.log.innerText = "Mail claimed successfully!";
+        window.renderInventory(); 
+    });
 
-socket.on('mailClaimSuccess', (mailId) => {
-    const btn = document.getElementById(`claim-${mailId}`);
-    if (btn) {
-        btn.innerText = "CLAIMED";
-        btn.disabled = true;
-    }
-    dom.log.innerText = "Mail claimed successfully!";
-    window.renderInventory(); // Refresh inventory to show new item
-});
-// ==========================================
-// 1. SYSTEM INITIALIZATION & CORE DATA
-// ==========================================
-window.onload = () => {
-    let savedU = localStorage.getItem('exonie_user'), savedP = localStorage.getItem('exonie_pass');
-    if(savedU && savedP) { 
-        document.getElementById('login-user').value = savedU; 
-        document.getElementById('login-pass').value = savedP; 
-        window.attemptLogin(); 
-    }
-    
-    setTimeout(() => {
-        let unstuckBtn = document.getElementById('unstuck-btn');
-        if (unstuckBtn) unstuckBtn.style.display = 'block';
-    }, 1000);
-};
+    // --- 3. SYSTEM INITIALIZATION ---
+    window.onload = () => {
+        let savedU = localStorage.getItem('exonie_user'), savedP = localStorage.getItem('exonie_pass');
+        if(savedU && savedP) { 
+            document.getElementById('login-user').value = savedU; 
+            document.getElementById('login-pass').value = savedP; 
+            window.attemptLogin(); 
+        }
+        
+        setTimeout(() => {
+            let unstuckBtn = document.getElementById('unstuck-btn');
+            if (unstuckBtn) unstuckBtn.style.display = 'block';
+        }, 1000);
+    };
 
-window.logout = function() {
-    try { localStorage.removeItem('exonie_user'); localStorage.removeItem('exonie_pass'); } catch(e) {}
-    try { if (socket) socket.disconnect(); } catch(e) {}
-    location.reload();
-};
+    window.logout = function() {
+        try { localStorage.removeItem('exonie_user'); localStorage.removeItem('exonie_pass'); } catch(e) {}
+        try { if (socket) socket.disconnect(); } catch(e) {}
+        location.reload();
+    };
 
-document.querySelectorAll('.avatar-layer').forEach(img => { 
-    img.onerror = function() { 
-        if (this.src.includes('_attack.png')) this.src = this.src.replace('_attack.png', '.png'); 
-        else this.style.opacity = '0'; 
-    }; 
-    img.onload = function() { this.style.opacity = '1'; }; 
-    if (img.complete && img.naturalWidth > 0) img.style.opacity = '1';
-});
+    document.querySelectorAll('.avatar-layer').forEach(img => { 
+        img.onerror = function() { 
+            if (this.src.includes('_attack.png')) this.src = this.src.replace('_attack.png', '.png'); 
+            else this.style.opacity = '0'; 
+        }; 
+        img.onload = function() { this.style.opacity = '1'; }; 
+        if (img.complete && img.naturalWidth > 0) img.style.opacity = '1';
+    });
 
 const dom = { 
     game: document.getElementById('game-screen'), playerContainer: document.getElementById('player-container'), playerAvatarContainer: document.getElementById('player-avatar-container'), 
@@ -3298,5 +3300,6 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
