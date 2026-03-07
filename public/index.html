@@ -1258,8 +1258,7 @@ window.getBaseStat = function(lvl) { if (lvl >= 50) return 100; if (lvl >= 45) r
 // ==========================================
 // 5. INVENTORY & EQUIPMENT
 // ==========================================
-window.addLoot = function(item) { item.quantity = item.quantity || 1;
-if (item.type === 'potion' || item.type === 'material' || item.type === 'consumable') { const inv = game.player.inventory || []; let existingIndex = inv.findIndex(i => i && i.name === item.name); if (existingIndex !== -1) { game.player.inventory[existingIndex].quantity += item.quantity; dom.log.innerText = `Looted: ${item.name} (x${game.player.inventory[existingIndex].quantity})!`; if (isInventoryOpen) window.renderInventory(); return; } } const inv = game.player.inventory || []; const emptySlot = inv.findIndex(i => i === null); if (emptySlot !== -1) { game.player.inventory[emptySlot] = item; dom.log.innerText = `Looted: ${item.name}!`; if (isInventoryOpen) window.renderInventory(); } else { dom.log.innerText = `Inventory full! Lost ${item.name}.`; } }
+window.addLoot = function(item) { item.quantity = item.quantity || 1; if (item.type === 'potion' || item.type === 'material' || item.type === 'consumable') { const inv = game.player.inventory || []; let existingIndex = inv.findIndex(i => i && i.name === item.name); if (existingIndex !== -1) { game.player.inventory[existingIndex].quantity += item.quantity; dom.log.innerText = `Looted: ${item.name} (x${game.player.inventory[existingIndex].quantity})!`; if (isInventoryOpen) window.renderInventory(); if (['Unique', 'Legendary', 'Godly'].includes(item.rarity)) DatabaseManager.savePlayerData(game.player); return; } } const inv = game.player.inventory || []; const emptySlot = inv.findIndex(i => i === null); if (emptySlot !== -1) { game.player.inventory[emptySlot] = item; dom.log.innerText = `Looted: ${item.name}!`; if (isInventoryOpen) window.renderInventory(); if (['Unique', 'Legendary', 'Godly'].includes(item.rarity)) DatabaseManager.savePlayerData(game.player); } else { dom.log.innerText = `Inventory full! Lost ${item.name}.`; } }
 window.getItemTooltip = function(item) { 
     if(!item) return ""; 
     let html = `<strong class="${item.rarity === "Godly" ? "rarity-godly" : ""}" style="color:${item.color}; font-size: 13px;">${item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name}</strong><br><span style="color:#888;">Lv. ${item.level || 1} ${item.rarity || 'Normal'}</span><br><br>`; 
@@ -3042,6 +3041,7 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
