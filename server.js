@@ -1387,6 +1387,47 @@ io.on('connection', (socket) => {
         supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
         socket.emit('syncInventory', p.inventory);
     });
+    // 🛡️ SERVER-SIDE ECONOMY: Buying
+    socket.on('requestPurchase', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+
+        let cost = data.totalCost;
+        // Verify gold on server
+        if (p.gold >= cost) {
+            p.gold -= cost; 
+            // Server-side inventory update
+            const inv = p.inventory || [];
+            const emptySlot = inv.findIndex(i => i === null);
+            if (emptySlot !== -1) {
+                p.inventory[emptySlot] = data.item;
+                socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
+                supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
+            } else {
+                socket.emit('systemMessage', "Inventory full!");
+            }
+        } else {
+            socket.emit('systemMessage', "Insufficient Gold (Server Verified).");
+        }
+    });
+
+    // 🛡️ SERVER-SIDE ECONOMY: Selling
+    socket.on('requestSell', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.item) return;
+
+        // Server calculates true value based on Rarity/Level, ignoring client claims
+        let baseVal = (data.item.level || 1) * 2;
+        let multiplier = { "Starter": 1, "Basic": 2, "Rare": 5, "Unique": 10, "Legendary": 25, "Godly": 100 }[data.item.rarity] || 1;
+        let sellPrice = baseVal * multiplier;
+        if (data.item.quantity) sellPrice *= data.item.quantity;
+
+        p.gold += sellPrice;
+        p.inventory[data.index] = null; // Remove item on server
+
+        supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
+        socket.emit('sellSuccess', { newGold: p.gold, inventory: p.inventory, price: sellPrice });
+    });
    socket.on('disconnect', async () => {
         if (socket.username) { activeLogins.delete(socket.username); }
 
@@ -1414,6 +1455,7 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
