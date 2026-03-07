@@ -556,17 +556,15 @@ var floor2MapData = {
             "y": 309,
             "w": 148,
             "h": 121
+        },
+        {
+            "x": 136,
+            "y": 3,
+            "w": 61,
+            "h": 10
         }
     ],
     "teleports": [
-        {
-            "x": 135,
-            "y": 2,
-            "w": 62,
-            "h": 35,
-            "portalId": 4,
-            "targetMapId": "floor1"
-        },
         {
             "x": 1758,
             "y": 313,
@@ -574,6 +572,14 @@ var floor2MapData = {
             "h": 77,
             "portalId": 5,
             "targetMapId": "floor3"
+        },
+        {
+            "x": 138,
+            "y": 19,
+            "w": 61,
+            "h": 29,
+            "portalId": 4,
+            "targetMapId": "floor1"
         }
     ],
     "normalSpawns": [
