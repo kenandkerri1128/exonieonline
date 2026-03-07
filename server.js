@@ -569,18 +569,17 @@ io.on('connection', (socket) => {
         try { fs.writeFileSync(filePath, data.content); } catch(err) {}
     });
 
-   socket.on('partyHeal', (data) => {
+  socket.on('partyHeal', (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || p.isGhost || p.mapId === 'town') return;
 
-        // 🛡️ ANTI-CHEAT: ENFORCE 20s COOLDOWN (18s server-side leniency)
+        // 🛡️ 20s COOLDOWN (18s leniency)
         const now = Date.now();
         if (p.skillCooldowns['partyHeal'] && now < p.skillCooldowns['partyHeal']) return;
         p.skillCooldowns['partyHeal'] = now + 18000; 
 
         const pid = playerParty[p.id];
         if (pid && parties[pid]) {
-            // ... (keep the rest of your partyHeal loop exactly the same)
             for (const memberId of parties[pid].members) {
                 const mp = getPlayerById(memberId);
                 if (mp && !mp.isGhost && mp.instanceId === p.instanceId) {
@@ -594,19 +593,17 @@ io.on('connection', (socket) => {
             emitPartyUpdate(pid);
         }
     });
-
     socket.on('partyRevive', () => {
         const p = onlinePlayers[socket.id];
         if (!p || p.mapId === 'town') return;
 
-        // 🛡️ ANTI-CHEAT: ENFORCE 100s COOLDOWN (95s leniency)
+        // 🛡️ 100s COOLDOWN (95s leniency)
         const now = Date.now();
         if (p.skillCooldowns['partyRevive'] && now < p.skillCooldowns['partyRevive']) return;
         p.skillCooldowns['partyRevive'] = now + 95000;
 
         const pid = playerParty[p.id];
         if (pid && parties[pid]) {
-            // ... (keep the rest of your partyRevive loop exactly the same)
             for (const memberId of parties[pid].members) {
                 const mp = getPlayerById(memberId);
                 if (mp && mp.isGhost && mp.mapId !== 'town') {
@@ -621,8 +618,12 @@ io.on('connection', (socket) => {
     socket.on('broadcastSkill', (data) => {
         const p = onlinePlayers[socket.id];
         if (p) {
-            // 🛡️ SECURITY: Block skill animations if they are in the safe zone!
             if (p.mapId === 'town') return; 
+            
+            // 🛡️ Max 1 aura effect per second. Stops hackers from crashing clients with visual spam!
+            const now = Date.now();
+            if (p.skillCooldowns['visualSpam'] && now < p.skillCooldowns['visualSpam']) return;
+            p.skillCooldowns['visualSpam'] = now + 1000;
 
             socket.to(p.instanceId).emit('remoteSkillEffect', { playerId: p.id, skillId: data.skillId, x: p.x, y: p.y, auraColor: data.auraColor });
         }
@@ -797,29 +798,34 @@ io.on('connection', (socket) => {
     });
 
     socket.on('enterWorld', (userData) => {
-        const mapId = userData.map_id || 'town';
+        // 🛡️ STRICT LOGIN RULE: Everyone spawns in Town! No exceptions.
+        const mapId = 'town';
         const instId = getInstanceId(userData.character_name, mapId);
 
-        let startHp = userData.current_hp || 100;
-        if (mapId === 'town') startHp = 100;
+        let startHp = userData.max_hp || 100; // Full heal in town
         
-        currentUser = userData.character_name; // ✅ Re-enforces session state
+        currentUser = userData.character_name; 
         
         onlinePlayers[socket.id] = {
-            socketId: socket.id, id: userData.character_name, name: userData.character_name, mapId: mapId, instanceId: instId, isGhost: false, currentPortal: null,
-            x: userData.pos_x || 960, y: userData.pos_y || 1000, level: userData.level || 1, currentHp: startHp, maxHp: 100, tradeTarget: null,
-           equips: userData.equips || { weapon: null, armor: null, leggings: null }, 
-           baseStats: userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }, // ✅ CACHED FOR ANTI-CHEAT
-            gold: userData.gold || 0, // ✅ CACHED FOR ANTI-CHEAT
+            socketId: socket.id, id: userData.character_name, name: userData.character_name, 
+            mapId: mapId, instanceId: instId, isGhost: false, currentPortal: null,
+            x: 960, y: 1000, // 🛡️ FORCE SPAWN
+            level: userData.level || 1, currentHp: startHp, maxHp: userData.max_hp || 100, tradeTarget: null,
+            equips: userData.equips || { weapon: null, armor: null, leggings: null }, 
+            baseStats: userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }, 
+            gold: userData.gold || 0, 
             spriteData: { 
                 skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, 
                 weapon: userData.equips?.weapon?.sprite || null,
-                aura: userData.equips?.armor?.aura || null // 🌟 Caches Aura for broadcasting
+                aura: userData.equips?.armor?.aura || null 
             },
             untargetableUntil: 0,
-            // 🛡️ ANTI-CHEAT: RATE LIMITERS
             attackTokens: 3, lastTokenRefill: Date.now(), skillCooldowns: {}
         };
+        
+        // 🛡️ FORCE DB UPDATE IMMEDIATELY SO CLIENT CAN'T OVERRIDE IT
+        supabase.from('Exonians').update({ map_id: 'town', pos_x: 960, pos_y: 1000, current_hp: startHp }).eq('character_name', currentUser).then(()=>{});
+
         socket.join(instId); socket.emit('authSuccess', userData);
         
         socket.to(instId).emit('remotePlayerJoined', { id: onlinePlayers[socket.id].id, name: onlinePlayers[socket.id].name, mapId, instanceId: instId, x: onlinePlayers[socket.id].x, y: onlinePlayers[socket.id].y, spriteData: onlinePlayers[socket.id].spriteData, isGhost: false });
@@ -926,13 +932,12 @@ io.on('connection', (socket) => {
         const p = onlinePlayers[socket.id]; if(!p || p.isGhost) return;
         if (p.mapId === 'town') return; 
 
-        // 🛡️ ANTI-CHEAT: ENFORCE 14s COOLDOWN (12s leniency)
+        // 🛡️ 14s COOLDOWN (13s leniency)
         const now = Date.now();
         if (p.skillCooldowns['tauntMonsters'] && now < p.skillCooldowns['tauntMonsters']) return;
-        p.skillCooldowns['tauntMonsters'] = now + 12000;
+        p.skillCooldowns['tauntMonsters'] = now + 13000;
 
         const world = worlds[p.instanceId]; if(!world) return;
-        // ... (keep the rest of your tauntMonsters loop the same)
         for (let mId in world.monsters) {
             let m = world.monsters[mId];
             if (!m.alive) continue;
@@ -941,16 +946,20 @@ io.on('connection', (socket) => {
         }
     });
 
-   socket.on('syncPet', (data) => {
+  socket.on('syncPet', (data) => {
         const p = onlinePlayers[socket.id]; if(!p) return;
         if (p.mapId === 'town') return; 
         const world = worlds[p.instanceId]; if(!world) return;
         if (!world.pets) world.pets = {};
         
-        // 🛡️ ANTI-CHEAT: MAX 2 PETS PER PLAYER
+        // 🛡️ 25s COOLDOWN (23s leniency) ON NEW SUMMONS
         if (data.alive) { 
+            const now = Date.now();
+            if (p.skillCooldowns['summonPet'] && now < p.skillCooldowns['summonPet']) return;
+            p.skillCooldowns['summonPet'] = now + 23000;
+
             let myPetCount = Object.values(world.pets).filter(pet => pet.ownerId === p.id).length;
-            if (myPetCount >= 2 && !world.pets[data.id]) return; // Block spawning more than 2!
+            if (myPetCount >= 2 && !world.pets[data.id]) return; 
             world.pets[data.id] = { id: data.id, ownerId: p.id, x: data.x, y: data.y }; 
         } 
         else { delete world.pets[data.id]; }
@@ -961,10 +970,10 @@ io.on('connection', (socket) => {
     socket.on('setUntargetable', (data) => {
         const p = onlinePlayers[socket.id];
         if (p && p.mapId !== 'town') { 
-            // 🛡️ ANTI-CHEAT: ENFORCE 15s COOLDOWN (13s leniency)
+            // 🛡️ 15s COOLDOWN (14s leniency)
             const now = Date.now();
             if (p.skillCooldowns['setUntargetable'] && now < p.skillCooldowns['setUntargetable']) return;
-            p.skillCooldowns['setUntargetable'] = now + 13000;
+            p.skillCooldowns['setUntargetable'] = now + 14000;
 
             p.untargetableUntil = Date.now() + (data.duration || 10000); 
         }
@@ -974,46 +983,74 @@ io.on('connection', (socket) => {
         const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return; 
         if (p.mapId === 'town') return; 
 
-        // 🛡️ ANTI-CHEAT: ATTACK SPEED RATE LIMITER (TOKEN BUCKET)
         const now = Date.now();
+
+        // 🛡️ ANTI-CHEAT 1: THE MACHINE-GUN BLOCKER
+        // Absolutely NO attacks can be processed faster than 300ms apart. 
+        // This permanently stops macro-clickers and packet-spammers.
+        if (p.lastAttackTime && now - p.lastAttackTime < 300) {
+            return; // 🛑 Blocked!
+        }
+        p.lastAttackTime = now;
+
+        // 🛡️ ANTI-CHEAT 2: SUSTAINED FATIGUE LIMITER
+        // Over a long fight, they can only average 1 attack every 700ms.
         p.lastTokenRefill = p.lastTokenRefill || now;
         const timePassed = now - p.lastTokenRefill;
-        const tokensToAdd = Math.floor(timePassed / 800); // Regenerate 1 attack every 800ms
+        const tokensToAdd = Math.floor(timePassed / 700); 
         
         if (tokensToAdd > 0) {
-            p.attackTokens = Math.min(3, (p.attackTokens || 0) + tokensToAdd); // Max 3 burst attacks
-            p.lastTokenRefill = now - (timePassed % 800);
+            p.attackTokens = Math.min(3, (p.attackTokens || 0) + tokensToAdd); 
+            p.lastTokenRefill = now - (timePassed % 700);
         }
         
         if (p.attackTokens <= 0) {
-            return; // 🛑 SPAM BLOCKED! They are attacking too fast.
+            return; // 🛑 Blocked! They swung too many times in a row.
         }
-        p.attackTokens--; // Consume an attack token
+        p.attackTokens--; 
 
         const world = worlds[p.instanceId]; if (!world) return;
         const m = world.monsters[payload.monsterId]; 
         
         if (!m || !m.alive) return;
         
-       const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); if (dist > 350) return;
+        const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); if (dist > 350) return;
         
-        // 🛡️ ANTI-CHEAT: DAMAGE VALIDATION
+        // 🛡️ ANTI-CHEAT 3: HEAVY SKILL SPAM BLOCKER
         let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(p.baseStats?.playerClass);
         let serverAtkPwr = isMagicClass ? getServerMagicAttack(p) : getServerAttackPower(p);
         
-        // The highest multiplier a player can have is 5x (Blademaster Mega Slash). We add a little buffer for RNG variance.
-        let maxPossibleDamage = Math.max(50, Math.floor(serverAtkPwr * 6)); 
-        
         let clientDmg = Math.floor(Number(payload.damage) || 1);
+
+        // If they try to do massive skill damage (like Mega Slash)...
+        if (clientDmg > serverAtkPwr * 1.5 && p.id !== "Kei") {
+            if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack']) {
+                // Hacker is spamming an ultimate skill! 
+                clientDmg = Math.floor(serverAtkPwr); // Down-scale their hacked damage to a weak basic attack
+            } else {
+                p.skillCooldowns['heavyAttack'] = now + 15000; // Require 15 seconds before another heavy damage hit
+            }
+        }
+
+        // Hard cap on absolute max damage possible
+        let maxPossibleDamage = Math.max(50, Math.floor(serverAtkPwr * 6)); 
         if (clientDmg > maxPossibleDamage && p.id !== "Kei") {
-            console.log(`[HACK BLOCKED] ${p.id} tried to do ${clientDmg} dmg. Capped at ${maxPossibleDamage}.`);
             clientDmg = maxPossibleDamage;
         }
 
         const dmg = Math.max(1, clientDmg); 
         m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
         
-        if (payload.freeze) { m.frozenUntil = Date.now() + 3000; }
+        // 🛡️ ANTI-CHEAT 4: SERVER-SIDE FREEZE VERIFICATION
+        // Hackers send "freeze: true" to permanently freeze bosses. 
+        if (payload.freeze) {
+            // ONLY Ice Masters level 25+ can freeze, and the SERVER decides the 25% chance!
+            if (p.baseStats?.playerClass === 'Ice Master' && p.level >= 25) {
+                if (Math.random() < 0.25) { 
+                    m.frozenUntil = Date.now() + 3000;
+                }
+            }
+        }
 
         io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: !!payload.isPendant });
         
@@ -1033,7 +1070,6 @@ io.on('connection', (socket) => {
                         let drop = generateLoot(m);
                         io.to(sid).emit('lootDropped', drop);
                         
-                        // 🌟 BROADCAST PARTY DROPS
                         if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
                             io.emit('rareLootBroadcast', { playerName: memberId, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
                         }
@@ -1044,17 +1080,13 @@ io.on('connection', (socket) => {
                 let drop = generateLoot(m);
                 io.to(socket.id).emit('lootDropped', drop);
                 
-                // 🌟 BROADCAST SOLO DROPS
                 if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
                     io.emit('rareLootBroadcast', { playerName: p.name || p.id, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
                 }
             }
             if (m.respawnDelayMs !== -1) {
                 setTimeout(() => { 
-                    // ✅ PASSES LEVEL SO HIGH LEVEL SPAWNS DON'T RESET TO LVL 5
                     const cfg = { spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY }, level: m.level }; 
-                    
-                    // ✅ USES originalKey SO GOLDEN SLIMES REVERT BACK TO NORMAL MOBS
                     const nm = spawnMonster(p.instanceId, m.id, m.originalKey || m.monsterKey, cfg); 
                     world.monsters[m.id] = nm; 
                     io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm)); 
@@ -1316,21 +1348,29 @@ io.on('connection', (socket) => {
 
         const p = onlinePlayers[socket.id];
         if (p) {
-            const oldInstId = p.instanceId; // 🌟 SAVE OLD INSTANCE
+            const oldInstId = p.instanceId; 
             socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
             if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
                 for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
             }
             removeFromParty(p.id);
-            supabase.from('Exonians').update({ pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
+            
+            // 🛡️ ANTI-CHEAT: If they disconnect while dead, FORCE Town coordinates into the DB
+            let saveMap = p.mapId; let saveX = p.x; let saveY = p.y;
+            if (p.isGhost) {
+                saveMap = 'town'; saveX = 960; saveY = 1000;
+            }
+            
+            supabase.from('Exonians').update({ map_id: saveMap, pos_x: saveX, pos_y: saveY }).eq('character_name', p.id).then(()=>{});
             delete onlinePlayers[socket.id];
             
-            checkAndResetInstance(oldInstId); // 🌟 RUN THE RESET CHECK
+            checkAndResetInstance(oldInstId); 
         }
     });
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
