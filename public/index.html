@@ -1195,60 +1195,33 @@ window.updateStonePrice = function() {
 }
 
 window.buyItem = function(type) {
+    let cost = 0; let item = null;
     if (type === 'potion') {
         let qty = parseInt(document.getElementById('shop-potion-qty').value) || 1;
-        let cost = qty * 25;
-        if (game.player.gold < cost) { dom.log.innerText = "Not enough gold!"; return; }
-        
-        let item = { id: Date.now(), name: "Health Potion", type: "potion", rarity: "Basic", color: "#fff", fixedStat: { hpHeal: 100 }, quantity: qty };
-        game.player.gold -= cost;
-        window.addLoot(item);
-        
+        cost = qty * 25;
+        item = { id: Date.now(), name: "Health Potion", type: "potion", rarity: "Basic", color: "#fff", fixedStat: { hpHeal: 100 }, quantity: qty };
     } else if (type === 'stone') {
         let lvl = parseInt(document.getElementById('shop-stone-level').value) || 10;
         let rarity = document.getElementById('shop-stone-rarity').value || 'Basic';
         let qty = parseInt(document.getElementById('shop-stone-qty').value) || 1;
-        
         let basePrice = lvl * 15;
         let rMult = { "Basic": 1, "Rare": 3, "Unique": 8, "Legendary": 20, "Godly": 50 }[rarity] || 1;
-        let cost = basePrice * rMult * qty;
-        
-        if (game.player.gold < cost) { dom.log.innerText = "Not enough gold!"; return; }
-        
-        let color = window.RARITY_COLORS[rarity] || "#fff";
-        let itemName = `${rarity === "Basic" ? "" : rarity + " "}Refinement Stone Lv.${lvl}`.trim();
-        
-        let item = { id: Date.now() + Math.random(), name: itemName, type: "material", rarity: rarity, level: lvl, color: color, description: "Enhances equipment.", quantity: qty };
-        
-        game.player.gold -= cost;
-        window.addLoot(item);
+        cost = basePrice * rMult * qty;
+        item = { id: Date.now() + Math.random(), name: (rarity === "Basic" ? "" : rarity + " ") + "Refinement Stone Lv." + lvl, type: "material", rarity: rarity, level: lvl, color: window.RARITY_COLORS[rarity], quantity: qty };
     }
-    
-    document.getElementById('shop-my-gold').innerText = game.player.gold;
-    window.updateUI();
-    DatabaseManager.savePlayerData(game.player);
+
+    if (game.player.gold < cost) { dom.log.innerText = "Not enough gold!"; return; }
+    // 🛡️ ASK SERVER FOR PERMISSION
+    if (socket) socket.emit('requestPurchase', { totalCost: cost, item: item });
 }
 
 window.actionSell = function(e) {
     if (e) e.stopPropagation();
     const item = game.player.inventory[activeInvIndex];
     if (!item) return;
-    
-    let baseVal = (item.level || 1) * 2;
-    let multiplier = { "Starter": 1, "Basic": 2, "Rare": 5, "Unique": 10, "Legendary": 25, "Godly": 100 }[item.rarity] || 1;
-    let sellPrice = baseVal * multiplier;
-    if (item.quantity && item.quantity > 1) sellPrice *= item.quantity;
-    
-    game.player.gold += sellPrice;
-    dom.log.innerText = `Sold ${item.name} for ${sellPrice} Gold.`;
-    game.player.inventory[activeInvIndex] = null;
-    activeInvIndex = -1;
-    
+    // 🛡️ ASK SERVER TO SELL
+    if (socket) socket.emit('requestSell', { item: item, index: activeInvIndex });
     document.getElementById('inv-context-menu').style.display = 'none';
-    document.getElementById('shop-my-gold').innerText = game.player.gold || 0;
-    window.renderInventory();
-    window.updateUI();
-    DatabaseManager.savePlayerData(game.player);
 }
 
 // ==========================================
@@ -2192,6 +2165,21 @@ window.removeRemotePlayer = function(id) { const p = game.remotePlayers[id]; if 
 // 8. SOCKET EVENTS & NETWORKING
 // ==========================================
 if(socket) {
+    socket.on('purchaseSuccess', (data) => {
+        game.player.gold = data.newGold;
+        game.player.inventory = data.inventory;
+        window.updateUI();
+        window.renderInventory();
+        dom.log.innerText = "Purchase successful!";
+    });
+
+    socket.on('sellSuccess', (data) => {
+        game.player.gold = data.newGold;
+        game.player.inventory = data.inventory;
+        dom.log.innerText = `Item sold for ${data.price} Gold.`;
+        window.updateUI();
+        window.renderInventory();
+    });
     socket.on('syncInventory', (serverInventory) => {
         game.player.inventory = serverInventory;
         window.updateEquipmentDisplay();
@@ -3277,6 +3265,7 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
