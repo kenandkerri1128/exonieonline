@@ -1913,40 +1913,9 @@ window.leaveParty = function() {
 window.respondInvite = function(accept) { document.getElementById('invite-dialog').style.display = 'none'; if (pendingPartyInvite) { if(socket) socket.emit('partyInviteResponse', { fromId: pendingPartyInvite, accept }); pendingPartyInvite = null; } }; 
 window.respondTrade = function(accept) { document.getElementById('trade-dialog').style.display = 'none'; if (pendingTradeInvite) { if(socket) socket.emit('tradeInviteResponse', { fromId: pendingTradeInvite, accept }); if (accept) { tradeTarget = pendingTradeInvite; inTradeMode = true; document.getElementById('trade-target-name').innerText = tradeTarget; document.getElementById('trade-screen').style.display = 'block'; window.renderTradeSlots(); window.renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.log.innerText = "Trade declined."; } pendingTradeInvite = null; } }; 
 window.closeTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade cancelled."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); if(socket) socket.emit('tradeCancel'); }; 
-window.confirmTrade = function() { 
-    // ✅ PRE-TRADE CHECK: Calculate incoming items and empty slots
-    let incomingItems = tradeTheirItems.filter(item => item !== null);
-    let emptySlots = game.player.inventory.filter(slot => slot === null).length;
-
-    // 🛑 If we don't have enough space, cancel the trade immediately to prevent item loss
-    if (emptySlots < incomingItems.length) {
-        dom.log.innerText = "Trade Cancelled: Your inventory is full!";
-        window.closeTrade(); // This safely refunds your items and closes the window
-        return;
-    }
-
-    inTradeMode = false; 
-    document.getElementById('trade-screen').style.display = 'none'; 
-    dom.log.innerText = "Trade completed successfully!"; 
-    
-    // Process incoming items
-    incomingItems.forEach(item => { window.addLoot(item); }); 
-    
-    // Process Gold
-    game.player.gold += parseInt(document.getElementById('trade-their-gold').innerText) || 0; 
-    game.player.gold -= parseInt(document.getElementById('trade-my-gold').value) || 0; 
-    if (game.player.gold < 0) game.player.gold = 0; 
-    
-    // Clear trade windows
-    tradeMyItems = [null, null, null]; 
-    document.getElementById('trade-my-gold').value = 0; 
-    tradeTheirItems = [null, null, null]; 
-    document.getElementById('trade-their-gold').innerText = "0"; 
-    
-    // Save and update
-    window.renderInventory(); 
-    window.updateUI(); 
-    DatabaseManager.savePlayerData(game.player); 
+window.confirmTrade = function() {
+    // 🛡️ STOP DOING LOGIC HERE! JUST ASK THE SERVER TO FINALIZE.
+    if(socket) socket.emit('requestConfirmTrade');
 };
 window.addTradeItem = function(invIndex) { if (!inTradeMode) return; const item = game.player.inventory[invIndex]; if (!item) return; const emptyTradeSlot = tradeMyItems.findIndex(i => i === null); if (emptyTradeSlot === -1) { dom.log.innerText = "Trade offer full!"; return; } tradeMyItems[emptyTradeSlot] = item; game.player.inventory[invIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
 window.removeFromTrade = function(tradeIndex) { if (!inTradeMode) return; const item = tradeMyItems[tradeIndex]; if (!item) return; window.addLoot(item); tradeMyItems[tradeIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
@@ -3265,6 +3234,7 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
