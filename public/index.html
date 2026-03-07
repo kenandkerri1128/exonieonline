@@ -1000,8 +1000,8 @@
         <button class="btn btn-large" style="background:#555; border-color:#555;" onclick="window.toggleMailbox()">Close (M)</button>
     </div>
 <script>
-    let isMailboxOpen = false;
-
+    const socket = io();
+    let isMailboxOpen = false, isChatting = false;
 window.toggleMailbox = function() {
     isMailboxOpen = !isMailboxOpen;
     document.getElementById('mailbox-screen').style.display = isMailboxOpen ? 'block' : 'none';
@@ -1091,9 +1091,6 @@ document.querySelectorAll('.avatar-layer').forEach(img => { 
     if (img.complete && img.naturalWidth > 0) img.style.opacity = '1';
 });
 
-let socket; 
-try { socket = io(); } catch(e) { console.warn("Socket disconnected."); }
-
 const dom = { 
     game: document.getElementById('game-screen'), playerContainer: document.getElementById('player-container'), playerAvatarContainer: document.getElementById('player-avatar-container'), 
     playerBody: document.getElementById('player-body'), playerHead: document.getElementById('player-head'), playerHair: document.getElementById('player-hair'), 
@@ -1118,7 +1115,7 @@ window.MapDatabase = window.MapDatabase || {}; 
 let safeMapData = { id: "town", name: "Town of Exonie", image: "town_map.png", spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
 
 let isInventoryOpen = false, isSkillOpen = false, isEnhancing = false, isShopping = false;
-let activeInvIndex = -1, attackCooldownActive = false, isAttacking = false, attackHeld = false, isChatting = false, autoAttackMode = false;
+let activeInvIndex = -1, attackCooldownActive = false, isAttacking = false, attackHeld = false, autoAttackMode = false;
 let lastNetTs = 0, lastSentState = 'idle', pendingPartyInvite = null, pendingTradeInvite = null, inTradeMode = false, tradeTarget = null;
 let tradeMyItems = [null,null,null], tradeTheirItems = [null,null,null], lastVitalsSent = {hp:null,maxHp:null,level:null}, lastVitalsTs = 0;
 let isDrawing = false, startX = 0, startY = 0, currentBox = null, drawType = 'collision';
@@ -3306,3 +3303,4 @@ window.addEventListener('click', (e) => {
 </div>
     </body>
 </html>
+
