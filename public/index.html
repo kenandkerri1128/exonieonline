@@ -1941,7 +1941,9 @@ socket.on('mailList', (mails) => {
     socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'idle', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null }); 
     // 🛡️ CRITICAL FIX: Tell the server we arrived so it spawns the monsters!
     socket.emit('playerTeleported', { mapId: tp.mapId, x: game.player.x, y: game.player.y, mapData: safeMapData });
-}
+} 
+    }); 
+});
     socket.on('teleportApproved', (tp) => { 
         let nextMapId = tp.targetMapId || 'town'; 
         const transScreen = document.getElementById('map-transition'); 
@@ -2232,6 +2234,7 @@ if (typeof socket !== 'undefined') {
 </div>
     </body>
 </html>
+
 
 
 
