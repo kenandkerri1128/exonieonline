@@ -1842,6 +1842,8 @@ if(socket) {
                     dom.game.classList.add('active');
                     game.isRunning = true; 
                     if(typeof gameLoop !== 'undefined') requestAnimationFrame(gameLoop);
+                  // 📧 🛡️ Check for mail contents immediately on login
+                    socket.emit('getMail'); 
                     socket.emit('requestNews'); 
                 });
             });
@@ -2234,3 +2236,4 @@ if (typeof socket !== 'undefined') {
 </div>
     </body>
 </html>
+
