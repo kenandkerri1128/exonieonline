@@ -1246,34 +1246,57 @@ window.executeSkill = function(skillId, className) {
 // 3. COMBAT & MAIN GAME LOOP
 // ==========================================
 window.attemptAttack = function(silent) {
-    if (safeMapData.id === 'town') { if (!silent) dom.log.innerText = "You cannot attack in Town!"; return; }
+    if (safeMapData.id === 'town') { if (!silent && dom.log) dom.log.innerText = "You cannot attack in Town!"; return; }
     if (game.player.currentHp <= 0 || isInventoryOpen || window.adminMode || game.isGhost || window.isLoading) return;
     if (attackCooldownActive) return; 
-    let closestMob = null; let minD = Infinity; const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; let weaponSprite = game.player.equips.weapon ? game.player.equips.weapon.sprite : ''; const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant'); const attackRadius = isRanged ? 250 : 80;
-    for(let mId in game.monsters) { let m = game.monsters[mId]; if(!m.alive) continue; let mCenterX = m.x + (m.width/2); let mCenterY = m.y + (m.height/2); let dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY); if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; } }
-    if (!closestMob) { if(!silent) dom.log.innerText = "No target in range."; return; }
+    
+    let closestMob = null; let minD = Infinity; const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; 
+    let weaponSprite = game.player.equips && game.player.equips.weapon ? game.player.equips.weapon.sprite : ''; 
+    const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant'); const attackRadius = isRanged ? 250 : 80;
+    
+    for(let mId in game.monsters) { 
+        let m = game.monsters[mId]; if(!m.alive) continue; 
+        let mCenterX = m.x + (m.width/2); let mCenterY = m.y + (m.height/2); 
+        let dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY); 
+        if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; } 
+    }
+    
+    if (!closestMob) { if(!silent && dom.log) dom.log.innerText = "No target in range."; return; }
     
     isAttacking = true; attackCooldownActive = true; 
     if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: weaponSprite });
-    window.playSFX(weaponSprite);
+    if(typeof window.playSFX === 'function') window.playSFX(weaponSprite);
 
     const mCenterX = closestMob.x + (closestMob.width/2); const mCenterY = closestMob.y + (closestMob.height/2);
 
     if (isRanged) { 
-        window.shootOrb(pCenterX, pCenterY - 15, mCenterX, mCenterY); 
+        if(typeof window.shootOrb === 'function') window.shootOrb(pCenterX, pCenterY - 15, mCenterX, mCenterY); 
         setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: 'basic' }); }, 500); 
-    } else { setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: 'basic' }); }, 300); }
+    } else { 
+        setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: 'basic' }); }, 300); 
+    }
     setTimeout(() => { isAttacking = false; }, 500); setTimeout(() => { attackCooldownActive = false; }, 1000);
 }
-
 function gameLoop(ts) {
     if (!game.isRunning) return;
 
-    if (game.player.currentHp <= 0 && !game.isGhost) { game.isGhost = true; dom.playerContainer.style.opacity = '0.5'; if(socket) socket.emit('playerDied'); }
-    if (game.isGhost && game.party && game.party.members.length === 1) { dom.log.innerText = "You are the last one left. Returning to Town."; window.leaveParty(); }
+    if (game.player.currentHp <= 0 && !game.isGhost) { 
+        game.isGhost = true; dom.playerContainer.style.opacity = '0.5'; 
+        if(socket) socket.emit('playerDied'); 
+    }
 
-    let nextX = game.player.x; let nextY = game.player.y; let isMoving = false; const moveSpeed = 5; let canInputMove = (!isChatting && !window.isLoading);
-    if (game.isGhost) { if (!game.party || !Array.isArray(game.party.members)) { canInputMove = false; } else { let anyAlive = game.party.members.some(m => !m.isGhost && m.id !== game.player.id); if (!anyAlive) canInputMove = false; } }
+    if (game.isGhost && game.party && game.party.members && game.party.members.length === 1) {
+        if(dom.log) dom.log.innerText = "You are the last one left. Returning to Town.";
+        if(typeof window.leaveParty === 'function') window.leaveParty();
+    }
+
+    let nextX = game.player.x; let nextY = game.player.y; let isMoving = false; const moveSpeed = 5; 
+    let canInputMove = (!isChatting && !window.isLoading);
+    
+    if (game.isGhost) {
+        if (!game.party || !Array.isArray(game.party.members)) { canInputMove = false; } 
+        else { let anyAlive = game.party.members.some(m => !m.isGhost && m.id !== game.player.id); if (!anyAlive) canInputMove = false; }
+    }
 
     if (canInputMove) {
         if (game.keys.w) { nextY -= moveSpeed; isMoving = true; }
@@ -1283,70 +1306,106 @@ function gameLoop(ts) {
     }
 
     if (isMoving) {
-        let canMoveX = !window.isColliding(nextX, game.player.y) || window.adminMode; let canMoveY = !window.isColliding(game.player.x, nextY) || window.adminMode;
-        if (window.isColliding(game.player.x, game.player.y)) { canMoveX = true; canMoveY = true; } 
-        if (canMoveX) game.player.x = nextX; if (canMoveY) game.player.y = nextY;
+        let canMoveX = true; let canMoveY = true;
+        if(typeof window.isColliding === 'function') {
+            canMoveX = !window.isColliding(nextX, game.player.y) || window.adminMode; 
+            canMoveY = !window.isColliding(game.player.x, nextY) || window.adminMode;
+            if (window.isColliding(game.player.x, game.player.y)) { canMoveX = true; canMoveY = true; } 
+        }
+        if (canMoveX) game.player.x = nextX; 
+        if (canMoveY) game.player.y = nextY;
     }
 
+    // Active Pets logic
     if (game.player.activePets && game.player.activePets.length > 0) {
         game.player.activePets.forEach((p, idx) => {
             let targetMob = Object.values(game.monsters).find(m => m.alive && Math.hypot(m.x-p.x, m.y-p.y) < 300);
             if (targetMob) {
                 let dist = Math.hypot(targetMob.x - p.x, targetMob.y - p.y);
                 if (dist > 40) { p.x += (targetMob.x - p.x) * 0.15; p.y += (targetMob.y - p.y) * 0.15; }
-                else if (Date.now() % 1000 < 50) { p.dom.style.transform = 'scale(1.5) translateY(-20px)'; setTimeout(() => { p.dom.style.transform = 'scale(1)'; if(socket) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'pet' }); }, 200); }
+                else if (Date.now() % 1000 < 50) { 
+                    p.dom.style.transform = 'scale(1.5) translateY(-20px)'; 
+                    setTimeout(() => { p.dom.style.transform = 'scale(1)'; if(socket) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'pet' }); }, 200); 
+                }
             } else {
                 let targetX = game.player.x + (idx === 0 ? -40 : 40); let targetY = game.player.y - 20;
                 p.x += (targetX - p.x) * 0.15; p.y += (targetY - p.y) * 0.15;
             }
             p.dom.style.left = p.x + 'px'; p.dom.style.top = p.y + 'px';
-            let hpBar = p.dom.querySelector('#pet-hp'); if (hpBar) hpBar.style.width = (p.hp / p.maxHp) * 100 + '%';
-            if (p.hp <= 0) { p.skillRef.cooldownReadyAt = Date.now() + p.skillRef.cd; window.updateHotbarCooldowns(); p.dom.remove(); game.player.activePets.splice(idx, 1); if(socket) socket.emit('syncPet', { id: p.id, alive: false }); } 
-            else { if (Math.random() < 0.05 && socket) socket.emit('syncPet', { id: p.id, x: p.x, y: p.y, alive: true }); }
+            let hpBar = p.dom.querySelector('#pet-hp');
+            if (hpBar) hpBar.style.width = (p.hp / p.maxHp) * 100 + '%';
+            
+            if (p.hp <= 0) {
+                if(p.skillRef) p.skillRef.cooldownReadyAt = Date.now() + p.skillRef.cd; 
+                if(typeof window.updateHotbarCooldowns === 'function') window.updateHotbarCooldowns();
+                p.dom.remove(); game.player.activePets.splice(idx, 1);
+                if(socket) socket.emit('syncPet', { id: p.id, alive: false });
+            } else {
+                if (Math.random() < 0.05 && socket) socket.emit('syncPet', { id: p.id, x: p.x, y: p.y, alive: true });
+            }
         });
     }
 
+    // Teleport cooldown
     if (game.player.teleportCooldown > 0) game.player.teleportCooldown -= 16;
     if (game.player.teleportCooldown <= 0 && !game.isGhost) {
-        const hitX = game.player.x + 12; const hitY = game.player.y + 76; const tps = safeMapData.teleports || []; let onPortal = null;
+        const hitX = game.player.x + 12; const hitY = game.player.y + 76; 
+        const tps = safeMapData.teleports || []; 
+        let onPortal = null;
         for (let box of tps) { if (hitX < box.x + box.w && hitX + 24 > box.x && hitY < box.y + box.h && hitY + 20 > box.y) onPortal = box; }
         const uiTimer = document.getElementById('portal-timer-ui'); const uiSec = document.getElementById('portal-timer-sec');
 
         if (onPortal) { 
-            if (game.player.currentPortal !== onPortal.portalId) { game.player.currentPortal = onPortal.portalId; game.player.portalEntryTime = Date.now(); uiTimer.style.display = 'block'; } 
+            if (game.player.currentPortal !== onPortal.portalId) { game.player.currentPortal = onPortal.portalId; game.player.portalEntryTime = Date.now(); if(uiTimer) uiTimer.style.display = 'block'; } 
             if (game.player.portalEntryTime) {
                 let elapsed = Date.now() - game.player.portalEntryTime; let remaining = Math.max(0, 2000 - elapsed);
                 if (uiSec) uiSec.innerText = (remaining / 1000).toFixed(1);
-                if (remaining <= 0 && !game.player.isTeleporting) { game.player.isTeleporting = true; uiTimer.style.display = 'none'; if(socket) socket.emit('portalStep', { portalId: onPortal.portalId, targetMapId: onPortal.targetMapId }); }
+                if (remaining <= 0 && !game.player.isTeleporting) {
+                    game.player.isTeleporting = true; 
+                    if(uiTimer) uiTimer.style.display = 'none';
+                    if(socket) socket.emit('portalStep', { portalId: onPortal.portalId, targetMapId: onPortal.targetMapId }); 
+                }
             }
         } else { 
-            if (game.player.currentPortal !== null) { game.player.currentPortal = null; game.player.portalEntryTime = null; game.player.isTeleporting = false; uiTimer.style.display = 'none'; if(socket) socket.emit('portalLeave'); } 
+            if (game.player.currentPortal !== null) { game.player.currentPortal = null; game.player.portalEntryTime = null; game.player.isTeleporting = false; if(uiTimer) uiTimer.style.display = 'none'; if(socket) socket.emit('portalLeave'); } 
         }
     }
-    dom.playerContainer.style.left = game.player.x + 'px'; dom.playerContainer.style.top = game.player.y + 'px'; 
+    
+    dom.playerContainer.style.left = game.player.x + 'px'; 
+    dom.playerContainer.style.top = game.player.y + 'px'; 
 
     let camTargetX = game.player.x; let camTargetY = game.player.y;
-    if (window.isSpectating && window.spectateTargetId && game.remotePlayers[window.spectateTargetId]) { camTargetX = game.remotePlayers[window.spectateTargetId].x; camTargetY = game.remotePlayers[window.spectateTargetId].y; }
-    const cameraX = Math.floor((window.innerWidth / 2) - (camTargetX * CAMERA_ZOOM) - (game.player.width * CAMERA_ZOOM / 2)); 
-    const cameraY = Math.floor((window.innerHeight / 2) - (camTargetY * CAMERA_ZOOM) - (game.player.height * CAMERA_ZOOM / 2)); 
+    let CAMERA_ZOOM = window.innerWidth <= 950 ? 1.2 : 1.8; 
+
+    if (window.isSpectating && window.spectateTargetId && game.remotePlayers[window.spectateTargetId]) {
+        camTargetX = game.remotePlayers[window.spectateTargetId].x; camTargetY = game.remotePlayers[window.spectateTargetId].y;
+    }
+
+    const cameraX = Math.floor((window.innerWidth / 2) - (camTargetX * CAMERA_ZOOM) - (48 * CAMERA_ZOOM / 2)); 
+    const cameraY = Math.floor((window.innerHeight / 2) - (camTargetY * CAMERA_ZOOM) - (96 * CAMERA_ZOOM / 2)); 
     dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`;
 
     if (window.isSpectating) { isMoving = false; canInputMove = false; }
 
     if (!game.isGhost) {
-        if (autoAttackMode && !window.adminMode && !isInventoryOpen && !window.isLoading) window.attemptAttack(true);
-        if (isAttacking) window.updateAnimationFrames('attack');
-        else if (isMoving) window.updateAnimationFrames('walk');
-        else window.updateAnimationFrames('idle');
+        if (autoAttackMode && !window.adminMode && !isInventoryOpen && !window.isLoading && typeof window.attemptAttack === 'function') window.attemptAttack(true);
+        if (typeof window.updateAnimationFrames === 'function') {
+            if (isAttacking) window.updateAnimationFrames('attack');
+            else if (isMoving) window.updateAnimationFrames('walk');
+            else window.updateAnimationFrames('idle');
+        }
     }
 
-    if (attackHeld && !isInventoryOpen && !window.adminMode && !isChatting && !autoAttackMode && !game.isGhost && !window.isLoading) { window.attemptAttack(false); }
+    if (attackHeld && !isInventoryOpen && !window.adminMode && !isChatting && !autoAttackMode && !game.isGhost && !window.isLoading && typeof window.attemptAttack === 'function') { window.attemptAttack(false); }
     
-    const desiredState = isAttacking ? 'attack' : (isMoving ? 'walk' : 'idle'); const netNow = Date.now();
+    const desiredState = isAttacking ? 'attack' : (isMoving ? 'walk' : 'idle'); 
+    const netNow = Date.now();
+    let lastNetTs = window.lastNetTs || 0; let lastSentState = window.lastSentState || 'idle';
     if (netNow - lastNetTs >= 60 || desiredState !== lastSentState) { 
-        lastNetTs = netNow; lastSentState = desiredState; 
-        if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: desiredState, facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null }); 
+        window.lastNetTs = netNow; window.lastSentState = desiredState; 
+        if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: desiredState, facingRight: window.facingRight, weaponSprite: game.player.equips?.weapon?.sprite || null }); 
     }
+    
     requestAnimationFrame(gameLoop);
 }
 
@@ -1573,21 +1632,34 @@ function setKeyState(e, isDown) {
     if (isChatting || (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA'))) return; 
     if (e.key === 'Tab' || e.code === 'Tab') { if (isDown) e.preventDefault(); game.keys['tab'] = isDown; return; } 
     const key = (e.code === 'KeyW' ? 'w' : e.code === 'KeyA' ? 'a' : e.code === 'KeyS' ? 's' : e.code === 'KeyD' ? 'd' : e.code === 'KeyZ' ? 'z' : e.code === 'KeyX' ? 'x' : e.code === 'KeyC' ? 'c' : (e.key || "").toLowerCase()); 
-    if (isDown && key === 'b') { autoAttackMode = !autoAttackMode; dom.log.innerText = `Auto-Attack: ${autoAttackMode ? 'ON' : 'OFF'}`; return; } 
+    if (isDown && key === 'b') { autoAttackMode = !autoAttackMode; if(dom.log) dom.log.innerText = `Auto-Attack: ${autoAttackMode ? 'ON' : 'OFF'}`; return; } 
     if (game.keys.hasOwnProperty(key)) game.keys[key] = isDown; 
+    
     if (isDown) { 
-        if (key === 'p') window.toggleStats(); 
-        if (key === 'i') window.toggleInventory(); 
-        if (key === 'k') window.toggleSkillScreen(); 
-        if (key === 'j') window.openShop(); 
+        if (key === 'p' && typeof window.toggleStats === 'function') window.toggleStats(); 
+        if (key === 'i' && typeof window.toggleInventory === 'function') window.toggleInventory(); 
+        if (key === 'k' && typeof window.toggleSkillScreen === 'function') window.toggleSkillScreen(); 
+        if (key === 'j' && typeof window.openShop === 'function') window.openShop(); 
         if (key === 'o') { 
-            if (game.player.name === "Kei") { window.adminMode = !window.adminMode; document.getElementById('admin-panel').style.display = window.adminMode ? 'block' : 'none'; dom.world.classList.toggle('admin-active', window.adminMode); dom.log.innerText = window.adminMode ? "Admin Mode ON" : "Admin Mode OFF"; window.buildCollisionLayers(); } 
-            else { dom.log.innerText = "Admin Mode restricted."; } 
+            if (game.player.name === "Kei") { 
+                window.adminMode = !window.adminMode; 
+                let pnl = document.getElementById('admin-panel'); if(pnl) pnl.style.display = window.adminMode ? 'block' : 'none'; 
+                dom.world.classList.toggle('admin-active', window.adminMode); 
+                if(dom.log) dom.log.innerText = window.adminMode ? "Admin Mode ON" : "Admin Mode OFF"; 
+                if(typeof window.buildCollisionLayers === 'function') window.buildCollisionLayers(); 
+            } 
+            else { if(dom.log) dom.log.innerText = "Admin Mode restricted."; } 
         } 
         if (key === '1' || key === '2') {
             if (!game.isGhost && !window.isLoading && !isInventoryOpen && !isSkillOpen && !window.adminMode) {
                 let slotIndex = key === '1' ? 0 : 1; let skill = game.player.activeSkills ? game.player.activeSkills[slotIndex] : null;
-                if (skill) { let now = Date.now(); if (now >= skill.cooldownReadyAt) { skill.cooldownReadyAt = now + skill.cd; skill.execute(); window.updateHotbarCooldowns(); } else { dom.log.innerText = `${skill.name} is not ready yet!`; } }
+                if (skill) { 
+                    let now = Date.now(); 
+                    if (now >= skill.cooldownReadyAt) { 
+                        skill.cooldownReadyAt = now + skill.cd; skill.execute(); 
+                        if(typeof window.updateHotbarCooldowns === 'function') window.updateHotbarCooldowns(); 
+                    } else { if(dom.log) dom.log.innerText = `${skill.name} is not ready yet!`; } 
+                }
             }
         }
     } 
@@ -1832,6 +1904,7 @@ window.closeWelcomeMessage = function() { window.showNextNews(); };
 </div>
     </body>
 </html>
+
 
 
 
