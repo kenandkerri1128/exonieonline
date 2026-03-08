@@ -1525,10 +1525,11 @@ io.on('connection', (socket) => {
 p.gold += sellPrice;
         p.inventory[data.index] = null; 
 
-        socket.emit('syncInventory', p.inventory);
-        // 🛡️ ADD 'await' HERE to ensure the gold is locked in before the next client sync
+        // 🛡️ CRITICAL: Block the code until the database is 100% updated
         await supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id);
-
+        
+        // 🛡️ Tell the client to wipe the item from its memory IMMEDIATELY
+        socket.emit('syncInventory', p.inventory);
         socket.emit('sellSuccess', { newGold: p.gold, inventory: p.inventory, price: sellPrice });
          });
    // 🛡️ SERVER-SIDE TRADE: THE SECURE ITEM SWAP
@@ -1632,6 +1633,7 @@ p.gold += sellPrice;
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
