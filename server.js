@@ -523,7 +523,7 @@ io.on('connection', (socket) => {
                 .from('System_Mail')
                 .select('*')
                 .eq('recipient_name', p.id)
-                .eq('is_claimed', false);
+                .neq('is_claimed', true);
 
             if (error) throw error;
 
@@ -557,7 +557,7 @@ io.on('connection', (socket) => {
                 .select('*')
                 .eq('id', mailId)
                 .eq('recipient_name', p.id)
-                .eq('is_claimed', false)
+                .neq('is_claimed', true)
                 .single();
 
             if (error || !mail) return socket.emit('systemMessage', "Mail not found or already claimed.");
@@ -1643,4 +1643,5 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
