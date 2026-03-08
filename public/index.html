@@ -1170,8 +1170,30 @@ window.updateSkillMenu = function() {
 }
 
 window.executeSkill = function(skillId, className) {
-    if (safeMapData.id === 'town') { dom.log.innerText = "You cannot use skills in Town!"; return; }
+    if (safeMapData.id === 'town') { if(dom.log) dom.log.innerText = "You cannot use skills in Town!"; return; }
+    
+    let skillObj = game.player.activeSkills.find(s => s.id === skillId);
+    if (!skillObj) return; 
+    
+    // 🛡️ BLOCK SPAMMING: Stops execution if cooldown is active
+    if (Date.now() < skillObj.cooldownReadyAt) {
+        if(dom.log) dom.log.innerText = `${skillObj.name} is on cooldown!`;
+        return;
+    }
+    
+    skillObj.cooldownReadyAt = Date.now() + skillObj.cd; 
+    if(typeof window.updateHotbarCooldowns === 'function') window.updateHotbarCooldowns();
+
     if (socket) socket.emit('broadcastSkill', { skillId: skillId, auraColor: CLASSES[className].aura });
+
+    // 🛡️ RESTORE AURA EFFECT
+    const aura = document.getElementById('player-aura');
+    if (aura) {
+        aura.className = `aura aura-${CLASSES[className].aura}`; 
+        aura.style.animation = 'none'; 
+        void aura.offsetWidth; // Trigger reflow
+        aura.style.animation = 'aura-burst 0.6s ease-out forwards';
+    }
 
     if (skillId === 'sum1') {
         if (game.player.activePets && game.player.activePets.length > 0) return;
@@ -2025,6 +2047,28 @@ window.onload = () => {
         if (unstuckBtn) unstuckBtn.style.display = 'block';
     }, 1000);
 };
+    // 🛡️ SYSTEM UTILITIES
+window.logout = function() {
+    localStorage.removeItem('exonie_user');
+    localStorage.removeItem('exonie_pass');
+    location.reload();
+};
+
+window.onload = () => {
+    let savedU = localStorage.getItem('exonie_user');
+    let savedP = localStorage.getItem('exonie_pass');
+    if(savedU && savedP) {
+        document.getElementById('login-user').value = savedU;
+        document.getElementById('login-pass').value = savedP;
+        window.attemptLogin();
+    }
+    
+    // Shows the Unstuck button after 1 second
+    setTimeout(() => {
+        let unstuckBtn = document.getElementById('unstuck-btn');
+        if (unstuckBtn) unstuckBtn.style.display = 'block';
+    }, 1000);
+};
 </script>
     <div id="welcome-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center;">
     <div style="background: #1e1e1e; border: 3px solid #4CAF50; border-radius: 10px; width: 90%; max-width: 500px; padding: 30px; position: relative; box-shadow: 0 0 30px rgba(76, 175, 80, 0.4); text-align: center;">
@@ -2039,6 +2083,7 @@ window.onload = () => {
 </div>
     </body>
 </html>
+
 
 
 
