@@ -302,14 +302,16 @@ function serializeMonster(m) { 
 function checkAndResetInstance(instId) {
     if (!worlds[instId] || instId === 'town') return;
 
+    // Check if there are any REAL players left (ignoring invisible admins)
     const activePlayers = playersInInstance(instId).filter(p => !p.isHiddenAdmin);
 
     if (activePlayers.length === 0) {
         // 🛡️ THE FIX: Delete the room from memory entirely!
-        // This forces the server to re-read your floor.js file and spawn monsters next time.
+        // This forces the server to read your floor1.js spawns fresh the next time a player enters.
         delete worlds[instId];
     }
 }
+
 function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
     const cols = worlds[instId]?.collisions || [];
     for (let box of cols) { if (mx < box.x + box.w && mx + mWidth > box.x && my < box.y + box.h && my + mHeight > box.y) return true; }
@@ -742,27 +744,28 @@ io.on('connection', (socket) => {
     });
 
    socket.on('syncMapData', (mapData) => {
-        // 🛡️ CRITICAL FIX: Reset the instance data to force a fresh spawn from the .js file
-        worlds[mapData.instanceId] = { collisions: mapData.collisions || [], teleports: mapData.teleports || [], monsters: {}, pets: {} };
-        
-        const processSpawns = (spawnList, fallbackKey) => {
-            (spawnList || []).forEach((sp, i) => {
-                let mId = `${mapData.instanceId}_mob_${Date.now()}_${i}_${Math.random()}`;
-                let mKey = sp.monsterKey || fallbackKey; 
-                worlds[mapData.instanceId].monsters[mId] = spawnMonster(mapData.instanceId, mId, mKey, { 
-                    spawnArea: { minX: sp.x, minY: sp.y }, 
-                    level: sp.level 
-                });
-            });
-        };
-        
-        processSpawns(mapData.normalSpawns, 'common_mobs1');
-        processSpawns(mapData.miniBossSpawns, 'mini_boss1');
-        processSpawns(mapData.floorBossSpawns, 'floor_boss1');
-        
-        // Push initial state so they appear immediately
-        io.to(mapData.instanceId).emit('monsterState', Object.values(worlds[mapData.instanceId].monsters).map(serializeMonster));
-    });
+        if (!worlds[mapData.instanceId]) {
+            worlds[mapData.instanceId] = { collisions: mapData.collisions || [], teleports: mapData.teleports || [], monsters: {}, pets: {} };
+            
+            // ✅ ADDED FALLBACK KEYS: This ensures old maps don't crash the renderer!
+            const processSpawns = (spawnList, fallbackKey) => {
+                (spawnList || []).forEach((sp, i) => {
+                    let mId = `${mapData.instanceId}_mob_${Date.now()}_${i}_${Math.random()}`;
+                    let mKey = sp.monsterKey || fallbackKey; // <--- Uses fallback if old map is missing the key
+                    worlds[mapData.instanceId].monsters[mId] = spawnMonster(mapData.instanceId, mId, mKey, { 
+                        spawnArea: { minX: sp.x, minY: sp.y }, 
+                        level: sp.level 
+                    });
+                });
+            };
+            
+            // Passes the exact fallbacks needed for older map data
+            processSpawns(mapData.normalSpawns, 'common_mobs1');
+            processSpawns(mapData.miniBossSpawns, 'mini_boss1');
+            processSpawns(mapData.floorBossSpawns, 'floor_boss1');
+        }
+    });
+
    socket.on('adminSpawnMonster', (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || p.id !== "Kei") return; // 🛡️ SECURITY: Only the real Kei can do this!
@@ -1267,6 +1270,7 @@ io.on('connection', (socket) => {
         if (playerParty[me.id] && playerParty[me.id] !== pid) { removeFromParty(me.id); }
         parties[pid].members.add(me.id); playerParty[me.id] = pid; emitPartyUpdate(pid);
     });
+// ✅ GLOBAL ADMIN BROADCAST
    // ✅ GLOBAL ADMIN BROADCAST
     socket.on('adminBroadcast', (data) => {
         const p = onlinePlayers[socket.id];
@@ -1522,16 +1526,13 @@ io.on('connection', (socket) => {
         let sellPrice = baseVal * multiplier;
         if (data.item.quantity) sellPrice *= data.item.quantity;
 
-p.gold += sellPrice;
-        p.inventory[data.index] = null; 
+        p.gold += sellPrice;
+        p.inventory[data.index] = null; // Remove item on server
 
-        // 🛡️ CRITICAL: Block the code until the database is 100% updated
-        await supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id);
-        
-        // 🛡️ Tell the client to wipe the item from its memory IMMEDIATELY
-        socket.emit('syncInventory', p.inventory);
-        socket.emit('sellSuccess', { newGold: p.gold, inventory: p.inventory, price: sellPrice });
-         });
+        supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
+        socket.emit('sellSuccess', { newGold: p.gold, inventory: p.inventory, price: sellPrice });
+    });
+    // 🛡️ SERVER-SIDE TRADE: THE SWAP
    // 🛡️ SERVER-SIDE TRADE: THE SECURE ITEM SWAP
     socket.on('requestConfirmTrade', () => {
         const me = onlinePlayers[socket.id];
@@ -1633,13 +1634,5 @@ p.gold += sellPrice;
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
-
-
-
-
-
-
-
-
 
 
