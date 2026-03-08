@@ -1960,18 +1960,21 @@ socket.on('mailList', (mails) => {
     socket.on('systemMessage', (msg) => { dom.log.innerHTML = `<span style="color:#ffeb3b;">[System] ${msg}</span>`; });
    socket.on('forceTeleport', (tp) => { 
         window.loadMapScript(tp.mapId, () => { 
+            // 🛡️ FIX 1: Set the Map ID locally first
             safeMapData = window.MapDatabase[tp.mapId]; 
-            game.player.x = tp.x; game.player.y = tp.y; 
+            safeMapData.id = tp.mapId; 
+
+            game.player.x = tp.x; 
+            game.player.y = tp.y; 
             window.cleanupMap(); 
             dom.world.style.backgroundImage = `url('${safeMapData.image}')`; 
             window.buildCollisionLayers(); 
             window.showMapAnnouncement(tp.mapId);
-            
+
             if (!window.isSpectating) { 
-                // Sync position to other players
+                // 🛡️ FIX 2: Move the handshake INSIDE the callback so it only fires 
+                // AFTER the map data is confirmed loaded.
                 socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'idle', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null }); 
-                
-                // 🛡️ THE HANDSHAKE: Tell the server we arrived so it spawns the monsters!
                 socket.emit('playerTeleported', { mapId: tp.mapId, x: game.player.x, y: game.player.y, mapData: safeMapData });
             } 
         }); 
@@ -2266,6 +2269,7 @@ if (typeof socket !== 'undefined') {
 </div>
     </body>
 </html>
+
 
 
 
