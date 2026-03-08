@@ -513,81 +513,109 @@ io.on('connection', (socket) => {
         });
         io.to(sid).emit('friendsListUpdate', friendData);
     }
-    // 🛡️ SYSTEM MAILBOX: Fetch messages for the specific player
-    socket.on('getMail', async () => {
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
+   // 🛡️ SYSTEM MAILBOX: Fetch messages for the specific player
+    socket.on('getMail', async () => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
 
-        try {
-            // Fetches unclaimed mail specifically for this character name
-            const { data: mails, error } = await supabase
-                .from('System_Mail')
-                .select('*')
-                .eq('recipient_name', p.id)
-                .eq('is_claimed', false);
+        try {
+            const { data: mails, error } = await supabase
+                .from('System_Mail')
+                .select('*')
+                .eq('recipient_name', p.id)
+                .eq('is_claimed', false);
 
-            if (error) throw error;
-            socket.emit('mailList', mails || []);
-        } catch (e) {
-            console.error(`[MAIL ERROR] Failed to fetch mail for ${p.id}:`, e.message);
-            socket.emit('mailList', []);
-        }
-    });
+            if (error) throw error;
 
-    // 🛡️ SYSTEM MAILBOX: Secure Claiming Logic
-    socket.on('claimMail', async (mailId) => {
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
+            let formattedMails = (mails || []).map(m => {
+                let rawData = m.attached_item || m.attached_file || null;
+                if (typeof rawData === 'string') {
+                    // Forcefully parse the JSON string you pasted into Supabase
+                    try { m.attached_item = JSON.parse(rawData.trim()); } 
+                    catch(e) { m.attached_item = null; }
+                } else {
+                    m.attached_item = rawData;
+                }
+                return m;
+            });
 
-        try {
-            // 1. Double-check the mail exists and belongs to this player
-            const { data: mail, error } = await supabase
-                .from('System_Mail')
-                .select('*')
-                .eq('id', mailId)
-                .eq('recipient_name', p.id)
-                .eq('is_claimed', false)
-                .single();
+            socket.emit('mailList', formattedMails);
+        } catch (e) {
+            console.error(`[MAIL ERROR]:`, e.message);
+            socket.emit('mailList', []);
+        }
+    });
 
-            if (error || !mail) return socket.emit('systemMessage', "Mail not found or already claimed.");
+    // 🛡️ SYSTEM MAILBOX: Secure Claiming Logic (With Stacking)
+    socket.on('claimMail', async (mailId) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
 
-            // 2. If there is an item attached, perform a server-side inventory check
-            if (mail.attached_item) {
-                const inv = p.inventory || [];
-                const emptySlot = inv.findIndex(slot => slot === null);
+        try {
+            const { data: mail, error } = await supabase
+                .from('System_Mail')
+                .select('*')
+                .eq('id', mailId)
+                .eq('recipient_name', p.id)
+                .eq('is_claimed', false)
+                .single();
 
-                // 🛑 ANTI-HACK: Prevent claiming if inventory is full
-                if (emptySlot === -1) {
-                    return socket.emit('systemMessage', "Inventory full! Clear space to claim this item.");
-                }
+            if (error || !mail) return socket.emit('systemMessage', "Mail not found or already claimed.");
 
-                // 3. Move the item into the server's player cache
-                p.inventory[emptySlot] = mail.attached_item;
-            }
+            let rawData = mail.attached_item || mail.attached_file || null;
+            let finalItem = null;
+            
+            if (rawData) {
+                if (typeof rawData === 'string') {
+                    try { finalItem = JSON.parse(rawData.trim()); } 
+                    catch (err) { return socket.emit('systemMessage', "Attachment data is corrupted JSON."); }
+                } else {
+                    finalItem = rawData;
+                }
 
-            // 4. Mark mail as claimed in the Database
-            const { error: updateError } = await supabase
-                .from('System_Mail')
-                .update({ is_claimed: true })
-                .eq('id', mailId);
+                if (!finalItem || !finalItem.name) return socket.emit('systemMessage', "Invalid item format.");
+                
+                // Failsafes for missing fields
+                if (!finalItem.id) finalItem.id = Date.now() + Math.random();
+                if (!finalItem.quantity) finalItem.quantity = 1;
 
-            if (updateError) throw updateError;
+                const inv = p.inventory || [];
+                let stacked = false;
 
-            // 5. Update the Database with the new inventory and notify the client
-            await supabase
-                .from('Exonians')
-                .update({ inventory: p.inventory })
-                .eq('character_name', p.id);
+                // 🛡️ If it's a consumable/potion, try to stack it first!
+                if (['potion', 'material', 'consumable'].includes(finalItem.type)) {
+                    let existingIndex = inv.findIndex(i => i && i.name === finalItem.name);
+                    if (existingIndex !== -1) {
+                        inv[existingIndex].quantity += finalItem.quantity;
+                        stacked = true;
+                    }
+                }
 
-            socket.emit('mailClaimSuccess', mailId);
-            socket.emit('syncInventory', p.inventory); // Forces frontend bag to refresh
-            socket.emit('systemMessage', "Mail successfully claimed!");
+                // If not stacked, find an empty slot
+                if (!stacked) {
+                    const emptySlot = inv.findIndex(slot => slot === null);
+                    if (emptySlot === -1) return socket.emit('systemMessage', "Inventory full! Clear space to claim.");
+                    inv[emptySlot] = finalItem;
+                }
+                
+                p.inventory = inv; // Update server memory
+            }
 
-        } catch (e) {
-            console.error(`[CLAIM ERROR] ${p.id} failed to claim mail ${mailId}:`, e.message);
-            socket.emit('systemMessage', "Server error during claim.");
-        }
-    });
+            // Update DB: Mark mail as read and save inventory
+            await supabase.from('System_Mail').update({ is_claimed: true }).eq('id', mailId);
+            await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
+
+            socket.emit('mailClaimSuccess', mailId);
+            socket.emit('syncInventory', p.inventory);
+            
+            let qtyText = finalItem && finalItem.quantity > 1 ? `${finalItem.quantity}x ` : '';
+            socket.emit('systemMessage', finalItem ? `Claimed ${qtyText}${finalItem.name}!` : "Mail successfully claimed!");
+
+        } catch (e) {
+            console.error(`[CLAIM ERROR]:`, e.message);
+            socket.emit('systemMessage', "Server error during claim.");
+        }
+    });
 
     socket.on('addFriend', (data) => {
         const me = onlinePlayers[socket.id];
@@ -650,61 +678,66 @@ io.on('connection', (socket) => {
         try { fs.writeFileSync(filePath, data.content); } catch(err) {}
     });
 
-  socket.on('partyHeal', () => { 
-        const p = onlinePlayers[socket.id];
-        // 👇 UPDATE THIS LINE TO BLOCK NON-HEALERS 👇
-        if (!p || p.isGhost || p.mapId === 'town' || p.baseStats?.playerClass !== 'Healer') return;
+  socket.on('partyHeal', () => { 
+        const p = onlinePlayers[socket.id];
+        // 👇 BLOCK NON-HEALERS 👇
+        if (!p || p.isGhost || p.mapId === 'town' || p.baseStats?.playerClass !== 'Healer') return;
 
-        const now = Date.now();
-        if (p.skillCooldowns['partyHeal'] && now < p.skillCooldowns['partyHeal']) return;
-        p.skillCooldowns['partyHeal'] = now + 18000; 
+        const now = Date.now();
+        if (p.skillCooldowns['partyHeal'] && now < p.skillCooldowns['partyHeal']) return;
+        p.skillCooldowns['partyHeal'] = now + 18000; 
 
-        // 🛡️ SERVER CALCULATES THE HEAL AMOUNT AND RADIUS
-        let trueHealAmt = p.level >= 25 ? 500 : 250;
-        let safeRadius = 400;
+        // 🛡️ SERVER CALCULATES THE HEAL AMOUNT AND RADIUS
+        let trueHealAmt = p.level >= 25 ? 500 : 250;
+        let safeRadius = 400;
 
-        // Heal caster first
-        p.currentHp = Math.min(p.maxHp || 100, p.currentHp + trueHealAmt);
-        io.to(p.instanceId).emit('playerHealed', { id: p.id, amount: trueHealAmt, currentHp: p.currentHp });
+        // 🛡️ FIX: Use true calculated max HP so it doesn't cap at 100!
+        let myMaxHp = getServerTotalStat(p, 'hp') || 100;
+        p.currentHp = Math.min(myMaxHp, p.currentHp + trueHealAmt);
+        io.to(p.instanceId).emit('playerHealed', { id: p.id, amount: trueHealAmt, currentHp: p.currentHp });
 
-        const pid = playerParty[p.id];
-        if (pid && parties[pid]) {
-            for (const memberId of parties[pid].members) {
-                if (memberId === p.id) continue;
-                const mp = getPlayerById(memberId);
-                if (mp && !mp.isGhost && mp.instanceId === p.instanceId) {
-                    const dist = Math.hypot(p.x - mp.x, p.y - mp.y);
-                    if (dist <= safeRadius) {
-                        mp.currentHp = Math.min(mp.maxHp || 100, mp.currentHp + trueHealAmt);
-                        io.to(p.instanceId).emit('playerHealed', { id: mp.id, amount: trueHealAmt, currentHp: mp.currentHp });
-                    }
-                }
-            }
-            emitPartyUpdate(pid);
-        }
-    });
-    socket.on('partyRevive', () => {
-        const p = onlinePlayers[socket.id];
-        if (!p || p.mapId === 'town') return;
+        const pid = playerParty[p.id];
+        if (pid && parties[pid]) {
+            for (const memberId of parties[pid].members) {
+                if (memberId === p.id) continue;
+                const mp = getPlayerById(memberId);
+                if (mp && !mp.isGhost && mp.instanceId === p.instanceId) {
+                    const dist = Math.hypot(p.x - mp.x, p.y - mp.y);
+                    if (dist <= safeRadius) {
+                        let memberMaxHp = getServerTotalStat(mp, 'hp') || 100;
+                        mp.currentHp = Math.min(memberMaxHp, mp.currentHp + trueHealAmt);
+                        io.to(p.instanceId).emit('playerHealed', { id: mp.id, amount: trueHealAmt, currentHp: mp.currentHp });
+                    }
+                }
+            }
+            emitPartyUpdate(pid);
+        }
+    });
 
-        // 🛡️ 100s COOLDOWN (95s leniency)
-        const now = Date.now();
-        if (p.skillCooldowns['partyRevive'] && now < p.skillCooldowns['partyRevive']) return;
-        p.skillCooldowns['partyRevive'] = now + 95000;
+    socket.on('partyRevive', () => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.mapId === 'town') return;
 
-        const pid = playerParty[p.id];
-        if (pid && parties[pid]) {
-            for (const memberId of parties[pid].members) {
-                const mp = getPlayerById(memberId);
-                if (mp && mp.isGhost && mp.mapId !== 'town') {
-                    mp.isGhost = false;
-                    mp.currentHp = mp.maxHp; 
-                    io.to(p.instanceId).emit('playerRevived', { id: mp.id, currentHp: mp.currentHp });
-                }
-            }
-            emitPartyUpdate(pid); 
-        }
-    });
+        // 🛡️ 100s COOLDOWN (95s leniency)
+        const now = Date.now();
+        if (p.skillCooldowns['partyRevive'] && now < p.skillCooldowns['partyRevive']) return;
+        p.skillCooldowns['partyRevive'] = now + 95000;
+
+        const pid = playerParty[p.id];
+        if (pid && parties[pid]) {
+            for (const memberId of parties[pid].members) {
+                const mp = getPlayerById(memberId);
+                if (mp && mp.isGhost && mp.mapId !== 'town') {
+                    mp.isGhost = false;
+                    // 🛡️ FIX: Use true calculated max HP on revive!
+                    let memberMaxHp = getServerTotalStat(mp, 'hp') || 100;
+                    mp.currentHp = memberMaxHp; 
+                    io.to(p.instanceId).emit('playerRevived', { id: mp.id, currentHp: mp.currentHp });
+                }
+            }
+            emitPartyUpdate(pid); 
+        }
+    });
     socket.on('broadcastSkill', (data) => {
         const p = onlinePlayers[socket.id];
         if (p) {
@@ -1610,3 +1643,4 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
