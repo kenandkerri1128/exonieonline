@@ -1671,6 +1671,7 @@ function setKeyState(e, isDown) {
         if (key === 'i' && typeof window.toggleInventory === 'function') window.toggleInventory(); 
         if (key === 'k' && typeof window.toggleSkillScreen === 'function') window.toggleSkillScreen(); 
         if (key === 'j' && typeof window.openShop === 'function') window.openShop(); 
+        if (key === 'm' && typeof window.toggleMailbox === 'function') window.toggleMailbox(); // 🛡️ "M" KEY BOUND TO MAILBOX
         if (key === 'o') { 
             if (game.player.name === "Kei") { 
                 window.adminMode = !window.adminMode; 
@@ -1685,11 +1686,8 @@ function setKeyState(e, isDown) {
             if (!game.isGhost && !window.isLoading && !isInventoryOpen && !isSkillOpen && !window.adminMode) {
                 let slotIndex = key === '1' ? 0 : 1; let skill = game.player.activeSkills ? game.player.activeSkills[slotIndex] : null;
                 if (skill) { 
-                    let now = Date.now(); 
-                    if (now >= skill.cooldownReadyAt) { 
-                        skill.cooldownReadyAt = now + skill.cd; skill.execute(); 
-                        if(typeof window.updateHotbarCooldowns === 'function') window.updateHotbarCooldowns(); 
-                    } else { if(dom.log) dom.log.innerText = `${skill.name} is not ready yet!`; } 
+                    // We removed the cooldown check here because it is now safely inside executeSkill!
+                    skill.execute(); 
                 }
             }
         }
@@ -1858,7 +1856,39 @@ socket.on('mailList', (mails) => {
     socket.on('receiveDM', (data) => { dom.log.innerHTML = `<span class="chat-dm">[DM] ${data.from}: ${data.message}</span>`; if (!data.from.startsWith('To ')) { window.playDMSound(); } });
     socket.on('systemMessage', (msg) => { dom.log.innerHTML = `<span style="color:#ffeb3b;">[System] ${msg}</span>`; });
     socket.on('forceTeleport', (tp) => { window.loadMapScript(tp.mapId, () => { safeMapData = window.MapDatabase[tp.mapId]; if (tp.mapId === 'town' && safeMapData.teleports && !tp.spectateTarget) { const p1 = safeMapData.teleports.find(p => p.portalId === 1); if (p1) { game.player.x = p1.x + (p1.w / 2) - (game.player.width / 2); game.player.y = p1.y + p1.h - game.player.height + 5; } else { game.player.x = tp.x; game.player.y = tp.y; } } else { game.player.x = tp.x; game.player.y = tp.y; } if (tp.spectateTarget) { window.isSpectating = true; window.spectateTargetId = tp.spectateTarget; dom.playerContainer.style.display = 'none'; document.getElementById('spectate-ui').style.display = 'block'; dom.log.innerText = `[ADMIN] Now Spectating: ${tp.spectateTarget}`; } else { window.isSpectating = false; window.spectateTargetId = null; dom.playerContainer.style.display = 'block'; document.getElementById('spectate-ui').style.display = 'none'; } window.cleanupMap(); dom.world.style.backgroundImage = `url('${safeMapData.image}')`; window.buildCollisionLayers(); window.playBGM(tp.mapId.includes('floor') ? 'floors' : 'town'); window.showMapAnnouncement(tp.mapId); if (!window.isSpectating) { socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'idle', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null }); } }); });
-    socket.on('teleportApproved', (tp) => { let nextMapId = tp.targetMapId || 'town'; const transScreen = document.getElementById('map-transition'); document.getElementById('transition-text').innerText = `Entering ${nextMapId}...`; transScreen.style.display = 'flex'; setTimeout(() => { transScreen.style.opacity = '1'; }, 10); game.player.teleportCooldown = 4000; setTimeout(() => { window.loadMapScript(nextMapId, () => { safeMapData = window.MapDatabase[nextMapId]; let targetId = tp.portalId % 2 === 1 ? tp.portalId + 1 : tp.portalId - 1; let targetPortal = safeMapData.teleports.find(p => p.portalId === targetId); window.preloadMapAssets(safeMapData, () => { game.player.x = targetPortal ? (targetPortal.x + (targetPortal.w / 2) - (game.player.width / 2)) : safeMapData.spawnX; game.player.y = targetPortal ? (targetPortal.y + targetPortal.h - game.player.height + 5) : safeMapData.spawnY; dom.world.style.backgroundImage = `url('${safeMapData.image}')`; window.buildCollisionLayers(); window.cleanupMap(); if(socket) socket.emit('playerTeleported', { mapId: nextMapId, x: game.player.x, y: game.player.y, mapData: safeMapData }); window.playBGM(nextMapId.includes('floor') ? 'floors' : 'town'); window.showMapAnnouncement(nextMapId); transScreen.style.opacity = '0'; setTimeout(() => { transScreen.style.display = 'none'; }, 1000); }); }); }, 500); });
+    socket.on('teleportApproved', (tp) => { 
+        let nextMapId = tp.targetMapId || 'town'; 
+        const transScreen = document.getElementById('map-transition'); 
+        document.getElementById('transition-text').innerText = `Entering ${nextMapId}...`; 
+        transScreen.style.display = 'flex'; 
+        setTimeout(() => { transScreen.style.opacity = '1'; }, 10); 
+        game.player.teleportCooldown = 4000; 
+        
+        setTimeout(() => { 
+            window.loadMapScript(nextMapId, () => { 
+                safeMapData = window.MapDatabase[nextMapId]; 
+                safeMapData.id = nextMapId; // 🛡️ CRITICAL FIX: FORCES MAP ID TO UPDATE SO MONSTERS RENDER!
+                
+                let targetId = tp.portalId % 2 === 1 ? tp.portalId + 1 : tp.portalId - 1; 
+                let targetPortal = safeMapData.teleports.find(p => p.portalId === targetId); 
+                
+                window.preloadMapAssets(safeMapData, () => { 
+                    game.player.x = targetPortal ? (targetPortal.x + (targetPortal.w / 2) - (game.player.width / 2)) : safeMapData.spawnX; 
+                    game.player.y = targetPortal ? (targetPortal.y + targetPortal.h - game.player.height + 5) : safeMapData.spawnY; 
+                    dom.world.style.backgroundImage = `url('${safeMapData.image}')`; 
+                    window.buildCollisionLayers(); 
+                    window.cleanupMap(); 
+                    
+                    if(socket) socket.emit('playerTeleported', { mapId: nextMapId, x: game.player.x, y: game.player.y, mapData: safeMapData }); 
+                    window.playBGM(nextMapId.includes('floor') ? 'floors' : 'town'); 
+                    window.showMapAnnouncement(nextMapId); 
+                    
+                    transScreen.style.opacity = '0'; 
+                    setTimeout(() => { transScreen.style.display = 'none'; }, 1000); 
+                }); 
+            }); 
+        }, 500); 
+    });
     socket.on('remotePlayerMoved', (data) => { if (!game.remotePlayers[data.id]) window.addRemotePlayer({ id: data.id, name: data.id, x: data.x, y: data.y, spriteData: {} }); const p = game.remotePlayers[data.id]; if (!p) return; p.x = data.x; p.y = data.y; p.dom.style.left = p.x + 'px'; p.dom.style.top = p.y + 'px'; p.rig.style.transform = data.facingRight ? 'scaleX(-1)' : 'scaleX(1)'; let pulseActive = (Math.floor(Date.now() / 250) % 2 === 0); let bodySrc = 'animation/avatar_idlefront.png'; let isAtk = false; if (data.state === 'attack') { bodySrc = 'animation/avatar_attack.png'; isAtk = true; } else if (data.state === 'walk') { bodySrc = pulseActive ? 'animation/avatar_walk.png' : 'animation/avatar_idlefront.png'; } if (p.currentBodySrc !== bodySrc) { p.body.src = bodySrc; p.currentBodySrc = bodySrc; } if (data.weaponSprite) { p.weapon.style.display = 'block'; let fixedWpn = data.weaponSprite.replace('starter', 'basic'); let wpnSrc = `weapon/${fixedWpn}${(data.state === 'attack' && isAtk && !fixedWpn.includes('pendant')) ? '_attack' : ''}.png`; if (p.currentWeaponSrc !== wpnSrc) { p.weapon.src = wpnSrc; p.currentWeaponSrc = wpnSrc; } if (!p.spriteData) p.spriteData = {}; p.spriteData.weapon = fixedWpn; } else { p.weapon.style.display = 'none'; p.currentWeaponSrc = ''; if (p.spriteData) p.spriteData.weapon = null; } const cAuraEl = p.rig.querySelector('.cosmetic-aura'); if (cAuraEl) cAuraEl.className = data.spriteData?.aura ? `cosmetic-aura aura-${data.spriteData.aura}` : 'cosmetic-aura'; });
     socket.on('inspectData', (data) => { if (!data) return; dom.inspect.style.display = 'block'; dom.inspectTitle.innerText = `Inspect: ${data.name || data.id || "Unknown"}`; const equips = data.equips || {}; const slots = [ { key: 'weapon', label: 'Weapon' }, { key: 'armor', label: 'Armor' }, { key: 'leggings', label: 'Leggings' } ]; function fmtStatBlock(item) { if (!item) return `<div class="inspect-empty">None</div>`; const rarityColor = item.color || (window.RARITY_COLORS[item.rarity] || "#fff"); const nameClass = item.rarity === "Godly" ? "rarity-godly" : ""; const displayName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name; let html = `<div class="inspect-title"><div class="inspect-item-name ${nameClass}" style="color:${rarityColor};">${displayName}</div><div class="inspect-sub">Lv.${item.level || 1} ${item.rarity || "Unknown"}</div></div><div class="inspect-stat">`; if (item.fixedStat) { for (const k in item.fixedStat) html += `<div><b>Fixed:</b> +${item.fixedStat[k]} ${k.toUpperCase()}</div>`; } if (item.randomStat) { for (const k in item.randomStat) html += `<div><b>Random:</b> +${item.randomStat[k]} ${k.toUpperCase()}</div>`; } if (item.sprite) { html += `<div style="color:#888; margin-top:6px;">Sprite: ${item.sprite}.png</div>`; } html += `</div>`; return html; } let out = `<div style="font-size:14px; color:#ccc; margin-bottom:10px; text-align:center;">Level ${data.level || 1} &nbsp; | &nbsp; HP ${data.currentHp ?? "?"} / ${data.maxHp ?? "?"}</div>`; slots.forEach(s => { out += `<div class="inspect-equip"><div style="font-weight:bold; color:#ffeb3b; margin-bottom:6px;">${s.label}</div>${fmtStatBlock(equips[s.key])}</div>`; }); dom.inspectContent.innerHTML = out; });
     socket.on('partyInviteReceived', (payload) => { pendingPartyInvite = payload?.fromId || "Unknown"; document.getElementById('invite-text').innerText = `${pendingPartyInvite} invited you to a party.`; document.getElementById('invite-dialog').style.display = 'block'; });
@@ -1973,6 +2003,28 @@ window.showNextNews = function() {
     }
 };
 window.closeWelcomeMessage = function() { window.showNextNews(); };
+    // 🛡️ SYSTEM UTILITIES
+window.logout = function() {
+    localStorage.removeItem('exonie_user');
+    localStorage.removeItem('exonie_pass');
+    location.reload();
+};
+
+window.onload = () => {
+    let savedU = localStorage.getItem('exonie_user');
+    let savedP = localStorage.getItem('exonie_pass');
+    if(savedU && savedP) {
+        document.getElementById('login-user').value = savedU;
+        document.getElementById('login-pass').value = savedP;
+        window.attemptLogin();
+    }
+    
+    // Shows the Unstuck button after 1 second
+    setTimeout(() => {
+        let unstuckBtn = document.getElementById('unstuck-btn');
+        if (unstuckBtn) unstuckBtn.style.display = 'block';
+    }, 1000);
+};
 </script>
     <div id="welcome-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center;">
     <div style="background: #1e1e1e; border: 3px solid #4CAF50; border-radius: 10px; width: 90%; max-width: 500px; padding: 30px; position: relative; box-shadow: 0 0 30px rgba(76, 175, 80, 0.4); text-align: center;">
@@ -1987,6 +2039,7 @@ window.closeWelcomeMessage = function() { window.showNextNews(); };
 </div>
     </body>
 </html>
+
 
 
 
