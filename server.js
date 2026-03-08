@@ -300,27 +300,16 @@ function serializeMonster(m) { 
 }
 
 function checkAndResetInstance(instId) {
-    if (!worlds[instId] || instId === 'town') return; // Don't reset the safe zone
-    
-    // Check if there are any REAL players left (ignoring invisible admins)
-    const activePlayers = playersInInstance(instId).filter(p => !p.isHiddenAdmin);
-    
-    if (activePlayers.length === 0) {
-        // The room is empty! Reset all ALIVE monsters to full health and spawn points.
-        for (let mId in worlds[instId].monsters) {
-            let m = worlds[instId].monsters[mId];
-            if (m.alive) {
-                m.currentHp = m.maxHp;
-                m.threatTable = {};
-                m.targetId = null;
-                m.forcedTargetId = null;
-                m.forcedUntil = 0;
-                m.frozenUntil = 0;
-                m.x = m.homeX; // Snap back to spawn
-                m.y = m.homeY;
-            }
-        }
-    }
+    if (!worlds[instId] || instId === 'town') return; // Don't reset the safe zone
+
+    // Check if there are any REAL players left (ignoring invisible admins)
+    const activePlayers = playersInInstance(instId).filter(p => !p.isHiddenAdmin);
+
+    if (activePlayers.length === 0) {
+        // 🛡️ THE FIX: Delete the empty room from memory entirely!
+        // The next time someone enters, the server will read floor1.js fresh and spawn all your custom monsters.
+        delete worlds[instId];
+    }
 }
 
 function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
@@ -1643,5 +1632,6 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
