@@ -744,7 +744,7 @@ io.on('connection', (socket) => {
     });
 
    socket.on('syncMapData', (mapData) => {
-        // 🛡️ REMOVED THE IF CHECK: This forces spawns even if instance exists
+        // 🛡️ CRITICAL FIX: Reset the instance data to force a fresh spawn from the .js file
         worlds[mapData.instanceId] = { collisions: mapData.collisions || [], teleports: mapData.teleports || [], monsters: {}, pets: {} };
         
         const processSpawns = (spawnList, fallbackKey) => {
@@ -762,7 +762,7 @@ io.on('connection', (socket) => {
         processSpawns(mapData.miniBossSpawns, 'mini_boss1');
         processSpawns(mapData.floorBossSpawns, 'floor_boss1');
         
-        // 🛡️ THE PUSH: Send monsters to client immediately instead of waiting for the interval
+        // Push initial state so they appear immediately
         io.to(mapData.instanceId).emit('monsterState', Object.values(worlds[mapData.instanceId].monsters).map(serializeMonster));
     });
    socket.on('adminSpawnMonster', (data) => {
@@ -1525,14 +1525,14 @@ io.on('connection', (socket) => {
         let sellPrice = baseVal * multiplier;
         if (data.item.quantity) sellPrice *= data.item.quantity;
 
-        p.gold += sellPrice;
-    p.inventory[data.index] = null; 
-    
-    // 🛡️ ADD THIS LINE: Tells client to actually remove the item from the screen
-    socket.emit('syncInventory', p.inventory); 
+p.gold += sellPrice;
+        p.inventory[data.index] = null; // Remove on server
 
-    supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
-    socket.emit('sellSuccess', { newGold: p.gold, inventory: p.inventory, price: sellPrice });
+        // 🛡️ CRITICAL: Tell client to refresh their screen and save to DB
+        socket.emit('syncInventory', p.inventory);
+        await supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id);
+
+        socket.emit('sellSuccess', { newGold: p.gold, inventory: p.inventory, price: sellPrice });
     });
     // 🛡️ SERVER-SIDE TRADE: THE SWAP
    // 🛡️ SERVER-SIDE TRADE: THE SECURE ITEM SWAP
@@ -1636,6 +1636,7 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
