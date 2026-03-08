@@ -1267,7 +1267,6 @@ io.on('connection', (socket) => {
         if (playerParty[me.id] && playerParty[me.id] !== pid) { removeFromParty(me.id); }
         parties[pid].members.add(me.id); playerParty[me.id] = pid; emitPartyUpdate(pid);
     });
-// ✅ GLOBAL ADMIN BROADCAST
    // ✅ GLOBAL ADMIN BROADCAST
     socket.on('adminBroadcast', (data) => {
         const p = onlinePlayers[socket.id];
@@ -1531,6 +1530,7 @@ p.gold += sellPrice;
         await supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id);
 
         socket.emit('sellSuccess', { newGold: p.gold, inventory: p.inventory, price: sellPrice });
+         });
    // 🛡️ SERVER-SIDE TRADE: THE SECURE ITEM SWAP
     socket.on('requestConfirmTrade', () => {
         const me = onlinePlayers[socket.id];
@@ -1632,6 +1632,7 @@ p.gold += sellPrice;
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
