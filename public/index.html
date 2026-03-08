@@ -1958,23 +1958,18 @@ socket.on('mailList', (mails) => {
     socket.on('friendsListUpdate', (friendsList) => { const container = document.getElementById('friends-list-container'); container.innerHTML = ''; if (!friendsList || friendsList.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Your friends list is empty.</p>'; return; } friendsList.forEach(f => { const row = document.createElement('div'); row.className = 'friend-row'; let lvlColor = f.online ? '#ffd700' : '#888'; let levelHtml = `<span style="color:${lvlColor}; font-size:12px; margin-left: 5px;">(Lv.${f.level})</span>`; let classFmt = f.pClass ? `<span style="color:#aaa; font-size:11px;">${f.pClass}</span>` : `<span style="color:#555; font-size:11px;">Novice</span>`; let mapFmt = f.online ? `<span style="color:#2196F3; font-size:11px;">[${f.mapId || 'Town'}]</span>` : ''; let spectateBtn = (game.player.name === 'Kei' && f.online) ? `<button class="dm-btn" style="background:#f44336; margin-bottom:5px;" onclick="window.startSpectate('${f.id}')">👁️ Spectate</button>` : ''; row.innerHTML = `<div class="friend-info" style="flex-direction:column; align-items:flex-start; gap:2px;"><div style="display:flex; align-items:center; gap:5px;"><div class="status-dot ${f.online ? 'online' : 'offline'}"></div>${f.id} ${levelHtml}</div><div style="margin-left: 17px; display:flex; gap: 8px;">${classFmt} ${mapFmt}</div></div><div style="display:flex; flex-direction:column;">${spectateBtn}<button class="dm-btn" onclick="window.promptDM('${f.id}')">DM</button></div>`; container.appendChild(row); }); });
     socket.on('receiveDM', (data) => { dom.log.innerHTML = `<span class="chat-dm">[DM] ${data.from}: ${data.message}</span>`; if (!data.from.startsWith('To ')) { window.playDMSound(); } });
     socket.on('systemMessage', (msg) => { dom.log.innerHTML = `<span style="color:#ffeb3b;">[System] ${msg}</span>`; });
-   socket.on('forceTeleport', (tp) => { 
+  socket.on('forceTeleport', (tp) => { 
         window.loadMapScript(tp.mapId, () => { 
-            // 🛡️ FIX 1: Set the Map ID locally first
             safeMapData = window.MapDatabase[tp.mapId]; 
-            safeMapData.id = tp.mapId; 
-
-            game.player.x = tp.x; 
-            game.player.y = tp.y; 
+            safeMapData.id = tp.mapId; // 🛡️ CRITICAL: Sets ID so the mob renderer activates
+            game.player.x = tp.x; game.player.y = tp.y; 
             window.cleanupMap(); 
             dom.world.style.backgroundImage = `url('${safeMapData.image}')`; 
             window.buildCollisionLayers(); 
             window.showMapAnnouncement(tp.mapId);
-
             if (!window.isSpectating) { 
-                // 🛡️ FIX 2: Move the handshake INSIDE the callback so it only fires 
-                // AFTER the map data is confirmed loaded.
                 socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'idle', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null }); 
+                // 🛡️ THE HANDSHAKE: This triggers the server to spawn your monsters!
                 socket.emit('playerTeleported', { mapId: tp.mapId, x: game.player.x, y: game.player.y, mapData: safeMapData });
             } 
         }); 
@@ -2269,6 +2264,7 @@ if (typeof socket !== 'undefined') {
 </div>
     </body>
 </html>
+
 
 
 
