@@ -512,7 +512,7 @@ io.on('connection', (socket) => {
                 .from('System_Mail')
                 .select('*')
               // Change this line in both socket.on('getMail') and socket.on('claimMail'):
-.eq('recipient_name', p.id)
+.ilike('recipient_name', p.id)
 .neq('is_claimed', true) // 🛡️ FIX: This retrieves rows that are FALSE or NULL
 
             if (error) throw error;
@@ -547,7 +547,7 @@ io.on('connection', (socket) => {
                 .select('*')
                 .eq('id', mailId)
               // Change this line in both socket.on('getMail') and socket.on('claimMail'):
-.eq('recipient_name', p.id)
+.ilike('recipient_name', p.id)
 .neq('is_claimed', true) // 🛡️ FIX: This retrieves rows that are FALSE or NULL
                 .single();
 
@@ -744,28 +744,27 @@ io.on('connection', (socket) => {
     });
 
    socket.on('syncMapData', (mapData) => {
-        if (!worlds[mapData.instanceId]) {
-            worlds[mapData.instanceId] = { collisions: mapData.collisions || [], teleports: mapData.teleports || [], monsters: {}, pets: {} };
-            
-            // ✅ ADDED FALLBACK KEYS: This ensures old maps don't crash the renderer!
-            const processSpawns = (spawnList, fallbackKey) => {
-                (spawnList || []).forEach((sp, i) => {
-                    let mId = `${mapData.instanceId}_mob_${Date.now()}_${i}_${Math.random()}`;
-                    let mKey = sp.monsterKey || fallbackKey; // <--- Uses fallback if old map is missing the key
-                    worlds[mapData.instanceId].monsters[mId] = spawnMonster(mapData.instanceId, mId, mKey, { 
-                        spawnArea: { minX: sp.x, minY: sp.y }, 
-                        level: sp.level 
-                    });
-                });
-            };
-            
-            // Passes the exact fallbacks needed for older map data
-            processSpawns(mapData.normalSpawns, 'common_mobs1');
-            processSpawns(mapData.miniBossSpawns, 'mini_boss1');
-            processSpawns(mapData.floorBossSpawns, 'floor_boss1');
-        }
-    });
-
+        // 🛡️ REMOVED THE IF CHECK: This forces spawns even if instance exists
+        worlds[mapData.instanceId] = { collisions: mapData.collisions || [], teleports: mapData.teleports || [], monsters: {}, pets: {} };
+        
+        const processSpawns = (spawnList, fallbackKey) => {
+            (spawnList || []).forEach((sp, i) => {
+                let mId = `${mapData.instanceId}_mob_${Date.now()}_${i}_${Math.random()}`;
+                let mKey = sp.monsterKey || fallbackKey; 
+                worlds[mapData.instanceId].monsters[mId] = spawnMonster(mapData.instanceId, mId, mKey, { 
+                    spawnArea: { minX: sp.x, minY: sp.y }, 
+                    level: sp.level 
+                });
+            });
+        };
+        
+        processSpawns(mapData.normalSpawns, 'common_mobs1');
+        processSpawns(mapData.miniBossSpawns, 'mini_boss1');
+        processSpawns(mapData.floorBossSpawns, 'floor_boss1');
+        
+        // 🛡️ THE PUSH: Send monsters to client immediately instead of waiting for the interval
+        io.to(mapData.instanceId).emit('monsterState', Object.values(worlds[mapData.instanceId].monsters).map(serializeMonster));
+    });
    socket.on('adminSpawnMonster', (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || p.id !== "Kei") return; // 🛡️ SECURITY: Only the real Kei can do this!
@@ -1527,10 +1526,13 @@ io.on('connection', (socket) => {
         if (data.item.quantity) sellPrice *= data.item.quantity;
 
         p.gold += sellPrice;
-        p.inventory[data.index] = null; // Remove item on server
+    p.inventory[data.index] = null; 
+    
+    // 🛡️ ADD THIS LINE: Tells client to actually remove the item from the screen
+    socket.emit('syncInventory', p.inventory); 
 
-        supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
-        socket.emit('sellSuccess', { newGold: p.gold, inventory: p.inventory, price: sellPrice });
+    supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
+    socket.emit('sellSuccess', { newGold: p.gold, inventory: p.inventory, price: sellPrice });
     });
     // 🛡️ SERVER-SIDE TRADE: THE SWAP
    // 🛡️ SERVER-SIDE TRADE: THE SECURE ITEM SWAP
@@ -1634,6 +1636,7 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
