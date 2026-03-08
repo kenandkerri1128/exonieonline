@@ -302,16 +302,14 @@ function serializeMonster(m) { 
 function checkAndResetInstance(instId) {
     if (!worlds[instId] || instId === 'town') return;
 
-    // Check if there are any REAL players left (ignoring invisible admins)
     const activePlayers = playersInInstance(instId).filter(p => !p.isHiddenAdmin);
 
     if (activePlayers.length === 0) {
         // 🛡️ THE FIX: Delete the room from memory entirely!
-        // This forces the server to read your floor1.js spawns fresh the next time a player enters.
+        // This forces the server to re-read your floor.js file and spawn monsters next time.
         delete worlds[instId];
     }
 }
-
 function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
     const cols = worlds[instId]?.collisions || [];
     for (let box of cols) { if (mx < box.x + box.w && mx + mWidth > box.x && my < box.y + box.h && my + mHeight > box.y) return true; }
@@ -1634,6 +1632,7 @@ p.gold += sellPrice;
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
