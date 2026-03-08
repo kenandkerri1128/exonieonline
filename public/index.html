@@ -1939,13 +1939,49 @@ socket.on('mailList', (mails) => {
     socket.on('friendsListUpdate', (friendsList) => { const container = document.getElementById('friends-list-container'); container.innerHTML = ''; if (!friendsList || friendsList.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Your friends list is empty.</p>'; return; } friendsList.forEach(f => { const row = document.createElement('div'); row.className = 'friend-row'; let lvlColor = f.online ? '#ffd700' : '#888'; let levelHtml = `<span style="color:${lvlColor}; font-size:12px; margin-left: 5px;">(Lv.${f.level})</span>`; let classFmt = f.pClass ? `<span style="color:#aaa; font-size:11px;">${f.pClass}</span>` : `<span style="color:#555; font-size:11px;">Novice</span>`; let mapFmt = f.online ? `<span style="color:#2196F3; font-size:11px;">[${f.mapId || 'Town'}]</span>` : ''; let spectateBtn = (game.player.name === 'Kei' && f.online) ? `<button class="dm-btn" style="background:#f44336; margin-bottom:5px;" onclick="window.startSpectate('${f.id}')">👁️ Spectate</button>` : ''; row.innerHTML = `<div class="friend-info" style="flex-direction:column; align-items:flex-start; gap:2px;"><div style="display:flex; align-items:center; gap:5px;"><div class="status-dot ${f.online ? 'online' : 'offline'}"></div>${f.id} ${levelHtml}</div><div style="margin-left: 17px; display:flex; gap: 8px;">${classFmt} ${mapFmt}</div></div><div style="display:flex; flex-direction:column;">${spectateBtn}<button class="dm-btn" onclick="window.promptDM('${f.id}')">DM</button></div>`; container.appendChild(row); }); });
     socket.on('receiveDM', (data) => { dom.log.innerHTML = `<span class="chat-dm">[DM] ${data.from}: ${data.message}</span>`; if (!data.from.startsWith('To ')) { window.playDMSound(); } });
     socket.on('systemMessage', (msg) => { dom.log.innerHTML = `<span style="color:#ffeb3b;">[System] ${msg}</span>`; });
-    socket.on('forceTeleport', (tp) => { window.loadMapScript(tp.mapId, () => { safeMapData = window.MapDatabase[tp.mapId]; if (tp.mapId === 'town' && safeMapData.teleports && !tp.spectateTarget) { const p1 = safeMapData.teleports.find(p => p.portalId === 1); if (p1) { game.player.x = p1.x + (p1.w / 2) - (game.player.width / 2); game.player.y = p1.y + p1.h - game.player.height + 5; } else { game.player.x = tp.x; game.player.y = tp.y; } } else { game.player.x = tp.x; game.player.y = tp.y; } if (tp.spectateTarget) { window.isSpectating = true; window.spectateTargetId = tp.spectateTarget; dom.playerContainer.style.display = 'none'; document.getElementById('spectate-ui').style.display = 'block'; dom.log.innerText = `[ADMIN] Now Spectating: ${tp.spectateTarget}`; } else { window.isSpectating = false; window.spectateTargetId = null; dom.playerContainer.style.display = 'block'; document.getElementById('spectate-ui').style.display = 'none'; } window.cleanupMap(); dom.world.style.backgroundImage = `url('${safeMapData.image}')`; window.buildCollisionLayers(); window.playBGM(tp.mapId.includes('floor') ? 'floors' : 'town'); window.showMapAnnouncement(tp.mapId); if (!window.isSpectating) { 
-    socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'idle', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null }); 
-    // 🛡️ CRITICAL FIX: Tell the server we arrived so it spawns the monsters!
-    socket.emit('playerTeleported', { mapId: tp.mapId, x: game.player.x, y: game.player.y, mapData: safeMapData });
-} 
-    }); 
-});
+        socket.on('forceTeleport', (tp) => {
+        window.loadMapScript(tp.mapId, () => {
+            safeMapData = window.MapDatabase[tp.mapId];
+            safeMapData.id = tp.mapId;
+
+            if (tp.mapId === 'town' && safeMapData.teleports && !tp.spectateTarget) {
+                const p1 = safeMapData.teleports.find(p => p.portalId === 1);
+                if (p1) {
+                    game.player.x = p1.x + (p1.w / 2) - (game.player.width / 2);
+                    game.player.y = p1.y + p1.h - game.player.height + 5;
+                } else {
+                    game.player.x = tp.x;
+                    game.player.y = tp.y;
+                }
+            } else {
+                game.player.x = tp.x;
+                game.player.y = tp.y;
+            }
+
+            window.cleanupMap();
+            dom.world.style.backgroundImage = `url('${safeMapData.image}')`;
+            window.buildCollisionLayers();
+            window.playBGM(tp.mapId.includes('floor') ? 'floors' : 'town');
+            window.showMapAnnouncement(tp.mapId);
+
+            if (!window.isSpectating) {
+                socket.emit('playerMoved', {
+                    x: game.player.x,
+                    y: game.player.y,
+                    state: 'idle',
+                    facingRight: window.facingRight,
+                    weaponSprite: game.player.equips.weapon?.sprite || null
+                });
+
+                socket.emit('playerTeleported', {
+                    mapId: tp.mapId,
+                    x: game.player.x,
+                    y: game.player.y,
+                    mapData: safeMapData
+                });
+            }
+        });
+    });
     socket.on('teleportApproved', (tp) => { 
         let nextMapId = tp.targetMapId || 'town'; 
         const transScreen = document.getElementById('map-transition'); 
@@ -2141,87 +2177,6 @@ window.addEventListener('keydown', (e) => {
         if (typeof window.toggleMailbox === 'function') window.toggleMailbox();
     }
 });
-
-// Mailbox Listeners & UI Builder
-if (typeof socket !== 'undefined') {
-    socket.on('mailList', (mails) => {
-        const container = document.getElementById('mail-list-container'); 
-        if(container) container.innerHTML = '';
-        
-        const unreadCount = (mails || []).length;
-        
-        // Dynamic Notification Badge
-        let notifBadge = document.getElementById('global-mail-notif');
-        if (!notifBadge) {
-            notifBadge = document.createElement('div');
-            notifBadge.id = 'global-mail-notif';
-            notifBadge.style.position = 'absolute';
-            notifBadge.style.top = '15px';
-            notifBadge.style.right = '15px';
-            notifBadge.style.background = '#f44336';
-            notifBadge.style.color = 'white';
-            notifBadge.style.padding = '8px 15px';
-            notifBadge.style.borderRadius = '8px';
-            notifBadge.style.fontWeight = 'bold';
-            notifBadge.style.cursor = 'pointer';
-            notifBadge.style.boxShadow = '0 0 15px #f44336';
-            notifBadge.style.zIndex = '9000';
-            notifBadge.onclick = window.toggleMailbox;
-            let gameScreen = document.getElementById('game-screen');
-            if (gameScreen) gameScreen.appendChild(notifBadge);
-        }
-        
-        if (unreadCount > 0) {
-            notifBadge.innerText = `📧 ${unreadCount} Unread Mail!`;
-            notifBadge.style.display = 'block';
-        } else {
-            notifBadge.style.display = 'none';
-        }
-
-        if (unreadCount === 0) { 
-            if(container) container.innerHTML = '<p style="text-align:center; color:#aaa;">Your inbox is empty.</p>'; 
-            return; 
-        }
-
-        mails.forEach(mail => {
-            const row = document.createElement('div'); row.className = 'mail-row';
-            
-            let itemHtml = '';
-            if (mail.attached_item) {
-                let itemName = typeof mail.attached_item === 'object' ? mail.attached_item.name : mail.attached_item;
-                let itemQty = mail.attached_item.quantity && mail.attached_item.quantity > 1 ? `x${mail.attached_item.quantity} ` : '';
-                itemHtml = `
-                <div class="mail-item-preview" style="background:#222; border: 1px dashed #ffd700; padding: 10px; margin-bottom:10px; border-radius: 4px;">
-                    <span style="color:#aaa; font-size:12px;">Attached Loot:</span><br>
-                    <strong style="color:#ffd700; font-size:16px;">${itemQty}${itemName}</strong>
-                </div>`;
-            }
-            
-            let messageText = mail.message_text || mail.message || mail.body || mail.content || "System Notification";
-            
-            row.innerHTML = `
-                <div class="mail-sender" style="color:#4CAF50; border-bottom:1px solid #444; padding-bottom:5px; margin-bottom:8px;">FROM: SYSTEM</div>
-                <div class="mail-msg" style="font-size:15px; margin-bottom:15px; line-height:1.5;">${messageText}</div>
-                ${itemHtml}
-                <button class="claim-btn" id="claim-${mail.id}" onclick="window.claimMail(${mail.id})">
-                    ${mail.attached_item ? 'CLAIM ATTACHMENT' : 'MARK AS READ'}
-                </button>
-            `;
-            if (container) container.appendChild(row);
-        });
-    });
-    
-    socket.on('mailClaimSuccess', (mailId) => { 
-        const btn = document.getElementById(`claim-${mailId}`); 
-        if (btn) { btn.innerText = "CLAIMED!"; btn.disabled = true; btn.style.background = "#555"; } 
-        let combatLog = document.getElementById('combat-log');
-        if(combatLog) combatLog.innerText = "Mail claimed successfully!"; 
-        if(typeof window.renderInventory === 'function') window.renderInventory(); 
-        
-        // Refresh the unread badge
-        setTimeout(() => { if(socket) socket.emit('getMail'); }, 500);
-    });
-}
 </script>
     <div id="welcome-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center;">
     <div style="background: #1e1e1e; border: 3px solid #4CAF50; border-radius: 10px; width: 90%; max-width: 500px; padding: 30px; position: relative; box-shadow: 0 0 30px rgba(76, 175, 80, 0.4); text-align: center;">
@@ -2236,4 +2191,5 @@ if (typeof socket !== 'undefined') {
 </div>
     </body>
 </html>
+
 
