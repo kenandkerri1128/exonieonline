@@ -953,7 +953,7 @@ io.on('connection', (socket) => {
 
         // 🛡️ ANTI-CHEAT: SAVE RATE LIMITER
         const now = Date.now();
-        if (p.lastSaveTime && now - p.lastSaveTime < 5000) {
+        if (p.lastSaveTime && now - p.lastSaveTime < 500) {
             return; // Block hackers from spamming the save function!
         }
         p.lastSaveTime = now;
@@ -1526,15 +1526,13 @@ io.on('connection', (socket) => {
         if (data.item.quantity) sellPrice *= data.item.quantity;
 
 p.gold += sellPrice;
-        p.inventory[data.index] = null; // Remove on server
+        p.inventory[data.index] = null; 
 
-        // 🛡️ CRITICAL: Tell client to refresh their screen and save to DB
         socket.emit('syncInventory', p.inventory);
+        // 🛡️ ADD 'await' HERE to ensure the gold is locked in before the next client sync
         await supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id);
 
         socket.emit('sellSuccess', { newGold: p.gold, inventory: p.inventory, price: sellPrice });
-    });
-    // 🛡️ SERVER-SIDE TRADE: THE SWAP
    // 🛡️ SERVER-SIDE TRADE: THE SECURE ITEM SWAP
     socket.on('requestConfirmTrade', () => {
         const me = onlinePlayers[socket.id];
@@ -1636,6 +1634,7 @@ p.gold += sellPrice;
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
