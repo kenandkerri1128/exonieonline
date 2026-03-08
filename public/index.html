@@ -1843,20 +1843,74 @@ if(socket) {
     });
 socket.on('mailList', (mails) => {
         const container = document.getElementById('mail-list-container'); container.innerHTML = '';
-        if (!mails || mails.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Your inbox is empty.</p>'; return; }
+        
+        const unreadCount = (mails || []).length;
+        
+        // 🔔 DYNAMIC NOTIFICATION BADGE
+        let notifBadge = document.getElementById('global-mail-notif');
+        if (!notifBadge) {
+            notifBadge = document.createElement('div');
+            notifBadge.id = 'global-mail-notif';
+            notifBadge.style.position = 'absolute';
+            notifBadge.style.top = '15px';
+            notifBadge.style.right = '15px';
+            notifBadge.style.background = '#f44336';
+            notifBadge.style.color = 'white';
+            notifBadge.style.padding = '8px 15px';
+            notifBadge.style.borderRadius = '8px';
+            notifBadge.style.fontWeight = 'bold';
+            notifBadge.style.cursor = 'pointer';
+            notifBadge.style.boxShadow = '0 0 15px #f44336';
+            notifBadge.style.zIndex = '9000';
+            notifBadge.onclick = window.toggleMailbox;
+            document.getElementById('game-screen').appendChild(notifBadge);
+        }
+        
+        if (unreadCount > 0) {
+            notifBadge.innerText = `📧 ${unreadCount} Unread Mail!`;
+            notifBadge.style.display = 'block';
+        } else {
+            notifBadge.style.display = 'none';
+        }
+
+        if (unreadCount === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Your inbox is empty.</p>'; return; }
+
         mails.forEach(mail => {
             const row = document.createElement('div'); row.className = 'mail-row';
-            let itemHtml = mail.attached_item ? `<div class="mail-item-preview">Attached: ${mail.attached_item.name}</div>` : '';
-            row.innerHTML = `<div class="mail-sender">FROM: SYSTEM</div><div class="mail-msg">${mail.message_text}</div>${itemHtml}<button class="claim-btn" id="claim-${mail.id}" onclick="window.claimMail(${mail.id})">${mail.attached_item ? 'CLAIM ITEM' : 'MARK AS READ'}</button>`;
+            
+            let itemHtml = '';
+            if (mail.attached_item) {
+                let itemName = typeof mail.attached_item === 'object' ? mail.attached_item.name : mail.attached_item;
+                let itemQty = mail.attached_item.quantity && mail.attached_item.quantity > 1 ? `x${mail.attached_item.quantity} ` : '';
+                itemHtml = `
+                <div class="mail-item-preview" style="background:#222; border: 1px dashed #ffd700; padding: 10px; margin-bottom:10px; border-radius: 4px;">
+                    <span style="color:#aaa; font-size:12px;">Attached Loot:</span><br>
+                    <strong style="color:#ffd700; font-size:16px;">${itemQty}${itemName}</strong>
+                </div>`;
+            }
+            
+            let messageText = mail.message_text || mail.content || "System Notification";
+            
+            row.innerHTML = `
+                <div class="mail-sender" style="color:#4CAF50; border-bottom:1px solid #444; padding-bottom:5px; margin-bottom:8px;">FROM: SYSTEM</div>
+                <div class="mail-msg" style="font-size:15px; margin-bottom:15px; line-height:1.5;">${messageText}</div>
+                ${itemHtml}
+                <button class="claim-btn" id="claim-${mail.id}" onclick="window.claimMail(${mail.id})">
+                    ${mail.attached_item ? 'CLAIM ATTACHMENT' : 'MARK AS READ'}
+                </button>
+            `;
             container.appendChild(row);
         });
     });
     
     socket.on('mailClaimSuccess', (mailId) => { 
         const btn = document.getElementById(`claim-${mailId}`); 
-        if (btn) { btn.innerText = "CLAIMED"; btn.disabled = true; } 
+        if (btn) { btn.innerText = "CLAIMED!"; btn.disabled = true; btn.style.background = "#555"; } 
         if(dom.log) dom.log.innerText = "Mail claimed successfully!"; 
         if(typeof window.renderInventory === 'function') window.renderInventory(); 
+        
+        // Refresh the unread badge
+        setTimeout(() => { if(socket) socket.emit('getMail'); }, 500);
     });
     socket.on('purchaseSuccess', (data) => { game.player.gold = data.newGold; game.player.inventory = data.inventory; window.updateUI(); window.renderInventory(); dom.log.innerText = "Purchase successful!"; });
     socket.on('sellSuccess', (data) => { game.player.gold = data.newGold; game.player.inventory = data.inventory; dom.log.innerText = `Item sold for ${data.price} Gold.`; window.updateUI(); window.renderInventory(); });
@@ -2033,34 +2087,38 @@ window.logout = function() {
 };
 
 // ==========================================
-// 🛡️ SYSTEM UTILITIES (Auto-Login, Logout, Unstuck, M-Key)
+// 🛡️ SYSTEM UTILITIES & MAILBOX ENGINE
 // ==========================================
 
 window.onload = () => {
-    // 1. Auto-Login System
+    // Force Auto-Login
     let savedU = localStorage.getItem('exonie_user');
     let savedP = localStorage.getItem('exonie_pass');
     if (savedU && savedP) {
-        document.getElementById('login-user').value = savedU;
-        document.getElementById('login-pass').value = savedP;
-        if (typeof window.attemptLogin === 'function') window.attemptLogin();
+        let uInput = document.getElementById('login-user');
+        let pInput = document.getElementById('login-pass');
+        if(uInput && pInput) {
+            uInput.value = savedU;
+            pInput.value = savedP;
+            if (typeof window.attemptLogin === 'function') window.attemptLogin();
+        }
     }
     
-    // 2. Reveal Unstuck Button on Desktop & Mobile
+    // Reveal Unstuck Button
     setTimeout(() => {
         let unstuckBtn = document.getElementById('unstuck-btn');
         if (unstuckBtn) unstuckBtn.style.display = 'block';
     }, 1000);
 };
 
-// 3. Logout System
+// Force Logout
 window.logout = function() {
     localStorage.removeItem('exonie_user');
     localStorage.removeItem('exonie_pass');
     location.reload();
 };
 
-// 4. Mailbox 'M' Keybind (Independent Listener)
+// Dedicated 'M' Key Listener for Mailbox
 window.addEventListener('keydown', (e) => {
     if (typeof isChatting !== 'undefined' && isChatting) return;
     if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
@@ -2069,6 +2127,87 @@ window.addEventListener('keydown', (e) => {
         if (typeof window.toggleMailbox === 'function') window.toggleMailbox();
     }
 });
+
+// Mailbox Listeners & UI Builder
+if (typeof socket !== 'undefined') {
+    socket.on('mailList', (mails) => {
+        const container = document.getElementById('mail-list-container'); 
+        if(container) container.innerHTML = '';
+        
+        const unreadCount = (mails || []).length;
+        
+        // Dynamic Notification Badge
+        let notifBadge = document.getElementById('global-mail-notif');
+        if (!notifBadge) {
+            notifBadge = document.createElement('div');
+            notifBadge.id = 'global-mail-notif';
+            notifBadge.style.position = 'absolute';
+            notifBadge.style.top = '15px';
+            notifBadge.style.right = '15px';
+            notifBadge.style.background = '#f44336';
+            notifBadge.style.color = 'white';
+            notifBadge.style.padding = '8px 15px';
+            notifBadge.style.borderRadius = '8px';
+            notifBadge.style.fontWeight = 'bold';
+            notifBadge.style.cursor = 'pointer';
+            notifBadge.style.boxShadow = '0 0 15px #f44336';
+            notifBadge.style.zIndex = '9000';
+            notifBadge.onclick = window.toggleMailbox;
+            let gameScreen = document.getElementById('game-screen');
+            if (gameScreen) gameScreen.appendChild(notifBadge);
+        }
+        
+        if (unreadCount > 0) {
+            notifBadge.innerText = `📧 ${unreadCount} Unread Mail!`;
+            notifBadge.style.display = 'block';
+        } else {
+            notifBadge.style.display = 'none';
+        }
+
+        if (unreadCount === 0) { 
+            if(container) container.innerHTML = '<p style="text-align:center; color:#aaa;">Your inbox is empty.</p>'; 
+            return; 
+        }
+
+        mails.forEach(mail => {
+            const row = document.createElement('div'); row.className = 'mail-row';
+            
+            let itemHtml = '';
+            if (mail.attached_item) {
+                let itemName = typeof mail.attached_item === 'object' ? mail.attached_item.name : mail.attached_item;
+                let itemQty = mail.attached_item.quantity && mail.attached_item.quantity > 1 ? `x${mail.attached_item.quantity} ` : '';
+                itemHtml = `
+                <div class="mail-item-preview" style="background:#222; border: 1px dashed #ffd700; padding: 10px; margin-bottom:10px; border-radius: 4px;">
+                    <span style="color:#aaa; font-size:12px;">Attached Loot:</span><br>
+                    <strong style="color:#ffd700; font-size:16px;">${itemQty}${itemName}</strong>
+                </div>`;
+            }
+            
+            let messageText = mail.message_text || mail.content || "System Notification";
+            
+            row.innerHTML = `
+                <div class="mail-sender" style="color:#4CAF50; border-bottom:1px solid #444; padding-bottom:5px; margin-bottom:8px;">FROM: SYSTEM</div>
+                <div class="mail-msg" style="font-size:15px; margin-bottom:15px; line-height:1.5;">${messageText}</div>
+                ${itemHtml}
+                <button class="claim-btn" id="claim-${mail.id}" onclick="window.claimMail(${mail.id})">
+                    ${mail.attached_item ? 'CLAIM ATTACHMENT' : 'MARK AS READ'}
+                </button>
+            `;
+            if (container) container.appendChild(row);
+        });
+    });
+    
+    socket.on('mailClaimSuccess', (mailId) => { 
+        const btn = document.getElementById(`claim-${mailId}`); 
+        if (btn) { btn.innerText = "CLAIMED!"; btn.disabled = true; btn.style.background = "#555"; } 
+        let combatLog = document.getElementById('combat-log');
+        if(combatLog) combatLog.innerText = "Mail claimed successfully!"; 
+        if(typeof window.renderInventory === 'function') window.renderInventory(); 
+        
+        // Refresh the unread badge
+        setTimeout(() => { if(socket) socket.emit('getMail'); }, 500);
+    });
+}
 </script>
     <div id="welcome-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center;">
     <div style="background: #1e1e1e; border: 3px solid #4CAF50; border-radius: 10px; width: 90%; max-width: 500px; padding: 30px; position: relative; box-shadow: 0 0 30px rgba(76, 175, 80, 0.4); text-align: center;">
@@ -2083,6 +2222,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
