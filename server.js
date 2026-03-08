@@ -237,6 +237,41 @@ function getInstanceId(playerId, mapId) {
 }
 
 const worlds = {}; 
+function ensureWorldFromMapData(instanceId, mapData) {
+    if (!mapData) return null;
+
+    if (!worlds[instanceId]) {
+        worlds[instanceId] = {
+            collisions: mapData.collisions || [],
+            teleports: mapData.teleports || [],
+            monsters: {},
+            pets: {}
+        };
+
+        const processSpawns = (spawnList, fallbackKey) => {
+            (spawnList || []).forEach((sp, i) => {
+                const mId = `${instanceId}_mob_${Date.now()}_${i}_${Math.random()}`;
+                const mKey = sp.monsterKey || fallbackKey;
+
+                worlds[instanceId].monsters[mId] = spawnMonster(instanceId, mId, mKey, {
+                    spawnArea: {
+                        minX: sp.x,
+                        maxX: sp.x,
+                        minY: sp.y,
+                        maxY: sp.y
+                    },
+                    level: sp.level
+                });
+            });
+        };
+
+        processSpawns(mapData.normalSpawns, 'common_mobs1');
+        processSpawns(mapData.miniBossSpawns, 'mini_boss1');
+        processSpawns(mapData.floorBossSpawns, 'floor_boss1');
+    }
+
+    return worlds[instanceId];
+}
 // 🛡️ ANTI-CHEAT: SERVER-SIDE STAT CALCULATOR
 function getServerTotalStat(p, statName) { 
     if (!p || !p.baseStats) return 0; 
@@ -503,110 +538,130 @@ io.on('connection', (socket) => {
         io.to(sid).emit('friendsListUpdate', friendData);
     }
    // 🛡️ SYSTEM MAILBOX: Fetch messages for the specific player
-    socket.on('getMail', async () => {
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
+  socket.on('getMail', async () => {
+    const p = onlinePlayers[socket.id];
+    if (!p) return;
 
-        try {
-            const { data: mails, error } = await supabase
-                .from('System_Mail')
-                .select('*')
-              // Change this line in both socket.on('getMail') and socket.on('claimMail'):
-.ilike('recipient_name', p.id)
-.neq('is_claimed', true) // 🛡️ FIX: This retrieves rows that are FALSE or NULL
+    try {
+        const { data: mails, error } = await supabase
+            .from('System_Mail')
+            .select('*')
+            .ilike('recipient_name', p.id)
+            .or('is_claimed.is.null,is_claimed.eq.false');
 
-            if (error) throw error;
+        if (error) throw error;
 
-            let formattedMails = (mails || []).map(m => {
-                let rawData = m.attached_item || m.attached_file || null;
-                if (typeof rawData === 'string') {
-                    // Forcefully parse the JSON string you pasted into Supabase
-                    try { m.attached_item = JSON.parse(rawData.trim()); } 
-                    catch(e) { m.attached_item = null; }
-                } else {
-                    m.attached_item = rawData;
+        let formattedMails = (mails || []).map(m => {
+            let rawData = m.attached_item || m.attached_file || null;
+
+            if (typeof rawData === 'string') {
+                try {
+                    m.attached_item = JSON.parse(rawData.trim());
+                } catch (e) {
+                    m.attached_item = null;
                 }
-                return m;
-            });
-
-            socket.emit('mailList', formattedMails);
-        } catch (e) {
-            console.error(`[MAIL ERROR]:`, e.message);
-            socket.emit('mailList', []);
-        }
-    });
-
-    // 🛡️ SYSTEM MAILBOX: Secure Claiming Logic (With Stacking)
-    socket.on('claimMail', async (mailId) => {
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
-
-        try {
-            const { data: mail, error } = await supabase
-                .from('System_Mail')
-                .select('*')
-                .eq('id', mailId)
-              // Change this line in both socket.on('getMail') and socket.on('claimMail'):
-.ilike('recipient_name', p.id)
-.neq('is_claimed', true) // 🛡️ FIX: This retrieves rows that are FALSE or NULL
-                .single();
-
-            if (error || !mail) return socket.emit('systemMessage', "Mail not found or already claimed.");
-
-            let rawData = mail.attached_item || mail.attached_file || null;
-            let finalItem = null;
-            
-            if (rawData) {
-                if (typeof rawData === 'string') {
-                    try { finalItem = JSON.parse(rawData.trim()); } 
-                    catch (err) { return socket.emit('systemMessage', "Attachment data is corrupted JSON."); }
-                } else {
-                    finalItem = rawData;
-                }
-
-                if (!finalItem || !finalItem.name) return socket.emit('systemMessage', "Invalid item format.");
-                
-                // Failsafes for missing fields
-                if (!finalItem.id) finalItem.id = Date.now() + Math.random();
-                if (!finalItem.quantity) finalItem.quantity = 1;
-
-                const inv = p.inventory || [];
-                let stacked = false;
-
-                // 🛡️ If it's a consumable/potion, try to stack it first!
-                if (['potion', 'material', 'consumable'].includes(finalItem.type)) {
-                    let existingIndex = inv.findIndex(i => i && i.name === finalItem.name);
-                    if (existingIndex !== -1) {
-                        inv[existingIndex].quantity += finalItem.quantity;
-                        stacked = true;
-                    }
-                }
-
-                // If not stacked, find an empty slot
-                if (!stacked) {
-                    const emptySlot = inv.findIndex(slot => slot === null);
-                    if (emptySlot === -1) return socket.emit('systemMessage', "Inventory full! Clear space to claim.");
-                    inv[emptySlot] = finalItem;
-                }
-                
-                p.inventory = inv; // Update server memory
+            } else {
+                m.attached_item = rawData;
             }
 
-            // Update DB: Mark mail as read and save inventory
-            await supabase.from('System_Mail').update({ is_claimed: true }).eq('id', mailId);
-            await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
+            return m;
+        });
 
-            socket.emit('mailClaimSuccess', mailId);
-            socket.emit('syncInventory', p.inventory);
-            
-            let qtyText = finalItem && finalItem.quantity > 1 ? `${finalItem.quantity}x ` : '';
-            socket.emit('systemMessage', finalItem ? `Claimed ${qtyText}${finalItem.name}!` : "Mail successfully claimed!");
+        socket.emit('mailList', formattedMails);
+    } catch (e) {
+        console.error(`[MAIL ERROR]:`, e.message);
+        socket.emit('mailList', []);
+    }
+});
 
-        } catch (e) {
-            console.error(`[CLAIM ERROR]:`, e.message);
-            socket.emit('systemMessage', "Server error during claim.");
+   socket.on('claimMail', async (mailId) => {
+    const p = onlinePlayers[socket.id];
+    if (!p) return;
+
+    try {
+        const { data: mail, error } = await supabase
+            .from('System_Mail')
+            .select('*')
+            .eq('id', mailId)
+            .ilike('recipient_name', p.id)
+            .or('is_claimed.is.null,is_claimed.eq.false')
+            .single();
+
+        if (error || !mail) {
+            return socket.emit('systemMessage', "Mail not found or already claimed.");
         }
-    });
+
+        let rawData = mail.attached_item || mail.attached_file || null;
+        let finalItem = null;
+
+        if (rawData) {
+            if (typeof rawData === 'string') {
+                try {
+                    finalItem = JSON.parse(rawData.trim());
+                } catch (err) {
+                    return socket.emit('systemMessage', "Attachment data is corrupted JSON.");
+                }
+            } else {
+                finalItem = rawData;
+            }
+
+            if (!finalItem || !finalItem.name) {
+                return socket.emit('systemMessage', "Invalid item format.");
+            }
+
+            if (!finalItem.id) finalItem.id = Date.now() + Math.random();
+            if (!finalItem.quantity) finalItem.quantity = 1;
+
+            // NORMALIZE INVENTORY FIRST
+            const inv = Array.isArray(p.inventory) ? [...p.inventory] : [];
+            while (inv.length < 20) inv.push(null);
+
+            let stacked = false;
+
+            // STACKABLE TYPES
+            if (['potion', 'material', 'consumable'].includes(finalItem.type)) {
+                const existingIndex = inv.findIndex(i => i && i.name === finalItem.name);
+                if (existingIndex !== -1) {
+                    inv[existingIndex].quantity = (inv[existingIndex].quantity || 1) + finalItem.quantity;
+                    stacked = true;
+                }
+            }
+
+            // EMPTY SLOT CHECK MUST ACCEPT null OR undefined
+            if (!stacked) {
+                const emptySlot = inv.findIndex(slot => slot == null);
+                if (emptySlot === -1) {
+                    return socket.emit('systemMessage', "Inventory full! Clear space to claim.");
+                }
+                inv[emptySlot] = finalItem;
+            }
+
+            p.inventory = inv;
+        }
+
+        await supabase
+            .from('System_Mail')
+            .update({ is_claimed: true })
+            .eq('id', mailId);
+
+        await supabase
+            .from('Exonians')
+            .update({ inventory: p.inventory })
+            .eq('character_name', p.id);
+
+        socket.emit('mailClaimSuccess', mailId);
+        socket.emit('syncInventory', p.inventory);
+
+        let qtyText = finalItem && finalItem.quantity > 1 ? `${finalItem.quantity}x ` : '';
+        socket.emit(
+            'systemMessage',
+            finalItem ? `Claimed ${qtyText}${finalItem.name}!` : "Mail successfully claimed!"
+        );
+    } catch (e) {
+        console.error(`[CLAIM ERROR]:`, e.message);
+        socket.emit('systemMessage', "Server error during claim.");
+    }
+});
 
     socket.on('addFriend', (data) => {
         const me = onlinePlayers[socket.id];
@@ -743,28 +798,15 @@ io.on('connection', (socket) => {
         }
     });
 
-   socket.on('syncMapData', (mapData) => {
-        if (!worlds[mapData.instanceId]) {
-            worlds[mapData.instanceId] = { collisions: mapData.collisions || [], teleports: mapData.teleports || [], monsters: {}, pets: {} };
-            
-            // ✅ ADDED FALLBACK KEYS: This ensures old maps don't crash the renderer!
-            const processSpawns = (spawnList, fallbackKey) => {
-                (spawnList || []).forEach((sp, i) => {
-                    let mId = `${mapData.instanceId}_mob_${Date.now()}_${i}_${Math.random()}`;
-                    let mKey = sp.monsterKey || fallbackKey; // <--- Uses fallback if old map is missing the key
-                    worlds[mapData.instanceId].monsters[mId] = spawnMonster(mapData.instanceId, mId, mKey, { 
-                        spawnArea: { minX: sp.x, minY: sp.y }, 
-                        level: sp.level 
-                    });
-                });
-            };
-            
-            // Passes the exact fallbacks needed for older map data
-            processSpawns(mapData.normalSpawns, 'common_mobs1');
-            processSpawns(mapData.miniBossSpawns, 'mini_boss1');
-            processSpawns(mapData.floorBossSpawns, 'floor_boss1');
-        }
-    });
+     socket.on('syncMapData', (mapData) => {
+        const world = ensureWorldFromMapData(mapData.instanceId, mapData);
+        if (!world) return;
+
+        io.to(mapData.instanceId).emit(
+            'monsterState',
+            Object.values(world.monsters).map(serializeMonster)
+        );
+    });
 
    socket.on('adminSpawnMonster', (data) => {
         const p = onlinePlayers[socket.id];
@@ -1314,31 +1356,81 @@ io.on('connection', (socket) => {
         supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
     });
 
-    socket.on('playerTeleported', async (data) => {
-        if (!onlinePlayers[socket.id]) return; const p = onlinePlayers[socket.id];
-        
-        const oldInstId = p.instanceId; // 🌟 SAVE OLD INSTANCE
-        socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
-        
-        if (p.mapId === 'town') p.currentHp = p.maxHp;
-        
-        if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
-            for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
-        }
+      socket.on('playerTeleported', async (data) => {
+        if (!onlinePlayers[socket.id]) return;
+        const p = onlinePlayers[socket.id];
 
-        p.mapId = data.mapId; p.x = data.x; p.y = data.y; p.currentPortal = null;
-        p.instanceId = getInstanceId(p.id, data.mapId); 
-        socket.join(p.instanceId);
-        
-        checkAndResetInstance(oldInstId); // 🌟 RUN THE RESET CHECK
-        
-        socket.emit('requestMapSync', { mapId: data.mapId, instanceId: p.instanceId }); 
-        socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
-        
-        const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id);
-        socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
-        supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', currentUser).then(()=>{});
-    });
+        const oldInstId = p.instanceId;
+        socket.leave(p.instanceId);
+        socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
+
+        if (p.mapId === 'town') p.currentHp = p.maxHp;
+
+        if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
+            for (let petId in worlds[p.instanceId].pets) {
+                if (worlds[p.instanceId].pets[petId].ownerId === p.id) {
+                    delete worlds[p.instanceId].pets[petId];
+                }
+            }
+        }
+
+        p.mapId = data.mapId;
+        p.x = data.x;
+        p.y = data.y;
+        p.currentPortal = null;
+        p.instanceId = getInstanceId(p.id, data.mapId);
+
+        socket.join(p.instanceId);
+
+        checkAndResetInstance(oldInstId);
+
+        // Build the world immediately from the map data coming from the client
+        if (data.mapData) {
+            ensureWorldFromMapData(p.instanceId, data.mapData);
+        }
+
+        // Keep your existing sync flow too
+        socket.emit('requestMapSync', { mapId: data.mapId, instanceId: p.instanceId });
+
+        socket.to(p.instanceId).emit('remotePlayerJoined', {
+            id: p.id,
+            name: p.name,
+            mapId: p.mapId,
+            instanceId: p.instanceId,
+            x: p.x,
+            y: p.y,
+            spriteData: p.spriteData,
+            isGhost: p.isGhost
+        });
+
+        const playersInInst = Object.values(onlinePlayers).filter(
+            remote => remote.instanceId === p.instanceId && remote.id !== p.id
+        );
+
+        socket.emit('mapPlayersList', playersInInst.map(pp => ({
+            id: pp.id,
+            name: pp.name,
+            mapId: pp.mapId,
+            x: pp.x,
+            y: pp.y,
+            spriteData: pp.spriteData,
+            isGhost: pp.isGhost
+        })));
+
+        // Send monster list immediately so the client renders them right away
+        if (worlds[p.instanceId]) {
+            socket.emit(
+                'monsterState',
+                Object.values(worlds[p.instanceId].monsters).map(serializeMonster)
+            );
+        }
+
+        supabase
+            .from('Exonians')
+            .update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y })
+            .eq('character_name', currentUser)
+            .then(() => {});
+    });
 
     socket.on('respawnPlayer', () => {
         const p = onlinePlayers[socket.id];
@@ -1634,5 +1726,6 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
