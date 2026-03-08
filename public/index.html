@@ -1449,7 +1449,15 @@ window.preloadMapAssets = function(mapData, callback) {
 
 window.cleanupMap = function() { Object.keys(game.remotePlayers).forEach(id => window.removeRemotePlayer(id)); document.querySelectorAll('.monster-container, .pet-slime').forEach(el => el.remove()); game.monsters = {}; if (game.player.activePets) { game.player.activePets.forEach(pet => { if(pet.dom) pet.dom.remove(); }); game.player.activePets = []; } }
 window.forceUnstuck = function() { game.player.x = 960; game.player.y = 1000; if (safeMapData.id !== 'town') { if(socket) socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); dom.log.innerText = "Evacuating to Town..."; } else { if(socket) socket.emit('playerMoved', { x: 960, y: 1000, state: 'idle', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null }); dom.log.innerText = "Unstuck! Returned to Town center."; } };
-window.showMapAnnouncement = function(mapId) { let cleanName = mapId.replace(/_/g, ' '); cleanName = cleanName.replace(/\b\w/g, char => char.toUpperCase()); const permName = document.getElementById('permanent-map-name'); if (permName) { permName.innerText = cleanName; permName.style.display = 'block'; } const annContainer = document.getElementById('map-announcement'); const annText = document.getElementById('map-announcement-text'); if (annContainer && annText) { annText.innerText = cleanName; annContainer.style.opacity = '1'; setTimeout(() => { annContainer.style.opacity = '0'; }, 3000); } };
+window.showMapAnnouncement = function(mapId) { 
+    if (!mapId) return;
+    let cleanName = String(mapId).replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase()); 
+    const permName = document.getElementById('permanent-map-name'); 
+    if (permName) { permName.innerText = cleanName; permName.style.display = 'block'; } 
+    const annContainer = document.getElementById('map-announcement'); 
+    const annText = document.getElementById('map-announcement-text'); 
+    if (annContainer && annText) { annText.innerText = cleanName; annContainer.style.opacity = '1'; setTimeout(() => { annContainer.style.opacity = '0'; }, 3000); } 
+};
 window.isColliding = function(targetX, targetY) { const hitX = targetX + (game.player.width - game.player.w) / 2; const hitY = targetY + game.player.height - game.player.h; const cols = safeMapData.collisions || []; for (let box of cols) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; } return false; }
 
 window.spawnDamageText = function(x, y, amount, color) { const txt = document.createElement('div'); txt.className = 'damage-text'; txt.innerText = amount; let jitterX = (Math.random() * 40) - 20; let jitterY = (Math.random() * 20) - 10; txt.style.left = (x - 10 + jitterX) + 'px'; txt.style.top = (y + jitterY) + 'px'; txt.style.color = color; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 1000); }
@@ -1462,14 +1470,25 @@ window.updateAnimationFrames = function(state) {
     let currentAura = game.player.equips?.armor?.aura || null;
     let cAuraEl = document.getElementById('player-cosmetic-aura');
     if (cAuraEl) { cAuraEl.className = currentAura ? `cosmetic-aura aura-${currentAura}` : 'cosmetic-aura'; }
-    dom.playerAvatarContainer.style.transform = window.facingRight ? 'scaleX(-1)' : 'scaleX(1)';
+    
+    if (dom.playerAvatarContainer) dom.playerAvatarContainer.style.transform = window.facingRight ? 'scaleX(-1)' : 'scaleX(1)';
+    
     let rawWpn = game.player.equips?.weapon ? game.player.equips.weapon.sprite : null;
     let wpn = rawWpn ? rawWpn.replace('starter', 'basic') : null; 
     let pulseActive = (Math.floor(Date.now() / 250) % 2 === 0);
     let bodySrc = 'animation/avatar_idlefront.png'; let isAtk = false;
+    
     if (state === 'attack') { bodySrc = 'animation/avatar_attack.png'; isAtk = true; } else if (state === 'walk') { bodySrc = pulseActive ? 'animation/avatar_walk.png' : 'animation/avatar_idlefront.png'; }
-    if (game.player.currentBodySrc !== bodySrc) { dom.playerBody.src = bodySrc; game.player.currentBodySrc = bodySrc; }
-    if (wpn) { dom.playerWeapon.style.display = 'block'; let wpnSrc = `weapon/${wpn}${(state === 'attack' && isAtk && !wpn.includes('pendant')) ? '_attack' : ''}.png`; if (game.player.currentWeaponSrc !== wpnSrc) { dom.playerWeapon.src = wpnSrc; game.player.currentWeaponSrc = wpnSrc; } } else { dom.playerWeapon.style.display = 'none'; game.player.currentWeaponSrc = ''; }
+    
+    if (game.player.currentBodySrc !== bodySrc && dom.playerBody) { dom.playerBody.src = bodySrc; game.player.currentBodySrc = bodySrc; }
+    
+    if (wpn && dom.playerWeapon) { 
+        dom.playerWeapon.style.display = 'block'; 
+        let wpnSrc = `weapon/${wpn}${(state === 'attack' && isAtk && !wpn.includes('pendant')) ? '_attack' : ''}.png`; 
+        if (game.player.currentWeaponSrc !== wpnSrc) { dom.playerWeapon.src = wpnSrc; game.player.currentWeaponSrc = wpnSrc; } 
+    } else if (dom.playerWeapon) { 
+        dom.playerWeapon.style.display = 'none'; game.player.currentWeaponSrc = ''; 
+    }
 }
 window.showAura = function(color) { const aura = document.getElementById('player-aura'); aura.className = `aura aura-${color}`; aura.style.animation = 'none'; void aura.offsetWidth; aura.style.animation = 'aura-burst 0.6s ease-out forwards'; }
 window.playVoice = function(className) { let hairPrefix = window.charData.hairStyle === 'none' ? 'none' : `hair${window.charData.hairStyle}`; let formattedClass = className.replace(/\s+/g, '').toLowerCase(); let audio = new Audio(`skills/${hairPrefix}_${formattedClass}.mp3`); audio.volume = 0.8; audio.play().catch(e => {}); }
@@ -1681,7 +1700,33 @@ window.addEventListener('mousedown', (e) => { if (e.target.classList.contains('c
 document.addEventListener('wheel', function(e) { if (e.ctrlKey && !window.adminMode) { e.preventDefault(); } }, { passive: false });
 window.addEventListener('pointerup', () => { attackHeld = false; });
 dom.world.addEventListener('pointerdown', (e) => { if(!window.adminMode && e.target.id === 'world' && !window.isLoading) { attackHeld = true; window.attemptAttack(false); } });
-
+// ==========================================
+// RESTORED SHOP & MAILBOX FUNCTIONS
+// ==========================================
+window.openShop = function() {
+    if (isShopping) { window.closeShop(); return; }
+    isShopping = true;
+    document.getElementById('shop-my-gold').innerText = game.player.gold || 0;
+    document.getElementById('shop-screen').style.display = 'block';
+    if (!isInventoryOpen && typeof window.toggleInventory === 'function') window.toggleInventory();
+    window.updatePotionPrice(); window.updateStonePrice();
+}
+window.closeShop = function() { isShopping = false; document.getElementById('shop-screen').style.display = 'none'; if (isInventoryOpen && typeof window.renderInventory === 'function') window.renderInventory(); }
+window.updatePotionPrice = function() { let qty = parseInt(document.getElementById('shop-potion-qty').value) || 1; if (qty < 1) { qty = 1; document.getElementById('shop-potion-qty').value = 1; } document.getElementById('shop-potion-buy-btn').innerText = (qty * 25) + " Gold"; }
+window.updateStonePrice = function() { let lvl = parseInt(document.getElementById('shop-stone-level').value) || 10; let rarity = document.getElementById('shop-stone-rarity').value || 'Basic'; let qty = parseInt(document.getElementById('shop-stone-qty').value) || 1; if (qty < 1) { qty = 1; document.getElementById('shop-stone-qty').value = 1; } let basePrice = lvl * 15; let rMult = { "Basic": 1, "Rare": 3, "Unique": 8, "Legendary": 20, "Godly": 50 }[rarity] || 1; let totalCost = basePrice * rMult * qty; document.getElementById('shop-stone-buy-btn').innerText = totalCost + " Gold"; }
+window.buyItem = function(type) {
+    let cost = 0; let item = null;
+    if (type === 'potion') { let qty = parseInt(document.getElementById('shop-potion-qty').value) || 1; cost = qty * 25; item = { id: Date.now(), name: "Health Potion", type: "potion", rarity: "Basic", color: "#fff", fixedStat: { hpHeal: 100 }, quantity: qty }; }
+    else if (type === 'stone') { let lvl = parseInt(document.getElementById('shop-stone-level').value) || 10; let rarity = document.getElementById('shop-stone-rarity').value || 'Basic'; let qty = parseInt(document.getElementById('shop-stone-qty').value) || 1; let basePrice = lvl * 15; let rMult = { "Basic": 1, "Rare": 3, "Unique": 8, "Legendary": 20, "Godly": 50 }[rarity] || 1; cost = basePrice * rMult * qty; item = { id: Date.now() + Math.random(), name: (rarity === "Basic" ? "" : rarity + " ") + "Refinement Stone Lv." + lvl, type: "material", rarity: rarity, level: lvl, color: window.RARITY_COLORS[rarity], quantity: qty }; }
+    if (game.player.gold < cost) { if(dom.log) dom.log.innerText = "Not enough gold!"; return; }
+    if (socket) socket.emit('requestPurchase', { totalCost: cost, item: item });
+}
+window.toggleMailbox = function() {
+    isMailboxOpen = !isMailboxOpen;
+    document.getElementById('mailbox-screen').style.display = isMailboxOpen ? 'block' : 'none';
+    if (isMailboxOpen && socket) socket.emit('getMail'); 
+};
+window.claimMail = function(mailId) { if (socket) socket.emit('claimMail', mailId); };
 window.addRemotePlayer = function(pData) {
     if (!pData || !pData.id || pData.id === game.player.id || game.remotePlayers[pData.id]) return;
     const container = document.createElement('div'); container.className = 'entity'; container.id = 'remote_' + pData.id;
@@ -1739,37 +1784,60 @@ if(socket) {
             window.loadMapScript(targetMapId, () => {
                 safeMapData = window.MapDatabase[targetMapId] || { id: "town", name: "Town", image: "town_map.png", spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
                 game.player.x = 960; game.player.y = 1000;
-                window.preloadMapAssets(safeMapData, () => {
+              window.preloadMapAssets(safeMapData, () => {
                     try {
-                        if(document.getElementById('loading-screen')) document.getElementById('loading-screen').style.display = 'none'; 
-                        dom.game.classList.add('active'); dom.world.style.backgroundImage = `url('${safeMapData.image}')`;
+                        dom.world.style.backgroundImage = `url('${safeMapData.image}')`;
+                        game.player.dom = dom.playerContainer; 
                         
-                        game.player.dom = dom.playerContainer; // 🛡️ LINKS YOUR PLAYER TO THE WORLD
+                        if (dom.playerBody) dom.playerBody.style.filter = skinFilters[window.charData.skinColor] || ''; 
+                        if (dom.playerHead) dom.playerHead.style.filter = skinFilters[window.charData.skinColor] || ''; 
+                        if (dom.playerHair) dom.playerHair.style.filter = hairFilters[window.charData.hairColor] || '';
                         
-                        dom.playerBody.style.filter = skinFilters[window.charData.skinColor] || '';
-                        dom.playerHead.style.filter = skinFilters[window.charData.skinColor] || ''; 
-                        dom.playerHair.style.filter = hairFilters[window.charData.hairColor] || '';
-                        
-                        // 🛡️ VISIBILITY ENFORCER: Command the DOM to show the player
-                        dom.playerContainer.style.opacity = '1';
-                        dom.playerBody.style.opacity = '1';
-                        dom.playerHead.style.opacity = '1';
-                        dom.playerHair.style.opacity = '1';
+                        if (dom.playerContainer) dom.playerContainer.style.opacity = '1';
+                        if (dom.playerBody) dom.playerBody.style.opacity = '1';
+                        if (dom.playerHead) dom.playerHead.style.opacity = '1';
+                        if (dom.playerHair) dom.playerHair.style.opacity = '1';
 
-                        if (window.charData.hairStyle === 'none') dom.playerHair.style.display = 'none'; 
-                        else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${window.charData.hairStyle}.png`; }
+                        if (dom.playerHair) {
+                            if (window.charData.hairStyle === 'none') dom.playerHair.style.display = 'none'; 
+                            else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${window.charData.hairStyle}.png`; }
+                        }
+
                         window.buildCollisionLayers(); window.updateEquipmentDisplay(); window.updateUI(); window.renderInventory(); window.emitVitalsIfNeeded(true); 
                         if(safeMapData.id === 'town') { document.querySelectorAll('.monster-container').forEach(el => el.remove()); game.monsters = {}; }
+                        
                         socket.off('requestMapSync'); socket.on('requestMapSync', (req) => { window.loadMapScript(req.mapId, () => { let mapPayload = Object.assign({}, window.MapDatabase[req.mapId], { instanceId: req.instanceId }); socket.emit('syncMapData', mapPayload); }); });
-                        window.playBGM('town'); game.isRunning = true; window.showMapAnnouncement(safeMapData.id); 
-                        if(typeof gameLoop !== 'undefined') requestAnimationFrame(gameLoop);
-                        socket.emit('requestNews'); 
-                    } catch (renderErr) { console.error("Render crash:", renderErr); if(document.getElementById('loading-screen')) document.getElementById('loading-screen').style.display = 'none'; dom.game.classList.add('active'); }
+                        window.playBGM('town'); 
+                        try { window.showMapAnnouncement(safeMapData.id); } catch(e){} 
+                    } catch (renderErr) { console.error("Render crash caught, bypassing:", renderErr); }
+                    
+                    // 🛡️ GUARANTEE THESE RUN EVEN IF THE UI CRASHES
+                    if(document.getElementById('loading-screen')) document.getElementById('loading-screen').style.display = 'none'; 
+                    dom.game.classList.add('active');
+                    game.isRunning = true; 
+                    if(typeof gameLoop !== 'undefined') requestAnimationFrame(gameLoop);
+                    socket.emit('requestNews'); 
                 });
             });
         } catch (authErr) { console.error("Auth crash:", authErr); if(document.getElementById('loading-screen')) document.getElementById('loading-screen').style.display = 'none'; dom.game.classList.add('active'); }
     });
-
+socket.on('mailList', (mails) => {
+        const container = document.getElementById('mail-list-container'); container.innerHTML = '';
+        if (!mails || mails.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Your inbox is empty.</p>'; return; }
+        mails.forEach(mail => {
+            const row = document.createElement('div'); row.className = 'mail-row';
+            let itemHtml = mail.attached_item ? `<div class="mail-item-preview">Attached: ${mail.attached_item.name}</div>` : '';
+            row.innerHTML = `<div class="mail-sender">FROM: SYSTEM</div><div class="mail-msg">${mail.message_text}</div>${itemHtml}<button class="claim-btn" id="claim-${mail.id}" onclick="window.claimMail(${mail.id})">${mail.attached_item ? 'CLAIM ITEM' : 'MARK AS READ'}</button>`;
+            container.appendChild(row);
+        });
+    });
+    
+    socket.on('mailClaimSuccess', (mailId) => { 
+        const btn = document.getElementById(`claim-${mailId}`); 
+        if (btn) { btn.innerText = "CLAIMED"; btn.disabled = true; } 
+        if(dom.log) dom.log.innerText = "Mail claimed successfully!"; 
+        if(typeof window.renderInventory === 'function') window.renderInventory(); 
+    });
     socket.on('purchaseSuccess', (data) => { game.player.gold = data.newGold; game.player.inventory = data.inventory; window.updateUI(); window.renderInventory(); dom.log.innerText = "Purchase successful!"; });
     socket.on('sellSuccess', (data) => { game.player.gold = data.newGold; game.player.inventory = data.inventory; dom.log.innerText = `Item sold for ${data.price} Gold.`; window.updateUI(); window.renderInventory(); });
     socket.on('syncInventory', (serverInventory) => { game.player.inventory = serverInventory; window.updateEquipmentDisplay(); window.renderInventory(); });
@@ -1919,6 +1987,7 @@ window.closeWelcomeMessage = function() { window.showNextNews(); };
 </div>
     </body>
 </html>
+
 
 
 
