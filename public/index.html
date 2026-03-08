@@ -2032,43 +2032,43 @@ window.logout = function() {
     location.reload();
 };
 
+// ==========================================
+// 🛡️ SYSTEM UTILITIES (Auto-Login, Logout, Unstuck, M-Key)
+// ==========================================
+
 window.onload = () => {
+    // 1. Auto-Login System
     let savedU = localStorage.getItem('exonie_user');
     let savedP = localStorage.getItem('exonie_pass');
-    if(savedU && savedP) {
+    if (savedU && savedP) {
         document.getElementById('login-user').value = savedU;
         document.getElementById('login-pass').value = savedP;
-        window.attemptLogin();
+        if (typeof window.attemptLogin === 'function') window.attemptLogin();
     }
     
-    // Shows the Unstuck button after 1 second
+    // 2. Reveal Unstuck Button on Desktop & Mobile
     setTimeout(() => {
         let unstuckBtn = document.getElementById('unstuck-btn');
         if (unstuckBtn) unstuckBtn.style.display = 'block';
     }, 1000);
 };
-    // 🛡️ SYSTEM UTILITIES
+
+// 3. Logout System
 window.logout = function() {
     localStorage.removeItem('exonie_user');
     localStorage.removeItem('exonie_pass');
     location.reload();
 };
 
-window.onload = () => {
-    let savedU = localStorage.getItem('exonie_user');
-    let savedP = localStorage.getItem('exonie_pass');
-    if(savedU && savedP) {
-        document.getElementById('login-user').value = savedU;
-        document.getElementById('login-pass').value = savedP;
-        window.attemptLogin();
-    }
+// 4. Mailbox 'M' Keybind (Independent Listener)
+window.addEventListener('keydown', (e) => {
+    if (typeof isChatting !== 'undefined' && isChatting) return;
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
     
-    // Shows the Unstuck button after 1 second
-    setTimeout(() => {
-        let unstuckBtn = document.getElementById('unstuck-btn');
-        if (unstuckBtn) unstuckBtn.style.display = 'block';
-    }, 1000);
-};
+    if (e.key.toLowerCase() === 'm') {
+        if (typeof window.toggleMailbox === 'function') window.toggleMailbox();
+    }
+});
 </script>
     <div id="welcome-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center;">
     <div style="background: #1e1e1e; border: 3px solid #4CAF50; border-radius: 10px; width: 90%; max-width: 500px; padding: 30px; position: relative; box-shadow: 0 0 30px rgba(76, 175, 80, 0.4); text-align: center;">
@@ -2083,6 +2083,7 @@ window.onload = () => {
 </div>
     </body>
 </html>
+
 
 
 
