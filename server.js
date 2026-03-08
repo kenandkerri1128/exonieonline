@@ -300,14 +300,14 @@ function serializeMonster(m) { 
 }
 
 function checkAndResetInstance(instId) {
-    if (!worlds[instId] || instId === 'town') return; // Don't reset the safe zone
+    if (!worlds[instId] || instId === 'town') return;
 
     // Check if there are any REAL players left (ignoring invisible admins)
     const activePlayers = playersInInstance(instId).filter(p => !p.isHiddenAdmin);
 
     if (activePlayers.length === 0) {
-        // 🛡️ THE FIX: Delete the empty room from memory entirely!
-        // The next time someone enters, the server will read floor1.js fresh and spawn all your custom monsters.
+        // 🛡️ THE FIX: Delete the room from memory entirely!
+        // This forces the server to read your floor1.js spawns fresh the next time a player enters.
         delete worlds[instId];
     }
 }
@@ -511,8 +511,9 @@ io.on('connection', (socket) => {
             const { data: mails, error } = await supabase
                 .from('System_Mail')
                 .select('*')
-                .eq('recipient_name', p.id)
-                .neq('is_claimed', true);
+              // Change this line in both socket.on('getMail') and socket.on('claimMail'):
+.eq('recipient_name', p.id)
+.neq('is_claimed', true) // 🛡️ FIX: This retrieves rows that are FALSE or NULL
 
             if (error) throw error;
 
@@ -545,8 +546,9 @@ io.on('connection', (socket) => {
                 .from('System_Mail')
                 .select('*')
                 .eq('id', mailId)
-                .eq('recipient_name', p.id)
-                .neq('is_claimed', true)
+              // Change this line in both socket.on('getMail') and socket.on('claimMail'):
+.eq('recipient_name', p.id)
+.neq('is_claimed', true) // 🛡️ FIX: This retrieves rows that are FALSE or NULL
                 .single();
 
             if (error || !mail) return socket.emit('systemMessage', "Mail not found or already claimed.");
@@ -1632,6 +1634,7 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
