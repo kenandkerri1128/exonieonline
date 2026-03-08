@@ -939,15 +939,15 @@
             
             <div id="player-container" class="entity" style="left: 960px; top: 1000px;">
                 <div id="player-name-tag" class="name-tag">Player</div>
-                <div id="player-avatar-container" class="player-avatar-container avatar-rig">
+                <<div id="player-avatar-container" class="player-avatar-container avatar-rig">
                     <div id="player-cosmetic-aura" class="cosmetic-aura"></div>
                     <div id="player-aura" class="aura"></div>
-                    <img id="player-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" style="opacity:0">
-                    <img id="player-head" class="avatar-layer layer-head" src="animation/avatar_head.png" style="opacity:0">
-                    <img id="player-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png" style="opacity:0">
-                    <img id="player-leggings" class="avatar-layer layer-leggings" style="display:none; opacity:0">
-                    <img id="player-armor" class="avatar-layer layer-armor" style="display:none; opacity:0">
-                    <img id="player-weapon" class="avatar-layer layer-weapon" style="display:none; opacity:0">
+                    <img id="player-hair" class="avatar-layer layer-hair" src="animation/avatar_hair1.png" style="opacity:1">
+                    <img id="player-head" class="avatar-layer layer-head" src="animation/avatar_head.png" style="opacity:1">
+                    <img id="player-body" class="avatar-layer layer-body" src="animation/avatar_idlefront.png" style="opacity:1">
+                    <img id="player-leggings" class="avatar-layer layer-leggings" style="display:none; opacity:1">
+                    <img id="player-armor" class="avatar-layer layer-armor" style="display:none; opacity:1">
+                    <img id="player-weapon" class="avatar-layer layer-weapon" style="display:none; opacity:1">
                 </div>
             </div>
         </div>
@@ -1659,9 +1659,18 @@ if(socket) {
                     try {
                         if(document.getElementById('loading-screen')) document.getElementById('loading-screen').style.display = 'none'; 
                         dom.game.classList.add('active'); dom.world.style.backgroundImage = `url('${safeMapData.image}')`;
-                        game.player.dom = dom.playerContainer; dom.playerBody.style.filter = skinFilters[window.charData.skinColor] || ''; 
-                        dom.playerHead.style.filter = skinFilters[window.charData.skinColor] || ''; dom.playerHair.style.filter = hairFilters[window.charData.hairColor] || '';
-                        if (window.charData.hairStyle === 'none') dom.playerHair.style.display = 'none'; else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${window.charData.hairStyle}.png`; }
+                       dom.playerBody.style.filter = skinFilters[window.charData.skinColor] || ''; 
+                        dom.playerHead.style.filter = skinFilters[window.charData.skinColor] || ''; 
+                        dom.playerHair.style.filter = hairFilters[window.charData.hairColor] || '';
+                        
+                        // 🛡️ VISIBILITY ENFORCER: Command the DOM to show the player
+                        dom.playerContainer.style.opacity = '1';
+                        dom.playerBody.style.opacity = '1';
+                        dom.playerHead.style.opacity = '1';
+                        dom.playerHair.style.opacity = '1';
+
+                        if (window.charData.hairStyle === 'none') dom.playerHair.style.display = 'none'; 
+                        else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${window.charData.hairStyle}.png`; }
                         window.buildCollisionLayers(); window.updateEquipmentDisplay(); window.updateUI(); window.renderInventory(); window.emitVitalsIfNeeded(true); 
                         if(safeMapData.id === 'town') { document.querySelectorAll('.monster-container').forEach(el => el.remove()); game.monsters = {}; }
                         socket.off('requestMapSync'); socket.on('requestMapSync', (req) => { window.loadMapScript(req.mapId, () => { let mapPayload = Object.assign({}, window.MapDatabase[req.mapId], { instanceId: req.instanceId }); socket.emit('syncMapData', mapPayload); }); });
@@ -1823,6 +1832,7 @@ window.closeWelcomeMessage = function() { window.showNextNews(); };
 </div>
     </body>
 </html>
+
 
 
 
