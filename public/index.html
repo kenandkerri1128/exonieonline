@@ -1213,8 +1213,6 @@ window.executeSkill = function(skillId, className) {
         }
         return; 
     }
-
-    let skillObj = game.player.activeSkills.find(s => s.id === skillId);
     if (!skillObj) return; 
     skillObj.cooldownReadyAt = Date.now() + skillObj.cd; window.updateHotbarCooldowns();
 
@@ -2222,6 +2220,7 @@ if (typeof socket !== 'undefined') {
 </div>
     </body>
 </html>
+
 
 
 
