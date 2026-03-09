@@ -1684,6 +1684,15 @@ window.toggleFriends = function() { isFriendsOpen = !isFriendsOpen; document.get
 window.requestAddFriend = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('addFriend', { targetId: activeTargetPlayerId }); };
 window.promptDM = function(targetName) { let msg = prompt(`Send Direct Message to ${targetName}:`); if (msg && msg.trim() !== '') { if(socket) socket.emit('sendDM', { targetId: targetName, message: msg.trim() }); } };
 window.playDMSound = function() { try { const AudioContext = window.AudioContext || window.webkitAudioContext; const audioCtx = new AudioContext(); if (audioCtx.state === 'suspended') { audioCtx.resume(); } const oscillator = audioCtx.createOscillator(); const gainNode = audioCtx.createGain(); oscillator.type = 'triangle'; oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); oscillator.frequency.exponentialRampToValueAtTime(1174.66, audioCtx.currentTime + 0.1); gainNode.gain.setValueAtTime(0.7, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); oscillator.connect(gainNode); gainNode.connect(audioCtx.destination); oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.5); const chatLog = document.getElementById('chat-log'); if (chatLog) { chatLog.style.backgroundColor = 'rgba(156, 39, 176, 0.4)'; chatLog.style.transition = 'background-color 0s'; setTimeout(() => { chatLog.style.transition = 'background-color 0.5s ease'; chatLog.style.backgroundColor = 'transparent'; }, 150); } } catch (e) {} };
+window.startSpectate = function(targetId) {
+    if (!targetId || !socket) return;
+    socket.emit('requestSpectate', targetId);
+};
+
+window.stopSpectating = function() {
+    if (!socket) return;
+    socket.emit('stopSpectate');
+};
 window.openPlayerContextMenu = function(targetId, e) { activeTargetPlayerId = targetId; const menu = document.getElementById('player-context-menu'); menu.style.display = 'flex'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px'; }; 
 window.inspectTargetPlayer = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; const p = game.remotePlayers[activeTargetPlayerId]; if (!p) return; dom.inspect.style.display = 'block'; dom.inspectTitle.innerText = `Inspect: ${p.name || p.id}`; let lvl = "???"; let hp = "??? / ???"; if (game.party && game.party.members) { let pm = game.party.members.find(m => m.id === p.id); if (pm) { lvl = pm.level; hp = `${pm.currentHp} / ${pm.maxHp}`; } } let wpn = p.spriteData && p.spriteData.weapon ? p.spriteData.weapon.replace('starter', 'basic') : 'None'; let html = `<div style="font-size:14px; color:#ccc; margin-bottom:10px; text-align:center;">Level ${lvl} &nbsp; | &nbsp; HP ${hp}</div>`; html += `<div class="inspect-equip"><div style="font-weight:bold; color:#ffeb3b; margin-bottom:6px;">Weapon (Visual Cache)</div><div class="inspect-item-name" style="color:#fff;">${wpn}</div></div>`; dom.inspectContent.innerHTML = html; if(socket) socket.emit('inspectRequest', { targetId: activeTargetPlayerId }); }; 
 window.inviteTargetToParty = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('partyInvite', { targetId: activeTargetPlayerId }); dom.log.innerText = `Party invite sent to ${activeTargetPlayerId}.`; }; 
@@ -1972,49 +1981,65 @@ socket.on('mailList', (mails) => {
     socket.on('friendsListUpdate', (friendsList) => { const container = document.getElementById('friends-list-container'); container.innerHTML = ''; if (!friendsList || friendsList.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Your friends list is empty.</p>'; return; } friendsList.forEach(f => { const row = document.createElement('div'); row.className = 'friend-row'; let lvlColor = f.online ? '#ffd700' : '#888'; let levelHtml = `<span style="color:${lvlColor}; font-size:12px; margin-left: 5px;">(Lv.${f.level})</span>`; let classFmt = f.pClass ? `<span style="color:#aaa; font-size:11px;">${f.pClass}</span>` : `<span style="color:#555; font-size:11px;">Novice</span>`; let mapFmt = f.online ? `<span style="color:#2196F3; font-size:11px;">[${f.mapId || 'Town'}]</span>` : ''; let spectateBtn = (game.player.name === 'Kei' && f.online) ? `<button class="dm-btn" style="background:#f44336; margin-bottom:5px;" onclick="window.startSpectate('${f.id}')">👁️ Spectate</button>` : ''; row.innerHTML = `<div class="friend-info" style="flex-direction:column; align-items:flex-start; gap:2px;"><div style="display:flex; align-items:center; gap:5px;"><div class="status-dot ${f.online ? 'online' : 'offline'}"></div>${f.id} ${levelHtml}</div><div style="margin-left: 17px; display:flex; gap: 8px;">${classFmt} ${mapFmt}</div></div><div style="display:flex; flex-direction:column;">${spectateBtn}<button class="dm-btn" onclick="window.promptDM('${f.id}')">DM</button></div>`; container.appendChild(row); }); });
     socket.on('receiveDM', (data) => { dom.log.innerHTML = `<span class="chat-dm">[DM] ${data.from}: ${data.message}</span>`; if (!data.from.startsWith('To ')) { window.playDMSound(); } });
     socket.on('systemMessage', (msg) => { dom.log.innerHTML = `<span style="color:#ffeb3b;">[System] ${msg}</span>`; });
-        socket.on('forceTeleport', (tp) => {
-        window.loadMapScript(tp.mapId, () => {
-            safeMapData = window.MapDatabase[tp.mapId];
-            safeMapData.id = tp.mapId;
+socket.on('forceTeleport', (tp) => {
+    window.loadMapScript(tp.mapId, () => {
+        safeMapData = window.MapDatabase[tp.mapId];
+        safeMapData.id = tp.mapId;
 
-            if (tp.mapId === 'town' && safeMapData.teleports && !tp.spectateTarget) {
-                const p1 = safeMapData.teleports.find(p => p.portalId === 1);
-                if (p1) {
-                    game.player.x = p1.x + (p1.w / 2) - (game.player.width / 2);
-                    game.player.y = p1.y + p1.h - game.player.height + 5;
-                } else {
-                    game.player.x = tp.x;
-                    game.player.y = tp.y;
-                }
+        if (tp.mapId === 'town' && safeMapData.teleports && !tp.spectateTarget) {
+            const p1 = safeMapData.teleports.find(p => p.portalId === 1);
+            if (p1) {
+                game.player.x = p1.x + (p1.w / 2) - (game.player.width / 2);
+                game.player.y = p1.y + p1.h - game.player.height + 5;
             } else {
                 game.player.x = tp.x;
                 game.player.y = tp.y;
             }
+        } else {
+            game.player.x = tp.x;
+            game.player.y = tp.y;
+        }
 
-            window.cleanupMap();
-            dom.world.style.backgroundImage = `url('${safeMapData.image}')`;
-            window.buildCollisionLayers();
-            window.playBGM(tp.mapId.includes('floor') ? 'floors' : 'town');
-            window.showMapAnnouncement(tp.mapId);
+        window.cleanupMap();
+        dom.world.style.backgroundImage = `url('${safeMapData.image}')`;
+        window.buildCollisionLayers();
+        window.playBGM(tp.mapId.includes('floor') ? 'floors' : 'town');
+        window.showMapAnnouncement(tp.mapId);
 
-            if (!window.isSpectating) {
-                socket.emit('playerMoved', {
-                    x: game.player.x,
-                    y: game.player.y,
-                    state: 'idle',
-                    facingRight: window.facingRight,
-                    weaponSprite: game.player.equips.weapon?.sprite || null
-                });
+        if (tp.spectateTarget) {
+            // ✅ Enter spectate mode
+            window.isSpectating = true;
+            window.spectateTargetId = tp.spectateTarget;
+            game.isGhost = true; // admin behaves like ghost locally while spectating
+            dom.playerContainer.style.display = 'none';
+            document.getElementById('spectate-ui').style.display = 'block';
+            dom.log.innerText = `[ADMIN] Now Spectating: ${tp.spectateTarget}`;
+        } else {
+            // ✅ Leave spectate mode
+            window.isSpectating = false;
+            window.spectateTargetId = null;
+            game.isGhost = false;
+            dom.playerContainer.style.display = 'block';
+            document.getElementById('spectate-ui').style.display = 'none';
+            dom.playerContainer.style.opacity = '1';
 
-                socket.emit('playerTeleported', {
-                    mapId: tp.mapId,
-                    x: game.player.x,
-                    y: game.player.y,
-                    mapData: safeMapData
-                });
-            }
-        });
+            socket.emit('playerMoved', {
+                x: game.player.x,
+                y: game.player.y,
+                state: 'idle',
+                facingRight: window.facingRight,
+                weaponSprite: game.player.equips.weapon?.sprite || null
+            });
+
+            socket.emit('playerTeleported', {
+                mapId: tp.mapId,
+                x: game.player.x,
+                y: game.player.y,
+                mapData: safeMapData
+            });
+        }
     });
+});
     socket.on('teleportApproved', (tp) => { 
         let nextMapId = tp.targetMapId || 'town'; 
         const transScreen = document.getElementById('map-transition'); 
@@ -2261,6 +2286,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
