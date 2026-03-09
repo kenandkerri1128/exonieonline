@@ -2382,18 +2382,6 @@ socket.on('playerRevived', (data) => {
         if (portalUI) portalUI.style.display = 'none';
 
         window.spawnDamageText(game.player.x + 24, game.player.y, "REVIVED", "#4CAF50");
-        window.updateUI();
-        window.emitVitalsIfNeeded(true);
-
-        if (socket) {
-            socket.emit('playerMoved', {
-                x: game.player.x,
-                y: game.player.y,
-                state: 'idle',
-                facingRight: window.facingRight,
-                weaponSprite: game.player.equips?.weapon?.sprite || null
-            });
-        }
     } else if (game.remotePlayers[data.id]) {
         game.remotePlayers[data.id].isGhost = false;
         game.remotePlayers[data.id].dom.style.opacity = '1';
@@ -2435,7 +2423,6 @@ socket.on('revivalJuiceUsed', (data) => {
 
     window.updateUI();
     window.renderInventory();
-    window.renderPartyUI();
     window.emitVitalsIfNeeded(true);
 
     if (socket) {
@@ -2673,6 +2660,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
