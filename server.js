@@ -1765,24 +1765,40 @@ socket.on('useRevivalJuice', async (data) => {
     const pid = playerParty[p.id];
     if (pid) emitPartyUpdate(pid);
 });
- socket.on('requestSell', async (data) => {
+socket.on('requestSell', async (data) => {
     const p = onlinePlayers[socket.id];
     if (!p) return;
 
     const inv = Array.isArray(p.inventory) ? p.inventory : [];
+    const requestedItemId = data?.itemId;
     const requestedIndex = typeof data?.index === 'number' ? data.index : -1;
 
-    if (requestedIndex < 0 || requestedIndex >= inv.length) {
-        return socket.emit('systemMessage', 'Invalid sell slot.');
+    if (!requestedItemId) {
+        return socket.emit('systemMessage', 'Invalid sell request.');
     }
 
-    const serverItem = inv[requestedIndex];
+    let sellIndex = -1;
+
+    // 1. First try exact ID match in the provided slot
+    if (
+        requestedIndex >= 0 &&
+        requestedIndex < inv.length &&
+        inv[requestedIndex] &&
+        inv[requestedIndex].id === requestedItemId
+    ) {
+        sellIndex = requestedIndex;
+    } else {
+        // 2. Fallback: find the exact item by unique ID anywhere in inventory
+        sellIndex = inv.findIndex(item => item && item.id === requestedItemId);
+    }
+
+    if (sellIndex === -1) {
+        return socket.emit('systemMessage', 'Sell blocked: item not found.');
+    }
+
+    const serverItem = inv[sellIndex];
     if (!serverItem) {
-        return socket.emit('systemMessage', 'Item no longer exists in that slot.');
-    }
-
-    if (data?.item?.id && serverItem.id !== data.item.id) {
-        return socket.emit('systemMessage', 'Sell blocked: item mismatch.');
+        return socket.emit('systemMessage', 'Item no longer exists.');
     }
 
     let baseVal = (serverItem.level || 1) * 2;
@@ -1796,11 +1812,11 @@ socket.on('useRevivalJuice', async (data) => {
     }[serverItem.rarity] || 1;
 
     let sellPrice = baseVal * multiplier;
-    if (serverItem.quantity) sellPrice *= serverItem.quantity;
 
+    // Sell exactly this one item instance only
+    // If you want stackable items to sell one-by-one later, we can split that separately.
     p.gold += sellPrice;
-
-    inv[requestedIndex] = null;
+    inv[sellIndex] = null;
     p.inventory = inv;
 
     try {
@@ -1924,6 +1940,7 @@ socket.on('useRevivalJuice', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
