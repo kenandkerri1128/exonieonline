@@ -370,7 +370,7 @@
         .equip-box:hover { background: #333; border-color: #f44336; } 
         .equip-box:hover .tooltip { visibility: visible; }
         
-        #inv-context-menu { display: none; position: absolute; background: #222; border: 1px solid #777; border-radius: 4px; z-index: 3000; flex-direction: column; width: 120px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
+        #inv-context-menu { display: none; position: fixed; background: #222; border: 1px solid #777; border-radius: 4px; z-index: 12000; flex-direction: column; width: 120px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
         .ctx-btn { background: none; border: none; color: white; padding: 10px; cursor: pointer; text-align: left; font-weight: bold; font-size: 16px; font-family: 'MedievalSharp', cursive; } 
         .ctx-btn:hover { background: #444; }
         
@@ -378,7 +378,7 @@
         #ctx-btn-sell { color: gold; display: none; border-bottom: 1px solid #444; } 
         #ctx-btn-sell:hover { background: #333; color: #fff; }
 
-        #player-context-menu { display: none; position: absolute; background: #222; border: 1px solid #777; border-radius: 4px; z-index: 3500; flex-direction: column; width: 140px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
+        #player-context-menu { display: none; position: fixed; background: #222; border: 1px solid #777; border-radius: 4px; z-index: 12000; flex-direction: column; width: 140px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
         #player-context-menu .ctx-btn { width: 100%; }
 
         #stat-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; background-color: rgba(30, 30, 30, 0.98); border: 2px solid #555; border-radius: 8px; padding: 20px; z-index: 1000; display: none; box-shadow: 0 0 20px black; }
@@ -3315,6 +3315,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
