@@ -1871,22 +1871,45 @@ if(socket) {
                             else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${window.charData.hairStyle}.png`; }
                         }
 
-                        window.buildCollisionLayers(); window.updateEquipmentDisplay(); window.updateUI(); window.renderInventory(); window.emitVitalsIfNeeded(true); 
-                        if(safeMapData.id === 'town') { document.querySelectorAll('.monster-container').forEach(el => el.remove()); game.monsters = {}; }
+                                               window.buildCollisionLayers();
+                        window.updateEquipmentDisplay();
+                        window.updateUI();
+                        window.renderInventory();
+                        window.emitVitalsIfNeeded(true);
+
+                        if (safeMapData.id === 'town') {
+                            document.querySelectorAll('.monster-container').forEach(el => el.remove());
+                            game.monsters = {};
+                        }
                         
-                        socket.off('requestMapSync'); socket.on('requestMapSync', (req) => { window.loadMapScript(req.mapId, () => { let mapPayload = Object.assign({}, window.MapDatabase[req.mapId], { instanceId: req.instanceId }); socket.emit('syncMapData', mapPayload); }); });
-                        window.playBGM('town'); 
-                        try { window.showMapAnnouncement(safeMapData.id); } catch(e){} 
+                        socket.off('requestMapSync');
+                        socket.on('requestMapSync', (req) => {
+                            window.loadMapScript(req.mapId, () => {
+                                let mapPayload = Object.assign({}, window.MapDatabase[req.mapId], { instanceId: req.instanceId });
+                                socket.emit('syncMapData', mapPayload);
+                            });
+                        });
                     } catch (renderErr) { console.error("Render crash caught, bypassing:", renderErr); }
                     
                     // 🛡️ GUARANTEE THESE RUN EVEN IF THE UI CRASHES
-                    if(document.getElementById('loading-screen')) document.getElementById('loading-screen').style.display = 'none'; 
+                                       if (document.getElementById('loading-screen')) {
+                        document.getElementById('loading-screen').style.display = 'none';
+                    }
+
                     dom.game.classList.add('active');
-                    game.isRunning = true; 
-                    if(typeof gameLoop !== 'undefined') requestAnimationFrame(gameLoop);
-                  // 📧 🛡️ Check for mail contents immediately on login
+                    game.isRunning = true;
+
+                    if (typeof gameLoop !== 'undefined') requestAnimationFrame(gameLoop);
+
+                    // Make sure the game screen is already visible before showing Town UI + BGM
+                    setTimeout(() => {
+                        window.playBGM(safeMapData.id === 'town' ? 'town' : (safeMapData.id.includes('floor') ? 'floors' : 'town'));
+                        try { window.showMapAnnouncement(safeMapData.id || 'town'); } catch(e) {}
+                    }, 120);
+
+                    // 📧 🛡️ Check for mail contents immediately on login
                     socket.emit('getMail'); 
-                    socket.emit('requestNews'); 
+                    socket.emit('requestNews');  
                 });
             });
         } catch (authErr) { console.error("Auth crash:", authErr); if(document.getElementById('loading-screen')) document.getElementById('loading-screen').style.display = 'none'; dom.game.classList.add('active'); }
@@ -2404,6 +2427,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
