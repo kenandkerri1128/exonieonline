@@ -356,7 +356,7 @@
         }
         
         /* ✅ INVENTORY WINDOW CSS UPDATED */
-        #inventory-screen { position: absolute; top: 20px; right: 20px; width: 350px; height: calc(100% - 40px); background-color: rgba(25, 25, 25, 0.98); border: 2px solid #555; border-radius: 8px; padding: 20px; z-index: 1000; display: none; box-sizing: border-box; box-shadow: -5px 0 20px rgba(0,0,0,0.8); overflow-y: auto; }
+        #inventory-screen { position: absolute; top: 20px; right: 20px; width: 350px; height: calc(100% - 40px); background-color: rgba(25, 25, 25, 0.98); border: 2px solid #555; border-radius: 8px; padding: 20px; z-index: 1000; display: none; box-sizing: border-box; box-shadow: -5px 0 20px rgba(0,0,0,0.8); overflow-x: hidden; overflow-y: auto; }
         #inventory-screen h2 { margin-top: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; font-size: 28px; }
         .inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
         .inv-slot { width: 100%; aspect-ratio: 1; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 13px; text-align: center; cursor: pointer; user-select: none; color: white; padding: 4px; box-sizing: border-box; font-weight: bold; position: relative; }
@@ -566,10 +566,40 @@
         
         .chat-dm { color: #e040fb !important; font-weight: bold; }
 
+        .window-drag-handle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 10px 14px;
+            margin: -20px -20px 12px -20px;
+            border-bottom: 1px solid #444;
+            background: rgba(255,255,255,0.04);
+            border-radius: 8px 8px 0 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+            cursor: grab;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .movable-window.window-dragging .window-drag-handle {
+            cursor: grabbing;
+        }
+
         @media (max-width: 950px) {
             #friends-screen { width: 280px !important; padding: 10px !important; }
             .friend-info { font-size: 14px !important; }
             .dm-btn { font-size: 12px !important; padding: 5px 8px !important; }
+
+            .window-drag-handle {
+                min-height: 44px;
+                padding: 10px 12px;
+                margin: -10px -10px 10px -10px;
+                font-size: 18px !important;
+            }
         }
 
 @media (pointer: coarse), (max-width: 950px) {
@@ -593,17 +623,6 @@
 
     .movable-window.window-dragging {
         opacity: 0.96;
-    }
-
-    .movable-window .window-drag-handle {
-        user-select: none;
-        -webkit-user-select: none;
-        touch-action: none;
-        cursor: grab;
-    }
-
-    .movable-window.window-dragging .window-drag-handle {
-        cursor: grabbing;
     }
 
     #inventory-screen,
@@ -770,7 +789,9 @@
     </div>
 
     <div id="trade-screen" class="movable-window">
-        <h2 class="window-drag-handle" style="margin-top:0; text-align:center; color:#2196F3;">Trade with <span id="trade-target-name">...</span></h2>
+        <div class="window-drag-handle" style="color:#2196F3; font-size:24px;">
+    Trade with <span id="trade-target-name" style="margin-left:6px;">...</span>
+</div>
         <div style="display:flex; justify-content:space-between; gap:15px;">
             <div class="trade-side">
                 <h3 style="margin-top:0; color:#4CAF50; text-align:center;">Your Offer</h3>
@@ -811,7 +832,9 @@
     </div>
 
     <div id="shop-screen" class="movable-window">
-        <h2 class="window-drag-handle" style="margin-top:0; text-align:center; color:#4CAF50; border-bottom: 1px solid #444; padding-bottom:10px;">Wandering Merchant</h2>
+        <div class="window-drag-handle" style="color:#4CAF50; font-size:24px;">
+    Wandering Merchant
+</div>
         <p style="text-align:center; color:gold; margin-top:0; font-size: 18px;">Your Gold: <span id="shop-my-gold">0</span></p>
         
         <div id="shop-item-list">
@@ -879,7 +902,9 @@
     </div>
     
     <div id="friends-screen" class="movable-window">
-        <h2 class="window-drag-handle">Friends List</h2>
+        <div class="window-drag-handle" style="color:#2196F3; font-size:24px;">
+    Friends List
+</div>
         <div id="friends-list-container">
             <p style="text-align:center; color:#aaa;">Loading friends...</p>
         </div>
@@ -1054,7 +1079,9 @@
         </div>
         
         <div id="admin-panel" class="movable-window">
-            <h3 class="window-drag-handle" style="margin-top: 0; color: #fff;">Admin Tools</h3>
+            <div class="window-drag-handle" style="color:#fff; font-size:22px;">
+    Admin Tools
+</div>
             <div class="panel-section" style="padding: 10px;">
                 <h4 style="color:#ffeb3b;">Power Testing</h4>
                 <div class="admin-tool-row"><span>Player Lvl:</span><input type="number" id="admin-player-level" value="50" min="1" max="50"><button class="btn" onclick="window.adminSetPlayerLevel()">Apply</button></div>
@@ -1100,11 +1127,15 @@
         </div>
         
         <div id="inspect-screen" class="movable-window">
-            <h2 id="inspect-title" class="window-drag-handle" style="margin:0 0 10px 0; text-align:center; border-bottom:1px solid #444; padding-bottom:8px;">Inspect</h2>
+            <div id="inspect-title" class="window-drag-handle" style="color:#fff; font-size:24px;">
+    Inspect
+</div>
             <div id="inspect-content"></div><button class="btn btn-large" style="margin-top: 10px; padding: 10px;" onclick="window.closeInspect()">Close</button></div>
 
         <div id="skill-screen" class="movable-window">
-            <h2 class="window-drag-handle" style="margin-top: 0; text-align: center; color: #9c27b0; border-bottom: 1px solid #444; padding-bottom: 10px;">Class & Skills</h2>
+            <div class="window-drag-handle" style="color:#9c27b0; font-size:24px;">
+    Class & Skills
+</div>
             <div id="class-selection-area" style="display: none;">
                 <h3 style="color: #ffeb3b; text-align: center;">Select Your Path</h3>
                 <p style="text-align: center; color: #aaa; font-size: 14px;">Classes are bound to your equipped weapon type.</p>
@@ -1135,8 +1166,13 @@
             </div>
         </div>
 
-      <div id="inventory-screen" class="movable-window">
+         <div id="inventory-screen" class="movable-window">
+    <div class="window-drag-handle" style="color:#fff; font-size:24px;">
+        Inventory
+    </div>
+
     <h3 style="margin: 0 0 10px 0; font-size: 18px; text-align: center; color: gold;">Gold: <span id="ui-gold-text">0</span></h3>
+
     <div class="panel-section" style="padding: 10px; margin-bottom: 12px;">
         <h4 style="margin-bottom:8px; color:#ffeb3b;">Loot Filter</h4>
         <div style="font-size:12px; color:#aaa; margin-bottom:8px; line-height:1.4;">
@@ -1158,13 +1194,16 @@
         <div class="equip-box" id="eq-box-armor" onclick="window.unequipItem('armor')"><strong style="color:#aaa;">Armor</strong><br><span id="eq-armor-slot">None</span></div>
         <div class="equip-box" id="eq-box-leggings" onclick="window.unequipItem('leggings')"><strong style="color:#aaa;">Leggings</strong><br><span id="eq-leggings-slot">None</span></div>
     </div>
+
     <h3 style="margin: 10px 0 5px 0; font-size: 16px; text-align: center; color: #ccc;">Backpack</h3>
     <div class="inv-grid" id="inventory-grid"></div>
     <button class="btn btn-large" style="margin-top: auto; padding: 15px;" onclick="window.toggleInventory()">Close Inventory (I)</button>
 </div>
         
         <div id="stat-screen" class="window-panel movable-window">
-            <h2 class="window-drag-handle" style="margin: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px;">Player Stats</h2>
+            <div class="window-drag-handle" style="color:#fff; font-size:24px;">
+    Player Stats
+</div>
             <div class="stat-grid">
                 <div>Level: <span id="stat-lvl" style="color:#ffd700;">1</span></div><div>Max HP: <span id="stat-maxhp">100</span></div>
                 <div>Attack Power: <span id="stat-atk">0</span></div><div>Magic Attack: <span id="stat-matk">0</span></div>
@@ -1187,7 +1226,9 @@
     </div>
 </div>
     <div id="mailbox-screen" class="movable-window">
-        <h2 class="window-drag-handle">System Mail</h2>
+        <<div class="window-drag-handle" style="color:#ffd700; font-size:24px;">
+    System Mail
+</div>
         <div id="mail-list-container">
             <p style="text-align:center; color:#aaa;">No messages.</p>
         </div>
@@ -3104,9 +3145,9 @@ window.enableMobileWindowControls = function(el) {
         window.clampWindowToViewport(el);
     }
 
-    handle.addEventListener('pointerdown', function(e) {
-        if (!window.isMobileUI()) return;
+       handle.addEventListener('pointerdown', function(e) {
         if (el.style.display === 'none') return;
+        if (e.button !== undefined && e.button !== 0) return;
 
         startDrag(e.clientX, e.clientY, e.pointerId);
         if (handle.setPointerCapture) {
@@ -3116,7 +3157,6 @@ window.enableMobileWindowControls = function(el) {
     });
 
     handle.addEventListener('pointermove', function(e) {
-        if (!window.isMobileUI()) return;
         if (!dragging) return;
         if (activePointerId !== null && e.pointerId !== activePointerId) return;
 
@@ -3124,8 +3164,12 @@ window.enableMobileWindowControls = function(el) {
         e.preventDefault();
     });
 
-    handle.addEventListener('pointerup', stopDrag);
+      handle.addEventListener('pointerup', stopDrag);
     handle.addEventListener('pointercancel', stopDrag);
+
+    el.addEventListener('pointerdown', function() {
+        window.bringWindowToFront(el);
+    });
 
     setTimeout(() => window.clampWindowToViewport(el), 50);
 };
@@ -3214,6 +3258,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
