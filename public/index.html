@@ -1184,7 +1184,7 @@ window.executeSkill = function(skillId, className) {
     skillObj.cooldownReadyAt = Date.now() + skillObj.cd; 
     if(typeof window.updateHotbarCooldowns === 'function') window.updateHotbarCooldowns();
 
-    if (socket) socket.emit('broadcastSkill', { skillId: skillId, auraColor: CLASSES[className].aura });
+    if (socket) socket.emit('broadcastSkill', { skillId: skillId });
 
     // 🛡️ RESTORE AURA EFFECT
     const aura = document.getElementById('player-aura');
@@ -2261,6 +2261,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
