@@ -6,7 +6,7 @@
     <link rel="apple-touch-icon" href="favicon.png">
     <link rel="icon" type="image/png" href="favicon.png">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exonie Online</title>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -523,37 +523,6 @@
             }
             #inventory-screen h2 { font-size: 20px !important; margin-bottom: 5px !important; padding-bottom: 5px !important; }
             .equip-box { padding: 5px 2px !important; font-size: 11px !important; }
-
-            #shop-screen { 
-                width: 300px !important; 
-                left: 10px !important; 
-                transform: translateY(-50%) !important; 
-                padding: 12px !important; 
-            }
-            #shop-screen h2 { font-size: 18px !important; margin-bottom: 5px !important; }
-            .shop-item-row { padding: 8px 0 !important; }
-            .shop-buy-btn { font-size: 13px !important; padding: 6px 10px !important; }
-        }
-        @media (pointer: coarse), (max-width: 950px) {
-    .movable-window {
-        position: fixed !important;
-        top: 80px !important;
-        left: 20px !important;
-        right: auto !important;
-        bottom: auto !important;
-        transform: none !important;
-        transform-origin: top left !important;
-        touch-action: none !important;
-        max-width: 92vw !important;
-        max-height: 80vh !important;
-        overflow: auto !important;
-        z-index: 5000 !important;
-    }
-
-    .movable-window.window-dragging {
-        opacity: 0.96;
-    }
-}
         
         /* --- PERFORMANCE & FPS CSS --- */
         #fps-counter {
@@ -601,37 +570,26 @@
             .friend-info { font-size: 14px !important; }
             .dm-btn { font-size: 12px !important; padding: 5px 8px !important; }
         }
-        @media (max-width: 950px) {
-    #inventory-screen { 
-        width: 270px !important; 
-        right: 10px !important; 
-        padding: 10px !important; 
-    }
 
-    #shop-screen { 
-        width: 300px !important; 
-        left: 10px !important; 
-        transform: translateY(-50%) !important; 
-        padding: 12px !important; 
-    }
-}
-
-/* ADD THE NEW BLOCK RIGHT UNDER YOUR EXISTING MOBILE BLOCKS */
 @media (pointer: coarse), (max-width: 950px) {
     .movable-window {
         position: fixed !important;
-        top: 80px !important;
-        left: 20px !important;
+        top: 70px !important;
+        left: 12px !important;
         right: auto !important;
         bottom: auto !important;
         transform: none !important;
         transform-origin: top left !important;
         touch-action: none !important;
-        max-width: 92vw !important;
-        max-height: 80vh !important;
         overflow: auto !important;
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100vh - 110px) !important;
         z-index: 5000 !important;
+        box-sizing: border-box !important;
     }
+    .movable-window.window-dragging {
+    opacity: 0.96;
+}
 
     #inventory-screen,
     #shop-screen,
@@ -642,9 +600,127 @@
     #inspect-screen,
     #trade-screen,
     #admin-panel {
+        top: 70px !important;
+        left: 12px !important;
         right: auto !important;
         bottom: auto !important;
         transform: none !important;
+        margin: 0 !important;
+    }
+
+    #inventory-screen {
+        width: 245px !important;
+        height: auto !important;
+        padding: 10px !important;
+    }
+
+    #shop-screen {
+        width: 270px !important;
+        padding: 10px !important;
+    }
+
+    #friends-screen,
+    #mailbox-screen {
+        width: 260px !important;
+        padding: 10px !important;
+    }
+
+    #skill-screen,
+    #stat-screen,
+    #inspect-screen {
+        width: 270px !important;
+        padding: 10px !important;
+    }
+
+    #trade-screen {
+        width: 290px !important;
+        padding: 10px !important;
+    }
+
+    #admin-panel {
+        width: 290px !important;
+        max-height: calc(100vh - 110px) !important;
+        padding: 10px !important;
+    }
+
+    #inventory-screen h2,
+    #shop-screen h2,
+    #friends-screen h2,
+    #mailbox-screen h2,
+    #skill-screen h2,
+    #stat-screen h2,
+    #inspect-screen h2,
+    #trade-screen h2 {
+        font-size: 18px !important;
+        margin-bottom: 8px !important;
+        padding-bottom: 6px !important;
+    }
+
+    .stat-grid {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+        font-size: 14px !important;
+    }
+
+    .skill-row,
+    .friend-row,
+    .shop-item-row {
+        font-size: 12px !important;
+    }
+
+    .skill-desc,
+    .mail-msg,
+    .friend-info,
+    .dm-btn,
+    .shop-buy-btn,
+    .equip-box,
+    .inv-slot,
+    .ctx-btn {
+        font-size: 12px !important;
+    }
+
+    .inv-grid {
+        gap: 6px !important;
+    }
+
+    .equip-container {
+        gap: 6px !important;
+    }
+
+    .equip-box {
+        padding: 6px 4px !important;
+    }
+
+    .btn-large {
+        font-size: 13px !important;
+        padding: 9px !important;
+    }
+
+    .shop-item-icon {
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 16px !important;
+    }
+
+    .admin-tool-row {
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+    }
+
+    #admin-output {
+        height: 80px !important;
+        font-size: 10px !important;
+    }
+        #inventory-screen,
+    #shop-screen,
+    #friends-screen,
+    #mailbox-screen,
+    #skill-screen,
+    #stat-screen,
+    #inspect-screen,
+    #trade-screen,
+    #admin-panel {
+        -webkit-overflow-scrolling: touch;
     }
 }
     </style>
@@ -2918,6 +2994,7 @@ window.logout = function() {
     location.reload();
 };
 window.mobileWindowState = {};
+window.__topWindowZ = 6000;
 
 window.isMobileUI = function() {
     return window.matchMedia('(pointer: coarse), (max-width: 950px)').matches;
@@ -2925,30 +3002,18 @@ window.isMobileUI = function() {
 
 window.bringWindowToFront = function(el) {
     if (!el) return;
-    window.__topWindowZ = (window.__topWindowZ || 6000) + 1;
+    window.__topWindowZ += 1;
     el.style.zIndex = window.__topWindowZ;
-};
-
-window.applyMobileWindowState = function(el) {
-    if (!el) return;
-    const left = parseFloat(el.dataset.left || '20');
-    const top = parseFloat(el.dataset.top || '80');
-    const scale = parseFloat(el.dataset.scale || '1');
-    el.style.left = left + 'px';
-    el.style.top = top + 'px';
-    el.style.transform = `scale(${scale})`;
 };
 
 window.clampWindowToViewport = function(el) {
     if (!el) return;
-
-    const scale = parseFloat(el.dataset.scale || '1');
-    el.style.transform = `scale(${scale})`;
+    if (el.style.display === 'none') return;
 
     const rect = el.getBoundingClientRect();
 
-    let left = parseFloat(el.dataset.left || '20');
-    let top = parseFloat(el.dataset.top || '80');
+    let left = parseFloat(el.dataset.left || '12');
+    let top = parseFloat(el.dataset.top || '70');
 
     const maxLeft = Math.max(0, window.innerWidth - rect.width);
     const maxTop = Math.max(0, window.innerHeight - rect.height);
@@ -2956,207 +3021,181 @@ window.clampWindowToViewport = function(el) {
     left = Math.max(0, Math.min(left, maxLeft));
     top = Math.max(0, Math.min(top, maxTop));
 
-    el.dataset.left = String(left);
-    el.dataset.top = String(top);
+    el.dataset.left = left;
+    el.dataset.top = top;
 
     el.style.left = left + 'px';
     el.style.top = top + 'px';
-    el.style.transform = `scale(${scale})`;
+    el.style.transform = 'none';
 };
 
 window.enableMobileWindowControls = function(el) {
     if (!el || el.dataset.mobileWindowReady === '1') return;
     el.dataset.mobileWindowReady = '1';
 
-    el.dataset.left = el.dataset.left || '20';
-    el.dataset.top = el.dataset.top || '80';
-    el.dataset.scale = el.dataset.scale || '1';
+   el.dataset.left = el.dataset.left || '12';
+el.dataset.top = el.dataset.top || '70';
+el.style.position = 'fixed';
+el.style.right = 'auto';
+el.style.bottom = 'auto';
+el.style.left = el.dataset.left + 'px';
+el.style.top = el.dataset.top + 'px';
+el.style.transform = 'none';
 
-    let active = false;
     let dragging = false;
-    let pinching = false;
-
-    let dragStartX = 0;
-    let dragStartY = 0;
+    let activeId = null;
+    let startX = 0;
+    let startY = 0;
     let startLeft = 0;
     let startTop = 0;
 
-    let pinchStartDistance = 0;
-    let pinchStartScale = 1;
-
-    let activeTouches = new Map();
-
-    const DRAG_THRESHOLD = 6;
-
-    function getDistance(t1, t2) {
-        const dx = t2.clientX - t1.clientX;
-        const dy = t2.clientY - t1.clientY;
-        return Math.hypot(dx, dy);
-    }
-
-    function getTouchArray() {
-        return Array.from(activeTouches.values());
-    }
-
-    function startSingleDrag(touch) {
-        dragging = false;
-        pinching = false;
-        dragStartX = touch.clientX;
-        dragStartY = touch.clientY;
-        startLeft = parseFloat(el.dataset.left || '20');
-        startTop = parseFloat(el.dataset.top || '80');
-    }
-
-    function startPinch(t1, t2) {
-        dragging = false;
-        pinching = true;
-        pinchStartDistance = getDistance(t1, t2);
-        pinchStartScale = parseFloat(el.dataset.scale || '1');
-    }
-
-    function onTouchStart(e) {
-        if (!window.isMobileUI()) return;
-
-        const touchedWindow = e.target.closest('.movable-window');
-        if (touchedWindow !== el) return;
-        if (el.style.display === 'none') return;
-
-        window.bringWindowToFront(el);
-
-        active = true;
-
-        for (const t of e.changedTouches) {
-            activeTouches.set(t.identifier, {
-                identifier: t.identifier,
-                clientX: t.clientX,
-                clientY: t.clientY
-            });
+    function getTouchById(touchList, id) {
+        for (let i = 0; i < touchList.length; i++) {
+            if (touchList[i].identifier === id) return touchList[i];
         }
-
-        const touches = getTouchArray();
-
-        if (touches.length === 1) {
-            startSingleDrag(touches[0]);
-        } else if (touches.length >= 2) {
-            startPinch(touches[0], touches[1]);
-        }
+        return null;
     }
+
+   function onTouchStart(e) {
+    if (!window.isMobileUI()) return;
+    if (el.style.display === 'none') return;
+
+    const inside = e.target.closest('.movable-window');
+    if (inside !== el) return;
+
+    const blocker = e.target.closest('input, textarea, select, button, .inv-slot, .equip-box, .ctx-btn, .shop-buy-btn');
+    if (blocker) return;
+
+    if (e.touches.length !== 1) return;
+
+    const t = e.touches[0];
+    dragging = true;
+    activeId = t.identifier;
+    startX = t.clientX;
+    startY = t.clientY;
+    startLeft = parseFloat(el.dataset.left || '12');
+    startTop = parseFloat(el.dataset.top || '70');
+
+    window.bringWindowToFront(el);
+    el.classList.add('window-dragging');
+}
 
     function onTouchMove(e) {
         if (!window.isMobileUI()) return;
-        if (!active) return;
+        if (!dragging) return;
 
-        let changed = false;
-        for (const t of e.changedTouches) {
-            if (activeTouches.has(t.identifier)) {
-                activeTouches.set(t.identifier, {
-                    identifier: t.identifier,
-                    clientX: t.clientX,
-                    clientY: t.clientY
-                });
-                changed = true;
-            }
-        }
-        if (!changed) return;
+        const t = getTouchById(e.touches, activeId);
+        if (!t) return;
 
-        const touches = getTouchArray();
+        e.preventDefault();
 
-        if (touches.length >= 2) {
-            e.preventDefault();
+        const dx = t.clientX - startX;
+        const dy = t.clientY - startY;
 
-            if (!pinching) {
-                startPinch(touches[0], touches[1]);
-            }
+        const nextLeft = startLeft + dx;
+        const nextTop = startTop + dy;
 
-            const dist = getDistance(touches[0], touches[1]);
-            if (pinchStartDistance > 0) {
-                let nextScale = pinchStartScale * (dist / pinchStartDistance);
-                nextScale = Math.max(0.7, Math.min(1.8, nextScale));
-                el.dataset.scale = String(nextScale);
-                window.applyMobileWindowState(el);
-            }
-            return;
-        }
-
-        if (touches.length === 1) {
-            const t = touches[0];
-            const dx = t.clientX - dragStartX;
-            const dy = t.clientY - dragStartY;
-
-            if (!dragging) {
-                if (Math.hypot(dx, dy) >= DRAG_THRESHOLD) {
-                    dragging = true;
-                    el.classList.add('window-dragging');
-                }
-            }
-
-            if (dragging) {
-                e.preventDefault();
-                el.dataset.left = String(startLeft + dx);
-                el.dataset.top = String(startTop + dy);
-                window.applyMobileWindowState(el);
-            }
-        }
+        el.dataset.left = nextLeft;
+        el.dataset.top = nextTop;
+        el.style.left = nextLeft + 'px';
+        el.style.top = nextTop + 'px';
+        el.style.transform = 'none';
     }
 
-    function endTouches(e) {
-        for (const t of e.changedTouches) {
-            activeTouches.delete(t.identifier);
-        }
-
-        const touches = getTouchArray();
-
-        if (touches.length === 0) {
-            active = false;
-            dragging = false;
-            pinching = false;
-            el.classList.remove('window-dragging');
-            window.clampWindowToViewport(el);
-            return;
-        }
-
-        if (touches.length === 1) {
-            pinching = false;
-            startSingleDrag(touches[0]);
-        } else if (touches.length >= 2) {
-            startPinch(touches[0], touches[1]);
-        }
+    function stopDrag() {
+        if (!dragging) return;
+        dragging = false;
+        activeId = null;
+        el.classList.remove('window-dragging');
+        window.clampWindowToViewport(el);
     }
 
     document.addEventListener('touchstart', onTouchStart, { passive: true });
     document.addEventListener('touchmove', onTouchMove, { passive: false });
-    document.addEventListener('touchend', endTouches, { passive: true });
-    document.addEventListener('touchcancel', endTouches, { passive: true });
+    document.addEventListener('touchend', stopDrag, { passive: true });
+    document.addEventListener('touchcancel', stopDrag, { passive: true });
 
-    el.addEventListener('mousedown', function() {
-        if (!window.isMobileUI()) return;
-        window.bringWindowToFront(el);
-    });
+  let mouseDragging = false;
+let mouseStartX = 0;
+let mouseStartY = 0;
+let mouseStartLeft = 0;
+let mouseStartTop = 0;
 
-    window.applyMobileWindowState(el);
+function onMouseDown(e) {
+    if (!window.isMobileUI()) return;
+    if (el.style.display === 'none') return;
+
+    const inside = e.target.closest('.movable-window');
+    if (inside !== el) return;
+
+    const blocker = e.target.closest('input, textarea, select, button, .inv-slot, .equip-box, .ctx-btn, .shop-buy-btn');
+    if (blocker) return;
+
+    mouseDragging = true;
+    mouseStartX = e.clientX;
+    mouseStartY = e.clientY;
+    mouseStartLeft = parseFloat(el.dataset.left || '12');
+    mouseStartTop = parseFloat(el.dataset.top || '70');
+
+    window.bringWindowToFront(el);
+    el.classList.add('window-dragging');
+    e.preventDefault();
+}
+
+function onMouseMove(e) {
+    if (!window.isMobileUI()) return;
+    if (!mouseDragging) return;
+
+    const dx = e.clientX - mouseStartX;
+    const dy = e.clientY - mouseStartY;
+
+    const nextLeft = mouseStartLeft + dx;
+    const nextTop = mouseStartTop + dy;
+
+    el.dataset.left = nextLeft;
+    el.dataset.top = nextTop;
+    el.style.left = nextLeft + 'px';
+    el.style.top = nextTop + 'px';
+    el.style.transform = 'none';
+}
+
+function onMouseUp() {
+    if (!mouseDragging) return;
+    mouseDragging = false;
+    el.classList.remove('window-dragging');
+    window.clampWindowToViewport(el);
+}
+
+document.addEventListener('mousedown', onMouseDown);
+document.addEventListener('mousemove', onMouseMove);
+document.addEventListener('mouseup', onMouseUp);
+
     setTimeout(() => window.clampWindowToViewport(el), 50);
 };
 
 window.initAllMobileWindows = function() {
-    const all = document.querySelectorAll('.movable-window');
-    all.forEach(el => window.enableMobileWindowControls(el));
+    document.querySelectorAll('.movable-window').forEach(el => {
+        window.enableMobileWindowControls(el);
+    });
 };
 
-window.resetMobileWindow = function(id, x = 20, y = 80, scale = 1) {
+window.resetMobileWindow = function(id, x = 12, y = 70) {
     const el = document.getElementById(id);
     if (!el) return;
-    el.dataset.left = String(x);
-    el.dataset.top = String(y);
-    el.dataset.scale = String(scale);
-    window.applyMobileWindowState(el);
+    el.dataset.left = x;
+    el.dataset.top = y;
+    el.style.position = 'fixed';
+    el.style.right = 'auto';
+    el.style.bottom = 'auto';
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.transform = 'none';
     window.clampWindowToViewport(el);
 };
 
-window.addEventListener('resize', () => {
+window.addEventListener('resize', function() {
     document.querySelectorAll('.movable-window').forEach(el => {
-        if (el.dataset.mobileWindowReady === '1') {
-            window.clampWindowToViewport(el);
-        }
+        window.clampWindowToViewport(el);
     });
 });
 
@@ -3218,6 +3257,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
