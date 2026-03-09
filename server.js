@@ -287,8 +287,24 @@ function getServerTotalStat(p, statName) { 
     if (p.baseStats.playerClass === 'Blademaster' && statName === 'attack') base += Math.floor(p.baseStats.attack * 0.25);
     return base; 
 }
-function getServerAttackPower(p) { return getServerTotalStat(p, 'attack') + Math.floor(getServerTotalStat(p, 'str') / 2); }
-function getServerMagicAttack(p) { return getServerTotalStat(p, 'magic') + Math.floor(getServerTotalStat(p, 'int') / 2); }
+function getServerAttackPower(p) {
+    return getServerTotalStat(p, 'attack') + Math.floor(getServerTotalStat(p, 'str') / 2);
+}
+
+function getServerMagicAttack(p) {
+    return getServerTotalStat(p, 'magic') + Math.floor(getServerTotalStat(p, 'int') / 2);
+}
+
+function getServerDefense(p) {
+    let def = getServerTotalStat(p, 'defense');
+
+    // Berserker Taunt / Callout buff is enforced here on the server
+    if (p && p.tauntBuffUntil && Date.now() < p.tauntBuffUntil) {
+        def *= 5;
+    }
+
+    return def;
+}
 
 function spawnMonster(instId, entityId, originalKey, cfg) {
     let monsterKey = originalKey; // 🌟 Store the original key to prevent mutations!
@@ -439,7 +455,7 @@ function updateMonsterAI(instId, m, now) {
                     if (p.isGhost || p.isHiddenAdmin || p.mapId === 'town') return;
                     const pDist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
                     if (pDist <= aoeRadius) {
-                        const damage = Math.max(1, m.atk - getServerTotalStat(p, 'defense'));
+                        const damage = Math.max(1, m.atk - getServerDefense(p));
                         p.currentHp -= damage;
                         io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: p.id, targetX: p.x + 24, targetY: p.y + 48, atk: m.atk, isAoE: true });
                     }
@@ -1032,10 +1048,11 @@ socket.on('broadcastSkill', (data) => {
             weapon: safeEquips.weapon?.sprite || null,
             aura: safeEquips.armor?.aura || null
         },
-        untargetableUntil: 0,
-        attackTokens: 3,
-        lastTokenRefill: Date.now(),
-        skillCooldowns: {}
+     untargetableUntil: 0,
+tauntBuffUntil: 0,
+attackTokens: 3,
+lastTokenRefill: Date.now(),
+skillCooldowns: {}
     };
     
     supabase
@@ -1187,22 +1204,36 @@ socket.on('broadcastSkill', (data) => {
         }
     });
 
-   socket.on('tauntMonsters', () => { // 🛡️ Ignored client data
-        const p = onlinePlayers[socket.id]; if(!p || p.isGhost) return;
-        if (p.mapId === 'town' || p.baseStats?.playerClass !== 'Berserker') return; 
+  socket.on('tauntMonsters', () => { // 🛡️ Ignored client data
+    const p = onlinePlayers[socket.id];
+    if (!p || p.isGhost) return;
+    if (p.mapId === 'town' || p.baseStats?.playerClass !== 'Berserker') return;
 
-        const now = Date.now();
-        if (p.skillCooldowns['tauntMonsters'] && now < p.skillCooldowns['tauntMonsters']) return;
-        p.skillCooldowns['tauntMonsters'] = now + 13000;
+    const now = Date.now();
+    if (p.skillCooldowns['tauntMonsters'] && now < p.skillCooldowns['tauntMonsters']) return;
+    p.skillCooldowns['tauntMonsters'] = now + 13000;
 
-        const world = worlds[p.instanceId]; if(!world) return;
-        for (let mId in world.monsters) {
-            let m = world.monsters[mId];
-            if (!m.alive) continue;
-            let dist = Math.hypot(p.x + 24 - (m.x + m.width/2), p.y + 48 - (m.y + m.height/2));
-            if (dist <= 300) { m.forcedTargetId = p.id; m.forcedUntil = Date.now() + 10000; } // 🛡️ Server enforces 300 radius
-        }
-    });
+    // ✅ SERVER now also stores the defensive taunt buff duration
+    p.tauntBuffUntil = now + 10000;
+
+    const world = worlds[p.instanceId];
+    if (!world) return;
+
+    for (let mId in world.monsters) {
+        let m = world.monsters[mId];
+        if (!m.alive) continue;
+
+        let dist = Math.hypot(
+            p.x + 24 - (m.x + m.width / 2),
+            p.y + 48 - (m.y + m.height / 2)
+        );
+
+        if (dist <= 300) {
+            m.forcedTargetId = p.id;
+            m.forcedUntil = now + 10000;
+        }
+    }
+});
 
   socket.on('syncPet', (data) => {
         const p = onlinePlayers[socket.id]; if(!p) return;
@@ -1973,6 +2004,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
