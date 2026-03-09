@@ -222,8 +222,24 @@ const MonsterDatabase = {
 
 function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
 function getPlayerById(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return onlinePlayers[sid]; } return null; }
-function playersInInstance(instId) { 
-    return Object.values(onlinePlayers).filter(p => p.instanceId === instId); 
+function playersInInstance(instId) { 
+    return Object.values(onlinePlayers).filter(p => p.instanceId === instId); 
+}
+
+function playerAcceptsLoot(player, item) {
+    if (!player || !item) return false;
+    const rarity = item.rarity || 'Basic';
+    const filter = player.lootFilter || {
+        Starter: true,
+        Basic: true,
+        Rare: true,
+        Unique: true,
+        Legendary: true,
+        Godly: true
+    };
+
+    if (typeof filter[rarity] === 'undefined') return true;
+    return !!filter[rarity];
 }
 
 function emitPartyUpdate(partyId) {
@@ -739,9 +755,23 @@ io.on('connection', (socket) => {
     });
 
     socket.on('getFriendsList', () => {
-        const me = onlinePlayers[socket.id];
-        if (me) sendFriendsUpdateTo(me.id);
-    });
+        const me = onlinePlayers[socket.id];
+        if (me) sendFriendsUpdateTo(me.id);
+    });
+
+    socket.on('updateLootFilter', (filter) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !filter || typeof filter !== 'object') return;
+
+        p.lootFilter = {
+            Starter: !!filter.Starter,
+            Basic: !!filter.Basic,
+            Rare: !!filter.Rare,
+            Unique: !!filter.Unique,
+            Legendary: !!filter.Legendary,
+            Godly: !!filter.Godly
+        };
+    });
     socket.on('saveMapFile', (data) => {
         const p = onlinePlayers[socket.id];
         // 🛡️ ANTI-CHEAT: ONLY THE REAL SERVER ADMIN CAN SAVE MAPS
@@ -1196,18 +1226,26 @@ socket.on('login', async (data) => {
         equips: safeEquips,
         baseStats: safeBaseStats,
         gold: userData.gold || 0,
-        spriteData: {
+                spriteData: {
             skin: userData.skin_color,
             hair: userData.hair_color,
             style: userData.hair_style,
             weapon: safeEquips.weapon?.sprite || null,
             aura: safeEquips.armor?.aura || null
         },
-     untargetableUntil: 0,
-tauntBuffUntil: 0,
-attackTokens: 3,
-lastTokenRefill: Date.now(),
-skillCooldowns: {}
+        lootFilter: {
+            Starter: true,
+            Basic: true,
+            Rare: true,
+            Unique: true,
+            Legendary: true,
+            Godly: true
+        },
+        untargetableUntil: 0,
+        tauntBuffUntil: 0,
+        attackTokens: 3,
+        lastTokenRefill: Date.now(),
+        skillCooldowns: {}
     };
     
     supabase
@@ -1508,16 +1546,41 @@ skillCooldowns: {}
             const expAmount = m.expYield || 25; const goldAmount = m.goldYield || 15; 
             const pid = playerParty[p.id];
 
-            if (pid && parties[pid]) {
-                for (const memberId of parties[pid].members) { 
-                    const sid = findSocketIdByPlayerId(memberId); 
-                    if (sid) {
-                        io.to(sid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
-                        let drop = generateLoot(m); io.to(sid).emit('lootDropped', drop);
-                        if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
-                            io.emit('rareLootBroadcast', { playerName: memberId, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
-                        }
-                    }
+                     if (pid && parties[pid]) {
+                for (const memberId of parties[pid].members) { 
+                    const sid = findSocketIdByPlayerId(memberId); 
+                    const memberPlayer = getPlayerById(memberId);
+                    if (sid && memberPlayer) {
+                        io.to(sid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
+
+                        let drop = generateLoot(m);
+
+                        if (drop && playerAcceptsLoot(memberPlayer, drop)) {
+                            io.to(sid).emit('lootDropped', drop);
+                        } else if (drop) {
+                            io.to(sid).emit('systemMessage', `Filtered loot ignored: ${drop.name} [${drop.rarity}]`);
+                        }
+
+                        if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
+                            io.emit('rareLootBroadcast', { playerName: memberId, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
+                        }
+                    }
+                }
+            } else { 
+                io.to(socket.id).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
+
+                let drop = generateLoot(m);
+
+                if (drop && playerAcceptsLoot(p, drop)) {
+                    io.to(socket.id).emit('lootDropped', drop);
+                } else if (drop) {
+                    io.to(socket.id).emit('systemMessage', `Filtered loot ignored: ${drop.name} [${drop.rarity}]`);
+                }
+
+                if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
+                    io.emit('rareLootBroadcast', { playerName: p.name || p.id, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
+                }
+            }
                 }
             } else { 
                 io.to(socket.id).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
@@ -2490,6 +2553,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
