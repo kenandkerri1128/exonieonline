@@ -544,11 +544,10 @@ io.on('connection', (socket) => {
 
     try {
                     const { data: mails, error } = await supabase
-                .from('System_Mail')
-                .select('*')
-                .ilike('recipient_name', p.id)
-                .neq('is_claimed', true);
-            .or('is_claimed.is.null,is_claimed.eq.false');
+    .from('System_Mail')
+    .select('*')
+    .ilike('recipient_name', p.id)
+    .or('is_claimed.is.null,is_claimed.eq.false');
 
         if (error) throw error;
 
@@ -581,12 +580,12 @@ io.on('connection', (socket) => {
 
     try {
                     const { data: mail, error } = await supabase
-                .from('System_Mail')
-                .select('*')
-                .eq('id', mailId)
-                .ilike('recipient_name', p.id)
-                .neq('is_claimed', true)
-                .single();
+    .from('System_Mail')
+    .select('*')
+    .eq('id', mailId)
+    .ilike('recipient_name', p.id)
+    .or('is_claimed.is.null,is_claimed.eq.false')
+    .single();
 
         if (error || !mail) {
             return socket.emit('systemMessage', "Mail not found or already claimed.");
@@ -1727,6 +1726,7 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
