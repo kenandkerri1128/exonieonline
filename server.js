@@ -960,7 +960,69 @@ socket.on('login', async (data) => {
         }
 
         // ✅ FORCE-REMOVE OLD SESSION IF THIS ACCOUNT IS ALREADY STUCK ONLINE
+                // ✅ FORCE-REMOVE ONLY A REAL EXISTING OLD IN-GAME SESSION
         let oldSocketId = null;
+        for (const sid of Object.keys(onlinePlayers)) {
+            if (sid !== socket.id && onlinePlayers[sid]?.id === username) {
+                oldSocketId = sid;
+                break;
+            }
+        }
+
+        if (oldSocketId) {
+            const oldSocket = io.sockets.sockets.get(oldSocketId);
+            const oldPlayer = onlinePlayers[oldSocketId];
+
+            console.log(`[LOGIN OVERRIDE] Kicking old active session for ${username} (${oldSocketId})`);
+
+            try {
+                if (oldPlayer) {
+                    const oldInstId = oldPlayer.instanceId;
+
+                    if (oldPlayer.instanceId) {
+                        socket.to(oldPlayer.instanceId).emit('remotePlayerLeft', oldPlayer.id);
+                    }
+
+                    if (worlds[oldPlayer.instanceId] && worlds[oldPlayer.instanceId].pets) {
+                        for (const petId in worlds[oldPlayer.instanceId].pets) {
+                            if (worlds[oldPlayer.instanceId].pets[petId].ownerId === oldPlayer.id) {
+                                delete worlds[oldPlayer.instanceId].pets[petId];
+                            }
+                        }
+                    }
+
+                    removeFromParty(oldPlayer.id);
+
+                    let saveMap = oldPlayer.mapId || 'town';
+                    let saveX = typeof oldPlayer.x === 'number' ? oldPlayer.x : 960;
+                    let saveY = typeof oldPlayer.y === 'number' ? oldPlayer.y : 1000;
+
+                    if (oldPlayer.isGhost) {
+                        saveMap = 'town';
+                        saveX = 960;
+                        saveY = 1000;
+                    }
+
+                    supabase
+                        .from('Exonians')
+                        .update({ map_id: saveMap, pos_x: saveX, pos_y: saveY })
+                        .eq('character_name', oldPlayer.id)
+                        .then(() => {});
+
+                    delete onlinePlayers[oldSocketId];
+                    checkAndResetInstance(oldInstId);
+                }
+
+                activeLogins.delete(username);
+
+                if (oldSocket && oldSocket.connected) {
+                    oldSocket.emit('forcedLogout', 'Your account was logged in from another session.');
+                    oldSocket.disconnect(true);
+                }
+            } catch (cleanupErr) {
+                console.error(`[LOGIN OVERRIDE CLEANUP ERROR] ${username}:`, cleanupErr);
+            }
+        }
         for (const sid of Object.keys(onlinePlayers)) {
             if (onlinePlayers[sid]?.id === username) {
                 oldSocketId = sid;
@@ -2428,6 +2490,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
