@@ -104,7 +104,7 @@ function generateLoot(monster) {
       // ==========================================
     // 2. COMMON MOB SPECIAL DROP: REVIVAL JUICE (1%)
     // ==========================================
-    if (monster.category === "common_mobs" && Math.random() < 0.01) {
+    if (monster.category === "common_mobs" && Math.random() < 0.0009) {
         return {
             id: Date.now() + Math.random(),
             name: "Revival Juice",
@@ -119,7 +119,7 @@ function generateLoot(monster) {
     // ==========================================
     // 3. REFINEMENT STONE DROP (45% Chance)
     // ==========================================
-    if (Math.random() < 0.49) {
+    if (Math.random() < 0.50) {
         let stoneRarity = "Basic";
         let r = Math.random();
         
@@ -2596,6 +2596,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
