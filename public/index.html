@@ -534,6 +534,38 @@
             .shop-item-row { padding: 8px 0 !important; }
             .shop-buy-btn { font-size: 13px !important; padding: 6px 10px !important; }
         }
+        @media (pointer: coarse), (max-width: 950px) {
+    .movable-window {
+        position: fixed !important;
+        top: 80px !important;
+        left: 20px !important;
+        right: auto !important;
+        bottom: auto !important;
+        transform: none !important;
+        transform-origin: top left !important;
+        touch-action: none !important;
+        max-width: 92vw !important;
+        max-height: 80vh !important;
+        overflow: auto !important;
+        z-index: 5000 !important;
+    }
+
+    .movable-window.window-dragging {
+        opacity: 0.96;
+    }
+
+    .movable-window::before {
+        content: 'Drag / Pinch';
+        display: block;
+        font-size: 11px;
+        color: #aaa;
+        text-align: center;
+        padding-bottom: 6px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        margin-bottom: 8px;
+        pointer-events: none;
+    }
+}
         
         /* --- PERFORMANCE & FPS CSS --- */
         #fps-counter {
@@ -581,6 +613,52 @@
             .friend-info { font-size: 14px !important; }
             .dm-btn { font-size: 12px !important; padding: 5px 8px !important; }
         }
+        @media (max-width: 950px) {
+    #inventory-screen { 
+        width: 270px !important; 
+        right: 10px !important; 
+        padding: 10px !important; 
+    }
+
+    #shop-screen { 
+        width: 300px !important; 
+        left: 10px !important; 
+        transform: translateY(-50%) !important; 
+        padding: 12px !important; 
+    }
+}
+
+/* ADD THE NEW BLOCK RIGHT UNDER YOUR EXISTING MOBILE BLOCKS */
+@media (pointer: coarse), (max-width: 950px) {
+    .movable-window {
+        position: fixed !important;
+        top: 80px !important;
+        left: 20px !important;
+        right: auto !important;
+        bottom: auto !important;
+        transform: none !important;
+        transform-origin: top left !important;
+        touch-action: none !important;
+        max-width: 92vw !important;
+        max-height: 80vh !important;
+        overflow: auto !important;
+        z-index: 5000 !important;
+    }
+
+    #inventory-screen,
+    #shop-screen,
+    #friends-screen,
+    #mailbox-screen,
+    #skill-screen,
+    #stat-screen,
+    #inspect-screen,
+    #trade-screen,
+    #admin-panel {
+        right: auto !important;
+        bottom: auto !important;
+        transform: none !important;
+    }
+}
     </style>
 </head>
 <body>
@@ -612,7 +690,7 @@
         </div>
     </div>
 
-    <div id="trade-screen">
+    <div id="trade-screen" class="movable-window">
         <h2 style="margin-top:0; text-align:center; color:#2196F3;">Trade with <span id="trade-target-name">...</span></h2>
         <div style="display:flex; justify-content:space-between; gap:15px;">
             <div class="trade-side">
@@ -653,7 +731,7 @@
         <button class="ctx-btn" onmousedown="window.requestTrade()">Trade</button>
     </div>
 
-    <div id="shop-screen">
+    <div id="shop-screen" class="movable-window">
         <h2 style="margin-top:0; text-align:center; color:#4CAF50; border-bottom: 1px solid #444; padding-bottom:10px;">Wandering Merchant</h2>
         <p style="text-align:center; color:gold; margin-top:0; font-size: 18px;">Your Gold: <span id="shop-my-gold">0</span></p>
         
@@ -721,7 +799,7 @@
         <button class="btn btn-large" style="margin-top: 15px; padding: 10px; background:#555; border-color:#555;" onclick="window.closeShop()">Close Shop (J)</button>
     </div>
     
-    <div id="friends-screen">
+    <div id="friends-screen" class="movable-window">
         <h2>Friends List</h2>
         <div id="friends-list-container">
             <p style="text-align:center; color:#aaa;">Loading friends...</p>
@@ -896,7 +974,7 @@
 </div>
         </div>
         
-        <div id="admin-panel">
+        <div id="admin-panel" class="movable-window">
             <h3 style="margin-top: 0; color: #fff;">Admin Tools</h3>
             <div class="panel-section" style="padding: 10px;">
                 <h4 style="color:#ffeb3b;">Power Testing</h4>
@@ -942,9 +1020,10 @@
             <button class="btn" style="margin-top: 5px; width: 100%;" onclick="window.copyAdminData()">Copy Code Manually</button>
         </div>
         
-        <div id="inspect-screen"><h2 id="inspect-title" style="margin:0 0 10px 0; text-align:center; border-bottom:1px solid #444; padding-bottom:8px;">Inspect</h2><div id="inspect-content"></div><button class="btn btn-large" style="margin-top: 10px; padding: 10px;" onclick="window.closeInspect()">Close</button></div>
+        <div id="inspect-screen" class="movable-window">
+            <h2 id="inspect-title" style="margin:0 0 10px 0; text-align:center; border-bottom:1px solid #444; padding-bottom:8px;">Inspect</h2><div id="inspect-content"></div><button class="btn btn-large" style="margin-top: 10px; padding: 10px;" onclick="window.closeInspect()">Close</button></div>
 
-        <div id="skill-screen">
+        <div id="skill-screen" class="movable-window">
             <h2 style="margin-top: 0; text-align: center; color: #9c27b0; border-bottom: 1px solid #444; padding-bottom: 10px;">Class & Skills</h2>
             <div id="class-selection-area" style="display: none;">
                 <h3 style="color: #ffeb3b; text-align: center;">Select Your Path</h3>
@@ -976,7 +1055,7 @@
             </div>
         </div>
 
-      <div id="inventory-screen">
+      <div id="inventory-screen" class="movable-window">
     <h2>Inventory</h2>
     <h3 style="margin: 0 0 10px 0; font-size: 18px; text-align: center; color: gold;">Gold: <span id="ui-gold-text">0</span></h3>
 
@@ -1006,7 +1085,7 @@
     <button class="btn btn-large" style="margin-top: auto; padding: 15px;" onclick="window.toggleInventory()">Close Inventory (I)</button>
 </div>
         
-        <div id="stat-screen" class="window-panel">
+        <div id="stat-screen" class="window-panel movable-window">
             <h2 style="margin: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px;">Player Stats</h2>
             <div class="stat-grid">
                 <div>Level: <span id="stat-lvl" style="color:#ffd700;">1</span></div><div>Max HP: <span id="stat-maxhp">100</span></div>
@@ -1029,7 +1108,7 @@
         </div>
     </div>
 </div>
-    <div id="mailbox-screen">
+    <div id="mailbox-screen" class="movable-window">
         <h2>System Mail</h2>
         <div id="mail-list-container">
             <p style="text-align:center; color:#aaa;">No messages.</p>
@@ -1136,8 +1215,16 @@ const CLASSES = {
 };
 
 window.toggleSkillScreen = function() {
-    isSkillOpen = !isSkillOpen; dom.skillScreen.style.display = isSkillOpen ? 'block' : 'none';
-    if (isSkillOpen) window.renderSkillScreen();
+    isSkillOpen = !isSkillOpen;
+    dom.skillScreen.style.display = isSkillOpen ? 'block' : 'none';
+    if (isSkillOpen) {
+        window.renderSkillScreen();
+        if (window.isMobileUI()) {
+            window.enableMobileWindowControls(dom.skillScreen);
+            window.bringWindowToFront(dom.skillScreen);
+            window.clampWindowToViewport(dom.skillScreen);
+        }
+    }
 }
 
 window.renderSkillScreen = function() {
@@ -1735,7 +1822,21 @@ window.acceptsLootRarity = function(item) {
     return !!game.player.lootFilter[rarity];
 };
 
-window.toggleInventory = function() { isInventoryOpen = !isInventoryOpen; if (isInventoryOpen) { window.renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.invScreen.style.display = 'none'; document.getElementById('inv-context-menu').style.display = 'none'; } }
+window.toggleInventory = function() {
+    isInventoryOpen = !isInventoryOpen;
+    if (isInventoryOpen) {
+        window.renderInventory();
+        dom.invScreen.style.display = 'block';
+        if (window.isMobileUI()) {
+            window.enableMobileWindowControls(dom.invScreen);
+            window.bringWindowToFront(dom.invScreen);
+            window.clampWindowToViewport(dom.invScreen);
+        }
+    } else {
+        dom.invScreen.style.display = 'none';
+        document.getElementById('inv-context-menu').style.display = 'none';
+    }
+}
 window.renderInventory = function() {
     const grid = document.getElementById('inventory-grid'); if (!grid) return; grid.innerHTML = '';
     const inv = game.player.inventory || new Array(20).fill(null);
@@ -1896,7 +1997,11 @@ window.updatePotionHotbar = function() {
         slotEl.style.borderColor = '#555';
     }
 };
-window.toggleStats = function() { if (dom.statScreen.style.display === 'block') { dom.statScreen.style.display = 'none'; } else { document.getElementById('stat-lvl').innerText = game.player.level; document.getElementById('stat-maxhp').innerText = window.getMaxHp(); document.getElementById('stat-atk').innerText = window.getAttackPower(); document.getElementById('stat-matk').innerText = window.getMagicAttack(); document.getElementById('stat-def').innerText = window.getDefense(); document.getElementById('stat-spd').innerText = window.getSpeed(); document.getElementById('stat-str').innerText = window.getTotalStat('str'); document.getElementById('stat-int').innerText = window.getTotalStat('int'); dom.statScreen.style.display = 'block'; } }
+window.toggleStats = function() { if (dom.statScreen.style.display === 'block') { dom.statScreen.style.display = 'none'; } else { document.getElementById('stat-lvl').innerText = game.player.level; document.getElementById('stat-maxhp').innerText = window.getMaxHp(); document.getElementById('stat-atk').innerText = window.getAttackPower(); document.getElementById('stat-matk').innerText = window.getMagicAttack(); document.getElementById('stat-def').innerText = window.getDefense(); document.getElementById('stat-spd').innerText = window.getSpeed(); document.getElementById('stat-str').innerText = window.getTotalStat('str'); document.getElementById('stat-int').innerText = window.getTotalStat('int'); dom.statScreen.style.display = 'block'; if (window.isMobileUI()) {
+    window.enableMobileWindowControls(dom.statScreen);
+    window.bringWindowToFront(dom.statScreen);
+    window.clampWindowToViewport(dom.statScreen);
+} } }
 window.checkLevelUp = function() { if(game.player.level >= 50) return; while(game.player.exp >= game.player.maxExp && game.player.level < 50) { game.player.exp -= game.player.maxExp; game.player.level++; game.player.maxExp += (game.player.level >= 41 ? 1500 : game.player.level >= 31 ? 1000 : game.player.level >= 21 ? 750 : game.player.level >= 11 ? 500 : 100); game.player.baseStats.hp += 10; game.player.baseStats.str += 2; game.player.baseStats.int += 2; game.player.currentHp = window.getMaxHp(); const txt = document.createElement('div'); txt.className = 'level-up-text'; txt.innerText = "LEVEL UP!"; txt.style.left = (game.player.x - 20) + 'px'; txt.style.top = (game.player.y - 40) + 'px'; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 2000); } window.updateUI(); window.updateSkillMenu(); DatabaseManager.savePlayerData(game.player); }
 
 // ==========================================
@@ -1956,7 +2061,19 @@ joyStick.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropaga
 function moveJoystick(e) { if (!joystickActive) return; const rect = joyStick.getBoundingClientRect(); const centerX = rect.left + rect.width / 2; const centerY = rect.top + rect.height / 2; const touch = e.touches[0]; let dx = touch.clientX - centerX; let dy = touch.clientY - centerY; const dist = Math.min(25, Math.hypot(dx, dy)); const angle = Math.atan2(dy, dx); let moveX = Math.cos(angle) * dist; let moveY = Math.sin(angle) * dist; joyKnob.style.transform = `translate3d(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px), 0)`; const normX = dx / 25; const normY = dy / 25; game.keys.w = normY < -0.3; game.keys.s = normY > 0.3; game.keys.a = normX < -0.3; game.keys.d = normX > 0.3; if (game.keys.a) window.facingRight = false; if (game.keys.d) window.facingRight = true; }
 
 let isFriendsOpen = false;
-window.toggleFriends = function() { isFriendsOpen = !isFriendsOpen; document.getElementById('friends-screen').style.display = isFriendsOpen ? 'block' : 'none'; if (isFriendsOpen && socket) { socket.emit('getFriendsList'); } };
+window.toggleFriends = function() {
+    isFriendsOpen = !isFriendsOpen;
+    const el = document.getElementById('friends-screen');
+    el.style.display = isFriendsOpen ? 'block' : 'none';
+    if (isFriendsOpen) {
+        if (socket) socket.emit('getFriendsList');
+        if (window.isMobileUI()) {
+            window.enableMobileWindowControls(el);
+            window.bringWindowToFront(el);
+            window.clampWindowToViewport(el);
+        }
+    }
+};
 window.requestAddFriend = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('addFriend', { targetId: activeTargetPlayerId }); };
 window.promptDM = function(targetName) { let msg = prompt(`Send Direct Message to ${targetName}:`); if (msg && msg.trim() !== '') { if(socket) socket.emit('sendDM', { targetId: targetName, message: msg.trim() }); } };
 window.playDMSound = function() { try { const AudioContext = window.AudioContext || window.webkitAudioContext; const audioCtx = new AudioContext(); if (audioCtx.state === 'suspended') { audioCtx.resume(); } const oscillator = audioCtx.createOscillator(); const gainNode = audioCtx.createGain(); oscillator.type = 'triangle'; oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); oscillator.frequency.exponentialRampToValueAtTime(1174.66, audioCtx.currentTime + 0.1); gainNode.gain.setValueAtTime(0.7, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); oscillator.connect(gainNode); gainNode.connect(audioCtx.destination); oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.5); const chatLog = document.getElementById('chat-log'); if (chatLog) { chatLog.style.backgroundColor = 'rgba(156, 39, 176, 0.4)'; chatLog.style.transition = 'background-color 0s'; setTimeout(() => { chatLog.style.transition = 'background-color 0.5s ease'; chatLog.style.backgroundColor = 'transparent'; }, 150); } } catch (e) {} };
@@ -1970,7 +2087,11 @@ window.stopSpectating = function() {
     socket.emit('stopSpectate');
 };
 window.openPlayerContextMenu = function(targetId, e) { activeTargetPlayerId = targetId; const menu = document.getElementById('player-context-menu'); menu.style.display = 'flex'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px'; }; 
-window.inspectTargetPlayer = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; const p = game.remotePlayers[activeTargetPlayerId]; if (!p) return; dom.inspect.style.display = 'block'; dom.inspectTitle.innerText = `Inspect: ${p.name || p.id}`; let lvl = "???"; let hp = "??? / ???"; if (game.party && game.party.members) { let pm = game.party.members.find(m => m.id === p.id); if (pm) { lvl = pm.level; hp = `${pm.currentHp} / ${pm.maxHp}`; } } let wpn = p.spriteData && p.spriteData.weapon ? p.spriteData.weapon.replace('starter', 'basic') : 'None'; let html = `<div style="font-size:14px; color:#ccc; margin-bottom:10px; text-align:center;">Level ${lvl} &nbsp; | &nbsp; HP ${hp}</div>`; html += `<div class="inspect-equip"><div style="font-weight:bold; color:#ffeb3b; margin-bottom:6px;">Weapon (Visual Cache)</div><div class="inspect-item-name" style="color:#fff;">${wpn}</div></div>`; dom.inspectContent.innerHTML = html; if(socket) socket.emit('inspectRequest', { targetId: activeTargetPlayerId }); }; 
+window.inspectTargetPlayer = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; const p = game.remotePlayers[activeTargetPlayerId]; if (!p) return; dom.inspect.style.display = 'block'; if (window.isMobileUI()) {
+    window.enableMobileWindowControls(dom.inspect);
+    window.bringWindowToFront(dom.inspect);
+    window.clampWindowToViewport(dom.inspect);
+} dom.inspectTitle.innerText = `Inspect: ${p.name || p.id}`; let lvl = "???"; let hp = "??? / ???"; if (game.party && game.party.members) { let pm = game.party.members.find(m => m.id === p.id); if (pm) { lvl = pm.level; hp = `${pm.currentHp} / ${pm.maxHp}`; } } let wpn = p.spriteData && p.spriteData.weapon ? p.spriteData.weapon.replace('starter', 'basic') : 'None'; let html = `<div style="font-size:14px; color:#ccc; margin-bottom:10px; text-align:center;">Level ${lvl} &nbsp; | &nbsp; HP ${hp}</div>`; html += `<div class="inspect-equip"><div style="font-weight:bold; color:#ffeb3b; margin-bottom:6px;">Weapon (Visual Cache)</div><div class="inspect-item-name" style="color:#fff;">${wpn}</div></div>`; dom.inspectContent.innerHTML = html; if(socket) socket.emit('inspectRequest', { targetId: activeTargetPlayerId }); }; 
 window.inviteTargetToParty = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('partyInvite', { targetId: activeTargetPlayerId }); dom.log.innerText = `Party invite sent to ${activeTargetPlayerId}.`; }; 
 window.requestTrade = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('tradeRequest', { targetId: activeTargetPlayerId }); dom.log.innerText = `Trade request sent to ${activeTargetPlayerId}.`; }; 
 window.closeInspect = function() { dom.inspect.style.display = 'none'; };
@@ -2057,6 +2178,12 @@ window.openShop = function() {
     isShopping = true;
     document.getElementById('shop-my-gold').innerText = game.player.gold || 0;
     document.getElementById('shop-screen').style.display = 'block';
+    const shopEl = document.getElementById('shop-screen');
+if (window.isMobileUI()) {
+    window.enableMobileWindowControls(shopEl);
+    window.bringWindowToFront(shopEl);
+    window.clampWindowToViewport(shopEl);
+}
     if (!isInventoryOpen && typeof window.toggleInventory === 'function') window.toggleInventory();
     window.updatePotionPrice(); window.updateStonePrice();
 }
@@ -2072,8 +2199,16 @@ window.buyItem = function(type) {
 }
 window.toggleMailbox = function() {
     isMailboxOpen = !isMailboxOpen;
-    document.getElementById('mailbox-screen').style.display = isMailboxOpen ? 'block' : 'none';
-    if (isMailboxOpen && socket) socket.emit('getMail'); 
+    const el = document.getElementById('mailbox-screen');
+    el.style.display = isMailboxOpen ? 'block' : 'none';
+    if (isMailboxOpen) {
+        if (socket) socket.emit('getMail');
+        if (window.isMobileUI()) {
+            window.enableMobileWindowControls(el);
+            window.bringWindowToFront(el);
+            window.clampWindowToViewport(el);
+        }
+    }
 };
 window.claimMail = function(mailId) { if (socket) socket.emit('claimMail', mailId); };
 window.addRemotePlayer = function(pData) {
@@ -2446,6 +2581,12 @@ socket.on('forceTeleport', (tp) => {
 
     document.getElementById('trade-target-name').innerText = tradeTarget;
     document.getElementById('trade-screen').style.display = 'block';
+    const tradeEl = document.getElementById('trade-screen');
+if (window.isMobileUI()) {
+    window.enableMobileWindowControls(tradeEl);
+    window.bringWindowToFront(tradeEl);
+    window.clampWindowToViewport(tradeEl);
+}
     document.getElementById('trade-my-gold').value = 0;
     document.getElementById('trade-their-gold').innerText = '0';
 
@@ -2645,7 +2786,7 @@ socket.on('revivalJuiceUsed', (data) => {
         Object.keys(game.monsters).forEach(id => { if (!currentIds.has(id)) { let staleEl = document.getElementById('mob_' + id); if (staleEl) staleEl.remove(); delete game.monsters[id]; } });
     });
 
-   socket.on('monsterAttack', (data) => {
+ socket.on('monsterAttack', (data) => {
     if (!data || !game.monsters[data.monsterId]) return;
 
     const m = game.monsters[data.monsterId];
@@ -2655,13 +2796,6 @@ socket.on('revivalJuiceUsed', (data) => {
     const targetId = data.targetId;
     let tx = game.player.x + 24;
     let ty = game.player.y + 48;
-       const isElemental = m.monsterKey && String(m.monsterKey).includes('3');
-const mcx = m.x + (m.width / 2);
-const mcy = m.y + (m.height / 2);
-
-if (isElemental) {
-    window.shootMonsterFireball(mcx, mcy, tx, ty);
-}
 
     if (targetId !== game.player.id && game.remotePlayers[targetId]) {
         const rp = game.remotePlayers[targetId];
@@ -2677,6 +2811,15 @@ if (isElemental) {
             ty = hitPet.y + 15;
         }
     }
+
+    const isElemental = m.monsterKey && String(m.monsterKey).includes('3');
+    const mcx = m.x + (m.width / 2);
+    const mcy = m.y + (m.height / 2);
+
+    if (isElemental) {
+        window.shootMonsterFireball(mcx, mcy, tx, ty);
+    }
+
     let dx = tx - mcx;
     let dy = ty - mcy;
     let dist = Math.hypot(dx, dy) || 1;
@@ -2706,8 +2849,6 @@ if (isElemental) {
 
         if (now < game.player.untargetableUntil) return;
 
-        // Client only displays the hit using the already-approved server atk value.
-        // Real taunt defense is enforced on the backend now.
         const mobDmg = Math.max(1, serverAtk - window.getDefense());
         game.player.currentHp = Math.max(0, game.player.currentHp - mobDmg);
 
@@ -2788,6 +2929,169 @@ window.logout = function() {
     localStorage.removeItem('exonie_pass');
     location.reload();
 };
+  window.mobileWindowState = {};
+
+window.isMobileUI = function() {
+    return window.matchMedia('(pointer: coarse), (max-width: 950px)').matches;
+};
+
+window.clampWindowToViewport = function(el) {
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    const scale = parseFloat(el.dataset.scale || '1');
+
+    let left = parseFloat(el.dataset.left || el.offsetLeft || 20);
+    let top = parseFloat(el.dataset.top || el.offsetTop || 80);
+
+    const visibleWidth = rect.width;
+    const visibleHeight = rect.height;
+
+    const minLeft = 0;
+    const minTop = 0;
+    const maxLeft = Math.max(0, window.innerWidth - visibleWidth);
+    const maxTop = Math.max(0, window.innerHeight - visibleHeight);
+
+    left = Math.min(Math.max(left, minLeft), maxLeft);
+    top = Math.min(Math.max(top, minTop), maxTop);
+
+    el.dataset.left = left;
+    el.dataset.top = top;
+    el.style.left = left + 'px';
+    el.style.top = top + 'px';
+    el.style.transform = `scale(${scale})`;
+};
+
+window.bringWindowToFront = function(el) {
+    if (!el) return;
+    window.__topWindowZ = (window.__topWindowZ || 6000) + 1;
+    el.style.zIndex = window.__topWindowZ;
+};
+
+window.enableMobileWindowControls = function(el) {
+    if (!el || el.dataset.mobileWindowReady === '1') return;
+    el.dataset.mobileWindowReady = '1';
+
+    el.dataset.left = el.dataset.left || '20';
+    el.dataset.top = el.dataset.top || '80';
+    el.dataset.scale = el.dataset.scale || '1';
+
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let startLeft = 0;
+    let startTop = 0;
+    let dragging = false;
+
+    let pinchStartDistance = 0;
+    let pinchStartScale = 1;
+    let pinching = false;
+
+    function getTouchDistance(t1, t2) {
+        const dx = t2.clientX - t1.clientX;
+        const dy = t2.clientY - t1.clientY;
+        return Math.hypot(dx, dy);
+    }
+
+    function applyState() {
+        const left = parseFloat(el.dataset.left || '20');
+        const top = parseFloat(el.dataset.top || '80');
+        const scale = parseFloat(el.dataset.scale || '1');
+        el.style.left = left + 'px';
+        el.style.top = top + 'px';
+        el.style.transform = `scale(${scale})`;
+    }
+
+    el.addEventListener('touchstart', (e) => {
+        if (!window.isMobileUI()) return;
+        window.bringWindowToFront(el);
+
+        if (e.touches.length === 1) {
+            dragging = true;
+            pinching = false;
+            el.classList.add('window-dragging');
+
+            dragStartX = e.touches[0].clientX;
+            dragStartY = e.touches[0].clientY;
+            startLeft = parseFloat(el.dataset.left || '20');
+            startTop = parseFloat(el.dataset.top || '80');
+        } else if (e.touches.length === 2) {
+            dragging = false;
+            pinching = true;
+            el.classList.remove('window-dragging');
+
+            pinchStartDistance = getTouchDistance(e.touches[0], e.touches[1]);
+            pinchStartScale = parseFloat(el.dataset.scale || '1');
+        }
+    }, { passive: false });
+
+    el.addEventListener('touchmove', (e) => {
+        if (!window.isMobileUI()) return;
+        if (el.style.display === 'none') return;
+
+        if (pinching && e.touches.length === 2) {
+            e.preventDefault();
+
+            const dist = getTouchDistance(e.touches[0], e.touches[1]);
+            if (pinchStartDistance > 0) {
+                let nextScale = pinchStartScale * (dist / pinchStartDistance);
+                nextScale = Math.max(0.7, Math.min(1.8, nextScale));
+                el.dataset.scale = String(nextScale);
+                applyState();
+            }
+            return;
+        }
+
+        if (dragging && e.touches.length === 1) {
+            e.preventDefault();
+
+            const dx = e.touches[0].clientX - dragStartX;
+            const dy = e.touches[0].clientY - dragStartY;
+
+            el.dataset.left = String(startLeft + dx);
+            el.dataset.top = String(startTop + dy);
+            applyState();
+        }
+    }, { passive: false });
+
+    el.addEventListener('touchend', () => {
+        dragging = false;
+        pinching = false;
+        el.classList.remove('window-dragging');
+        window.clampWindowToViewport(el);
+    });
+
+    el.addEventListener('touchcancel', () => {
+        dragging = false;
+        pinching = false;
+        el.classList.remove('window-dragging');
+        window.clampWindowToViewport(el);
+    });
+
+    el.addEventListener('mousedown', () => {
+        if (!window.isMobileUI()) return;
+        window.bringWindowToFront(el);
+    });
+
+    applyState();
+    setTimeout(() => window.clampWindowToViewport(el), 50);
+};
+
+window.initAllMobileWindows = function() {
+    const all = document.querySelectorAll('.movable-window');
+    all.forEach(el => window.enableMobileWindowControls(el));
+};
+
+window.resetMobileWindow = function(id, x = 20, y = 80, scale = 1) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.dataset.left = String(x);
+    el.dataset.top = String(y);
+    el.dataset.scale = String(scale);
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.transform = `scale(${scale})`;
+    window.clampWindowToViewport(el);
+};  
 
 // ==========================================
 // 🛡️ SYSTEM UTILITIES & MAILBOX ENGINE
@@ -2795,6 +3099,7 @@ window.logout = function() {
 
 window.onload = () => {
     window.loadLootFilter();
+    window.initAllMobileWindows();
 
     // Force Auto-Login
     let savedU = localStorage.getItem('exonie_user');
@@ -2846,6 +3151,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
