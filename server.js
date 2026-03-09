@@ -101,33 +101,48 @@ function generateLoot(monster) {
         mLevel = Math.max(1, baseLevel - 5);
     }
 
-    // ==========================================
-    // 2. REFINEMENT STONE DROP (50% Chance)
-    // ==========================================
-    if (Math.random() < 0.50) {
-        let stoneRarity = "Basic";
-        let r = Math.random();
-        
-        if (monster.category === "floor_boss") {
-            // 👑 FLOOR BOSS DROP RATES FOR STONES
-            if (r <= 0.05) stoneRarity = "Godly";          // 5% chance
-            else if (r <= 0.30) stoneRarity = "Legendary"; // 25% chance
-            else if (r <= 0.60) stoneRarity = "Unique";    // 30% chance
-            else if (r <= 0.85) stoneRarity = "Rare";      // 25% chance
-            else stoneRarity = "Basic";                    // 15% chance
-        } else if (monster.category === "mini_boss") {
-            stoneRarity = r < 0.35 ? "Unique" : "Rare";
-        } else {
-            stoneRarity = r < 0.15 ? "Rare" : "Basic";
-        }
+      // ==========================================
+    // 2. COMMON MOB SPECIAL DROP: REVIVAL JUICE (5%)
+    // ==========================================
+    if (monster.category === "common_mobs" && Math.random() < 0.05) {
+        return {
+            id: Date.now() + Math.random(),
+            name: "Revival Juice",
+            type: "consumable",
+            rarity: "Unique",
+            color: RARITY_COLORS["Unique"],
+            description: "Revives you instantly on the spot when used while dead.",
+            quantity: 1
+        };
+    }
 
-        return { 
-            id: Date.now() + Math.random(), 
-            name: `Refinement Stone Lv.${mLevel}`, 
-            type: "material", level: mLevel, rarity: stoneRarity, color: RARITY_COLORS[stoneRarity], 
-            description: "Enhances equipment.", quantity: 1 
-        };
-    }
+    // ==========================================
+    // 3. REFINEMENT STONE DROP (45% Chance)
+    // ==========================================
+    if (Math.random() < 0.45) {
+        let stoneRarity = "Basic";
+        let r = Math.random();
+        
+        if (monster.category === "floor_boss") {
+            // 👑 FLOOR BOSS DROP RATES FOR STONES
+            if (r <= 0.05) stoneRarity = "Godly";          // 5% chance
+            else if (r <= 0.30) stoneRarity = "Legendary"; // 25% chance
+            else if (r <= 0.60) stoneRarity = "Unique";    // 30% chance
+            else if (r <= 0.85) stoneRarity = "Rare";      // 25% chance
+            else stoneRarity = "Basic";                    // 15% chance
+        } else if (monster.category === "mini_boss") {
+            stoneRarity = r < 0.35 ? "Unique" : "Rare";
+        } else {
+            stoneRarity = r < 0.10 ? "Rare" : "Basic";
+        }
+
+        return {
+            id: Date.now() + Math.random(),
+            name: `Refinement Stone Lv.${mLevel}`,
+            type: "material", level: mLevel, rarity: stoneRarity, color: RARITY_COLORS[stoneRarity],
+            description: "Enhances equipment.", quantity: 1
+        };
+    }
 
     // ==========================================
     // 3. GEAR DROP (50% Chance)
@@ -2067,6 +2082,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
