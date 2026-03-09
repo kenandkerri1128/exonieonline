@@ -2237,7 +2237,9 @@ socket.on('tradeDone', (data) => {
     socket.on('receiveExp', (data) => { game.player.exp += data.amount; if(data.gold) game.player.gold += data.gold; dom.log.innerText = `Gained ${data.amount} EXP${data.gold ? ` & ${data.gold} Gold` : ''} from ${data.source}!`; window.checkLevelUp(); window.updateUI(); DatabaseManager.savePlayerData(game.player); });
     socket.on('partyMemberVitals', (data) => { if (game.party && game.party.members) { let m = game.party.members.find(x => x.id === data.id); if (m) { m.currentHp = data.currentHp; m.maxHp = data.maxHp; m.level = data.level; window.renderPartyUI(); } } });
     socket.on('remotePetSync', (data) => { let petId = `pet_${data.ownerId}_${data.petData.id}`; let petEl = document.getElementById(petId); if (data.petData.alive) { if (!petEl) { petEl = document.createElement('div'); petEl.id = petId; petEl.className = 'pet-slime'; petEl.innerHTML = '<div class="pet-hp-bar"><div class="pet-hp-fill" style="width:100%"></div></div>'; dom.world.appendChild(petEl); } petEl.style.left = data.petData.x + 'px'; petEl.style.top = data.petData.y + 'px'; } else if (petEl) { petEl.remove(); } });
-   socket.on('playerRevived', (data) => {
+socket.on('playerRevived', (data) => {
+    if (!data) return;
+
     if (data.id === game.player.id) {
         game.isGhost = false;
         game.player.currentHp = data.currentHp || window.getMaxHp();
@@ -2245,21 +2247,43 @@ socket.on('tradeDone', (data) => {
         game.player.portalEntryTime = null;
         game.player.isTeleporting = false;
 
-        dom.playerContainer.style.opacity = '1';
+        if (dom.playerContainer) dom.playerContainer.style.opacity = '1';
 
         const deathScreen = document.getElementById('death-screen');
         if (deathScreen) deathScreen.style.display = 'none';
 
+        const portalUI = document.getElementById('portal-timer-ui');
+        if (portalUI) portalUI.style.display = 'none';
+
         window.spawnDamageText(game.player.x + 24, game.player.y, "REVIVED", "#4CAF50");
+        window.updateUI();
+        window.emitVitalsIfNeeded(true);
+
+        if (socket) {
+            socket.emit('playerMoved', {
+                x: game.player.x,
+                y: game.player.y,
+                state: 'idle',
+                facingRight: window.facingRight,
+                weaponSprite: game.player.equips?.weapon?.sprite || null
+            });
+        }
     } else if (game.remotePlayers[data.id]) {
         game.remotePlayers[data.id].isGhost = false;
         game.remotePlayers[data.id].dom.style.opacity = '1';
-        window.spawnDamageText(game.remotePlayers[data.id].x + 24, game.remotePlayers[data.id].y, "REVIVED", "#4CAF50");
+        window.spawnDamageText(
+            game.remotePlayers[data.id].x + 24,
+            game.remotePlayers[data.id].y,
+            "REVIVED",
+            "#4CAF50"
+        );
     }
 
     window.updateUI();
     window.renderPartyUI();
 });
+
+socket.on('revivalJuiceUsed', (data) => {
     if (!data) return;
 
     if (Array.isArray(data.inventory)) {
@@ -2273,6 +2297,7 @@ socket.on('tradeDone', (data) => {
     game.player.isTeleporting = false;
 
     if (dom.playerContainer) dom.playerContainer.style.opacity = '1';
+
     const deathScreen = document.getElementById('death-screen');
     if (deathScreen) deathScreen.style.display = 'none';
 
@@ -2284,6 +2309,7 @@ socket.on('tradeDone', (data) => {
 
     window.updateUI();
     window.renderInventory();
+    window.renderPartyUI();
     window.emitVitalsIfNeeded(true);
 
     if (socket) {
@@ -2519,6 +2545,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
