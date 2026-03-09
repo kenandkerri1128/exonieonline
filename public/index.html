@@ -215,6 +215,25 @@
         .level-up-text { position: absolute; color: #ffd700; font-weight: bold; font-size: 28px; text-shadow: 0 0 10px #ff9800; pointer-events: none; animation: floatUp 2s forwards; z-index: 500; }
         .rarity-godly { animation: godly-sparkle 1.5s infinite alternate; }
         @keyframes godly-sparkle { 0% { text-shadow: 0 0 2px #fff, 0 0 5px #e0ffff; } 100% { text-shadow: 0 0 8px #fff, 0 0 15px #00ffff, 0 0 20px #00ffff; } }
+        .monster-fireball {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff176 0%, #ff9800 45%, #f44336 75%, rgba(244,67,54,0.2) 100%);
+    box-shadow: 0 0 8px #ff9800, 0 0 14px #f44336, 0 0 22px rgba(255,152,0,0.8);
+    pointer-events: none;
+    z-index: 260;
+    transform: translate(-50%, -50%);
+}
+
+.monster-fireball::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,152,0,0.45) 0%, rgba(244,67,54,0.18) 55%, rgba(244,67,54,0) 100%);
+}
         
         /* --- COSMETIC AURAS --- */
         .cosmetic-aura {
@@ -870,6 +889,11 @@
                 <div class="cooldown-overlay" id="cd-2"></div>
                 <div class="cooldown-text" id="cdt-2"></div>
             </div>
+            <div class="hotbar-slot" id="hotbar-3" onclick="window.usePotionHotkey()">
+    <div class="hotbar-key">3</div>
+    <div class="hotbar-name" id="hotbar-name-3">Potion</div>
+    <div class="cooldown-text" id="hotbar-potion-count" style="display:block; font-size:16px;">0</div>
+</div>
         </div>
         
         <div id="admin-panel">
@@ -1189,8 +1213,20 @@ window.updateSkillMenu = function() {
     }
 
     if (!pClass || !CLASSES[pClass] || CLASSES[pClass].weapon !== wpnType) { 
-        if(dom.hotbar) dom.hotbar.style.display = 'none'; game.player.activeSkills = []; return; 
-    }
+    if (dom.hotbar) dom.hotbar.style.display = 'flex';
+    game.player.activeSkills = [];
+
+    const hb1 = document.getElementById('hotbar-1');
+    const hb2 = document.getElementById('hotbar-2');
+    const hb3 = document.getElementById('hotbar-3');
+
+    if (hb1) hb1.style.display = 'none';
+    if (hb2) hb2.style.display = 'none';
+    if (hb3) hb3.style.display = 'flex';
+
+    window.updatePotionHotbar();
+    return; 
+}
     
     let oldCDs = {};
     if (game.player.activeSkills && game.player.activeSkills.length > 0) {
@@ -1209,7 +1245,12 @@ window.updateSkillMenu = function() {
     });
 
     for (let i = activeIndex; i < 2; i++) { document.getElementById(`hotbar-${i+1}`).style.display = 'none'; }
-    window.updateHotbarCooldowns();
+
+const potionSlot = document.getElementById('hotbar-3');
+if (potionSlot) potionSlot.style.display = 'flex';
+
+window.updateHotbarCooldowns();
+window.updatePotionHotbar();
 }
 
 window.executeSkill = function(skillId, className) {
@@ -1526,6 +1567,28 @@ window.isColliding = function(targetX, targetY) { const hitX = targetX + (game.p
 window.spawnDamageText = function(x, y, amount, color) { const txt = document.createElement('div'); txt.className = 'damage-text'; txt.innerText = amount; let jitterX = (Math.random() * 40) - 20; let jitterY = (Math.random() * 20) - 10; txt.style.left = (x - 10 + jitterX) + 'px'; txt.style.top = (y + jitterY) + 'px'; txt.style.color = color; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 1000); }
 window.spawnSpark = function(x, y) { const spark = document.createElement('div'); spark.className = 'spark'; spark.style.left = (x + (Math.random() * 20 - 10)) + 'px'; spark.style.top = (y + (Math.random() * 20 - 10)) + 'px'; dom.world.appendChild(spark); setTimeout(() => spark.remove(), 300); }
 window.spawnWhiteSplash = function(x, y) { const splash = document.createElement('div'); splash.className = 'white-splash'; splash.style.left = x + 'px'; splash.style.top = y + 'px'; dom.world.appendChild(splash); setTimeout(() => splash.remove(), 300); }
+window.shootMonsterFireball = function(startX, startY, endX, endY) {
+    const ball = document.createElement('div');
+    ball.className = 'monster-fireball';
+    ball.style.left = startX + 'px';
+    ball.style.top = startY + 'px';
+    dom.world.appendChild(ball);
+
+    const dx = endX - startX;
+    const dy = endY - startY;
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+    ball.animate([
+        { left: startX + 'px', top: startY + 'px', transform: `translate(-50%, -50%) scale(0.8) rotate(${angle}deg)` },
+        { left: endX + 'px', top: endY + 'px', transform: `translate(-50%, -50%) scale(1.15) rotate(${angle}deg)` }
+    ], {
+        duration: 400,
+        easing: 'linear'
+    }).onfinish = () => {
+        ball.remove();
+        window.spawnWhiteSplash(endX, endY);
+    };
+};
 window.shootOrb = function(startX, startY, endX, endY) { const orb = document.createElement('div'); orb.className = 'magic-orb'; orb.style.left = startX + 'px'; orb.style.top = startY + 'px'; dom.world.appendChild(orb); const animation = orb.animate([{ left: startX + 'px', top: startY + 'px' }, { left: endX + 'px', top: endY + 'px' }], { duration: 500, easing: 'ease-in' }); animation.onfinish = () => orb.remove(); }
 window.showBubble = function(playerObj, text) { if (!playerObj || !playerObj.dom) return; const bubble = document.createElement('div'); bubble.className = 'chat-bubble'; bubble.innerText = text; playerObj.dom.appendChild(bubble); setTimeout(() => bubble.remove(), 4000); }
 
@@ -1690,6 +1753,7 @@ window.renderInventory = function() {
         grid.appendChild(slot);
     }
     window.updateEquipmentDisplay();
+    window.updatePotionHotbar();
 }
 
 window.openItemAction = function(index, e) {
@@ -1784,9 +1848,54 @@ window.useItem = function(index) {
     window.renderInventory();
     DatabaseManager.savePlayerData(game.player);
 };
+    window.usePotionHotkey = function() {
+    if (window.isLoading || game.isGhost) {
+        if (dom.log) dom.log.innerText = "You cannot use potions right now.";
+        return;
+    }
+
+    const inv = game.player.inventory || [];
+    const potionIndex = inv.findIndex(item =>
+        item &&
+        item.type === 'potion' &&
+        item.name === 'Health Potion' &&
+        (item.quantity || 1) > 0
+    );
+
+    if (potionIndex === -1) {
+        if (dom.log) dom.log.innerText = "No Health Potions in inventory.";
+        return;
+    }
+
+    window.useItem(potionIndex);
+};
 window.attemptEnhance = function(targetIndex, e) { e.stopPropagation(); let stone = game.player.inventory[activeInvIndex]; let targetItem = game.player.inventory[targetIndex]; if (!stone || !targetItem || stone.type !== 'material' || targetItem.type === 'material' || targetItem.type === 'potion' || targetItem.rarity === "Starter" || (stone.rarity||'') !== (targetItem.rarity||'') || (stone.level||0) !== (targetItem.level||0) || (targetItem.enhanceLevel||0) >= 20) { isEnhancing = false; window.renderInventory(); return; } if(socket) socket.emit('requestEnhance', { stoneIndex: activeInvIndex, targetIndex: targetIndex }); isEnhancing = false; window.renderInventory(); }
 window.updateEquipmentDisplay = function() { try { const buildDisplayStr = (item) => item ? (item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name) : 'None'; let w = game.player.equips.weapon; let a = game.player.equips.armor; let l = game.player.equips.leggings; document.getElementById('eq-weapon-slot').innerText = buildDisplayStr(w); if(w) document.getElementById('eq-weapon-slot').style.color = w.color; document.getElementById('eq-armor-slot').innerText = buildDisplayStr(a); if(a) document.getElementById('eq-armor-slot').style.color = a.color; document.getElementById('eq-leggings-slot').innerText = buildDisplayStr(l); if(l) document.getElementById('eq-leggings-slot').style.color = l.color; dom.playerArmor.style.display = 'none'; dom.playerLeggings.style.display = 'none'; const createTip = (item, boxId) => { let box = document.getElementById(boxId); let tip = box.querySelector('.tooltip'); if(!tip) { tip = document.createElement('div'); tip.className = 'tooltip'; box.appendChild(tip); } if(item) tip.innerHTML = window.getItemTooltip(item); else tip.remove(); }; createTip(w, 'eq-box-weapon'); createTip(a, 'eq-box-armor'); createTip(l, 'eq-box-leggings'); let newMax = window.getMaxHp(); if(game.player.currentHp > newMax) game.player.currentHp = newMax; window.updateUI(); } catch(err) {} }
 window.updateUI = function() { document.getElementById('ui-hp-text').innerText = `${game.player.currentHp} / ${window.getMaxHp()}`; document.getElementById('ui-hp-bar').style.width = (game.player.currentHp / Math.max(1, window.getMaxHp())) * 100 + '%'; document.getElementById('ui-hp-bar').style.backgroundColor = (game.player.currentHp < (window.getMaxHp()*0.3)) ? '#f44336' : '#4CAF50'; document.getElementById('ui-level-text').innerText = game.player.level; document.getElementById('ui-exp-text').innerText = `${game.player.exp} / ${game.player.maxExp}`; document.getElementById('ui-exp-bar').style.width = (game.player.exp / Math.max(1, game.player.maxExp)) * 100 + '%'; document.getElementById('ui-gold-text').innerText = game.player.gold || 0; if (game.party && game.party.members) { let me = game.party.members.find(x => x.id === game.player.id); if (me) { me.currentHp = game.player.currentHp; me.maxHp = window.getMaxHp(); me.level = game.player.level; window.renderPartyUI(); } } }
+window.updatePotionHotbar = function() {
+    const countEl = document.getElementById('hotbar-potion-count');
+    const slotEl = document.getElementById('hotbar-3');
+    if (!countEl || !slotEl) return;
+
+    const inv = game.player.inventory || [];
+    let totalPotions = 0;
+
+    inv.forEach(item => {
+        if (item && item.type === 'potion' && item.name === 'Health Potion') {
+            totalPotions += (item.quantity || 1);
+        }
+    });
+
+    countEl.innerText = totalPotions;
+
+    if (totalPotions > 0) {
+        slotEl.style.opacity = '1';
+        slotEl.style.borderColor = '#4CAF50';
+    } else {
+        slotEl.style.opacity = '0.6';
+        slotEl.style.borderColor = '#555';
+    }
+};
 window.toggleStats = function() { if (dom.statScreen.style.display === 'block') { dom.statScreen.style.display = 'none'; } else { document.getElementById('stat-lvl').innerText = game.player.level; document.getElementById('stat-maxhp').innerText = window.getMaxHp(); document.getElementById('stat-atk').innerText = window.getAttackPower(); document.getElementById('stat-matk').innerText = window.getMagicAttack(); document.getElementById('stat-def').innerText = window.getDefense(); document.getElementById('stat-spd').innerText = window.getSpeed(); document.getElementById('stat-str').innerText = window.getTotalStat('str'); document.getElementById('stat-int').innerText = window.getTotalStat('int'); dom.statScreen.style.display = 'block'; } }
 window.checkLevelUp = function() { if(game.player.level >= 50) return; while(game.player.exp >= game.player.maxExp && game.player.level < 50) { game.player.exp -= game.player.maxExp; game.player.level++; game.player.maxExp += (game.player.level >= 41 ? 1500 : game.player.level >= 31 ? 1000 : game.player.level >= 21 ? 750 : game.player.level >= 11 ? 500 : 100); game.player.baseStats.hp += 10; game.player.baseStats.str += 2; game.player.baseStats.int += 2; game.player.currentHp = window.getMaxHp(); const txt = document.createElement('div'); txt.className = 'level-up-text'; txt.innerText = "LEVEL UP!"; txt.style.left = (game.player.x - 20) + 'px'; txt.style.top = (game.player.y - 40) + 'px'; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 2000); } window.updateUI(); window.updateSkillMenu(); DatabaseManager.savePlayerData(game.player); }
 
@@ -1917,8 +2026,13 @@ function setKeyState(e, isDown) {
                 if(dom.log) dom.log.innerText = window.adminMode ? "Admin Mode ON" : "Admin Mode OFF"; 
                 if(typeof window.buildCollisionLayers === 'function') window.buildCollisionLayers(); 
             } 
-            else { if(dom.log) dom.log.innerText = "Admin Mode restricted."; } 
+            else { if(dom.log) dom.log.innerText = "null"; } 
         } 
+        if (key === '3') {
+    if (!window.isLoading && !isChatting && !window.adminMode) {
+        window.usePotionHotkey();
+    }
+}
         if (key === '1' || key === '2') {
             if (!game.isGhost && !window.isLoading && !isInventoryOpen && !isSkillOpen && !window.adminMode) {
                 let slotIndex = key === '1' ? 0 : 1; let skill = game.player.activeSkills ? game.player.activeSkills[slotIndex] : null;
@@ -2541,6 +2655,13 @@ socket.on('revivalJuiceUsed', (data) => {
     const targetId = data.targetId;
     let tx = game.player.x + 24;
     let ty = game.player.y + 48;
+       const isElemental = m.monsterKey && String(m.monsterKey).includes('3');
+const mcx = m.x + (m.width / 2);
+const mcy = m.y + (m.height / 2);
+
+if (isElemental) {
+    window.shootMonsterFireball(mcx, mcy, tx, ty);
+}
 
     if (targetId !== game.player.id && game.remotePlayers[targetId]) {
         const rp = game.remotePlayers[targetId];
@@ -2556,9 +2677,6 @@ socket.on('revivalJuiceUsed', (data) => {
             ty = hitPet.y + 15;
         }
     }
-
-    const mcx = m.x + (m.width / 2);
-    const mcy = m.y + (m.height / 2);
     let dx = tx - mcx;
     let dy = ty - mcy;
     let dist = Math.hypot(dx, dy) || 1;
@@ -2728,6 +2846,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
