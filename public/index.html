@@ -2203,28 +2203,6 @@ socket.on('tradeDone', (data) => {
     window.renderInventory();
     window.renderTradeSlots();
 });
-
-    socket.on('tradeDone', (data) => {
-        inTradeMode = false;
-        tradeTarget = null;
-
-        game.player.gold = data.newGold || 0;
-        game.player.inventory = Array.isArray(data.newInventory) ? data.newInventory : game.player.inventory;
-
-        tradeMyItems = [null, null, null];
-        tradeTheirItems = [null, null, null];
-
-        document.getElementById('trade-my-gold').value = 0;
-        document.getElementById('trade-their-gold').innerText = "0";
-        document.getElementById('trade-screen').style.display = 'none';
-
-        window.updateUI();
-        window.renderInventory();
-        window.renderTradeSlots();
-
-        dom.log.innerText = "Trade completed successfully!";
-    });
-
     socket.on('partyUpdate', (partyData) => { game.party = partyData || null; window.renderPartyUI(); });
     socket.on('receiveExp', (data) => { game.player.exp += data.amount; if(data.gold) game.player.gold += data.gold; dom.log.innerText = `Gained ${data.amount} EXP${data.gold ? ` & ${data.gold} Gold` : ''} from ${data.source}!`; window.checkLevelUp(); window.updateUI(); DatabaseManager.savePlayerData(game.player); });
     socket.on('partyMemberVitals', (data) => { if (game.party && game.party.members) { let m = game.party.members.find(x => x.id === data.id); if (m) { m.currentHp = data.currentHp; m.maxHp = data.maxHp; m.level = data.level; window.renderPartyUI(); } } });
@@ -2490,6 +2468,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
