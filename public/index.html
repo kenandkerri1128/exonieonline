@@ -952,19 +952,35 @@
             </div>
         </div>
 
-        <div id="inventory-screen">
-            <h2>Inventory</h2>
-            <h3 style="margin: 0 0 10px 0; font-size: 18px; text-align: center; color: gold;">Gold: <span id="ui-gold-text">0</span></h3>
-            <h3 style="margin: 10px 0 5px 0; font-size: 16px; text-align: center; color: #ccc;">Equipped Gear</h3>
-            <div class="equip-container">
-                <div class="equip-box" id="eq-box-weapon" onclick="window.unequipItem('weapon')"><strong style="color:#aaa;">Weapon</strong><br><span id="eq-weapon-slot">None</span></div>
-                <div class="equip-box" id="eq-box-armor" onclick="window.unequipItem('armor')"><strong style="color:#aaa;">Armor</strong><br><span id="eq-armor-slot">None</span></div>
-                <div class="equip-box" id="eq-box-leggings" onclick="window.unequipItem('leggings')"><strong style="color:#aaa;">Leggings</strong><br><span id="eq-leggings-slot">None</span></div>
-            </div>
-            <h3 style="margin: 10px 0 5px 0; font-size: 16px; text-align: center; color: #ccc;">Backpack</h3>
-            <div class="inv-grid" id="inventory-grid"></div>
-            <button class="btn btn-large" style="margin-top: auto; padding: 15px;" onclick="window.toggleInventory()">Close Inventory (I)</button>
+      <div id="inventory-screen">
+    <h2>Inventory</h2>
+    <h3 style="margin: 0 0 10px 0; font-size: 18px; text-align: center; color: gold;">Gold: <span id="ui-gold-text">0</span></h3>
+
+    <div class="panel-section" style="padding: 10px; margin-bottom: 12px;">
+        <h4 style="margin-bottom:8px; color:#ffeb3b;">Loot Filter</h4>
+        <div style="font-size:12px; color:#aaa; margin-bottom:8px; line-height:1.4;">
+            Checked = accept this rarity into inventory. Unchecked = auto-ignore that drop.
         </div>
+        <div id="loot-filter-boxes" style="display:grid; grid-template-columns: 1fr 1fr; gap:6px 10px; font-size:13px;">
+            <label style="color:#aaaaaa;"><input type="checkbox" id="loot-filter-Starter" onchange="window.updateLootFilter()"> Starter</label>
+            <label style="color:#8B4513;"><input type="checkbox" id="loot-filter-Basic" onchange="window.updateLootFilter()" checked> Basic</label>
+            <label style="color:#2196F3;"><input type="checkbox" id="loot-filter-Rare" onchange="window.updateLootFilter()" checked> Rare</label>
+            <label style="color:#9c27b0;"><input type="checkbox" id="loot-filter-Unique" onchange="window.updateLootFilter()" checked> Unique</label>
+            <label style="color:#f44336;"><input type="checkbox" id="loot-filter-Legendary" onchange="window.updateLootFilter()" checked> Legendary</label>
+            <label style="color:#e0ffff;"><input type="checkbox" id="loot-filter-Godly" onchange="window.updateLootFilter()" checked> Godly</label>
+        </div>
+    </div>
+
+    <h3 style="margin: 10px 0 5px 0; font-size: 16px; text-align: center; color: #ccc;">Equipped Gear</h3>
+    <div class="equip-container">
+        <div class="equip-box" id="eq-box-weapon" onclick="window.unequipItem('weapon')"><strong style="color:#aaa;">Weapon</strong><br><span id="eq-weapon-slot">None</span></div>
+        <div class="equip-box" id="eq-box-armor" onclick="window.unequipItem('armor')"><strong style="color:#aaa;">Armor</strong><br><span id="eq-armor-slot">None</span></div>
+        <div class="equip-box" id="eq-box-leggings" onclick="window.unequipItem('leggings')"><strong style="color:#aaa;">Leggings</strong><br><span id="eq-leggings-slot">None</span></div>
+    </div>
+    <h3 style="margin: 10px 0 5px 0; font-size: 16px; text-align: center; color: #ccc;">Backpack</h3>
+    <div class="inv-grid" id="inventory-grid"></div>
+    <button class="btn btn-large" style="margin-top: auto; padding: 15px;" onclick="window.toggleInventory()">Close Inventory (I)</button>
+</div>
         
         <div id="stat-screen" class="window-panel">
             <h2 style="margin: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px;">Player Stats</h2>
@@ -1022,7 +1038,34 @@ const dom = {
 
 window.game = { 
     isRunning: false, isGhost: false, keys: { w: false, a: false, s: false, d: false, z: false, x: false, c: false },
-    player: { id: 'local_player', name: "Adventurer", level: 1, currentHp: 100, x: 960, y: 1000, width: 48, height: 96, w: 24, h: 20, teleportCooldown: 0, currentPortal: null, equips: { weapon: null }, currentBodySrc: '', playerClass: null, immortalUntil: 0, untargetableUntil: 0, activePets: [] }, 
+    player: { 
+        id: 'local_player',
+        name: "Adventurer",
+        level: 1,
+        currentHp: 100,
+        x: 960,
+        y: 1000,
+        width: 48,
+        height: 96,
+        w: 24,
+        h: 20,
+        teleportCooldown: 0,
+        currentPortal: null,
+        equips: { weapon: null },
+        currentBodySrc: '',
+        playerClass: null,
+        immortalUntil: 0,
+        untargetableUntil: 0,
+        activePets: [],
+        lootFilter: {
+            Starter: true,
+            Basic: true,
+            Rare: true,
+            Unique: true,
+            Legendary: true,
+            Godly: true
+        }
+    }, 
     monsters: {}, remotePlayers: {}, party: null 
 };
 
@@ -1535,7 +1578,39 @@ window.getMaxHp = function() { return window.getTotalStat('hp'); };
 window.getDefense = function() { let def = window.getTotalStat('defense'); if (game.player.tauntBuffUntil && Date.now() < game.player.tauntBuffUntil) { def *= 5; } return def; };
 window.getSpeed = function() { return window.getTotalStat('speed'); }; 
 window.getBaseStat = function(lvl) { if (lvl >= 50) return 100; if (lvl >= 45) return 45; if (lvl >= 40) return 40; if (lvl >= 35) return 30; if (lvl >= 30) return 27; if (lvl >= 25) return 22; if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; if (lvl >= 5) return 8; return 5; }
-window.addLoot = function(item) { item.quantity = item.quantity || 1; if (item.type === 'potion' || item.type === 'material' || item.type === 'consumable') { const inv = game.player.inventory || []; let existingIndex = inv.findIndex(i => i && i.name === item.name); if (existingIndex !== -1) { game.player.inventory[existingIndex].quantity += item.quantity; dom.log.innerText = `Looted: ${item.name} (x${game.player.inventory[existingIndex].quantity})!`; if (isInventoryOpen) window.renderInventory(); if (['Unique', 'Legendary', 'Godly'].includes(item.rarity)) DatabaseManager.savePlayerData(game.player); return; } } const inv = game.player.inventory || []; const emptySlot = inv.findIndex(i => i === null); if (emptySlot !== -1) { game.player.inventory[emptySlot] = item; dom.log.innerText = `Looted: ${item.name}!`; if (isInventoryOpen) window.renderInventory(); if (['Unique', 'Legendary', 'Godly'].includes(item.rarity)) DatabaseManager.savePlayerData(game.player); } else { dom.log.innerText = `Inventory full! Lost ${item.name}.`; } }
+window.addLoot = function(item) {
+    if (!item) return;
+
+    if (!window.acceptsLootRarity(item)) {
+        if (dom.log) dom.log.innerText = `Ignored ${item.rarity || 'Basic'} drop: ${item.name}`;
+        return;
+    }
+
+    item.quantity = item.quantity || 1;
+
+    if (item.type === 'potion' || item.type === 'material' || item.type === 'consumable') {
+        const inv = game.player.inventory || [];
+        let existingIndex = inv.findIndex(i => i && i.name === item.name);
+        if (existingIndex !== -1) {
+            game.player.inventory[existingIndex].quantity += item.quantity;
+            dom.log.innerText = `Looted: ${item.name} (x${game.player.inventory[existingIndex].quantity})!`;
+            if (isInventoryOpen) window.renderInventory();
+            if (['Unique', 'Legendary', 'Godly'].includes(item.rarity)) DatabaseManager.savePlayerData(game.player);
+            return;
+        }
+    }
+
+    const inv = game.player.inventory || [];
+    const emptySlot = inv.findIndex(i => i === null);
+    if (emptySlot !== -1) {
+        game.player.inventory[emptySlot] = item;
+        dom.log.innerText = `Looted: ${item.name}!`;
+        if (isInventoryOpen) window.renderInventory();
+        if (['Unique', 'Legendary', 'Godly'].includes(item.rarity)) DatabaseManager.savePlayerData(game.player);
+    } else {
+        dom.log.innerText = `Inventory full! Lost ${item.name}.`;
+    }
+}
 
 window.getItemTooltip = function(item) { 
     if(!item) return ""; 
@@ -1547,6 +1622,55 @@ window.getItemTooltip = function(item) {
     if(item.randomStat) { for(let key in item.randomStat) html += `<span style="color:#4CAF50;">+${item.randomStat[key]} ${key.toUpperCase()} (Bonus)</span><br>`; } 
     return html; 
 }
+
+window.loadLootFilter = function() {
+    let saved = null;
+    try {
+        saved = JSON.parse(localStorage.getItem('exonie_loot_filter') || 'null');
+    } catch(e) {}
+
+    const defaults = {
+        Starter: true,
+        Basic: true,
+        Rare: true,
+        Unique: true,
+        Legendary: true,
+        Godly: true
+    };
+
+    game.player.lootFilter = Object.assign({}, defaults, saved || {});
+
+    Object.keys(defaults).forEach(rarity => {
+        const el = document.getElementById(`loot-filter-${rarity}`);
+        if (el) el.checked = !!game.player.lootFilter[rarity];
+    });
+};
+
+window.updateLootFilter = function() {
+    const rarities = ['Starter', 'Basic', 'Rare', 'Unique', 'Legendary', 'Godly'];
+    if (!game.player.lootFilter) game.player.lootFilter = {};
+
+    rarities.forEach(rarity => {
+        const el = document.getElementById(`loot-filter-${rarity}`);
+        game.player.lootFilter[rarity] = !!(el && el.checked);
+    });
+
+    localStorage.setItem('exonie_loot_filter', JSON.stringify(game.player.lootFilter));
+
+    if (socket) {
+        socket.emit('updateLootFilter', game.player.lootFilter);
+    }
+
+    if (dom.log) dom.log.innerText = "Loot filter updated.";
+};
+
+window.acceptsLootRarity = function(item) {
+    if (!item) return false;
+    const rarity = item.rarity || 'Basic';
+    if (!game.player.lootFilter) return true;
+    if (typeof game.player.lootFilter[rarity] === 'undefined') return true;
+    return !!game.player.lootFilter[rarity];
+};
 
 window.toggleInventory = function() { isInventoryOpen = !isInventoryOpen; if (isInventoryOpen) { window.renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.invScreen.style.display = 'none'; document.getElementById('inv-context-menu').style.display = 'none'; } }
 window.renderInventory = function() {
@@ -1854,8 +1978,10 @@ if(socket) {
             window.charData.hairColor = userData.hair_color || 'black'; 
             window.charData.hairStyle = userData.hair_style || '1'; 
             game.player.currentHp = window.getMaxHp(); 
-            window.updateSkillMenu(); 
-            let targetMapId = 'town'; 
+           window.updateSkillMenu(); 
+window.loadLootFilter();
+if (socket) socket.emit('updateLootFilter', game.player.lootFilter);
+let targetMapId = 'town'; 
             window.loadMapScript(targetMapId, () => {
                 safeMapData = window.MapDatabase[targetMapId] || { id: "town", name: "Town", image: "town_map.png", spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
                 game.player.x = 960; game.player.y = 1000;
@@ -2495,6 +2621,8 @@ window.logout = function() {
 // ==========================================
 
 window.onload = () => {
+    window.loadLootFilter();
+
     // Force Auto-Login
     let savedU = localStorage.getItem('exonie_user');
     let savedP = localStorage.getItem('exonie_pass');
@@ -2545,6 +2673,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
