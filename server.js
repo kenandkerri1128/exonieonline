@@ -1631,54 +1631,117 @@ skillCooldowns: {}
         }
     });
     // 🌟 ADMIN SPECTATE ENGINE
-    socket.on('requestSpectate', (targetId) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || p.id !== "Kei") return;
-        const target = getPlayerById(targetId);
-        if (!target) return;
+  socket.on('requestSpectate', (targetId) => {
+    const p = onlinePlayers[socket.id];
+    if (!p || p.id !== "Kei") return;
 
-        // Save admin's true location before ghosting
-        if (!p.savedSpectatePos) {
-            p.savedSpectatePos = { mapId: p.mapId, x: p.x, y: p.y, instanceId: p.instanceId };
-        }
-        p.isHiddenAdmin = true; // 👻 Turns Admin completely invisible to the server
+    const target = getPlayerById(targetId);
+    if (!target) return;
 
-        // Leave current map silently
-        socket.leave(p.instanceId); 
-        socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
+    if (!p.savedSpectatePos) {
+        p.savedSpectatePos = {
+            mapId: p.mapId,
+            x: p.x,
+            y: p.y,
+            instanceId: p.instanceId,
+            wasGhost: !!p.isGhost
+        };
+    }
 
-        // Move to target map silently
-        p.mapId = target.mapId; p.x = target.x; p.y = target.y; p.instanceId = target.instanceId;
-        socket.join(p.instanceId);
+    // Admin becomes hidden + ghost while spectating
+    p.isHiddenAdmin = true;
+    p.isGhost = true;
+    p.currentPortal = null;
+    p.untargetableUntil = Date.now() + 999999999;
 
-        // Tell admin to teleport, but include the spectate flag!
-        socket.emit('forceTeleport', { mapId: p.mapId, x: p.x, y: p.y, spectateTarget: targetId });
+    socket.leave(p.instanceId);
+    socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
 
-        // Load the map players for the admin, but filter out other hidden admins
-        const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id && !remote.isHiddenAdmin);
-        socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
-    });
+    p.mapId = target.mapId;
+    p.x = target.x;
+    p.y = target.y;
+    p.instanceId = target.instanceId;
 
-    socket.on('stopSpectate', () => {
-        const p = onlinePlayers[socket.id];
-        if (!p || p.id !== "Kei" || !p.savedSpectatePos) return;
+    socket.join(p.instanceId);
 
-        p.isHiddenAdmin = false;
-        let tp = p.savedSpectatePos;
-        p.savedSpectatePos = null;
+    socket.emit('forceTeleport', {
+        mapId: p.mapId,
+        x: p.x,
+        y: p.y,
+        spectateTarget: targetId
+    });
 
-        // Revert silent teleport
-        socket.leave(p.instanceId);
-        p.mapId = tp.mapId; p.x = tp.x; p.y = tp.y; p.instanceId = tp.instanceId;
-        socket.join(p.instanceId);
+    const playersInInst = Object.values(onlinePlayers).filter(remote =>
+        remote.instanceId === p.instanceId &&
+        remote.id !== p.id &&
+        !remote.isHiddenAdmin
+    );
 
-        socket.emit('forceTeleport', { mapId: p.mapId, x: p.x, y: p.y });
-        
-        // Re-announce Admin arrival to the original map
-        socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
-        const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id && !remote.isHiddenAdmin);
-        socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
-    });
+    socket.emit('mapPlayersList', playersInInst.map(pp => ({
+        id: pp.id,
+        name: pp.name,
+        mapId: pp.mapId,
+        x: pp.x,
+        y: pp.y,
+        spriteData: pp.spriteData,
+        isGhost: pp.isGhost
+    })));
+});
+
+   socket.on('stopSpectate', () => {
+    const p = onlinePlayers[socket.id];
+    if (!p || p.id !== "Kei" || !p.savedSpectatePos) return;
+
+    const tp = p.savedSpectatePos;
+    p.savedSpectatePos = null;
+
+    socket.leave(p.instanceId);
+
+    p.isHiddenAdmin = false;
+    p.isGhost = !!tp.wasGhost;
+    p.untargetableUntil = 0;
+    p.currentPortal = null;
+
+    p.mapId = tp.mapId;
+    p.x = tp.x;
+    p.y = tp.y;
+    p.instanceId = tp.instanceId;
+
+    socket.join(p.instanceId);
+
+    socket.emit('forceTeleport', {
+        mapId: p.mapId,
+        x: p.x,
+        y: p.y
+    });
+
+    socket.to(p.instanceId).emit('remotePlayerJoined', {
+        id: p.id,
+        name: p.name,
+        mapId: p.mapId,
+        instanceId: p.instanceId,
+        x: p.x,
+        y: p.y,
+        spriteData: p.spriteData,
+        isGhost: p.isGhost
+    });
+
+    const playersInInst = Object.values(onlinePlayers).filter(remote =>
+        remote.instanceId === p.instanceId &&
+        remote.id !== p.id &&
+        !remote.isHiddenAdmin
+    );
+
+    socket.emit('mapPlayersList', playersInInst.map(pp => ({
+        id: pp.id,
+        name: pp.name,
+        mapId: pp.mapId,
+        x: pp.x,
+        y: pp.y,
+        spriteData: pp.spriteData,
+        isGhost: pp.isGhost
+    })));
+});
     socket.on('requestEnhance', (data) => {
         const p = onlinePlayers[socket.id]; if (!p) return;
         
@@ -2004,6 +2067,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
