@@ -2453,6 +2453,7 @@ socket.on('useRevivalJuice', async (data) => {
     const pid = playerParty[p.id];
     if (pid) emitPartyUpdate(pid);
 });
+
 socket.on('requestSell', async (data) => {
     const p = onlinePlayers[socket.id];
     if (!p) return;
@@ -2467,7 +2468,6 @@ socket.on('requestSell', async (data) => {
 
     let sellIndex = -1;
 
-    // 1. First try exact ID match in the provided slot
     if (
         requestedIndex >= 0 &&
         requestedIndex < inv.length &&
@@ -2476,7 +2476,6 @@ socket.on('requestSell', async (data) => {
     ) {
         sellIndex = requestedIndex;
     } else {
-        // 2. Fallback: find the exact item by unique ID anywhere in inventory
         sellIndex = inv.findIndex(item => item && item.id === requestedItemId);
     }
 
@@ -2501,8 +2500,6 @@ socket.on('requestSell', async (data) => {
 
     let sellPrice = baseVal * multiplier;
 
-    // Sell exactly this one item instance only
-    // If you want stackable items to sell one-by-one later, we can split that separately.
     p.gold += sellPrice;
     inv[sellIndex] = null;
     p.inventory = inv;
@@ -2553,6 +2550,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
