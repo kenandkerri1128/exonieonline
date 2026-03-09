@@ -1811,41 +1811,122 @@ socket.on('requestConfirmTrade', () => {
             .then(() => {});
     });
 
-    socket.on('respawnPlayer', () => {
-        const p = onlinePlayers[socket.id];
-        if (p) {
-            p.isGhost = false; p.currentHp = p.maxHp || 100;
-            if (p.mapId !== 'town') {
-                const oldInstId = p.instanceId; // 🌟 SAVE OLD INSTANCE
-                socket.leave(p.instanceId); 
-                socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
-                
-                if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
-                    for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
-                }
+   socket.on('respawnPlayer', () => {
+    const p = onlinePlayers[socket.id];
+    if (!p) return;
 
-                p.mapId = 'town'; p.x = 960; p.y = 1000; p.currentPortal = null;
-                p.instanceId = getInstanceId(p.id, 'town'); 
-                socket.join(p.instanceId);
-                
-                checkAndResetInstance(oldInstId); // 🌟 RUN THE RESET CHECK
-                
-                // Tell the client to execute the teleport
-                socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); 
-                
-                // Tell everyone in Town that you arrived
-                socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
-                
-                // 🌟 FIX: Send the respawning player the list of everyone currently standing in Town!
-                const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id);
-                socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
-                
-                supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
-            } else {
-                io.to(p.instanceId).emit('playerRevived', { id: p.id, currentHp: p.currentHp });
-            }
-        }
-    });
+    const trueMaxHp = getServerTotalStat(p, 'hp') || p.maxHp || 100;
+
+    // If already in town, just revive in place
+    if (p.mapId === 'town') {
+        p.isGhost = false;
+        p.currentHp = trueMaxHp;
+        p.maxHp = trueMaxHp;
+        p.currentPortal = null;
+        p.untargetableUntil = 0;
+        p.tauntBuffUntil = 0;
+
+        io.to(p.instanceId).emit('playerRevived', {
+            id: p.id,
+            currentHp: p.currentHp
+        });
+
+        const pid = playerParty[p.id];
+        if (pid) emitPartyUpdate(pid);
+
+        supabase
+            .from('Exonians')
+            .update({
+                map_id: 'town',
+                pos_x: p.x,
+                pos_y: p.y,
+                current_hp: p.currentHp
+            })
+            .eq('character_name', p.id)
+            .then(() => {});
+
+        return;
+    }
+
+    // Real respawn flow: leave old map, go to town, then revive
+    const oldInstId = p.instanceId;
+
+    socket.leave(p.instanceId);
+    socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
+
+    if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
+        for (let petId in worlds[p.instanceId].pets) {
+            if (worlds[p.instanceId].pets[petId].ownerId === p.id) {
+                delete worlds[p.instanceId].pets[petId];
+            }
+        }
+    }
+
+    p.mapId = 'town';
+    p.x = 960;
+    p.y = 1000;
+    p.instanceId = getInstanceId(p.id, 'town');
+    p.currentPortal = null;
+    p.isGhost = false;
+    p.maxHp = trueMaxHp;
+    p.currentHp = trueMaxHp;
+    p.untargetableUntil = 0;
+    p.tauntBuffUntil = 0;
+
+    socket.join(p.instanceId);
+
+    checkAndResetInstance(oldInstId);
+
+    socket.emit('forceTeleport', {
+        mapId: 'town',
+        x: 960,
+        y: 1000
+    });
+
+    socket.to(p.instanceId).emit('remotePlayerJoined', {
+        id: p.id,
+        name: p.name,
+        mapId: p.mapId,
+        instanceId: p.instanceId,
+        x: p.x,
+        y: p.y,
+        spriteData: p.spriteData,
+        isGhost: false
+    });
+
+    const playersInInst = Object.values(onlinePlayers).filter(
+        remote => remote.instanceId === p.instanceId && remote.id !== p.id
+    );
+
+    socket.emit('mapPlayersList', playersInInst.map(pp => ({
+        id: pp.id,
+        name: pp.name,
+        mapId: pp.mapId,
+        x: pp.x,
+        y: pp.y,
+        spriteData: pp.spriteData,
+        isGhost: pp.isGhost
+    })));
+
+    socket.emit('playerRevived', {
+        id: p.id,
+        currentHp: p.currentHp
+    });
+
+    const pid = playerParty[p.id];
+    if (pid) emitPartyUpdate(pid);
+
+    supabase
+        .from('Exonians')
+        .update({
+            map_id: 'town',
+            pos_x: 960,
+            pos_y: 1000,
+            current_hp: p.currentHp
+        })
+        .eq('character_name', p.id)
+        .then(() => {});
+});
     // 🌟 NEW: IN-PLACE REVIVAL FOR JUICE
     socket.on('localRevive', () => {
         const p = onlinePlayers[socket.id];
@@ -1855,16 +1936,48 @@ socket.on('requestConfirmTrade', () => {
             io.to(p.instanceId).emit('playerRevived', { id: p.id, currentHp: p.currentHp });
         }
     });
+socket.on('playerDied', () => {
+    const p = onlinePlayers[socket.id];
+    if (!p || p.isGhost) return;
 
-    socket.on('playerDied', () => {
-        const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return;
-        p.isGhost = true; p.currentHp = 0;
-        io.to(p.instanceId).emit('remotePlayerGhosted', p.id);
-        
-        let instPlayers = playersInInstance(p.instanceId);
-        let allDead = instPlayers.every(pl => pl.isGhost);
-        if (allDead) { io.to(p.instanceId).emit('partyWiped'); }
-    });
+    p.isGhost = true;
+    p.currentHp = 0;
+    p.currentPortal = null;
+
+    io.to(p.instanceId).emit('remotePlayerGhosted', p.id);
+
+    const pid = playerParty[p.id];
+
+    // Solo player = show death screen immediately
+    if (!pid || !parties[pid]) {
+        socket.emit('showDeathScreen');
+        return;
+    }
+
+    // Party player = only show death screen if whole party is dead
+    const party = parties[pid];
+    let allDead = true;
+
+    for (const memberId of party.members) {
+        const member = getPlayerById(memberId);
+        if (member && !member.isGhost) {
+            allDead = false;
+            break;
+        }
+    }
+
+    if (allDead) {
+        for (const memberId of party.members) {
+            const memberSid = findSocketIdByPlayerId(memberId);
+            if (memberSid) {
+                io.to(memberSid).emit('showDeathScreen');
+            }
+        }
+        io.to(p.instanceId).emit('partyWiped');
+    }
+
+    emitPartyUpdate(pid);
+});
 // ✅ FETCH ALL NEWS AND SEND AS A QUEUE
     socket.on('requestNews', async () => {
         try {
@@ -2237,6 +2350,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
