@@ -936,42 +936,120 @@ socket.on('broadcastSkill', (data) => {
         socket.emit('authError', 'Server Error');
     }
 });
+socket.on('login', async (data) => {
+    console.log(`[LOGIN ATTEMPT] User: ${data.username}`);
+    try {
+        const { username, password } = data;
+        if (!username || !password) {
+            return socket.emit('authError', 'Invalid username or password.');
+        }
 
-    socket.on('login', async (data) => {
-        console.log(`[LOGIN ATTEMPT] User: ${data.username}`);
-        try {
-            const { username, password } = data;
+        const { data: user, error } = await supabase
+            .from('Exonians')
+            .select('*')
+            .eq('character_name', username)
+            .eq('password', password)
+            .single();
 
-            // Block if they are already logged in
-            if (activeLogins.has(username)) {
-                console.log(`[LOGIN BLOCKED] ${username} is already online.`);
-                return socket.emit('authError', 'This account is currently online elsewhere!');
-            }
+        if (error || !user) {
+            console.error(
+                `[LOGIN FAILED] Invalid credentials for ${username}. Error:`,
+                error?.message || 'No user found'
+            );
+            return socket.emit('authError', 'Invalid username or password.');
+        }
 
-            const { data: user, error } = await supabase.from('Exonians').select('*').eq('character_name', username).eq('password', password).single();
-            if (error || !user) {
-                console.error(`[LOGIN FAILED] Invalid credentials for ${username}. Error:`, error?.message || 'No user found');
-                return socket.emit('authError', 'Invalid username or password.');
-            }
-            
-            console.log(`[LOGIN SUCCESS] ${username} authenticated successfully.`);
-            
-            // Mark the user as actively online
-            activeLogins.add(username);
-            socket.username = username; 
-            
-            // ✅ LOAD FRIENDS FROM SUPABASE DATABASE
-            if (!global.playerFriends) global.playerFriends = {};
-            global.playerFriends[username] = new Set(user.friends || []);
+        // ✅ FORCE-REMOVE OLD SESSION IF THIS ACCOUNT IS ALREADY STUCK ONLINE
+        let oldSocketId = null;
+        for (const sid of Object.keys(onlinePlayers)) {
+            if (onlinePlayers[sid]?.id === username) {
+                oldSocketId = sid;
+                break;
+            }
+        }
 
-            currentUser = username;
-            if (!user.skin_color) socket.emit('needsCharacterCreation', username);
-            else socket.emit('characterSelect', user);
-        } catch(e) {
-            console.error(`[LOGIN CRASH] Exception thrown for ${data.username}:`, e);
-            socket.emit('authError', 'Server Error');
-        }
-    });
+        // Also check raw socket username in case old session never fully entered world
+        if (!oldSocketId) {
+            for (const sid of io.sockets.sockets.keys()) {
+                const s = io.sockets.sockets.get(sid);
+                if (s && s.username === username && sid !== socket.id) {
+                    oldSocketId = sid;
+                    break;
+                }
+            }
+        }
+
+        if (oldSocketId && oldSocketId !== socket.id) {
+            const oldSocket = io.sockets.sockets.get(oldSocketId);
+            const oldPlayer = onlinePlayers[oldSocketId];
+
+            console.log(`[LOGIN OVERRIDE] Kicking stale session for ${username} (socket ${oldSocketId})`);
+
+            if (oldPlayer) {
+                const oldInstId = oldPlayer.instanceId;
+
+                try {
+                    if (oldPlayer.instanceId) {
+                        oldSocket?.to(oldPlayer.instanceId).emit('remotePlayerLeft', oldPlayer.id);
+                    }
+
+                    if (worlds[oldPlayer.instanceId] && worlds[oldPlayer.instanceId].pets) {
+                        for (let petId in worlds[oldPlayer.instanceId].pets) {
+                            if (worlds[oldPlayer.instanceId].pets[petId].ownerId === oldPlayer.id) {
+                                delete worlds[oldPlayer.instanceId].pets[petId];
+                            }
+                        }
+                    }
+
+                    removeFromParty(oldPlayer.id);
+
+                    let saveMap = oldPlayer.mapId;
+                    let saveX = oldPlayer.x;
+                    let saveY = oldPlayer.y;
+                    if (oldPlayer.isGhost) {
+                        saveMap = 'town';
+                        saveX = 960;
+                        saveY = 1000;
+                    }
+
+                    supabase
+                        .from('Exonians')
+                        .update({ map_id: saveMap, pos_x: saveX, pos_y: saveY })
+                        .eq('character_name', oldPlayer.id)
+                        .then(() => {});
+
+                    delete onlinePlayers[oldSocketId];
+                    checkAndResetInstance(oldInstId);
+                } catch (cleanupErr) {
+                    console.error(`[LOGIN OVERRIDE CLEANUP ERROR] ${username}:`, cleanupErr);
+                }
+            }
+
+            activeLogins.delete(username);
+
+            if (oldSocket) {
+                oldSocket.emit('forcedLogout', 'Your account was logged in from another session.');
+                oldSocket.disconnect(true);
+            }
+        }
+
+        console.log(`[LOGIN SUCCESS] ${username} authenticated successfully.`);
+
+        activeLogins.add(username);
+        socket.username = username;
+        currentUser = username;
+
+        if (!global.playerFriends) global.playerFriends = {};
+        global.playerFriends[username] = new Set(user.friends || []);
+
+        if (!user.skin_color) socket.emit('needsCharacterCreation', username);
+        else socket.emit('characterSelect', user);
+
+    } catch (e) {
+        console.error(`[LOGIN CRASH] Exception thrown for ${data.username}:`, e);
+        socket.emit('authError', 'Server Error');
+    }
+});
     socket.on('createCharacter', async (data) => {
         try {
             const { username, charData } = data;
@@ -2350,6 +2428,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
