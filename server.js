@@ -397,7 +397,29 @@ function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
     for (let box of cols) { if (mx < box.x + box.w && mx + mWidth > box.x && my < box.y + box.h && my + mHeight > box.y) return true; }
     return false;
 }
+function hasLineOfSight(instId, x1, y1, x2, y2) {
+    const cols = worlds[instId]?.collisions || [];
+    const steps = Math.max(8, Math.ceil(Math.hypot(x2 - x1, y2 - y1) / 16));
 
+    for (let i = 1; i <= steps; i++) {
+        const t = i / steps;
+        const px = x1 + (x2 - x1) * t;
+        const py = y1 + (y2 - y1) * t;
+
+        for (const box of cols) {
+            if (
+                px >= box.x &&
+                px <= box.x + box.w &&
+                py >= box.y &&
+                py <= box.y + box.h
+            ) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
 function pickTarget(m, instId, now) {
     for (const pid of Object.keys(m.threatTable)) { 
         const p = getPlayerById(pid); 
@@ -494,24 +516,34 @@ function updateMonsterAI(instId, m, now) {
     }
 
     const dist = Math.hypot(target.x - mcx, target.y - mcy);
-    if (dist > m.chaseRadius) { 
-        if (!target.isPet && m.threatTable[target.id]) m.threatTable[target.id] *= 0.9; 
-        if (!target.isPet && m.threatTable[target.id] < 1) delete m.threatTable[target.id]; 
-        return; 
-    }
-    
-    if (dist > m.attackRange) { 
-        const ang = Math.atan2(target.y - mcy, target.x - mcx); 
-        let nx = m.x + Math.cos(ang) * m.speed; 
-        let ny = m.y + Math.sin(ang) * m.speed; 
-        if (!isMonsterColliding(instId, nx, m.y, m.width, m.height)) m.x = nx;
-        if (!isMonsterColliding(instId, m.x, ny, m.width, m.height)) m.y = ny;
-    } else { 
-        if (now - m.lastAttack > 1500) { 
-            m.lastAttack = now; 
-            io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: target.id, targetX: target.x, targetY: target.y, atk: m.atk }); 
-        } 
-    }
+if (dist > m.chaseRadius) {
+    if (!target.isPet && m.threatTable[target.id]) m.threatTable[target.id] *= 0.9;
+    if (!target.isPet && m.threatTable[target.id] < 1) delete m.threatTable[target.id];
+    return;
+}
+
+const isRangedMonster = m.attackRange >= 180;
+const canSeeTarget = !isRangedMonster || hasLineOfSight(instId, mcx, mcy, target.x, target.y);
+
+if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
+    const ang = Math.atan2(target.y - mcy, target.x - mcx);
+    let nx = m.x + Math.cos(ang) * m.speed;
+    let ny = m.y + Math.sin(ang) * m.speed;
+
+    if (!isMonsterColliding(instId, nx, m.y, m.width, m.height)) m.x = nx;
+    if (!isMonsterColliding(instId, m.x, ny, m.width, m.height)) m.y = ny;
+} else {
+    if (now - m.lastAttack > 1500) {
+        m.lastAttack = now;
+        io.to(instId).emit('monsterAttack', {
+            monsterId: m.id,
+            targetId: target.id,
+            targetX: target.x,
+            targetY: target.y,
+            atk: m.atk
+        });
+    }
+}
 }
 
 setInterval(() => {
@@ -2673,6 +2705,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
