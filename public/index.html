@@ -1582,8 +1582,22 @@ window.extractAura = function(e) { if (e) e.stopPropagation(); if (activeInvInde
 window.actionSell = function(e) { 
     if (e) e.stopPropagation(); 
     if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; 
-    let item = game.player.inventory[activeInvIndex]; 
-    if (socket) socket.emit('requestSell', { index: activeInvIndex, item: item }); 
+
+    let item = game.player.inventory[activeInvIndex];
+    if (!item || !item.id) {
+        dom.log.innerText = "That item cannot be sold right now.";
+        document.getElementById('inv-context-menu').style.display = 'none';
+        activeInvIndex = -1;
+        return;
+    }
+
+    if (socket) {
+        socket.emit('requestSell', { 
+            itemId: item.id,
+            index: activeInvIndex
+        });
+    }
+
     document.getElementById('inv-context-menu').style.display = 'none'; 
     activeInvIndex = -1;
 }
@@ -2247,6 +2261,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
