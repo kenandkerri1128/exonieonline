@@ -553,18 +553,6 @@
     .movable-window.window-dragging {
         opacity: 0.96;
     }
-
-    .movable-window::before {
-        content: 'Drag / Pinch';
-        display: block;
-        font-size: 11px;
-        color: #aaa;
-        text-align: center;
-        padding-bottom: 6px;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-        margin-bottom: 8px;
-        pointer-events: none;
-    }
 }
         
         /* --- PERFORMANCE & FPS CSS --- */
@@ -2929,43 +2917,51 @@ window.logout = function() {
     localStorage.removeItem('exonie_pass');
     location.reload();
 };
-  window.mobileWindowState = {};
+window.mobileWindowState = {};
 
 window.isMobileUI = function() {
     return window.matchMedia('(pointer: coarse), (max-width: 950px)').matches;
-};
-
-window.clampWindowToViewport = function(el) {
-    if (!el) return;
-
-    const rect = el.getBoundingClientRect();
-    const scale = parseFloat(el.dataset.scale || '1');
-
-    let left = parseFloat(el.dataset.left || el.offsetLeft || 20);
-    let top = parseFloat(el.dataset.top || el.offsetTop || 80);
-
-    const visibleWidth = rect.width;
-    const visibleHeight = rect.height;
-
-    const minLeft = 0;
-    const minTop = 0;
-    const maxLeft = Math.max(0, window.innerWidth - visibleWidth);
-    const maxTop = Math.max(0, window.innerHeight - visibleHeight);
-
-    left = Math.min(Math.max(left, minLeft), maxLeft);
-    top = Math.min(Math.max(top, minTop), maxTop);
-
-    el.dataset.left = left;
-    el.dataset.top = top;
-    el.style.left = left + 'px';
-    el.style.top = top + 'px';
-    el.style.transform = `scale(${scale})`;
 };
 
 window.bringWindowToFront = function(el) {
     if (!el) return;
     window.__topWindowZ = (window.__topWindowZ || 6000) + 1;
     el.style.zIndex = window.__topWindowZ;
+};
+
+window.applyMobileWindowState = function(el) {
+    if (!el) return;
+    const left = parseFloat(el.dataset.left || '20');
+    const top = parseFloat(el.dataset.top || '80');
+    const scale = parseFloat(el.dataset.scale || '1');
+    el.style.left = left + 'px';
+    el.style.top = top + 'px';
+    el.style.transform = `scale(${scale})`;
+};
+
+window.clampWindowToViewport = function(el) {
+    if (!el) return;
+
+    const scale = parseFloat(el.dataset.scale || '1');
+    el.style.transform = `scale(${scale})`;
+
+    const rect = el.getBoundingClientRect();
+
+    let left = parseFloat(el.dataset.left || '20');
+    let top = parseFloat(el.dataset.top || '80');
+
+    const maxLeft = Math.max(0, window.innerWidth - rect.width);
+    const maxTop = Math.max(0, window.innerHeight - rect.height);
+
+    left = Math.max(0, Math.min(left, maxLeft));
+    top = Math.max(0, Math.min(top, maxTop));
+
+    el.dataset.left = String(left);
+    el.dataset.top = String(top);
+
+    el.style.left = left + 'px';
+    el.style.top = top + 'px';
+    el.style.transform = `scale(${scale})`;
 };
 
 window.enableMobileWindowControls = function(el) {
@@ -2976,103 +2972,168 @@ window.enableMobileWindowControls = function(el) {
     el.dataset.top = el.dataset.top || '80';
     el.dataset.scale = el.dataset.scale || '1';
 
+    let active = false;
+    let dragging = false;
+    let pinching = false;
+
     let dragStartX = 0;
     let dragStartY = 0;
     let startLeft = 0;
     let startTop = 0;
-    let dragging = false;
 
     let pinchStartDistance = 0;
     let pinchStartScale = 1;
-    let pinching = false;
 
-    function getTouchDistance(t1, t2) {
+    let activeTouches = new Map();
+
+    const DRAG_THRESHOLD = 6;
+
+    function getDistance(t1, t2) {
         const dx = t2.clientX - t1.clientX;
         const dy = t2.clientY - t1.clientY;
         return Math.hypot(dx, dy);
     }
 
-    function applyState() {
-        const left = parseFloat(el.dataset.left || '20');
-        const top = parseFloat(el.dataset.top || '80');
-        const scale = parseFloat(el.dataset.scale || '1');
-        el.style.left = left + 'px';
-        el.style.top = top + 'px';
-        el.style.transform = `scale(${scale})`;
+    function getTouchArray() {
+        return Array.from(activeTouches.values());
     }
 
-    el.addEventListener('touchstart', (e) => {
+    function startSingleDrag(touch) {
+        dragging = false;
+        pinching = false;
+        dragStartX = touch.clientX;
+        dragStartY = touch.clientY;
+        startLeft = parseFloat(el.dataset.left || '20');
+        startTop = parseFloat(el.dataset.top || '80');
+    }
+
+    function startPinch(t1, t2) {
+        dragging = false;
+        pinching = true;
+        pinchStartDistance = getDistance(t1, t2);
+        pinchStartScale = parseFloat(el.dataset.scale || '1');
+    }
+
+    function onTouchStart(e) {
         if (!window.isMobileUI()) return;
-        window.bringWindowToFront(el);
 
-        if (e.touches.length === 1) {
-            dragging = true;
-            pinching = false;
-            el.classList.add('window-dragging');
-
-            dragStartX = e.touches[0].clientX;
-            dragStartY = e.touches[0].clientY;
-            startLeft = parseFloat(el.dataset.left || '20');
-            startTop = parseFloat(el.dataset.top || '80');
-        } else if (e.touches.length === 2) {
-            dragging = false;
-            pinching = true;
-            el.classList.remove('window-dragging');
-
-            pinchStartDistance = getTouchDistance(e.touches[0], e.touches[1]);
-            pinchStartScale = parseFloat(el.dataset.scale || '1');
-        }
-    }, { passive: false });
-
-    el.addEventListener('touchmove', (e) => {
-        if (!window.isMobileUI()) return;
+        const touchedWindow = e.target.closest('.movable-window');
+        if (touchedWindow !== el) return;
         if (el.style.display === 'none') return;
 
-        if (pinching && e.touches.length === 2) {
+        window.bringWindowToFront(el);
+
+        active = true;
+
+        for (const t of e.changedTouches) {
+            activeTouches.set(t.identifier, {
+                identifier: t.identifier,
+                clientX: t.clientX,
+                clientY: t.clientY
+            });
+        }
+
+        const touches = getTouchArray();
+
+        if (touches.length === 1) {
+            startSingleDrag(touches[0]);
+        } else if (touches.length >= 2) {
+            startPinch(touches[0], touches[1]);
+        }
+    }
+
+    function onTouchMove(e) {
+        if (!window.isMobileUI()) return;
+        if (!active) return;
+
+        let changed = false;
+        for (const t of e.changedTouches) {
+            if (activeTouches.has(t.identifier)) {
+                activeTouches.set(t.identifier, {
+                    identifier: t.identifier,
+                    clientX: t.clientX,
+                    clientY: t.clientY
+                });
+                changed = true;
+            }
+        }
+        if (!changed) return;
+
+        const touches = getTouchArray();
+
+        if (touches.length >= 2) {
             e.preventDefault();
 
-            const dist = getTouchDistance(e.touches[0], e.touches[1]);
+            if (!pinching) {
+                startPinch(touches[0], touches[1]);
+            }
+
+            const dist = getDistance(touches[0], touches[1]);
             if (pinchStartDistance > 0) {
                 let nextScale = pinchStartScale * (dist / pinchStartDistance);
                 nextScale = Math.max(0.7, Math.min(1.8, nextScale));
                 el.dataset.scale = String(nextScale);
-                applyState();
+                window.applyMobileWindowState(el);
             }
             return;
         }
 
-        if (dragging && e.touches.length === 1) {
-            e.preventDefault();
+        if (touches.length === 1) {
+            const t = touches[0];
+            const dx = t.clientX - dragStartX;
+            const dy = t.clientY - dragStartY;
 
-            const dx = e.touches[0].clientX - dragStartX;
-            const dy = e.touches[0].clientY - dragStartY;
+            if (!dragging) {
+                if (Math.hypot(dx, dy) >= DRAG_THRESHOLD) {
+                    dragging = true;
+                    el.classList.add('window-dragging');
+                }
+            }
 
-            el.dataset.left = String(startLeft + dx);
-            el.dataset.top = String(startTop + dy);
-            applyState();
+            if (dragging) {
+                e.preventDefault();
+                el.dataset.left = String(startLeft + dx);
+                el.dataset.top = String(startTop + dy);
+                window.applyMobileWindowState(el);
+            }
         }
-    }, { passive: false });
+    }
 
-    el.addEventListener('touchend', () => {
-        dragging = false;
-        pinching = false;
-        el.classList.remove('window-dragging');
-        window.clampWindowToViewport(el);
-    });
+    function endTouches(e) {
+        for (const t of e.changedTouches) {
+            activeTouches.delete(t.identifier);
+        }
 
-    el.addEventListener('touchcancel', () => {
-        dragging = false;
-        pinching = false;
-        el.classList.remove('window-dragging');
-        window.clampWindowToViewport(el);
-    });
+        const touches = getTouchArray();
 
-    el.addEventListener('mousedown', () => {
+        if (touches.length === 0) {
+            active = false;
+            dragging = false;
+            pinching = false;
+            el.classList.remove('window-dragging');
+            window.clampWindowToViewport(el);
+            return;
+        }
+
+        if (touches.length === 1) {
+            pinching = false;
+            startSingleDrag(touches[0]);
+        } else if (touches.length >= 2) {
+            startPinch(touches[0], touches[1]);
+        }
+    }
+
+    document.addEventListener('touchstart', onTouchStart, { passive: true });
+    document.addEventListener('touchmove', onTouchMove, { passive: false });
+    document.addEventListener('touchend', endTouches, { passive: true });
+    document.addEventListener('touchcancel', endTouches, { passive: true });
+
+    el.addEventListener('mousedown', function() {
         if (!window.isMobileUI()) return;
         window.bringWindowToFront(el);
     });
 
-    applyState();
+    window.applyMobileWindowState(el);
     setTimeout(() => window.clampWindowToViewport(el), 50);
 };
 
@@ -3087,11 +3148,17 @@ window.resetMobileWindow = function(id, x = 20, y = 80, scale = 1) {
     el.dataset.left = String(x);
     el.dataset.top = String(y);
     el.dataset.scale = String(scale);
-    el.style.left = x + 'px';
-    el.style.top = y + 'px';
-    el.style.transform = `scale(${scale})`;
+    window.applyMobileWindowState(el);
     window.clampWindowToViewport(el);
-};  
+};
+
+window.addEventListener('resize', () => {
+    document.querySelectorAll('.movable-window').forEach(el => {
+        if (el.dataset.mobileWindowReady === '1') {
+            window.clampWindowToViewport(el);
+        }
+    });
+});
 
 // ==========================================
 // 🛡️ SYSTEM UTILITIES & MAILBOX ENGINE
@@ -3151,6 +3218,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
