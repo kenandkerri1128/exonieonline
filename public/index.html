@@ -2100,46 +2100,109 @@ socket.on('forceTeleport', (tp) => {
     socket.on('inspectData', (data) => { if (!data) return; dom.inspect.style.display = 'block'; dom.inspectTitle.innerText = `Inspect: ${data.name || data.id || "Unknown"}`; const equips = data.equips || {}; const slots = [ { key: 'weapon', label: 'Weapon' }, { key: 'armor', label: 'Armor' }, { key: 'leggings', label: 'Leggings' } ]; function fmtStatBlock(item) { if (!item) return `<div class="inspect-empty">None</div>`; const rarityColor = item.color || (window.RARITY_COLORS[item.rarity] || "#fff"); const nameClass = item.rarity === "Godly" ? "rarity-godly" : ""; const displayName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name; let html = `<div class="inspect-title"><div class="inspect-item-name ${nameClass}" style="color:${rarityColor};">${displayName}</div><div class="inspect-sub">Lv.${item.level || 1} ${item.rarity || "Unknown"}</div></div><div class="inspect-stat">`; if (item.fixedStat) { for (const k in item.fixedStat) html += `<div><b>Fixed:</b> +${item.fixedStat[k]} ${k.toUpperCase()}</div>`; } if (item.randomStat) { for (const k in item.randomStat) html += `<div><b>Random:</b> +${item.randomStat[k]} ${k.toUpperCase()}</div>`; } if (item.sprite) { html += `<div style="color:#888; margin-top:6px;">Sprite: ${item.sprite}.png</div>`; } html += `</div>`; return html; } let out = `<div style="font-size:14px; color:#ccc; margin-bottom:10px; text-align:center;">Level ${data.level || 1} &nbsp; | &nbsp; HP ${data.currentHp ?? "?"} / ${data.maxHp ?? "?"}</div>`; slots.forEach(s => { out += `<div class="inspect-equip"><div style="font-weight:bold; color:#ffeb3b; margin-bottom:6px;">${s.label}</div>${fmtStatBlock(equips[s.key])}</div>`; }); dom.inspectContent.innerHTML = out; });
     socket.on('partyInviteReceived', (payload) => { pendingPartyInvite = payload?.fromId || "Unknown"; document.getElementById('invite-text').innerText = `${pendingPartyInvite} invited you to a party.`; document.getElementById('invite-dialog').style.display = 'block'; });
     socket.on('tradeInviteReceived', (payload) => { pendingTradeInvite = payload?.fromId || "Unknown"; document.getElementById('trade-text').innerText = `${pendingTradeInvite} wants to trade.`; document.getElementById('trade-dialog').style.display = 'block'; });
-       socket.on('tradeStarted', (data) => {
-        tradeTarget = data.targetId;
-        inTradeMode = true;
+      socket.on('tradeStarted', (data) => {
+    tradeTarget = data.targetId;
+    inTradeMode = true;
+    tradeMyItems = [null, null, null];
+    tradeTheirItems = [null, null, null];
 
-        tradeMyItems = [null, null, null];
-        tradeTheirItems = [null, null, null];
-        document.getElementById('trade-my-gold').value = 0;
-        document.getElementById('trade-their-gold').innerText = "0";
+    document.getElementById('trade-target-name').innerText = tradeTarget;
+    document.getElementById('trade-screen').style.display = 'block';
+    document.getElementById('trade-my-gold').value = 0;
+    document.getElementById('trade-their-gold').innerText = '0';
 
-        document.getElementById('trade-target-name').innerText = tradeTarget;
-        document.getElementById('trade-screen').style.display = 'block';
+    const btn = document.getElementById('trade-confirm-btn');
+    if (btn) {
+        btn.innerText = 'Confirm Trade';
+        btn.disabled = false;
+        btn.style.background = '#2196F3';
+        btn.style.borderColor = '#2196F3';
+    }
 
-        window.renderTradeSlots();
-        window.renderInventory();
-        dom.invScreen.style.display = 'block';
-    });
+    window.renderTradeSlots();
+    window.renderInventory();
+    dom.invScreen.style.display = 'block';
+});
         socket.on('tradeSyncReceived', (data) => {
         document.getElementById('trade-their-gold').innerText = data.gold || 0;
         tradeTheirItems = Array.isArray(data.items) ? data.items : [null, null, null];
         window.renderTradeSlots();
     });
+socket.on('tradeConfirmStatus', (data) => {
+    const btn = document.getElementById('trade-confirm-btn');
+    if (!btn) return;
 
-    socket.on('tradeCancelled', () => {
-        inTradeMode = false;
-        tradeTarget = null;
-        document.getElementById('trade-screen').style.display = 'none';
-        dom.log.innerText = "The other player cancelled the trade.";
+    if (data.meConfirmed && data.otherConfirmed) {
+        btn.innerText = 'Trading...';
+        btn.disabled = true;
+        btn.style.background = '#555';
+        btn.style.borderColor = '#555';
+        return;
+    }
 
-        tradeMyItems.forEach(item => {
-            if (item) window.addLoot(item);
-        });
+    if (data.meConfirmed) {
+        btn.innerText = 'Confirmed - Waiting...';
+        btn.disabled = true;
+        btn.style.background = '#4CAF50';
+        btn.style.borderColor = '#4CAF50';
+    } else {
+        btn.innerText = 'Confirm Trade';
+        btn.disabled = false;
+        btn.style.background = '#2196F3';
+        btn.style.borderColor = '#2196F3';
+    }
+});
 
-        tradeMyItems = [null, null, null];
-        tradeTheirItems = [null, null, null];
-        document.getElementById('trade-my-gold').value = 0;
-        document.getElementById('trade-their-gold').innerText = "0";
+socket.on('tradeDone', (data) => {
+    inTradeMode = false;
+    tradeTarget = null;
+    tradeMyItems = [null, null, null];
+    tradeTheirItems = [null, null, null];
 
-        window.renderInventory();
-        window.renderTradeSlots();
-    });
+    game.player.gold = data.newGold || 0;
+    game.player.inventory = Array.isArray(data.newInventory) ? data.newInventory : game.player.inventory;
+
+    document.getElementById('trade-my-gold').value = 0;
+    document.getElementById('trade-their-gold').innerText = '0';
+    document.getElementById('trade-screen').style.display = 'none';
+
+    const btn = document.getElementById('trade-confirm-btn');
+    if (btn) {
+        btn.innerText = 'Confirm Trade';
+        btn.disabled = false;
+        btn.style.background = '#2196F3';
+        btn.style.borderColor = '#2196F3';
+    }
+
+    window.renderTradeSlots();
+    window.renderInventory();
+    window.updateUI();
+    dom.log.innerText = 'Trade completed.';
+});
+   socket.on('tradeCancelled', () => {
+    inTradeMode = false;
+    tradeTarget = null;
+    document.getElementById('trade-screen').style.display = 'none';
+    dom.log.innerText = "The other player cancelled the trade.";
+
+    tradeMyItems.forEach(item => { if (item) window.addLoot(item); });
+    tradeMyItems = [null, null, null];
+    tradeTheirItems = [null, null, null];
+
+    document.getElementById('trade-my-gold').value = 0;
+    document.getElementById('trade-their-gold').innerText = "0";
+
+    const btn = document.getElementById('trade-confirm-btn');
+    if (btn) {
+        btn.innerText = 'Confirm Trade';
+        btn.disabled = false;
+        btn.style.background = '#2196F3';
+        btn.style.borderColor = '#2196F3';
+    }
+
+    window.renderInventory();
+    window.renderTradeSlots();
+});
 
     socket.on('tradeDone', (data) => {
         inTradeMode = false;
@@ -2427,6 +2490,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
