@@ -1698,32 +1698,94 @@ io.on('connection', (socket) => {
 
     socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
 });
-
-   socket.on('requestSell', async (data) => {
+socket.on('useRevivalJuice', async (data) => {
     const p = onlinePlayers[socket.id];
-    if (!p || !data.item) return;
+    if (!p) return;
+    if (!p.isGhost) return;
 
-    const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
-    const idx = Number(data.index);
+    const inv = Array.isArray(p.inventory) ? p.inventory : [];
+    const requestedIndex = typeof data?.invIndex === 'number' ? data.invIndex : -1;
 
-    if (Number.isNaN(idx) || idx < 0 || idx >= inv.length) {
-        socket.emit('systemMessage', "Invalid inventory slot.");
-        return;
+    let juiceIndex = -1;
+
+    if (
+        requestedIndex >= 0 &&
+        inv[requestedIndex] &&
+        inv[requestedIndex].name === "Revival Juice"
+    ) {
+        juiceIndex = requestedIndex;
+    } else {
+        juiceIndex = inv.findIndex(i => i && i.name === "Revival Juice");
     }
 
-    const realItem = inv[idx];
-    if (!realItem) {
-        socket.emit('systemMessage', "Item no longer exists.");
-        return;
+    if (juiceIndex === -1) {
+        return socket.emit('systemMessage', 'No Revival Juice found.');
     }
 
-    if (realItem.id !== data.item.id) {
-        socket.emit('systemMessage', "Inventory mismatch. Please try again.");
-        socket.emit('syncInventory', inv);
-        return;
+    const item = inv[juiceIndex];
+    item.quantity = (item.quantity || 1) - 1;
+
+    if (item.quantity <= 0) {
+        inv[juiceIndex] = null;
     }
 
-    let baseVal = (realItem.level || 1) * 2;
+    p.inventory = inv;
+    p.isGhost = false;
+
+    const trueMaxHp = getServerTotalStat(p, 'hp') || p.maxHp || 100;
+    p.maxHp = trueMaxHp;
+    p.currentHp = trueMaxHp;
+    p.currentPortal = null;
+
+    try {
+        await supabase
+            .from('Exonians')
+            .update({
+                inventory: p.inventory,
+                current_hp: p.currentHp,
+                map_id: p.mapId,
+                pos_x: p.x,
+                pos_y: p.y
+            })
+            .eq('character_name', p.id);
+    } catch (e) {
+        console.error('[REVIVAL JUICE SAVE ERROR]', e.message);
+    }
+
+    io.to(p.instanceId).emit('playerRevived', {
+        id: p.id,
+        currentHp: p.currentHp
+    });
+
+    socket.emit('revivalJuiceUsed', {
+        inventory: p.inventory,
+        currentHp: p.currentHp
+    });
+
+    const pid = playerParty[p.id];
+    if (pid) emitPartyUpdate(pid);
+});
+ socket.on('requestSell', async (data) => {
+    const p = onlinePlayers[socket.id];
+    if (!p) return;
+
+    const inv = Array.isArray(p.inventory) ? p.inventory : [];
+    const requestedIndex = typeof data?.index === 'number' ? data.index : -1;
+
+    if (requestedIndex < 0 || requestedIndex >= inv.length) {
+        return socket.emit('systemMessage', 'Invalid sell slot.');
+    }
+
+    const serverItem = inv[requestedIndex];
+    if (!serverItem) {
+        return socket.emit('systemMessage', 'Item no longer exists in that slot.');
+    }
+
+    if (data?.item?.id && serverItem.id !== data.item.id) {
+        return socket.emit('systemMessage', 'Sell blocked: item mismatch.');
+    }
+
+    let baseVal = (serverItem.level || 1) * 2;
     let multiplier = {
         "Starter": 1,
         "Basic": 2,
@@ -1731,19 +1793,28 @@ io.on('connection', (socket) => {
         "Unique": 10,
         "Legendary": 25,
         "Godly": 100
-    }[realItem.rarity] || 1;
+    }[serverItem.rarity] || 1;
 
     let sellPrice = baseVal * multiplier;
-    if (realItem.quantity) sellPrice *= realItem.quantity;
+    if (serverItem.quantity) sellPrice *= serverItem.quantity;
 
     p.gold += sellPrice;
-    inv[idx] = null;
+
+    inv[requestedIndex] = null;
     p.inventory = inv;
 
-    await supabase
-        .from('Exonians')
-        .update({ gold: p.gold, inventory: p.inventory })
-        .eq('character_name', p.id);
+    try {
+        await supabase
+            .from('Exonians')
+            .update({
+                gold: p.gold,
+                inventory: p.inventory
+            })
+            .eq('character_name', p.id);
+    } catch (e) {
+        console.error('[SELL ERROR]', e.message);
+        return socket.emit('systemMessage', 'Server error during sell.');
+    }
 
     socket.emit('sellSuccess', {
         newGold: p.gold,
@@ -1853,6 +1924,7 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
