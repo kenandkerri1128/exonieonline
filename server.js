@@ -1411,23 +1411,224 @@ skillCooldowns: {}
         io.to(targetSid).emit('tradeInviteReceived', { fromId: me.id });
     });
 
-    socket.on('tradeInviteResponse', (data) => {
-        const me = onlinePlayers[socket.id]; if (!me || !data.fromId) return;
-        const fromSid = findSocketIdByPlayerId(data.fromId);
-        const targetPlayer = getPlayerById(data.fromId);
-        if (!fromSid || !targetPlayer) return;
-        
-        if (data.accept) {
-            me.tradeTarget = targetPlayer.id; targetPlayer.tradeTarget = me.id;
-            socket.emit('tradeStarted', { targetId: data.fromId });
-            io.to(fromSid).emit('tradeStarted', { targetId: me.id });
-        } else { io.to(fromSid).emit('partyError', `${me.id} declined your trade request.`); }
-    });
+        socket.on('tradeInviteResponse', (data) => {
+        const me = onlinePlayers[socket.id];
+        if (!me || !data.fromId) return;
 
-    socket.on('tradeSync', (data) => { const me = onlinePlayers[socket.id]; if(!me || !me.tradeTarget) return; const targetSid = findSocketIdByPlayerId(me.tradeTarget); if (targetSid) io.to(targetSid).emit('tradeSyncReceived', data); });
-    socket.on('tradeCancel', () => { const me = onlinePlayers[socket.id]; if(!me || !me.tradeTarget) return; const targetSid = findSocketIdByPlayerId(me.tradeTarget); let tId = me.tradeTarget; me.tradeTarget = null; let targetPlayer = getPlayerById(tId); if(targetPlayer) targetPlayer.tradeTarget = null; if (targetSid) io.to(targetSid).emit('tradeCancelled'); });
-    
-    socket.on('playerVitals', (data) => {
+        const fromSid = findSocketIdByPlayerId(data.fromId);
+        const targetPlayer = getPlayerById(data.fromId);
+        if (!fromSid || !targetPlayer) return;
+
+        if (data.accept) {
+            me.tradeTarget = targetPlayer.id;
+            targetPlayer.tradeTarget = me.id;
+
+            me.currentTradeOffer = { gold: 0, items: [] };
+            targetPlayer.currentTradeOffer = { gold: 0, items: [] };
+
+            me.tradeConfirmed = false;
+            targetPlayer.tradeConfirmed = false;
+
+            socket.emit('tradeStarted', { targetId: data.fromId });
+            io.to(fromSid).emit('tradeStarted', { targetId: me.id });
+        } else {
+            io.to(fromSid).emit('partyError', `${me.id} declined your trade request.`);
+        }
+    });
+
+       socket.on('tradeSync', (data) => {
+        const me = onlinePlayers[socket.id];
+        if (!me || !me.tradeTarget) return;
+
+        // Save the REAL current offer on server memory
+        me.currentTradeOffer = {
+            gold: Math.max(0, parseInt(data.gold) || 0),
+            items: Array.isArray(data.items) ? data.items.filter(Boolean) : []
+        };
+
+        // Any change resets confirmations
+        me.tradeConfirmed = false;
+        const them = getPlayerById(me.tradeTarget);
+        if (them) them.tradeConfirmed = false;
+
+        const targetSid = findSocketIdByPlayerId(me.tradeTarget);
+        if (targetSid) {
+            io.to(targetSid).emit('tradeSyncReceived', {
+                gold: me.currentTradeOffer.gold,
+                items: me.currentTradeOffer.items
+            });
+        }
+    });
+
+    socket.on('tradeCancel', () => {
+        const me = onlinePlayers[socket.id];
+        if (!me || !me.tradeTarget) return;
+
+        const targetSid = findSocketIdByPlayerId(me.tradeTarget);
+        const targetPlayer = getPlayerById(me.tradeTarget);
+
+        me.tradeTarget = null;
+        me.currentTradeOffer = null;
+        me.tradeConfirmed = false;
+
+        if (targetPlayer) {
+            targetPlayer.tradeTarget = null;
+            targetPlayer.currentTradeOffer = null;
+            targetPlayer.tradeConfirmed = false;
+        }
+
+        socket.emit('tradeCancelled');
+        if (targetSid) io.to(targetSid).emit('tradeCancelled');
+    });
+
+    socket.on('requestConfirmTrade', () => {
+        const me = onlinePlayers[socket.id];
+        if (!me || !me.tradeTarget) return;
+
+        const them = getPlayerById(me.tradeTarget);
+        const theirSocketId = findSocketIdByPlayerId(me.tradeTarget);
+        if (!them || !theirSocketId) {
+            socket.emit('systemMessage', "Trade target is no longer online.");
+            me.tradeTarget = null;
+            me.currentTradeOffer = null;
+            me.tradeConfirmed = false;
+            return;
+        }
+
+        if (!me.currentTradeOffer) {
+            me.currentTradeOffer = { gold: 0, items: [] };
+        }
+        if (!them.currentTradeOffer) {
+            them.currentTradeOffer = { gold: 0, items: [] };
+        }
+
+        me.tradeConfirmed = true;
+        socket.emit('systemMessage', "Trade confirmed. Waiting for the other player...");
+
+        if (!them.tradeConfirmed) {
+            io.to(theirSocketId).emit('systemMessage', `${me.id} confirmed the trade.`);
+            return;
+        }
+
+        // =========================
+        // BOTH PLAYERS CONFIRMED
+        // =========================
+        const myOffer = me.currentTradeOffer || { gold: 0, items: [] };
+        const theirOffer = them.currentTradeOffer || { gold: 0, items: [] };
+
+        const myGold = Math.max(0, parseInt(myOffer.gold) || 0);
+        const theirGold = Math.max(0, parseInt(theirOffer.gold) || 0);
+
+        // Validate gold first
+        if ((me.gold || 0) < myGold) {
+            socket.emit('systemMessage', "Trade failed: you do not have enough gold.");
+            io.to(theirSocketId).emit('systemMessage', "Trade failed: other player does not have enough gold.");
+            me.tradeConfirmed = false;
+            them.tradeConfirmed = false;
+            return;
+        }
+
+        if ((them.gold || 0) < theirGold) {
+            socket.emit('systemMessage', "Trade failed: other player does not have enough gold.");
+            io.to(theirSocketId).emit('systemMessage', "Trade failed: you do not have enough gold.");
+            me.tradeConfirmed = false;
+            them.tradeConfirmed = false;
+            return;
+        }
+
+        const myInventory = Array.isArray(me.inventory) ? me.inventory : [];
+        const theirInventory = Array.isArray(them.inventory) ? them.inventory : [];
+
+        const myItemIds = Array.isArray(myOffer.items) ? myOffer.items.map(i => i && i.id).filter(Boolean) : [];
+        const theirItemIds = Array.isArray(theirOffer.items) ? theirOffer.items.map(i => i && i.id).filter(Boolean) : [];
+
+        // Pull exact item IDs only
+        const myRealIndexes = [];
+        for (const itemId of myItemIds) {
+            const idx = myInventory.findIndex(invItem => invItem && invItem.id === itemId);
+            if (idx === -1 || myRealIndexes.includes(idx)) {
+                socket.emit('systemMessage', "Trade failed: one of your offered items is missing.");
+                io.to(theirSocketId).emit('systemMessage', "Trade failed: other player's offered item is missing.");
+                me.tradeConfirmed = false;
+                them.tradeConfirmed = false;
+                return;
+            }
+            myRealIndexes.push(idx);
+        }
+
+        const theirRealIndexes = [];
+        for (const itemId of theirItemIds) {
+            const idx = theirInventory.findIndex(invItem => invItem && invItem.id === itemId);
+            if (idx === -1 || theirRealIndexes.includes(idx)) {
+                socket.emit('systemMessage', "Trade failed: one of the other player's offered items is missing.");
+                io.to(theirSocketId).emit('systemMessage', "Trade failed: one of your offered items is missing.");
+                me.tradeConfirmed = false;
+                them.tradeConfirmed = false;
+                return;
+            }
+            theirRealIndexes.push(idx);
+        }
+
+        const myItemsToGive = myRealIndexes.map(idx => myInventory[idx]);
+        const theirItemsToGive = theirRealIndexes.map(idx => theirInventory[idx]);
+
+        const myEmptySlotsAfterRemoval = myInventory.filter((item, idx) => item === null || myRealIndexes.includes(idx)).length;
+        const theirEmptySlotsAfterRemoval = theirInventory.filter((item, idx) => item === null || theirRealIndexes.includes(idx)).length;
+
+        if (myEmptySlotsAfterRemoval < theirItemsToGive.length) {
+            socket.emit('systemMessage', "Trade failed: you do not have enough inventory space.");
+            io.to(theirSocketId).emit('systemMessage', "Trade failed: other player has no space.");
+            me.tradeConfirmed = false;
+            them.tradeConfirmed = false;
+            return;
+        }
+
+        if (theirEmptySlotsAfterRemoval < myItemsToGive.length) {
+            socket.emit('systemMessage', "Trade failed: other player does not have enough inventory space.");
+            io.to(theirSocketId).emit('systemMessage', "Trade failed: you do not have enough inventory space.");
+            me.tradeConfirmed = false;
+            them.tradeConfirmed = false;
+            return;
+        }
+
+        // Remove offered items from each inventory
+        myRealIndexes.forEach(idx => { myInventory[idx] = null; });
+        theirRealIndexes.forEach(idx => { theirInventory[idx] = null; });
+
+        // Swap gold
+        me.gold = (me.gold || 0) - myGold + theirGold;
+        them.gold = (them.gold || 0) - theirGold + myGold;
+
+        // Insert received items into empty slots
+        theirItemsToGive.forEach(item => {
+            const emptyIdx = myInventory.findIndex(i => i === null);
+            if (emptyIdx !== -1) myInventory[emptyIdx] = item;
+        });
+
+        myItemsToGive.forEach(item => {
+            const emptyIdx = theirInventory.findIndex(i => i === null);
+            if (emptyIdx !== -1) theirInventory[emptyIdx] = item;
+        });
+
+        me.inventory = myInventory;
+        them.inventory = theirInventory;
+
+        // Clear trade state
+        me.tradeTarget = null;
+        them.tradeTarget = null;
+        me.currentTradeOffer = null;
+        them.currentTradeOffer = null;
+        me.tradeConfirmed = false;
+        them.tradeConfirmed = false;
+
+        supabase.from('Exonians').update({ gold: me.gold, inventory: me.inventory }).eq('character_name', me.id).then(()=>{});
+        supabase.from('Exonians').update({ gold: them.gold, inventory: them.inventory }).eq('character_name', them.id).then(()=>{});
+
+        socket.emit('tradeDone', { newGold: me.gold, newInventory: me.inventory });
+        io.to(theirSocketId).emit('tradeDone', { newGold: them.gold, newInventory: them.inventory });
+    });
+
+    socket.on('playerVitals', (data) => {
         const p = onlinePlayers[socket.id]; if (!p) return;
         p.currentHp = data.currentHp; p.maxHp = data.maxHp; p.level = data.level;
         const pid = playerParty[p.id];
@@ -2082,6 +2283,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
