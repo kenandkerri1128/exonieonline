@@ -1544,27 +1544,70 @@ socket.on('login', async (data) => {
             io.to(p.instanceId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
             
             const expAmount = m.expYield || 25; const goldAmount = m.goldYield || 15; 
-            const pid = playerParty[p.id];
+           const pid = playerParty[p.id];
 
-                     if (pid && parties[pid]) {
-                for (const memberId of parties[pid].members) { 
-                    const sid = findSocketIdByPlayerId(memberId); 
-                    const memberPlayer = getPlayerById(memberId);
-                    if (sid && memberPlayer) {
-                        io.to(sid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
+if (pid && parties[pid]) {
+    for (const memberId of parties[pid].members) {
+        const sid = findSocketIdByPlayerId(memberId);
+        const memberPlayer = getPlayerById(memberId);
 
-                        let drop = generateLoot(m);
+        if (sid && memberPlayer) {
+            io.to(sid).emit('receiveExp', {
+                amount: expAmount,
+                gold: goldAmount,
+                source: m.name
+            });
 
-                        if (drop && playerAcceptsLoot(memberPlayer, drop)) {
-                            io.to(sid).emit('lootDropped', drop);
-                        } else if (drop) {
-                            io.to(sid).emit('systemMessage', `Filtered loot ignored: ${drop.name} [${drop.rarity}]`);
-                        }
+            let drop = generateLoot(m);
 
-                        if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
-                            io.emit('rareLootBroadcast', { playerName: memberId, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
-                        }
-                    }
+            if (drop && playerAcceptsLoot(memberPlayer, drop)) {
+                io.to(sid).emit('lootDropped', drop);
+            } else if (drop) {
+                io.to(sid).emit(
+                    'systemMessage',
+                    `Filtered loot ignored: ${drop.name} [${drop.rarity}]`
+                );
+            }
+
+            if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
+                io.emit('rareLootBroadcast', {
+                    playerName: memberId,
+                    itemName: drop.name,
+                    rarity: drop.rarity,
+                    level: drop.level,
+                    color: drop.color
+                });
+            }
+        }
+    }
+} else {
+    io.to(socket.id).emit('receiveExp', {
+        amount: expAmount,
+        gold: goldAmount,
+        source: m.name
+    });
+
+    let drop = generateLoot(m);
+
+    if (drop && playerAcceptsLoot(p, drop)) {
+        io.to(socket.id).emit('lootDropped', drop);
+    } else if (drop) {
+        io.to(socket.id).emit(
+            'systemMessage',
+            `Filtered loot ignored: ${drop.name} [${drop.rarity}]`
+        );
+    }
+
+    if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
+        io.emit('rareLootBroadcast', {
+            playerName: p.name || p.id,
+            itemName: drop.name,
+            rarity: drop.rarity,
+            level: drop.level,
+            color: drop.color
+        });
+    }
+}
                 }
             } else { 
                 io.to(socket.id).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name }); 
@@ -2550,6 +2593,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
