@@ -954,94 +954,164 @@ io.on('connection', (socket) => {
     });
 
     socket.on('enterWorld', (userData) => {
-        // 🛡️ STRICT LOGIN RULE: Everyone spawns in Town! No exceptions.
-        const mapId = 'town';
-        const instId = getInstanceId(userData.character_name, mapId);
+    // 🛡️ STRICT LOGIN RULE: Everyone spawns in Town! No exceptions.
+    const mapId = 'town';
+    const instId = getInstanceId(userData.character_name, mapId);
 
-        let startHp = userData.max_hp || 100; // Full heal in town
-        
-        currentUser = userData.character_name; 
-        
-        onlinePlayers[socket.id] = {
-            socketId: socket.id, id: userData.character_name, name: userData.character_name, 
-            mapId: mapId, instanceId: instId, isGhost: false, currentPortal: null,
-            x: 960, y: 1000, // 🛡️ FORCE SPAWN
-            level: userData.level || 1, currentHp: startHp, maxHp: userData.max_hp || 100, tradeTarget: null,
-            equips: userData.equips || { weapon: null, armor: null, leggings: null }, 
-            baseStats: userData.base_stats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }, 
-            gold: userData.gold || 0, 
-            spriteData: { 
-                skin: userData.skin_color, hair: userData.hair_color, style: userData.hair_style, 
-                weapon: userData.equips?.weapon?.sprite || null,
-                aura: userData.equips?.armor?.aura || null 
-            },
-            untargetableUntil: 0,
-            attackTokens: 3, lastTokenRefill: Date.now(), skillCooldowns: {}
-        };
-        
-        // 🛡️ FORCE DB UPDATE IMMEDIATELY SO CLIENT CAN'T OVERRIDE IT
-        supabase.from('Exonians').update({ map_id: 'town', pos_x: 960, pos_y: 1000, current_hp: startHp }).eq('character_name', currentUser).then(()=>{});
+    const safeInventory = Array.isArray(userData.inventory)
+        ? userData.inventory
+        : new Array(20).fill(null);
 
-        socket.join(instId); socket.emit('authSuccess', userData);
-        
-        socket.to(instId).emit('remotePlayerJoined', { id: onlinePlayers[socket.id].id, name: onlinePlayers[socket.id].name, mapId, instanceId: instId, x: onlinePlayers[socket.id].x, y: onlinePlayers[socket.id].y, spriteData: onlinePlayers[socket.id].spriteData, isGhost: false });
-        const playersInInst = Object.values(onlinePlayers).filter(p => p.instanceId === instId && p.id !== userData.character_name);
-        socket.emit('mapPlayersList', playersInInst.map(p => ({ id: p.id, name: p.name, mapId: p.mapId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost })));
-    });
+    const safeEquips = (userData.equips && typeof userData.equips === 'object')
+        ? userData.equips
+        : { weapon: null, armor: null, leggings: null };
 
-   socket.on('saveData', async (playerData) => {
-        if (!currentUser) return;
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
+    const safeBaseStats = (userData.base_stats && typeof userData.base_stats === 'object')
+        ? userData.base_stats
+        : { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null };
 
-        // 🛡️ ANTI-CHEAT: SAVE RATE LIMITER
-        const now = Date.now();
-        if (p.lastSaveTime && now - p.lastSaveTime < 500) {
-            return; // Block hackers from spamming the save function!
-        }
-        p.lastSaveTime = now;
-// 🛡️ ANTI-CHEAT: VALIDATE COSMETIC AURAS
-        const validAuras = ['lightning']; // Add new auras here next month!
-        let safeAura = playerData.equips?.armor?.aura || null;
-        if (safeAura && !validAuras.includes(safeAura)) {
-            console.log(`[HACK BLOCKED] ${p.id} tried to inject fake aura: ${safeAura}`);
-            safeAura = null;
-            if (playerData.equips && playerData.equips.armor) delete playerData.equips.armor.aura;
-        }
-        p.spriteData.aura = safeAura; // Sync to live server cache
-        // 🛡️ ANTI-CHEAT: ECONOMY & STAT VALIDATION
-        let safeGold = playerData.gold;
-        if (safeGold > p.gold + 50000 && p.id !== "Kei") { // Max legit spike is selling a Godly item
-            console.log(`[HACK BLOCKED] ${p.id} tried to spawn ${safeGold - p.gold} gold.`);
-            safeGold = p.gold; // Reject the hacked gold
-        }
-        
-        let safeLevel = playerData.level;
-        if (safeLevel > 50 && p.id !== "Kei") safeLevel = 50; // Hard cap level to 50
-        
-        // Prevent editing Base Stats directly to massive numbers
-        let safeBaseStats = playerData.baseStats;
-        if (safeBaseStats && p.id !== "Kei") {
-            if (safeBaseStats.str > 150) safeBaseStats.str = 150;
-            if (safeBaseStats.int > 150) safeBaseStats.int = 150;
-            if (safeBaseStats.attack > 150) safeBaseStats.attack = 150;
-        }
+    let startHp = userData.current_hp || userData.max_hp || 100;
+    
+    currentUser = userData.character_name;
+    
+    onlinePlayers[socket.id] = {
+        socketId: socket.id,
+        id: userData.character_name,
+        name: userData.character_name,
+        mapId: mapId,
+        instanceId: instId,
+        isGhost: false,
+        currentPortal: null,
+        x: 960,
+        y: 1000,
+        level: userData.level || 1,
+        currentHp: startHp,
+        maxHp: userData.max_hp || 100,
+        tradeTarget: null,
+        inventory: safeInventory,
+        equips: safeEquips,
+        baseStats: safeBaseStats,
+        gold: userData.gold || 0,
+        spriteData: {
+            skin: userData.skin_color,
+            hair: userData.hair_color,
+            style: userData.hair_style,
+            weapon: safeEquips.weapon?.sprite || null,
+            aura: safeEquips.armor?.aura || null
+        },
+        untargetableUntil: 0,
+        attackTokens: 3,
+        lastTokenRefill: Date.now(),
+        skillCooldowns: {}
+    };
+    
+    supabase
+        .from('Exonians')
+        .update({ map_id: 'town', pos_x: 960, pos_y: 1000, current_hp: startHp })
+        .eq('character_name', currentUser)
+        .then(() => {});
 
-        // Save sanitized data to database
-        supabase.from('Exonians').update({ 
-            level: safeLevel, exp: playerData.exp, max_exp: playerData.maxExp, 
-            current_hp: playerData.currentHp, gold: safeGold, 
-            pos_x: playerData.x, pos_y: playerData.y, map_id: playerData.mapId, 
-            base_stats: safeBaseStats, inventory: playerData.inventory, equips: playerData.equips 
-        }).eq('character_name', currentUser).then(()=>{});
-        
-        // Update server cache
-        p.level = safeLevel; p.currentHp = playerData.currentHp; p.maxHp = playerData.maxHp || 100; 
-        p.equips = playerData.equips; p.gold = safeGold; p.baseStats = safeBaseStats;
-        if (playerData.equips?.weapon?.sprite) p.spriteData.weapon = playerData.equips.weapon.sprite; 
-        
-        const pid = playerParty[p.id]; if (pid) emitPartyUpdate(pid);
-    });
+    socket.join(instId);
+    socket.emit('authSuccess', userData);
+    
+    socket.to(instId).emit('remotePlayerJoined', {
+        id: onlinePlayers[socket.id].id,
+        name: onlinePlayers[socket.id].name,
+        mapId,
+        instanceId: instId,
+        x: onlinePlayers[socket.id].x,
+        y: onlinePlayers[socket.id].y,
+        spriteData: onlinePlayers[socket.id].spriteData,
+        isGhost: false
+    });
+
+    const playersInInst = Object.values(onlinePlayers).filter(p => p.instanceId === instId && p.id !== userData.character_name);
+    socket.emit('mapPlayersList', playersInInst.map(p => ({
+        id: p.id,
+        name: p.name,
+        mapId: p.mapId,
+        x: p.x,
+        y: p.y,
+        spriteData: p.spriteData,
+        isGhost: p.isGhost
+    })));
+});
+
+  socket.on('saveData', async (playerData) => {
+    if (!currentUser) return;
+    const p = onlinePlayers[socket.id];
+    if (!p) return;
+
+    const now = Date.now();
+    if (p.lastSaveTime && now - p.lastSaveTime < 500) {
+        return;
+    }
+    p.lastSaveTime = now;
+
+    const validAuras = ['lightning'];
+    let safeAura = playerData.equips?.armor?.aura || null;
+    if (safeAura && !validAuras.includes(safeAura)) {
+        console.log(`[HACK BLOCKED] ${p.id} tried to inject fake aura: ${safeAura}`);
+        safeAura = null;
+        if (playerData.equips && playerData.equips.armor) delete playerData.equips.armor.aura;
+    }
+
+    let safeGold = typeof playerData.gold === 'number' ? playerData.gold : (p.gold || 0);
+    if (safeGold > (p.gold || 0) + 50000 && p.id !== "Kei") {
+        console.log(`[HACK BLOCKED] ${p.id} tried to spawn ${safeGold - (p.gold || 0)} gold.`);
+        safeGold = p.gold || 0;
+    }
+    
+    let safeLevel = typeof playerData.level === 'number' ? playerData.level : (p.level || 1);
+    if (safeLevel > 50 && p.id !== "Kei") safeLevel = 50;
+
+    let safeBaseStats = (playerData.baseStats && typeof playerData.baseStats === 'object')
+        ? playerData.baseStats
+        : (p.baseStats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null });
+
+    if (safeBaseStats && p.id !== "Kei") {
+        if (safeBaseStats.str > 150) safeBaseStats.str = 150;
+        if (safeBaseStats.int > 150) safeBaseStats.int = 150;
+        if (safeBaseStats.attack > 150) safeBaseStats.attack = 150;
+    }
+
+    const safeInventory = Array.isArray(playerData.inventory)
+        ? playerData.inventory
+        : (Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null));
+
+    const safeEquips = (playerData.equips && typeof playerData.equips === 'object')
+        ? playerData.equips
+        : (p.equips || { weapon: null, armor: null, leggings: null });
+
+    p.spriteData.aura = safeAura;
+
+    supabase.from('Exonians').update({
+        level: safeLevel,
+        exp: playerData.exp,
+        max_exp: playerData.maxExp,
+        current_hp: playerData.currentHp,
+        gold: safeGold,
+        pos_x: playerData.x,
+        pos_y: playerData.y,
+        map_id: playerData.mapId,
+        base_stats: safeBaseStats,
+        inventory: safeInventory,
+        equips: safeEquips
+    }).eq('character_name', currentUser).then(() => {});
+
+    p.level = safeLevel;
+    p.currentHp = playerData.currentHp;
+    p.maxHp = playerData.maxHp || 100;
+    p.inventory = safeInventory;
+    p.equips = safeEquips;
+    p.gold = safeGold;
+    p.baseStats = safeBaseStats;
+    p.spriteData.weapon = safeEquips?.weapon?.sprite || null;
+    p.spriteData.aura = safeEquips?.armor?.aura || null;
+
+    const pid = playerParty[p.id];
+    if (pid) emitPartyUpdate(pid);
+});
     
    socket.on('playerMoved', (data) => {
         if (!onlinePlayers[socket.id]) return; 
@@ -1585,45 +1655,102 @@ io.on('connection', (socket) => {
     });
     // 🛡️ SERVER-SIDE ECONOMY: Buying
     socket.on('requestPurchase', async (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
+    const p = onlinePlayers[socket.id];
+    if (!p) return;
 
-        let cost = data.totalCost;
-        // Verify gold on server
-        if (p.gold >= cost) {
-            p.gold -= cost; 
-            // Server-side inventory update
-            const inv = p.inventory || [];
-            const emptySlot = inv.findIndex(i => i === null);
-            if (emptySlot !== -1) {
-                p.inventory[emptySlot] = data.item;
-                socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
-                supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
-            } else {
-                socket.emit('systemMessage', "Inventory full!");
-            }
-        } else {
-            socket.emit('systemMessage', "Insufficient Gold (Server Verified).");
-        }
-    });
+    const cost = Number(data.totalCost) || 0;
+    const item = data.item;
 
-    // 🛡️ SERVER-SIDE ECONOMY: Selling
-    socket.on('requestSell', async (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || !data.item) return;
+    if (!item || cost < 0) return;
 
-        // Server calculates true value based on Rarity/Level, ignoring client claims
-        let baseVal = (data.item.level || 1) * 2;
-        let multiplier = { "Starter": 1, "Basic": 2, "Rare": 5, "Unique": 10, "Legendary": 25, "Godly": 100 }[data.item.rarity] || 1;
-        let sellPrice = baseVal * multiplier;
-        if (data.item.quantity) sellPrice *= data.item.quantity;
+    if (p.gold < cost) {
+        socket.emit('systemMessage', "Insufficient Gold (Server Verified).");
+        return;
+    }
 
-        p.gold += sellPrice;
-        p.inventory[data.index] = null; // Remove item on server
+    const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
+    let added = false;
 
-        supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
-        socket.emit('sellSuccess', { newGold: p.gold, inventory: p.inventory, price: sellPrice });
-    });
+    if (['potion', 'material', 'consumable'].includes(item.type)) {
+        const existingIndex = inv.findIndex(i => i && i.name === item.name);
+        if (existingIndex !== -1) {
+            inv[existingIndex].quantity = (inv[existingIndex].quantity || 1) + (item.quantity || 1);
+            added = true;
+        }
+    }
+
+    if (!added) {
+        const emptySlot = inv.findIndex(i => i === null);
+        if (emptySlot === -1) {
+            socket.emit('systemMessage', "Inventory full!");
+            return;
+        }
+        inv[emptySlot] = item;
+    }
+
+    p.gold -= cost;
+    p.inventory = inv;
+
+    await supabase
+        .from('Exonians')
+        .update({ gold: p.gold, inventory: p.inventory })
+        .eq('character_name', p.id);
+
+    socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
+});
+
+   socket.on('requestSell', async (data) => {
+    const p = onlinePlayers[socket.id];
+    if (!p || !data.item) return;
+
+    const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
+    const idx = Number(data.index);
+
+    if (Number.isNaN(idx) || idx < 0 || idx >= inv.length) {
+        socket.emit('systemMessage', "Invalid inventory slot.");
+        return;
+    }
+
+    const realItem = inv[idx];
+    if (!realItem) {
+        socket.emit('systemMessage', "Item no longer exists.");
+        return;
+    }
+
+    if (realItem.id !== data.item.id) {
+        socket.emit('systemMessage', "Inventory mismatch. Please try again.");
+        socket.emit('syncInventory', inv);
+        return;
+    }
+
+    let baseVal = (realItem.level || 1) * 2;
+    let multiplier = {
+        "Starter": 1,
+        "Basic": 2,
+        "Rare": 5,
+        "Unique": 10,
+        "Legendary": 25,
+        "Godly": 100
+    }[realItem.rarity] || 1;
+
+    let sellPrice = baseVal * multiplier;
+    if (realItem.quantity) sellPrice *= realItem.quantity;
+
+    p.gold += sellPrice;
+    inv[idx] = null;
+    p.inventory = inv;
+
+    await supabase
+        .from('Exonians')
+        .update({ gold: p.gold, inventory: p.inventory })
+        .eq('character_name', p.id);
+
+    socket.emit('sellSuccess', {
+        newGold: p.gold,
+        inventory: p.inventory,
+        price: sellPrice
+    });
+});
     // 🛡️ SERVER-SIDE TRADE: THE SWAP
    // 🛡️ SERVER-SIDE TRADE: THE SECURE ITEM SWAP
     socket.on('requestConfirmTrade', () => {
@@ -1726,6 +1853,7 @@ io.on('connection', (socket) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
