@@ -581,16 +581,30 @@
         bottom: auto !important;
         transform: none !important;
         transform-origin: top left !important;
-        touch-action: none !important;
-        overflow: auto !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        touch-action: pan-y !important;
+        -webkit-overflow-scrolling: touch !important;
         max-width: calc(100vw - 24px) !important;
         max-height: calc(100vh - 110px) !important;
         z-index: 5000 !important;
         box-sizing: border-box !important;
     }
+
     .movable-window.window-dragging {
-    opacity: 0.96;
-}
+        opacity: 0.96;
+    }
+
+    .movable-window .window-drag-handle {
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: none;
+        cursor: grab;
+    }
+
+    .movable-window.window-dragging .window-drag-handle {
+        cursor: grabbing;
+    }
 
     #inventory-screen,
     #shop-screen,
@@ -756,7 +770,7 @@
     </div>
 
     <div id="trade-screen" class="movable-window">
-        <h2 style="margin-top:0; text-align:center; color:#2196F3;">Trade with <span id="trade-target-name">...</span></h2>
+        <h2 class="window-drag-handle" style="margin-top:0; text-align:center; color:#2196F3;">Trade with <span id="trade-target-name">...</span></h2>
         <div style="display:flex; justify-content:space-between; gap:15px;">
             <div class="trade-side">
                 <h3 style="margin-top:0; color:#4CAF50; text-align:center;">Your Offer</h3>
@@ -797,7 +811,7 @@
     </div>
 
     <div id="shop-screen" class="movable-window">
-        <h2 style="margin-top:0; text-align:center; color:#4CAF50; border-bottom: 1px solid #444; padding-bottom:10px;">Wandering Merchant</h2>
+        <h2 class="window-drag-handle" style="margin-top:0; text-align:center; color:#4CAF50; border-bottom: 1px solid #444; padding-bottom:10px;">Wandering Merchant</h2>
         <p style="text-align:center; color:gold; margin-top:0; font-size: 18px;">Your Gold: <span id="shop-my-gold">0</span></p>
         
         <div id="shop-item-list">
@@ -865,7 +879,7 @@
     </div>
     
     <div id="friends-screen" class="movable-window">
-        <h2>Friends List</h2>
+        <h2 class="window-drag-handle">Friends List</h2>
         <div id="friends-list-container">
             <p style="text-align:center; color:#aaa;">Loading friends...</p>
         </div>
@@ -1040,7 +1054,7 @@
         </div>
         
         <div id="admin-panel" class="movable-window">
-            <h3 style="margin-top: 0; color: #fff;">Admin Tools</h3>
+            <h3 class="window-drag-handle" style="margin-top: 0; color: #fff;">Admin Tools</h3>
             <div class="panel-section" style="padding: 10px;">
                 <h4 style="color:#ffeb3b;">Power Testing</h4>
                 <div class="admin-tool-row"><span>Player Lvl:</span><input type="number" id="admin-player-level" value="50" min="1" max="50"><button class="btn" onclick="window.adminSetPlayerLevel()">Apply</button></div>
@@ -1086,10 +1100,11 @@
         </div>
         
         <div id="inspect-screen" class="movable-window">
-            <h2 id="inspect-title" style="margin:0 0 10px 0; text-align:center; border-bottom:1px solid #444; padding-bottom:8px;">Inspect</h2><div id="inspect-content"></div><button class="btn btn-large" style="margin-top: 10px; padding: 10px;" onclick="window.closeInspect()">Close</button></div>
+            <h2 id="inspect-title" class="window-drag-handle" style="margin:0 0 10px 0; text-align:center; border-bottom:1px solid #444; padding-bottom:8px;">Inspect</h2>
+            <div id="inspect-content"></div><button class="btn btn-large" style="margin-top: 10px; padding: 10px;" onclick="window.closeInspect()">Close</button></div>
 
         <div id="skill-screen" class="movable-window">
-            <h2 style="margin-top: 0; text-align: center; color: #9c27b0; border-bottom: 1px solid #444; padding-bottom: 10px;">Class & Skills</h2>
+            <h2 class="window-drag-handle" style="margin-top: 0; text-align: center; color: #9c27b0; border-bottom: 1px solid #444; padding-bottom: 10px;">Class & Skills</h2>
             <div id="class-selection-area" style="display: none;">
                 <h3 style="color: #ffeb3b; text-align: center;">Select Your Path</h3>
                 <p style="text-align: center; color: #aaa; font-size: 14px;">Classes are bound to your equipped weapon type.</p>
@@ -1121,9 +1136,7 @@
         </div>
 
       <div id="inventory-screen" class="movable-window">
-    <h2>Inventory</h2>
     <h3 style="margin: 0 0 10px 0; font-size: 18px; text-align: center; color: gold;">Gold: <span id="ui-gold-text">0</span></h3>
-
     <div class="panel-section" style="padding: 10px; margin-bottom: 12px;">
         <h4 style="margin-bottom:8px; color:#ffeb3b;">Loot Filter</h4>
         <div style="font-size:12px; color:#aaa; margin-bottom:8px; line-height:1.4;">
@@ -1151,7 +1164,7 @@
 </div>
         
         <div id="stat-screen" class="window-panel movable-window">
-            <h2 style="margin: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px;">Player Stats</h2>
+            <h2 class="window-drag-handle" style="margin: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px;">Player Stats</h2>
             <div class="stat-grid">
                 <div>Level: <span id="stat-lvl" style="color:#ffd700;">1</span></div><div>Max HP: <span id="stat-maxhp">100</span></div>
                 <div>Attack Power: <span id="stat-atk">0</span></div><div>Magic Attack: <span id="stat-matk">0</span></div>
@@ -1174,7 +1187,7 @@
     </div>
 </div>
     <div id="mailbox-screen" class="movable-window">
-        <h2>System Mail</h2>
+        <h2 class="window-drag-handle">System Mail</h2>
         <div id="mail-list-container">
             <p style="text-align:center; color:#aaa;">No messages.</p>
         </div>
@@ -3034,64 +3047,44 @@ window.enableMobileWindowControls = function(el) {
     if (!el || el.dataset.mobileWindowReady === '1') return;
     el.dataset.mobileWindowReady = '1';
 
-   el.dataset.left = el.dataset.left || '12';
-el.dataset.top = el.dataset.top || '70';
-el.style.position = 'fixed';
-el.style.right = 'auto';
-el.style.bottom = 'auto';
-el.style.left = el.dataset.left + 'px';
-el.style.top = el.dataset.top + 'px';
-el.style.transform = 'none';
+    el.dataset.left = el.dataset.left || '12';
+    el.dataset.top = el.dataset.top || '70';
+    el.style.position = 'fixed';
+    el.style.right = 'auto';
+    el.style.bottom = 'auto';
+    el.style.left = el.dataset.left + 'px';
+    el.style.top = el.dataset.top + 'px';
+    el.style.transform = 'none';
+
+    const handle = el.querySelector('.window-drag-handle');
+    if (!handle) {
+        setTimeout(() => window.clampWindowToViewport(el), 50);
+        return;
+    }
 
     let dragging = false;
-    let activeId = null;
+    let activePointerId = null;
     let startX = 0;
     let startY = 0;
     let startLeft = 0;
     let startTop = 0;
 
-    function getTouchById(touchList, id) {
-        for (let i = 0; i < touchList.length; i++) {
-            if (touchList[i].identifier === id) return touchList[i];
-        }
-        return null;
+    function startDrag(clientX, clientY, pointerId) {
+        dragging = true;
+        activePointerId = pointerId;
+        startX = clientX;
+        startY = clientY;
+        startLeft = parseFloat(el.dataset.left || '12');
+        startTop = parseFloat(el.dataset.top || '70');
+        window.bringWindowToFront(el);
+        el.classList.add('window-dragging');
     }
 
-   function onTouchStart(e) {
-    if (!window.isMobileUI()) return;
-    if (el.style.display === 'none') return;
-
-    const inside = e.target.closest('.movable-window');
-    if (inside !== el) return;
-
-    const blocker = e.target.closest('input, textarea, select, button, .inv-slot, .equip-box, .ctx-btn, .shop-buy-btn');
-    if (blocker) return;
-
-    if (e.touches.length !== 1) return;
-
-    const t = e.touches[0];
-    dragging = true;
-    activeId = t.identifier;
-    startX = t.clientX;
-    startY = t.clientY;
-    startLeft = parseFloat(el.dataset.left || '12');
-    startTop = parseFloat(el.dataset.top || '70');
-
-    window.bringWindowToFront(el);
-    el.classList.add('window-dragging');
-}
-
-    function onTouchMove(e) {
-        if (!window.isMobileUI()) return;
+    function moveDrag(clientX, clientY) {
         if (!dragging) return;
 
-        const t = getTouchById(e.touches, activeId);
-        if (!t) return;
-
-        e.preventDefault();
-
-        const dx = t.clientX - startX;
-        const dy = t.clientY - startY;
+        const dx = clientX - startX;
+        const dy = clientY - startY;
 
         const nextLeft = startLeft + dx;
         const nextTop = startTop + dy;
@@ -3106,70 +3099,33 @@ el.style.transform = 'none';
     function stopDrag() {
         if (!dragging) return;
         dragging = false;
-        activeId = null;
+        activePointerId = null;
         el.classList.remove('window-dragging');
         window.clampWindowToViewport(el);
     }
 
-    document.addEventListener('touchstart', onTouchStart, { passive: true });
-    document.addEventListener('touchmove', onTouchMove, { passive: false });
-    document.addEventListener('touchend', stopDrag, { passive: true });
-    document.addEventListener('touchcancel', stopDrag, { passive: true });
+    handle.addEventListener('pointerdown', function(e) {
+        if (!window.isMobileUI()) return;
+        if (el.style.display === 'none') return;
 
-  let mouseDragging = false;
-let mouseStartX = 0;
-let mouseStartY = 0;
-let mouseStartLeft = 0;
-let mouseStartTop = 0;
+        startDrag(e.clientX, e.clientY, e.pointerId);
+        if (handle.setPointerCapture) {
+            handle.setPointerCapture(e.pointerId);
+        }
+        e.preventDefault();
+    });
 
-function onMouseDown(e) {
-    if (!window.isMobileUI()) return;
-    if (el.style.display === 'none') return;
+    handle.addEventListener('pointermove', function(e) {
+        if (!window.isMobileUI()) return;
+        if (!dragging) return;
+        if (activePointerId !== null && e.pointerId !== activePointerId) return;
 
-    const inside = e.target.closest('.movable-window');
-    if (inside !== el) return;
+        moveDrag(e.clientX, e.clientY);
+        e.preventDefault();
+    });
 
-    const blocker = e.target.closest('input, textarea, select, button, .inv-slot, .equip-box, .ctx-btn, .shop-buy-btn');
-    if (blocker) return;
-
-    mouseDragging = true;
-    mouseStartX = e.clientX;
-    mouseStartY = e.clientY;
-    mouseStartLeft = parseFloat(el.dataset.left || '12');
-    mouseStartTop = parseFloat(el.dataset.top || '70');
-
-    window.bringWindowToFront(el);
-    el.classList.add('window-dragging');
-    e.preventDefault();
-}
-
-function onMouseMove(e) {
-    if (!window.isMobileUI()) return;
-    if (!mouseDragging) return;
-
-    const dx = e.clientX - mouseStartX;
-    const dy = e.clientY - mouseStartY;
-
-    const nextLeft = mouseStartLeft + dx;
-    const nextTop = mouseStartTop + dy;
-
-    el.dataset.left = nextLeft;
-    el.dataset.top = nextTop;
-    el.style.left = nextLeft + 'px';
-    el.style.top = nextTop + 'px';
-    el.style.transform = 'none';
-}
-
-function onMouseUp() {
-    if (!mouseDragging) return;
-    mouseDragging = false;
-    el.classList.remove('window-dragging');
-    window.clampWindowToViewport(el);
-}
-
-document.addEventListener('mousedown', onMouseDown);
-document.addEventListener('mousemove', onMouseMove);
-document.addEventListener('mouseup', onMouseUp);
+    handle.addEventListener('pointerup', stopDrag);
+    handle.addEventListener('pointercancel', stopDrag);
 
     setTimeout(() => window.clampWindowToViewport(el), 50);
 };
@@ -3258,6 +3214,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
