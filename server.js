@@ -119,18 +119,16 @@ function generateLoot(monster) {
     // ==========================================
     // 3. REFINEMENT STONE DROP (45% Chance)
     // ==========================================
-    if (Math.random() < 0.50) {
+    if (Math.random() < 0.15) {
         let stoneRarity = "Basic";
         let r = Math.random();
         
-        if (monster.category === "floor_boss") {
-            // 👑 FLOOR BOSS DROP RATES FOR STONES
-            if (r <= 0.05) stoneRarity = "Godly";          // 5% chance
-            else if (r <= 0.30) stoneRarity = "Legendary"; // 25% chance
-            else if (r <= 0.60) stoneRarity = "Unique";    // 30% chance
-            else if (r <= 0.85) stoneRarity = "Rare";      // 25% chance
-            else stoneRarity = "Basic";                    // 15% chance
-        } else if (monster.category === "mini_boss") {
+       if (monster.category === "floor_boss") {
+    // 👑 FLOOR BOSS DROP RATES FOR GEAR
+    if (rarityRoll <= 0.35) rarity = "Godly";           // 35%
+    else if (rarityRoll <= 0.85) rarity = "Legendary";  // 50%
+    else rarity = "Unique";                             // 15%
+} else if (monster.category === "mini_boss") {
             stoneRarity = r < 0.35 ? "Unique" : "Rare";
         } else {
             stoneRarity = r < 0.10 ? "Rare" : "Basic";
@@ -1916,7 +1914,86 @@ socket.on('requestConfirmTrade', () => {
             }
         }
     });
+socket.on('useInventoryItem', async (data) => {
+    const p = onlinePlayers[socket.id];
+    if (!p) return;
 
+    const inv = Array.isArray(p.inventory) ? p.inventory : [];
+    const index = typeof data?.index === 'number' ? data.index : -1;
+
+    if (index < 0 || index >= inv.length || !inv[index]) {
+        return socket.emit('systemMessage', 'Item not found.');
+    }
+
+    const item = inv[index];
+
+    // POTION
+    if (item.type === 'potion') {
+        const healAmount = item.fixedStat?.hpHeal || 0;
+        const trueMaxHp = getServerTotalStat(p, 'hp') || p.maxHp || 100;
+
+        p.maxHp = trueMaxHp;
+        p.currentHp = Math.min(trueMaxHp, (p.currentHp || 0) + healAmount);
+
+        item.quantity = (item.quantity || 1) - 1;
+        if (item.quantity <= 0) inv[index] = null;
+
+        p.inventory = inv;
+
+        await supabase
+            .from('Exonians')
+            .update({
+                inventory: p.inventory,
+                current_hp: p.currentHp
+            })
+            .eq('character_name', p.id);
+
+        socket.emit('inventoryItemUsed', {
+            inventory: p.inventory,
+            currentHp: p.currentHp,
+            itemName: item.name,
+            healAmount
+        });
+
+        const pid = playerParty[p.id];
+        if (pid) emitPartyUpdate(pid);
+        return;
+    }
+
+    // CLASS RESET BOOK
+    if (item.type === 'consumable' && item.name === 'Class Reset Book') {
+        if (!p.baseStats) p.baseStats = {};
+        if (!p.baseStats.playerClass) {
+            return socket.emit('systemMessage', "You don't have a class to reset yet!");
+        }
+
+        p.baseStats.playerClass = null;
+
+        item.quantity = (item.quantity || 1) - 1;
+        if (item.quantity <= 0) inv[index] = null;
+
+        p.inventory = inv;
+
+        await supabase
+            .from('Exonians')
+            .update({
+                inventory: p.inventory,
+                base_stats: p.baseStats
+            })
+            .eq('character_name', p.id);
+
+        socket.emit('inventoryItemUsed', {
+            inventory: p.inventory,
+            currentHp: p.currentHp,
+            itemName: item.name,
+            classReset: true
+        });
+
+        return;
+    }
+
+    socket.emit('systemMessage', 'That item cannot be used this way.');
+});
     socket.on('chatMessage', (data) => { 
         const p = onlinePlayers[socket.id]; 
         if (!p || !data.text) return; 
@@ -2596,6 +2673,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
