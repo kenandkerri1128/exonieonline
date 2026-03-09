@@ -784,19 +784,52 @@ io.on('connection', (socket) => {
             emitPartyUpdate(pid); 
         }
     });
-    socket.on('broadcastSkill', (data) => {
-        const p = onlinePlayers[socket.id];
-        if (p) {
-            if (p.mapId === 'town') return; 
-            
-            // 🛡️ Max 1 aura effect per second. Stops hackers from crashing clients with visual spam!
-            const now = Date.now();
-            if (p.skillCooldowns['visualSpam'] && now < p.skillCooldowns['visualSpam']) return;
-            p.skillCooldowns['visualSpam'] = now + 1000;
+socket.on('broadcastSkill', (data) => {
+    const p = onlinePlayers[socket.id];
+    if (!p || p.isGhost || p.mapId === 'town') return;
 
-            socket.to(p.instanceId).emit('remoteSkillEffect', { playerId: p.id, skillId: data.skillId, x: p.x, y: p.y, auraColor: data.auraColor });
-        }
-    });
+    const now = Date.now();
+    const pClass = p.baseStats?.playerClass || null;
+    const level = p.level || 1;
+    const skillId = String(data?.skillId || '');
+
+    const SKILL_RULES = {
+        heal1: { className: 'Healer', unlock: 1, cd: 20000, auraColor: 'green' },
+        heal3: { className: 'Healer', unlock: 50, cd: 100000, auraColor: 'green' },
+
+        sum1:  { className: 'Summoner', unlock: 1, cd: 25000, auraColor: 'blue' },
+        sum3:  { className: 'Summoner', unlock: 50, cd: 100000, auraColor: 'blue' },
+
+        ice1:  { className: 'Ice Master', unlock: 1, cd: 25000, auraColor: 'blue' },
+        ice3:  { className: 'Ice Master', unlock: 50, cd: 100000, auraColor: 'blue' },
+
+        ber1:  { className: 'Berserker', unlock: 1, cd: 14000, auraColor: 'red' },
+        ber3:  { className: 'Berserker', unlock: 50, cd: 100000, auraColor: 'red' },
+
+        bld2:  { className: 'Blademaster', unlock: 25, cd: 15000, auraColor: 'red' },
+        bld3:  { className: 'Blademaster', unlock: 50, cd: 50000, auraColor: 'red' }
+    };
+
+    const rule = SKILL_RULES[skillId];
+    if (!rule) return;
+
+    if (pClass !== rule.className) return;
+    if (level < rule.unlock) return;
+
+    if (!p.skillCooldowns) p.skillCooldowns = {};
+
+    const cdKey = `visual_${skillId}`;
+    if (p.skillCooldowns[cdKey] && now < p.skillCooldowns[cdKey]) return;
+    p.skillCooldowns[cdKey] = now + rule.cd;
+
+    socket.to(p.instanceId).emit('remoteSkillEffect', {
+        playerId: p.id,
+        skillId: skillId,
+        x: p.x,
+        y: p.y,
+        auraColor: rule.auraColor
+    });
+});
 
      socket.on('syncMapData', (mapData) => {
         const world = ensureWorldFromMapData(mapData.instanceId, mapData);
@@ -1940,6 +1973,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
