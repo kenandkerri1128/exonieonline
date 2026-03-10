@@ -33,6 +33,119 @@ const ITEM_TEMPLATES = { 
     armor: { slot: 'armor', statKey: 'defense', baseName: 'Armor', spriteName: 'armor' }, 
     leggings: { slot: 'leggings', statKey: 'hp', baseName: 'Leggings', spriteName: 'leggings' } 
 };
+const VALID_RARITIES = ['Starter', 'Basic', 'Rare', 'Unique', 'Legendary', 'Godly'];
+const MAX_ENHANCE_BY_RARITY = {
+    Starter: 0,
+    Basic: 20,
+    Rare: 20,
+    Unique: 20,
+    Legendary: 15,
+    Godly: 10
+};
+
+function clamp(value, min, max) {
+    value = Number(value) || 0;
+    return Math.max(min, Math.min(max, value));
+}
+
+function deepCopy(obj) {
+    return JSON.parse(JSON.stringify(obj));
+}
+
+function sanitizeStatObject(stats) {
+    const safe = {};
+    if (!stats || typeof stats !== 'object') return safe;
+
+    for (const key of Object.keys(stats)) {
+        safe[key] = clamp(stats[key], 0, 999999);
+    }
+    return safe;
+}
+
+function sanitizeItem(item) {
+    if (!item || typeof item !== 'object') return null;
+
+    const safe = deepCopy(item);
+
+    safe.id = safe.id || (Date.now() + Math.random());
+    safe.name = String(safe.name || 'Unknown Item');
+    safe.type = String(safe.type || '');
+    safe.sprite = String(safe.sprite || '');
+    safe.level = clamp(safe.level, 1, 50);
+    safe.rarity = VALID_RARITIES.includes(safe.rarity) ? safe.rarity : 'Basic';
+    safe.color = typeof safe.color === 'string' ? safe.color : (RARITY_COLORS[safe.rarity] || '#ffffff');
+    safe.enhanceLevel = clamp(safe.enhanceLevel || 0, 0, 20);
+    safe.quantity = clamp(safe.quantity || 1, 1, 999);
+
+    if (safe.enhanceLevel > (MAX_ENHANCE_BY_RARITY[safe.rarity] || 0)) {
+        return null;
+    }
+
+    safe.fixedStat = sanitizeStatObject(safe.fixedStat);
+    safe.randomStat = sanitizeStatObject(safe.randomStat);
+
+    if (safe.aura && safe.aura !== 'lightning') {
+        delete safe.aura;
+    }
+    if (safe.auraId && safe.auraId !== 'lightning') {
+        delete safe.auraId;
+    }
+
+    return safe;
+}
+
+function sanitizeInventory(inventory) {
+    const safeInventory = Array.isArray(inventory) ? inventory.slice(0, 20) : [];
+    while (safeInventory.length < 20) safeInventory.push(null);
+
+    return safeInventory.map(item => {
+        if (!item) return null;
+        return sanitizeItem(item);
+    });
+}
+
+function sanitizeEquips(equips) {
+    const safe = { weapon: null, armor: null, leggings: null };
+    if (!equips || typeof equips !== 'object') return safe;
+
+    if (equips.weapon) safe.weapon = sanitizeItem(equips.weapon);
+    if (equips.armor) safe.armor = sanitizeItem(equips.armor);
+    if (equips.leggings) safe.leggings = sanitizeItem(equips.leggings);
+
+    return safe;
+}
+
+function sanitizeBaseStats(baseStats) {
+    const fallback = {
+        hp: 100,
+        attack: 5,
+        magic: 5,
+        defense: 2,
+        speed: 1,
+        str: 10,
+        int: 10,
+        playerClass: null
+    };
+
+    const safe = Object.assign({}, fallback, (baseStats && typeof baseStats === 'object') ? baseStats : {});
+    safe.hp = clamp(safe.hp, 1, 999999);
+    safe.attack = clamp(safe.attack, 0, 999999);
+    safe.magic = clamp(safe.magic, 0, 999999);
+    safe.defense = clamp(safe.defense, 0, 999999);
+    safe.speed = clamp(safe.speed, 0, 999999);
+    safe.str = clamp(safe.str, 0, 999999);
+    safe.int = clamp(safe.int, 0, 999999);
+    safe.playerClass = safe.playerClass || null;
+    return safe;
+}
+
+function sanitizePlayerRecordFromDb(row) {
+    const safe = Object.assign({}, row);
+    safe.inventory = sanitizeInventory(row.inventory);
+    safe.equips = sanitizeEquips(row.equips);
+    safe.base_stats = sanitizeBaseStats(row.base_stats);
+    return safe;
+}
 
 function getBaseStat(lvl) { 
     if (lvl >= 50) return 100; if (lvl >= 45) return 45; if (lvl >= 40) return 40; 
@@ -302,19 +415,35 @@ function ensureWorldFromMapData(instanceId, mapData) {
     return worlds[instanceId];
 }
 // 🛡️ ANTI-CHEAT: SERVER-SIDE STAT CALCULATOR
-function getServerTotalStat(p, statName) { 
-    if (!p || !p.baseStats) return 0; 
-    let base = p.baseStats[statName] || 0; 
-    ['weapon', 'armor', 'leggings'].forEach(slot => { 
-        let eq = p.equips?.[slot]; 
-        if (eq) { 
-            if (eq.fixedStat && typeof eq.fixedStat[statName] === 'number') base += eq.fixedStat[statName]; 
-            if (eq.randomStat && typeof eq.randomStat[statName] === 'number') base += eq.randomStat[statName]; 
-        } 
-    }); 
-    if (p.baseStats.playerClass === 'Berserker' && p.level >= 25 && (statName === 'hp' || statName === 'defense')) base += Math.floor(p.baseStats[statName] * 0.25);
-    if (p.baseStats.playerClass === 'Blademaster' && statName === 'attack') base += Math.floor(p.baseStats.attack * 0.25);
-    return base; 
+function getServerTotalStat(p, statName) {
+    if (!p) return 0;
+
+    const baseStats = sanitizeBaseStats(p.baseStats || p.base_stats);
+    const equips = sanitizeEquips(p.equips);
+
+    let base = Number(baseStats[statName]) || 0;
+
+    ['weapon', 'armor', 'leggings'].forEach(slot => {
+        const eq = equips[slot];
+        if (!eq) return;
+
+        if (eq.fixedStat && typeof eq.fixedStat[statName] === 'number') {
+            base += eq.fixedStat[statName];
+        }
+        if (eq.randomStat && typeof eq.randomStat[statName] === 'number') {
+            base += eq.randomStat[statName];
+        }
+    });
+
+    if (baseStats.playerClass === 'Berserker' && (statName === 'hp' || statName === 'defense')) {
+        base += Math.floor((Number(baseStats[statName]) || 0) * 0.25);
+    }
+
+    if (baseStats.playerClass === 'Blademaster' && statName === 'attack') {
+        base += Math.floor((Number(baseStats.attack) || 0) * 0.25);
+    }
+
+    return base;
 }
 function getServerAttackPower(p) {
     return getServerTotalStat(p, 'attack') + Math.floor(getServerTotalStat(p, 'str') / 2);
@@ -1217,51 +1346,54 @@ socket.on('login', async (data) => {
         }
     });
 
-    socket.on('enterWorld', (userData) => {
-    // 🛡️ STRICT LOGIN RULE: Everyone spawns in Town! No exceptions.
+ socket.on('enterWorld', async (userData) => {
     const mapId = 'town';
     const instId = getInstanceId(userData.character_name, mapId);
 
-    const safeInventory = Array.isArray(userData.inventory)
-        ? userData.inventory
-        : new Array(20).fill(null);
+    const { data: freshUser, error } = await supabase
+        .from('Exonians')
+        .select('*')
+        .eq('character_name', userData.character_name)
+        .single();
 
-    const safeEquips = (userData.equips && typeof userData.equips === 'object')
-        ? userData.equips
-        : { weapon: null, armor: null, leggings: null };
+    if (error || !freshUser) {
+        socket.emit('authError', 'Failed to load character data.');
+        return;
+    }
 
-    const safeBaseStats = (userData.base_stats && typeof userData.base_stats === 'object')
-        ? userData.base_stats
-        : { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null };
+    const safeUser = sanitizePlayerRecordFromDb(freshUser);
+    const trueMaxHp = getServerTotalStat({
+        baseStats: safeUser.base_stats,
+        equips: safeUser.equips,
+        level: safeUser.level || 1
+    }, 'hp') || 100;
 
-    let startHp = userData.current_hp || userData.max_hp || 100;
-    
-    currentUser = userData.character_name;
-    
+    currentUser = safeUser.character_name;
+
     onlinePlayers[socket.id] = {
         socketId: socket.id,
-        id: userData.character_name,
-        name: userData.character_name,
+        id: safeUser.character_name,
+        name: safeUser.character_name,
         mapId: mapId,
         instanceId: instId,
         isGhost: false,
         currentPortal: null,
         x: 960,
         y: 1000,
-        level: userData.level || 1,
-        currentHp: startHp,
-        maxHp: userData.max_hp || 100,
+        level: safeUser.level || 1,
+        currentHp: clamp(safeUser.current_hp || trueMaxHp, 0, trueMaxHp),
+        maxHp: trueMaxHp,
         tradeTarget: null,
-        inventory: safeInventory,
-        equips: safeEquips,
-        baseStats: safeBaseStats,
-        gold: userData.gold || 0,
-                spriteData: {
-            skin: userData.skin_color,
-            hair: userData.hair_color,
-            style: userData.hair_style,
-            weapon: safeEquips.weapon?.sprite || null,
-            aura: safeEquips.armor?.aura || null
+        inventory: safeUser.inventory,
+        equips: safeUser.equips,
+        baseStats: safeUser.base_stats,
+        gold: safeUser.gold || 0,
+        spriteData: {
+            skin: safeUser.skin_color,
+            hair: safeUser.hair_color,
+            style: safeUser.hair_style,
+            weapon: safeUser.equips.weapon?.sprite || null,
+            aura: safeUser.equips.armor?.aura || null
         },
         lootFilter: {
             Starter: true,
@@ -1277,16 +1409,30 @@ socket.on('login', async (data) => {
         lastTokenRefill: Date.now(),
         skillCooldowns: {}
     };
-    
-    supabase
+
+    await supabase
         .from('Exonians')
-        .update({ map_id: 'town', pos_x: 960, pos_y: 1000, current_hp: startHp })
-        .eq('character_name', currentUser)
-        .then(() => {});
+        .update({
+            inventory: safeUser.inventory,
+            equips: safeUser.equips,
+            base_stats: safeUser.base_stats,
+            map_id: 'town',
+            pos_x: 960,
+            pos_y: 1000,
+            current_hp: onlinePlayers[socket.id].currentHp
+        })
+        .eq('character_name', currentUser);
 
     socket.join(instId);
-    socket.emit('authSuccess', userData);
-    
+    socket.emit('authSuccess', {
+        ...safeUser,
+        inventory: safeUser.inventory,
+        equips: safeUser.equips,
+        base_stats: safeUser.base_stats,
+        current_hp: onlinePlayers[socket.id].currentHp,
+        max_hp: trueMaxHp
+    });
+
     socket.to(instId).emit('remotePlayerJoined', {
         id: onlinePlayers[socket.id].id,
         name: onlinePlayers[socket.id].name,
@@ -1298,7 +1444,10 @@ socket.on('login', async (data) => {
         isGhost: false
     });
 
-    const playersInInst = Object.values(onlinePlayers).filter(p => p.instanceId === instId && p.id !== userData.character_name);
+    const playersInInst = Object.values(onlinePlayers).filter(
+        p => p.instanceId === instId && p.id !== safeUser.character_name
+    );
+
     socket.emit('mapPlayersList', playersInInst.map(p => ({
         id: p.id,
         name: p.name,
@@ -1316,71 +1465,64 @@ socket.on('login', async (data) => {
     if (!p) return;
 
     const now = Date.now();
-    if (p.lastSaveTime && now - p.lastSaveTime < 500) {
-        return;
-    }
+    if (p.lastSaveTime && now - p.lastSaveTime < 500) return;
     p.lastSaveTime = now;
 
-    const validAuras = ['lightning'];
-    let safeAura = playerData.equips?.armor?.aura || null;
-    if (safeAura && !validAuras.includes(safeAura)) {
-        console.log(`[HACK BLOCKED] ${p.id} tried to inject fake aura: ${safeAura}`);
-        safeAura = null;
-        if (playerData.equips && playerData.equips.armor) delete playerData.equips.armor.aura;
+    const safeMapId = typeof playerData.mapId === 'string' ? playerData.mapId : p.mapId;
+    const safeX = typeof playerData.x === 'number' ? playerData.x : p.x;
+    const safeY = typeof playerData.y === 'number' ? playerData.y : p.y;
+    const safeExp = clamp(playerData.exp ?? 0, 0, 999999999);
+    const safeMaxExp = clamp(playerData.maxExp ?? 100, 100, 999999999);
+
+    // Preserve only VALID aura values if they already exist in server memory or incoming equip data
+    let incomingEquips = sanitizeEquips(playerData.equips || p.equips || {});
+    let currentServerEquips = sanitizeEquips(p.equips || {});
+
+    if (incomingEquips.armor && incomingEquips.armor.aura === 'lightning') {
+        currentServerEquips.armor = incomingEquips.armor;
+    } else if (
+        currentServerEquips.armor &&
+        currentServerEquips.armor.aura === 'lightning'
+    ) {
+        // keep existing valid aura armor from server memory
+    } else if (incomingEquips.armor) {
+        currentServerEquips.armor = incomingEquips.armor;
     }
 
-    let safeGold = typeof playerData.gold === 'number' ? playerData.gold : (p.gold || 0);
-    if (safeGold > (p.gold || 0) + 50000 && p.id !== "Kei") {
-        console.log(`[HACK BLOCKED] ${p.id} tried to spawn ${safeGold - (p.gold || 0)} gold.`);
-        safeGold = p.gold || 0;
-    }
-    
-    let safeLevel = typeof playerData.level === 'number' ? playerData.level : (p.level || 1);
-    if (safeLevel > 50 && p.id !== "Kei") safeLevel = 50;
+    if (incomingEquips.weapon) currentServerEquips.weapon = incomingEquips.weapon;
+    if (incomingEquips.leggings) currentServerEquips.leggings = incomingEquips.leggings;
 
-    let safeBaseStats = (playerData.baseStats && typeof playerData.baseStats === 'object')
-        ? playerData.baseStats
-        : (p.baseStats || { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null });
+    // Do NOT trust client for inventory/baseStats/gold/currentHp/maxHp
+    p.equips = sanitizeEquips(currentServerEquips);
+    p.inventory = sanitizeInventory(p.inventory);
+    p.baseStats = sanitizeBaseStats(p.baseStats);
 
-    if (safeBaseStats && p.id !== "Kei") {
-        if (safeBaseStats.str > 150) safeBaseStats.str = 150;
-        if (safeBaseStats.int > 150) safeBaseStats.int = 150;
-        if (safeBaseStats.attack > 150) safeBaseStats.attack = 150;
-    }
+    p.x = safeX;
+    p.y = safeY;
+    p.mapId = safeMapId;
+    p.exp = safeExp;
+    p.maxExp = safeMaxExp;
 
-    const safeInventory = Array.isArray(playerData.inventory)
-        ? playerData.inventory
-        : (Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null));
+    const trueMaxHp = getServerTotalStat(p, 'hp') || 100;
+    p.maxHp = trueMaxHp;
+    p.currentHp = clamp(p.currentHp || trueMaxHp, 0, trueMaxHp);
 
-    const safeEquips = (playerData.equips && typeof playerData.equips === 'object')
-        ? playerData.equips
-        : (p.equips || { weapon: null, armor: null, leggings: null });
+    p.spriteData.weapon = p.equips?.weapon?.sprite || null;
+    p.spriteData.aura = p.equips?.armor?.aura || null;
 
-    p.spriteData.aura = safeAura;
-
-    supabase.from('Exonians').update({
-        level: safeLevel,
-        exp: playerData.exp,
-        max_exp: playerData.maxExp,
-        current_hp: playerData.currentHp,
-        gold: safeGold,
-        pos_x: playerData.x,
-        pos_y: playerData.y,
-        map_id: playerData.mapId,
-        base_stats: safeBaseStats,
-        inventory: safeInventory,
-        equips: safeEquips
-    }).eq('character_name', currentUser).then(() => {});
-
-    p.level = safeLevel;
-    p.currentHp = playerData.currentHp;
-    p.maxHp = playerData.maxHp || 100;
-    p.inventory = safeInventory;
-    p.equips = safeEquips;
-    p.gold = safeGold;
-    p.baseStats = safeBaseStats;
-    p.spriteData.weapon = safeEquips?.weapon?.sprite || null;
-    p.spriteData.aura = safeEquips?.armor?.aura || null;
+    await supabase.from('Exonians').update({
+        level: clamp(p.level || 1, 1, 50),
+        exp: safeExp,
+        max_exp: safeMaxExp,
+        current_hp: p.currentHp,
+        gold: clamp(p.gold || 0, 0, 999999999),
+        pos_x: safeX,
+        pos_y: safeY,
+        map_id: safeMapId,
+        base_stats: p.baseStats,
+        inventory: p.inventory,
+        equips: p.equips
+    }).eq('character_name', currentUser);
 
     const pid = playerParty[p.id];
     if (pid) emitPartyUpdate(pid);
@@ -1937,46 +2079,73 @@ socket.on('requestConfirmTrade', () => {
 });
 
     socket.on('playerVitals', (data) => {
-        const p = onlinePlayers[socket.id]; if (!p) return;
-        p.currentHp = data.currentHp; p.maxHp = data.maxHp; p.level = data.level;
-        const pid = playerParty[p.id];
-        if (pid && parties[pid]) {
-            for (const memberId of parties[pid].members) {
-                if (memberId !== p.id) { const sid = findSocketIdByPlayerId(memberId); if (sid) io.to(sid).emit('partyMemberVitals', { id: p.id, currentHp: p.currentHp, maxHp: p.maxHp, level: p.level }); }
-            }
-        }
-    });
+    const p = onlinePlayers[socket.id];
+    if (!p) return;
+
+    // Do NOT trust client HP / maxHp.
+    // Only allow level sync if needed for UI.
+    p.level = clamp(data.level ?? p.level, 1, 50);
+
+    const pid = playerParty[p.id];
+    if (pid && parties[pid]) {
+        for (const memberId of parties[pid].members) {
+            if (memberId !== p.id) {
+                const sid = findSocketIdByPlayerId(memberId);
+                if (sid) {
+                    io.to(sid).emit('partyMemberVitals', {
+                        id: p.id,
+                        currentHp: p.currentHp,
+                        maxHp: p.maxHp,
+                        level: p.level
+                    });
+                }
+            }
+        }
+    }
+});
 socket.on('useInventoryItem', async (data) => {
     const p = onlinePlayers[socket.id];
     if (!p) return;
 
-    const inv = Array.isArray(p.inventory) ? p.inventory : [];
+    p.inventory = sanitizeInventory(p.inventory);
+    p.equips = sanitizeEquips(p.equips);
+    p.baseStats = sanitizeBaseStats(p.baseStats);
+
+    const inv = p.inventory;
     const index = typeof data?.index === 'number' ? data.index : -1;
 
     if (index < 0 || index >= inv.length || !inv[index]) {
         return socket.emit('systemMessage', 'Item not found.');
     }
 
-    const item = inv[index];
+    const item = sanitizeItem(inv[index]);
+    if (!item) {
+        inv[index] = null;
+        p.inventory = inv;
+        await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
+        socket.emit('syncInventory', p.inventory);
+        return;
+    }
 
     // POTION
     if (item.type === 'potion') {
-        const healAmount = item.fixedStat?.hpHeal || 0;
+        const healAmount = clamp(item.fixedStat?.hpHeal || 0, 0, 999999);
         const trueMaxHp = getServerTotalStat(p, 'hp') || p.maxHp || 100;
 
         p.maxHp = trueMaxHp;
         p.currentHp = Math.min(trueMaxHp, (p.currentHp || 0) + healAmount);
 
         item.quantity = (item.quantity || 1) - 1;
-        if (item.quantity <= 0) inv[index] = null;
-
+        inv[index] = item.quantity > 0 ? item : null;
         p.inventory = inv;
 
         await supabase
             .from('Exonians')
             .update({
                 inventory: p.inventory,
-                current_hp: p.currentHp
+                current_hp: p.currentHp,
+                equips: sanitizeEquips(p.equips),
+                base_stats: sanitizeBaseStats(p.baseStats)
             })
             .eq('character_name', p.id);
 
@@ -1994,7 +2163,6 @@ socket.on('useInventoryItem', async (data) => {
 
     // CLASS RESET BOOK
     if (item.type === 'consumable' && item.name === 'Class Reset Book') {
-        if (!p.baseStats) p.baseStats = {};
         if (!p.baseStats.playerClass) {
             return socket.emit('systemMessage', "You don't have a class to reset yet!");
         }
@@ -2002,15 +2170,14 @@ socket.on('useInventoryItem', async (data) => {
         p.baseStats.playerClass = null;
 
         item.quantity = (item.quantity || 1) - 1;
-        if (item.quantity <= 0) inv[index] = null;
-
+        inv[index] = item.quantity > 0 ? item : null;
         p.inventory = inv;
 
         await supabase
             .from('Exonians')
             .update({
                 inventory: p.inventory,
-                base_stats: p.baseStats
+                base_stats: sanitizeBaseStats(p.baseStats)
             })
             .eq('character_name', p.id);
 
@@ -2019,6 +2186,62 @@ socket.on('useInventoryItem', async (data) => {
             currentHp: p.currentHp,
             itemName: item.name,
             classReset: true
+        });
+
+        return;
+    }
+
+    // EQUIP
+    if (item.type === 'weapon' || item.type === 'armor' || item.type === 'leggings') {
+        const slot = item.type;
+        const oldEquip = p.equips[slot] ? sanitizeItem(p.equips[slot]) : null;
+
+        p.equips[slot] = item;
+        inv[index] = oldEquip;
+        p.inventory = sanitizeInventory(inv);
+        p.equips = sanitizeEquips(p.equips);
+
+        const trueMaxHp = getServerTotalStat(p, 'hp') || 100;
+        p.maxHp = trueMaxHp;
+        p.currentHp = Math.min(p.currentHp || trueMaxHp, trueMaxHp);
+
+        p.spriteData.weapon = p.equips?.weapon?.sprite || null;
+        p.spriteData.aura = p.equips?.armor?.aura || null;
+
+        await supabase
+            .from('Exonians')
+            .update({
+                inventory: p.inventory,
+                equips: p.equips,
+                current_hp: p.currentHp
+            })
+            .eq('character_name', p.id);
+
+        socket.emit('syncInventory', p.inventory);
+        socket.emit('inventoryItemUsed', {
+            inventory: p.inventory,
+            currentHp: p.currentHp,
+            itemName: item.name
+        });
+
+        socket.emit('remotePlayerMoved', {
+            id: p.id,
+            x: p.x,
+            y: p.y,
+            state: 'idle',
+            facingRight: false,
+            weaponSprite: p.spriteData.weapon,
+            spriteData: p.spriteData
+        });
+
+        socket.to(p.instanceId).emit('remotePlayerMoved', {
+            id: p.id,
+            x: p.x,
+            y: p.y,
+            state: 'idle',
+            facingRight: false,
+            weaponSprite: p.spriteData.weapon,
+            spriteData: p.spriteData
         });
 
         return;
@@ -2458,44 +2681,87 @@ socket.on('playerDied', () => {
         isGhost: pp.isGhost
     })));
 });
-    socket.on('requestEnhance', (data) => {
-        const p = onlinePlayers[socket.id]; if (!p) return;
-        
-        let stone = p.inventory[data.stoneIndex];
-        let targetItem = p.inventory[data.targetIndex];
+   socket.on('requestEnhance', async (data) => {
+    const p = onlinePlayers[socket.id];
+    if (!p) return;
 
-        if (!stone || !targetItem || stone.type !== 'material') return;
+    p.inventory = sanitizeInventory(p.inventory);
 
-        // Take the stone
-        stone.quantity--; 
-        if (stone.quantity <= 0) p.inventory[data.stoneIndex] = null; 
+    let stone = p.inventory[data.stoneIndex];
+    let targetItem = p.inventory[data.targetIndex];
 
-        let eLvl = targetItem.enhanceLevel || 0; 
-        let successChance = 1.0; let destroyChance = 0.0;
-        if (eLvl >= 6) { successChance = Math.max(0.15, 1.0 - ((eLvl - 5) * 0.15)); destroyChance = Math.min(0.40, ((eLvl - 5) * 0.05)); }
-        
-        // 🛡️ SERVER ROLLS THE DICE
-        let roll = Math.random();
-        
-        if (roll < destroyChance) { 
-            p.inventory[data.targetIndex] = null; 
-            socket.emit('systemMessage', `CRITICAL FAILURE! ${targetItem.name} +${eLvl} shattered!`);
-        } 
-        else if (roll < destroyChance + successChance) { 
-            targetItem.enhanceLevel = eLvl + 1; 
-            const bonus = { "Starter": 1, "Basic": 1, "Rare": 3, "Unique": 5, "Legendary": 8, "Godly": 15 }[targetItem.rarity] || 1; 
-            if (targetItem.fixedStat) { for (const k in targetItem.fixedStat) { if (typeof targetItem.fixedStat[k] === 'number') targetItem.fixedStat[k] += bonus; } } 
-            if (targetItem.randomStat) { for (const k in targetItem.randomStat) { if (typeof targetItem.randomStat[k] === 'number') targetItem.randomStat[k] += bonus; } } 
-            socket.emit('systemMessage', `SUCCESS! Item is now +${targetItem.enhanceLevel}!`);
-        } 
-        else { 
-            socket.emit('systemMessage', `FAILED! ${targetItem.name} +${eLvl} enhancement failed.`);
-        }
+    if (!stone || !targetItem || stone.type !== 'material') return;
+    if (!VALID_RARITIES.includes(targetItem.rarity)) return;
 
-        // Save true data to DB and push back to client
-        supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
-        socket.emit('syncInventory', p.inventory);
-    });
+    const maxAllowed = MAX_ENHANCE_BY_RARITY[targetItem.rarity] || 0;
+    const currentEnhance = clamp(targetItem.enhanceLevel || 0, 0, 20);
+
+    if (currentEnhance >= maxAllowed) {
+        socket.emit('systemMessage', `${targetItem.rarity} items cannot go above +${maxAllowed}.`);
+        socket.emit('syncInventory', p.inventory);
+        return;
+    }
+
+    stone.quantity = (stone.quantity || 1) - 1;
+    if (stone.quantity <= 0) p.inventory[data.stoneIndex] = null;
+
+    let successChance = 1.0;
+    let destroyChance = 0.0;
+
+    if (currentEnhance >= 6) {
+        successChance = Math.max(0.15, 1.0 - ((currentEnhance - 5) * 0.15));
+        destroyChance = Math.min(0.40, ((currentEnhance - 5) * 0.05));
+    }
+
+    const roll = Math.random();
+
+    if (roll < destroyChance) {
+        p.inventory[data.targetIndex] = null;
+        socket.emit('systemMessage', `CRITICAL FAILURE! ${targetItem.name} +${currentEnhance} shattered!`);
+    } else if (roll < destroyChance + successChance) {
+        targetItem.enhanceLevel = currentEnhance + 1;
+
+        const bonus = {
+            Starter: 1,
+            Basic: 1,
+            Rare: 3,
+            Unique: 5,
+            Legendary: 8,
+            Godly: 15
+        }[targetItem.rarity] || 1;
+
+        if (targetItem.fixedStat) {
+            for (const k in targetItem.fixedStat) {
+                if (typeof targetItem.fixedStat[k] === 'number') {
+                    targetItem.fixedStat[k] += bonus;
+                }
+            }
+        }
+
+        if (targetItem.randomStat) {
+            for (const k in targetItem.randomStat) {
+                if (typeof targetItem.randomStat[k] === 'number') {
+                    targetItem.randomStat[k] += bonus;
+                }
+            }
+        }
+
+        p.inventory[data.targetIndex] = sanitizeItem(targetItem);
+
+        socket.emit('systemMessage', `SUCCESS! Item is now +${targetItem.enhanceLevel}!`);
+    } else {
+        socket.emit('systemMessage', `FAILED! ${targetItem.name} +${currentEnhance} enhancement failed.`);
+    }
+
+    p.inventory = sanitizeInventory(p.inventory);
+
+    await supabase
+        .from('Exonians')
+        .update({ inventory: p.inventory })
+        .eq('character_name', p.id);
+
+    socket.emit('syncInventory', p.inventory);
+});
     // 🛡️ SERVER-SIDE ECONOMY: Buying
     socket.on('requestPurchase', async (data) => {
     const p = onlinePlayers[socket.id];
@@ -2705,6 +2971,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
