@@ -72,14 +72,12 @@ function sanitizeItem(item) {
     safe.type = String(safe.type || '');
     safe.sprite = String(safe.sprite || '');
     safe.level = clamp(safe.level, 1, 50);
-    safe.rarity = VALID_RARITIES.includes(safe.rarity) ? safe.rarity : 'Basic';
-    safe.color = typeof safe.color === 'string' ? safe.color : (RARITY_COLORS[safe.rarity] || '#ffffff');
-    safe.enhanceLevel = clamp(safe.enhanceLevel || 0, 0, 20);
+    safe.rarity = safe.rarity || 'Basic';
+    safe.color = typeof safe.color === 'string' ? safe.color : '#ffffff';
+    safe.enhanceLevel = Number(safe.enhanceLevel) || 0;
     safe.quantity = clamp(safe.quantity || 1, 1, 999);
 
-    if (safe.enhanceLevel > (MAX_ENHANCE_BY_RARITY[safe.rarity] || 0)) {
-        return null;
-    }
+    // 🛡️ REMOVED: The aggressive MAX_ENHANCE block that was deleting items is completely gone.
 
     safe.fixedStat = sanitizeStatObject(safe.fixedStat);
     safe.randomStat = sanitizeStatObject(safe.randomStat);
@@ -2329,6 +2327,7 @@ socket.on('useInventoryItem', async (data) => {
         socket.emit('syncInventory', p.inventory);
         socket.emit('inventoryItemUsed', {
             inventory: p.inventory,
+            equips: p.equips,        // 🛡️ THE FIX: Send the equips back to the client!
             currentHp: p.currentHp,
             itemName: item.name
         });
@@ -3157,6 +3156,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
