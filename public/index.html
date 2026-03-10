@@ -1817,17 +1817,63 @@ window.playSFX = function(weaponSprite) { let sfx = 'slash'; if (weaponSprite &&
 // ==========================================
 // 5. INVENTORY & STATS
 // ==========================================
-window.getTotalStat = function(statName) { 
-    if (!game.player || !game.player.baseStats) return 0; 
-    let base = game.player.baseStats[statName] || 0; 
-    ['weapon', 'armor', 'leggings'].forEach(slot => { 
-        let eq = game.player.equips?.[slot]; 
-        if (eq) { if (eq.fixedStat && typeof eq.fixedStat[statName] === 'number') base += eq.fixedStat[statName]; if (eq.randomStat && typeof eq.randomStat[statName] === 'number') base += eq.randomStat[statName]; } 
-    }); 
-    if (game.player.baseStats.playerClass === 'Berserker' && game.player.level >= 25 && (statName === 'hp' || statName === 'defense')) base += Math.floor(game.player.baseStats[statName] * 0.25);
-    if (game.player.baseStats.playerClass === 'Blademaster' && statName === 'attack') base += Math.floor(game.player.baseStats.attack * 0.25);
-    return base; 
-}
+window.MAX_ENHANCE_BY_RARITY = {
+    Starter: 0,
+    Basic: 10,
+    Rare: 12,
+    Unique: 14,
+    Legendary: 15,
+    Godly: 20
+};
+
+window.sanitizeEquippedItem = function(item, expectedSlot) {
+    if (!item || typeof item !== 'object') return null;
+    if (item.type !== expectedSlot) return null;
+
+    const clean = JSON.parse(JSON.stringify(item));
+
+    const rarity = clean.rarity || 'Basic';
+    const maxEnh = window.MAX_ENHANCE_BY_RARITY[rarity] ?? 0;
+    const enh = Math.max(0, Math.min(Number(clean.enhanceLevel || 0), maxEnh));
+    clean.enhanceLevel = enh;
+
+    if (!clean.fixedStat || typeof clean.fixedStat !== 'object') clean.fixedStat = {};
+    if (!clean.randomStat || typeof clean.randomStat !== 'object') clean.randomStat = {};
+
+    Object.keys(clean.fixedStat).forEach(k => {
+        if (typeof clean.fixedStat[k] !== 'number' || !Number.isFinite(clean.fixedStat[k])) clean.fixedStat[k] = 0;
+    });
+
+    Object.keys(clean.randomStat).forEach(k => {
+        if (typeof clean.randomStat[k] !== 'number' || !Number.isFinite(clean.randomStat[k])) clean.randomStat[k] = 0;
+    });
+
+    return clean;
+};
+
+window.getTotalStat = function(statName) {
+    if (!game.player || !game.player.baseStats) return 0;
+
+    let base = Number(game.player.baseStats[statName] || 0);
+
+    ['weapon', 'armor', 'leggings'].forEach(slot => {
+        const eq = window.sanitizeEquippedItem(game.player.equips?.[slot], slot);
+        if (!eq) return;
+
+        if (typeof eq.fixedStat[statName] === 'number') base += eq.fixedStat[statName];
+        if (typeof eq.randomStat[statName] === 'number') base += eq.randomStat[statName];
+    });
+
+    if (game.player.baseStats.playerClass === 'Berserker' && game.player.level >= 25 && (statName === 'hp' || statName === 'defense')) {
+        base += Math.floor((game.player.baseStats[statName] || 0) * 0.25);
+    }
+
+    if (game.player.baseStats.playerClass === 'Blademaster' && statName === 'attack') {
+        base += Math.floor((game.player.baseStats.attack || 0) * 0.25);
+    }
+
+    return Math.max(0, base);
+};
 window.getAttackPower = function() { return window.getTotalStat('attack') + Math.floor(window.getTotalStat('str') / 2); }; 
 window.getMagicAttack = function() { return window.getTotalStat('magic') + Math.floor(window.getTotalStat('int') / 2); }; 
 window.getMaxHp = function() { return window.getTotalStat('hp'); }; 
@@ -1997,7 +2043,27 @@ window.actionSell = function(e) {
     activeInvIndex = -1;
 }
 window.actionThrow = function(e) { if (e) e.stopPropagation(); if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; dom.log.innerText = `Threw away ${game.player.inventory[activeInvIndex].name}.`; game.player.inventory[activeInvIndex] = null; activeInvIndex = -1; window.renderInventory(); DatabaseManager.savePlayerData(game.player); document.getElementById('inv-context-menu').style.display = 'none'; }
-window.unequipItem = function(slot) { const eq = game.player.equips[slot]; if (!eq) return; const inv = game.player.inventory || []; const emptySlot = inv.findIndex(i => i === null); if (emptySlot === -1) { dom.log.innerText = "Inventory full!"; return; } game.player.inventory[emptySlot] = eq; game.player.equips[slot] = null; dom.log.innerText = `Unequipped ${eq.name}.`; window.updateEquipmentDisplay(); window.renderInventory(); window.updateSkillMenu(); DatabaseManager.savePlayerData(game.player); }
+window.unequipItem = function(slot) {
+    const eq = window.sanitizeEquippedItem(game.player.equips[slot], slot);
+    if (!eq) return;
+
+    const inv = game.player.inventory || [];
+    const emptySlot = inv.findIndex(i => i === null);
+
+    if (emptySlot === -1) {
+        dom.log.innerText = "Inventory full!";
+        return;
+    }
+
+    game.player.inventory[emptySlot] = eq;
+    game.player.equips[slot] = null;
+
+    dom.log.innerText = `Unequipped ${eq.name}.`;
+    window.updateEquipmentDisplay();
+    window.renderInventory();
+    window.updateSkillMenu();
+    DatabaseManager.savePlayerData(game.player);
+};
 window.useRevivalJuice = function(invIndex = -1) {
     if (!game.isGhost) {
         dom.log.innerText = "You can only use this when you are dead!";
@@ -2027,7 +2093,6 @@ window.useItem = function(index) {
         return;
     }
 
-    // Server-authoritative consumables
     if (item.type === 'potion') {
         if (socket) socket.emit('useInventoryItem', { index });
         return;
@@ -2043,12 +2108,23 @@ window.useItem = function(index) {
         return;
     }
 
-    // Equip flow stays local
-    const currentEquip = game.player.equips[item.type];
-    game.player.equips[item.type] = item;
+    if (!['weapon', 'armor', 'leggings'].includes(item.type)) {
+        dom.log.innerText = "That item cannot be equipped.";
+        return;
+    }
+
+    const sanitizedIncoming = window.sanitizeEquippedItem(item, item.type);
+    if (!sanitizedIncoming) {
+        dom.log.innerText = "Invalid item data.";
+        return;
+    }
+
+    const currentEquip = window.sanitizeEquippedItem(game.player.equips[item.type], item.type);
+
+    game.player.equips[item.type] = sanitizedIncoming;
     game.player.inventory[index] = currentEquip;
 
-    dom.log.innerText = `Equipped ${item.name}!`;
+    dom.log.innerText = `Equipped ${sanitizedIncoming.name}!`;
     window.updateEquipmentDisplay();
     window.emitVitalsIfNeeded(true);
     window.updateSkillMenu();
@@ -2892,7 +2968,7 @@ socket.on('revivalJuiceUsed', (data) => {
         Object.keys(game.monsters).forEach(id => { if (!currentIds.has(id)) { let staleEl = document.getElementById('mob_' + id); if (staleEl) staleEl.remove(); delete game.monsters[id]; } });
     });
 
- socket.on('monsterAttack', (data) => {
+socket.on('monsterAttack', (data) => {
     if (!data || !game.monsters[data.monsterId]) return;
 
     const m = game.monsters[data.monsterId];
@@ -2948,31 +3024,42 @@ socket.on('revivalJuiceUsed', (data) => {
     hitSound.volume = 0.4;
     hitSound.play().catch(e => {});
 
-    const serverAtk = data.atk || m.atk || 25;
-
-    if (targetId === game.player.id && game.player.currentHp > 0 && !game.isGhost) {
-        const now = Date.now();
-
-        if (now < game.player.untargetableUntil) return;
-
-        const mobDmg = Math.max(1, serverAtk - window.getDefense());
-        game.player.currentHp = Math.max(0, game.player.currentHp - mobDmg);
-
-        if (game.player.currentHp <= 0 && now < game.player.immortalUntil) {
-            game.player.currentHp = 1;
-            window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMORTAL", '#ffeb3b');
-        } else {
-            window.spawnDamageText(game.player.x + 24, game.player.y - 10, mobDmg, '#f44336');
-        }
-
-        window.spawnSpark(game.player.x + 24, game.player.y + 48);
-        window.updateUI();
-        window.emitVitalsIfNeeded(true);
-    } else if (hitPet) {
+    if (hitPet) {
+        const serverAtk = Number(data.atk || m.atk || 25);
         const petDef = Math.floor(window.getDefense() * 0.25);
         const actualDmg = Math.max(1, serverAtk - petDef);
         hitPet.hp -= actualDmg;
         window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, actualDmg, '#ff0000');
+    }
+});
+    socket.on('playerDamaged', (data) => {
+    if (!data) return;
+
+    if (data.id === game.player.id) {
+        const now = Date.now();
+
+        if (now < game.player.untargetableUntil) return;
+
+        game.player.currentHp = Math.max(0, Number(data.currentHp || 0));
+
+        if (data.damage > 0) {
+            window.spawnDamageText(game.player.x + 24, game.player.y - 10, data.damage, '#f44336');
+            window.spawnSpark(game.player.x + 24, game.player.y + 48);
+        }
+
+        if (game.player.currentHp <= 0 && now < game.player.immortalUntil) {
+            game.player.currentHp = 1;
+            window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMORTAL", '#ffeb3b');
+        }
+
+        window.updateUI();
+        window.emitVitalsIfNeeded(true);
+        return;
+    }
+
+    if (game.remotePlayers[data.id]) {
+        const rp = game.remotePlayers[data.id];
+        window.spawnDamageText(rp.x + 24, rp.y - 10, data.damage || 0, '#f44336');
     }
 });
 
@@ -3315,6 +3402,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
