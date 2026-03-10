@@ -3095,7 +3095,36 @@ socket.on('monsterAttack', (data) => {
 }); 
 
     socket.on('monsterSkill', (data) => { if (data.skillName === 'Earthquake') { const gameContainer = document.getElementById('game-container'); gameContainer.classList.add('screen-shake'); setTimeout(() => gameContainer.classList.remove('screen-shake'), 500); const ring = document.createElement('div'); ring.className = 'earthquake-ring'; ring.style.left = (data.x - data.radius) + 'px'; ring.style.top = (data.y - data.radius) + 'px'; ring.style.width = (data.radius * 2) + 'px'; ring.style.height = (data.radius * 2) + 'px'; document.getElementById('world').appendChild(ring); setTimeout(() => ring.remove(), 800); } });
-    socket.on('monsterHit', (data) => { if (!data || !game.monsters[data.monsterId]) return; const m = game.monsters[data.monsterId]; m.currentHp = data.newHp; m.maxHp = data.maxHp || m.maxHp; const mCenterX = m.x + (m.width / 2); const mCenterY = m.y + (m.height / 2); window.spawnDamageText(mCenterX, m.y - 10, data.damage, '#fff'); if (data.isPendant) window.spawnWhiteSplash(mCenterX, mCenterY); else window.spawnSpark(mCenterX, mCenterY); const mEl = document.getElementById('mob_' + m.id); if(mEl) { mEl.classList.add('hit-flash'); setTimeout(() => mEl.classList.remove('hit-flash'), 100); } window.updateUI(); });
+   socket.on('monsterHit', (data) => { 
+        if (!data || !game.monsters[data.monsterId]) return; 
+        const m = game.monsters[data.monsterId]; 
+        m.currentHp = data.newHp; m.maxHp = data.maxHp || m.maxHp; 
+        const mCenterX = m.x + (m.width / 2); const mCenterY = m.y + (m.height / 2); 
+        window.spawnDamageText(mCenterX, m.y - 10, data.damage, '#fff'); 
+        if (data.isPendant) window.spawnWhiteSplash(mCenterX, mCenterY); else window.spawnSpark(mCenterX, mCenterY); 
+        
+        const mEl = document.getElementById('mob_' + m.id); 
+        if(mEl) { 
+            mEl.classList.add('hit-flash'); 
+            setTimeout(() => mEl.classList.remove('hit-flash'), 100); 
+
+            // ❄️ ICE MASTER PASSIVE VISUAL
+            if (data.didFreeze) {
+                let ice = mEl.querySelector('.ice-cube-overlay');
+                if (!ice) {
+                    ice = document.createElement('div');
+                    ice.className = 'ice-cube-overlay';
+                    mEl.appendChild(ice);
+                }
+                // Clear old timer if we chain-freeze them
+                if (mEl.freezeTimer) clearTimeout(mEl.freezeTimer);
+                mEl.freezeTimer = setTimeout(() => {
+                    if (ice) ice.remove();
+                }, 3000);
+            }
+        } 
+        window.updateUI(); 
+    });
     socket.on('monsterDied', (data) => { if (!data || !game.monsters[data.monsterId]) return; game.monsters[data.monsterId].alive = false; const mEl = document.getElementById('mob_' + data.monsterId); if(mEl) mEl.style.display = 'none'; window.updateUI(); });
     socket.on('monsterSpawned', (m) => { if (!m || safeMapData.id === 'town') return; game.monsters[m.id] = m; const mEl = document.getElementById('mob_' + m.id); if(mEl) mEl.style.display = 'flex'; });
     socket.on('lootDropped', (item) => { if (item) window.addLoot(item); });
@@ -3433,6 +3462,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
