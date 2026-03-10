@@ -1066,9 +1066,9 @@ io.on('connection', (socket) => {
         if (p.skillCooldowns['partyHeal'] && now < p.skillCooldowns['partyHeal']) return;
         p.skillCooldowns['partyHeal'] = now + 18000; 
 
-        // 🛡️ SERVER CALCULATES THE HEAL AMOUNT AND RADIUS
-        let trueHealAmt = p.level >= 25 ? 500 : 250;
-        let safeRadius = 400;
+       // 🛡️ THE FIX: Check for 'Boost' passive (Lv. 25+)
+        let trueHealAmt = 250;
+        if (p.level >= 25) trueHealAmt = 500; // Boosted Heal
 
         // 🛡️ FIX: Use true calculated max HP so it doesn't cap at 100!
         let myMaxHp = getServerTotalStat(p, 'hp') || 100;
@@ -3098,3 +3098,4 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
