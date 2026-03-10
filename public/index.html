@@ -1876,12 +1876,17 @@ window.getTotalStat = function(statName) {
         if (typeof eq.randomStat[statName] === 'number') base += eq.randomStat[statName];
     });
 
-    if (game.player.baseStats.playerClass === 'Berserker' && game.player.level >= 25 && (statName === 'hp' || statName === 'defense')) {
-        base += Math.floor((game.player.baseStats[statName] || 0) * 0.25);
+    // 🛡️ TERMINOLOGY SYNC: Apply Class Passives to Frontend UI
+    const pClass = game.player.baseStats.playerClass;
+
+    // Berserker: Bulk Up! (Lv.25+) -> +25% Base HP and Defense
+    if (pClass === 'Berserker' && game.player.level >= 25 && (statName === 'hp' || statName === 'defense')) {
+        base += Math.floor((Number(game.player.baseStats[statName]) || 0) * 0.25);
     }
 
-    if (game.player.baseStats.playerClass === 'Blademaster' && statName === 'attack') {
-        base += Math.floor((game.player.baseStats.attack || 0) * 0.25);
+    // Blademaster: Sharpen Up! (Lv.1+) -> +25% Base Attack
+    if (pClass === 'Blademaster' && statName === 'attack') {
+        base += Math.floor((Number(game.player.baseStats.attack) || 0) * 0.25);
     }
 
     return Math.max(0, base);
@@ -3412,6 +3417,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
