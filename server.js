@@ -236,14 +236,12 @@ function generateLoot(monster) {
         let stoneRarity = "Basic";
         let r = Math.random();
         
-       if (monster.category === "floor_boss") {
-    // 👑 FLOOR BOSS DROP RATES FOR GEAR
-    if (rarityRoll <= 0.35) rarity = "Godly";           // 35%
-    else if (rarityRoll <= 0.85) rarity = "Legendary";  // 50%
-    else rarity = "Unique";                             // 15%
-} else if (monster.category === "mini_boss") {
+   if (monster.category === "mini_boss") {
             stoneRarity = r < 0.35 ? "Unique" : "Rare";
-        } else {
+        } 
+   else if (monster.category === "floor_boss") {
+            stoneRarity = r < 0.10 ? "Godly" : "Legendary";
+        }else {
             stoneRarity = r < 0.10 ? "Rare" : "Basic";
         }
 
@@ -266,11 +264,8 @@ function generateLoot(monster) {
     
     if (monster.category === "floor_boss") {
         // 👑 FLOOR BOSS DROP RATES FOR GEAR
-        if (rarityRoll <= 0.05) rarity = "Godly";          // 5% chance
-        else if (rarityRoll <= 0.30) rarity = "Legendary"; // 25% chance
-        else if (rarityRoll <= 0.60) rarity = "Unique";    // 30% chance
-        else if (rarityRoll <= 0.85) rarity = "Rare";      // 25% chance
-        else rarity = "Basic";                             // 15% chance
+        if (rarityRoll <= 0.35) rarity = "Godly";          // 5% chance
+        else rarity = "Legendary";                             // 15% chance
     } else if (monster.category === "mini_boss") {
         rarity = rarityRoll < 0.35 ? "Unique" : "Rare";
     } else {
@@ -634,17 +629,70 @@ function updateMonsterAI(instId, m, now) {
                     // 🌟 ADDED p.isHiddenAdmin bypass so Earthquake ignores you
                     if (p.isGhost || p.isHiddenAdmin || p.mapId === 'town') return;
                     const pDist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
-                    if (pDist <= aoeRadius) {
-                        const damage = Math.max(1, m.atk - getServerDefense(p));
-                        p.currentHp -= damage;
-                        io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: p.id, targetX: p.x + 24, targetY: p.y + 48, atk: m.atk, isAoE: true });
-                    }
+                  if (pDist <= aoeRadius) {
+    const damage = Math.max(1, m.atk - getServerDefense(p));
+    p.currentHp = Math.max(0, p.currentHp - damage);
+
+    io.to(instId).emit('monsterAttack', {
+        monsterId: m.id,
+        targetId: p.id,
+        targetX: p.x + 24,
+        targetY: p.y + 48,
+        atk: m.atk,
+        isAoE: true,
+        damage: damage,
+        newHp: p.currentHp
+    });
+
+    const victimSid = findSocketIdByPlayerId(p.id);
+    if (victimSid) {
+        io.to(victimSid).emit('playerVitals', {
+            currentHp: p.currentHp,
+            maxHp: p.maxHp,
+            level: p.level
+        });
+    }
+
+    if (p.currentHp <= 0 && !p.isGhost) {
+        p.isGhost = true;
+        p.currentHp = 0;
+        p.currentPortal = null;
+
+        io.to(instId).emit('remotePlayerGhosted', p.id);
+
+        const pid = playerParty[p.id];
+        if (!pid || !parties[pid]) {
+            if (victimSid) io.to(victimSid).emit('showDeathScreen');
+        } else {
+            const party = parties[pid];
+            let allDead = true;
+
+            for (const memberId of party.members) {
+                const member = getPlayerById(memberId);
+                if (member && !member.isGhost) {
+                    allDead = false;
+                    break;
+                }
+            }
+
+            if (allDead) {
+                for (const memberId of party.members) {
+                    const memberSid = findSocketIdByPlayerId(memberId);
+                    if (memberSid) io.to(memberSid).emit('showDeathScreen');
+                }
+                io.to(instId).emit('partyWiped');
+            }
+
+            emitPartyUpdate(pid);
+        }
+    }
+}
                 });
             }
         }
     }
 
-    const dist = Math.hypot(target.x - mcx, target.y - mcy);
+   const dist = Math.hypot(target.x - mcx, target.y - mcy);
 if (dist > m.chaseRadius) {
     if (!target.isPet && m.threatTable[target.id]) m.threatTable[target.id] *= 0.9;
     if (!target.isPet && m.threatTable[target.id] < 1) delete m.threatTable[target.id];
@@ -664,17 +712,82 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
 } else {
     if (now - m.lastAttack > 1500) {
         m.lastAttack = now;
+
+        if (target.isPet) {
+            io.to(instId).emit('monsterAttack', {
+                monsterId: m.id,
+                targetId: target.id,
+                targetX: target.x,
+                targetY: target.y,
+                atk: m.atk
+            });
+            return;
+        }
+
+        const victim = getPlayerById(target.id);
+        if (!victim || victim.isGhost || victim.isHiddenAdmin || victim.mapId === 'town') return;
+        if (victim.untargetableUntil > now) return;
+
+        const damage = Math.max(1, m.atk - getServerDefense(victim));
+        victim.currentHp = Math.max(0, victim.currentHp - damage);
+
         io.to(instId).emit('monsterAttack', {
             monsterId: m.id,
-            targetId: target.id,
+            targetId: victim.id,
             targetX: target.x,
             targetY: target.y,
-            atk: m.atk
+            atk: m.atk,
+            damage: damage,
+            newHp: victim.currentHp
         });
+
+        const victimSid = findSocketIdByPlayerId(victim.id);
+        if (victimSid) {
+            io.to(victimSid).emit('playerVitals', {
+                currentHp: victim.currentHp,
+                maxHp: victim.maxHp,
+                level: victim.level
+            });
+        }
+
+        const pid = playerParty[victim.id];
+        if (pid) emitPartyUpdate(pid);
+
+        if (victim.currentHp <= 0 && !victim.isGhost) {
+            victim.isGhost = true;
+            victim.currentHp = 0;
+            victim.currentPortal = null;
+
+            io.to(instId).emit('remotePlayerGhosted', victim.id);
+
+            if (!pid || !parties[pid]) {
+                if (victimSid) io.to(victimSid).emit('showDeathScreen');
+            } else {
+                const party = parties[pid];
+                let allDead = true;
+
+                for (const memberId of party.members) {
+                    const member = getPlayerById(memberId);
+                    if (member && !member.isGhost) {
+                        allDead = false;
+                        break;
+                    }
+                }
+
+                if (allDead) {
+                    for (const memberId of party.members) {
+                        const memberSid = findSocketIdByPlayerId(memberId);
+                        if (memberSid) io.to(memberSid).emit('showDeathScreen');
+                    }
+                    io.to(instId).emit('partyWiped');
+                }
+
+                emitPartyUpdate(pid);
+            }
+        }
     }
 }
 }
-
 setInterval(() => {
     const now = Date.now();
     for (const instId of Object.keys(worlds)) {
@@ -1459,7 +1572,7 @@ socket.on('login', async (data) => {
     })));
 });
 
-  socket.on('saveData', async (playerData) => {
+socket.on('saveData', async (playerData) => {
     if (!currentUser) return;
     const p = onlinePlayers[socket.id];
     if (!p) return;
@@ -1471,32 +1584,42 @@ socket.on('login', async (data) => {
     const safeMapId = typeof playerData.mapId === 'string' ? playerData.mapId : p.mapId;
     const safeX = typeof playerData.x === 'number' ? playerData.x : p.x;
     const safeY = typeof playerData.y === 'number' ? playerData.y : p.y;
-    const safeExp = clamp(playerData.exp ?? 0, 0, 999999999);
-    const safeMaxExp = clamp(playerData.maxExp ?? 100, 100, 999999999);
+    const safeExp = clamp(playerData.exp ?? p.exp ?? 0, 0, 999999999);
+    const safeMaxExp = clamp(playerData.maxExp ?? p.maxExp ?? 100, 100, 999999999);
 
-    // Preserve only VALID aura values if they already exist in server memory or incoming equip data
-    let incomingEquips = sanitizeEquips(playerData.equips || p.equips || {});
-    let currentServerEquips = sanitizeEquips(p.equips || {});
-
-    if (incomingEquips.armor && incomingEquips.armor.aura === 'lightning') {
-        currentServerEquips.armor = incomingEquips.armor;
-    } else if (
-        currentServerEquips.armor &&
-        currentServerEquips.armor.aura === 'lightning'
-    ) {
-        // keep existing valid aura armor from server memory
-    } else if (incomingEquips.armor) {
-        currentServerEquips.armor = incomingEquips.armor;
+    let safeGold = typeof playerData.gold === 'number' ? playerData.gold : (p.gold || 0);
+    if (safeGold > (p.gold || 0) + 50000 && p.id !== "Kei") {
+        console.log(`[HACK BLOCKED] ${p.id} tried to spawn ${safeGold - (p.gold || 0)} gold.`);
+        safeGold = p.gold || 0;
     }
 
-    if (incomingEquips.weapon) currentServerEquips.weapon = incomingEquips.weapon;
-    if (incomingEquips.leggings) currentServerEquips.leggings = incomingEquips.leggings;
+    let safeLevel = typeof playerData.level === 'number' ? playerData.level : (p.level || 1);
+    if (safeLevel > 50 && p.id !== "Kei") safeLevel = 50;
+    safeLevel = clamp(safeLevel, 1, 50);
 
-    // Do NOT trust client for inventory/baseStats/gold/currentHp/maxHp
-    p.equips = sanitizeEquips(currentServerEquips);
-    p.inventory = sanitizeInventory(p.inventory);
-    p.baseStats = sanitizeBaseStats(p.baseStats);
+    let safeBaseStats = sanitizeBaseStats(playerData.baseStats || p.baseStats || {});
+    if (p.id !== "Kei") {
+        safeBaseStats.str = clamp(safeBaseStats.str, 0, 150);
+        safeBaseStats.int = clamp(safeBaseStats.int, 0, 150);
+        safeBaseStats.attack = clamp(safeBaseStats.attack, 0, 150);
+        safeBaseStats.magic = clamp(safeBaseStats.magic, 0, 150);
+        safeBaseStats.defense = clamp(safeBaseStats.defense, 0, 150);
+        safeBaseStats.hp = clamp(safeBaseStats.hp, 1, 999999);
+        safeBaseStats.speed = clamp(safeBaseStats.speed, 0, 150);
+    }
 
+    const safeInventory = sanitizeInventory(playerData.inventory || p.inventory || []);
+    const safeEquips = sanitizeEquips(playerData.equips || p.equips || {});
+
+    if (safeEquips.armor && safeEquips.armor.aura && safeEquips.armor.aura !== 'lightning') {
+        delete safeEquips.armor.aura;
+    }
+
+    p.inventory = safeInventory;
+    p.equips = safeEquips;
+    p.baseStats = safeBaseStats;
+    p.gold = safeGold;
+    p.level = safeLevel;
     p.x = safeX;
     p.y = safeY;
     p.mapId = safeMapId;
@@ -1505,20 +1628,24 @@ socket.on('login', async (data) => {
 
     const trueMaxHp = getServerTotalStat(p, 'hp') || 100;
     p.maxHp = trueMaxHp;
-    p.currentHp = clamp(p.currentHp || trueMaxHp, 0, trueMaxHp);
+
+    let requestedHp = typeof playerData.currentHp === 'number' ? playerData.currentHp : p.currentHp;
+    if (requestedHp > trueMaxHp) requestedHp = trueMaxHp;
+    if (requestedHp < 0) requestedHp = 0;
+    p.currentHp = requestedHp;
 
     p.spriteData.weapon = p.equips?.weapon?.sprite || null;
     p.spriteData.aura = p.equips?.armor?.aura || null;
 
     await supabase.from('Exonians').update({
-        level: clamp(p.level || 1, 1, 50),
-        exp: safeExp,
-        max_exp: safeMaxExp,
+        level: p.level,
+        exp: p.exp,
+        max_exp: p.maxExp,
         current_hp: p.currentHp,
-        gold: clamp(p.gold || 0, 0, 999999999),
-        pos_x: safeX,
-        pos_y: safeY,
-        map_id: safeMapId,
+        gold: p.gold,
+        pos_x: p.x,
+        pos_y: p.y,
+        map_id: p.mapId,
         base_stats: p.baseStats,
         inventory: p.inventory,
         equips: p.equips
