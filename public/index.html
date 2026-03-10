@@ -2096,6 +2096,10 @@ window.extractAura = function(e) {
     activeInvIndex = -1;
 }
 
+window.actionSell = function(e) { 
+    if (e) e.stopPropagation(); 
+    if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; 
+
     let item = game.player.inventory[activeInvIndex];
     if (!item || !item.id) {
         dom.log.innerText = "That item cannot be sold right now.";
@@ -3523,6 +3527,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
