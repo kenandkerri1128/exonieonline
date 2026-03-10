@@ -3005,7 +3005,58 @@ socket.on('useRevivalJuice', async (data) => {
     const pid = playerParty[p.id];
     if (pid) emitPartyUpdate(pid);
 });
+socket.on('adminSpawnItem', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.id !== "Kei") return; // 🛡️ Security Check
 
+        const { rarity, type, level, enhanceLevel } = data;
+        let item;
+
+        if (type.startsWith('aura_')) {
+            const auraType = type.split('_')[1];
+            item = { id: Date.now() + Math.random(), name: `Lightning Aura Stone`, type: 'aura', auraId: auraType, sprite: 'aurastone', level: 1, rarity: 'Legendary', color: '#00ffff', description: "Click to apply to an Armor. Purely cosmetic.", quantity: 1 };
+        } else {
+            const tmpl = ITEM_TEMPLATES[type];
+            if (!tmpl) return;
+            const rPfx = rarity === "Starter" ? "basic" : rarity.toLowerCase();
+            item = { id: Date.now() + Math.random(), name: `${rarity} Admin ${tmpl.baseName}`, type: tmpl.slot, sprite: rPfx + tmpl.spriteName, level: level, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: enhanceLevel, quantity: 1 };
+            
+            let statVal = getBaseStat(level) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0);
+            if (type === 'pendant') statVal = Math.floor(statVal / 2);
+            item.fixedStat[tmpl.statKey] = statVal;
+            item.randomStat = {};
+            
+            if (rarity !== "Starter") {
+                let numStats = rarity === "Godly" ? 3 : (rarity === "Legendary" ? 2 : 1);
+                let availableStats = [...STAT_TYPES];
+                for (let i = 0; i < numStats; i++) {
+                    let rIdx = Math.floor(Math.random() * availableStats.length);
+                    let sKey = availableStats.splice(rIdx, 1)[0];
+                    item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(level)) + 1;
+                }
+            }
+
+            if (enhanceLevel > 0) {
+                const bonusPerLevel = { "Starter": 1, "Basic": 1, "Rare": 3, "Unique": 5, "Legendary": 8, "Godly": 15 }[rarity] || 1;
+                const totalBonus = bonusPerLevel * enhanceLevel;
+                for (const k in item.fixedStat) { if (typeof item.fixedStat[k] === 'number') item.fixedStat[k] += totalBonus; }
+                for (const k in item.randomStat) { if (typeof item.randomStat[k] === 'number') item.randomStat[k] += totalBonus; }
+            }
+        }
+
+        const inv = p.inventory || [];
+        const emptySlot = inv.findIndex(i => i === null);
+        if (emptySlot !== -1) {
+            inv[emptySlot] = item;
+            p.inventory = inv;
+            // 🛡️ Force it into the database immediately
+            await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
+            socket.emit('syncInventory', p.inventory);
+            socket.emit('systemMessage', `[Admin] Spawned ${item.name}!`);
+        } else {
+            socket.emit('systemMessage', "Inventory full!");
+        }
+    });
 socket.on('requestSell', async (data) => {
     const p = onlinePlayers[socket.id];
     if (!p) return;
@@ -3051,6 +3102,10 @@ socket.on('requestSell', async (data) => {
     }[serverItem.rarity] || 1;
 
     let sellPrice = baseVal * multiplier;
+    // 🛡️ THE FIX: Multiply the final price by the stack quantity!
+    if (serverItem.quantity && serverItem.quantity > 1) {
+        sellPrice *= serverItem.quantity;
+    }
 
     p.gold += sellPrice;
     inv[sellIndex] = null;
@@ -3102,5 +3157,6 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
