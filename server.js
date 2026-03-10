@@ -3046,6 +3046,35 @@ socket.on('adminSpawnItem', async (data) => {
             socket.emit('systemMessage', "Inventory full!");
         }
     });
+    // 🛡️ PERMANENT ADMIN LEVEL SETTER
+    socket.on('adminSetLevel', async (level) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.id !== "Kei") return; // 🛡️ Ironclad Security Check
+
+        let newLevel = clamp(level, 1, 50);
+        p.level = newLevel;
+        p.maxExp = 100 + (newLevel * 100);
+        
+        // Scale stats
+        p.baseStats.hp = getBaseStat(newLevel) * 10;
+        p.baseStats.str = getBaseStat(newLevel);
+        p.baseStats.int = getBaseStat(newLevel);
+        
+        // Recalculate true HP
+        const trueMaxHp = getServerTotalStat(p, 'hp') || 100;
+        p.maxHp = trueMaxHp;
+        p.currentHp = trueMaxHp;
+
+        // Force save to database
+        await supabase.from('Exonians').update({
+            level: p.level,
+            max_exp: p.maxExp,
+            base_stats: p.baseStats,
+            current_hp: p.currentHp
+        }).eq('character_name', p.id);
+
+        socket.emit('systemMessage', `[Admin] Force-leveled to ${p.level}! Refresh page to sync UI.`);
+    });
 socket.on('requestSell', async (data) => {
     const p = onlinePlayers[socket.id];
     if (!p) return;
@@ -3156,6 +3185,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
