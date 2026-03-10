@@ -117,6 +117,22 @@
         .monster-container { transition: filter 0.1s, transform 0.15s ease-out; }
         .hit-flash .monster-sprite-layer { filter: brightness(2) drop-shadow(0 0 5px red) !important; }
         @keyframes slime-bounce { 0% { transform: translateY(0) scaleY(0.9); } 100% { transform: translateY(-12px) scaleY(1.1); } }
+        .ice-cube-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140%;
+            height: 130%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(0,255,255,0.3) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            box-shadow: 0 0 10px #00ffff, inset 0 0 15px #fff;
+            pointer-events: none;
+            z-index: 10;
+            backdrop-filter: blur(2px);
+        }
+        
         /* --- SHADOW BAT CSS --- */
         .bat-sprite {
             border-radius: 50%; /* Main Body */
@@ -3417,6 +3433,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
