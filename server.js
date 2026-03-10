@@ -1493,13 +1493,14 @@ socket.on('login', async (data) => {
         equips: safeUser.equips,
         baseStats: safeUser.base_stats,
         gold: safeUser.gold || 0,
+        title: safeUser.title || null, // 🛡️ Load from the new DB column
         spriteData: {
             skin: safeUser.skin_color,
             hair: safeUser.hair_color,
             style: safeUser.hair_style,
             weapon: safeUser.equips.weapon?.sprite || null,
             aura: safeUser.equips.armor?.aura || null,
-            title: safeUser.base_stats?.title || null
+            title: safeUser.title || null  // 🛡️ Sync to other players
         },
         lootFilter: {
             Starter: true,
@@ -1862,24 +1863,23 @@ socket.on('saveData', async (playerData) => {
                 }
                 targetPlayer.inventory = inv;
             }
-if (m.category === "floor_boss" && targetPlayer.mapId) {
+// 👑 TITLE UNLOCK LOGIC (Progressive)
+            if (m.category === "floor_boss" && targetPlayer.mapId) {
                 const match = targetPlayer.mapId.match(/floor(\d+)/i);
                 const killedFloorNum = match ? parseInt(match[1]) : null;
                 
                 if (killedFloorNum) {
                     let currentHighestFloor = 0;
-                    const existingTitle = targetPlayer.baseStats.title;
+                    const existingTitle = targetPlayer.title; // 🛡️ Now uses top-level property
                     
-                    // Extract the floor number if they already have this title
                     if (existingTitle && existingTitle.startsWith('FLOOR CONQUEROR')) {
                         const parts = existingTitle.split(' ');
                         currentHighestFloor = parseInt(parts[2]) || 0;
                     }
                     
-                    // Only upgrade if they beat a HIGHER floor boss
                     if (killedFloorNum > currentHighestFloor) {
                         const newTitle = `FLOOR CONQUEROR ${killedFloorNum}`;
-                        targetPlayer.baseStats.title = newTitle;
+                        targetPlayer.title = newTitle; // 🛡️ Set it
                         
                         if (!targetPlayer.spriteData) targetPlayer.spriteData = {};
                         targetPlayer.spriteData.title = newTitle;
@@ -1896,6 +1896,7 @@ if (m.category === "floor_boss" && targetPlayer.mapId) {
                 gold: targetPlayer.gold,
                 exp: targetPlayer.exp,
                 inventory: targetPlayer.inventory
+                title: targetPlayer.title
             }).eq('character_name', targetPlayer.id).then(() => {});
 
             if (targetSid) {
@@ -3098,6 +3099,76 @@ socket.on('adminSpawnItem', async (data) => {
 
         socket.emit('systemMessage', `[Admin] Force-leveled to ${p.level}! Refresh page to sync UI.`);
     });
+// 🛡️ SECURE AURA APPLICATION
+    socket.on('requestApplyAura', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+
+        const stone = p.inventory[data.stoneIndex];
+        const targetItem = p.inventory[data.targetIndex];
+
+        if (!stone || !targetItem || stone.type !== 'aura' || targetItem.type !== 'armor') return;
+        if (targetItem.aura) {
+            return socket.emit('systemMessage', "That armor already has an aura! Extract it first.");
+        }
+
+        targetItem.aura = stone.auraId || 'lightning';
+        targetItem.originalName = targetItem.name;
+        targetItem.name = "Lightning " + targetItem.name;
+
+        stone.quantity = (stone.quantity || 1) - 1;
+        if (stone.quantity <= 0) p.inventory[data.stoneIndex] = null;
+
+        await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
+        
+        socket.emit('syncInventory', p.inventory);
+        socket.emit('systemMessage', "Applied Lightning Aura to your armor!");
+        
+        // Update visual immediately if it's equipped
+        if (p.equips && p.equips.armor && p.equips.armor.id === targetItem.id) {
+             p.equips.armor = targetItem;
+             p.spriteData.aura = targetItem.aura;
+             socket.emit('inventoryItemUsed', { inventory: p.inventory, equips: p.equips });
+        }
+    });
+
+    // 🛡️ SECURE AURA EXTRACTION
+    socket.on('requestExtractAura', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+
+        const item = p.inventory[data.targetIndex];
+        if (!item || !item.aura) return;
+
+        const emptySlot = p.inventory.findIndex(i => i === null);
+        if (emptySlot === -1) {
+            return socket.emit('systemMessage', "Inventory full! Cannot extract.");
+        }
+
+        let auraStone = { 
+            id: Date.now() + Math.random(), 
+            name: "Lightning Aura Stone", 
+            type: 'aura', 
+            auraId: item.aura, 
+            sprite: 'aurastone', 
+            level: 1, 
+            rarity: 'Legendary', 
+            color: '#00ffff', 
+            description: "Click to apply to an Armor. Purely cosmetic.", 
+            quantity: 1 
+        };
+
+        item.name = item.originalName || item.name.replace("Lightning ", "");
+        delete item.aura;
+        delete item.originalName;
+
+        p.inventory[emptySlot] = auraStone;
+
+        await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
+        
+        socket.emit('syncInventory', p.inventory);
+        socket.emit('systemMessage', "Aura extracted safely!");
+    });
 socket.on('requestSell', async (data) => {
     const p = onlinePlayers[socket.id];
     if (!p) return;
@@ -3208,6 +3279,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
