@@ -1895,7 +1895,7 @@ socket.on('saveData', async (playerData) => {
             supabase.from('Exonians').update({
                 gold: targetPlayer.gold,
                 exp: targetPlayer.exp,
-                inventory: targetPlayer.inventory
+                inventory: targetPlayer.inventory,
                 title: targetPlayer.title
             }).eq('character_name', targetPlayer.id).then(() => {});
 
@@ -3279,6 +3279,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
