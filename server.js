@@ -1581,62 +1581,43 @@ socket.on('saveData', async (playerData) => {
     if (p.lastSaveTime && now - p.lastSaveTime < 500) return;
     p.lastSaveTime = now;
 
+    // 🛡️ 1. ONLY ACCEPT MOVEMENT DATA FROM THE FRONTEND
     const safeMapId = typeof playerData.mapId === 'string' ? playerData.mapId : p.mapId;
     const safeX = typeof playerData.x === 'number' ? playerData.x : p.x;
     const safeY = typeof playerData.y === 'number' ? playerData.y : p.y;
-    const safeExp = clamp(playerData.exp ?? p.exp ?? 0, 0, 999999999);
-    const safeMaxExp = clamp(playerData.maxExp ?? p.maxExp ?? 100, 100, 999999999);
 
+    // 🛡️ 2. CLAMP GOLD & STATS (Protects against EXP/Gold hacking)
     let safeGold = typeof playerData.gold === 'number' ? playerData.gold : (p.gold || 0);
     if (safeGold > (p.gold || 0) + 50000 && p.id !== "Kei") {
-        console.log(`[HACK BLOCKED] ${p.id} tried to spawn ${safeGold - (p.gold || 0)} gold.`);
+        console.log(`[HACK BLOCKED] ${p.id} tried to inject ${safeGold - (p.gold || 0)} gold.`);
         safeGold = p.gold || 0;
     }
 
-    let safeLevel = typeof playerData.level === 'number' ? playerData.level : (p.level || 1);
-    if (safeLevel > 50 && p.id !== "Kei") safeLevel = 50;
-    safeLevel = clamp(safeLevel, 1, 50);
-
+    let safeLevel = clamp(typeof playerData.level === 'number' ? playerData.level : (p.level || 1), 1, 50);
     let safeBaseStats = sanitizeBaseStats(playerData.baseStats || p.baseStats || {});
+
     if (p.id !== "Kei") {
         safeBaseStats.str = clamp(safeBaseStats.str, 0, 150);
         safeBaseStats.int = clamp(safeBaseStats.int, 0, 150);
-        safeBaseStats.attack = clamp(safeBaseStats.attack, 0, 150);
-        safeBaseStats.magic = clamp(safeBaseStats.magic, 0, 150);
-        safeBaseStats.defense = clamp(safeBaseStats.defense, 0, 150);
         safeBaseStats.hp = clamp(safeBaseStats.hp, 1, 999999);
-        safeBaseStats.speed = clamp(safeBaseStats.speed, 0, 150);
     }
 
-    const safeInventory = sanitizeInventory(playerData.inventory || p.inventory || []);
-    const safeEquips = sanitizeEquips(playerData.equips || p.equips || {});
-
-    if (safeEquips.armor && safeEquips.armor.aura && safeEquips.armor.aura !== 'lightning') {
-        delete safeEquips.armor.aura;
-    }
-
-    p.inventory = safeInventory;
-    p.equips = safeEquips;
-    p.baseStats = safeBaseStats;
-    p.gold = safeGold;
+    // 🛡️ 3. UPDATE SERVER MEMORY WITH SAFE DATA
     p.level = safeLevel;
+    p.exp = clamp(playerData.exp ?? p.exp ?? 0, 0, 999999999);
+    p.maxExp = clamp(playerData.maxExp ?? p.maxExp ?? 100, 100, 999999999);
+    p.gold = safeGold;
+    p.baseStats = safeBaseStats;
     p.x = safeX;
     p.y = safeY;
     p.mapId = safeMapId;
-    p.exp = safeExp;
-    p.maxExp = safeMaxExp;
 
     const trueMaxHp = getServerTotalStat(p, 'hp') || 100;
     p.maxHp = trueMaxHp;
-
-    let requestedHp = typeof playerData.currentHp === 'number' ? playerData.currentHp : p.currentHp;
-    if (requestedHp > trueMaxHp) requestedHp = trueMaxHp;
-    if (requestedHp < 0) requestedHp = 0;
-    p.currentHp = requestedHp;
+    p.currentHp = clamp(typeof playerData.currentHp === 'number' ? playerData.currentHp : p.currentHp, 0, trueMaxHp);
 
     p.spriteData.weapon = p.equips?.weapon?.sprite || null;
     p.spriteData.aura = p.equips?.armor?.aura || null;
-
     await supabase.from('Exonians').update({
         level: p.level,
         exp: p.exp,
@@ -1648,7 +1629,7 @@ socket.on('saveData', async (playerData) => {
         map_id: p.mapId,
         base_stats: p.baseStats,
         inventory: p.inventory,
-        equips: p.equips
+        equips: p.equips       
     }).eq('character_name', currentUser);
 
     const pid = playerParty[p.id];
@@ -1843,109 +1824,106 @@ socket.on('saveData', async (playerData) => {
         io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: isPendant, didFreeze: didFreeze });
         
     if (m.currentHp <= 0) {
-    m.alive = false;
-    m.targetId = null;
-    m.threatTable = {};
-    m.forcedTargetId = null;
-    m.forcedUntil = 0;
-    m.frozenUntil = 0;
+        m.alive = false;
+        m.targetId = null;
+        m.threatTable = {};
+        m.forcedTargetId = null;
+        m.forcedUntil = 0;
+        m.frozenUntil = 0;
 
-    io.to(p.instanceId).emit('monsterDied', {
-        monsterId: m.id,
-        killerId: p.id
-    });
-
-    const expAmount = m.expYield || 25;
-    const goldAmount = m.goldYield || 15;
-    const pid = playerParty[p.id];
-
-    if (pid && parties[pid]) {
-        for (const memberId of parties[pid].members) {
-            const sid = findSocketIdByPlayerId(memberId);
-            const memberPlayer = getPlayerById(memberId);
-
-            if (sid && memberPlayer) {
-                io.to(sid).emit('receiveExp', {
-                    amount: expAmount,
-                    gold: goldAmount,
-                    source: m.name
-                });
-
-                let drop = generateLoot(m);
-
-                if (drop && playerAcceptsLoot(memberPlayer, drop)) {
-                    io.to(sid).emit('lootDropped', drop);
-                } else if (drop) {
-                    io.to(sid).emit(
-                        'systemMessage',
-                        `Filtered loot ignored: ${drop.name} [${drop.rarity}]`
-                    );
-                }
-
-                if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
-                    io.emit('rareLootBroadcast', {
-                        playerName: memberId,
-                        itemName: drop.name,
-                        rarity: drop.rarity,
-                        level: drop.level,
-                        color: drop.color
-                    });
-                }
-            }
-        }
-    } else {
-        io.to(socket.id).emit('receiveExp', {
-            amount: expAmount,
-            gold: goldAmount,
-            source: m.name
+        io.to(p.instanceId).emit('monsterDied', {
+            monsterId: m.id,
+            killerId: p.id
         });
 
-        let drop = generateLoot(m);
+        const expAmount = m.expYield || 25;
+        const goldAmount = m.goldYield || 15;
+        const pid = playerParty[p.id];
 
-        if (drop && playerAcceptsLoot(p, drop)) {
-            io.to(socket.id).emit('lootDropped', drop);
-        } else if (drop) {
-            io.to(socket.id).emit(
-                'systemMessage',
-                `Filtered loot ignored: ${drop.name} [${drop.rarity}]`
-            );
+        // 🛡️ SERVER-AUTHORITATIVE REWARDS ENGINE
+        const processRewards = async (targetPlayer, targetSid) => {
+            if (!targetPlayer) return;
+
+            targetPlayer.exp += expAmount;
+            targetPlayer.gold += goldAmount;
+
+            let drop = generateLoot(m);
+            let dropAccepted = drop && playerAcceptsLoot(targetPlayer, drop);
+
+            if (dropAccepted) {
+                // 🛡️ Server puts the item directly into the server inventory securely
+                const inv = Array.isArray(targetPlayer.inventory) ? targetPlayer.inventory : new Array(20).fill(null);
+                let stacked = false;
+
+                if (['potion', 'material', 'consumable'].includes(drop.type)) {
+                    let idx = inv.findIndex(i => i && i.name === drop.name);
+                    if (idx !== -1) {
+                        inv[idx].quantity = (inv[idx].quantity || 1) + (drop.quantity || 1);
+                        stacked = true;
+                    }
+                }
+
+                if (!stacked) {
+                    let emptySlot = inv.findIndex(i => i === null);
+                    if (emptySlot !== -1) inv[emptySlot] = drop;
+                }
+                targetPlayer.inventory = inv;
+            }
+
+            // 🛡️ INSTANT SUPABASE SAVE: Locks the item in permanently before the client even sees it!
+            supabase.from('Exonians').update({
+                gold: targetPlayer.gold,
+                exp: targetPlayer.exp,
+                inventory: targetPlayer.inventory
+            }).eq('character_name', targetPlayer.id).then(() => {});
+
+            if (targetSid) {
+                io.to(targetSid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name });
+                
+                // 🛡️ Force the client to visually update with the true server inventory
+                io.to(targetSid).emit('syncInventory', targetPlayer.inventory);
+
+                if (dropAccepted) {
+                    // Still emits to trigger your frontend Combat Log text!
+                    io.to(targetSid).emit('lootDropped', drop); 
+
+                    if (drop.rarity === 'Legendary' || drop.rarity === 'Godly') {
+                        io.emit('rareLootBroadcast', {
+                            playerName: targetPlayer.name || targetPlayer.id,
+                            itemName: drop.name,
+                            rarity: drop.rarity,
+                            level: drop.level,
+                            color: drop.color
+                        });
+                    }
+                } else if (drop) {
+                    io.to(targetSid).emit('systemMessage', `Filtered loot ignored: ${drop.name} [${drop.rarity}]`);
+                }
+            }
+        };
+
+        // Distribute rewards to Party or Solo
+        if (pid && parties[pid]) {
+            for (const memberId of parties[pid].members) {
+                processRewards(getPlayerById(memberId), findSocketIdByPlayerId(memberId));
+            }
+        } else {
+            processRewards(p, socket.id);
         }
 
-        if (drop && (drop.rarity === 'Legendary' || drop.rarity === 'Godly')) {
-            io.emit('rareLootBroadcast', {
-                playerName: p.name || p.id,
-                itemName: drop.name,
-                rarity: drop.rarity,
-                level: drop.level,
-                color: drop.color
-            });
+        // Respawn Logic
+        if (m.respawnDelayMs !== -1) {
+            setTimeout(() => {
+                const cfg = {
+                    spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY },
+                    level: m.level
+                };
+                const nm = spawnMonster(p.instanceId, m.id, m.originalKey || m.monsterKey, cfg);
+                world.monsters[m.id] = nm;
+                io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
+            }, m.respawnDelayMs || 10000);
         }
     }
-
-    if (m.respawnDelayMs !== -1) {
-        setTimeout(() => {
-            const cfg = {
-                spawnArea: {
-                    minX: m.homeX,
-                    maxX: m.homeX,
-                    minY: m.homeY,
-                    maxY: m.homeY
-                },
-                level: m.level
-            };
-
-            const nm = spawnMonster(
-                p.instanceId,
-                m.id,
-                m.originalKey || m.monsterKey,
-                cfg
-            );
-
-            world.monsters[m.id] = nm;
-            io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
-        }, m.respawnDelayMs || 10000);
-    }
-}
     });
 
     socket.on('inspectRequest', (data) => {
@@ -3179,6 +3157,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
