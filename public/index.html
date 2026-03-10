@@ -108,10 +108,11 @@
 
         .entity { position: absolute; transition: filter 0.1s; z-index: 100;} 
         #player-container { z-index: 105; transition: opacity 0.3s; }
-        .name-tag { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 1px 1px 0 #000; z-index: 20; pointer-events: none; }
+        .name-tag { position: absolute; top: -23px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 1px 1px 0 #000; z-index: 20; pointer-events: none; }
+        
         .title-tag { 
             position: absolute; 
-            top: -15px; 
+            top: -9px; /* Lowered so it doesn't hit the name */
             left: 50%; 
             transform: translateX(-50%); 
             color: #ffd700; 
@@ -2076,11 +2077,24 @@ window.openItemAction = function(index, e) {
 }
 
 window.actionEquip = function(e) { if (e) e.stopPropagation(); if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; let item = game.player.inventory[activeInvIndex]; if (item.type === 'material') { isEnhancing = true; dom.log.innerText = `Select equipment to enhance!`; window.renderInventory(); } else if (item.type === 'aura') { window.isApplyingAura = true; dom.log.innerText = `Select an Armor to apply the Aura!`; window.renderInventory(); } else { window.useItem(activeInvIndex); } document.getElementById('inv-context-menu').style.display = 'none'; }
-window.attemptApplyAura = function(targetIndex, e) { e.stopPropagation(); let stone = game.player.inventory[activeInvIndex]; let targetItem = game.player.inventory[targetIndex]; if (!stone || !targetItem || stone.type !== 'aura' || targetItem.type !== 'armor') { window.isApplyingAura = false; window.renderInventory(); dom.log.innerText = "Aura application cancelled."; return; } if (targetItem.aura) { dom.log.innerText = "That armor already has an aura! Extract it first."; window.isApplyingAura = false; window.renderInventory(); return; } targetItem.aura = stone.auraId; targetItem.originalName = targetItem.name; targetItem.name = "Lightning " + targetItem.name; stone.quantity = (stone.quantity || 1) - 1; if (stone.quantity <= 0) { game.player.inventory[activeInvIndex] = null; } dom.log.innerText = `Applied Lightning Aura to your armor!`; window.spawnWhiteSplash(game.player.x + 24, game.player.y + 48); window.isApplyingAura = false; window.updateEquipmentDisplay(); window.renderInventory(); DatabaseManager.savePlayerData(game.player); }
-window.extractAura = function(e) { if (e) e.stopPropagation(); if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; let item = game.player.inventory[activeInvIndex]; if (!item.aura) return; let emptySlot = game.player.inventory.findIndex(i => i === null); if (emptySlot === -1) { dom.log.innerText = "Inventory full! Cannot extract."; return; } let auraStone = { id: Date.now(), name: "Lightning Aura Stone", type: 'aura', auraId: item.aura, sprite: 'aurastone', level: 1, rarity: 'Legendary', color: '#00ffff', description: "Click to apply to an Armor. Purely cosmetic.", quantity: 1 }; item.name = item.originalName || item.name.replace("Lightning ", ""); delete item.aura; delete item.originalName; game.player.inventory[emptySlot] = auraStone; dom.log.innerText = "Aura extracted safely!"; document.getElementById('inv-context-menu').style.display = 'none'; window.updateEquipmentDisplay(); window.renderInventory(); DatabaseManager.savePlayerData(game.player); }
-window.actionSell = function(e) { 
+window.attemptApplyAura = function(targetIndex, e) { 
+    e.stopPropagation(); 
+    // 🛡️ THE FIX: Send the request to the server!
+    if (socket) socket.emit('requestApplyAura', { stoneIndex: activeInvIndex, targetIndex: targetIndex }); 
+    window.isApplyingAura = false; 
+    window.renderInventory(); 
+}
+
+window.extractAura = function(e) { 
     if (e) e.stopPropagation(); 
     if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; 
+    
+    // 🛡️ THE FIX: Send the request to the server!
+    if (socket) socket.emit('requestExtractAura', { targetIndex: activeInvIndex }); 
+    
+    document.getElementById('inv-context-menu').style.display = 'none'; 
+    activeInvIndex = -1;
+}
 
     let item = game.player.inventory[activeInvIndex];
     if (!item || !item.id) {
@@ -2498,9 +2512,9 @@ if(socket) {
             if(document.getElementById('player-name-tag')) document.getElementById('player-name-tag').innerText = game.player.name; 
             if(document.getElementById('ui-name-display')) document.getElementById('ui-name-display').innerText = game.player.name;
             
-            // 🛡️ APPLY TITLE ON LOGIN
+            // 🛡️ APPLY TITLE ON LOGIN (Now reads from the new Supabase column)
             if(document.getElementById('player-title-tag')) {
-                document.getElementById('player-title-tag').innerText = userData.base_stats?.title ? `<${userData.base_stats.title}>` : '';
+                document.getElementById('player-title-tag').innerText = userData.title ? `<${userData.title}>` : '';
             }
          
             game.player.level = userData.level || 1; 
@@ -3509,6 +3523,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
