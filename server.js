@@ -1832,11 +1832,15 @@ socket.on('saveData', async (playerData) => {
         m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
         
         // Server controls Freeze logic exclusively
-        if (p.baseStats?.playerClass === 'Ice Master' && p.level >= 25 && (payload.skillId === 'basic' || payload.skillId === 'ice1' || payload.skillId === 'ice3')) {
-            if (Math.random() < 0.25) m.frozenUntil = Date.now() + 3000;
-        }
+        let didFreeze = false;
+        if (p.baseStats?.playerClass === 'Ice Master' && p.level >= 25 && (payload.skillId === 'basic' || payload.skillId === 'ice1' || payload.skillId === 'ice3')) {
+            if (Math.random() < 0.25) {
+                m.frozenUntil = Date.now() + 3000;
+                didFreeze = true; // 🛡️ Flag it!
+            }
+        }
 
-        io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: isPendant });
+        io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: isPendant, didFreeze: didFreeze });
         
     if (m.currentHp <= 0) {
     m.alive = false;
@@ -3098,4 +3102,5 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
