@@ -1812,7 +1812,7 @@ window.updateAnimationFrames = function(state) {
 window.showAura = function(color) { const aura = document.getElementById('player-aura'); aura.className = `aura aura-${color}`; aura.style.animation = 'none'; void aura.offsetWidth; aura.style.animation = 'aura-burst 0.6s ease-out forwards'; }
 window.playVoice = function(className) { let hairPrefix = window.charData.hairStyle === 'none' ? 'none' : `hair${window.charData.hairStyle}`; let formattedClass = className.replace(/\s+/g, '').toLowerCase(); let audio = new Audio(`skills/${hairPrefix}_${formattedClass}.mp3`); audio.volume = 0.8; audio.play().catch(e => {}); }
 window.playBGM = function(trackName) { if (currentTrackName === trackName) return; if (currentBGM) { currentBGM.pause(); currentBGM.currentTime = 0; } currentTrackName = trackName; currentBGM = new Audio(`music/${trackName}.mp3`); currentBGM.loop = true; currentBGM.volume = 0.4; currentBGM.play().catch(e => {}); }
-window.playSFX = function(weaponSprite) { let sfx = 'bump'; if (weaponSprite && weaponSprite.includes('staff')) sfx = 'lightning'; if (weaponSprite && weaponSprite.includes('sword')) sfx = 'slash';if (weaponSprite && weaponSprite.includes('pendant')) sfx = 'splash'; let audio = new Audio(`music/${sfx}.mp3`); audio.volume = 0.5; audio.play().catch(e => {}); }
+window.playSFX = function(weaponSprite) { let sfx = 'slash'; if (weaponSprite && weaponSprite.includes('staff')) sfx = 'lightning'; if (weaponSprite && weaponSprite.includes('pendant')) sfx = 'splash'; let audio = new Audio(`music/${sfx}.mp3`); audio.volume = 0.5; audio.play().catch(e => {}); }
 
 // ==========================================
 // 5. INVENTORY & STATS
@@ -3402,31 +3402,3 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
