@@ -787,7 +787,7 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
         }
     }
 }
-
+}
 setInterval(() => {
     const now = Date.now();
     for (const instId of Object.keys(worlds)) {
@@ -3098,6 +3098,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
