@@ -109,6 +109,19 @@
         .entity { position: absolute; transition: filter 0.1s; z-index: 100;} 
         #player-container { z-index: 105; transition: opacity 0.3s; }
         .name-tag { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 1px 1px 0 #000; z-index: 20; pointer-events: none; }
+        .title-tag { 
+            position: absolute; 
+            top: -15px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            color: #ffd700; 
+            font-size: 11px; 
+            font-weight: bold; 
+            white-space: nowrap; 
+            text-shadow: 0 0 5px #ff9800, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; 
+            z-index: 20; 
+            pointer-events: none; 
+        }
         .mob-name { color: #f44336; top: -30px; font-size: 12px;}
         .player-avatar-container { pointer-events: none; transform-origin: center bottom; position: relative; width: 48px; height: 96px; }
         .player-avatar-container::after { content: ''; position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); width: 30px; height: 8px; background: rgba(0, 0, 0, 0.4); border-radius: 50%; z-index: -2; }
@@ -1156,6 +1169,7 @@
             
             <div id="player-container" class="entity" style="left: 960px; top: 1000px;">
                 <div id="player-name-tag" class="name-tag">Player</div>
+                <div id="player-title-tag" class="title-tag"></div>
                 <div id="player-avatar-container" class="player-avatar-container avatar-rig">
                     <div id="player-cosmetic-aura" class="cosmetic-aura"></div>
                     <div id="player-aura" class="aura"></div>
@@ -2441,6 +2455,9 @@ window.addRemotePlayer = function(pData) {
     container.style.left = (pData.x || 0) + 'px'; container.style.top = (pData.y || 0) + 'px'; container.style.zIndex = '104'; container.style.cursor = 'pointer';
     container.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); window.openPlayerContextMenu(pData.id, e); });
     const nameTag = document.createElement('div'); nameTag.className = 'name-tag'; nameTag.innerText = pData.name || pData.id; container.appendChild(nameTag);
+    const titleTag = document.createElement('div'); titleTag.className = 'title-tag'; 
+    if (pData.spriteData && pData.spriteData.title) titleTag.innerText = `<${pData.spriteData.title}>`;
+    container.appendChild(titleTag);
     const rig = document.createElement('div'); rig.className = 'player-avatar-container avatar-rig';
     const hair = new Image(); hair.className = 'avatar-layer layer-hair';
     const head = new Image(); head.className = 'avatar-layer layer-head'; head.src = 'animation/avatar_head.png';
@@ -2468,6 +2485,11 @@ window.removeRemotePlayer = function(id) { const p = game.remotePlayers[id]; if 
 // 8. SOCKET LISTENERS & UPDATES
 // ==========================================
 if(socket) {
+      socket.on('titleUnlocked', (title) => {
+        if(document.getElementById('player-title-tag')) {
+            document.getElementById('player-title-tag').innerText = `<${title}>`;
+        }
+    });
     socket.off('authSuccess'); // Kill old listeners
     socket.on('authSuccess', (userData) => {
         try {
@@ -2475,6 +2497,12 @@ if(socket) {
             game.player.name = userData.character_name || "Unknown"; 
             if(document.getElementById('player-name-tag')) document.getElementById('player-name-tag').innerText = game.player.name; 
             if(document.getElementById('ui-name-display')) document.getElementById('ui-name-display').innerText = game.player.name;
+            
+            // 🛡️ APPLY TITLE ON LOGIN
+            if(document.getElementById('player-title-tag')) {
+                document.getElementById('player-title-tag').innerText = userData.base_stats?.title ? `<${userData.base_stats.title}>` : '';
+            }
+         
             game.player.level = userData.level || 1; 
             game.player.exp = userData.exp || 0; 
             game.player.maxExp = userData.max_exp || 200; 
@@ -2800,7 +2828,11 @@ socket.on('forceTeleport', (tp) => {
             }); 
         }, 500); 
     });
-    socket.on('remotePlayerMoved', (data) => { if (!game.remotePlayers[data.id]) window.addRemotePlayer({ id: data.id, name: data.id, x: data.x, y: data.y, spriteData: {} }); const p = game.remotePlayers[data.id]; if (!p) return; p.x = data.x; p.y = data.y; p.dom.style.left = p.x + 'px'; p.dom.style.top = p.y + 'px'; p.rig.style.transform = data.facingRight ? 'scaleX(-1)' : 'scaleX(1)'; let pulseActive = (Math.floor(Date.now() / 250) % 2 === 0); let bodySrc = 'animation/avatar_idlefront.png'; let isAtk = false; if (data.state === 'attack') { bodySrc = 'animation/avatar_attack.png'; isAtk = true; } else if (data.state === 'walk') { bodySrc = pulseActive ? 'animation/avatar_walk.png' : 'animation/avatar_idlefront.png'; } if (p.currentBodySrc !== bodySrc) { p.body.src = bodySrc; p.currentBodySrc = bodySrc; } if (data.weaponSprite) { p.weapon.style.display = 'block'; let fixedWpn = data.weaponSprite.replace('starter', 'basic'); let wpnSrc = `weapon/${fixedWpn}${(data.state === 'attack' && isAtk && !fixedWpn.includes('pendant')) ? '_attack' : ''}.png`; if (p.currentWeaponSrc !== wpnSrc) { p.weapon.src = wpnSrc; p.currentWeaponSrc = wpnSrc; } if (!p.spriteData) p.spriteData = {}; p.spriteData.weapon = fixedWpn; } else { p.weapon.style.display = 'none'; p.currentWeaponSrc = ''; if (p.spriteData) p.spriteData.weapon = null; } const cAuraEl = p.rig.querySelector('.cosmetic-aura'); if (cAuraEl) cAuraEl.className = data.spriteData?.aura ? `cosmetic-aura aura-${data.spriteData.aura}` : 'cosmetic-aura'; });
+    socket.on('remotePlayerMoved', (data) => { if (!game.remotePlayers[data.id]) window.addRemotePlayer({ id: data.id, name: data.id, x: data.x, y: data.y, spriteData: {} }); const p = game.remotePlayers[data.id]; if (!p) return; p.x = data.x; p.y = data.y; p.dom.style.left = p.x + 'px'; p.dom.style.top = p.y + 'px'; p.rig.style.transform = data.facingRight ? 'scaleX(-1)' : 'scaleX(1)'; let pulseActive = (Math.floor(Date.now() / 250) % 2 === 0); let bodySrc = 'animation/avatar_idlefront.png'; let isAtk = false; if (data.state === 'attack') { bodySrc = 'animation/avatar_attack.png'; isAtk = true; } else if (data.state === 'walk') { bodySrc = pulseActive ? 'animation/avatar_walk.png' : 'animation/avatar_idlefront.png'; } if (p.currentBodySrc !== bodySrc) { p.body.src = bodySrc; p.currentBodySrc = bodySrc; } if (data.weaponSprite) { p.weapon.style.display = 'block'; let fixedWpn = data.weaponSprite.replace('starter', 'basic'); let wpnSrc = `weapon/${fixedWpn}${(data.state === 'attack' && isAtk && !fixedWpn.includes('pendant')) ? '_attack' : ''}.png`; if (p.currentWeaponSrc !== wpnSrc) { p.weapon.src = wpnSrc; p.currentWeaponSrc = wpnSrc; } if (!p.spriteData) p.spriteData = {}; p.spriteData.weapon = fixedWpn; } else { p.weapon.style.display = 'none'; p.currentWeaponSrc = ''; if (p.spriteData) p.spriteData.weapon = null; } const cAuraEl = p.rig.querySelector('.cosmetic-aura'); if (cAuraEl) cAuraEl.className = data.spriteData?.aura ? `cosmetic-aura aura-${data.spriteData.aura}` : 'cosmetic-aura'; const titleEl = p.dom.querySelector('.title-tag');
+        if (titleEl) {
+            titleEl.innerText = data.spriteData?.title ? `<${data.spriteData.title}>` : '';
+        }
+        });
     socket.on('inspectData', (data) => { if (!data) return; dom.inspect.style.display = 'block'; dom.inspectTitle.innerText = `Inspect: ${data.name || data.id || "Unknown"}`; const equips = data.equips || {}; const slots = [ { key: 'weapon', label: 'Weapon' }, { key: 'armor', label: 'Armor' }, { key: 'leggings', label: 'Leggings' } ]; function fmtStatBlock(item) { if (!item) return `<div class="inspect-empty">None</div>`; const rarityColor = item.color || (window.RARITY_COLORS[item.rarity] || "#fff"); const nameClass = item.rarity === "Godly" ? "rarity-godly" : ""; const displayName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name; let html = `<div class="inspect-title"><div class="inspect-item-name ${nameClass}" style="color:${rarityColor};">${displayName}</div><div class="inspect-sub">Lv.${item.level || 1} ${item.rarity || "Unknown"}</div></div><div class="inspect-stat">`; if (item.fixedStat) { for (const k in item.fixedStat) html += `<div><b>Fixed:</b> +${item.fixedStat[k]} ${k.toUpperCase()}</div>`; } if (item.randomStat) { for (const k in item.randomStat) html += `<div><b>Random:</b> +${item.randomStat[k]} ${k.toUpperCase()}</div>`; } if (item.sprite) { html += `<div style="color:#888; margin-top:6px;">Sprite: ${item.sprite}.png</div>`; } html += `</div>`; return html; } let out = `<div style="font-size:14px; color:#ccc; margin-bottom:10px; text-align:center;">Level ${data.level || 1} &nbsp; | &nbsp; HP ${data.currentHp ?? "?"} / ${data.maxHp ?? "?"}</div>`; slots.forEach(s => { out += `<div class="inspect-equip"><div style="font-weight:bold; color:#ffeb3b; margin-bottom:6px;">${s.label}</div>${fmtStatBlock(equips[s.key])}</div>`; }); dom.inspectContent.innerHTML = out; });
     socket.on('partyInviteReceived', (payload) => { pendingPartyInvite = payload?.fromId || "Unknown"; document.getElementById('invite-text').innerText = `${pendingPartyInvite} invited you to a party.`; document.getElementById('invite-dialog').style.display = 'block'; });
     socket.on('tradeInviteReceived', (payload) => { pendingTradeInvite = payload?.fromId || "Unknown"; document.getElementById('trade-text').innerText = `${pendingTradeInvite} wants to trade.`; document.getElementById('trade-dialog').style.display = 'block'; });
@@ -3138,8 +3170,12 @@ socket.on('monsterAttack', (data) => {
     });
     socket.on('monsterDied', (data) => { if (!data || !game.monsters[data.monsterId]) return; game.monsters[data.monsterId].alive = false; const mEl = document.getElementById('mob_' + data.monsterId); if(mEl) mEl.style.display = 'none'; window.updateUI(); });
     socket.on('monsterSpawned', (m) => { if (!m || safeMapData.id === 'town') return; game.monsters[m.id] = m; const mEl = document.getElementById('mob_' + m.id); if(mEl) mEl.style.display = 'flex'; });
-    socket.on('lootDropped', (item) => { if (item) window.addLoot(item); });
-}
+    socket.on('lootDropped', (item) => { 
+        if (!item) return;
+        // 🛡️ THE FIX: Only update the text! The item is already safely handled by syncInventory.
+        let qtyStr = item.quantity > 1 ? ` (x${item.quantity})` : '';
+        if (dom && dom.log) dom.log.innerText = `Looted: ${item.name}${qtyStr}!`; 
+    });
 
 // ==========================================
 // 9. PERFORMANCE, FPS & PWA
@@ -3473,6 +3509,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
