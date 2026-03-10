@@ -2080,7 +2080,17 @@ window.actionSell = function(e) {
     document.getElementById('inv-context-menu').style.display = 'none'; 
     activeInvIndex = -1;
 }
-window.actionThrow = function(e) { if (e) e.stopPropagation(); if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; dom.log.innerText = `Threw away ${game.player.inventory[activeInvIndex].name}.`; game.player.inventory[activeInvIndex] = null; activeInvIndex = -1; window.renderInventory(); DatabaseManager.savePlayerData(game.player); document.getElementById('inv-context-menu').style.display = 'none'; }
+window.actionThrow = function(e) { 
+    if (e) e.stopPropagation(); 
+    if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; 
+    
+    // 🛡️ THE FIX: Tell the server to delete and save instantly
+    if (socket) socket.emit('requestThrowItem', { index: activeInvIndex });
+    
+    dom.log.innerText = `Threw away item.`;
+    document.getElementById('inv-context-menu').style.display = 'none'; 
+    activeInvIndex = -1;
+}
 window.unequipItem = function(slot) {
     const eq = window.sanitizeEquippedItem(game.player.equips[slot], slot);
     if (!eq) return;
@@ -2131,38 +2141,18 @@ window.useItem = function(index) {
         return;
     }
 
-    if (item.type === 'potion') {
-        if (socket) socket.emit('useInventoryItem', { index });
+    // 🛡️ THE FIX: Let the server handle ALL usable items instantly!
+    if (['potion', 'consumable', 'weapon', 'armor', 'leggings'].includes(item.type)) {
+        if (item.name === "Revival Juice") {
+            window.useRevivalJuice(index);
+        } else {
+            if (socket) socket.emit('useInventoryItem', { index });
+        }
         return;
     }
 
-    if (item.type === 'consumable' && item.name === "Revival Juice") {
-        window.useRevivalJuice(index);
-        return;
-    }
-
-    if (item.type === 'consumable' && item.name === "Class Reset Book") {
-        if (socket) socket.emit('useInventoryItem', { index });
-        return;
-    }
-
-    if (!['weapon', 'armor', 'leggings'].includes(item.type)) {
-        dom.log.innerText = "That item cannot be equipped.";
-        return;
-    }
-
-    const sanitizedIncoming = window.sanitizeEquippedItem(item, item.type);
-    if (!sanitizedIncoming) {
-        dom.log.innerText = "Invalid item data.";
-        return;
-    }
-
-    const currentEquip = window.sanitizeEquippedItem(game.player.equips[item.type], item.type);
-
-    game.player.equips[item.type] = sanitizedIncoming;
-    game.player.inventory[index] = currentEquip;
-
-    dom.log.innerText = `Equipped ${sanitizedIncoming.name}!`;
+    dom.log.innerText = "That item cannot be equipped.";
+};
     window.updateEquipmentDisplay();
     window.emitVitalsIfNeeded(true);
     window.updateSkillMenu();
@@ -2243,7 +2233,7 @@ window.adminGiveCustomItem = function() {
     let l = parseInt(document.getElementById('admin-item-level').value) || 1; 
     let e = parseInt(document.getElementById('admin-item-enhance').value) || 0; 
     
-    // 🛡️ THE FIX: Send request to the backend so it saves permanently
+    // 🛡️ THE FIX: Request the item from the server so it gets validated and saved!
     if (socket) socket.emit('adminSpawnItem', { rarity: r, type: t, level: l, enhanceLevel: e }); 
 }
 
@@ -3470,6 +3460,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
