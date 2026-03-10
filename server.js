@@ -115,14 +115,7 @@ function sanitizeEquips(equips) {
 
 function sanitizeBaseStats(baseStats) {
     const fallback = {
-        hp: 100,
-        attack: 5,
-        magic: 5,
-        defense: 2,
-        speed: 1,
-        str: 10,
-        int: 10,
-        playerClass: null
+        hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null, title: null
     };
 
     const safe = Object.assign({}, fallback, (baseStats && typeof baseStats === 'object') ? baseStats : {});
@@ -134,6 +127,7 @@ function sanitizeBaseStats(baseStats) {
     safe.str = clamp(safe.str, 0, 999999);
     safe.int = clamp(safe.int, 0, 999999);
     safe.playerClass = safe.playerClass || null;
+    safe.title = safe.title || null; // 🛡️ Ensure title is kept!
     return safe;
 }
 
@@ -1505,6 +1499,7 @@ socket.on('login', async (data) => {
             style: safeUser.hair_style,
             weapon: safeUser.equips.weapon?.sprite || null,
             aura: safeUser.equips.armor?.aura || null
+            title: safeUser.base_stats?.title || null
         },
         lootFilter: {
             Starter: true,
@@ -1867,7 +1862,35 @@ socket.on('saveData', async (playerData) => {
                 }
                 targetPlayer.inventory = inv;
             }
-
+if (m.category === "floor_boss" && targetPlayer.mapId) {
+                const match = targetPlayer.mapId.match(/floor(\d+)/i);
+                const killedFloorNum = match ? parseInt(match[1]) : null;
+                
+                if (killedFloorNum) {
+                    let currentHighestFloor = 0;
+                    const existingTitle = targetPlayer.baseStats.title;
+                    
+                    // Extract the floor number if they already have this title
+                    if (existingTitle && existingTitle.startsWith('FLOOR CONQUEROR')) {
+                        const parts = existingTitle.split(' ');
+                        currentHighestFloor = parseInt(parts[2]) || 0;
+                    }
+                    
+                    // Only upgrade if they beat a HIGHER floor boss
+                    if (killedFloorNum > currentHighestFloor) {
+                        const newTitle = `FLOOR CONQUEROR ${killedFloorNum}`;
+                        targetPlayer.baseStats.title = newTitle;
+                        
+                        if (!targetPlayer.spriteData) targetPlayer.spriteData = {};
+                        targetPlayer.spriteData.title = newTitle;
+                        
+                        if (targetSid) {
+                            io.to(targetSid).emit('titleUnlocked', newTitle);
+                            io.to(targetSid).emit('systemMessage', `👑 Title Upgraded: <${newTitle}>!`);
+                        }
+                    }
+                }
+            }
             // 🛡️ INSTANT SUPABASE SAVE: Locks the item in permanently before the client even sees it!
             supabase.from('Exonians').update({
                 gold: targetPlayer.gold,
@@ -3185,6 +3208,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
