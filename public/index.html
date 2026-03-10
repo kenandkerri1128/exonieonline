@@ -1278,7 +1278,19 @@ window.game = {
     monsters: {}, remotePlayers: {}, party: null 
 };
 
-const DatabaseManager = { savePlayerData: function(playerObj) { playerObj.mapId = safeMapData.id || 'town'; playerObj.maxHp = window.getMaxHp(); if(socket) socket.emit('saveData', playerObj); if(socket) socket.emit('playerEquipUpdate', { equips: playerObj.equips }); } };
+const DatabaseManager = { 
+    saveTimer: null,
+    savePlayerData: function(playerObj) { 
+        playerObj.mapId = safeMapData.id || 'town'; 
+        playerObj.maxHp = window.getMaxHp(); 
+        
+        clearTimeout(this.saveTimer);
+        this.saveTimer = setTimeout(() => {
+            if(socket) socket.emit('saveData', playerObj); 
+            if(socket) socket.emit('playerEquipUpdate', { equips: playerObj.equips }); 
+        }, 600);
+    } 
+};
 const skinFilters = { 'flesh': 'sepia(1) hue-rotate(-25deg) saturate(2.5) brightness(1.1)', 'yellow': 'sepia(1) hue-rotate(15deg) saturate(3) brightness(1.2)', 'green': 'sepia(1) hue-rotate(75deg) saturate(2) brightness(1)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2) brightness(1)', 'white': 'grayscale(1) brightness(1.8) contrast(0.9)' };
 const hairFilters = { 'black': 'brightness(0.2)', 'blonde': 'sepia(1) hue-rotate(15deg) saturate(3) brightness(1.5)', 'brown': 'sepia(1) hue-rotate(330deg) saturate(2) brightness(0.6)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2) brightness(1)', 'white': 'grayscale(1) brightness(1.8) contrast(0.9)' };
 window.charData = { skinColor: 'flesh', hairColor: 'black', hairStyle: '1' }; 
@@ -1883,6 +1895,7 @@ window.getBaseStat = function(lvl) { if (lvl >= 50) return 100; if (lvl >= 45) r
 window.addLoot = function(item) {
     if (!item) return;
 
+    // 🛡️ YOUR LOOT FILTER STAYS HERE: Checks the UI boxes first!
     if (!window.acceptsLootRarity(item)) {
         if (dom.log) dom.log.innerText = `Ignored ${item.rarity || 'Basic'} drop: ${item.name}`;
         return;
@@ -1897,7 +1910,9 @@ window.addLoot = function(item) {
             game.player.inventory[existingIndex].quantity += item.quantity;
             dom.log.innerText = `Looted: ${item.name} (x${game.player.inventory[existingIndex].quantity})!`;
             if (isInventoryOpen) window.renderInventory();
-            if (['Unique', 'Legendary', 'Godly'].includes(item.rarity)) DatabaseManager.savePlayerData(game.player);
+            
+            // 🛡️ THE FIX: Removed the hardcoded rarity block. If the filter allowed it, SAVE IT.
+            DatabaseManager.savePlayerData(game.player);
             return;
         }
     }
@@ -1908,7 +1923,9 @@ window.addLoot = function(item) {
         game.player.inventory[emptySlot] = item;
         dom.log.innerText = `Looted: ${item.name}!`;
         if (isInventoryOpen) window.renderInventory();
-        if (['Unique', 'Legendary', 'Godly'].includes(item.rarity)) DatabaseManager.savePlayerData(game.player);
+        
+        // 🛡️ THE FIX: Removed the hardcoded rarity block. If the filter allowed it, SAVE IT.
+        DatabaseManager.savePlayerData(game.player);
     } else {
         dom.log.innerText = `Inventory full! Lost ${item.name}.`;
     }
@@ -3395,5 +3412,6 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
