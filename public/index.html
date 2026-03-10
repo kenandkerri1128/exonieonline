@@ -3024,44 +3024,37 @@ socket.on('monsterAttack', (data) => {
     hitSound.volume = 0.4;
     hitSound.play().catch(e => {});
 
-    if (hitPet) {
+ if (hitPet) {
         const serverAtk = Number(data.atk || m.atk || 25);
         const petDef = Math.floor(window.getDefense() * 0.25);
         const actualDmg = Math.max(1, serverAtk - petDef);
         hitPet.hp -= actualDmg;
         window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, actualDmg, '#ff0000');
-    }
-});
-    socket.on('playerDamaged', (data) => {
-    if (!data) return;
-
-    if (data.id === game.player.id) {
-        const now = Date.now();
-
-        if (now < game.player.untargetableUntil) return;
-
-        game.player.currentHp = Math.max(0, Number(data.currentHp || 0));
-
+    } else if (targetId === game.player.id) {
+        // 🛡️ THE FIX: Apply the server's damage to the LOCAL player!
+        game.player.currentHp = Math.max(0, data.newHp);
+        
         if (data.damage > 0) {
             window.spawnDamageText(game.player.x + 24, game.player.y - 10, data.damage, '#f44336');
             window.spawnSpark(game.player.x + 24, game.player.y + 48);
         }
-
-        if (game.player.currentHp <= 0 && now < game.player.immortalUntil) {
+        
+        // Enforce Berserker Immortal Buff locally so UI doesn't break
+        if (game.player.currentHp <= 0 && Date.now() < game.player.immortalUntil) {
             game.player.currentHp = 1;
             window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMORTAL", '#ffeb3b');
         }
-
+        
         window.updateUI();
-        window.emitVitalsIfNeeded(true);
-        return;
+    } else if (game.remotePlayers[targetId]) {
+        // 🛡️ THE FIX: Show damage text when remote players get hit!
+        const rp = game.remotePlayers[targetId];
+        if (data.damage > 0) {
+            window.spawnDamageText(rp.x + 24, rp.y - 10, data.damage, '#f44336');
+            window.spawnSpark(rp.x + 24, rp.y + 48);
+        }
     }
-
-    if (game.remotePlayers[data.id]) {
-        const rp = game.remotePlayers[data.id];
-        window.spawnDamageText(rp.x + 24, rp.y - 10, data.damage || 0, '#f44336');
-    }
-});
+}); 
 
     socket.on('monsterSkill', (data) => { if (data.skillName === 'Earthquake') { const gameContainer = document.getElementById('game-container'); gameContainer.classList.add('screen-shake'); setTimeout(() => gameContainer.classList.remove('screen-shake'), 500); const ring = document.createElement('div'); ring.className = 'earthquake-ring'; ring.style.left = (data.x - data.radius) + 'px'; ring.style.top = (data.y - data.radius) + 'px'; ring.style.width = (data.radius * 2) + 'px'; ring.style.height = (data.radius * 2) + 'px'; document.getElementById('world').appendChild(ring); setTimeout(() => ring.remove(), 800); } });
     socket.on('monsterHit', (data) => { if (!data || !game.monsters[data.monsterId]) return; const m = game.monsters[data.monsterId]; m.currentHp = data.newHp; m.maxHp = data.maxHp || m.maxHp; const mCenterX = m.x + (m.width / 2); const mCenterY = m.y + (m.height / 2); window.spawnDamageText(mCenterX, m.y - 10, data.damage, '#fff'); if (data.isPendant) window.spawnWhiteSplash(mCenterX, mCenterY); else window.spawnSpark(mCenterX, mCenterY); const mEl = document.getElementById('mob_' + m.id); if(mEl) { mEl.classList.add('hit-flash'); setTimeout(() => mEl.classList.remove('hit-flash'), 100); } window.updateUI(); });
@@ -3402,4 +3395,5 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
