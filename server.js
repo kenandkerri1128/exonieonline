@@ -1494,13 +1494,13 @@ socket.on('login', async (data) => {
         baseStats: safeUser.base_stats,
         gold: safeUser.gold || 0,
         title: safeUser.title || null, // 🛡️ Load from the new DB column
-        spriteData: {
+      spriteData: {
             skin: safeUser.skin_color,
             hair: safeUser.hair_color,
             style: safeUser.hair_style,
             weapon: safeUser.equips.weapon?.sprite || null,
             aura: safeUser.equips.armor?.aura || null,
-            title: safeUser.title || null  // 🛡️ Sync to other players
+            title: safeUser.title || null
         },
         lootFilter: {
             Starter: true,
@@ -3279,6 +3279,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
