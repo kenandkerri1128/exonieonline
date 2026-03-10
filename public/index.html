@@ -1868,10 +1868,8 @@ window.sanitizeEquippedItem = function(item, expectedSlot) {
 
     const clean = JSON.parse(JSON.stringify(item));
 
-    const rarity = clean.rarity || 'Basic';
-    const maxEnh = window.MAX_ENHANCE_BY_RARITY[rarity] ?? 0;
-    const enh = Math.max(0, Math.min(Number(clean.enhanceLevel || 0), maxEnh));
-    clean.enhanceLevel = enh;
+    // 🛡️ REMOVED: The frontend MAX_ENHANCE clamp is gone. It just reads whatever the item has.
+    clean.enhanceLevel = Number(clean.enhanceLevel || 0);
 
     if (!clean.fixedStat || typeof clean.fixedStat !== 'object') clean.fixedStat = {};
     if (!clean.randomStat || typeof clean.randomStat !== 'object') clean.randomStat = {};
@@ -2627,7 +2625,7 @@ socket.on('mailList', (mails) => {
     socket.on('purchaseSuccess', (data) => { game.player.gold = data.newGold; game.player.inventory = data.inventory; window.updateUI(); window.renderInventory(); dom.log.innerText = "Purchase successful!"; });
     socket.on('sellSuccess', (data) => { game.player.gold = data.newGold; game.player.inventory = data.inventory; dom.log.innerText = `Item sold for ${data.price} Gold.`; window.updateUI(); window.renderInventory(); });
     socket.on('syncInventory', (serverInventory) => { game.player.inventory = serverInventory; window.updateEquipmentDisplay(); window.renderInventory(); });
-    socket.on('inventoryItemUsed', (data) => {
+   socket.on('inventoryItemUsed', (data) => {
     if (!data) return;
 
     if (Array.isArray(data.inventory)) {
@@ -2636,6 +2634,13 @@ socket.on('mailList', (mails) => {
 
     if (typeof data.currentHp === 'number') {
         game.player.currentHp = data.currentHp;
+    }
+
+    // 🛡️ THE FIX: If the server hands us new equips, apply them to the screen instantly!
+    if (data.equips) {
+        game.player.equips = data.equips;
+        window.updateEquipmentDisplay();
+        window.updateSkillMenu();
     }
 
     if (data.classReset) {
@@ -3463,6 +3468,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
