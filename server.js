@@ -3005,6 +3005,18 @@ socket.on('useRevivalJuice', async (data) => {
     const pid = playerParty[p.id];
     if (pid) emitPartyUpdate(pid);
 });
+    socket.on('requestThrowItem', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || typeof data?.index !== 'number') return;
+        
+        const inv = p.inventory || [];
+        if (inv[data.index]) {
+            inv[data.index] = null;
+            p.inventory = inv;
+            await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
+            socket.emit('syncInventory', p.inventory);
+        }
+    });
 socket.on('adminSpawnItem', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || p.id !== "Kei") return; // 🛡️ Security Check
@@ -3148,7 +3160,17 @@ socket.on('requestSell', async (data) => {
                 saveMap = 'town'; saveX = 960; saveY = 1000;
             }
             
-            supabase.from('Exonians').update({ map_id: saveMap, pos_x: saveX, pos_y: saveY }).eq('character_name', p.id).then(()=>{});
+           // 🛡️ THE FIX: Save the entire server cache to the DB so nothing is lost on refresh!
+            supabase.from('Exonians').update({ 
+                map_id: saveMap, 
+                pos_x: saveX, 
+                pos_y: saveY,
+                inventory: p.inventory,
+                equips: p.equips,
+                base_stats: p.baseStats,
+                gold: p.gold,
+                current_hp: p.currentHp
+            }).eq('character_name', p.id).then(()=>{});
             delete onlinePlayers[socket.id];
             
             checkAndResetInstance(oldInstId); 
@@ -3157,6 +3179,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
