@@ -384,21 +384,27 @@ function ensureWorldFromMapData(instanceId, mapData) {
             pets: {}
         };
 
-        const processSpawns = (spawnList, fallbackKey) => {
-            (spawnList || []).forEach((sp, i) => {
+        const processSpawns = async (spawnList, fallbackKey) => { // Added 'async'
+            for (let i = 0; i < (spawnList || []).length; i++) {
+                const sp = spawnList[i];
                 const mKey = sp.monsterKey || fallbackKey;
 
-                // 🛡️ CHECK IF THIS FLOOR'S BOSS IS ON COOLDOWN
+                // 🛡️ SUPABASE-LIVE CHECK
                 if (mKey.includes('floor_boss')) {
-                    const mapId = instanceId.split('_')[0]; // Extract the floor name from the instance ID
-                    const lastDeath = bossTimers[mapId];
+                    const floorId = instanceId.split('_')[0]; 
+                    
+                    // Fetch directly from DB to see if you deleted the row
+                    const { data: timer } = await supabase.from('Boss_Timers')
+                        .select('last_death_time')
+                        .eq('boss_id', floorId)
+                        .single();
 
-                    if (lastDeath) {
+                    if (timer) {
                         const now = Date.now();
                         const oneDay = 24 * 60 * 60 * 1000;
-                        if (now - lastDeath < oneDay) {
-                            console.log(`[SPAWN BLOCKED] ${mapId} boss is still on cooldown.`);
-                            return; // 🛑 Don't spawn the boss on this floor yet
+                        if (now - parseInt(timer.last_death_time) < oneDay) {
+                            console.log(`[WORLD] ${floorId} boss is on cooldown. Skipping spawn.`);
+                            continue; // Skip spawning this boss
                         }
                     }
                 }
@@ -408,7 +414,7 @@ function ensureWorldFromMapData(instanceId, mapData) {
                     spawnArea: { minX: sp.x, maxX: sp.x, minY: sp.y, maxY: sp.y },
                     level: sp.level
                 });
-            });
+            }
         };
         processSpawns(mapData.normalSpawns, 'common_mobs1');
         processSpawns(mapData.miniBossSpawns, 'mini_boss1');
@@ -1954,25 +1960,25 @@ socket.on('saveData', async (playerData) => {
         } else {
             processRewards(p, socket.id);
         }
-// 🛡️ FLOOR-BASED 24-HOUR BOSS DEATH LOGIC
+// 🛡️ HARD-SAVE TO SUPABASE
         if (m.category === "floor_boss") {
+            const floorId = p.mapId;
             const deathTime = Date.now();
-            const floorId = p.mapId; // 📍 Track death by the FLOOR ID (e.g., 'floor1')
-            
-            bossTimers[floorId] = deathTime; 
-            
-            // Save to database using the Floor ID as the primary key
-            supabase.from('Boss_Timers').upsert({ 
+
+            // We use await to ensure it hits the DB before the code continues
+            const { error } = await supabase.from('boss_timers').upsert({ 
                 boss_id: floorId, 
                 last_death_time: deathTime 
-            }).then(() => {
-                console.log(`[DATABASE] Boss for ${floorId} saved to cooldown.`);
-            });
+            }, { onConflict: 'boss_id' });
 
-            m.respawnDelayMs = -1; // Disable local instance respawn
-            
-            const nextSpawn = new Date(deathTime + (24 * 60 * 60 * 1000)).toLocaleString();
-            io.emit('systemMessage', `<span style="color:#f44336; font-weight:bold;">⚠️ [WORLD] The boss of ${floorId.toUpperCase()} has been slain! Respawns globally in 24 hours (around ${nextSpawn}).</span>`);
+            if (error) {
+                console.error("CRITICAL: Boss timer failed to save to Supabase!", error.message);
+            } else {
+                console.log(`SUCCESS: ${floorId} timer is now visible in Supabase dashboard.`);
+            }
+
+            m.respawnDelayMs = -1;
+            io.emit('systemMessage', `🏆 [WORLD] ${floorId.toUpperCase()} Boss Defeated!`);
         }
         // Respawn Logic
         if (m.respawnDelayMs !== -1) {
@@ -3320,6 +3326,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
