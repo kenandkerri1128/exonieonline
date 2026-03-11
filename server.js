@@ -1822,9 +1822,20 @@ socket.on('saveData', async (playerData) => {
                 trueDmg = Math.floor(serverAtkPwr * 6); // 3 icicles * 2x damage = 6x total
                 p.skillCooldowns['ice3'] = now + 98000; // 100s CD
             }
-        } else if (payload.skillId === 'pet') {
-            trueDmg = Math.floor(serverAtkPwr * 0.25);
-        }
+      } else if (payload.skillId === 'pet') {
+            const world = worlds[p.instanceId];
+            const pet = world.pets[payload.petId]; 
+            
+            // 🛡️ SUMMONER STAT FIX: Use Magic Attack for pet damage
+            const serverMagicAtk = getServerMagicAttack(p);
+            
+            let multiplier = 0.25; // Base 25% of Magic Attack
+            if (pet && pet.enhancedUntil && Date.now() < pet.enhancedUntil) {
+                multiplier = 1.0; // Buffed to 100% of Magic Attack
+            }
+            
+            trueDmg = Math.floor(serverMagicAtk * multiplier);
+        }
 
         const dmg = Math.max(1, trueDmg - (m.def || 0)); 
         m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
@@ -3373,6 +3384,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
