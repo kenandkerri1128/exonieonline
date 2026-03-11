@@ -1949,10 +1949,13 @@ socket.on('saveData', async (playerData) => {
                     }
                 }
             }
-            // 🛡️ INSTANT SUPABASE SAVE: Locks the item in permanently before the client even sees it!
             supabase.from('Exonians').update({
                 gold: targetPlayer.gold,
                 exp: targetPlayer.exp,
+                level: targetPlayer.level,           // 🛡️ ADDED: Instantly saves new level
+                max_exp: targetPlayer.maxExp,        // 🛡️ ADDED: Instantly saves max EXP
+                base_stats: targetPlayer.baseStats,  // 🛡️ ADDED: Instantly saves the new HP/STR/INT
+                current_hp: targetPlayer.currentHp,  // 🛡️ ADDED: Updates HP
                 inventory: targetPlayer.inventory,
                 title: targetPlayer.title
             }).eq('character_name', targetPlayer.id).then(() => {});
@@ -3384,6 +3387,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
