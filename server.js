@@ -25,7 +25,7 @@ const playerParty = {};    
 const bossTimers = {}; 
 
 // Initial load from Supabase
-supabase.from('Boss_Timers').select('*').then(({data}) => {
+supabase.from('boss_timers').select('*').then(({data}) => {
     if (data) data.forEach(row => bossTimers[row.boss_id] = parseInt(row.last_death_time));
 });
 // ==========================================
@@ -389,12 +389,12 @@ function ensureWorldFromMapData(instanceId, mapData) {
                 const sp = spawnList[i];
                 const mKey = sp.monsterKey || fallbackKey;
 
-                // 🛡️ SUPABASE-LIVE CHECK
+              // 🛡️ SUPABASE-LIVE CHECK
                 if (mKey.includes('floor_boss')) {
                     const floorId = instanceId.split('_')[0]; 
                     
                     // Fetch directly from DB to see if you deleted the row
-                    const { data: timer } = await supabase.from('Boss_Timers')
+                    const { data: timer } = await supabase.from('boss_timers')
                         .select('last_death_time')
                         .eq('boss_id', floorId)
                         .single();
@@ -3326,6 +3326,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
