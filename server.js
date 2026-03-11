@@ -21,6 +21,14 @@ const onlinePlayers = {}; 
 const parties = {};        
 const playerParty = {};    
 
+// 🛡️ BOSS TIMERS MEMORY CACHE
+const bossTimers = {}; 
+// Load previous deaths from database on server startup
+supabase.from('Boss_Timers').select('*').then(({data, error}) => {
+    if (!error && data) {
+        data.forEach(row => bossTimers[row.boss_id] = parseInt(row.last_death_time));
+    }
+});
 // ==========================================
 // LOOT, GOLD & STAT GENERATION ENGINE
 // ==========================================
@@ -379,9 +387,21 @@ function ensureWorldFromMapData(instanceId, mapData) {
 
         const processSpawns = (spawnList, fallbackKey) => {
             (spawnList || []).forEach((sp, i) => {
-                const mId = `${instanceId}_mob_${Date.now()}_${i}_${Math.random()}`;
                 const mKey = sp.monsterKey || fallbackKey;
 
+                // 🛡️ 24-HOUR RESPAWN CHECK
+                if (fallbackKey === 'floor_boss1') {
+                    const lastDeath = bossTimers[mKey];
+                    if (lastDeath) {
+                        const now = Date.now();
+                        const oneDay = 24 * 60 * 60 * 1000; // 24 Hours in milliseconds
+                        if (now - lastDeath < oneDay) {
+                            return; // 🛑 Timer hasn't finished, SKIP spawning this boss!
+                        }
+                    }
+                }
+
+                const mId = `${instanceId}_mob_${Date.now()}_${i}_${Math.random()}`;
                 worlds[instanceId].monsters[mId] = spawnMonster(instanceId, mId, mKey, {
                     spawnArea: {
                         minX: sp.x,
@@ -1938,7 +1958,24 @@ socket.on('saveData', async (playerData) => {
         } else {
             processRewards(p, socket.id);
         }
+// 🛡️ 24-HOUR BOSS DEATH LOGIC
+        if (m.category === "floor_boss") {
+            const deathTime = Date.now();
+            const bossId = m.originalKey || m.monsterKey;
+            
+            bossTimers[bossId] = deathTime; // Save to quick memory
+            
+            // Save to database in the background
+            supabase.from('Boss_Timers').upsert({ 
+                boss_id: bossId, 
+                last_death_time: deathTime 
+            }).then(() => {});
 
+            m.respawnDelayMs = -1; // Stops the standard 10-second respawn
+            
+            const nextSpawn = new Date(deathTime + (24 * 60 * 60 * 1000)).toLocaleString();
+            io.emit('systemMessage', `<span style="color:#f44336; font-weight:bold;">⚠️ [WORLD] ${m.name} has been slain! It will respawn in 24 hours (around ${nextSpawn}).</span>`);
+        }
         // Respawn Logic
         if (m.respawnDelayMs !== -1) {
             setTimeout(() => {
@@ -3285,6 +3322,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
