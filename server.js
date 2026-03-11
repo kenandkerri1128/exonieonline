@@ -1525,6 +1525,8 @@ socket.on('login', async (data) => {
         x: 960,
         y: 1000,
         level: safeUser.level || 1,
+        exp: safeUser.exp || 0,                 // 🛡️ THE FIX: Load EXP into server RAM
+        maxExp: safeUser.max_exp || 200,        // 🛡️ THE FIX: Load Max EXP into server RAM
         currentHp: clamp(safeUser.current_hp || trueMaxHp, 0, trueMaxHp),
         maxHp: trueMaxHp,
         tradeTarget: null,
@@ -1532,7 +1534,7 @@ socket.on('login', async (data) => {
         equips: safeUser.equips,
         baseStats: safeUser.base_stats,
         gold: safeUser.gold || 0,
-        title: safeUser.title || null, // 🛡️ Load from the new DB column
+        title: safeUser.title || null,
       spriteData: {
             skin: safeUser.skin_color,
             hair: safeUser.hair_color,
@@ -3371,6 +3373,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
