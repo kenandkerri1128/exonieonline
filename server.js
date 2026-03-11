@@ -1575,33 +1575,14 @@ socket.on('saveData', async (playerData) => {
     if (p.lastSaveTime && now - p.lastSaveTime < 500) return;
     p.lastSaveTime = now;
 
-    // 🛡️ 1. ONLY ACCEPT MOVEMENT DATA FROM THE FRONTEND
     const safeMapId = typeof playerData.mapId === 'string' ? playerData.mapId : p.mapId;
     const safeX = typeof playerData.x === 'number' ? playerData.x : p.x;
     const safeY = typeof playerData.y === 'number' ? playerData.y : p.y;
 
-    // 🛡️ 2. CLAMP GOLD & STATS (Protects against EXP/Gold hacking)
-    let safeGold = typeof playerData.gold === 'number' ? playerData.gold : (p.gold || 0);
-    if (safeGold > (p.gold || 0) + 50000 && p.id !== "Kei") {
-        console.log(`[HACK BLOCKED] ${p.id} tried to inject ${safeGold - (p.gold || 0)} gold.`);
-        safeGold = p.gold || 0;
+    if (playerData.baseStats && playerData.baseStats.playerClass) {
+        p.baseStats.playerClass = String(playerData.baseStats.playerClass);
     }
 
-    let safeLevel = clamp(typeof playerData.level === 'number' ? playerData.level : (p.level || 1), 1, 50);
-    let safeBaseStats = sanitizeBaseStats(playerData.baseStats || p.baseStats || {});
-
-    if (p.id !== "Kei") {
-        safeBaseStats.str = clamp(safeBaseStats.str, 0, 150);
-        safeBaseStats.int = clamp(safeBaseStats.int, 0, 150);
-        safeBaseStats.hp = clamp(safeBaseStats.hp, 1, 999999);
-    }
-
-    // 🛡️ 3. UPDATE SERVER MEMORY WITH SAFE DATA
-    p.level = safeLevel;
-    p.exp = clamp(playerData.exp ?? p.exp ?? 0, 0, 999999999);
-    p.maxExp = clamp(playerData.maxExp ?? p.maxExp ?? 100, 100, 999999999);
-    p.gold = safeGold;
-    p.baseStats = safeBaseStats;
     p.x = safeX;
     p.y = safeY;
     p.mapId = safeMapId;
@@ -1612,16 +1593,17 @@ socket.on('saveData', async (playerData) => {
 
     p.spriteData.weapon = p.equips?.weapon?.sprite || null;
     p.spriteData.aura = p.equips?.armor?.aura || null;
+    
     await supabase.from('Exonians').update({
-        level: p.level,
-        exp: p.exp,
-        max_exp: p.maxExp,
+        level: p.level,       // Uses server memory
+        exp: p.exp,           // Uses server memory
+        max_exp: p.maxExp,    // Uses server memory
+        gold: p.gold,         // Uses server memory
+        base_stats: p.baseStats, // Uses server memory
         current_hp: p.currentHp,
-        gold: p.gold,
         pos_x: p.x,
         pos_y: p.y,
         map_id: p.mapId,
-        base_stats: p.baseStats,
         inventory: p.inventory,
         equips: p.equips       
     }).eq('character_name', currentUser);
@@ -1834,12 +1816,33 @@ socket.on('saveData', async (playerData) => {
         const goldAmount = m.goldYield || 15;
         const pid = playerParty[p.id];
 
-        // 🛡️ SERVER-AUTHORITATIVE REWARDS ENGINE
-        const processRewards = async (targetPlayer, targetSid) => {
-            if (!targetPlayer) return;
+      const processRewards = async (targetPlayer, targetSid) => {
+        if (!targetPlayer) return;
 
-            targetPlayer.exp += expAmount;
-            targetPlayer.gold += goldAmount;
+        targetPlayer.exp += expAmount;
+        targetPlayer.gold += goldAmount;
+
+        // 🛡️ SERVER-SIDE LEVEL UP ENGINE
+        let leveledUp = false;
+        while (targetPlayer.exp >= targetPlayer.maxExp && targetPlayer.level < 50) {
+            targetPlayer.exp -= targetPlayer.maxExp;
+            targetPlayer.level++;
+            targetPlayer.maxExp += (targetPlayer.level >= 41 ? 1500 : targetPlayer.level >= 31 ? 1000 : targetPlayer.level >= 21 ? 750 : targetPlayer.level >= 11 ? 500 : 100);
+            targetPlayer.baseStats.hp += 10;
+            targetPlayer.baseStats.str += 2;
+            targetPlayer.baseStats.int += 2;
+            leveledUp = true;
+        }
+        
+        if (leveledUp) {
+            targetPlayer.currentHp = getServerTotalStat(targetPlayer, 'hp') || 100;
+            if (targetSid) {
+                io.to(targetSid).emit('serverLevelUp', { 
+                    level: targetPlayer.level, exp: targetPlayer.exp, maxExp: targetPlayer.maxExp, 
+                    baseStats: targetPlayer.baseStats, currentHp: targetPlayer.currentHp 
+                });
+            }
+        }
 
             let drop = generateLoot(m);
             let dropAccepted = drop && playerAcceptsLoot(targetPlayer, drop);
@@ -3279,6 +3282,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
