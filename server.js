@@ -2313,6 +2313,15 @@ socket.on('useInventoryItem', async (data) => {
 
     // POTION
     if (item.type === 'potion') {
+        const now = Date.now();
+        if (!p.skillCooldowns) p.skillCooldowns = {};
+        
+        // 🛡️ SERVER-SIDE 5-SECOND COOLDOWN
+        if (p.skillCooldowns['potion'] && now < p.skillCooldowns['potion']) {
+            return socket.emit('systemMessage', 'Potion is on cooldown!');
+        }
+        p.skillCooldowns['potion'] = now + 5000;
+
         const healAmount = clamp(item.fixedStat?.hpHeal || 0, 0, 999999);
         const trueMaxHp = getServerTotalStat(p, 'hp') || p.maxHp || 100;
 
@@ -3339,6 +3348,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
