@@ -2964,7 +2964,30 @@ socket.on('tradeDone', (data) => {
     window.renderTradeSlots();
 });
     socket.on('partyUpdate', (partyData) => { game.party = partyData || null; window.renderPartyUI(); });
-    socket.on('receiveExp', (data) => { game.player.exp += data.amount; if(data.gold) game.player.gold += data.gold; dom.log.innerText = `Gained ${data.amount} EXP${data.gold ? ` & ${data.gold} Gold` : ''} from ${data.source}!`; window.checkLevelUp(); window.updateUI(); DatabaseManager.savePlayerData(game.player); });
+   socket.on('receiveExp', (data) => { 
+        game.player.exp += data.amount; 
+        if(data.gold) game.player.gold += data.gold; 
+        dom.log.innerText = `Gained ${data.amount} EXP${data.gold ? ` & ${data.gold} Gold` : ''} from ${data.source}!`; 
+        window.updateUI(); 
+    });
+    socket.on('serverLevelUp', (data) => {
+        game.player.level = data.level;
+        game.player.exp = data.exp;
+        game.player.maxExp = data.maxExp;
+        game.player.baseStats = data.baseStats;
+        game.player.currentHp = data.currentHp;
+        
+        const txt = document.createElement('div'); 
+        txt.className = 'level-up-text'; 
+        txt.innerText = "LEVEL UP!"; 
+        txt.style.left = (game.player.x - 20) + 'px'; 
+        txt.style.top = (game.player.y - 40) + 'px'; 
+        dom.world.appendChild(txt); 
+        setTimeout(() => txt.remove(), 2000);
+        
+        window.updateUI(); 
+        window.updateSkillMenu();
+    });
     socket.on('partyMemberVitals', (data) => { if (game.party && game.party.members) { let m = game.party.members.find(x => x.id === data.id); if (m) { m.currentHp = data.currentHp; m.maxHp = data.maxHp; m.level = data.level; window.renderPartyUI(); } } });
     socket.on('remotePetSync', (data) => { let petId = `pet_${data.ownerId}_${data.petData.id}`; let petEl = document.getElementById(petId); if (data.petData.alive) { if (!petEl) { petEl = document.createElement('div'); petEl.id = petId; petEl.className = 'pet-slime'; petEl.innerHTML = '<div class="pet-hp-bar"><div class="pet-hp-fill" style="width:100%"></div></div>'; dom.world.appendChild(petEl); } petEl.style.left = data.petData.x + 'px'; petEl.style.top = data.petData.y + 'px'; } else if (petEl) { petEl.remove(); } });
 socket.on('playerRevived', (data) => {
@@ -3527,6 +3550,7 @@ window.addEventListener('keydown', (e) => {
 </div>
     </body>
 </html>
+
 
 
 
