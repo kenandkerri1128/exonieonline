@@ -152,7 +152,13 @@ function getBaseStat(lvl) { 
     if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; 
     if (lvl >= 5) return 8; return 5; 
 }
-
+// 🛡️ NEW: BOSS COUNTDOWN HELPER
+function getBossCountdown(lastDeathTime) {
+    const now = Date.now();
+    const oneDay = 24 * 60 * 60 * 1000;
+    const respawnTime = parseInt(lastDeathTime) + oneDay;
+    return respawnTime - now; // Returns remaining milliseconds
+}
 function generateLoot(monster) {
     // 🌟 GOLDEN SLIME CUSTOM LOOT TABLE
     if (monster.monsterKey === "common_mobs_golden") {
@@ -2569,6 +2575,13 @@ socket.on('useInventoryItem', async (data) => {
             .update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y })
             .eq('character_name', currentUser)
             .then(() => {});
+          // 🛡️ VISUAL MAP TIMER: Send cooldown to the client
+        supabase.from('boss_timers').select('last_death_time').eq('boss_id', p.mapId).single().then(({data: timer}) => {
+            if (timer) {
+                const remaining = getBossCountdown(timer.last_death_time);
+                if (remaining > 0) socket.emit('bossCooldownActive', { remaining });
+            }
+        });
     });
 
    socket.on('respawnPlayer', () => {
@@ -3326,6 +3339,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
