@@ -1086,9 +1086,8 @@ io.on('connection', (socket) => {
         if (p.skillCooldowns['partyHeal'] && now < p.skillCooldowns['partyHeal']) return;
         p.skillCooldowns['partyHeal'] = now + 18000; 
 
-       // 🛡️ THE FIX: Check for 'Boost' passive (Lv. 25+)
-        let trueHealAmt = 250;
-        if (p.level >= 25) trueHealAmt = 500; // Boosted Heal
+        // 🛡️ THE FIX: Check for 'Boost' passive (Lv. 25+)
+        let trueHealAmt = p.level >= 25 ? 500 : 250;
 
         // 🛡️ FIX: Use true calculated max HP so it doesn't cap at 100!
         let myMaxHp = getServerTotalStat(p, 'hp') || 100;
@@ -1097,6 +1096,8 @@ io.on('connection', (socket) => {
 
         const pid = playerParty[p.id];
         if (pid && parties[pid]) {
+            const safeRadius = 400; // 🛡️ CRITICAL FIX: Defined safeRadius to stop 502 crashes!
+
             for (const memberId of parties[pid].members) {
                 if (memberId === p.id) continue;
                 const mp = getPlayerById(memberId);
@@ -1115,23 +1116,33 @@ io.on('connection', (socket) => {
 
     socket.on('partyRevive', () => {
         const p = onlinePlayers[socket.id];
-        if (!p || p.mapId === 'town') return;
+        if (!p || p.mapId === 'town' || p.baseStats?.playerClass !== 'Healer') return;
 
         // 🛡️ 100s COOLDOWN (95s leniency)
         const now = Date.now();
         if (p.skillCooldowns['partyRevive'] && now < p.skillCooldowns['partyRevive']) return;
         p.skillCooldowns['partyRevive'] = now + 95000;
 
+        // 🛡️ FULL HEAL SELF (The Healer)
+        p.currentHp = getServerTotalStat(p, 'hp') || 100;
+
         const pid = playerParty[p.id];
         if (pid && parties[pid]) {
             for (const memberId of parties[pid].members) {
                 const mp = getPlayerById(memberId);
-                if (mp && mp.isGhost && mp.mapId !== 'town') {
-                    mp.isGhost = false;
-                    // 🛡️ FIX: Use true calculated max HP on revive!
+                if (mp && mp.mapId !== 'town' && mp.instanceId === p.instanceId) {
                     let memberMaxHp = getServerTotalStat(mp, 'hp') || 100;
-                    mp.currentHp = memberMaxHp; 
-                    io.to(p.instanceId).emit('playerRevived', { id: mp.id, currentHp: mp.currentHp });
+                    
+                    if (mp.isGhost) {
+                        // 🛡️ Revive Dead Members
+                        mp.isGhost = false;
+                        mp.currentHp = memberMaxHp; 
+                        io.to(p.instanceId).emit('playerRevived', { id: mp.id, currentHp: mp.currentHp });
+                    } else {
+                        // 🛡️ Full Heal Alive Members
+                        mp.currentHp = memberMaxHp;
+                        io.to(p.instanceId).emit('playerHealed', { id: mp.id, amount: 9999, currentHp: mp.currentHp });
+                    }
                 }
             }
             emitPartyUpdate(pid); 
@@ -2475,13 +2486,21 @@ socket.on('useInventoryItem', async (data) => {
         // Broadcasts an unmissable yellow system message to EVERY single player online
         io.emit('systemMessage', `[SERVER ANNOUNCEMENT] ${data.text}`);
     });
-    socket.on('leaveParty', () => {
-        const p = onlinePlayers[socket.id];
-        if (p && playerParty[p.id]) {
-            removeFromParty(p.id);
-            if (p.mapId !== 'town') { socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); }
-        }
-    });
+   socket.on('leaveParty', () => {
+        const p = onlinePlayers[socket.id];
+        if (p && playerParty[p.id]) {
+            removeFromParty(p.id);
+            
+            // 🛡️ THE FIX: If they leave party while dead, forcefully revive them for Town
+            if (p.isGhost) {
+                p.isGhost = false;
+                p.currentHp = getServerTotalStat(p, 'hp') || 100;
+                socket.emit('playerRevived', { id: p.id, currentHp: p.currentHp });
+            }
+            
+            if (p.mapId !== 'town') { socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); }
+        }
+    });
 
    socket.on('forceTeleport', (tp) => {
         const p = onlinePlayers[socket.id];
@@ -2518,7 +2537,11 @@ socket.on('useInventoryItem', async (data) => {
         socket.leave(p.instanceId);
         socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
 
-        if (p.mapId === 'town') p.currentHp = p.maxHp;
+        // 🛡️ THE FIX: Clear Ghost state safely upon entering town
+        if (data.mapId === 'town') {
+            p.isGhost = false;
+            p.currentHp = getServerTotalStat(p, 'hp') || 100;
+        }
 
         if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
             for (let petId in worlds[p.instanceId].pets) {
@@ -3348,6 +3371,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
