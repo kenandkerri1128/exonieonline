@@ -1882,15 +1882,18 @@ socket.on('saveData', async (playerData) => {
                     
                     if (killedFloorNum > currentHighestFloor) {
                         const newTitle = `FLOOR CONQUEROR ${killedFloorNum}`;
-                        targetPlayer.title = newTitle; // 🛡️ Set it
+                        targetPlayer.title = newTitle; 
                         
                         if (!targetPlayer.spriteData) targetPlayer.spriteData = {};
                         targetPlayer.spriteData.title = newTitle;
                         
                         if (targetSid) {
+                            // Update the player's own UI
                             io.to(targetSid).emit('titleUnlocked', newTitle);
-                            io.to(targetSid).emit('systemMessage', `👑 Title Upgraded: <${newTitle}>!`);
                         }
+
+                        // 'io.emit' sends this to EVERY player online, not just the killer!
+                        io.emit('systemMessage', `<span style="color:#ffd700; font-weight:bold; text-shadow: 0 0 5px #ff9800;">🏆 [WORLD] ${targetPlayer.name || targetPlayer.id} has conquered Floor ${killedFloorNum} and earned the title &lt;${newTitle}&gt;!</span>`);
                     }
                 }
             }
@@ -3282,6 +3285,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
