@@ -1738,7 +1738,7 @@ socket.on('saveData', async (playerData) => {
         }
     });
 
-  socket.on('attackMonster', (payload) => {
+  socket.on('attackMonster', async (payload) => {
         const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return; 
         if (p.mapId === 'town') return; 
         const now = Date.now();
@@ -3326,6 +3326,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
