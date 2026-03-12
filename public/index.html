@@ -346,6 +346,56 @@
             80% { opacity: 1; top: 75%; left: 60%; transform: scaleX(2) rotate(25deg); }
             85% { opacity: 0; }
         }
+        /* --- NEW: BLAZE AURA --- */
+        .avatar-rig:has(.aura-blaze) {
+            filter: drop-shadow(0 0 2px #ff4444) drop-shadow(0 0 5px #ff0000);
+            animation: aura-outline-pulse-blaze 1.2s infinite alternate;
+        }
+        .cosmetic-aura.aura-blaze { display: block; }
+        .cosmetic-aura.aura-blaze::before, .cosmetic-aura.aura-blaze::after {
+            content: ''; position: absolute; background: #ffeb3b; 
+            box-shadow: 0 0 5px 2px #ff4444; border-radius: 50%; z-index: 15;
+        }
+        .cosmetic-aura.aura-blaze::before { width: 6px; height: 6px; animation: orbit-blaze-1 1.5s infinite linear; }
+        .cosmetic-aura.aura-blaze::after { width: 4px; height: 4px; animation: orbit-blaze-2 1.2s infinite linear reverse; }
+
+        @keyframes orbit-blaze-1 { 0% { transform: rotate(0deg) translateX(25px) rotate(0deg); top:40%; left:50%; } 100% { transform: rotate(360deg) translateX(25px) rotate(-360deg); top:40%; left:50%; } }
+        @keyframes orbit-blaze-2 { 0% { transform: rotate(0deg) translateX(35px) rotate(0deg); top:50%; left:50%; } 100% { transform: rotate(360deg) translateX(35px) rotate(-360deg); top:50%; left:50%; } }
+        @keyframes aura-outline-pulse-blaze { 0% { filter: drop-shadow(0 0 1px #ff4444) drop-shadow(0 0 3px #ff0000); } 100% { filter: drop-shadow(0 0 3px #ff4444) drop-shadow(0 0 8px #ff0000) drop-shadow(0 0 15px #ffeb3b); } }
+
+        /* --- NEW: LIQUID AURA --- */
+        .avatar-rig:has(.aura-liquid) {
+            filter: drop-shadow(0 0 2px #44aaff) drop-shadow(0 0 5px #0088ff);
+            animation: aura-outline-pulse-liquid 1.2s infinite alternate;
+        }
+        .cosmetic-aura.aura-liquid { display: block; }
+        .cosmetic-aura.aura-liquid::before, .cosmetic-aura.aura-liquid::after {
+            content: ''; position: absolute; border: 1px solid #44aaff; 
+            border-radius: 50%; background: rgba(255,255,255,0.3); z-index: 15;
+        }
+        .cosmetic-aura.aura-liquid::before { width: 8px; height: 8px; animation: float-bubble-1 2s infinite ease-in; left: 20%; }
+        .cosmetic-aura.aura-liquid::after { width: 5px; height: 5px; animation: float-bubble-2 1.7s infinite ease-in 0.5s; left: 70%; opacity: 0; }
+        
+        @keyframes float-bubble-1 { 0% { top: 90%; opacity: 0; transform: translateX(0); } 20% { opacity: 1; transform: translateX(-10px); } 80% { opacity: 1; } 100% { top: -10%; opacity: 0; transform: translateX(10px); } }
+        @keyframes float-bubble-2 { 0% { top: 100%; opacity: 0; transform: translateX(0); } 20% { opacity: 1; transform: translateX(10px); } 80% { opacity: 1; } 100% { top: 0%; opacity: 0; transform: translateX(-10px); } }
+        @keyframes aura-outline-pulse-liquid { 0% { filter: drop-shadow(0 0 1px #44aaff) drop-shadow(0 0 3px #0088ff); } 100% { filter: drop-shadow(0 0 3px #44aaff) drop-shadow(0 0 8px #0088ff) drop-shadow(0 0 15px #ffffff); } }
+
+        /* --- NEW: NATURE AURA --- */
+        .avatar-rig:has(.aura-nature) {
+            filter: drop-shadow(0 0 2px #4CAF50) drop-shadow(0 0 5px #2e7d32);
+            animation: aura-outline-pulse-nature 1.2s infinite alternate;
+        }
+        .cosmetic-aura.aura-nature { display: block; }
+        .cosmetic-aura.aura-nature::before, .cosmetic-aura.aura-nature::after {
+            content: ''; position: absolute; width: 8px; height: 4px; 
+            background: #4CAF50; border-radius: 0 50% 0 50%; z-index: 15; box-shadow: 0 0 4px #2e7d32;
+        }
+        .cosmetic-aura.aura-nature::before { animation: swirl-leaf-1 2.5s infinite linear; left: 30%; top: -10%; opacity: 0;}
+        .cosmetic-aura.aura-nature::after { animation: swirl-leaf-2 2s infinite linear 0.8s; left: 60%; top: -10%; opacity: 0;}
+
+        @keyframes swirl-leaf-1 { 0% { top: -10%; opacity: 0; transform: rotate(0deg) translateX(0); } 20% { opacity: 1; } 80% { opacity: 1; } 100% { top: 90%; opacity: 0; transform: rotate(360deg) translateX(25px); } }
+        @keyframes swirl-leaf-2 { 0% { top: -10%; opacity: 0; transform: rotate(0deg) translateX(0); } 20% { opacity: 1; } 80% { opacity: 1; } 100% { top: 100%; opacity: 0; transform: rotate(-360deg) translateX(-25px); } }
+        @keyframes aura-outline-pulse-nature { 0% { filter: drop-shadow(0 0 1px #4CAF50) drop-shadow(0 0 3px #2e7d32); } 100% { filter: drop-shadow(0 0 3px #4CAF50) drop-shadow(0 0 8px #2e7d32) drop-shadow(0 0 15px #81c784); } }
         
         /* Earthquake Visual Ring */
         .earthquake-ring {
@@ -1129,13 +1179,16 @@
                     <select id="admin-item-rarity">
                         <option value="Basic">Basic</option><option value="Rare">Rare</option><option value="Unique">Unique</option><option value="Legendary">Legendary</option><option value="Godly" selected>Godly</option>
                     </select>
-                    <select id="admin-item-type">
+                   <select id="admin-item-type">
                         <option value="sword">Sword</option>
                         <option value="staff">Staff</option>
                         <option value="pendant">Pendant</option>
                         <option value="armor">Armor</option>
                         <option value="leggings">Leggings</option>
                         <option value="aura_lightning">Aura: Lightning</option>
+                        <option value="aura_blaze">Aura: Blaze</option>
+                        <option value="aura_liquid">Aura: Liquid</option>
+                        <option value="aura_nature">Aura: Nature</option>
                     </select>
                     <button class="btn selected" onclick="window.adminGiveCustomItem()">Spawn</button>
                 </div>
@@ -1288,6 +1341,7 @@
 </div>
     </body>
 </html>
+
 
 
 
