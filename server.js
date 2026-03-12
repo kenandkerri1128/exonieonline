@@ -2330,113 +2330,30 @@ socket.on('requestConfirmTrade', () => {
         }
     }
 });
-socket.on('useInventoryItem', async (data) => {
-    const p = onlinePlayers[socket.id];
-    if (!p) return;
+    // 🛡️ SERVER-SIDE UNEQUIP (CRITICAL FOR SYNC)
+    socket.on('requestUnequip', (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.slot) return;
 
-    p.inventory = sanitizeInventory(p.inventory);
-    p.equips = sanitizeEquips(p.equips);
-    p.baseStats = sanitizeBaseStats(p.baseStats);
+        const slot = data.slot;
+        if (!['weapon', 'armor', 'leggings'].includes(slot)) return;
 
-    const inv = p.inventory;
-    const index = typeof data?.index === 'number' ? data.index : -1;
+        const item = p.equips[slot];
+        if (!item) return;
 
-    if (index < 0 || index >= inv.length || !inv[index]) {
-        return socket.emit('systemMessage', 'Item not found.');
-    }
+        const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
+        const emptySlot = inv.findIndex(i => i === null);
 
-    const item = sanitizeItem(inv[index]);
-    if (!item) {
-        inv[index] = null;
-        p.inventory = inv;
-        await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
-        socket.emit('syncInventory', p.inventory);
-        return;
-    }
-
-    // POTION
-    if (item.type === 'potion') {
-        const now = Date.now();
-        if (!p.skillCooldowns) p.skillCooldowns = {};
-        
-        // 🛡️ SERVER-SIDE 5-SECOND COOLDOWN
-        if (p.skillCooldowns['potion'] && now < p.skillCooldowns['potion']) {
-            return socket.emit('systemMessage', 'Potion is on cooldown!');
-        }
-        p.skillCooldowns['potion'] = now + 5000;
-
-        const healAmount = clamp(item.fixedStat?.hpHeal || 0, 0, 999999);
-        const trueMaxHp = getServerTotalStat(p, 'hp') || p.maxHp || 100;
-
-        p.maxHp = trueMaxHp;
-        p.currentHp = Math.min(trueMaxHp, (p.currentHp || 0) + healAmount);
-
-        item.quantity = (item.quantity || 1) - 1;
-        inv[index] = item.quantity > 0 ? item : null;
-        p.inventory = inv;
-
-        await supabase
-            .from('Exonians')
-            .update({
-                inventory: p.inventory,
-                current_hp: p.currentHp,
-                equips: sanitizeEquips(p.equips),
-                base_stats: sanitizeBaseStats(p.baseStats)
-            })
-            .eq('character_name', p.id);
-
-        socket.emit('inventoryItemUsed', {
-            inventory: p.inventory,
-            currentHp: p.currentHp,
-            itemName: item.name,
-            healAmount
-        });
-
-        const pid = playerParty[p.id];
-        if (pid) emitPartyUpdate(pid);
-        return;
-    }
-
-    // CLASS RESET BOOK
-    if (item.type === 'consumable' && item.name === 'Class Reset Book') {
-        if (!p.baseStats.playerClass) {
-            return socket.emit('systemMessage', "You don't have a class to reset yet!");
+        if (emptySlot === -1) {
+            return socket.emit('systemMessage', 'Inventory full! Cannot unequip.');
         }
 
-        p.baseStats.playerClass = null;
-
-        item.quantity = (item.quantity || 1) - 1;
-        inv[index] = item.quantity > 0 ? item : null;
+        // Swap it in server memory
+        inv[emptySlot] = item;
+        p.equips[slot] = null;
         p.inventory = inv;
 
-        await supabase
-            .from('Exonians')
-            .update({
-                inventory: p.inventory,
-                base_stats: sanitizeBaseStats(p.baseStats)
-            })
-            .eq('character_name', p.id);
-
-        socket.emit('inventoryItemUsed', {
-            inventory: p.inventory,
-            currentHp: p.currentHp,
-            itemName: item.name,
-            classReset: true
-        });
-
-        return;
-    }
-
-    // EQUIP
-    if (item.type === 'weapon' || item.type === 'armor' || item.type === 'leggings') {
-        const slot = item.type;
-        const oldEquip = p.equips[slot] ? sanitizeItem(p.equips[slot]) : null;
-
-        p.equips[slot] = item;
-        inv[index] = oldEquip;
-        p.inventory = sanitizeInventory(inv);
-        p.equips = sanitizeEquips(p.equips);
-
+        // Recalculate Stats instantly
         const trueMaxHp = getServerTotalStat(p, 'hp') || 100;
         p.maxHp = trueMaxHp;
         p.currentHp = Math.min(p.currentHp || trueMaxHp, trueMaxHp);
@@ -2444,48 +2361,214 @@ socket.on('useInventoryItem', async (data) => {
         p.spriteData.weapon = p.equips?.weapon?.sprite || null;
         p.spriteData.aura = p.equips?.armor?.aura || null;
 
-        await supabase
-            .from('Exonians')
-            .update({
-                inventory: p.inventory,
-                equips: p.equips,
-                current_hp: p.currentHp
-            })
-            .eq('character_name', p.id);
-
+        // ⚡ INSTANT UI UPDATE (No waiting for database!)
         socket.emit('syncInventory', p.inventory);
         socket.emit('inventoryItemUsed', {
             inventory: p.inventory,
-            equips: p.equips,        // 🛡️ THE FIX: Send the equips back to the client!
+            equips: p.equips,
             currentHp: p.currentHp,
-            itemName: item.name
+            itemName: `Unequipped ${item.name}`
         });
 
-        socket.emit('remotePlayerMoved', {
-            id: p.id,
-            x: p.x,
-            y: p.y,
-            state: 'idle',
-            facingRight: false,
-            weaponSprite: p.spriteData.weapon,
-            spriteData: p.spriteData
+        // Instantly update avatar for everyone around you
+        const moveData = { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData };
+        socket.emit('remotePlayerMoved', moveData);
+        socket.to(p.instanceId).emit('remotePlayerMoved', moveData);
+
+        // Silent background save to DB
+        supabase.from('Exonians').update({
+            inventory: p.inventory,
+            equips: p.equips,
+            current_hp: p.currentHp
+        }).eq('character_name', p.id).then(()=>{});
+    });
+// 🛡️ SERVER-SIDE UNEQUIP (CRITICAL FOR SYNC)
+    socket.on('requestUnequip', (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.slot) return;
+
+        const slot = data.slot;
+        if (!['weapon', 'armor', 'leggings'].includes(slot)) return;
+
+        const item = p.equips[slot];
+        if (!item) return;
+
+        const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
+        const emptySlot = inv.findIndex(i => i === null);
+
+        if (emptySlot === -1) {
+            return socket.emit('systemMessage', 'Inventory full! Cannot unequip.');
+        }
+
+        // Swap it in server memory
+        inv[emptySlot] = item;
+        p.equips[slot] = null;
+        p.inventory = inv;
+
+        // Recalculate Stats instantly
+        const trueMaxHp = getServerTotalStat(p, 'hp') || 100;
+        p.maxHp = trueMaxHp;
+        p.currentHp = Math.min(p.currentHp || trueMaxHp, trueMaxHp);
+
+        p.spriteData.weapon = p.equips?.weapon?.sprite || null;
+        p.spriteData.aura = p.equips?.armor?.aura || null;
+
+        // ⚡ INSTANT UI UPDATE (No waiting for database!)
+        socket.emit('syncInventory', p.inventory);
+        socket.emit('inventoryItemUsed', {
+            inventory: p.inventory,
+            equips: p.equips,
+            currentHp: p.currentHp,
+            itemName: `Unequipped ${item.name}`
         });
 
-        socket.to(p.instanceId).emit('remotePlayerMoved', {
-            id: p.id,
-            x: p.x,
-            y: p.y,
-            state: 'idle',
-            facingRight: false,
-            weaponSprite: p.spriteData.weapon,
-            spriteData: p.spriteData
-        });
+        // Instantly update avatar for everyone around you
+        const moveData = { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData };
+        socket.emit('remotePlayerMoved', moveData);
+        socket.to(p.instanceId).emit('remotePlayerMoved', moveData);
 
-        return;
-    }
+        // Silent background save to DB
+        supabase.from('Exonians').update({
+            inventory: p.inventory,
+            equips: p.equips,
+            current_hp: p.currentHp
+        }).eq('character_name', p.id).then(()=>{});
+    });
 
-    socket.emit('systemMessage', 'That item cannot be used this way.');
-});
+    // 🛡️ INSTANT EQUIP FIX
+    socket.on('useInventoryItem', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+
+        p.inventory = sanitizeInventory(p.inventory);
+        p.equips = sanitizeEquips(p.equips);
+        p.baseStats = sanitizeBaseStats(p.baseStats);
+
+        const inv = p.inventory;
+        const index = typeof data?.index === 'number' ? data.index : -1;
+
+        if (index < 0 || index >= inv.length || !inv[index]) {
+            return socket.emit('systemMessage', 'Item not found.');
+        }
+
+        const item = sanitizeItem(inv[index]);
+        if (!item) {
+            inv[index] = null;
+            p.inventory = inv;
+            await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
+            socket.emit('syncInventory', p.inventory);
+            return;
+        }
+
+        // POTION
+        if (item.type === 'potion') {
+            const now = Date.now();
+            if (!p.skillCooldowns) p.skillCooldowns = {};
+            
+            // 🛡️ SERVER-SIDE 5-SECOND COOLDOWN
+            if (p.skillCooldowns['potion'] && now < p.skillCooldowns['potion']) {
+                return socket.emit('systemMessage', 'Potion is on cooldown!');
+            }
+            p.skillCooldowns['potion'] = now + 5000;
+
+            const healAmount = clamp(item.fixedStat?.hpHeal || 0, 0, 999999);
+            const trueMaxHp = getServerTotalStat(p, 'hp') || p.maxHp || 100;
+
+            p.maxHp = trueMaxHp;
+            p.currentHp = Math.min(trueMaxHp, (p.currentHp || 0) + healAmount);
+
+            item.quantity = (item.quantity || 1) - 1;
+            inv[index] = item.quantity > 0 ? item : null;
+            p.inventory = inv;
+
+            supabase.from('Exonians').update({
+                inventory: p.inventory,
+                current_hp: p.currentHp,
+                equips: sanitizeEquips(p.equips),
+                base_stats: sanitizeBaseStats(p.baseStats)
+            }).eq('character_name', p.id).then(()=>{});
+
+            socket.emit('inventoryItemUsed', {
+                inventory: p.inventory,
+                currentHp: p.currentHp,
+                itemName: item.name,
+                healAmount
+            });
+
+            const pid = playerParty[p.id];
+            if (pid) emitPartyUpdate(pid);
+            return;
+        }
+
+        // CLASS RESET BOOK
+        if (item.type === 'consumable' && item.name === 'Class Reset Book') {
+            if (!p.baseStats.playerClass) {
+                return socket.emit('systemMessage', "You don't have a class to reset yet!");
+            }
+
+            p.baseStats.playerClass = null;
+
+            item.quantity = (item.quantity || 1) - 1;
+            inv[index] = item.quantity > 0 ? item : null;
+            p.inventory = inv;
+
+            supabase.from('Exonians').update({
+                inventory: p.inventory,
+                base_stats: sanitizeBaseStats(p.baseStats)
+            }).eq('character_name', p.id).then(()=>{});
+
+            socket.emit('inventoryItemUsed', {
+                inventory: p.inventory,
+                currentHp: p.currentHp,
+                itemName: item.name,
+                classReset: true
+            });
+
+            return;
+        }
+
+        // EQUIP
+        if (item.type === 'weapon' || item.type === 'armor' || item.type === 'leggings') {
+            const slot = item.type;
+            const oldEquip = p.equips[slot] ? sanitizeItem(p.equips[slot]) : null;
+
+            p.equips[slot] = item;
+            inv[index] = oldEquip;
+            p.inventory = sanitizeInventory(inv);
+            p.equips = sanitizeEquips(p.equips);
+
+            const trueMaxHp = getServerTotalStat(p, 'hp') || 100;
+            p.maxHp = trueMaxHp;
+            p.currentHp = Math.min(p.currentHp || trueMaxHp, trueMaxHp);
+
+            p.spriteData.weapon = p.equips?.weapon?.sprite || null;
+            p.spriteData.aura = p.equips?.armor?.aura || null;
+
+            // ⚡ THE FIX: Send the UI update to the client INSTANTLY!
+            socket.emit('syncInventory', p.inventory);
+            socket.emit('inventoryItemUsed', {
+                inventory: p.inventory,
+                equips: p.equips, 
+                currentHp: p.currentHp,
+                itemName: item.name
+            });
+
+            // Instantly update avatars for everyone around you
+            socket.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
+            socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
+
+            // ⚡ THE FIX: Silent background save
+            supabase.from('Exonians').update({
+                inventory: p.inventory,
+                equips: p.equips,
+                current_hp: p.currentHp
+            }).eq('character_name', p.id).then(()=>{});
+
+            return;
+        }
+
+        socket.emit('systemMessage', 'That item cannot be used this way.');
+    });
     socket.on('chatMessage', (data) => { 
         const p = onlinePlayers[socket.id]; 
         if (!p || !data.text) return; 
@@ -3230,8 +3313,8 @@ socket.on('adminSpawnItem', async (data) => {
 
         socket.emit('systemMessage', `[Admin] Force-leveled to ${p.level}! Refresh page to sync UI.`);
     });
-// 🛡️ SECURE AURA APPLICATION
-    socket.on('requestApplyAura', async (data) => {
+// 🛡️ SECURE AURA APPLICATION (Optimized)
+    socket.on('requestApplyAura', (data) => {
         const p = onlinePlayers[socket.id];
         if (!p) return;
 
@@ -3239,9 +3322,7 @@ socket.on('adminSpawnItem', async (data) => {
         const targetItem = p.inventory[data.targetIndex];
 
         if (!stone || !targetItem || stone.type !== 'aura' || targetItem.type !== 'armor') return;
-        if (targetItem.aura) {
-            return socket.emit('systemMessage', "That armor already has an aura! Extract it first.");
-        }
+        if (targetItem.aura) return socket.emit('systemMessage', "That armor already has an aura! Extract it first.");
 
         const AURA_DATA = { 'lightning': 'Lightning', 'blaze': 'Blaze', 'liquid': 'Liquid', 'nature': 'Nature' };
         let aName = AURA_DATA[stone.auraId] || 'Lightning';
@@ -3253,21 +3334,26 @@ socket.on('adminSpawnItem', async (data) => {
         stone.quantity = (stone.quantity || 1) - 1;
         if (stone.quantity <= 0) p.inventory[data.stoneIndex] = null;
 
-        await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
-        
+        // ⚡ INSTANT UI UPDATE
         socket.emit('syncInventory', p.inventory);
         socket.emit('systemMessage', `Applied ${aName} Aura to your armor!`);
         
-        // Update visual immediately if it's equipped
+        // Update instantly if they are wearing it!
         if (p.equips && p.equips.armor && p.equips.armor.id === targetItem.id) {
              p.equips.armor = targetItem;
              p.spriteData.aura = targetItem.aura;
              socket.emit('inventoryItemUsed', { inventory: p.inventory, equips: p.equips });
+             
+             socket.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
+             socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
         }
+
+        // Silent save
+        supabase.from('Exonians').update({ inventory: p.inventory, equips: p.equips }).eq('character_name', p.id).then(()=>{});
     });
 
-    // 🛡️ SECURE AURA EXTRACTION
-    socket.on('requestExtractAura', async (data) => {
+    // 🛡️ SECURE AURA EXTRACTION (Optimized)
+    socket.on('requestExtractAura', (data) => {
         const p = onlinePlayers[socket.id];
         if (!p) return;
 
@@ -3275,9 +3361,7 @@ socket.on('adminSpawnItem', async (data) => {
         if (!item || !item.aura) return;
 
         const emptySlot = p.inventory.findIndex(i => i === null);
-        if (emptySlot === -1) {
-            return socket.emit('systemMessage', "Inventory full! Cannot extract.");
-        }
+        if (emptySlot === -1) return socket.emit('systemMessage', "Inventory full! Cannot extract.");
 
         const AURA_DATA = {
             'lightning': { name: 'Lightning', color: '#00ffff' },
@@ -3290,9 +3374,7 @@ socket.on('adminSpawnItem', async (data) => {
         let auraStone = { 
             id: Date.now() + Math.random(), 
             name: `${aData.name} Aura Stone`, 
-            type: 'aura', 
-            auraId: item.aura, 
-            sprite: 'aurastone', 
+            type: 'aura', auraId: item.aura, sprite: 'aurastone', 
             level: 1, rarity: 'Legendary', color: aData.color, 
             description: "Click to apply to an Armor. Purely cosmetic.", quantity: 1 
         };
@@ -3303,10 +3385,21 @@ socket.on('adminSpawnItem', async (data) => {
 
         p.inventory[emptySlot] = auraStone;
 
-        await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
-        
+        // ⚡ INSTANT UI UPDATE
         socket.emit('syncInventory', p.inventory);
         socket.emit('systemMessage', "Aura extracted safely!");
+
+        // Update instantly if they are wearing it!
+        if (p.equips && p.equips.armor && p.equips.armor.id === item.id) {
+             p.spriteData.aura = null;
+             socket.emit('inventoryItemUsed', { inventory: p.inventory, equips: p.equips });
+             
+             socket.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
+             socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
+        }
+
+        // Silent save
+        supabase.from('Exonians').update({ inventory: p.inventory, equips: p.equips }).eq('character_name', p.id).then(()=>{});
     });
 socket.on('requestSell', async (data) => {
     const p = onlinePlayers[socket.id];
@@ -3418,6 +3511,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
