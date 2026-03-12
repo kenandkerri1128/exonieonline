@@ -1557,6 +1557,7 @@ socket.on('login', async (data) => {
             style: safeUser.hair_style,
             weapon: safeUser.equips.weapon?.sprite || null,
             aura: safeUser.equips.armor?.aura || null,
+            pet: safeUser.equips.leggings?.aura || null,
             title: safeUser.title || null
         },
         lootFilter: {
@@ -3519,6 +3520,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
