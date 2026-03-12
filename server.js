@@ -3256,7 +3256,7 @@ socket.on('adminSpawnItem', async (data) => {
         await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
         
         socket.emit('syncInventory', p.inventory);
-        socket.emit('systemMessage', "Applied Lightning Aura to your armor!");
+        socket.emit('systemMessage', `Applied ${aName} Aura to your armor!`);
         
         // Update visual immediately if it's equipped
         if (p.equips && p.equips.armor && p.equips.armor.id === targetItem.id) {
@@ -3418,6 +3418,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
