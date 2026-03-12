@@ -89,7 +89,7 @@ function sanitizeItem(item) {
     safe.fixedStat = sanitizeStatObject(safe.fixedStat);
     safe.randomStat = sanitizeStatObject(safe.randomStat);
 
-    const VALID_AURAS = ['lightning', 'blaze', 'liquid', 'nature'];
+    const VALID_AURAS = ['lightning', 'blaze', 'liquid', 'nature', 'fox'];
     if (safe.aura && !VALID_AURAS.includes(safe.aura)) {
         delete safe.aura;
     }
@@ -1650,6 +1650,7 @@ socket.on('saveData', async (playerData) => {
 
     p.spriteData.weapon = p.equips?.weapon?.sprite || null;
     p.spriteData.aura = p.equips?.armor?.aura || null;
+    p.spriteData.pet = p.equips?.leggings?.aura || null;
     
     await supabase.from('Exonians').update({
         level: p.level,       // Uses server memory
@@ -1812,9 +1813,9 @@ socket.on('saveData', async (playerData) => {
         // Base Swing (90% to 110%)
         let trueDmg = Math.floor(serverAtkPwr * (0.9 + Math.random() * 0.2));
         let pClass = p.baseStats?.playerClass;
-
-        // Skill Multipliers applied on the server with Identity Checking
-        if (payload.skillId === 'bld3') {
+         if (payload.skillId === 'fox_bite') {
+            trueDmg = 1; // Pure 1 damage, bypasses defense later
+        } else if (payload.skillId === 'bld3') {
             if (pClass !== 'Blademaster') return; // Hacker check!
             if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && p.id !== "Kei") {
                 trueDmg = Math.floor(serverAtkPwr);
@@ -2360,6 +2361,7 @@ socket.on('requestConfirmTrade', () => {
 
         p.spriteData.weapon = p.equips?.weapon?.sprite || null;
         p.spriteData.aura = p.equips?.armor?.aura || null;
+        p.spriteData.pet = p.equips?.leggings?.aura || null;
 
         // ⚡ INSTANT UI UPDATE (No waiting for database!)
         socket.emit('syncInventory', p.inventory);
@@ -2412,6 +2414,7 @@ socket.on('requestConfirmTrade', () => {
 
         p.spriteData.weapon = p.equips?.weapon?.sprite || null;
         p.spriteData.aura = p.equips?.armor?.aura || null;
+        p.spriteData.pet = p.equips?.leggings?.aura || null;
 
         // ⚡ INSTANT UI UPDATE (No waiting for database!)
         socket.emit('syncInventory', p.inventory);
@@ -2543,6 +2546,7 @@ socket.on('requestConfirmTrade', () => {
 
             p.spriteData.weapon = p.equips?.weapon?.sprite || null;
             p.spriteData.aura = p.equips?.armor?.aura || null;
+            p.spriteData.pet = p.equips?.leggings?.aura || null;
 
             // ⚡ THE FIX: Send the UI update to the client INSTANTLY!
             socket.emit('syncInventory', p.inventory);
@@ -3238,7 +3242,8 @@ socket.on('adminSpawnItem', async (data) => {
                 'lightning': { name: 'Lightning', color: '#00ffff' },
                 'blaze': { name: 'Blaze', color: '#ff4444' },
                 'liquid': { name: 'Liquid', color: '#44aaff' },
-                'nature': { name: 'Nature', color: '#4CAF50' }
+                 'nature': { name: 'Nature', color: '#4CAF50' },
+                'fox': { name: 'Spirit Fox Pet', color: '#ff7e00' }
             };
             let aData = AURA_DATA[auraType] || AURA_DATA['lightning'];
             item = { id: Date.now() + Math.random(), name: `${aData.name} Aura Stone`, type: 'aura', auraId: auraType, sprite: 'aurastone', level: 1, rarity: 'Legendary', color: aData.color, description: "Click to apply to an Armor. Purely cosmetic.", quantity: 1 };
@@ -3313,7 +3318,7 @@ socket.on('adminSpawnItem', async (data) => {
 
         socket.emit('systemMessage', `[Admin] Force-leveled to ${p.level}! Refresh page to sync UI.`);
     });
-// 🛡️ SECURE AURA APPLICATION (Optimized)
+// 🛡️ SECURE AURA & PET APPLICATION (Optimized)
     socket.on('requestApplyAura', (data) => {
         const p = onlinePlayers[socket.id];
         if (!p) return;
@@ -3321,13 +3326,18 @@ socket.on('adminSpawnItem', async (data) => {
         const stone = p.inventory[data.stoneIndex];
         const targetItem = p.inventory[data.targetIndex];
 
-        if (!stone || !targetItem || stone.type !== 'aura' || targetItem.type !== 'armor') return;
-        if (targetItem.aura) return socket.emit('systemMessage', "That armor already has an aura! Extract it first.");
+        if (!stone || !targetItem || stone.type !== 'aura') return;
+        
+        const isPet = stone.auraId === 'fox';
+        const expectedType = isPet ? 'leggings' : 'armor';
 
-        const AURA_DATA = { 'lightning': 'Lightning', 'blaze': 'Blaze', 'liquid': 'Liquid', 'nature': 'Nature' };
+        if (targetItem.type !== expectedType) return socket.emit('systemMessage', `This item only applies to ${expectedType}!`);
+        if (targetItem.aura) return socket.emit('systemMessage', `That ${expectedType} already has an enchantment! Extract it first.`);
+
+        const AURA_DATA = { 'lightning': 'Lightning', 'blaze': 'Blaze', 'liquid': 'Liquid', 'nature': 'Nature', 'fox': 'Spirit Fox' };
         let aName = AURA_DATA[stone.auraId] || 'Lightning';
 
-        targetItem.aura = stone.auraId || 'lightning';
+        targetItem.aura = stone.auraId;
         targetItem.originalName = targetItem.name;
         targetItem.name = aName + " " + targetItem.name;
 
@@ -3336,19 +3346,18 @@ socket.on('adminSpawnItem', async (data) => {
 
         // ⚡ INSTANT UI UPDATE
         socket.emit('syncInventory', p.inventory);
-        socket.emit('systemMessage', `Applied ${aName} Aura to your armor!`);
+        socket.emit('systemMessage', `Applied ${aName} to your ${expectedType}!`);
         
         // Update instantly if they are wearing it!
-        if (p.equips && p.equips.armor && p.equips.armor.id === targetItem.id) {
-             p.equips.armor = targetItem;
-             p.spriteData.aura = targetItem.aura;
-             socket.emit('inventoryItemUsed', { inventory: p.inventory, equips: p.equips });
+        if (p.equips && p.equips[expectedType] && p.equips[expectedType].id === targetItem.id) {
+             p.equips[expectedType] = targetItem;
+             if (isPet) p.spriteData.pet = targetItem.aura;
+             else p.spriteData.aura = targetItem.aura;
              
+             socket.emit('inventoryItemUsed', { inventory: p.inventory, equips: p.equips });
              socket.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
              socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
         }
-
-        // Silent save
         supabase.from('Exonians').update({ inventory: p.inventory, equips: p.equips }).eq('character_name', p.id).then(()=>{});
     });
 
@@ -3367,16 +3376,17 @@ socket.on('adminSpawnItem', async (data) => {
             'lightning': { name: 'Lightning', color: '#00ffff' },
             'blaze': { name: 'Blaze', color: '#ff4444' },
             'liquid': { name: 'Liquid', color: '#44aaff' },
-            'nature': { name: 'Nature', color: '#4CAF50' }
+            'nature': { name: 'Nature', color: '#4CAF50' },
+            'fox': { name: 'Spirit Fox Pet', color: '#ff7e00' }
         };
         let aData = AURA_DATA[item.aura] || AURA_DATA['lightning'];
 
         let auraStone = { 
             id: Date.now() + Math.random(), 
-            name: `${aData.name} Aura Stone`, 
+            name: `${aData.name} ${item.aura === 'fox' ? '' : 'Aura Stone'}`, 
             type: 'aura', auraId: item.aura, sprite: 'aurastone', 
             level: 1, rarity: 'Legendary', color: aData.color, 
-            description: "Click to apply to an Armor. Purely cosmetic.", quantity: 1 
+            description: "Click to apply to equipment. Purely cosmetic.", quantity: 1 
         };
 
         item.name = item.originalName || item.name.replace(aData.name + " ", "");
@@ -3385,20 +3395,18 @@ socket.on('adminSpawnItem', async (data) => {
 
         p.inventory[emptySlot] = auraStone;
 
-        // ⚡ INSTANT UI UPDATE
         socket.emit('syncInventory', p.inventory);
-        socket.emit('systemMessage', "Aura extracted safely!");
+        socket.emit('systemMessage', "Extracted safely!");
 
-        // Update instantly if they are wearing it!
-        if (p.equips && p.equips.armor && p.equips.armor.id === item.id) {
-             p.spriteData.aura = null;
+        const expectedType = auraStone.auraId === 'fox' ? 'leggings' : 'armor';
+        if (p.equips && p.equips[expectedType] && p.equips[expectedType].id === item.id) {
+             if (expectedType === 'leggings') p.spriteData.pet = null;
+             else p.spriteData.aura = null;
+
              socket.emit('inventoryItemUsed', { inventory: p.inventory, equips: p.equips });
-             
              socket.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
              socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
         }
-
-        // Silent save
         supabase.from('Exonians').update({ inventory: p.inventory, equips: p.equips }).eq('character_name', p.id).then(()=>{});
     });
 socket.on('requestSell', async (data) => {
@@ -3511,6 +3519,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
