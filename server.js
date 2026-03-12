@@ -89,10 +89,11 @@ function sanitizeItem(item) {
     safe.fixedStat = sanitizeStatObject(safe.fixedStat);
     safe.randomStat = sanitizeStatObject(safe.randomStat);
 
-    if (safe.aura && safe.aura !== 'lightning') {
+    const VALID_AURAS = ['lightning', 'blaze', 'liquid', 'nature'];
+    if (safe.aura && !VALID_AURAS.includes(safe.aura)) {
         delete safe.aura;
     }
-    if (safe.auraId && safe.auraId !== 'lightning') {
+    if (safe.auraId && !VALID_AURAS.includes(safe.auraId)) {
         delete safe.auraId;
     }
 
@@ -3150,7 +3151,14 @@ socket.on('adminSpawnItem', async (data) => {
 
         if (type.startsWith('aura_')) {
             const auraType = type.split('_')[1];
-            item = { id: Date.now() + Math.random(), name: `Lightning Aura Stone`, type: 'aura', auraId: auraType, sprite: 'aurastone', level: 1, rarity: 'Legendary', color: '#00ffff', description: "Click to apply to an Armor. Purely cosmetic.", quantity: 1 };
+            const AURA_DATA = {
+                'lightning': { name: 'Lightning', color: '#00ffff' },
+                'blaze': { name: 'Blaze', color: '#ff4444' },
+                'liquid': { name: 'Liquid', color: '#44aaff' },
+                'nature': { name: 'Nature', color: '#4CAF50' }
+            };
+            let aData = AURA_DATA[auraType] || AURA_DATA['lightning'];
+            item = { id: Date.now() + Math.random(), name: `${aData.name} Aura Stone`, type: 'aura', auraId: auraType, sprite: 'aurastone', level: 1, rarity: 'Legendary', color: aData.color, description: "Click to apply to an Armor. Purely cosmetic.", quantity: 1 };
         } else {
             const tmpl = ITEM_TEMPLATES[type];
             if (!tmpl) return;
@@ -3235,9 +3243,12 @@ socket.on('adminSpawnItem', async (data) => {
             return socket.emit('systemMessage', "That armor already has an aura! Extract it first.");
         }
 
+        const AURA_DATA = { 'lightning': 'Lightning', 'blaze': 'Blaze', 'liquid': 'Liquid', 'nature': 'Nature' };
+        let aName = AURA_DATA[stone.auraId] || 'Lightning';
+
         targetItem.aura = stone.auraId || 'lightning';
         targetItem.originalName = targetItem.name;
-        targetItem.name = "Lightning " + targetItem.name;
+        targetItem.name = aName + " " + targetItem.name;
 
         stone.quantity = (stone.quantity || 1) - 1;
         if (stone.quantity <= 0) p.inventory[data.stoneIndex] = null;
@@ -3268,20 +3279,25 @@ socket.on('adminSpawnItem', async (data) => {
             return socket.emit('systemMessage', "Inventory full! Cannot extract.");
         }
 
+        const AURA_DATA = {
+            'lightning': { name: 'Lightning', color: '#00ffff' },
+            'blaze': { name: 'Blaze', color: '#ff4444' },
+            'liquid': { name: 'Liquid', color: '#44aaff' },
+            'nature': { name: 'Nature', color: '#4CAF50' }
+        };
+        let aData = AURA_DATA[item.aura] || AURA_DATA['lightning'];
+
         let auraStone = { 
             id: Date.now() + Math.random(), 
-            name: "Lightning Aura Stone", 
+            name: `${aData.name} Aura Stone`, 
             type: 'aura', 
             auraId: item.aura, 
             sprite: 'aurastone', 
-            level: 1, 
-            rarity: 'Legendary', 
-            color: '#00ffff', 
-            description: "Click to apply to an Armor. Purely cosmetic.", 
-            quantity: 1 
+            level: 1, rarity: 'Legendary', color: aData.color, 
+            description: "Click to apply to an Armor. Purely cosmetic.", quantity: 1 
         };
 
-        item.name = item.originalName || item.name.replace("Lightning ", "");
+        item.name = item.originalName || item.name.replace(aData.name + " ", "");
         delete item.aura;
         delete item.originalName;
 
@@ -3402,6 +3418,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
