@@ -653,6 +653,11 @@ function updateMonsterAI(instId, m, now) {
     const damage = Math.max(1, m.atk - getServerDefense(p));
     p.currentHp = Math.max(0, p.currentHp - damage);
 
+    // 🛡️ THE FIX: If Immortal is active, force HP to 1 instead of 0
+    if (p.currentHp <= 0 && p.immortalUntil && now < p.immortalUntil) {
+        p.currentHp = 1;
+    }
+
     io.to(instId).emit('monsterAttack', {
         monsterId: m.id,
         targetId: p.id,
@@ -750,6 +755,11 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
 
         const damage = Math.max(1, m.atk - getServerDefense(victim));
         victim.currentHp = Math.max(0, victim.currentHp - damage);
+
+        // 🛡️ THE FIX: If Immortal is active, force HP to 1 instead of 0
+        if (victim.currentHp <= 0 && victim.immortalUntil && now < victim.immortalUntil) {
+            victim.currentHp = 1;
+        }
 
         io.to(instId).emit('monsterAttack', {
             monsterId: m.id,
@@ -1185,6 +1195,11 @@ socket.on('broadcastSkill', (data) => {
     const cdKey = `visual_${skillId}`;
     if (p.skillCooldowns[cdKey] && now < p.skillCooldowns[cdKey]) return;
     p.skillCooldowns[cdKey] = now + rule.cd;
+
+    // 🛡️ THE FIX: The Server now tracks your 10-second Immortal buff!
+    if (skillId === 'ber3') {
+        p.immortalUntil = now + 10000;
+    }
 
     socket.to(p.instanceId).emit('remoteSkillEffect', {
         playerId: p.id,
@@ -3387,6 +3402,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
