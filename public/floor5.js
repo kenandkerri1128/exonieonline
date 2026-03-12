@@ -2,8 +2,8 @@ var floor5MapData = {
     "id": "floor5",
     "name": "Floor 5",
     "image": "floor5.png",
-    "spawnX": 960,
-    "spawnY": 1000,
+    "spawnX": 552,
+    "spawnY": 665,
     "collisions": [
         {
             "x": 438,
