@@ -605,6 +605,21 @@
         padding: 5px;
     }
 }
+        /* 📱 THE FIX: Relocate Party Panel on Mobile */
+@media (max-width: 950px), (pointer: coarse) {
+    #party-panel {
+        left: auto !important;       /* Removes the left-side anchoring */
+        top: auto !important;        /* Removes top-side anchoring */
+        right: 10px !important;      /* Snaps it to the right side of the screen */
+        bottom: 220px !important;    /* Pushes it up so it sits above your action buttons */
+        width: 180px !important;     /* Shrinks it slightly so it doesn't take up too much space */
+        padding: 5px !important;
+    }
+    
+    #party-members {
+        font-size: 11px !important;  /* Shrinks the text slightly to fit the new compact box */
+    }
+}
         #chat-input { background: rgba(0,0,0,0.8); border: 1px solid #4CAF50; color: white; padding: 10px 20px; width: 400px; border-radius: 25px; outline: none; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
         .chat-bubble { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.9); color: #111; padding: 6px 14px; border-radius: 12px; font-size: 14px; font-weight: bold; white-space: nowrap; pointer-events: none; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 200; animation: fadeInOut 4s forwards; }
 
@@ -1494,6 +1509,7 @@
 </div>
     </body>
 </html>
+
 
 
 
