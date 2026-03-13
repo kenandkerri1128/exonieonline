@@ -889,130 +889,124 @@ io.on('connection', (socket) => {
         io.to(sid).emit('friendsListUpdate', friendData);
     }
    // 🛡️ SYSTEM MAILBOX: Fetch messages for the specific player
-  socket.on('getMail', async () => {
-    const p = onlinePlayers[socket.id];
-    if (!p) return;
+// 🛡️ SYSTEM MAILBOX: Handles Personal and "Everyone" mail
+    socket.on('getMail', async () => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
 
-    try {
-                    const { data: mails, error } = await supabase
-    .from('System_Mail')
-    .select('*')
-    .ilike('recipient_name', p.id)
-    .or('is_claimed.is.null,is_claimed.eq.false');
+        try {
+            if (!p.baseStats.claimedMails) p.baseStats.claimedMails = [];
 
-        if (error) throw error;
+            // 🛡️ Fetch personal mail AND global "Everyone" mail
+            const { data: mails, error } = await supabase
+                .from('System_Mail')
+                .select('*')
+                .or(`recipient_name.ilike.${p.id},recipient_name.ilike.Everyone`);
 
-        let formattedMails = (mails || []).map(m => {
-            let rawData = m.attached_item || m.attached_file || null;
+            if (error) throw error;
 
-            if (typeof rawData === 'string') {
-                try {
-                    m.attached_item = JSON.parse(rawData.trim());
-                } catch (e) {
-                    m.attached_item = null;
-                }
-            } else {
-                m.attached_item = rawData;
-            }
+            let formattedMails = (mails || [])
+                .filter(m => {
+                    const isEveryone = m.recipient_name.toLowerCase() === 'everyone';
+                    // Hide global mails we already claimed, and personal mails that are marked true
+                    if (isEveryone) return !p.baseStats.claimedMails.includes(m.id);
+                    return m.is_claimed !== true;
+                })
+                .map(m => {
+                    let rawData = m.attached_item || m.attached_file || null;
+                    if (typeof rawData === 'string') {
+                        try { m.attached_item = JSON.parse(rawData.trim()); } catch (e) { m.attached_item = null; }
+                    } else {
+                        m.attached_item = rawData;
+                    }
+                    return m;
+                });
 
-            return m;
-        });
-
-        socket.emit('mailList', formattedMails);
-    } catch (e) {
-        console.error(`[MAIL ERROR]:`, e.message);
-        socket.emit('mailList', []);
-    }
-});
-
-   socket.on('claimMail', async (mailId) => {
-    const p = onlinePlayers[socket.id];
-    if (!p) return;
-
-    try {
-                    const { data: mail, error } = await supabase
-    .from('System_Mail')
-    .select('*')
-    .eq('id', mailId)
-    .ilike('recipient_name', p.id)
-    .or('is_claimed.is.null,is_claimed.eq.false')
-    .single();
-
-        if (error || !mail) {
-            return socket.emit('systemMessage', "Mail not found or already claimed.");
+            socket.emit('mailList', formattedMails);
+        } catch (e) {
+            console.error(`[MAIL ERROR]:`, e.message);
+            socket.emit('mailList', []);
         }
+    });
 
-        let rawData = mail.attached_item || mail.attached_file || null;
-        let finalItem = null;
+    socket.on('claimMail', async (mailId) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
 
-        if (rawData) {
-            if (typeof rawData === 'string') {
-                try {
-                    finalItem = JSON.parse(rawData.trim());
-                } catch (err) {
-                    return socket.emit('systemMessage', "Attachment data is corrupted JSON.");
-                }
+        try {
+            if (!p.baseStats.claimedMails) p.baseStats.claimedMails = [];
+
+            const { data: mail, error } = await supabase
+                .from('System_Mail')
+                .select('*')
+                .eq('id', mailId)
+                .or(`recipient_name.ilike.${p.id},recipient_name.ilike.Everyone`)
+                .single();
+
+            if (error || !mail) return socket.emit('systemMessage', "Mail not found.");
+
+            const isEveryoneMail = mail.recipient_name.toLowerCase() === 'everyone';
+
+            if (isEveryoneMail) {
+                if (p.baseStats.claimedMails.includes(mailId)) return socket.emit('systemMessage', "Already claimed.");
             } else {
-                finalItem = rawData;
+                if (mail.is_claimed) return socket.emit('systemMessage', "Mail already claimed.");
             }
 
-            if (!finalItem || !finalItem.name) {
-                return socket.emit('systemMessage', "Invalid item format.");
-            }
+            let rawData = mail.attached_item || mail.attached_file || null;
+            let finalItem = null;
 
-            if (!finalItem.id) finalItem.id = Date.now() + Math.random();
-            if (!finalItem.quantity) finalItem.quantity = 1;
-
-            // NORMALIZE INVENTORY FIRST
-            const inv = Array.isArray(p.inventory) ? [...p.inventory] : [];
-            while (inv.length < 20) inv.push(null);
-
-            let stacked = false;
-
-            // STACKABLE TYPES
-            if (['potion', 'material', 'consumable'].includes(finalItem.type)) {
-                const existingIndex = inv.findIndex(i => i && i.name === finalItem.name);
-                if (existingIndex !== -1) {
-                    inv[existingIndex].quantity = (inv[existingIndex].quantity || 1) + finalItem.quantity;
-                    stacked = true;
+            if (rawData) {
+                if (typeof rawData === 'string') {
+                    try { finalItem = JSON.parse(rawData.trim()); } catch (err) { return socket.emit('systemMessage', "Corrupted attachment."); }
+                } else {
+                    finalItem = rawData;
                 }
-            }
 
-            // EMPTY SLOT CHECK MUST ACCEPT null OR undefined
-            if (!stacked) {
-                const emptySlot = inv.findIndex(slot => slot == null);
-                if (emptySlot === -1) {
-                    return socket.emit('systemMessage', "Inventory full! Clear space to claim.");
+                if (!finalItem || !finalItem.name) return socket.emit('systemMessage', "Invalid item.");
+                if (!finalItem.id) finalItem.id = Date.now() + Math.random();
+                if (!finalItem.quantity) finalItem.quantity = 1;
+
+                const inv = Array.isArray(p.inventory) ? [...p.inventory] : [];
+                while (inv.length < 20) inv.push(null);
+
+                let stacked = false;
+                if (['potion', 'material', 'consumable'].includes(finalItem.type)) {
+                    const existingIndex = inv.findIndex(i => i && i.name === finalItem.name);
+                    if (existingIndex !== -1) {
+                        inv[existingIndex].quantity = (inv[existingIndex].quantity || 1) + finalItem.quantity;
+                        stacked = true;
+                    }
                 }
-                inv[emptySlot] = finalItem;
+
+                if (!stacked) {
+                    const emptySlot = inv.findIndex(slot => slot == null);
+                    if (emptySlot === -1) return socket.emit('systemMessage', "Inventory full! Clear space to claim.");
+                    inv[emptySlot] = finalItem;
+                }
+                p.inventory = inv;
             }
 
-            p.inventory = inv;
+            // 🛡️ THE FIX: How we save it determines if others can still claim it
+            if (isEveryoneMail) {
+                p.baseStats.claimedMails.push(mailId);
+                await supabase.from('Exonians').update({ inventory: p.inventory, base_stats: p.baseStats }).eq('character_name', p.id);
+            } else {
+                await supabase.from('System_Mail').update({ is_claimed: true }).eq('id', mailId);
+                await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
+            }
+
+            socket.emit('mailClaimSuccess', mailId);
+            socket.emit('syncInventory', p.inventory);
+
+            let qtyText = finalItem && finalItem.quantity > 1 ? `${finalItem.quantity}x ` : '';
+            socket.emit('systemMessage', finalItem ? `Claimed ${qtyText}${finalItem.name}!` : "Mail successfully claimed!");
+            
+        } catch (e) {
+            console.error(`[CLAIM ERROR]:`, e.message);
+            socket.emit('systemMessage', "Server error during claim.");
         }
-
-        await supabase
-            .from('System_Mail')
-            .update({ is_claimed: true })
-            .eq('id', mailId);
-
-        await supabase
-            .from('Exonians')
-            .update({ inventory: p.inventory })
-            .eq('character_name', p.id);
-
-        socket.emit('mailClaimSuccess', mailId);
-        socket.emit('syncInventory', p.inventory);
-
-        let qtyText = finalItem && finalItem.quantity > 1 ? `${finalItem.quantity}x ` : '';
-        socket.emit(
-            'systemMessage',
-            finalItem ? `Claimed ${qtyText}${finalItem.name}!` : "Mail successfully claimed!"
-        );
-    } catch (e) {
-        console.error(`[CLAIM ERROR]:`, e.message);
-        socket.emit('systemMessage', "Server error during claim.");
-    }
-});
+    });
 
     socket.on('addFriend', (data) => {
         const me = onlinePlayers[socket.id];
@@ -1523,16 +1517,19 @@ socket.on('login', async (data) => {
     }
 
     const safeUser = sanitizePlayerRecordFromDb(freshUser);
-     // 🎁 LEVEL 50 FREE WISP PET LOGIC (Checked when they log in)
+   // 🎁 LEVEL 50 FREE WISP PET LOGIC (Mailed on Login)
     if (safeUser.level >= 50 && !safeUser.base_stats.gotWisp) {
-        const emptySlot = safeUser.inventory.findIndex(i => i === null);
-        if (emptySlot !== -1) {
-            safeUser.base_stats.gotWisp = true;
-            safeUser.inventory[emptySlot] = { id: Date.now() + Math.random(), name: "Sky Wisp Pet", type: 'aura', auraId: 'wisp', sprite: 'aurastone', level: 50, rarity: 'Godly', color: '#87CEEB', description: "Click to apply to Leggings. A loyal companion.", quantity: 1 };
-            setTimeout(() => { socket.emit('systemMessage', `<span style="color:#87CEEB; font-weight:bold;">🎉 LEVEL 50 REWARD: You received a free Sky Wisp Pet!</span>`); }, 3000);
-        } else {
-            setTimeout(() => { socket.emit('systemMessage', `<span style="color:#f44336; font-weight:bold;">You reached Level 50, but your inventory is full! Clear a slot and refresh to get your free Wisp Pet.</span>`); }, 3000);
-        }
+        safeUser.base_stats.gotWisp = true;
+        const wispItem = { id: Date.now() + Math.random(), name: "Sky Wisp Pet", type: 'aura', auraId: 'wisp', sprite: 'aurastone', level: 50, rarity: 'Godly', color: '#87CEEB', description: "Apply it on leggings. A loyal companion.", quantity: 1 };
+        
+        supabase.from('System_Mail').insert([{
+            recipient_name: safeUser.character_name,
+            message_text: "Congratulations on reaching Level 50! Here is your exclusive Sky Wisp. Apply it on leggings to equip it.",
+            attached_item: JSON.stringify(wispItem),
+            is_claimed: false
+        }]).then(() => {
+            setTimeout(() => { socket.emit('systemMessage', `<span style="color:#87CEEB; font-weight:bold;">🎉 LEVEL 50 REWARD: You have new mail! Check your Mailbox (M).</span>`); }, 3000);
+        });
     }
     const trueMaxHp = getServerTotalStat({
         baseStats: safeUser.base_stats,
@@ -1925,16 +1922,19 @@ socket.on('saveData', async (playerData) => {
                 }); // <-- This closing bracket was accidentally pushed down!
             }
 
-            // 🎁 GIVEN UPON HITTING LEVEL 50 FROM COMBAT
+            // 🎁 GIVEN UPON HITTING LEVEL 50 FROM COMBAT (Mailed)
             if (targetPlayer.level >= 50 && !targetPlayer.baseStats.gotWisp) {
-                const emptySlot = targetPlayer.inventory.findIndex(i => i === null);
-                if (emptySlot !== -1) {
-                    targetPlayer.baseStats.gotWisp = true;
-                    targetPlayer.inventory[emptySlot] = { id: Date.now() + Math.random(), name: "Sky Wisp Pet", type: 'aura', auraId: 'wisp', sprite: 'aurastone', level: 50, rarity: 'Godly', color: '#87CEEB', description: "Click to apply to Leggings. A loyal companion.", quantity: 1 };
-                    if (targetSid) io.to(targetSid).emit('systemMessage', `<span style="color:#87CEEB; font-weight:bold;">🎉 LEVEL 50 REWARD: You received a free Sky Wisp Pet! Check your inventory.</span>`);
-                } else {
-                    if (targetSid) io.to(targetSid).emit('systemMessage', `<span style="color:#f44336; font-weight:bold;">You hit Level 50, but your inventory is full! Clear a slot and relog to claim your Wisp!</span>`);
-                }
+                targetPlayer.baseStats.gotWisp = true;
+                const wispItem = { id: Date.now() + Math.random(), name: "Sky Wisp Pet", type: 'aura', auraId: 'wisp', sprite: 'aurastone', level: 50, rarity: 'Godly', color: '#87CEEB', description: "Apply it on leggings. A loyal companion.", quantity: 1 };
+                
+                supabase.from('System_Mail').insert([{
+                    recipient_name: targetPlayer.id,
+                    message_text: "Congratulations on reaching Level 50! Here is your exclusive Sky Wisp. Apply it on leggings to equip it.",
+                    attached_item: JSON.stringify(wispItem),
+                    is_claimed: false
+                }]).then(() => {
+                    if (targetSid) io.to(targetSid).emit('systemMessage', `<span style="color:#87CEEB; font-weight:bold;">🎉 LEVEL 50 REWARD: A reward has been sent to your Mailbox (M)!</span>`);
+                });
             }
         }
 
@@ -3273,7 +3273,12 @@ socket.on('adminSpawnItem', async (data) => {
             'wisp': { name: 'Sky Wisp Pet', color: '#87CEEB' }
             };
             let aData = AURA_DATA[auraType] || AURA_DATA['lightning'];
-            item = { id: Date.now() + Math.random(), name: `${aData.name} Aura Stone`, type: 'aura', auraId: auraType, sprite: 'aurastone', level: 1, rarity: 'Legendary', color: aData.color, description: "Click to apply to an Armor. Purely cosmetic.", quantity: 1 };
+            
+            // 🛡️ THE FIX: Removes "Aura Stone" from the name if it is a pet
+            let isPetItem = ['fox', 'owl', 'wisp'].includes(auraType);
+            let finalName = isPetItem ? aData.name : `${aData.name} Aura Stone`;
+
+            item = { id: Date.now() + Math.random(), name: finalName, type: 'aura', auraId: auraType, sprite: 'aurastone', level: 1, rarity: 'Legendary', color: aData.color, description: isPetItem ? "Click to apply to Leggings." : "Click to apply to an Armor. Purely cosmetic.", quantity: 1 };
         } else {
             const tmpl = ITEM_TEMPLATES[type];
             if (!tmpl) return;
@@ -3424,16 +3429,19 @@ socket.on('adminSpawnItem', async (data) => {
             'wisp': { name: 'Sky Wisp Pet', color: '#87CEEB' }
         };
         let aData = AURA_DATA[item.aura] || AURA_DATA['lightning'];
+        let isPetExtract = ['fox', 'owl', 'wisp'].includes(item.aura);
 
         let auraStone = { 
             id: Date.now() + Math.random(), 
-            name: `${aData.name} ${item.aura === 'fox' ? '' : 'Aura Stone'}`, 
+            name: isPetExtract ? aData.name : `${aData.name} Aura Stone`, 
             type: 'aura', auraId: item.aura, sprite: 'aurastone', 
             level: 1, rarity: 'Legendary', color: aData.color, 
-            description: "Click to apply to equipment. Purely cosmetic.", quantity: 1 
+            description: isPetExtract ? "Click to apply to Leggings." : "Click to apply to equipment. Purely cosmetic.", quantity: 1 
         };
 
-        item.name = item.originalName || item.name.replace(aData.name + " ", "");
+        // 🛡️ THE FIX: Safely removes " [Sky Wisp]" OR "Lightning " from the name depending on what it is
+        let cleanPetName = aData.name.replace(' Pet', ''); 
+        item.name = item.originalName || item.name.replace(` [${cleanPetName}]`, "").replace(aData.name + " ", "");
         delete item.aura;
         delete item.originalName;
 
@@ -3563,6 +3571,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
