@@ -1916,13 +1916,16 @@ socket.on('saveData', async (playerData) => {
             leveledUp = true;
         }
         
-        if (leveledUp) {
+      if (leveledUp) {
             targetPlayer.currentHp = getServerTotalStat(targetPlayer, 'hp') || 100;
             if (targetSid) {
                 io.to(targetSid).emit('serverLevelUp', { 
                     level: targetPlayer.level, exp: targetPlayer.exp, maxExp: targetPlayer.maxExp, 
                     baseStats: targetPlayer.baseStats, currentHp: targetPlayer.currentHp 
-                    // 🎁 GIVEN UPON HITTING LEVEL 50 FROM COMBAT
+                }); // <-- This closing bracket was accidentally pushed down!
+            }
+
+            // 🎁 GIVEN UPON HITTING LEVEL 50 FROM COMBAT
             if (targetPlayer.level >= 50 && !targetPlayer.baseStats.gotWisp) {
                 const emptySlot = targetPlayer.inventory.findIndex(i => i === null);
                 if (emptySlot !== -1) {
@@ -1932,8 +1935,6 @@ socket.on('saveData', async (playerData) => {
                 } else {
                     if (targetSid) io.to(targetSid).emit('systemMessage', `<span style="color:#f44336; font-weight:bold;">You hit Level 50, but your inventory is full! Clear a slot and relog to claim your Wisp!</span>`);
                 }
-            }
-                });
             }
         }
 
@@ -3547,6 +3548,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
