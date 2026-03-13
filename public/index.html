@@ -605,20 +605,23 @@
         padding: 5px;
     }
 }
- /* 📱 THE FIX: Relocate & Shrink Party Panel on Mobile */
+/* 📱 THE FIX: Relocate & Shrink Party Panel on Mobile */
 @media (max-width: 950px), (pointer: coarse) {
     #party-panel {
-        position: fixed !important;  /* 🛡️ Forces it to ignore the JS drag coordinates */
-        left: auto !important;       /* 🛡️ Kills the desktop left position */
-        top: auto !important;        /* 🛡️ Kills the desktop top position */
-        right: 10px !important;      /* 🛡️ Locks to the right side */
-        bottom: 240px !important;    /* 🛡️ Sits right above your action buttons */
-        width: 150px !important;     /* 🛡️ Matches your Player UI size */
+        position: fixed !important;  
+        left: auto !important;       
+        top: auto !important;        
+        right: 10px !important;      
+        bottom: 160px !important;    /* 🛡️ Brought down so it doesn't clip off the top of the screen */
+        width: 150px !important;     
         min-width: 150px !important; 
-        padding: 6px !important;
+        padding: 8px !important;
         margin: 0 !important;
-        transform: none !important;  /* 🛡️ Stops the JS from moving it back */
+        transform: none !important;  
         z-index: 9999 !important;
+        background: rgba(0, 0, 0, 0.85) !important; /* 🛡️ Solid black background */
+        border: 1px solid #444 !important;          /* 🛡️ Clean border to match chat */
+        border-radius: 8px !important;
     }
     
     #party-panel .party-row {
@@ -626,12 +629,13 @@
     }
 
     #party-panel .party-name-row span {
-        font-size: 11px !important;  /* 🛡️ Shrinks name text */
+        font-size: 11px !important;  
     }
 
     #party-panel .party-hp-bar-bg {
-        height: 6px !important;      /* 🛡️ Shrinks HP bar height */
+        height: 6px !important;      
         margin-top: 2px !important;
+        background: #333 !important; /* 🛡️ Makes the empty HP bar visible against the black background */
     }
 }
         #chat-input { background: rgba(0,0,0,0.8); border: 1px solid #4CAF50; color: white; padding: 10px 20px; width: 400px; border-radius: 25px; outline: none; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
@@ -1523,6 +1527,7 @@
 </div>
     </body>
 </html>
+
 
 
 
