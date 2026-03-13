@@ -2598,20 +2598,32 @@ socket.on('requestConfirmTrade', () => {
 
         socket.emit('systemMessage', 'That item cannot be used this way.');
     });
-    socket.on('chatMessage', (data) => { 
-        const p = onlinePlayers[socket.id]; 
-        if (!p || !data.text) return; 
-        
-        // 🛡️ ANTI-CHEAT: CHAT SPAM & BOMB PROTECTION
-        const now = Date.now();
-        if (p.lastChatTime && now - p.lastChatTime < 500) return; // Max 1 message per 0.5s
-        p.lastChatTime = now;
+   socket.on('chatMessage', (data) => { 
+        const p = onlinePlayers[socket.id]; 
+        if (!p || !data.text) return; 
+        
+        // 🛡️ ANTI-CHEAT: CHAT SPAM & BOMB PROTECTION
+        const now = Date.now();
+        if (p.lastChatTime && now - p.lastChatTime < 500) return; // Max 1 message per 0.5s
+        p.lastChatTime = now;
 
-        // Force string type and slice it to a max of 120 characters
-        let safeText = String(data.text).slice(0, 120); 
-        
-        io.to(p.instanceId).emit('chatMessage', { id: p.id, text: safeText }); 
-    });
+        // Force string type and slice it to a max of 120 characters
+        let safeText = String(data.text).slice(0, 120); 
+        
+        // 1. Emit the local text bubble to everyone in the room
+        io.to(p.instanceId).emit('chatMessage', { id: p.id, text: safeText }); 
+
+        // 2. Automatically log it in the persistent Party Chat box if they are in a party!
+        const pid = playerParty[p.id];
+        if (pid && parties[pid]) {
+            for (const memberId of parties[pid].members) {
+                const sid = findSocketIdByPlayerId(memberId);
+                if (sid) {
+                    io.to(sid).emit('partyChatMessage', { from: p.id, text: safeText });
+                }
+            }
+        }
+    });
     socket.on('partyInvite', ({ targetId }) => { const me = onlinePlayers[socket.id]; if (!me || !targetId) return; const targetSid = findSocketIdByPlayerId(targetId); if (!targetSid) return socket.emit('partyError', 'Target is not online.'); io.to(targetSid).emit('partyInviteReceived', { fromId: me.id }); });
     
     socket.on('partyInviteResponse', ({ fromId, accept }) => {
@@ -3571,6 +3583,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
