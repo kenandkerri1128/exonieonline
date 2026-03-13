@@ -612,7 +612,7 @@
         left: auto !important;       
         top: auto !important;        
         right: 10px !important;      
-        bottom: 160px !important;    /* 🛡️ Brought down so it doesn't clip off the top of the screen */
+        bottom: 210px !important;    /* 🛡️ Brought down so it doesn't clip off the top of the screen */
         width: 120px !important;     
         min-width: 120px !important; 
         padding: 4px !important;
@@ -636,6 +636,23 @@
         height: 6px !important;      
         margin-top: 2px !important;
         background: #333 !important; /* 🛡️ Makes the empty HP bar visible against the black background */
+    }
+    /* 1. Shrink the "Party" Title Text */
+    #party-panel h2, 
+    #party-panel h3, 
+    #party-panel strong {
+        font-size: 12px !important;
+        margin-bottom: 3px !important;
+        padding: 0 !important;
+    }
+
+    /* 2. Shrink the "Leave Party" Button */
+    #party-panel button {
+        font-size: 10px !important;
+        padding: 3px 6px !important;
+        margin-top: 4px !important;
+        height: auto !important;
+        line-height: 1 !important;
     }
 }
         #chat-input { background: rgba(0,0,0,0.8); border: 1px solid #4CAF50; color: white; padding: 10px 20px; width: 400px; border-radius: 25px; outline: none; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
@@ -1527,6 +1544,7 @@
 </div>
     </body>
 </html>
+
 
 
 
