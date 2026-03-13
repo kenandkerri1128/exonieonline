@@ -567,6 +567,40 @@
 
         /* --- BUBBLE CHAT & POPUPS --- */
         #chat-input-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 3000; display: none; }
+        /* --- PERSISTENT CHAT BOX --- */
+#persistent-chat-box {
+    position: absolute;
+    bottom: 180px; /* Adjust this so it sits right above your admin panel */
+    left: 10px;
+    width: 350px;
+    height: 200px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    font-family: 'Arial', sans-serif;
+    z-index: 1000;
+    overflow-y: auto;
+    pointer-events: auto;
+    padding: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+}
+#persistent-chat-content { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 4px; 
+    width: 100%; 
+}
+.chat-line { 
+    word-wrap: break-word; 
+    text-shadow: 1px 1px 2px black; 
+}
+#persistent-chat-box::-webkit-scrollbar { width: 6px; }
+#persistent-chat-box::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+#persistent-chat-box::-webkit-scrollbar-thumb { background: #888; border-radius: 3px; }
         #chat-input { background: rgba(0,0,0,0.8); border: 1px solid #4CAF50; color: white; padding: 10px 20px; width: 400px; border-radius: 25px; outline: none; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
         .chat-bubble { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.9); color: #111; padding: 6px 14px; border-radius: 12px; font-size: 14px; font-weight: bold; white-space: nowrap; pointer-events: none; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 200; animation: fadeInOut 4s forwards; }
 
@@ -978,7 +1012,9 @@
             <button class="btn" style="background:#f44336; border-color:#f44336;" onclick="window.respondInvite(false)">Decline</button>
         </div>
     </div>
-    
+    <div id="persistent-chat-box">
+        <div id="persistent-chat-content"></div>
+    </div>
     <div id="trade-dialog" class="popup-dialog">
         <p id="trade-text" style="font-size: 20px; margin-top: 0; margin-bottom: 20px;">Player wants to trade.</p>
         <div style="display: flex; justify-content: center;">
@@ -1454,6 +1490,7 @@
 </div>
     </body>
 </html>
+
 
 
 
