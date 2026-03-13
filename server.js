@@ -3361,12 +3361,27 @@ socket.on('adminSpawnItem', async (data) => {
         if (targetItem.type !== expectedType) return socket.emit('systemMessage', `This item only applies to ${expectedType}!`);
         if (targetItem.aura) return socket.emit('systemMessage', `That ${expectedType} already has an enchantment! Extract it first.`);
 
-        const AURA_DATA = { 'lightning': 'Lightning', 'blaze': 'Blaze', 'liquid': 'Liquid', 'nature': 'Nature', 'fox': 'Spirit Fox' };
+        // 🛡️ THE FIX: Added Owl and Wisp to the dictionary!
+        const AURA_DATA = { 
+            'lightning': 'Lightning', 
+            'blaze': 'Blaze', 
+            'liquid': 'Liquid', 
+            'nature': 'Nature', 
+            'fox': 'Spirit Fox',
+            'owl': 'Night Owl',
+            'wisp': 'Sky Wisp'
+        };
         let aName = AURA_DATA[stone.auraId] || 'Lightning';
 
         targetItem.aura = stone.auraId;
         targetItem.originalName = targetItem.name;
-        targetItem.name = aName + " " + targetItem.name;
+        
+        // 🛡️ THE FIX: Formats pets as "Leggings [Sky Wisp]" and Auras as "Lightning Armor"
+        if (isPet) {
+            targetItem.name = `${targetItem.name} [${aName}]`;
+        } else {
+            targetItem.name = `${aName} ${targetItem.name}`;
+        }
 
         stone.quantity = (stone.quantity || 1) - 1;
         if (stone.quantity <= 0) p.inventory[data.stoneIndex] = null;
@@ -3548,6 +3563,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
