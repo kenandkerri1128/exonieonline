@@ -89,7 +89,7 @@ function sanitizeItem(item) {
     safe.fixedStat = sanitizeStatObject(safe.fixedStat);
     safe.randomStat = sanitizeStatObject(safe.randomStat);
 
-    const VALID_AURAS = ['lightning', 'blaze', 'liquid', 'nature', 'fox'];
+    const VALID_AURAS = ['lightning', 'blaze', 'liquid', 'nature', 'fox', 'owl', 'wisp'];
     if (safe.aura && !VALID_AURAS.includes(safe.aura)) {
         delete safe.aura;
     }
@@ -136,6 +136,7 @@ function sanitizeBaseStats(baseStats) {
     safe.int = clamp(safe.int, 0, 999999);
     safe.playerClass = safe.playerClass || null;
     safe.title = safe.title || null; // 🛡️ Ensure title is kept!
+    safe.gotWisp = !!baseStats.gotWisp;
     return safe;
 }
 
@@ -1522,6 +1523,17 @@ socket.on('login', async (data) => {
     }
 
     const safeUser = sanitizePlayerRecordFromDb(freshUser);
+     // 🎁 LEVEL 50 FREE WISP PET LOGIC (Checked when they log in)
+    if (safeUser.level >= 50 && !safeUser.base_stats.gotWisp) {
+        const emptySlot = safeUser.inventory.findIndex(i => i === null);
+        if (emptySlot !== -1) {
+            safeUser.base_stats.gotWisp = true;
+            safeUser.inventory[emptySlot] = { id: Date.now() + Math.random(), name: "Sky Wisp Pet", type: 'aura', auraId: 'wisp', sprite: 'aurastone', level: 50, rarity: 'Godly', color: '#87CEEB', description: "Click to apply to Leggings. A loyal companion.", quantity: 1 };
+            setTimeout(() => { socket.emit('systemMessage', `<span style="color:#87CEEB; font-weight:bold;">🎉 LEVEL 50 REWARD: You received a free Sky Wisp Pet!</span>`); }, 3000);
+        } else {
+            setTimeout(() => { socket.emit('systemMessage', `<span style="color:#f44336; font-weight:bold;">You reached Level 50, but your inventory is full! Clear a slot and refresh to get your free Wisp Pet.</span>`); }, 3000);
+        }
+    }
     const trueMaxHp = getServerTotalStat({
         baseStats: safeUser.base_stats,
         equips: safeUser.equips,
@@ -1910,6 +1922,17 @@ socket.on('saveData', async (playerData) => {
                 io.to(targetSid).emit('serverLevelUp', { 
                     level: targetPlayer.level, exp: targetPlayer.exp, maxExp: targetPlayer.maxExp, 
                     baseStats: targetPlayer.baseStats, currentHp: targetPlayer.currentHp 
+                    // 🎁 GIVEN UPON HITTING LEVEL 50 FROM COMBAT
+            if (targetPlayer.level >= 50 && !targetPlayer.baseStats.gotWisp) {
+                const emptySlot = targetPlayer.inventory.findIndex(i => i === null);
+                if (emptySlot !== -1) {
+                    targetPlayer.baseStats.gotWisp = true;
+                    targetPlayer.inventory[emptySlot] = { id: Date.now() + Math.random(), name: "Sky Wisp Pet", type: 'aura', auraId: 'wisp', sprite: 'aurastone', level: 50, rarity: 'Godly', color: '#87CEEB', description: "Click to apply to Leggings. A loyal companion.", quantity: 1 };
+                    if (targetSid) io.to(targetSid).emit('systemMessage', `<span style="color:#87CEEB; font-weight:bold;">🎉 LEVEL 50 REWARD: You received a free Sky Wisp Pet! Check your inventory.</span>`);
+                } else {
+                    if (targetSid) io.to(targetSid).emit('systemMessage', `<span style="color:#f44336; font-weight:bold;">You hit Level 50, but your inventory is full! Clear a slot and relog to claim your Wisp!</span>`);
+                }
+            }
                 });
             }
         }
@@ -3244,7 +3267,9 @@ socket.on('adminSpawnItem', async (data) => {
                 'blaze': { name: 'Blaze', color: '#ff4444' },
                 'liquid': { name: 'Liquid', color: '#44aaff' },
                  'nature': { name: 'Nature', color: '#4CAF50' },
-                'fox': { name: 'Spirit Fox Pet', color: '#ff7e00' }
+                'fox': { name: 'Spirit Fox Pet', color: '#ff7e00' },
+                'owl': { name: 'Night Owl Pet', color: '#a0a0a0' },
+            'wisp': { name: 'Sky Wisp Pet', color: '#87CEEB' }
             };
             let aData = AURA_DATA[auraType] || AURA_DATA['lightning'];
             item = { id: Date.now() + Math.random(), name: `${aData.name} Aura Stone`, type: 'aura', auraId: auraType, sprite: 'aurastone', level: 1, rarity: 'Legendary', color: aData.color, description: "Click to apply to an Armor. Purely cosmetic.", quantity: 1 };
@@ -3329,7 +3354,7 @@ socket.on('adminSpawnItem', async (data) => {
 
         if (!stone || !targetItem || stone.type !== 'aura') return;
         
-        const isPet = stone.auraId === 'fox';
+        const isPet = ['fox', 'owl', 'wisp'].includes(stone.auraId);
         const expectedType = isPet ? 'leggings' : 'armor';
 
         if (targetItem.type !== expectedType) return socket.emit('systemMessage', `This item only applies to ${expectedType}!`);
@@ -3378,7 +3403,9 @@ socket.on('adminSpawnItem', async (data) => {
             'blaze': { name: 'Blaze', color: '#ff4444' },
             'liquid': { name: 'Liquid', color: '#44aaff' },
             'nature': { name: 'Nature', color: '#4CAF50' },
-            'fox': { name: 'Spirit Fox Pet', color: '#ff7e00' }
+            'fox': { name: 'Spirit Fox Pet', color: '#ff7e00' },
+            'owl': { name: 'Night Owl Pet', color: '#a0a0a0' },
+            'wisp': { name: 'Sky Wisp Pet', color: '#87CEEB' }
         };
         let aData = AURA_DATA[item.aura] || AURA_DATA['lightning'];
 
@@ -3399,7 +3426,7 @@ socket.on('adminSpawnItem', async (data) => {
         socket.emit('syncInventory', p.inventory);
         socket.emit('systemMessage', "Extracted safely!");
 
-        const expectedType = auraStone.auraId === 'fox' ? 'leggings' : 'armor';
+        const expectedType = ['fox', 'owl', 'wisp'].includes(auraStone.auraId) ? 'leggings' : 'armor';
         if (p.equips && p.equips[expectedType] && p.equips[expectedType].id === item.id) {
              if (expectedType === 'leggings') p.spriteData.pet = null;
              else p.spriteData.aura = null;
@@ -3520,6 +3547,7 @@ socket.on('requestSell', async (data) => {
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Exonie server running on port ${PORT}`));
+
 
 
 
