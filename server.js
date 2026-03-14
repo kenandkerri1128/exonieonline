@@ -138,6 +138,7 @@ function sanitizeBaseStats(baseStats) {
     safe.title = safe.title || null; // 🛡️ Ensure title is kept!
     safe.gotWisp = baseStats ? !!baseStats.gotWisp : false;
     safe.watchedTutorial = baseStats ? !!baseStats.watchedTutorial : false;
+    
     return safe;
 }
 
@@ -1721,22 +1722,21 @@ socket.on('saveData', async (playerData) => {
             });
         }
     });
-// 🎥 TUTORIAL TRACKER
-    socket.on('markTutorialWatched', () => {
-        let p = players[socket.id];
+// 🎥 TUTORIAL INSTANT SAVE (FIXED)
+    socket.on('markTutorialWatched', async () => {
+        const p = onlinePlayers[socket.id]; // 🛡️ Uses your correct player array!
         if (p && p.baseStats) {
             p.baseStats.watchedTutorial = true;
-            savePlayerRecord(p);
-        }
-    });
-// 🎥 TUTORIAL INSTANT SAVE
-    socket.on('markTutorialWatched', () => {
-        let p = players[socket.id];
-        if (p && p.baseStats) {
-            p.baseStats.watchedTutorial = true;
-            // Force save to Supabase instantly
-            if (typeof savePlayerRecord === 'function') {
-                savePlayerRecord(p);
+            
+            // 🛡️ Uses your direct Supabase method to guarantee it saves instantly!
+            try {
+                await supabase
+                    .from('Exonians')
+                    .update({ base_stats: p.baseStats })
+                    .eq('character_name', p.id);
+                console.log(`[TUTORIAL] Saved watchedTutorial: true for ${p.id}`);
+            } catch (err) {
+                console.error('[TUTORIAL SAVE ERROR]', err);
             }
         }
     });
