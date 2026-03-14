@@ -1729,6 +1729,17 @@ socket.on('saveData', async (playerData) => {
             savePlayerRecord(p);
         }
     });
+// 🎥 TUTORIAL INSTANT SAVE
+    socket.on('markTutorialWatched', () => {
+        let p = players[socket.id];
+        if (p && p.baseStats) {
+            p.baseStats.watchedTutorial = true;
+            // Force save to Supabase instantly
+            if (typeof savePlayerRecord === 'function') {
+                savePlayerRecord(p);
+            }
+        }
+    });
   socket.on('tauntMonsters', () => { // 🛡️ Ignored client data
     const p = onlinePlayers[socket.id];
     if (!p || p.isGhost) return;
