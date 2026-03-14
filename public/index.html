@@ -623,6 +623,22 @@
         border: 1px solid #444 !important;          /* 🛡️ Clean border to match chat */
         border-radius: 8px !important;
     }
+    /* 📱 THE FIX: Expand Mobile Inventory to fit 4 columns */
+    #inventory-screen {
+        width: 280px !important; /* 🛡️ Widens the box to fit the 4th column */
+        padding: 10px !important;
+    }
+
+    #inventory-grid {
+        grid-template-columns: repeat(4, 1fr) !important; /* 🛡️ Forces exactly 4 columns */
+        gap: 5px !important; /* 🛡️ Slightly reduces the gap so they fit neatly */
+    }
+
+    .inv-slot {
+        width: 55px !important; /* 🛡️ Ensures the slots aren't too bulky on phone */
+        height: 55px !important;
+        font-size: 10px !important; /* 🛡️ Keeps item names readable */
+    }
     
     #party-panel .party-row {
         margin-bottom: 5px !important;
@@ -655,6 +671,7 @@
         line-height: 1 !important;
     }
 }
+        
         #chat-input { background: rgba(0,0,0,0.8); border: 1px solid #4CAF50; color: white; padding: 10px 20px; width: 400px; border-radius: 25px; outline: none; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
         .chat-bubble { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.9); color: #111; padding: 6px 14px; border-radius: 12px; font-size: 14px; font-weight: bold; white-space: nowrap; pointer-events: none; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 200; animation: fadeInOut 4s forwards; }
 
