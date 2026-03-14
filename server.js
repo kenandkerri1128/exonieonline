@@ -1870,6 +1870,11 @@ socket.on('saveData', async (playerData) => {
             const world = worlds[p.instanceId];
             const pet = world.pets[payload.petId]; 
             
+            // 🛡️ STRICT PET SERVER COOLDOWN: Prevents pet spam hacks!
+            if (!pet) return;
+            if (pet.lastAttackTs && now - pet.lastAttackTs < 900) return; // 900ms allows for tiny network lag
+            pet.lastAttackTs = now;
+            
             // 🛡️ SUMMONER STAT FIX: Use Magic Attack for pet damage
             const serverMagicAtk = getServerMagicAttack(p);
             
