@@ -136,7 +136,7 @@ function sanitizeBaseStats(baseStats) {
     safe.int = clamp(safe.int, 0, 999999);
     safe.playerClass = safe.playerClass || null;
     safe.title = safe.title || null; // 🛡️ Ensure title is kept!
-    safe.gotWisp = !!baseStats.gotWisp;
+    safe.gotWisp = baseStats ? !!baseStats.gotWisp : false;
     return safe;
 }
 
