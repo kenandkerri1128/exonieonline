@@ -137,6 +137,7 @@ function sanitizeBaseStats(baseStats) {
     safe.playerClass = safe.playerClass || null;
     safe.title = safe.title || null; // 🛡️ Ensure title is kept!
     safe.gotWisp = baseStats ? !!baseStats.gotWisp : false;
+    safe.watchedTutorial = baseStats ? !!baseStats.watchedTutorial : false;
     return safe;
 }
 
@@ -1720,7 +1721,14 @@ socket.on('saveData', async (playerData) => {
             });
         }
     });
-
+// 🎥 TUTORIAL TRACKER
+    socket.on('markTutorialWatched', () => {
+        let p = players[socket.id];
+        if (p && p.baseStats) {
+            p.baseStats.watchedTutorial = true;
+            savePlayerRecord(p);
+        }
+    });
   socket.on('tauntMonsters', () => { // 🛡️ Ignored client data
     const p = onlinePlayers[socket.id];
     if (!p || p.isGhost) return;
