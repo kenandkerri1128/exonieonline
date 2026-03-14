@@ -1687,47 +1687,49 @@ socket.on('saveData', async (playerData) => {
     const pid = playerParty[p.id];
     if (pid) emitPartyUpdate(pid);
 });
-    
-   socket.on('playerMoved', (data) => {
-        if (!onlinePlayers[socket.id]) return; 
-        const p = onlinePlayers[socket.id]; 
+ socket.on('playerMoved', (data) => {
+        if (!onlinePlayers[socket.id]) return; 
+        const p = onlinePlayers[socket.id]; 
 
-        // 🛡️ SERVER-SIDE ANTI-WALLHACK
-        const world = worlds[p.instanceId];
-        if (world && world.collisions && !p.isGhost) {
-            const hitX = data.x + 12; // Player Hitbox X offset
-            const hitY = data.y + 76; // Player Hitbox Y offset
-            let isHacking = false;
-            
-            for (let box of world.collisions) {
-                // If the player's requested position is inside a wall...
-                if (hitX < box.x + box.w && hitX + 24 > box.x && hitY < box.y + box.h && hitY + 20 > box.y) {
-                    isHacking = true; break;
-                }
-            }
-            
-            // If they hit a wall, REJECT the movement and snap them back to their last known legal position!
-            if (isHacking) {
-                // Only admins named Kei are allowed to noclip
-                if (p.id !== "Kei") {
-                    socket.emit('forceTeleport', { mapId: p.mapId, x: p.x, y: p.y });
-                    return; 
-                }
-            }
-        }
+        // 🛡️ SERVER-SIDE ANTI-WALLHACK
+        const world = worlds[p.instanceId];
+        if (world && world.collisions && !p.isGhost) {
+            const hitX = data.x + 12; 
+            const hitY = data.y + 76; 
+            let isHacking = false;
+            for (let box of world.collisions) {
+                if (hitX < box.x + box.w && hitX + 24 > box.x && hitY < box.y + box.h && hitY + 20 > box.y) {
+                    isHacking = true; break;
+                }
+            }
+            if (isHacking && p.id !== "Kei") {
+                socket.emit('forceTeleport', { mapId: p.mapId, x: p.x, y: p.y });
+                return; 
+            }
+        }
 
-        // If movement is legal, update server and broadcast to others
-        p.x = data.x; p.y = data.y; p.spriteData.weapon = data.weaponSprite;
-        
-       // 🌟 ADMIN SPECTATOR FIX & AURA SYNC: Include spriteData in the broadcast!
-        if (!p.isHiddenAdmin) {
-            socket.to(p.instanceId).emit('remotePlayerMoved', { 
-                id: p.id, x: data.x, y: data.y, state: data.state, 
-                facingRight: data.facingRight, weaponSprite: data.weaponSprite,
-                spriteData: p.spriteData // <--- THIS WAS MISSING! It syncs the Aura!
-            });
-        }
-    });
+        // 🛡️ THE ANIMATION FIX: Throttle 'attack' state broadcasts
+        const now = Date.now();
+        let broadcastState = data.state;
+        
+        if (data.state === 'attack') {
+            if (p.lastAnimTs && now - p.lastAnimTs < 800) {
+                broadcastState = 'idle'; // Force hackers to look 'idle' if they spam clicks
+            } else {
+                p.lastAnimTs = now;
+            }
+        }
+
+        p.x = data.x; p.y = data.y; p.spriteData.weapon = data.weaponSprite;
+        
+        if (!p.isHiddenAdmin) {
+            socket.to(p.instanceId).emit('remotePlayerMoved', { 
+                id: p.id, x: data.x, y: data.y, state: broadcastState, // Send the throttled state
+                facingRight: data.facingRight, weaponSprite: data.weaponSprite,
+                spriteData: p.spriteData 
+            });
+        }
+    });
 // 🎥 TUTORIAL INSTANT SAVE (FIXED)
     socket.on('markTutorialWatched', async () => {
         const p = onlinePlayers[socket.id]; // 🛡️ Uses your correct player array!
