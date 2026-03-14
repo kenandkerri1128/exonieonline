@@ -1645,11 +1645,17 @@ socket.on('saveData', async (playerData) => {
     p.lastSaveTime = now;
 
     const safeMapId = typeof playerData.mapId === 'string' ? playerData.mapId : p.mapId;
-    const safeX = typeof playerData.x === 'number' ? playerData.x : p.x;
+   const safeX = typeof playerData.x === 'number' ? playerData.x : p.x;
     const safeY = typeof playerData.y === 'number' ? playerData.y : p.y;
 
-    if (playerData.baseStats && playerData.baseStats.playerClass) {
-        p.baseStats.playerClass = String(playerData.baseStats.playerClass);
+    // 🛡️ THE FIX: Tell the server to accept the watchedTutorial flag!
+    if (playerData.baseStats) {
+        if (playerData.baseStats.playerClass) {
+            p.baseStats.playerClass = String(playerData.baseStats.playerClass);
+        }
+        if (playerData.baseStats.watchedTutorial !== undefined) {
+            p.baseStats.watchedTutorial = !!playerData.baseStats.watchedTutorial;
+        }
     }
 
     p.x = safeX;
@@ -1808,24 +1814,14 @@ socket.on('saveData', async (playerData) => {
         if (p.mapId === 'town') return; 
         const now = Date.now();
 
-        // 👇 WRAP THE ANTI-CHEAT SO PETS DON'T EAT YOUR SWINGS 👇
-        if (payload.skillId !== 'pet') {
-            // 🛡️ ANTI-CHEAT: MACRO BLOCKER
-            if (p.lastAttackTime && now - p.lastAttackTime < 300) return;
-            p.lastAttackTime = now;
-
-            // 🛡️ ANTI-CHEAT: TOKEN BUCKET
-            p.lastTokenRefill = p.lastTokenRefill || now;
-            const timePassed = now - p.lastTokenRefill;
-            const tokensToAdd = Math.floor(timePassed / 700); 
-            if (tokensToAdd > 0) {
-                p.attackTokens = Math.min(3, (p.attackTokens || 0) + tokensToAdd); 
-                p.lastTokenRefill = now - (timePassed % 700);
-            }
-            if (p.attackTokens <= 0) return;
-            p.attackTokens--; 
-        }
-        // 👆 END OF WRAPPER 👆
+        // 👇 STRICT ANTI-CHEAT (NO MORE BURSTS) 👇
+        if (payload.skillId === 'basic') {
+            // 🛡️ STRICT GLOBAL COOLDOWN: 800ms between basic attacks. 
+            // If they swing faster than this via macro or hacks, the server silently deletes the hit!
+            if (p.lastBasicAttack && now - p.lastBasicAttack < 800) return;
+            p.lastBasicAttack = now;
+        }
+        // 👆 END OF WRAPPER 👆
 
         const world = worlds[p.instanceId]; if (!world) return;
         const m = world.monsters[payload.monsterId]; 
