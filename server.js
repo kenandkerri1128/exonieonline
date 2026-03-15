@@ -386,17 +386,15 @@ function ensureWorldFromMapData(instanceId, mapData) {
             pets: {}
         };
 
-        const processSpawns = async (spawnList, fallbackKey) => { // Added 'async'
+       const processSpawns = async (spawnList, fallbackKey) => { 
             for (let i = 0; i < (spawnList || []).length; i++) {
                 const sp = spawnList[i];
                 const mKey = sp.monsterKey || fallbackKey;
 
-            // 🛡️ SUPABASE-LIVE CHECK
+              // 🛡️ SUPABASE-LIVE CHECK
                 if (mKey.includes('floor_boss')) {
                     const floorId = instanceId.split('_')[0]; 
                     
-                    // The DB now deletes expired timers automatically.
-                    // If a row exists, the boss is still dead.
                     const { data: timer } = await supabase.from('boss_timers')
                         .select('boss_id')
                         .eq('boss_id', floorId)
@@ -404,11 +402,16 @@ function ensureWorldFromMapData(instanceId, mapData) {
 
                     if (timer) {
                         console.log(`[WORLD] ${floorId} boss is on cooldown. Skipping spawn.`);
-                        continue; // Skip spawning this boss
+                        continue; 
                     }
                 }
 
                 const mId = `${instanceId}_mob_${Date.now()}_${i}_${Math.random()}`;
+                
+                // 🛡️ THE RACE CONDITION FIX: 
+                // Stop immediately if the player already left the room while the DB was loading
+                if (!worlds[instanceId]) return;
+
                 worlds[instanceId].monsters[mId] = spawnMonster(instanceId, mId, mKey, {
                     spawnArea: { minX: sp.x, maxX: sp.x, minY: sp.y, maxY: sp.y },
                     level: sp.level
