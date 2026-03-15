@@ -596,6 +596,14 @@ var floor5MapData = {
             "h": 34,
             "portalId": 10,
             "targetMapId": "floor4"
+        },
+        {
+            "x": 1864,
+            "y": 633,
+            "w": 23,
+            "h": 77,
+            "portalId": 11,
+            "targetMapId": "floor6"
         }
     ],
     "normalSpawns": [
