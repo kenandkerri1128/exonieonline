@@ -20,14 +20,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 const onlinePlayers = {}; 
 const parties = {};        
 const playerParty = {};    
-
-// 🛡️ FLOOR-BASED BOSS TIMERS
-const bossTimers = {}; 
-
-// Initial load from Supabase
-supabase.from('boss_timers').select('*').then(({data}) => {
-    if (data) data.forEach(row => bossTimers[row.boss_id] = parseInt(row.last_death_time));
-});
 // ==========================================
 // LOOT, GOLD & STAT GENERATION ENGINE
 // ==========================================
@@ -399,23 +391,20 @@ function ensureWorldFromMapData(instanceId, mapData) {
                 const sp = spawnList[i];
                 const mKey = sp.monsterKey || fallbackKey;
 
-              // 🛡️ SUPABASE-LIVE CHECK
+            // 🛡️ SUPABASE-LIVE CHECK
                 if (mKey.includes('floor_boss')) {
                     const floorId = instanceId.split('_')[0]; 
                     
-                    // Fetch directly from DB to see if you deleted the row
+                    // The DB now deletes expired timers automatically.
+                    // If a row exists, the boss is still dead.
                     const { data: timer } = await supabase.from('boss_timers')
-                        .select('last_death_time')
+                        .select('boss_id')
                         .eq('boss_id', floorId)
                         .single();
 
                     if (timer) {
-                        const now = Date.now();
-                        const oneDay = 24 * 60 * 60 * 1000;
-                        if (now - parseInt(timer.last_death_time) < oneDay) {
-                            console.log(`[WORLD] ${floorId} boss is on cooldown. Skipping spawn.`);
-                            continue; // Skip spawning this boss
-                        }
+                        console.log(`[WORLD] ${floorId} boss is on cooldown. Skipping spawn.`);
+                        continue; // Skip spawning this boss
                     }
                 }
 
