@@ -561,54 +561,66 @@ function hasLineOfSight(instId, x1, y1, x2, y2) {
     return true;
 }
 function pickTarget(m, instId, now) {
-    for (const pid of Object.keys(m.threatTable)) { 
-        const p = getPlayerById(pid); 
-        // 🌟 ADDED !p.isHiddenAdmin
-        if (!p || p.instanceId !== instId || p.isGhost || p.isHiddenAdmin || p.untargetableUntil > now || p.mapId === 'town') delete m.threatTable[pid]; 
-    }
-    
-    if (m.forcedUntil > now && m.forcedTargetId) {
-        const p = getPlayerById(m.forcedTargetId);
-        // 🌟 ADDED !p.isHiddenAdmin
-        if (p && p.instanceId === instId && !p.isGhost && !p.isHiddenAdmin && p.untargetableUntil <= now && p.mapId !== 'town' && (p.currentHp ?? 1) > 0) {
-            return { id: p.id, isPet: false, x: p.x + 24, y: p.y + 48 };
-        } else { m.forcedTargetId = null; }
-    }
+    for (const pid of Object.keys(m.threatTable)) { 
+        const p = getPlayerById(pid); 
+        // 🌟 ADDED !p.isHiddenAdmin
+        if (!p || p.instanceId !== instId || p.isGhost || p.isHiddenAdmin || p.untargetableUntil > now || p.mapId === 'town') delete m.threatTable[pid]; 
+    }
+    
+    if (m.forcedUntil > now && m.forcedTargetId) {
+        const p = getPlayerById(m.forcedTargetId);
+        // 🌟 ADDED !p.isHiddenAdmin
+        if (p && p.instanceId === instId && !p.isGhost && !p.isHiddenAdmin && p.untargetableUntil <= now && p.mapId !== 'town' && (p.currentHp ?? 1) > 0) {
+            return { id: p.id, isPet: false, x: p.x + 24, y: p.y + 48 };
+        } else { m.forcedTargetId = null; }
+    }
 
-    const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2);
+    const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2);
 
-    const world = worlds[instId];
-    if (world && world.pets) {
-        let closestPet = null; let petDist = Infinity;
-        for (const petId in world.pets) {
-            const pet = world.pets[petId];
-            const dist = Math.hypot(pet.x - mcx, pet.y - mcy);
-            if (dist <= m.chaseRadius && dist < petDist) { closestPet = pet; petDist = dist; }
-        }
-        if (closestPet) return { id: closestPet.id, isPet: true, x: closestPet.x, y: closestPet.y };
-    }
+    const world = worlds[instId];
+    if (world && world.pets) {
+        let closestPet = null; let petDist = Infinity;
+        for (const petId in world.pets) {
+            const pet = world.pets[petId];
+            const dist = Math.hypot(pet.x - mcx, pet.y - mcy);
+            // 🛡️ THE FIX: Added hasLineOfSight check so monsters ignore pets behind walls
+            if (dist <= m.chaseRadius && dist < petDist && hasLineOfSight(instId, mcx, mcy, pet.x, pet.y)) { 
+                closestPet = pet; petDist = dist; 
+            }
+        }
+        if (closestPet) return { id: closestPet.id, isPet: true, x: closestPet.x, y: closestPet.y };
+    }
 
-    let best = null; let bestThreat = -1; let bestDist = Infinity;
-    for (const pid of Object.keys(m.threatTable)) {
-        const threat = m.threatTable[pid] || 0; const p = getPlayerById(pid); 
-        // 🌟 ADDED !p.isHiddenAdmin
-        if (!p || p.isGhost || p.isHiddenAdmin || p.untargetableUntil > now || p.mapId === 'town') continue;
-        const dist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
-        if (dist > m.chaseRadius) continue;
-        if (threat > bestThreat || (threat === bestThreat && dist < bestDist)) { best = p; bestThreat = threat; bestDist = dist; }
-    }
-    if (best) return { id: best.id, isPet: false, x: best.x + 24, y: best.y + 48 };
-    
-    let nearest = null; let nearestDist = Infinity;
-    for (const p of playersInInstance(instId)) {
-        // 🌟 ADDED !p.isHiddenAdmin
-        if (p.isGhost || p.isHiddenAdmin || p.untargetableUntil > now || p.mapId === 'town' || (p.currentHp ?? 1) <= 0) continue; 
-        const dist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
-        if (dist <= m.aggroRadius && dist < nearestDist) { nearest = p; nearestDist = dist; }
-    }
-    if (nearest) { m.threatTable[nearest.id] = Math.max(1, m.threatTable[nearest.id] || 0); return { id: nearest.id, isPet: false, x: nearest.x + 24, y: nearest.y + 48 }; }
-    
-    return null;
+    let best = null; let bestThreat = -1; let bestDist = Infinity;
+    for (const pid of Object.keys(m.threatTable)) {
+        const threat = m.threatTable[pid] || 0; const p = getPlayerById(pid); 
+        // 🌟 ADDED !p.isHiddenAdmin
+        if (!p || p.isGhost || p.isHiddenAdmin || p.untargetableUntil > now || p.mapId === 'town') continue;
+        const dist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
+        if (dist > m.chaseRadius) continue;
+        
+        // Note: No Line of Sight check here. If they are on the threat table, the monster already saw them attack!
+        if (threat > bestThreat || (threat === bestThreat && dist < bestDist)) { best = p; bestThreat = threat; bestDist = dist; }
+    }
+    if (best) return { id: best.id, isPet: false, x: best.x + 24, y: best.y + 48 };
+    
+    let nearest = null; let nearestDist = Infinity;
+    for (const p of playersInInstance(instId)) {
+        // 🌟 ADDED !p.isHiddenAdmin
+        if (p.isGhost || p.isHiddenAdmin || p.untargetableUntil > now || p.mapId === 'town' || (p.currentHp ?? 1) <= 0) continue; 
+        
+        const px = p.x + 24;
+        const py = p.y + 48;
+        const dist = Math.hypot(px - mcx, py - mcy);
+        
+        // 🛡️ THE FIX: Added hasLineOfSight check for ambient player proximity aggro
+        if (dist <= m.aggroRadius && dist < nearestDist && hasLineOfSight(instId, mcx, mcy, px, py)) { 
+            nearest = p; nearestDist = dist; 
+        }
+    }
+    if (nearest) { m.threatTable[nearest.id] = Math.max(1, m.threatTable[nearest.id] || 0); return { id: nearest.id, isPet: false, x: nearest.x + 24, y: nearest.y + 48 }; }
+    
+    return null;
 }
 
 function updateMonsterAI(instId, m, now) {
@@ -815,12 +827,50 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
 }
 }
 setInterval(() => {
-    const now = Date.now();
-    for (const instId of Object.keys(worlds)) {
-        const world = worlds[instId];
-        for (const mid of Object.keys(world.monsters)) updateMonsterAI(instId, world.monsters[mid], now);
-        io.to(instId).emit('monsterState', Object.values(world.monsters).map(serializeMonster));
-    }
+    const now = Date.now();
+    for (const instId of Object.keys(worlds)) {
+        const world = worlds[instId];
+        const allMonsters = [];
+
+        // 1. Process all Monster AI first
+        for (const mid of Object.keys(world.monsters)) {
+            const m = world.monsters[mid];
+            updateMonsterAI(instId, m, now);
+            allMonsters.push(m);
+        }
+
+        // 2. Fetch all active players in this specific room
+        const playersInRoom = playersInInstance(instId);
+
+        // 3. Calculate custom Line-of-Sight for EACH player
+        for (const p of playersInRoom) {
+            // Ignore admins who are spectating out of bounds or dead players
+            if (p.isGhost || p.isHiddenAdmin) continue; 
+
+            const visibleMonsters = [];
+            const px = p.x + 24; // Center of player
+            const py = p.y + 48;
+
+            for (const m of allMonsters) {
+                if (!m.alive) continue;
+
+                const mx = m.x + (m.width / 2); // Center of monster
+                const my = m.y + (m.height / 2);
+
+                // OPTIMIZATION: Don't calculate walls for monsters that are miles away
+                const dist = Math.hypot(px - mx, py - my);
+                if (dist > 1200) continue; // 1200px is roughly the edge of a widescreen
+
+                // RAYCAST: Check if a wall is blocking the view
+                if (hasLineOfSight(instId, px, py, mx, my)) {
+                    visibleMonsters.push(serializeMonster(m));
+                }
+            }
+
+            // 4. Send this highly customized list ONLY to this specific player's socket
+            io.to(p.socketId).emit('monsterState', visibleMonsters);
+        }
+    }
 }, 100);
 
 io.on('connection', (socket) => {
