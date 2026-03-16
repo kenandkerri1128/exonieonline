@@ -1519,49 +1519,53 @@ socket.on('login', async (data) => {
     }
 });
     socket.on('createCharacter', async (data) => {
-        try {
-            const { username, charData } = data;
-            
-            // ✅ Leave 'weapon' null so their hands are empty, but keep basic clothes on
-            const starterEquips = {
-                weapon: null, 
-                armor: { id: Date.now() + Math.random(), name: "Starter Armor", type: "armor", sprite: "starterarmor", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { defense: 2 } },
-                leggings: { id: Date.now() + Math.random(), name: "Starter Leggings", type: "leggings", sprite: "starterleggings", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { hp: 5 } }
-            };
+        try {
+            const { username, charData } = data;
+            
+            // ✅ Leave 'weapon' null so their hands are empty, but keep basic clothes on
+            const starterEquips = {
+                weapon: null, 
+                armor: { id: Date.now() + Math.random(), name: "Starter Armor", type: "armor", sprite: "starterarmor", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { defense: 2 } },
+                leggings: { id: Date.now() + Math.random(), name: "Starter Leggings", type: "leggings", sprite: "starterleggings", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { hp: 5 } }
+            };
 
-            const starterInventory = [];
-            for (let i = 0; i < 20; i++) {
-                starterInventory.push(null);
-            }
-            
-            // ✅ Pack ALL THREE weapons into the first three inventory slots
-            starterInventory[0] = { id: Date.now() + Math.random(), name: "Starter Sword", type: "weapon", sprite: "startersword", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { attack: 3 } };
-            starterInventory[1] = { id: Date.now() + Math.random(), name: "Starter Staff", type: "weapon", sprite: "starterstaff", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 3 } };
-            starterInventory[2] = { id: Date.now() + Math.random(), name: "Starter Pendant", type: "weapon", sprite: "starterpendant", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 2 } };
+            const starterInventory = [];
+            for (let i = 0; i < 20; i++) {
+                starterInventory.push(null);
+            }
+            
+            // ✅ Pack ALL THREE weapons into the first three inventory slots
+            starterInventory[0] = { id: Date.now() + Math.random(), name: "Starter Sword", type: "weapon", sprite: "startersword", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { attack: 3 } };
+            starterInventory[1] = { id: Date.now() + Math.random(), name: "Starter Staff", type: "weapon", sprite: "starterstaff", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 3 } };
+            starterInventory[2] = { id: Date.now() + Math.random(), name: "Starter Pendant", type: "weapon", sprite: "starterpendant", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 2 } };
+            
+            // 🎁 STARTER GIFT: 10 Health Potions!
+            starterInventory[3] = { id: Date.now() + Math.random(), name: "Health Potion", type: "potion", sprite: "potion1", level: 1, rarity: "Basic", color: "#8B4513", fixedStat: { hpHeal: 50 }, quantity: 10 };
 
-            const { data: user, error } = await supabase.from('Exonians')
-                .update({ 
-                    skin_color: charData.skinColor, 
-                    hair_color: charData.hairColor, 
-                    hair_style: charData.hairStyle,
-                    equips: starterEquips,
-                    inventory: starterInventory 
-                })
-                .eq('character_name', username)
-                .select().single();
-            
-            if (error) {
-                console.error("[CREATE CHAR ERROR] Supabase rejected the items:", error);
-                return socket.emit('authError', 'Failed to save starter items. Check server console.');
-            }
-            
-            if (user) socket.emit('characterSelect', user);
-            
-        } catch(e) { 
-            console.error("[CREATE CHAR CRASH]", e);
-            socket.emit('authError', 'Server Error during character creation.'); 
-        }
-    });
+            const { data: user, error } = await supabase.from('Exonians')
+                .update({ 
+                    skin_color: charData.skinColor, 
+                    hair_color: charData.hairColor, 
+                    hair_style: charData.hairStyle,
+                    equips: starterEquips,
+                    inventory: starterInventory,
+                    gold: 500 // 🎁 STARTER GIFT: 500 Starting Gold!
+                })
+                .eq('character_name', username)
+                .select().single();
+            
+            if (error) {
+                console.error("[CREATE CHAR ERROR] Supabase rejected the items:", error);
+                return socket.emit('authError', 'Failed to save starter items. Check server console.');
+            }
+
+            if (user) socket.emit('characterSelect', user);
+            
+        } catch(e) { 
+            console.error("[CREATE CHAR CRASH]", e);
+            socket.emit('authError', 'Server Error during character creation.'); 
+        }
+    });
 
  socket.on('enterWorld', async (userData) => {
     const mapId = 'town';
@@ -1579,6 +1583,21 @@ socket.on('login', async (data) => {
     }
 
     const safeUser = sanitizePlayerRecordFromDb(freshUser);
+
+    // 🌟 GLOBAL WELCOME BROADCAST (Triggers exactly when they load into the map) 🌟
+    if (safeUser.base_stats && !safeUser.base_stats.welcomed) {
+        safeUser.base_stats.welcomed = true; // Mark them as welcomed
+        
+        const epicWelcomeMsg = `<span style="color: #ffeb3b; font-size: 1.1em; font-weight: bold; text-shadow: 0 0 10px #ff9800, 0 0 20px #ffea00;">🎊 THE GATES OPEN: A new hero, ${safeUser.character_name}, has just stepped into the maze of Exonie! Welcome! 🎊</span>`;
+        
+        // Wait 2 seconds before sending, to ensure their client UI and chat box are fully rendered!
+        setTimeout(() => {
+            io.emit('systemMessage', epicWelcomeMsg);
+        }, 2000);
+        
+        // Save the flag to Supabase instantly so it doesn't fire next time they log in
+        supabase.from('Exonians').update({ base_stats: safeUser.base_stats }).eq('character_name', safeUser.character_name).then(()=>{});
+    }
    // 🎁 LEVEL 50 FREE WISP PET LOGIC (Mailed on Login)
     if (safeUser.level >= 50 && !safeUser.base_stats.gotWisp) {
         safeUser.base_stats.gotWisp = true;
