@@ -1136,8 +1136,11 @@ io.on('connection', (socket) => {
         if (p.skillCooldowns['partyHeal'] && now < p.skillCooldowns['partyHeal']) return;
         p.skillCooldowns['partyHeal'] = now + 18000; 
 
-        // 🛡️ THE FIX: Check for 'Boost' passive (Lv. 25+)
-        let trueHealAmt = p.level >= 25 ? 500 : 250;
+        // 🛡️ THE NEW INT SCALING 
+        const myInt = getServerTotalStat(p, 'int') || 10; 
+        
+        // 🛡️ FIX: x2 INT base, x3 INT if Level 25+ (Boost Passive)
+        let trueHealAmt = p.level >= 25 ? (myInt * 3) : (myInt * 2);
 
         // 🛡️ FIX: Use true calculated max HP so it doesn't cap at 100!
         let myMaxHp = getServerTotalStat(p, 'hp') || 100;
@@ -1163,7 +1166,6 @@ io.on('connection', (socket) => {
             emitPartyUpdate(pid);
         }
     });
-
    socket.on('partyRevive', () => {
         const p = onlinePlayers[socket.id];
         
