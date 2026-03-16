@@ -1164,9 +1164,11 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('partyRevive', () => {
+   socket.on('partyRevive', () => {
         const p = onlinePlayers[socket.id];
-        if (!p || p.mapId === 'town' || p.baseStats?.playerClass !== 'Healer') return;
+        
+        // 🛡️ THE FIX: Added "p.isGhost" so dead Healers cannot cast this!
+        if (!p || p.isGhost || p.mapId === 'town' || p.baseStats?.playerClass !== 'Healer') return;
 
         // 🛡️ 100s COOLDOWN (95s leniency)
         const now = Date.now();
@@ -1174,24 +1176,30 @@ io.on('connection', (socket) => {
         p.skillCooldowns['partyRevive'] = now + 95000;
 
         // 🛡️ FULL HEAL SELF (The Healer)
-        p.currentHp = getServerTotalStat(p, 'hp') || 100;
+        const myMaxHp = getServerTotalStat(p, 'hp') || 100;
+        p.currentHp = myMaxHp;
+        io.to(p.instanceId).emit('playerHealed', { id: p.id, amount: 9999, currentHp: p.currentHp });
 
         const pid = playerParty[p.id];
         if (pid && parties[pid]) {
             for (const memberId of parties[pid].members) {
+                if (memberId === p.id) continue; // Already healed self above
+                
                 const mp = getPlayerById(memberId);
-                if (mp && mp.mapId !== 'town' && mp.instanceId === p.instanceId) {
+                
+                // 🛡️ GLOBAL REVIVE: As long as they aren't in town, they get revived anywhere!
+                if (mp && mp.mapId !== 'town') {
                     let memberMaxHp = getServerTotalStat(mp, 'hp') || 100;
                     
                     if (mp.isGhost) {
-                        // 🛡️ Revive Dead Members
+                        // Revive Dead Members
                         mp.isGhost = false;
                         mp.currentHp = memberMaxHp; 
-                        io.to(p.instanceId).emit('playerRevived', { id: mp.id, currentHp: mp.currentHp });
+                        io.to(mp.instanceId).emit('playerRevived', { id: mp.id, currentHp: mp.currentHp });
                     } else {
-                        // 🛡️ Full Heal Alive Members
+                        // Full Heal Alive Members
                         mp.currentHp = memberMaxHp;
-                        io.to(p.instanceId).emit('playerHealed', { id: mp.id, amount: 9999, currentHp: mp.currentHp });
+                        io.to(mp.instanceId).emit('playerHealed', { id: mp.id, amount: 9999, currentHp: mp.currentHp });
                     }
                 }
             }
