@@ -183,6 +183,27 @@
             0% { transform: rotate(45deg) scale(0.95); opacity: 0.9; }
             100% { transform: rotate(45deg) scale(1.05) skew(-5deg, -5deg); opacity: 1; }
         }
+        /* --- STONE GOLEM CSS --- */
+        .golem-sprite {
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.8);
+            animation: none !important; /* Golems are too heavy to bounce */
+        }
+        .golem-sprite.boss {
+            border-radius: 15px; /* Bosses get slightly rounder, bolder edges */
+        }
+
+        /* --- SPECTRAL WRAITH CSS --- */
+        .wraith-sprite {
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--mob-color, #9c27b0);
+            animation: wraith-float 2s infinite ease-in-out;
+        }
+        @keyframes wraith-float {
+            0% { transform: translateY(0) scale(1); opacity: 0.8; }
+            50% { transform: translateY(-15px) scale(1.05); opacity: 1; }
+            100% { transform: translateY(0) scale(1); opacity: 0.8; }
+        }
 
         /* --- HUD & PANELS --- */
         #hud { position: absolute; top: 20px; left: 20px; width: 280px; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #555; z-index: 1000; }
