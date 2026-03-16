@@ -676,10 +676,10 @@ var floor6MapData = {
             "targetMapId": "floor5"
         },
         {
-            "x": 1843,
-            "y": 161,
-            "w": 58,
-            "h": 52,
+            "x": 1842,
+            "y": 163,
+            "w": 60,
+            "h": 54,
             "portalId": 13,
             "targetMapId": "floor7",
             "targetX": 960,
