@@ -1167,13 +1167,23 @@ io.on('connection', (socket) => {
    socket.on('partyRevive', () => {
         const p = onlinePlayers[socket.id];
         
-        // 🛡️ THE FIX: Added "p.isGhost" so dead Healers cannot cast this!
         if (!p || p.isGhost || p.mapId === 'town' || p.baseStats?.playerClass !== 'Healer') return;
+
+        // 🛡️ THE NERF: Max 5 uses per instance
+        p.purificationUses = p.purificationUses || 0;
+        if (p.purificationUses >= 5) {
+            socket.emit('systemMessage', "❌ You have exhausted your Purification miracles for this zone (Max 5/5).");
+            return; // Stops the skill from casting!
+        }
 
         // 🛡️ 100s COOLDOWN (95s leniency)
         const now = Date.now();
         if (p.skillCooldowns['partyRevive'] && now < p.skillCooldowns['partyRevive']) return;
         p.skillCooldowns['partyRevive'] = now + 95000;
+
+        // 🛡️ Increment uses and notify the Healer
+        p.purificationUses++;
+        socket.emit('systemMessage', `✨ Purification used (${p.purificationUses}/5 for this run).`);
 
         // 🛡️ FULL HEAL SELF (The Healer)
         const myMaxHp = getServerTotalStat(p, 'hp') || 100;
@@ -1183,21 +1193,19 @@ io.on('connection', (socket) => {
         const pid = playerParty[p.id];
         if (pid && parties[pid]) {
             for (const memberId of parties[pid].members) {
-                if (memberId === p.id) continue; // Already healed self above
+                if (memberId === p.id) continue; 
                 
                 const mp = getPlayerById(memberId);
                 
-                // 🛡️ GLOBAL REVIVE: As long as they aren't in town, they get revived anywhere!
+                // 🛡️ GLOBAL REVIVE
                 if (mp && mp.mapId !== 'town') {
                     let memberMaxHp = getServerTotalStat(mp, 'hp') || 100;
                     
                     if (mp.isGhost) {
-                        // Revive Dead Members
                         mp.isGhost = false;
                         mp.currentHp = memberMaxHp; 
                         io.to(mp.instanceId).emit('playerRevived', { id: mp.id, currentHp: mp.currentHp });
                     } else {
-                        // Full Heal Alive Members
                         mp.currentHp = memberMaxHp;
                         io.to(mp.instanceId).emit('playerHealed', { id: mp.id, amount: 9999, currentHp: mp.currentHp });
                     }
@@ -2758,8 +2766,9 @@ socket.on('requestConfirmTrade', () => {
     });
 
       socket.on('playerTeleported', async (data) => {
-        if (!onlinePlayers[socket.id]) return;
         const p = onlinePlayers[socket.id];
+          if (!onlinePlayers[socket.id]) return;
+          p.purificationUses = 0;
 
         const oldInstId = p.instanceId;
         socket.leave(p.instanceId);
