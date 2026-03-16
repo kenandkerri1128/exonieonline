@@ -324,7 +324,21 @@ const MonsterDatabase = {
     // ==================
     "common_mobs3": { name: "Fire Sprite", category: "common_mobs", level: 5, maxHp: 180, atk: 50, def: 0, speed: 2.5, expYield: 35, goldYield: 20, aggroRadius: 350, chaseRadius: 500, attackRange: 200, width: 40, height: 40, respawnDelay: 10000, cssColor: '#f44336', cssBorder: 'none' },
     "mini_boss3": { name: "Inferno Core", category: "mini_boss", level: 15, maxHp: 14200, atk: 320, def: 25, speed: 2.8, expYield: 700, goldYield: 200, aggroRadius: 450, chaseRadius: 650, attackRange: 250, width: 60, height: 60, respawnDelay: 120000, cssColor: '#ff9800', cssBorder: 'none' },
-    "floor_boss3": { name: "Astral Blaze", category: "floor_boss", level: 25, maxHp: 29500, atk: 700, def: 45, speed: 3.5, expYield: 4000, goldYield: 1500, aggroRadius: 800, chaseRadius: 900, attackRange: 300, width: 100, height: 100, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #2196F3, #ff9800)', cssBorder: 'none' }
+    "floor_boss3": { name: "Astral Blaze", category: "floor_boss", level: 25, maxHp: 29500, atk: 700, def: 45, speed: 3.5, expYield: 4000, goldYield: 1500, aggroRadius: 800, chaseRadius: 900, attackRange: 300, width: 100, height: 100, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #2196F3, #ff9800)', cssBorder: 'none' },
+
+    // ==================
+    // TYPE 4: STONE GOLEMS (Massive Tanks, Slow, High Defense)
+    // ==================
+    "common_golem": { name: "Stone Golem", category: "common_mobs", level: 10, maxHp: 400, atk: 45, def: 20, speed: 1.5, expYield: 60, goldYield: 30, aggroRadius: 200, chaseRadius: 350, attackRange: 60, width: 50, height: 50, respawnDelay: 12000, cssColor: '#795548', cssBorder: '#4E342E' },
+    "mini_boss_golem": { name: "Obsidian Behemoth", category: "mini_boss", level: 20, maxHp: 28000, atk: 350, def: 75, speed: 1.8, expYield: 1200, goldYield: 350, aggroRadius: 300, chaseRadius: 450, attackRange: 90, width: 80, height: 80, respawnDelay: 120000, cssColor: '#424242', cssBorder: '#212121' },
+    "floor_boss_golem": { name: "Titan of the Deep", category: "floor_boss", level: 35, maxHp: 75000, atk: 850, def: 150, speed: 2.2, expYield: 6000, goldYield: 2500, aggroRadius: 400, chaseRadius: 600, attackRange: 140, width: 120, height: 120, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #5D4037, #212121)', cssBorder: '#3E2723' },
+
+    // ==================
+    // TYPE 5: SPECTRAL WRAITHS (Ethereal, Fast, Ranged Assassins)
+    // ==================
+    "common_wraith": { name: "Spectral Wraith", category: "common_mobs", level: 10, maxHp: 150, atk: 75, def: 0, speed: 4.8, expYield: 65, goldYield: 25, aggroRadius: 400, chaseRadius: 600, attackRange: 250, width: 40, height: 40, respawnDelay: 10000, cssColor: 'rgba(156, 39, 176, 0.7)', cssBorder: '#7B1FA2' },
+    "mini_boss_wraith": { name: "Soul Reaper", category: "mini_boss", level: 20, maxHp: 11000, atk: 480, def: 10, speed: 5.5, expYield: 1300, goldYield: 400, aggroRadius: 500, chaseRadius: 700, attackRange: 300, width: 60, height: 60, respawnDelay: 120000, cssColor: 'rgba(103, 58, 183, 0.8)', cssBorder: '#512DA8' },
+    "floor_boss_wraith": { name: "The Void King", category: "floor_boss", level: 35, maxHp: 32000, atk: 1100, def: 30, speed: 6.5, expYield: 6500, goldYield: 3000, aggroRadius: 700, chaseRadius: 1000, attackRange: 350, width: 100, height: 100, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #4A148C, #000000)', cssBorder: '#311B92' }
 };
 
 function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
@@ -668,86 +682,112 @@ function updateMonsterAI(instId, m, now) {
         return; 
     }
     
-    if ((m.category === "mini_boss" || m.category === "floor_boss") && m.alive) {
-        if (now - (m.lastEarthquake || 0) > 6000) {
-            if (Math.random() < 0.15) {
-                m.lastEarthquake = now;
-                const aoeRadius = m.category === "floor_boss" ? 400 : 200;
+  if ((m.category === "mini_boss" || m.category === "floor_boss") && m.alive) {
+        if (now - (m.lastSpecialSkill || 0) > 6000) {
+            if (Math.random() < 0.15) {
+                m.lastSpecialSkill = now;
 
-                io.to(instId).emit('monsterSkill', { monsterId: m.id, skillName: 'Earthquake', x: mcx, y: mcy, radius: aoeRadius });
+                const isWraith = m.originalKey && m.originalKey.includes('wraith');
 
-               const players = playersInInstance(instId);
-                players.forEach(p => {
-                    // 🌟 ADDED p.isHiddenAdmin bypass so Earthquake ignores you
-                    if (p.isGhost || p.isHiddenAdmin || p.mapId === 'town') return;
-                    const pDist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
-                  if (pDist <= aoeRadius) {
-    const damage = Math.max(1, m.atk - getServerDefense(p));
-    p.currentHp = Math.max(0, p.currentHp - damage);
+                if (isWraith) {
+                    // 👻 WRAITH MECHANIC: VANISH & REPOSITION
+                    m.threatTable = {}; // Instantly drop all aggro!
+                    m.targetId = null;
+                    m.forcedTargetId = null; // Break Berserker taunts!
+                    
+                    // Teleport them somewhere randomly nearby
+                    const angle = Math.random() * Math.PI * 2;
+                    const jumpDist = 200 + Math.random() * 200;
+                    
+                    let nx = m.x + Math.cos(angle) * jumpDist;
+                    let ny = m.y + Math.sin(angle) * jumpDist;
+                    
+                    // Only teleport if it doesn't put them inside a wall
+                    if (!isMonsterColliding(instId, nx, m.y, m.width, m.height)) m.x = nx;
+                    if (!isMonsterColliding(instId, m.x, ny, m.width, m.height)) m.y = ny;
 
-    // 🛡️ THE FIX: If Immortal is active, force HP to 1 instead of 0
-    if (p.currentHp <= 0 && p.immortalUntil && now < p.immortalUntil) {
-        p.currentHp = 1;
-    }
+                    io.to(instId).emit('systemMessage', `<span style="color:#9c27b0;">👻 The ${m.name} vanishes into the shadows and drops all aggro!</span>`);
+                    io.to(instId).emit('monsterSkill', { monsterId: m.id, skillName: 'Vanish', x: m.x, y: m.y, radius: 0 });
 
-    io.to(instId).emit('monsterAttack', {
-        monsterId: m.id,
-        targetId: p.id,
-        targetX: p.x + 24,
-        targetY: p.y + 48,
-        atk: m.atk,
-        isAoE: true,
-        damage: damage,
-        newHp: p.currentHp
-    });
+                } else {
+                    // 🗿 GOLEM & SLIME MECHANIC: EARTHQUAKE
+                    const aoeRadius = m.category === "floor_boss" ? 400 : 200;
 
-    const victimSid = findSocketIdByPlayerId(p.id);
-    if (victimSid) {
-        io.to(victimSid).emit('playerVitals', {
-            currentHp: p.currentHp,
-            maxHp: p.maxHp,
-            level: p.level
-        });
-    }
+                    io.to(instId).emit('monsterSkill', { monsterId: m.id, skillName: 'Earthquake', x: mcx, y: mcy, radius: aoeRadius });
 
-    if (p.currentHp <= 0 && !p.isGhost) {
-        p.isGhost = true;
-        p.currentHp = 0;
-        p.currentPortal = null;
+                    const players = playersInInstance(instId);
+                    players.forEach(p => {
+                        // 🌟 ADDED p.isHiddenAdmin bypass so Earthquake ignores you
+                        if (p.isGhost || p.isHiddenAdmin || p.mapId === 'town') return;
+                        const pDist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
+                        if (pDist <= aoeRadius) {
+                            const damage = Math.max(1, m.atk - getServerDefense(p));
+                            p.currentHp = Math.max(0, p.currentHp - damage);
 
-        io.to(instId).emit('remotePlayerGhosted', p.id);
+                            // 🛡️ THE FIX: If Immortal is active, force HP to 1 instead of 0
+                            if (p.currentHp <= 0 && p.immortalUntil && now < p.immortalUntil) {
+                                p.currentHp = 1;
+                            }
 
-        const pid = playerParty[p.id];
-        if (!pid || !parties[pid]) {
-            if (victimSid) io.to(victimSid).emit('showDeathScreen');
-        } else {
-            const party = parties[pid];
-            let allDead = true;
+                            io.to(instId).emit('monsterAttack', {
+                                monsterId: m.id,
+                                targetId: p.id,
+                                targetX: p.x + 24,
+                                targetY: p.y + 48,
+                                atk: m.atk,
+                                isAoE: true,
+                                damage: damage,
+                                newHp: p.currentHp
+                            });
 
-            for (const memberId of party.members) {
-                const member = getPlayerById(memberId);
-                if (member && !member.isGhost) {
-                    allDead = false;
-                    break;
+                            const victimSid = findSocketIdByPlayerId(p.id);
+                            if (victimSid) {
+                                io.to(victimSid).emit('playerVitals', {
+                                    currentHp: p.currentHp,
+                                    maxHp: p.maxHp,
+                                    level: p.level
+                                });
+                            }
+
+                            if (p.currentHp <= 0 && !p.isGhost) {
+                                p.isGhost = true;
+                                p.currentHp = 0;
+                                p.currentPortal = null;
+
+                                io.to(instId).emit('remotePlayerGhosted', p.id);
+
+                                const pid = playerParty[p.id];
+                                if (!pid || !parties[pid]) {
+                                    if (victimSid) io.to(victimSid).emit('showDeathScreen');
+                                } else {
+                                    const party = parties[pid];
+                                    let allDead = true;
+
+                                    for (const memberId of party.members) {
+                                        const member = getPlayerById(memberId);
+                                        if (member && !member.isGhost) {
+                                            allDead = false;
+                                            break;
+                                        }
+                                    }
+
+                                    if (allDead) {
+                                        for (const memberId of party.members) {
+                                            const memberSid = findSocketIdByPlayerId(memberId);
+                                            if (memberSid) io.to(memberSid).emit('showDeathScreen');
+                                        }
+                                        io.to(instId).emit('partyWiped');
+                                    }
+
+                                    emitPartyUpdate(pid);
+                                }
+                            }
+                        }
+                    });
                 }
             }
-
-            if (allDead) {
-                for (const memberId of party.members) {
-                    const memberSid = findSocketIdByPlayerId(memberId);
-                    if (memberSid) io.to(memberSid).emit('showDeathScreen');
-                }
-                io.to(instId).emit('partyWiped');
-            }
-
-            emitPartyUpdate(pid);
         }
     }
-}
-                });
-            }
-        }
-    }
 
    const dist = Math.hypot(target.x - mcx, target.y - mcy);
 if (dist > m.chaseRadius) {
