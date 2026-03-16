@@ -502,12 +502,6 @@ var floor7MapData = {
     ],
     "miniBossSpawns": [
         {
-            "x": 878,
-            "y": 507,
-            "monsterKey": "mini_boss_golem",
-            "level": 85
-        },
-        {
             "x": 1401,
             "y": 1176,
             "monsterKey": "mini_boss_golem",
