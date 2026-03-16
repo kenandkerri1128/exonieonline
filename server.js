@@ -396,13 +396,37 @@ function ensureWorldFromMapData(instanceId, mapData) {
                     const floorId = instanceId.split('_')[0]; 
                     
                     const { data: timer } = await supabase.from('boss_timers')
-                        .select('boss_id')
+                        .select('boss_id, last_death_time')
                         .eq('boss_id', floorId)
                         .single();
 
                     if (timer) {
-                        console.log(`[WORLD] ${floorId} boss is on cooldown. Skipping spawn.`);
-                        continue; 
+                        const remaining = getBossCountdown(timer.last_death_time);
+                        
+                        if (remaining > 0) {
+                            console.log(`[WORLD] ${floorId} boss on cooldown. Auto-spawning in ${Math.round(remaining/1000)}s.`);
+                            
+                            // 🌟 AUTOMATIC ALARM: Deletes the DB lock and spawns when timer hits 0!
+                            setTimeout(async () => {
+                                await supabase.from('boss_timers').delete().eq('boss_id', floorId);
+                                
+                                if (worlds[instanceId]) {
+                                    const newMobId = `${instanceId}_mob_${Date.now()}`;
+                                    const newBoss = spawnMonster(instanceId, newMobId, mKey, {
+                                        spawnArea: { minX: sp.x, maxX: sp.x, minY: sp.y, maxY: sp.y },
+                                        level: sp.level
+                                    });
+                                    worlds[instanceId].monsters[newMobId] = newBoss;
+                                    io.to(instanceId).emit('monsterSpawned', serializeMonster(newBoss));
+                                    io.emit('systemMessage', `⚠️ The ${floorId.toUpperCase()} Boss has respawned!`);
+                                }
+                            }, remaining);
+                            
+                            continue; // Skip the INSTANT spawn, the alarm will handle it.
+                        } else {
+                            // Timer finished while the room was empty! Clean DB and spawn instantly.
+                            await supabase.from('boss_timers').delete().eq('boss_id', floorId);
+                        }
                     }
                 }
 
@@ -1559,6 +1583,9 @@ socket.on('login', async (data) => {
                 return socket.emit('authError', 'Failed to save starter items. Check server console.');
             }
 
+            // 🌟 THE FIX: Silently tag this specific login session as a brand new account
+            socket.isBrandNewCharacter = true;
+
             if (user) socket.emit('characterSelect', user);
             
         } catch(e) { 
@@ -1584,19 +1611,16 @@ socket.on('login', async (data) => {
 
     const safeUser = sanitizePlayerRecordFromDb(freshUser);
 
-    // 🌟 GLOBAL WELCOME BROADCAST (Triggers exactly when they load into the map) 🌟
-    if (safeUser.base_stats && !safeUser.base_stats.welcomed) {
-        safeUser.base_stats.welcomed = true; // Mark them as welcomed
+    // 🌟 GLOBAL WELCOME BROADCAST (100% Secure for New Players Only) 🌟
+    if (socket.isBrandNewCharacter) {
+        socket.isBrandNewCharacter = false; // Erase the tag so it never fires again if they teleport!
         
         const epicWelcomeMsg = `<span style="color: #ffeb3b; font-size: 1.1em; font-weight: bold; text-shadow: 0 0 10px #ff9800, 0 0 20px #ffea00;">🎊 THE GATES OPEN: A new hero, ${safeUser.character_name}, has just stepped into the maze of Exonie! Welcome! 🎊</span>`;
         
-        // Wait 2 seconds before sending, to ensure their client UI and chat box are fully rendered!
+        // Wait 2 seconds before sending, to ensure their client UI and chat box are fully rendered
         setTimeout(() => {
             io.emit('systemMessage', epicWelcomeMsg);
         }, 2000);
-        
-        // Save the flag to Supabase instantly so it doesn't fire next time they log in
-        supabase.from('Exonians').update({ base_stats: safeUser.base_stats }).eq('character_name', safeUser.character_name).then(()=>{});
     }
    // 🎁 LEVEL 50 FREE WISP PET LOGIC (Mailed on Login)
     if (safeUser.level >= 50 && !safeUser.base_stats.gotWisp) {
@@ -2155,6 +2179,26 @@ socket.on('saveData', async (playerData) => {
 
             m.respawnDelayMs = -1;
             io.emit('systemMessage', `🏆 [WORLD] ${floorId.toUpperCase()} Boss Defeated!`);
+            
+            // 🌟 AUTOMATIC CLEANUP & SPAWN SCHEDULE 🌟
+            const fullCooldown = 24 * 60 * 60 * 1000; // 24 Hours in milliseconds
+            
+            setTimeout(async () => {
+                // Automatically delete from Supabase exactly 24h later
+                await supabase.from('boss_timers').delete().eq('boss_id', floorId);
+                
+                // If players are waiting in the room, spawn it instantly!
+                if (worlds[p.instanceId]) {
+                    const cfg = {
+                        spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY },
+                        level: m.level
+                    };
+                    const nm = spawnMonster(p.instanceId, m.id, m.originalKey || m.monsterKey, cfg);
+                    worlds[p.instanceId].monsters[m.id] = nm;
+                    io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
+                    io.emit('systemMessage', `⚠️ The ${floorId.toUpperCase()} Boss has respawned!`);
+                }
+            }, fullCooldown);
         }
         // Respawn Logic
         if (m.respawnDelayMs !== -1) {
@@ -2728,13 +2772,43 @@ socket.on('requestConfirmTrade', () => {
     socket.on('partyInvite', ({ targetId }) => { const me = onlinePlayers[socket.id]; if (!me || !targetId) return; const targetSid = findSocketIdByPlayerId(targetId); if (!targetSid) return socket.emit('partyError', 'Target is not online.'); io.to(targetSid).emit('partyInviteReceived', { fromId: me.id }); });
     
     socket.on('partyInviteResponse', ({ fromId, accept }) => {
-        const me = onlinePlayers[socket.id]; if (!me || !fromId) return; const fromSid = findSocketIdByPlayerId(fromId); const inviter = getPlayerById(fromId); if (!inviter || !fromSid) return;
-        if (!accept) { io.to(fromSid).emit('partyError', `${me.id} declined your party invite.`); return; }
-        let pid = playerParty[fromId]; if (!pid) { pid = `party_${Date.now()}_${Math.floor(Math.random() * 9999)}`; parties[pid] = { id: pid, leaderId: fromId, members: new Set([fromId]) }; playerParty[fromId] = pid; }
-        if (playerParty[me.id] && playerParty[me.id] !== pid) { removeFromParty(me.id); }
-        parties[pid].members.add(me.id); playerParty[me.id] = pid; emitPartyUpdate(pid);
-    });
-// ✅ GLOBAL ADMIN BROADCAST
+        const me = onlinePlayers[socket.id]; 
+        if (!me || !fromId) return; 
+        
+        const fromSid = findSocketIdByPlayerId(fromId); 
+        const inviter = getPlayerById(fromId); 
+        if (!inviter || !fromSid) return;
+        
+        if (!accept) { 
+            io.to(fromSid).emit('partyError', `${me.id} declined your party invite.`); 
+            return; 
+        }
+
+        let pid = playerParty[fromId]; 
+
+        // 🛡️ THE FIX: Hard cap the party size at exactly 4 players!
+        if (pid && parties[pid] && parties[pid].members.size >= 4) {
+            socket.emit('systemMessage', '❌ That party is already full (Max 4 players).');
+            io.to(fromSid).emit('systemMessage', `❌ ${me.id} tried to join, but your party is full!`);
+            return; // Stops them from being added
+        }
+
+        if (!pid) { 
+            pid = `party_${Date.now()}_${Math.floor(Math.random() * 9999)}`; 
+            parties[pid] = { id: pid, leaderId: fromId, members: new Set([fromId]) }; 
+            playerParty[fromId] = pid; 
+        }
+
+        // Remove them from any old party they were in before joining the new one
+        if (playerParty[me.id] && playerParty[me.id] !== pid) { 
+            removeFromParty(me.id); 
+        }
+
+        // Add to the new party
+        parties[pid].members.add(me.id); 
+        playerParty[me.id] = pid; 
+        emitPartyUpdate(pid);
+    });
    // ✅ GLOBAL ADMIN BROADCAST
     socket.on('adminBroadcast', (data) => {
         const p = onlinePlayers[socket.id];
