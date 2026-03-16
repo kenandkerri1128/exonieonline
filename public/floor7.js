@@ -448,12 +448,6 @@ var floor7MapData = {
             "y": 926,
             "w": 36,
             "h": 98
-        },
-        {
-            "x": 941,
-            "y": 942,
-            "w": 31,
-            "h": 42
         }
     ],
     "teleports": [
@@ -468,8 +462,65 @@ var floor7MapData = {
             "targetY": 1000
         }
     ],
-    "normalSpawns": [],
-    "miniBossSpawns": [],
-    "floorBossSpawns": []
+    "normalSpawns": [
+        {
+            "x": 661,
+            "y": 1057,
+            "monsterKey": "common_golem",
+            "level": 75
+        },
+        {
+            "x": 411,
+            "y": 317,
+            "monsterKey": "common_golem",
+            "level": 75
+        },
+        {
+            "x": 1235,
+            "y": 350,
+            "monsterKey": "common_golem",
+            "level": 75
+        },
+        {
+            "x": 1346,
+            "y": 398,
+            "monsterKey": "common_golem",
+            "level": 75
+        },
+        {
+            "x": 1604,
+            "y": 363,
+            "monsterKey": "common_golem",
+            "level": 75
+        },
+        {
+            "x": 1869,
+            "y": 944,
+            "monsterKey": "common_golem",
+            "level": 75
+        }
+    ],
+    "miniBossSpawns": [
+        {
+            "x": 878,
+            "y": 507,
+            "monsterKey": "mini_boss_golem",
+            "level": 85
+        },
+        {
+            "x": 1401,
+            "y": 1176,
+            "monsterKey": "mini_boss_golem",
+            "level": 85
+        }
+    ],
+    "floorBossSpawns": [
+        {
+            "x": 1729,
+            "y": 671,
+            "monsterKey": "floor_boss_golem",
+            "level": 105
+        }
+    ]
 };
 if(typeof window !== 'undefined') window['floor7MapData'] = floor7MapData;
