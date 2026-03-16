@@ -469,7 +469,7 @@ function getServerDefense(p) {
 
     // Berserker Taunt / Callout buff is enforced here on the server
     if (p && p.tauntBuffUntil && Date.now() < p.tauntBuffUntil) {
-        def *= 5;
+        def *= 3;
     }
 
     return def;
