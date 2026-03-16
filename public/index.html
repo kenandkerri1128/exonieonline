@@ -183,27 +183,33 @@
             0% { transform: rotate(45deg) scale(0.95); opacity: 0.9; }
             100% { transform: rotate(45deg) scale(1.05) skew(-5deg, -5deg); opacity: 1; }
         }
-        /* --- STONE GOLEM CSS --- */
-        .golem-sprite {
-            border-radius: 8px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.8);
-            animation: none !important; /* Golems are too heavy to bounce */
-        }
-        .golem-sprite.boss {
-            border-radius: 15px; /* Bosses get slightly rounder, bolder edges */
-        }
+        /* --- 🗿 STONE GOLEM CSS --- */
+        .golem-base { position: relative; background: #111; border: 3px solid var(--mob-border, #4E342E); border-radius: 8px; box-sizing: border-box; width: 100%; height: 100%; }
+        .golem-base.boss { border: 4px solid var(--mob-border, #4E342E); border-radius: 12px; }
+        .golem-base .g-head { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); width: 60%; height: 20px; background: #111; border: 3px solid var(--mob-border, #4E342E); border-radius: 4px; display: flex; justify-content: space-evenly; align-items: center; padding: 0 4px; box-sizing: border-box; }
+        .golem-base .g-eye { width: 6px; height: 6px; background: red; border-radius: 50%; box-shadow: 0 0 5px red; }
+        .golem-base .g-arm-l, .golem-base .g-arm-r { position: absolute; top: 10%; width: 30%; height: 80%; background: #111; border: 3px solid var(--mob-border, #4E342E); border-radius: 4px; box-sizing: border-box; transition: transform 0.15s ease-in-out; }
+        .golem-base .g-arm-l { left: -35%; }
+        .golem-base .g-arm-r { right: -35%; }
+        .golem-base .g-leg-l, .golem-base .g-leg-r { position: absolute; bottom: -8px; width: 30%; height: 10px; background: #111; border: 3px solid var(--mob-border, #4E342E); border-radius: 2px; box-sizing: border-box; }
+        .golem-base .g-leg-l { left: 10%; }
+        .golem-base .g-leg-r { right: 10%; }
+        .golem-base.attacking .g-arm-l { transform: translateY(-15px) rotate(-20deg); }
+        .golem-base.attacking .g-arm-r { transform: translateY(-15px) rotate(20deg); }
 
-        /* --- SPECTRAL WRAITH CSS --- */
-        .wraith-sprite {
-            border-radius: 50%;
-            box-shadow: 0 0 20px var(--mob-color, #9c27b0);
-            animation: wraith-float 2s infinite ease-in-out;
-        }
-        @keyframes wraith-float {
-            0% { transform: translateY(0) scale(1); opacity: 0.8; }
-            50% { transform: translateY(-15px) scale(1.05); opacity: 1; }
-            100% { transform: translateY(0) scale(1); opacity: 0.8; }
-        }
+        /* --- 👻 SPECTRAL WRAITH CSS --- */
+        .wraith-base { position: relative; background: var(--mob-color, #9c27b0); border-radius: 50% 50% 40% 60% / 60% 40% 50% 50%; box-shadow: 0 0 25px var(--mob-color, #9c27b0), inset 0 0 15px rgba(0,0,0,0.5); animation: wraith-morph 3s infinite alternate ease-in-out, wraith-float 2s infinite ease-in-out; width: 100%; height: 100%; }
+        .wraith-base .w-eye { position: absolute; top: 35%; width: 8px; height: 12px; background: #f44336; border-radius: 50%; box-shadow: 0 0 8px red; }
+        .wraith-base .w-eye.left { left: 30%; }
+        .wraith-base .w-eye.right { right: 30%; }
+        .w-particles .w-p { position: absolute; background: var(--mob-color, #9c27b0); border-radius: 50%; box-shadow: 0 0 10px var(--mob-color, #9c27b0); opacity: 0; }
+        .w-p:nth-child(1) { width: 6px; height: 6px; left: -10px; top: 20%; animation: float-up-fade 2s infinite 0s; }
+        .w-p:nth-child(2) { width: 4px; height: 4px; right: -15px; top: 50%; animation: float-up-fade 2.5s infinite 0.5s; }
+        .w-p:nth-child(3) { width: 8px; height: 8px; left: 50%; bottom: -15px; animation: float-up-fade 1.8s infinite 1s; }
+        .w-p:nth-child(4) { width: 5px; height: 5px; right: 10%; bottom: -10px; animation: float-up-fade 2.2s infinite 1.5s; }
+        @keyframes wraith-morph { 0% { border-radius: 50% 50% 40% 60% / 60% 40% 50% 50%; transform: skew(0deg); } 100% { border-radius: 40% 60% 50% 50% / 50% 50% 60% 40%; transform: skew(-5deg); } }
+        @keyframes wraith-float { 0%, 100% { top: 0px; } 50% { top: -10px; } }
+        @keyframes float-up-fade { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-30px); opacity: 0; } }
 
         /* --- HUD & PANELS --- */
         #hud { position: absolute; top: 20px; left: 20px; width: 280px; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #555; z-index: 1000; }
