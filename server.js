@@ -2834,31 +2834,37 @@ socket.on('requestConfirmTrade', () => {
     });
 
    socket.on('forceTeleport', (tp) => {
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
-        
-        const oldInstId = p.instanceId; // 🌟 SAVE OLD INSTANCE
-        socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
-        
-        if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
-            for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
-        }
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+        
+        // 🛡️ BLOCK UNSTUCK BUTTON IF IN A PARTY
+        if (playerParty[p.id] && p.id !== "Kei") {
+            socket.emit('systemMessage', "❌ You cannot use Unstuck while in a party. Please leave the party first.");
+            return; // 🛑 Stops the teleport completely!
+        }
 
-        p.mapId = tp.mapId; p.x = tp.x; p.y = tp.y; p.currentPortal = null;
-        p.instanceId = getInstanceId(p.id, tp.mapId); 
-        socket.join(p.instanceId);
-        
-        checkAndResetInstance(oldInstId); // 🌟 RUN THE RESET CHECK
-        
-        socket.emit('forceTeleport', tp); 
-        socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
-        
-        // 🌟 FIX: Ensures the newly teleported player loads the room's population!
-        const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id);
-        socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
-        
-        supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
-    });
+        const oldInstId = p.instanceId; // 🌟 SAVE OLD INSTANCE
+        socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
+        
+        if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
+            for (let petId in worlds[p.instanceId].pets) { if (worlds[p.instanceId].pets[petId].ownerId === p.id) delete worlds[p.instanceId].pets[petId]; }
+        }
+
+        p.mapId = tp.mapId; p.x = tp.x; p.y = tp.y; p.currentPortal = null;
+        p.instanceId = getInstanceId(p.id, tp.mapId); 
+        socket.join(p.instanceId);
+        
+        checkAndResetInstance(oldInstId); // 🌟 RUN THE RESET CHECK
+        
+        socket.emit('forceTeleport', tp); 
+        socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
+        
+        // 🌟 FIX: Ensures the newly teleported player loads the room's population!
+        const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id);
+        socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
+        
+        supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
+    });
 
       socket.on('playerTeleported', async (data) => {
         const p = onlinePlayers[socket.id];
@@ -2952,6 +2958,27 @@ socket.on('requestConfirmTrade', () => {
     const p = onlinePlayers[socket.id];
     if (!p) return;
 
+    // 🛡️ BLOCK GHOSTS FROM ABANDONING THEIR PARTY
+    const pid = playerParty[p.id];
+    if (pid && parties[pid]) {
+        let allDead = true;
+        
+        // Check if anyone in the party is still alive
+        for (const memberId of parties[pid].members) {
+            const member = getPlayerById(memberId);
+            if (member && !member.isGhost) {
+                allDead = false;
+                break;
+            }
+        }
+        
+        // If the party hasn't wiped yet, block the respawn!
+        if (!allDead) {
+            socket.emit('systemMessage', "❌ You cannot respawn to town while your party is still fighting!");
+            return; // 🛑 Stops the teleport!
+        }
+    }
+
     const trueMaxHp = getServerTotalStat(p, 'hp') || p.maxHp || 100;
 
     // If already in town, just revive in place
@@ -2968,7 +2995,6 @@ socket.on('requestConfirmTrade', () => {
             currentHp: p.currentHp
         });
 
-        const pid = playerParty[p.id];
         if (pid) emitPartyUpdate(pid);
 
         supabase
@@ -3050,7 +3076,6 @@ socket.on('requestConfirmTrade', () => {
         currentHp: p.currentHp
     });
 
-    const pid = playerParty[p.id];
     if (pid) emitPartyUpdate(pid);
 
     supabase
