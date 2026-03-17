@@ -2389,13 +2389,20 @@ socket.on('saveData', async (playerData) => {
     }
     });
 
-    socket.on('inspectRequest', (data) => {
-        const targetId = data.targetId;
-        const target = getPlayerById(targetId);
-        if (target) {
-            socket.emit('inspectData', { id: target.id, name: target.name, level: target.level || 1, currentHp: target.currentHp || 0, maxHp: target.maxHp || 100, equips: target.equips || { weapon: null, armor: null, leggings: null } });
-        }
-    });
+   socket.on('inspectRequest', (data) => {
+        const targetId = data.targetId;
+        const target = getPlayerById(targetId);
+        if (target) {
+            socket.emit('inspectData', { 
+                id: target.id, 
+                name: target.name, 
+                level: target.level || 1, 
+                currentHp: target.currentHp || 0, 
+                maxHp: target.maxHp || 100, 
+                equips: target.equips || { weapon: null, armor: null, leggings: null, necklace: null, ring: null, earrings: null } 
+            });
+        }
+    });
 
     socket.on('tradeRequest', (data) => {
         const me = onlinePlayers[socket.id]; if (!me || !data.targetId) return;
