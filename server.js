@@ -103,14 +103,17 @@ function sanitizeInventory(inventory) {
 }
 
 function sanitizeEquips(equips) {
-    const safe = { weapon: null, armor: null, leggings: null };
-    if (!equips || typeof equips !== 'object') return safe;
+    const safe = { weapon: null, armor: null, leggings: null, necklace: null, ring: null, earrings: null };
+    if (!equips || typeof equips !== 'object') return safe;
 
-    if (equips.weapon) safe.weapon = sanitizeItem(equips.weapon);
-    if (equips.armor) safe.armor = sanitizeItem(equips.armor);
-    if (equips.leggings) safe.leggings = sanitizeItem(equips.leggings);
+    if (equips.weapon) safe.weapon = sanitizeItem(equips.weapon);
+    if (equips.armor) safe.armor = sanitizeItem(equips.armor);
+    if (equips.leggings) safe.leggings = sanitizeItem(equips.leggings);
+    if (equips.necklace) safe.necklace = sanitizeItem(equips.necklace);
+    if (equips.ring) safe.ring = sanitizeItem(equips.ring);
+    if (equips.earrings) safe.earrings = sanitizeItem(equips.earrings);
 
-    return safe;
+    return safe;
 }
 
 function sanitizeBaseStats(baseStats) {
@@ -130,6 +133,8 @@ function sanitizeBaseStats(baseStats) {
     safe.title = safe.title || null; // 🛡️ Ensure title is kept!
     safe.gotWisp = baseStats ? !!baseStats.gotWisp : false;
     safe.watchedTutorial = baseStats ? !!baseStats.watchedTutorial : false;
+    safe.tavernEntries = (baseStats && typeof baseStats.tavernEntries === 'number') ? baseStats.tavernEntries : 5;
+    safe.tavernReset = baseStats ? baseStats.tavernReset : 0;
     
     return safe;
 }
@@ -302,7 +307,28 @@ function generateLoot(monster) {
     
     return item;
 }
-
+function generateTavernLoot(level, rarity) {
+    const types = ['necklace', 'ring', 'earrings'];
+    const type = types[Math.floor(Math.random() * types.length)];
+    const stats = [...STAT_TYPES];
+    const rStat = stats[Math.floor(Math.random() * stats.length)];
+    
+    let statVal = getBaseStat(level) + ({"Basic":0,"Rare":2,"Unique":5,"Legendary":8,"Godly":12}[rarity] || 0);
+    
+    return {
+        id: Date.now() + Math.random(),
+        name: `${rarity} Tavern ${type.charAt(0).toUpperCase() + type.slice(1)}`,
+        type: type,
+        sprite: rarity.toLowerCase() + type,
+        level: level,
+        rarity: rarity,
+        color: RARITY_COLORS[rarity],
+        fixedStat: {},
+        randomStat: { [rStat]: statVal },
+        enhanceLevel: 0,
+        quantity: 1
+    };
+}
 // ==========================================
 // SCALED MONSTER DATABASE
 // ==========================================
@@ -472,7 +498,7 @@ function getServerTotalStat(p, statName) {
 
     let base = Number(baseStats[statName]) || 0;
 
-    ['weapon', 'armor', 'leggings'].forEach(slot => {
+   ['weapon', 'armor', 'leggings', 'necklace', 'ring', 'earrings'].forEach(slot => {
         const eq = equips[slot];
         if (!eq) return;
 
@@ -2055,6 +2081,47 @@ socket.on('saveData', async (playerData) => {
             monsterId: m.id,
             killerId: p.id
         });
+
+       // ⚔️ TAVERN WIN CONDITION & LOOT
+        if (p.instanceId.startsWith('tavern_') && m.id === p.tavernTargetId) {
+            const timeTaken = Date.now() - p.tavernStartTime;
+            io.to(p.instanceId).emit('systemMessage', `🏁 Tavern Cleared in ${(timeTaken/1000).toFixed(2)}s!`);
+            io.to(p.instanceId).emit('tavernTimerStop');
+            
+            // 50% Chance to drop an Accessory
+            if (Math.random() < 0.5) {
+                let rarityRoll = Math.random(); 
+                let r = "Basic";
+                
+                if (m.category === "floor_boss") {
+                    // Drops: Unique (75%), Legendary (20%), Godly (5%)
+                    r = rarityRoll < 0.05 ? "Godly" : (rarityRoll < 0.25 ? "Legendary" : "Unique");
+                } else if (m.category === "mini_boss") {
+                    // Drops: Basic (60%), Rare (30%), Unique (10%)
+                    r = rarityRoll < 0.10 ? "Unique" : (rarityRoll < 0.40 ? "Rare" : "Basic");
+                } else {
+                    // Common Mobs: Basic (80%), Rare (20%)
+                    r = rarityRoll < 0.20 ? "Rare" : "Basic";
+                }
+                
+                // Generates the accessory at the EXACT level the player chose
+                let accDrop = generateTavernLoot(m.level, r);
+                const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
+                const emp = inv.findIndex(i => i === null);
+                if (emp !== -1) { 
+                    inv[emp] = accDrop; 
+                    p.inventory = inv; 
+                    socket.emit('syncInventory', p.inventory); 
+                    socket.emit('lootDropped', accDrop); 
+                }
+            }
+
+            // Save score to Supabase
+            supabase.from('Tavern_Leaderboard').insert([{ character_name: p.id, mob_type: m.category, mob_level: m.level, time_taken: timeTaken }]).then(()=>{});
+            
+            // Auto-kick back to town after 5 seconds
+            setTimeout(() => { socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); }, 5000);
+        }
 
         const expAmount = m.expYield || 25;
         const goldAmount = m.goldYield || 15;
@@ -3796,6 +3863,61 @@ socket.on('requestSell', async (data) => {
         price: sellPrice
     });
 });
+    // ==========================================
+    // ⚔️ TAVERN SYSTEM & LEADERBOARD
+    // ==========================================
+    socket.on('startTavern', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.isGhost) return;
+
+        const now = Date.now();
+        const oneWeek = 7 * 24 * 60 * 60 * 1000;
+        if (!p.baseStats.tavernReset || now > p.baseStats.tavernReset) {
+            p.baseStats.tavernEntries = 5;
+            p.baseStats.tavernReset = now + oneWeek;
+        }
+
+        if (p.baseStats.tavernEntries <= 0 && p.id !== 'Kei') {
+            return socket.emit('systemMessage', '❌ You have no Tavern entries left this week.');
+        }
+
+        p.baseStats.tavernEntries--;
+        supabase.from('Exonians').update({ base_stats: p.baseStats }).eq('character_name', p.id).then(()=>{});
+
+        const oldInstId = p.instanceId;
+        socket.leave(p.instanceId);
+        socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
+        
+        p.mapId = 'trainingtavern'; p.x = 960; p.y = 1000;
+        p.instanceId = `tavern_${p.id}`;
+        socket.join(p.instanceId);
+        checkAndResetInstance(oldInstId);
+
+        worlds[p.instanceId] = { collisions: [], teleports: [], monsters: {}, pets: {} };
+        const mKey = data.mobType === 'floor_boss' ? 'floor_boss1' : (data.mobType === 'mini_boss' ? 'mini_boss1' : 'common_mobs1');
+        const newMob = spawnMonster(p.instanceId, 't_mob_1', mKey, { spawnArea: { minX: 960, minY: 800 }, level: data.level });
+        worlds[p.instanceId].monsters['t_mob_1'] = newMob;
+
+        p.tavernTargetId = 't_mob_1';
+        p.tavernStartTime = Date.now();
+
+        socket.emit('forceTeleport', { mapId: 'trainingtavern', x: 960, y: 1000 });
+        setTimeout(() => { socket.emit('tavernTimerStart'); }, 1500); 
+    });
+
+    socket.on('getTavernLeaderboard', async () => {
+        const { data } = await supabase.from('Tavern_Leaderboard').select('*').order('time_taken', { ascending: true }).limit(50);
+        
+        let sorted = (data || []).sort((a, b) => {
+            const w = { 'floor_boss': 3, 'mini_boss': 2, 'common_mobs': 1 };
+            let aW = w[a.mob_type] || 0; let bW = w[b.mob_type] || 0;
+            if (aW !== bW) return bW - aW; 
+            if (a.mob_level !== b.mob_level) return b.mob_level - a.mob_level; 
+            return a.time_taken - b.time_taken; 
+        });
+
+        socket.emit('updateLeaderboardUI', sorted);
+    });
     // 🎒 INVENTORY DRAG & DROP SWAPPING/MERGING
     socket.on('swapInventory', (data) => {
         const p = onlinePlayers[socket.id];
