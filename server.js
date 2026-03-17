@@ -19,7 +19,33 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const onlinePlayers = {}; 
 const parties = {};        
-const playerParty = {};    
+const playerParty = {};    
+
+// 🏆 GLOBAL TAVERN RANKINGS
+global.topTavernPlayers = [];
+async function updateAndBroadcastTopTavern() {
+    try {
+        const { data } = await supabase.from('Tavern_Leaderboard').select('character_name, mob_type, mob_level, time_taken').order('time_taken', { ascending: true }).limit(100);
+        let sorted = (data || []).sort((a, b) => {
+            const w = { 'floor_boss': 3, 'mini_boss': 2, 'common_mobs': 1 };
+            let aW = w[a.mob_type] || 0; let bW = w[b.mob_type] || 0;
+            if (aW !== bW) return bW - aW; 
+            if (a.mob_level !== b.mob_level) return b.mob_level - a.mob_level; 
+            return a.time_taken - b.time_taken; 
+        });
+        
+        // Find the top 3 UNIQUE players
+        let uniqueTop3 = [];
+        for (let row of sorted) {
+            if (!uniqueTop3.includes(row.character_name)) uniqueTop3.push(row.character_name);
+            if (uniqueTop3.length === 3) break;
+        }
+        global.topTavernPlayers = uniqueTop3;
+        io.emit('topTavernPlayers', global.topTavernPlayers);
+    } catch(e) { console.error("Error updating top tavern:", e); }
+}
+// Initialize the rankings immediately when the server boots
+updateAndBroadcastTopTavern(); 
 // ==========================================
 // LOOT, GOLD & STAT GENERATION ENGINE
 // ==========================================
@@ -1597,6 +1623,9 @@ socket.on('login', async (data) => {
         socket.username = username;
         currentUser = username;
 
+        // 🌟 Send the global top players to the newly logged-in client
+        socket.emit('topTavernPlayers', global.topTavernPlayers || []);
+
         if (!global.playerFriends) global.playerFriends = {};
         global.playerFriends[username] = new Set(user.friends || []);
 
@@ -2291,6 +2320,9 @@ socket.on('saveData', async (playerData) => {
                     }
 
                     socket.emit('tavernVictory', { time: timeTaken, isNewBest: isNewBest });
+                    
+                    // 🌟 Check if they broke into the Top 3 and broadcast it instantly to the server!
+                    if (isNewBest) updateAndBroadcastTopTavern();
                 } catch (e) { console.error("[TAVERN RECORD ERROR]", e.message); }
             })();
 
