@@ -4030,6 +4030,11 @@ socket.on('requestSell', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || p.isGhost) return;
 
+       // 🛡️ SERVER-SIDE PARTY BLOCK
+        if (playerParty[p.id] && p.id !== "Kei") {
+            return socket.emit('systemMessage', "❌ Access Denied: Leave your party to enter the solo challenge.");
+        }
+
         // 📅 WEEKLY MONDAY 12 MN RESET LOGIC
         const now = new Date();
         let dayOfWeek = now.getDay(); // 0 is Sunday, 1 is Monday
