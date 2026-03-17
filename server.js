@@ -3787,6 +3787,81 @@ socket.on('requestSell', async (data) => {
         price: sellPrice
     });
 });
+    // 🎒 INVENTORY DRAG & DROP SWAPPING/MERGING
+    socket.on('swapInventory', (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !p.inventory) return;
+        
+        const from = data.from; const to = data.to;
+        if (from >= 0 && from < 20 && to >= 0 && to < 20 && from !== to) {
+            let fromItem = p.inventory[from];
+            let toItem = p.inventory[to];
+
+            // If dropping a stackable item onto the same item, merge them!
+            if (fromItem && toItem && fromItem.name === toItem.name && ['potion', 'material', 'consumable'].includes(fromItem.type)) {
+                toItem.quantity = (toItem.quantity || 1) + (fromItem.quantity || 1);
+                p.inventory[from] = null;
+            } else {
+                // Otherwise, perform a standard swap
+                let temp = p.inventory[from];
+                p.inventory[from] = p.inventory[to];
+                p.inventory[to] = temp;
+            }
+            
+            supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
+            socket.emit('syncInventory', p.inventory);
+        }
+    });
+
+    // ✂️ SPLIT STACK LOGIC
+    socket.on('splitInventoryItem', (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !p.inventory) return;
+        
+        const idx = data.index; const amt = data.amount;
+        if (idx < 0 || idx >= 20 || !p.inventory[idx]) return;
+        
+        let item = p.inventory[idx];
+        
+        // Ensure they have enough to split, and aren't trying to split 0
+        if (item.quantity > 1 && amt > 0 && amt < item.quantity) {
+            const emptySlot = p.inventory.findIndex(i => i === null);
+            if (emptySlot === -1) {
+                return socket.emit('systemMessage', "Inventory full! Cannot split.");
+            }
+            
+            // Create the new split stack
+            let newItem = JSON.parse(JSON.stringify(item));
+            newItem.id = Date.now() + Math.random(); // Give it a unique ID to prevent glitches
+            newItem.quantity = amt;
+            
+            // Reduce original stack
+            item.quantity -= amt;
+            
+            p.inventory[emptySlot] = newItem;
+            supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
+            socket.emit('syncInventory', p.inventory);
+        }
+    });
+
+    // 🔗 ITEM CHAT LINKING
+    socket.on('linkItem', (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.item) return;
+        
+        const pid = playerParty[p.id];
+        if (pid && parties[pid]) {
+            // Broadcast the item data to everyone in the party
+            for (const memberId of parties[pid].members) {
+                const sid = findSocketIdByPlayerId(memberId);
+                if (sid) {
+                    io.to(sid).emit('partyItemLink', { from: p.id, item: data.item });
+                }
+            }
+        } else {
+            socket.emit('systemMessage', "You must be in a party to link items!");
+        }
+    });
    socket.on('disconnect', async () => {
         if (socket.username) { activeLogins.delete(socket.username); }
 
