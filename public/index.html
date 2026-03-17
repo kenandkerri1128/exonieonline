@@ -146,7 +146,15 @@
             z-index: 10;
             backdrop-filter: blur(2px);
         }
-        
+        /* TAVERN & LEADERBOARD UI */
+        .tavern-modal, .leaderboard-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(20, 20, 20, 0.95); border: 2px solid #FF9800; padding: 20px; border-radius: 8px; z-index: 10000; width: 350px; box-shadow: 0 0 20px #FF9800; color: white; font-family: sans-serif; }
+        .tavern-modal h2, .leaderboard-modal h2 { margin: 0 0 15px 0; color: #FF9800; text-align: center; }
+        .tavern-select { width: 100%; padding: 10px; margin-bottom: 15px; background: #333; color: white; border: 1px solid #555; }
+        .tavern-btn { width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
+        .tavern-btn.close { background: #f44336; }
+        .leaderboard-row { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #444; font-size: 14px; }
+        .leaderboard-row.header { font-weight: bold; color: #FF9800; border-bottom: 2px solid #FF9800; }
+        #tavern-timer-ui { display: none; position: fixed; top: 80px; left: 50%; transform: translateX(-50%); font-size: 32px; font-weight: bold; color: #fff; text-shadow: 0 0 10px #FF9800, 2px 2px 0 #000; z-index: 5000; pointer-events: none; }
         /* --- SHADOW BAT CSS --- */
         .bat-sprite {
             border-radius: 50%; /* Main Body */
@@ -483,7 +491,7 @@
             80% { opacity: 1; transform: scale(1); } 
             100% { opacity: 0; transform: scale(0.8) translateY(-30px); } 
         }
-        
+    
         /* ✅ INVENTORY WINDOW CSS UPDATED */
         #inventory-screen { position: absolute; top: 20px; right: 20px; width:500px; height: calc(100% - 40px); background-color: rgba(25, 25, 25, 0.98); border: 2px solid #555; border-radius: 8px; padding: 20px; z-index: 1000; display: none; box-sizing: border-box; box-shadow: -5px 0 20px rgba(0,0,0,0.8); overflow-x: hidden; overflow-y: auto; }
         #inventory-screen h2 { margin-top: 0; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; font-size: 28px; }
@@ -1542,10 +1550,14 @@
     </div>
 
     <h3 style="margin: 10px 0 5px 0; font-size: 16px; text-align: center; color: #ccc;">Equipped Gear</h3>
-    <div class="equip-container">
-        <div class="equip-box" id="eq-box-weapon" onclick="window.unequipItem('weapon')"><strong style="color:#aaa;">Weapon</strong><br><span id="eq-weapon-slot">None</span></div>
-        <div class="equip-box" id="eq-box-armor" onclick="window.unequipItem('armor')"><strong style="color:#aaa;">Armor</strong><br><span id="eq-armor-slot">None</span></div>
-        <div class="equip-box" id="eq-box-leggings" onclick="window.unequipItem('leggings')"><strong style="color:#aaa;">Leggings</strong><br><span id="eq-leggings-slot">None</span></div>
+    <div class="equip-container" style="flex-wrap: wrap;">
+        <div class="equip-box" style="width: 30%;" id="eq-box-weapon" onclick="window.unequipItem('weapon')"><strong style="color:#aaa;">Weapon</strong><br><span id="eq-weapon-slot">None</span></div>
+        <div class="equip-box" style="width: 30%;" id="eq-box-armor" onclick="window.unequipItem('armor')"><strong style="color:#aaa;">Armor</strong><br><span id="eq-armor-slot">None</span></div>
+        <div class="equip-box" style="width: 30%;" id="eq-box-leggings" onclick="window.unequipItem('leggings')"><strong style="color:#aaa;">Leggings</strong><br><span id="eq-leggings-slot">None</span></div>
+        
+        <div class="equip-box" style="width: 30%;" id="eq-box-necklace" onclick="window.unequipItem('necklace')"><strong style="color:#aaa;">Necklace</strong><br><span id="eq-necklace-slot">None</span></div>
+        <div class="equip-box" style="width: 30%;" id="eq-box-ring" onclick="window.unequipItem('ring')"><strong style="color:#aaa;">Ring</strong><br><span id="eq-ring-slot">None</span></div>
+        <div class="equip-box" style="width: 30%;" id="eq-box-earrings" onclick="window.unequipItem('earrings')"><strong style="color:#aaa;">Earrings</strong><br><span id="eq-earrings-slot">None</span></div>
     </div>
 
     <h3 style="margin: 10px 0 5px 0; font-size: 16px; text-align: center; color: #ccc;">Backpack</h3>
@@ -1593,6 +1605,29 @@
             <p style="text-align:center; color:#aaa;">No messages.</p>
         </div>
         <button class="btn btn-large" style="background:#555; border-color:#555;" onclick="window.toggleMailbox()">Close (M)</button>
+    </div>
+    <div id="tavern-timer-ui">00:00.00</div>
+
+    <div id="tavern-modal" class="tavern-modal movable-window">
+        <h2>⚔️ Training Tavern</h2>
+        <p id="tavern-entries-text" style="text-align:center; color:#ccc;">Entries: ?/5</p>
+        <label>Select Opponent:</label>
+        <select id="tavern-mob-type" class="tavern-select">
+            <option value="common_mobs">Common Monster</option>
+            <option value="mini_boss">Mini Boss</option>
+            <option value="floor_boss">Floor Boss</option>
+        </select>
+        <label>Select Level (1-50):</label>
+        <input type="number" id="tavern-level" class="tavern-select" min="1" max="50" value="10">
+        <button class="tavern-btn" onclick="window.startTavern()">ENTER TAVERN</button>
+        <button class="tavern-btn close" onclick="document.getElementById('tavern-modal').style.display='none'">CANCEL</button>
+    </div>
+
+    <div id="leaderboard-modal" class="leaderboard-modal movable-window" style="width: 500px;">
+        <div class="window-drag-handle" style="height: 20px; background: #FF9800; border-radius: 6px 6px 0 0; cursor: grab;"></div>
+        <h2>🏆 Tavern Leaderboard</h2>
+        <div id="leaderboard-content" style="max-height: 400px; overflow-y: auto;"></div>
+        <button class="tavern-btn close" onclick="document.getElementById('leaderboard-modal').style.display='none'">CLOSE</button>
     </div>
 <script src="game.js"></script>
     <div id="welcome-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center;">
