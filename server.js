@@ -1885,6 +1885,21 @@ socket.on('saveData', async (playerData) => {
     const pid = playerParty[p.id];
     if (pid) emitPartyUpdate(pid);
 });
+    // 🛡️ THE FIX: Force the server to hard-save accessory slots instantly
+    socket.on('playerEquipUpdate', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data || !data.equips) return;
+
+        // Force server memory to recognize the accessory slots
+        p.equips = sanitizeEquips(data.equips);
+
+        // Hard-save directly to Supabase
+        supabase.from('Exonians').update({
+            equips: p.equips
+        }).eq('character_name', p.id).then(() => {
+            console.log(`[EQUIP SYNC] Saved accessories for ${p.id}`);
+        });
+    });
  socket.on('playerMoved', (data) => {
         if (!onlinePlayers[socket.id]) return; 
         const p = onlinePlayers[socket.id]; 
