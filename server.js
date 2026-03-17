@@ -3323,8 +3323,8 @@ socket.on('playerDied', () => {
     
     // ⚔️ TAVERN FAILURE CONDITION
     if (p.instanceId.startsWith('tavern_')) {
-        io.to(p.instanceId).emit('systemMessage', '💀 You have fallen! Tavern challenge failed.');
-        io.to(p.instanceId).emit('tavernTimerStop');
+        socket.emit('systemMessage', '💀 You have fallen! Tavern challenge failed.');
+        socket.emit('tavernTimerStop'); // 🛑 THIS INSTANTLY KILLS THE TIMER UI
         
         // Auto-kick back to town as a ghost after 4 seconds to look at their failure
         setTimeout(() => {
@@ -3987,19 +3987,28 @@ socket.on('requestSell', async (data) => {
   // ==========================================
     // ⚔️ TAVERN SYSTEM & LEADERBOARD
     // ==========================================
-    socket.on('startTavern', async (data) => {
+   socket.on('startTavern', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || p.isGhost) return;
 
-        const now = Date.now();
-        const oneWeek = 7 * 24 * 60 * 60 * 1000;
-        if (!p.baseStats.tavernReset || now > p.baseStats.tavernReset) {
+        // 📅 WEEKLY MONDAY 12 MN RESET LOGIC
+        const now = new Date();
+        let dayOfWeek = now.getDay(); // 0 is Sunday, 1 is Monday
+        let daysSinceMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
+        
+        let lastMonday = new Date(now);
+        lastMonday.setDate(now.getDate() - daysSinceMonday);
+        lastMonday.setHours(0, 0, 0, 0); // Lock it exactly to Midnight
+        const lastMondayTs = lastMonday.getTime();
+
+        // If they have never entered, OR their last reset timestamp is older than THIS week's Monday...
+        if (!p.baseStats.tavernReset || p.baseStats.tavernReset < lastMondayTs) {
             p.baseStats.tavernEntries = 5;
-            p.baseStats.tavernReset = now + oneWeek;
+            p.baseStats.tavernReset = Date.now(); // Stamp it so it knows they claimed this week
         }
 
         if (p.baseStats.tavernEntries <= 0 && p.id !== 'Kei') {
-            return socket.emit('systemMessage', '❌ You have no Tavern entries left this week.');
+            return socket.emit('systemMessage', '❌ You have no Tavern entries left this week. Resets Monday at 12:00 AM.');
         }
 
         p.baseStats.tavernEntries--;
