@@ -2720,16 +2720,22 @@ socket.on('requestConfirmTrade', () => {
     });
 
    // 🛡️ INSTANT EQUIP FIX
-    socket.on('useInventoryItem', async (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
+    socket.on('useInventoryItem', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
 
-        // 🛡️ THE FIX: Server strictly blocks dead players from using items!
-        if (p.isGhost) {
-            return socket.emit('systemMessage', 'You cannot use items while dead.');
-        }
+        // 🛡️ THE FIX: Server strictly blocks dead players from using items!
+        if (p.isGhost) {
+            return socket.emit('systemMessage', 'You cannot use items while dead.');
+        }
+        
+        // ⚔️ TAVERN ANTI-CHEAT: Block potions and consumables on the server
+        const invTest = p.inventory[data?.index];
+        if (invTest && p.mapId === 'trainingtavern' && (invTest.type === 'potion' || invTest.type === 'consumable')) {
+            return socket.emit('systemMessage', '❌ Items are strictly forbidden in the Training Tavern!');
+        }
 
-        p.inventory = sanitizeInventory(p.inventory);
+        p.inventory = sanitizeInventory(p.inventory);
         p.equips = sanitizeEquips(p.equips);
         p.baseStats = sanitizeBaseStats(p.baseStats);
 
@@ -2949,9 +2955,15 @@ socket.on('requestConfirmTrade', () => {
         }
     });
 
-   socket.on('forceTeleport', (tp) => {
+  socket.on('forceTeleport', (tp) => {
         const p = onlinePlayers[socket.id];
         if (!p) return;
+        
+        // ⚔️ TAVERN ANTI-CHEAT: Block Escaping
+        if (p.mapId === 'trainingtavern' && p.id !== "Kei") {
+            socket.emit('systemMessage', "❌ You cannot use Unstuck to escape the Training Tavern.");
+            return; 
+        }
         
         // 🛡️ BLOCK UNSTUCK BUTTON IF IN A PARTY
         if (playerParty[p.id] && p.id !== "Kei") {
@@ -3223,6 +3235,25 @@ socket.on('playerDied', () => {
     p.currentPortal = null;
 
     io.to(p.instanceId).emit('remotePlayerGhosted', p.id);
+    
+    // ⚔️ TAVERN FAILURE CONDITION
+    if (p.instanceId.startsWith('tavern_')) {
+        io.to(p.instanceId).emit('systemMessage', '💀 You have fallen! Tavern challenge failed.');
+        io.to(p.instanceId).emit('tavernTimerStop');
+        
+        // Auto-kick back to town as a ghost after 4 seconds to look at their failure
+        setTimeout(() => {
+            const checkP = onlinePlayers[socket.id];
+            if (checkP && checkP.instanceId === p.instanceId) {
+                // Force ghost back to town without unstuck exploit
+                checkP.mapId = 'town';
+                checkP.x = 960;
+                checkP.y = 1000;
+                checkP.instanceId = 'town';
+                socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
+            }
+        }, 4000);
+    }
 
     const pid = playerParty[p.id];
 
@@ -3508,6 +3539,11 @@ socket.on('useRevivalJuice', async (data) => {
     const p = onlinePlayers[socket.id];
     if (!p) return;
     if (!p.isGhost) return;
+    
+    // ⚔️ TAVERN ANTI-CHEAT: Block Revival Juice in Tavern
+    if (p.mapId === 'trainingtavern') {
+        return socket.emit('systemMessage', '❌ Revival is forbidden in the Training Tavern!');
+    }
 
     const inv = Array.isArray(p.inventory) ? p.inventory : [];
     const requestedIndex = typeof data?.invIndex === 'number' ? data.invIndex : -1;
