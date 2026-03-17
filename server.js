@@ -3160,7 +3160,7 @@ socket.on('requestConfirmTrade', () => {
                 worlds[p.instanceId].monsters = {}; 
                 
                 const mKey = p.pendingTavernBoss.mobType === 'floor_boss' ? 'floor_boss1' : (p.pendingTavernBoss.mobType === 'mini_boss' ? 'mini_boss1' : 'common_mobs1');
-                const newMob = spawnMonster(p.instanceId, 't_mob_1', mKey, { spawnArea: { minX: 960, minY: 1000 }, level: p.pendingTavernBoss.level });
+                const newMob = spawnMonster(p.instanceId, 't_mob_1', mKey, { spawnArea: { minX: 989, minY: 394 }, level: p.pendingTavernBoss.level });
                 
                 worlds[p.instanceId].monsters['t_mob_1'] = newMob;
                 p.tavernTargetId = 't_mob_1';
