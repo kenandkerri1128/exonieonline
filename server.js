@@ -2133,7 +2133,7 @@ socket.on('saveData', async (playerData) => {
             }
 
             // ONLY generate normal map loot if they are NOT in the Tavern
-            if (!p.instanceId.startsWith('tavern_')) {
+            if (targetPlayer.mapId !== 'trainingtavern') {
                 let drop = generateLoot(m);
                 let dropAccepted = drop && playerAcceptsLoot(targetPlayer, drop);
 
@@ -2240,29 +2240,54 @@ socket.on('saveData', async (playerData) => {
             socket.emit('tavernTimerStop');
             socket.emit('systemMessage', `🏁 Tavern Cleared in ${(timeTaken/1000).toFixed(2)}s!`);
             
-            // 🏆 2. Database Record Engine
+            // 🏆 2. Database Record Engine (Strict Personal Best Hierarchy)
             (async () => {
                 try {
+                    // Fetch the single master record for this player
                     const { data: existingRecord } = await supabase
                         .from('Tavern_Leaderboard')
-                        .select('id, time_taken')
+                        .select('*')
                         .eq('character_name', p.id)
-                        .eq('mob_type', m.category)
-                        .eq('mob_level', m.level)
                         .single();
 
                     let isNewBest = false;
+                    const weight = { 'floor_boss': 3, 'mini_boss': 2, 'common_mobs': 1 };
 
                     if (!existingRecord) {
+                        // No record exists at all
                         isNewBest = true;
-                        await supabase.from('Tavern_Leaderboard').insert([{ 
-                            character_name: p.id, mob_type: m.category, mob_level: m.level, time_taken: timeTaken 
-                        }]);
-                    } else if (timeTaken < existingRecord.time_taken) {
-                        isNewBest = true;
-                        await supabase.from('Tavern_Leaderboard')
-                            .update({ time_taken: timeTaken, achieved_at: new Date() })
-                            .eq('id', existingRecord.id);
+                    } else {
+                        // Weight check 1: Boss Type
+                        let oldW = weight[existingRecord.mob_type] || 0;
+                        let newW = weight[m.category] || 0;
+                        
+                        if (newW > oldW) {
+                            isNewBest = true; // Beat a harder tier boss
+                        } else if (newW === oldW) {
+                            // Weight check 2: Boss Level
+                            if (m.level > existingRecord.mob_level) {
+                                isNewBest = true; // Beat a higher level of the same boss
+                            } else if (m.level === existingRecord.mob_level) {
+                                // Weight check 3: Timer
+                                if (timeTaken < existingRecord.time_taken) {
+                                    isNewBest = true; // Beat the time on the exact same boss & level
+                                }
+                            }
+                        }
+                    }
+
+                    if (isNewBest) {
+                        if (existingRecord) {
+                            // Update the single row they own
+                            await supabase.from('Tavern_Leaderboard')
+                                .update({ mob_type: m.category, mob_level: m.level, time_taken: timeTaken, achieved_at: new Date() })
+                                .eq('id', existingRecord.id);
+                        } else {
+                            // Create their one and only row
+                            await supabase.from('Tavern_Leaderboard').insert([{ 
+                                character_name: p.id, mob_type: m.category, mob_level: m.level, time_taken: timeTaken 
+                            }]);
+                        }
                     }
 
                     socket.emit('tavernVictory', { time: timeTaken, isNewBest: isNewBest });
@@ -2656,7 +2681,7 @@ socket.on('requestConfirmTrade', () => {
         if (!p || !data.slot) return;
 
         const slot = data.slot;
-        if (!['weapon', 'armor', 'leggings'].includes(slot)) return;
+       if (!['weapon', 'armor', 'leggings', 'necklace', 'ring', 'earrings'].includes(slot)) return;
 
         const item = p.equips[slot];
         if (!item) return;
@@ -2861,7 +2886,7 @@ socket.on('requestConfirmTrade', () => {
         }
 
         // EQUIP
-        if (item.type === 'weapon' || item.type === 'armor' || item.type === 'leggings') {
+        if (['weapon', 'armor', 'leggings', 'necklace', 'ring', 'earrings'].includes(item.type)) {
             const slot = item.type;
             const oldEquip = p.equips[slot] ? sanitizeItem(p.equips[slot]) : null;
 
