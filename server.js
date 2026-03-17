@@ -3899,7 +3899,7 @@ socket.on('requestSell', async (data) => {
         price: sellPrice
     });
 });
-    // ==========================================
+  // ==========================================
     // ⚔️ TAVERN SYSTEM & LEADERBOARD
     // ==========================================
     socket.on('startTavern', async (data) => {
@@ -3929,16 +3929,25 @@ socket.on('requestSell', async (data) => {
         socket.join(p.instanceId);
         checkAndResetInstance(oldInstId);
 
+        // Set up empty world so the map can load
         worlds[p.instanceId] = { collisions: [], teleports: [], monsters: {}, pets: {} };
-        const mKey = data.mobType === 'floor_boss' ? 'floor_boss1' : (data.mobType === 'mini_boss' ? 'mini_boss1' : 'common_mobs1');
-        const newMob = spawnMonster(p.instanceId, 't_mob_1', mKey, { spawnArea: { minX: 960, minY: 800 }, level: data.level });
-        worlds[p.instanceId].monsters['t_mob_1'] = newMob;
-
         p.tavernTargetId = 't_mob_1';
-        p.tavernStartTime = Date.now();
 
         socket.emit('forceTeleport', { mapId: 'trainingtavern', x: 960, y: 1000 });
-        setTimeout(() => { socket.emit('tavernTimerStart'); }, 1500); 
+        
+        // 🛡️ THE FIX: Wait for the client to load the map, THEN spawn the boss at 960x1000!
+        setTimeout(() => { 
+            const mKey = data.mobType === 'floor_boss' ? 'floor_boss1' : (data.mobType === 'mini_boss' ? 'mini_boss1' : 'common_mobs1');
+            const newMob = spawnMonster(p.instanceId, 't_mob_1', mKey, { spawnArea: { minX: 960, minY: 1000 }, level: data.level });
+            
+            worlds[p.instanceId].monsters['t_mob_1'] = newMob;
+            
+            // Force the client to render the boss immediately
+            socket.emit('monsterSpawned', serializeMonster(newMob));
+            
+            p.tavernStartTime = Date.now();
+            socket.emit('tavernTimerStart'); 
+        }, 1500); 
     });
 
     socket.on('getTavernLeaderboard', async () => {
