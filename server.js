@@ -2794,59 +2794,6 @@ socket.on('requestConfirmTrade', () => {
             current_hp: p.currentHp
         }).eq('character_name', p.id).then(()=>{});
     });
-// 🛡️ SERVER-SIDE UNEQUIP (CRITICAL FOR SYNC)
-    socket.on('requestUnequip', (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || !data.slot) return;
-
-        const slot = data.slot;
-        if (!['weapon', 'armor', 'leggings'].includes(slot)) return;
-
-        const item = p.equips[slot];
-        if (!item) return;
-
-        const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
-        const emptySlot = inv.findIndex(i => i === null);
-
-        if (emptySlot === -1) {
-            return socket.emit('systemMessage', 'Inventory full! Cannot unequip.');
-        }
-
-        // Swap it in server memory
-        inv[emptySlot] = item;
-        p.equips[slot] = null;
-        p.inventory = inv;
-
-        // Recalculate Stats instantly
-        const trueMaxHp = getServerTotalStat(p, 'hp') || 100;
-        p.maxHp = trueMaxHp;
-        p.currentHp = Math.min(p.currentHp || trueMaxHp, trueMaxHp);
-
-        p.spriteData.weapon = p.equips?.weapon?.sprite || null;
-        p.spriteData.aura = p.equips?.armor?.aura || null;
-        p.spriteData.pet = p.equips?.leggings?.aura || null;
-
-        // ⚡ INSTANT UI UPDATE (No waiting for database!)
-        socket.emit('syncInventory', p.inventory);
-        socket.emit('inventoryItemUsed', {
-            inventory: p.inventory,
-            equips: p.equips,
-            currentHp: p.currentHp,
-            itemName: `Unequipped ${item.name}`
-        });
-
-        // Instantly update avatar for everyone around you
-        const moveData = { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData };
-        socket.emit('remotePlayerMoved', moveData);
-        socket.to(p.instanceId).emit('remotePlayerMoved', moveData);
-
-        // Silent background save to DB
-        supabase.from('Exonians').update({
-            inventory: p.inventory,
-            equips: p.equips,
-            current_hp: p.currentHp
-        }).eq('character_name', p.id).then(()=>{});
-    });
 
    // 🛡️ INSTANT EQUIP FIX
     socket.on('useInventoryItem', async (data) => {
