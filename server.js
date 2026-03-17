@@ -2079,12 +2079,16 @@ socket.on('saveData', async (playerData) => {
         }
         
       if (leveledUp) {
-            targetPlayer.currentHp = getServerTotalStat(targetPlayer, 'hp') || 100;
+            // 🛡️ THE FIX: Do NOT restore HP if the player leveled up while dead!
+            if (!targetPlayer.isGhost) {
+                targetPlayer.currentHp = getServerTotalStat(targetPlayer, 'hp') || 100;
+            }
+            
             if (targetSid) {
                 io.to(targetSid).emit('serverLevelUp', { 
                     level: targetPlayer.level, exp: targetPlayer.exp, maxExp: targetPlayer.maxExp, 
                     baseStats: targetPlayer.baseStats, currentHp: targetPlayer.currentHp 
-                }); // <-- This closing bracket was accidentally pushed down!
+                }); 
             }
 
             // 🎁 GIVEN UPON HITTING LEVEL 50 FROM COMBAT (Mailed)
@@ -2648,14 +2652,19 @@ socket.on('requestConfirmTrade', () => {
         }).eq('character_name', p.id).then(()=>{});
     });
 
-    // 🛡️ INSTANT EQUIP FIX
-    socket.on('useInventoryItem', async (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
+   // 🛡️ INSTANT EQUIP FIX
+    socket.on('useInventoryItem', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
 
-        p.inventory = sanitizeInventory(p.inventory);
-        p.equips = sanitizeEquips(p.equips);
-        p.baseStats = sanitizeBaseStats(p.baseStats);
+        // 🛡️ THE FIX: Server strictly blocks dead players from using items!
+        if (p.isGhost) {
+            return socket.emit('systemMessage', 'You cannot use items while dead.');
+        }
+
+        p.inventory = sanitizeInventory(p.inventory);
+        p.equips = sanitizeEquips(p.equips);
+        p.baseStats = sanitizeBaseStats(p.baseStats);
 
         const inv = p.inventory;
         const index = typeof data?.index === 'number' ? data.index : -1;
