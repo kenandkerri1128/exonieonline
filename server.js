@@ -2069,7 +2069,7 @@ socket.on('saveData', async (playerData) => {
 
         io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: isPendant, didFreeze: didFreeze });
         
-    if (m.currentHp <= 0) {
+   if (m.currentHp <= 0) {
         m.alive = false;
         m.targetId = null;
         m.threatTable = {};
@@ -2082,7 +2082,157 @@ socket.on('saveData', async (playerData) => {
             killerId: p.id
         });
 
-      // ⚔️ TAVERN WIN CONDITION & LOOT
+        // 1. Process EXP & Gold First (Applies to both Tavern and Open World)
+        const expAmount = m.expYield || 25;
+        const goldAmount = m.goldYield || 15;
+        const pid = playerParty[p.id];
+
+        const processRewards = async (targetPlayer, targetSid) => {
+            if (!targetPlayer) return;
+
+            targetPlayer.exp += expAmount;
+            targetPlayer.gold += goldAmount;
+
+            // 🛡️ SERVER-SIDE LEVEL UP ENGINE
+            let leveledUp = false;
+            while (targetPlayer.exp >= targetPlayer.maxExp && targetPlayer.level < 50) {
+                targetPlayer.exp -= targetPlayer.maxExp;
+                targetPlayer.level++;
+                targetPlayer.maxExp += (targetPlayer.level >= 41 ? 1500 : targetPlayer.level >= 31 ? 1000 : targetPlayer.level >= 21 ? 750 : targetPlayer.level >= 11 ? 500 : 100);
+                targetPlayer.baseStats.hp += 10;
+                targetPlayer.baseStats.str += 2;
+                targetPlayer.baseStats.int += 2;
+                leveledUp = true;
+            }
+            
+            if (leveledUp) {
+                if (!targetPlayer.isGhost) {
+                    targetPlayer.currentHp = getServerTotalStat(targetPlayer, 'hp') || 100;
+                }
+                
+                if (targetSid) {
+                    io.to(targetSid).emit('serverLevelUp', { 
+                        level: targetPlayer.level, exp: targetPlayer.exp, maxExp: targetPlayer.maxExp, 
+                        baseStats: targetPlayer.baseStats, currentHp: targetPlayer.currentHp 
+                    }); 
+                }
+
+                if (targetPlayer.level >= 50 && !targetPlayer.baseStats.gotWisp) {
+                    targetPlayer.baseStats.gotWisp = true;
+                    const wispItem = { id: Date.now() + Math.random(), name: "Sky Wisp Pet", type: 'aura', auraId: 'wisp', sprite: 'aurastone', level: 50, rarity: 'Godly', color: '#87CEEB', description: "Apply it on leggings. A loyal companion.", quantity: 1 };
+                    
+                    supabase.from('System_Mail').insert([{
+                        recipient_name: targetPlayer.id,
+                        message_text: "Congratulations on reaching Level 50! Here is your exclusive Sky Wisp. Apply it on leggings to equip it.",
+                        attached_item: JSON.stringify(wispItem),
+                        is_claimed: false
+                    }]).then(() => {
+                        if (targetSid) io.to(targetSid).emit('systemMessage', `<span style="color:#87CEEB; font-weight:bold;">🎉 LEVEL 50 REWARD: A reward has been sent to your Mailbox (M)!</span>`);
+                    });
+                }
+            }
+
+            // ONLY generate normal map loot if they are NOT in the Tavern
+            if (!p.instanceId.startsWith('tavern_')) {
+                let drop = generateLoot(m);
+                let dropAccepted = drop && playerAcceptsLoot(targetPlayer, drop);
+
+                if (dropAccepted) {
+                    const inv = Array.isArray(targetPlayer.inventory) ? targetPlayer.inventory : new Array(20).fill(null);
+                    let stacked = false;
+
+                    if (['potion', 'material', 'consumable'].includes(drop.type)) {
+                        let idx = inv.findIndex(i => i && i.name === drop.name);
+                        if (idx !== -1) {
+                            inv[idx].quantity = (inv[idx].quantity || 1) + (drop.quantity || 1);
+                            stacked = true;
+                        }
+                    }
+
+                    if (!stacked) {
+                        let emptySlot = inv.findIndex(i => i === null);
+                        if (emptySlot !== -1) inv[emptySlot] = drop;
+                    }
+                    targetPlayer.inventory = inv;
+                }
+
+                // 👑 TITLE UNLOCK LOGIC (Progressive)
+                if (m.category === "floor_boss" && targetPlayer.mapId) {
+                    const match = targetPlayer.mapId.match(/floor(\d+)/i);
+                    const killedFloorNum = match ? parseInt(match[1]) : null;
+                    
+                    if (killedFloorNum) {
+                        let currentHighestFloor = 0;
+                        const existingTitle = targetPlayer.title; 
+                        
+                        if (existingTitle && existingTitle.startsWith('FLOOR CONQUEROR')) {
+                            const parts = existingTitle.split(' ');
+                            currentHighestFloor = parseInt(parts[2]) || 0;
+                        }
+                        
+                        if (killedFloorNum > currentHighestFloor) {
+                            const newTitle = `FLOOR CONQUEROR ${killedFloorNum}`;
+                            targetPlayer.title = newTitle; 
+                            
+                            if (!targetPlayer.spriteData) targetPlayer.spriteData = {};
+                            targetPlayer.spriteData.title = newTitle;
+                            
+                            if (targetSid) {
+                                io.to(targetSid).emit('titleUnlocked', newTitle);
+                            }
+
+                            io.emit('systemMessage', `<span style="color:#ffd700; font-weight:bold; text-shadow: 0 0 5px #ff9800;">🏆 [WORLD] ${targetPlayer.name || targetPlayer.id} has conquered Floor ${killedFloorNum} and earned the title &lt;${newTitle}&gt;!</span>`);
+                        }
+                    }
+                }
+
+                if (targetSid) {
+                    if (dropAccepted) {
+                        io.to(targetSid).emit('lootDropped', drop); 
+
+                        if (drop.rarity === 'Legendary' || drop.rarity === 'Godly') {
+                            io.emit('rareLootBroadcast', {
+                                playerName: targetPlayer.name || targetPlayer.id,
+                                itemName: drop.name,
+                                rarity: drop.rarity,
+                                level: drop.level,
+                                color: drop.color
+                            });
+                        }
+                    } else if (drop) {
+                        io.to(targetSid).emit('systemMessage', `Filtered loot ignored: ${drop.name} [${drop.rarity}]`);
+                    }
+                }
+            }
+
+            // Always save stats/exp regardless of map
+            supabase.from('Exonians').update({
+                gold: targetPlayer.gold,
+                exp: targetPlayer.exp,
+                level: targetPlayer.level,
+                max_exp: targetPlayer.maxExp,
+                base_stats: targetPlayer.baseStats,
+                current_hp: targetPlayer.currentHp,
+                inventory: targetPlayer.inventory,
+                title: targetPlayer.title
+            }).eq('character_name', targetPlayer.id).then(() => {});
+
+            if (targetSid) {
+                io.to(targetSid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name });
+                io.to(targetSid).emit('syncInventory', targetPlayer.inventory);
+            }
+        };
+
+        // Distribute rewards to Party or Solo
+        if (pid && parties[pid]) {
+            for (const memberId of parties[pid].members) {
+                processRewards(getPlayerById(memberId), findSocketIdByPlayerId(memberId));
+            }
+        } else {
+            processRewards(p, socket.id);
+        }
+
+        // ⚔️ TAVERN WIN CONDITION & LOOT (Triggers after EXP is given)
         if (p.instanceId.startsWith('tavern_') && m.id === p.tavernTargetId) {
             const timeTaken = Date.now() - p.tavernStartTime;
             
@@ -2090,10 +2240,9 @@ socket.on('saveData', async (playerData) => {
             socket.emit('tavernTimerStop');
             socket.emit('systemMessage', `🏁 Tavern Cleared in ${(timeTaken/1000).toFixed(2)}s!`);
             
-            // 🏆 2. Database Record Engine (Runs async so it doesn't lag the game)
+            // 🏆 2. Database Record Engine
             (async () => {
                 try {
-                    // Check if they already have a record for this specific Boss and Level
                     const { data: existingRecord } = await supabase
                         .from('Tavern_Leaderboard')
                         .select('id, time_taken')
@@ -2105,13 +2254,11 @@ socket.on('saveData', async (playerData) => {
                     let isNewBest = false;
 
                     if (!existingRecord) {
-                        // First time clearing this boss/level
                         isNewBest = true;
                         await supabase.from('Tavern_Leaderboard').insert([{ 
                             character_name: p.id, mob_type: m.category, mob_level: m.level, time_taken: timeTaken 
                         }]);
                     } else if (timeTaken < existingRecord.time_taken) {
-                        // Beat their old time! Update it.
                         isNewBest = true;
                         await supabase.from('Tavern_Leaderboard')
                             .update({ time_taken: timeTaken, achieved_at: new Date() })
@@ -2120,13 +2267,12 @@ socket.on('saveData', async (playerData) => {
 
                     // Tell the client to pop the massive Victory screen!
                     socket.emit('tavernVictory', { time: timeTaken, isNewBest: isNewBest });
-
                 } catch (e) {
                     console.error("[TAVERN RECORD ERROR]", e.message);
                 }
             })();
 
-            // 🎁 3. Loot Drops (50% Chance for Accessory)
+            // 🎁 3. Tavern Accessory Drop
             if (Math.random() < 0.5) {
                 let rarityRoll = Math.random(); 
                 let r = "Basic";
@@ -2147,172 +2293,31 @@ socket.on('saveData', async (playerData) => {
                     p.inventory = inv; 
                     socket.emit('syncInventory', p.inventory); 
                     socket.emit('lootDropped', accDrop); 
-                    
-                    // Force a hard background save so the loot isn't lost if they close the tab
                     supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
                 }
             }
 
-            // 🥾 4. Auto-kick back to town after 5 seconds
+            // 🥾 4. Auto-kick back to town
             setTimeout(() => { 
-                // Ensure they are strictly taken out of the tavern room state
-                p.mapId = 'town';
-                p.x = 960;
-                p.y = 1000;
-                p.instanceId = 'town';
-                socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); 
+                const checkP = onlinePlayers[socket.id];
+                if (checkP && checkP.instanceId === p.instanceId) {
+                    checkP.mapId = 'town';
+                    checkP.x = 960;
+                    checkP.y = 1000;
+                    checkP.instanceId = 'town';
+                    socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); 
+                }
             }, 5000);
-        }
-
-        const expAmount = m.expYield || 25;
-        const goldAmount = m.goldYield || 15;
-        const pid = playerParty[p.id];
-
-      const processRewards = async (targetPlayer, targetSid) => {
-        if (!targetPlayer) return;
-
-        targetPlayer.exp += expAmount;
-        targetPlayer.gold += goldAmount;
-
-        // 🛡️ SERVER-SIDE LEVEL UP ENGINE
-        let leveledUp = false;
-        while (targetPlayer.exp >= targetPlayer.maxExp && targetPlayer.level < 50) {
-            targetPlayer.exp -= targetPlayer.maxExp;
-            targetPlayer.level++;
-            targetPlayer.maxExp += (targetPlayer.level >= 41 ? 1500 : targetPlayer.level >= 31 ? 1000 : targetPlayer.level >= 21 ? 750 : targetPlayer.level >= 11 ? 500 : 100);
-            targetPlayer.baseStats.hp += 10;
-            targetPlayer.baseStats.str += 2;
-            targetPlayer.baseStats.int += 2;
-            leveledUp = true;
-        }
-        
-      if (leveledUp) {
-            // 🛡️ THE FIX: Do NOT restore HP if the player leveled up while dead!
-            if (!targetPlayer.isGhost) {
-                targetPlayer.currentHp = getServerTotalStat(targetPlayer, 'hp') || 100;
-            }
             
-            if (targetSid) {
-                io.to(targetSid).emit('serverLevelUp', { 
-                    level: targetPlayer.level, exp: targetPlayer.exp, maxExp: targetPlayer.maxExp, 
-                    baseStats: targetPlayer.baseStats, currentHp: targetPlayer.currentHp 
-                }); 
-            }
-
-            // 🎁 GIVEN UPON HITTING LEVEL 50 FROM COMBAT (Mailed)
-            if (targetPlayer.level >= 50 && !targetPlayer.baseStats.gotWisp) {
-                targetPlayer.baseStats.gotWisp = true;
-                const wispItem = { id: Date.now() + Math.random(), name: "Sky Wisp Pet", type: 'aura', auraId: 'wisp', sprite: 'aurastone', level: 50, rarity: 'Godly', color: '#87CEEB', description: "Apply it on leggings. A loyal companion.", quantity: 1 };
-                
-                supabase.from('System_Mail').insert([{
-                    recipient_name: targetPlayer.id,
-                    message_text: "Congratulations on reaching Level 50! Here is your exclusive Sky Wisp. Apply it on leggings to equip it.",
-                    attached_item: JSON.stringify(wispItem),
-                    is_claimed: false
-                }]).then(() => {
-                    if (targetSid) io.to(targetSid).emit('systemMessage', `<span style="color:#87CEEB; font-weight:bold;">🎉 LEVEL 50 REWARD: A reward has been sent to your Mailbox (M)!</span>`);
-                });
-            }
+            // 🛑 RETURN HERE SO IT DOESN'T DO OPEN WORLD RESPAWNS
+            return; 
         }
 
-            let drop = generateLoot(m);
-            let dropAccepted = drop && playerAcceptsLoot(targetPlayer, drop);
+        // ==========================================
+        // NORMAL OPEN WORLD BOSS SAVES & RESPAWNS
+        // ==========================================
 
-            if (dropAccepted) {
-                // 🛡️ Server puts the item directly into the server inventory securely
-                const inv = Array.isArray(targetPlayer.inventory) ? targetPlayer.inventory : new Array(20).fill(null);
-                let stacked = false;
-
-                if (['potion', 'material', 'consumable'].includes(drop.type)) {
-                    let idx = inv.findIndex(i => i && i.name === drop.name);
-                    if (idx !== -1) {
-                        inv[idx].quantity = (inv[idx].quantity || 1) + (drop.quantity || 1);
-                        stacked = true;
-                    }
-                }
-
-                if (!stacked) {
-                    let emptySlot = inv.findIndex(i => i === null);
-                    if (emptySlot !== -1) inv[emptySlot] = drop;
-                }
-                targetPlayer.inventory = inv;
-            }
-// 👑 TITLE UNLOCK LOGIC (Progressive)
-            if (m.category === "floor_boss" && targetPlayer.mapId) {
-                const match = targetPlayer.mapId.match(/floor(\d+)/i);
-                const killedFloorNum = match ? parseInt(match[1]) : null;
-                
-                if (killedFloorNum) {
-                    let currentHighestFloor = 0;
-                    const existingTitle = targetPlayer.title; // 🛡️ Now uses top-level property
-                    
-                    if (existingTitle && existingTitle.startsWith('FLOOR CONQUEROR')) {
-                        const parts = existingTitle.split(' ');
-                        currentHighestFloor = parseInt(parts[2]) || 0;
-                    }
-                    
-                    if (killedFloorNum > currentHighestFloor) {
-                        const newTitle = `FLOOR CONQUEROR ${killedFloorNum}`;
-                        targetPlayer.title = newTitle; 
-                        
-                        if (!targetPlayer.spriteData) targetPlayer.spriteData = {};
-                        targetPlayer.spriteData.title = newTitle;
-                        
-                        if (targetSid) {
-                            // Update the player's own UI
-                            io.to(targetSid).emit('titleUnlocked', newTitle);
-                        }
-
-                        // 'io.emit' sends this to EVERY player online, not just the killer!
-                        io.emit('systemMessage', `<span style="color:#ffd700; font-weight:bold; text-shadow: 0 0 5px #ff9800;">🏆 [WORLD] ${targetPlayer.name || targetPlayer.id} has conquered Floor ${killedFloorNum} and earned the title &lt;${newTitle}&gt;!</span>`);
-                    }
-                }
-            }
-            supabase.from('Exonians').update({
-                gold: targetPlayer.gold,
-                exp: targetPlayer.exp,
-                level: targetPlayer.level,           // 🛡️ ADDED: Instantly saves new level
-                max_exp: targetPlayer.maxExp,        // 🛡️ ADDED: Instantly saves max EXP
-                base_stats: targetPlayer.baseStats,  // 🛡️ ADDED: Instantly saves the new HP/STR/INT
-                current_hp: targetPlayer.currentHp,  // 🛡️ ADDED: Updates HP
-                inventory: targetPlayer.inventory,
-                title: targetPlayer.title
-            }).eq('character_name', targetPlayer.id).then(() => {});
-
-            if (targetSid) {
-                io.to(targetSid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name });
-                
-                // 🛡️ Force the client to visually update with the true server inventory
-                io.to(targetSid).emit('syncInventory', targetPlayer.inventory);
-
-                if (dropAccepted) {
-                    // Still emits to trigger your frontend Combat Log text!
-                    io.to(targetSid).emit('lootDropped', drop); 
-
-                    if (drop.rarity === 'Legendary' || drop.rarity === 'Godly') {
-                        io.emit('rareLootBroadcast', {
-                            playerName: targetPlayer.name || targetPlayer.id,
-                            itemName: drop.name,
-                            rarity: drop.rarity,
-                            level: drop.level,
-                            color: drop.color
-                        });
-                    }
-                } else if (drop) {
-                    io.to(targetSid).emit('systemMessage', `Filtered loot ignored: ${drop.name} [${drop.rarity}]`);
-                }
-            }
-        };
-
-        // Distribute rewards to Party or Solo
-        if (pid && parties[pid]) {
-            for (const memberId of parties[pid].members) {
-                processRewards(getPlayerById(memberId), findSocketIdByPlayerId(memberId));
-            }
-        } else {
-            processRewards(p, socket.id);
-        }
-// 🛡️ HARD-SAVE TO SUPABASE
+        // 🛡️ HARD-SAVE TO SUPABASE
         if (m.category === "floor_boss") {
             const floorId = p.mapId;
             const deathTime = Date.now();
@@ -2352,7 +2357,8 @@ socket.on('saveData', async (playerData) => {
                 }
             }, fullCooldown);
         }
-        // Respawn Logic
+
+        // Normal Respawn Logic
         if (m.respawnDelayMs !== -1) {
             setTimeout(() => {
                 const cfg = {
