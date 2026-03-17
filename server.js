@@ -2232,8 +2232,8 @@ socket.on('saveData', async (playerData) => {
             processRewards(p, socket.id);
         }
 
-        // ⚔️ TAVERN WIN CONDITION & LOOT (Triggers after EXP is given)
-        if (p.instanceId.startsWith('tavern_') && m.id === p.tavernTargetId) {
+        // ⚔️ TAVERN WIN CONDITION & LOOT (Strict Map Check)
+        if (p.mapId === 'trainingtavern' && m.id === p.tavernTargetId) {
             const timeTaken = Date.now() - p.tavernStartTime;
             
             // 🛑 1. Instantly stop the timer directly on the killer's client
@@ -2265,25 +2265,17 @@ socket.on('saveData', async (playerData) => {
                             .eq('id', existingRecord.id);
                     }
 
-                    // Tell the client to pop the massive Victory screen!
                     socket.emit('tavernVictory', { time: timeTaken, isNewBest: isNewBest });
-                } catch (e) {
-                    console.error("[TAVERN RECORD ERROR]", e.message);
-                }
+                } catch (e) { console.error("[TAVERN RECORD ERROR]", e.message); }
             })();
 
             // 🎁 3. Tavern Accessory Drop
             if (Math.random() < 0.5) {
                 let rarityRoll = Math.random(); 
                 let r = "Basic";
-                
-                if (m.category === "floor_boss") {
-                    r = rarityRoll < 0.05 ? "Godly" : (rarityRoll < 0.25 ? "Legendary" : "Unique");
-                } else if (m.category === "mini_boss") {
-                    r = rarityRoll < 0.10 ? "Unique" : (rarityRoll < 0.40 ? "Rare" : "Basic");
-                } else {
-                    r = rarityRoll < 0.20 ? "Rare" : "Basic";
-                }
+                if (m.category === "floor_boss") { r = rarityRoll < 0.05 ? "Godly" : (rarityRoll < 0.25 ? "Legendary" : "Unique"); } 
+                else if (m.category === "mini_boss") { r = rarityRoll < 0.10 ? "Unique" : (rarityRoll < 0.40 ? "Rare" : "Basic"); } 
+                else { r = rarityRoll < 0.20 ? "Rare" : "Basic"; }
                 
                 let accDrop = generateTavernLoot(m.level, r);
                 const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
@@ -2302,14 +2294,13 @@ socket.on('saveData', async (playerData) => {
                 const checkP = onlinePlayers[socket.id];
                 if (checkP && checkP.instanceId === p.instanceId) {
                     checkP.mapId = 'town';
-                    checkP.x = 960;
-                    checkP.y = 1000;
-                    checkP.instanceId = 'town';
+                    checkP.x = 960; checkP.y = 1000;
+                    checkP.instanceId = getInstanceId(p.id, 'town');
                     socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); 
                 }
             }, 5000);
             
-            // 🛑 RETURN HERE SO IT DOESN'T DO OPEN WORLD RESPAWNS
+            // 🛑 CRITICAL: Return here to absolutely prevent normal maze loot, world boss messages, and respawns!
             return; 
         }
 
@@ -3127,6 +3118,28 @@ socket.on('requestConfirmTrade', () => {
                 if (remaining > 0) socket.emit('bossCooldownActive', { remaining });
             }
         });
+          // 🌟 THE TAVERN INJECTION 🌟
+        // If they teleported into the tavern, spawn the boss securely on top of them!
+        if (p.mapId === 'trainingtavern' && p.pendingTavernBoss) {
+            setTimeout(() => {
+                if (!worlds[p.instanceId]) return;
+                
+                // Wipe any accidental admin spawns so it's a strict 1v1
+                worlds[p.instanceId].monsters = {}; 
+                
+                const mKey = p.pendingTavernBoss.mobType === 'floor_boss' ? 'floor_boss1' : (p.pendingTavernBoss.mobType === 'mini_boss' ? 'mini_boss1' : 'common_mobs1');
+                const newMob = spawnMonster(p.instanceId, 't_mob_1', mKey, { spawnArea: { minX: 960, minY: 1000 }, level: p.pendingTavernBoss.level });
+                
+                worlds[p.instanceId].monsters['t_mob_1'] = newMob;
+                p.tavernTargetId = 't_mob_1';
+                p.tavernStartTime = Date.now();
+                
+                socket.emit('monsterSpawned', serializeMonster(newMob));
+                socket.emit('tavernTimerStart');
+                
+                p.pendingTavernBoss = null; // Clear the pending state
+            }, 1000); // 1-second dramatic pause before the boss appears
+        }
     });
 
    socket.on('respawnPlayer', () => {
@@ -3967,34 +3980,15 @@ socket.on('requestSell', async (data) => {
         p.baseStats.tavernEntries--;
         supabase.from('Exonians').update({ base_stats: p.baseStats }).eq('character_name', p.id).then(()=>{});
 
-        const oldInstId = p.instanceId;
-        socket.leave(p.instanceId);
-        socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
-        
-        p.mapId = 'trainingtavern'; p.x = 960; p.y = 1000;
-        p.instanceId = `tavern_${p.id}`;
-        socket.join(p.instanceId);
-        checkAndResetInstance(oldInstId);
+        // 🌟 Set the pending boss securely in memory
+        p.pendingTavernBoss = {
+            mobType: data.mobType,
+            level: data.level
+        };
 
-        // Set up empty world so the map can load
-        worlds[p.instanceId] = { collisions: [], teleports: [], monsters: {}, pets: {} };
-        p.tavernTargetId = 't_mob_1';
-
+        // Teleport them. The injection happens when they arrive!
         socket.emit('forceTeleport', { mapId: 'trainingtavern', x: 960, y: 1000 });
-        
-        // 🛡️ THE FIX: Wait for the client to load the map, THEN spawn the boss at 960x1000!
-        setTimeout(() => { 
-            const mKey = data.mobType === 'floor_boss' ? 'floor_boss1' : (data.mobType === 'mini_boss' ? 'mini_boss1' : 'common_mobs1');
-            const newMob = spawnMonster(p.instanceId, 't_mob_1', mKey, { spawnArea: { minX: 960, minY: 1000 }, level: data.level });
-            
-            worlds[p.instanceId].monsters['t_mob_1'] = newMob;
-            
-            // Force the client to render the boss immediately
-            socket.emit('monsterSpawned', serializeMonster(newMob));
-            
-            p.tavernStartTime = Date.now();
-            socket.emit('tavernTimerStart'); 
-        }, 1500); 
+        socket.emit('systemMessage', 'Entering the Training Tavern...');
     });
 
     socket.on('getTavernLeaderboard', async () => {
