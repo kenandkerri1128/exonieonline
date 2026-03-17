@@ -2082,29 +2082,63 @@ socket.on('saveData', async (playerData) => {
             killerId: p.id
         });
 
-       // ⚔️ TAVERN WIN CONDITION & LOOT
+      // ⚔️ TAVERN WIN CONDITION & LOOT
         if (p.instanceId.startsWith('tavern_') && m.id === p.tavernTargetId) {
             const timeTaken = Date.now() - p.tavernStartTime;
-            io.to(p.instanceId).emit('systemMessage', `🏁 Tavern Cleared in ${(timeTaken/1000).toFixed(2)}s!`);
-            io.to(p.instanceId).emit('tavernTimerStop');
             
-            // 50% Chance to drop an Accessory
+            // 🛑 1. Instantly stop the timer directly on the killer's client
+            socket.emit('tavernTimerStop');
+            socket.emit('systemMessage', `🏁 Tavern Cleared in ${(timeTaken/1000).toFixed(2)}s!`);
+            
+            // 🏆 2. Database Record Engine (Runs async so it doesn't lag the game)
+            (async () => {
+                try {
+                    // Check if they already have a record for this specific Boss and Level
+                    const { data: existingRecord } = await supabase
+                        .from('Tavern_Leaderboard')
+                        .select('id, time_taken')
+                        .eq('character_name', p.id)
+                        .eq('mob_type', m.category)
+                        .eq('mob_level', m.level)
+                        .single();
+
+                    let isNewBest = false;
+
+                    if (!existingRecord) {
+                        // First time clearing this boss/level
+                        isNewBest = true;
+                        await supabase.from('Tavern_Leaderboard').insert([{ 
+                            character_name: p.id, mob_type: m.category, mob_level: m.level, time_taken: timeTaken 
+                        }]);
+                    } else if (timeTaken < existingRecord.time_taken) {
+                        // Beat their old time! Update it.
+                        isNewBest = true;
+                        await supabase.from('Tavern_Leaderboard')
+                            .update({ time_taken: timeTaken, achieved_at: new Date() })
+                            .eq('id', existingRecord.id);
+                    }
+
+                    // Tell the client to pop the massive Victory screen!
+                    socket.emit('tavernVictory', { time: timeTaken, isNewBest: isNewBest });
+
+                } catch (e) {
+                    console.error("[TAVERN RECORD ERROR]", e.message);
+                }
+            })();
+
+            // 🎁 3. Loot Drops (50% Chance for Accessory)
             if (Math.random() < 0.5) {
                 let rarityRoll = Math.random(); 
                 let r = "Basic";
                 
                 if (m.category === "floor_boss") {
-                    // Drops: Unique (75%), Legendary (20%), Godly (5%)
                     r = rarityRoll < 0.05 ? "Godly" : (rarityRoll < 0.25 ? "Legendary" : "Unique");
                 } else if (m.category === "mini_boss") {
-                    // Drops: Basic (60%), Rare (30%), Unique (10%)
                     r = rarityRoll < 0.10 ? "Unique" : (rarityRoll < 0.40 ? "Rare" : "Basic");
                 } else {
-                    // Common Mobs: Basic (80%), Rare (20%)
                     r = rarityRoll < 0.20 ? "Rare" : "Basic";
                 }
                 
-                // Generates the accessory at the EXACT level the player chose
                 let accDrop = generateTavernLoot(m.level, r);
                 const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
                 const emp = inv.findIndex(i => i === null);
@@ -2113,14 +2147,21 @@ socket.on('saveData', async (playerData) => {
                     p.inventory = inv; 
                     socket.emit('syncInventory', p.inventory); 
                     socket.emit('lootDropped', accDrop); 
+                    
+                    // Force a hard background save so the loot isn't lost if they close the tab
+                    supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
                 }
             }
 
-            // Save score to Supabase
-            supabase.from('Tavern_Leaderboard').insert([{ character_name: p.id, mob_type: m.category, mob_level: m.level, time_taken: timeTaken }]).then(()=>{});
-            
-            // Auto-kick back to town after 5 seconds
-            setTimeout(() => { socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); }, 5000);
+            // 🥾 4. Auto-kick back to town after 5 seconds
+            setTimeout(() => { 
+                // Ensure they are strictly taken out of the tavern room state
+                p.mapId = 'town';
+                p.x = 960;
+                p.y = 1000;
+                p.instanceId = 'town';
+                socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); 
+            }, 5000);
         }
 
         const expAmount = m.expYield || 25;
