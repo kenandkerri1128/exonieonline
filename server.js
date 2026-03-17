@@ -2342,6 +2342,18 @@ socket.on('saveData', async (playerData) => {
                     p.inventory = inv; 
                     socket.emit('syncInventory', p.inventory); 
                     socket.emit('lootDropped', accDrop); 
+                    
+                    // 🌟 NEW: BROADCAST TAVERN GODLY/LEGENDARY LOOT
+                    if (r === 'Legendary' || r === 'Godly') {
+                        io.emit('rareLootBroadcast', {
+                            playerName: p.name || p.id,
+                            itemName: accDrop.name,
+                            rarity: accDrop.rarity,
+                            level: accDrop.level,
+                            color: accDrop.color
+                        });
+                    }
+
                     supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
                 }
             }
