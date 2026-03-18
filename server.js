@@ -2321,15 +2321,21 @@ socket.on('saveData', async (playerData) => {
                     }
 
                     if (isNewBest) {
+                        const pClass = p.baseStats?.playerClass || 'Novice';
+                        
                         if (existingRecord) {
                             // Update the single row they own
                             await supabase.from('Tavern_Leaderboard')
-                                .update({ mob_type: m.category, mob_level: m.level, time_taken: timeTaken, achieved_at: new Date() })
+                                .update({ 
+                                    mob_type: m.category, mob_level: m.level, time_taken: timeTaken, achieved_at: new Date(),
+                                    player_level: p.level, player_class: pClass
+                                })
                                 .eq('id', existingRecord.id);
                         } else {
                             // Create their one and only row
                             await supabase.from('Tavern_Leaderboard').insert([{ 
-                                character_name: p.id, mob_type: m.category, mob_level: m.level, time_taken: timeTaken 
+                                character_name: p.id, mob_type: m.category, mob_level: m.level, time_taken: timeTaken,
+                                player_level: p.level, player_class: pClass
                             }]);
                         }
                     }
