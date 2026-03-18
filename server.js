@@ -515,6 +515,12 @@ function ensureWorldFromMapData(instanceId, mapData) {
 
     return worlds[instanceId];
 }
+// ⚡ SPEED STAT: Cooldown Reduction Math Helper
+function getReducedCd(p, baseCd) {
+    const spd = getServerTotalStat(p, 'speed') || 0;
+    const reductionMs = Math.floor(spd / 300) * 1000; // Every 300 speed = 1 sec
+    return Math.max(500, baseCd - reductionMs); // Hard cap at 0.5s
+}
 // 🛡️ ANTI-CHEAT: SERVER-SIDE STAT CALCULATOR
 function getServerTotalStat(p, statName) {
     if (!p) return 0;
@@ -1250,7 +1256,7 @@ io.on('connection', (socket) => {
 
         const now = Date.now();
         if (p.skillCooldowns['partyHeal'] && now < p.skillCooldowns['partyHeal']) return;
-        p.skillCooldowns['partyHeal'] = now + 18000; 
+        p.skillCooldowns['partyHeal'] = now + getReducedCd(p, 18000);
 
         // 🛡️ THE NEW INT SCALING 
         const myInt = getServerTotalStat(p, 'int') || 10; 
@@ -1297,7 +1303,7 @@ io.on('connection', (socket) => {
         // 🛡️ 100s COOLDOWN (95s leniency)
         const now = Date.now();
         if (p.skillCooldowns['partyRevive'] && now < p.skillCooldowns['partyRevive']) return;
-        p.skillCooldowns['partyRevive'] = now + 95000;
+        p.skillCooldowns['partyRevive'] = now + getReducedCd(p, 95000);
 
         // 🛡️ Increment uses and notify the Healer
         p.purificationUses++;
@@ -1368,7 +1374,7 @@ socket.on('broadcastSkill', (data) => {
 
     const cdKey = `visual_${skillId}`;
     if (p.skillCooldowns[cdKey] && now < p.skillCooldowns[cdKey]) return;
-    p.skillCooldowns[cdKey] = now + rule.cd;
+    p.skillCooldowns[cdKey] = now + getReducedCd(p, rule.cd);
 
    // 🛡️ THE FIX: The Server now tracks your 10-second Immortal buff!
     if (skillId === 'ber3') {
@@ -1980,7 +1986,7 @@ socket.on('saveData', async (playerData) => {
 
     const now = Date.now();
     if (p.skillCooldowns['tauntMonsters'] && now < p.skillCooldowns['tauntMonsters']) return;
-    p.skillCooldowns['tauntMonsters'] = now + 13000;
+    p.skillCooldowns['tauntMonsters'] = now + getReducedCd(p, 13000);
 
     // ✅ SERVER now also stores the defensive taunt buff duration
     p.tauntBuffUntil = now + 10000;
@@ -2014,7 +2020,7 @@ socket.on('saveData', async (playerData) => {
         if (data.alive) { 
             const now = Date.now();
             if (p.skillCooldowns['summonPet'] && now < p.skillCooldowns['summonPet']) return;
-            p.skillCooldowns['summonPet'] = now + 23000;
+            p.skillCooldowns['summonPet'] = now + getReducedCd(p, 23000);
 
             let myPetCount = Object.values(world.pets).filter(pet => pet.ownerId === p.id).length;
             if (myPetCount >= 2 && !world.pets[data.id]) return; 
@@ -2030,7 +2036,7 @@ socket.on('saveData', async (playerData) => {
         if (p && p.mapId !== 'town' && p.baseStats?.playerClass === 'Blademaster') { 
             const now = Date.now();
             if (p.skillCooldowns['setUntargetable'] && now < p.skillCooldowns['setUntargetable']) return;
-            p.skillCooldowns['setUntargetable'] = now + 14000;
+            p.skillCooldowns['setUntargetable'] = now + getReducedCd(p, 14000);
 
             p.untargetableUntil = Date.now() + 10000; // 🛡️ Server enforces 10s
         }
@@ -2067,31 +2073,31 @@ socket.on('saveData', async (playerData) => {
         let pClass = p.baseStats?.playerClass;
          if (payload.skillId === 'fox_bite') {
             trueDmg = 1; // Pure 1 damage, bypasses defense later
-        } else if (payload.skillId === 'bld3') {
-            if (pClass !== 'Blademaster') return; // Hacker check!
-            if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && p.id !== "Kei") {
-                trueDmg = Math.floor(serverAtkPwr);
-            } else {
-                trueDmg = Math.floor(serverAtkPwr * 5);
-                p.skillCooldowns['heavyAttack'] = now + 49000; // 50s CD
-            }
-        } else if (payload.skillId === 'ice1') {
-            if (pClass !== 'Ice Master') return; // Hacker check!
-            if (p.skillCooldowns['ice1'] && now < p.skillCooldowns['ice1'] && p.id !== "Kei") {
-                trueDmg = Math.floor(serverAtkPwr); // Hacker spamming? Revert to basic damage.
-            } else {
-                trueDmg = Math.floor(serverAtkPwr * 2);
-                p.skillCooldowns['ice1'] = now + 23000; // 25s CD
-            }
-        } else if (payload.skillId === 'ice3') {
-            if (pClass !== 'Ice Master') return; // Hacker check!
-            if (p.skillCooldowns['ice3'] && now < p.skillCooldowns['ice3'] && p.id !== "Kei") {
-                trueDmg = Math.floor(serverAtkPwr); 
-            } else {
-                trueDmg = Math.floor(serverAtkPwr * 6); // 3 icicles * 2x damage = 6x total
-                p.skillCooldowns['ice3'] = now + 98000; // 100s CD
-            }
-      } else if (payload.skillId === 'pet') {
+       } else if (payload.skillId === 'bld3') {
+             if (pClass !== 'Blademaster') return; // Hacker check!
+             if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && p.id !== "Kei") {
+                 trueDmg = Math.floor(serverAtkPwr);
+             } else {
+                 trueDmg = Math.floor(serverAtkPwr * 5);
+                 p.skillCooldowns['heavyAttack'] = now + getReducedCd(p, 49000); 
+             }
+         } else if (payload.skillId === 'ice1') {
+             if (pClass !== 'Ice Master') return; // Hacker check!
+             if (p.skillCooldowns['ice1'] && now < p.skillCooldowns['ice1'] && p.id !== "Kei") {
+                 trueDmg = Math.floor(serverAtkPwr); 
+             } else {
+                 trueDmg = Math.floor(serverAtkPwr * 2);
+                 p.skillCooldowns['ice1'] = now + getReducedCd(p, 23000);
+             }
+         } else if (payload.skillId === 'ice3') {
+             if (pClass !== 'Ice Master') return; // Hacker check!
+             if (p.skillCooldowns['ice3'] && now < p.skillCooldowns['ice3'] && p.id !== "Kei") {
+                 trueDmg = Math.floor(serverAtkPwr); 
+             } else {
+                 trueDmg = Math.floor(serverAtkPwr * 6); 
+                 p.skillCooldowns['ice3'] = now + getReducedCd(p, 98000); 
+             }
+         } else if (payload.skillId === 'pet') {
             const world = worlds[p.instanceId];
             const pet = world.pets[payload.petId]; 
             
