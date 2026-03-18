@@ -51,12 +51,13 @@ updateAndBroadcastTopTavern(); 
 // ==========================================
 const STAT_TYPES = ['attack', 'magic', 'defense', 'speed', 'int', 'str', 'hp'];
 const RARITY_COLORS = { "Starter": "#aaaaaa", "Basic": "#8B4513", "Rare": "#2196F3", "Unique": "#9c27b0", "Legendary": "#f44336", "Godly": "#e0ffff" };
-const ITEM_TEMPLATES = { 
-    sword: { slot: 'weapon', statKey: 'attack', baseName: 'Sword', spriteName: 'sword' }, 
-    staff: { slot: 'weapon', statKey: 'magic', baseName: 'Staff', spriteName: 'staff' }, 
-    pendant: { slot: 'weapon', statKey: 'magic', baseName: 'Pendant', spriteName: 'pendant' }, 
-    armor: { slot: 'armor', statKey: 'defense', baseName: 'Armor', spriteName: 'armor' }, 
-    leggings: { slot: 'leggings', statKey: 'hp', baseName: 'Leggings', spriteName: 'leggings' } 
+const ITEM_TEMPLATES = { 
+    sword: { slot: 'weapon', statKey: 'attack', baseName: 'Sword', spriteName: 'sword' }, 
+    staff: { slot: 'weapon', statKey: 'magic', baseName: 'Staff', spriteName: 'staff' }, 
+    pendant: { slot: 'weapon', statKey: 'magic', baseName: 'Pendant', spriteName: 'pendant' }, 
+    gun: { slot: 'weapon', statKey: 'attack', baseName: 'Gun', spriteName: 'gun' }, 
+    armor: { slot: 'armor', statKey: 'defense', baseName: 'Armor', spriteName: 'armor' }, 
+    leggings: { slot: 'leggings', statKey: 'hp', baseName: 'Leggings', spriteName: 'leggings' } 
 };
 const VALID_RARITIES = ['Starter', 'Basic', 'Rare', 'Unique', 'Legendary', 'Godly'];
 const MAX_ENHANCE_BY_RARITY = {
@@ -221,7 +222,7 @@ function generateLoot(monster) {
         };
         
         let statVal = getBaseStat(mLevel) + ({ "Unique": 5, "Legendary": 8 }[rarity] || 0);
-        if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); 
+        if (typeKey === 'pendant' || typeKey === 'gun') statVal = Math.floor(statVal / 2); 
         item.fixedStat[template.statKey] = statVal;
         
         item.randomStat = {};
@@ -314,7 +315,7 @@ function generateLoot(monster) {
     
     // ✅ STRICT PENDANT 50% PENALTY ENFORCED
     let statVal = getBaseStat(mLevel) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0);
-    if (typeKey === 'pendant') statVal = Math.floor(statVal / 2); 
+    if (typeKey === 'pendant' || typeKey === 'gun') statVal = Math.floor(statVal / 2); 
     item.fixedStat[template.statKey] = statVal;
     
     // ✅ MULTIPLE BONUS STATS FOR HIGH RARITY
@@ -1347,8 +1348,7 @@ socket.on('broadcastSkill', (data) => {
     const level = p.level || 1;
     const skillId = String(data?.skillId || '');
 
-   // 🌟 ADDED 'name' properties so the server knows what text to broadcast
-    const SKILL_RULES = {
+   const SKILL_RULES = {
         heal1: { className: 'Healer', name: 'Heal', unlock: 1, cd: 20000, auraColor: 'green' },
         heal3: { className: 'Healer', name: 'Purification', unlock: 50, cd: 100000, auraColor: 'green' },
 
@@ -1362,7 +1362,13 @@ socket.on('broadcastSkill', (data) => {
         ber3:  { className: 'Berserker', name: 'Immortal', unlock: 50, cd: 100000, auraColor: 'red' },
 
         bld2:  { className: 'Blademaster', name: 'Blur!', unlock: 25, cd: 15000, auraColor: 'red' },
-        bld3:  { className: 'Blademaster', name: 'Mega Slash', unlock: 50, cd: 50000, auraColor: 'red' }
+        bld3:  { className: 'Blademaster', name: 'Mega Slash', unlock: 50, cd: 50000, auraColor: 'red' },
+
+        snp2:  { className: 'Sniper', name: 'Silver Bullet', unlock: 25, cd: 5000, auraColor: 'white' },
+        snp3:  { className: 'Sniper', name: 'Killshot', unlock: 50, cd: 50000, auraColor: 'white' },
+
+        exp1:  { className: 'Explosives Expert', name: 'Molotov', unlock: 1, cd: 12000, auraColor: 'orange' },
+        exp3:  { className: 'Explosives Expert', name: 'Go Boom!', unlock: 50, cd: 30000, auraColor: 'orange' }
     };
 
     const rule = SKILL_RULES[skillId];
@@ -1673,13 +1679,14 @@ socket.on('login', async (data) => {
                 starterInventory.push(null);
             }
             
-            // ✅ Pack ALL THREE weapons into the first three inventory slots
+            // ✅ Pack ALL FOUR weapons into the first inventory slots
             starterInventory[0] = { id: Date.now() + Math.random(), name: "Starter Sword", type: "weapon", sprite: "startersword", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { attack: 3 } };
             starterInventory[1] = { id: Date.now() + Math.random(), name: "Starter Staff", type: "weapon", sprite: "starterstaff", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 3 } };
             starterInventory[2] = { id: Date.now() + Math.random(), name: "Starter Pendant", type: "weapon", sprite: "starterpendant", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 2 } };
+            starterInventory[3] = { id: Date.now() + Math.random(), name: "Starter Gun", type: "weapon", sprite: "startergun", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { attack: 2 } };
             
-            // 🎁 STARTER GIFT: 10 Health Potions!
-            starterInventory[3] = { id: Date.now() + Math.random(), name: "Health Potion", type: "potion", sprite: "potion1", level: 1, rarity: "Basic", color: "#8B4513", fixedStat: { hpHeal: 50 }, quantity: 10 };
+            // 🎁 STARTER GIFT: 10 Health Potions! (Moved to slot 4)
+            starterInventory[4] = { id: Date.now() + Math.random(), name: "Health Potion", type: "potion", sprite: "potion1", level: 1, rarity: "Basic", color: "#8B4513", fixedStat: { hpHeal: 50 }, quantity: 10 };
 
             const { data: user, error } = await supabase.from('Exonians')
                 .update({ 
@@ -2063,7 +2070,10 @@ socket.on('saveData', async (playerData) => {
         if (!m || !m.alive) return;
         
         const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); 
-        if (dist > 350) return;
+        // 🛡️ EAGLE EYE PASSIVE: Sniper Range Check
+        let maxDist = 350;
+        if (p.baseStats?.playerClass === 'Sniper') maxDist = 402.5; // +15% Range
+        if (dist > maxDist) return;
         
         // 🛡️ 100% SERVER-SIDE MATH: The client's opinions are ignored entirely.
         let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(p.baseStats?.playerClass);
@@ -2073,9 +2083,64 @@ socket.on('saveData', async (playerData) => {
         // Base Swing (90% to 110%)
         let trueDmg = Math.floor(serverAtkPwr * (0.9 + Math.random() * 0.2));
         let pClass = p.baseStats?.playerClass;
-         if (payload.skillId === 'fox_bite') {
-            trueDmg = 1; // Pure 1 damage, bypasses defense later
-       } else if (payload.skillId === 'bld3') {
+
+       // 🔫 NEW GUN CLASSES DAMAGE LOGIC
+        if (payload.skillId === 'snp2') {
+             if (pClass !== 'Sniper') return;
+             if (p.skillCooldowns['snp2'] && now < p.skillCooldowns['snp2'] && p.id !== "Kei") {
+                 trueDmg = Math.floor(serverAtkPwr);
+             } else {
+                 trueDmg = Math.floor(serverAtkPwr * 2);
+                 p.skillCooldowns['snp2'] = now + getReducedCd(p, 5000); 
+             }
+         } else if (payload.skillId === 'snp3') {
+             if (pClass !== 'Sniper') return;
+             if (p.skillCooldowns['snp3'] && now < p.skillCooldowns['snp3'] && p.id !== "Kei") {
+                 trueDmg = Math.floor(serverAtkPwr); 
+             } else {
+                 trueDmg = Math.floor(serverAtkPwr * 4);
+                 p.skillCooldowns['snp3'] = now + getReducedCd(p, 50000); 
+             }
+         } else if (payload.skillId === 'exp1') {
+             if (pClass !== 'Explosives Expert') return;
+             if (p.skillCooldowns['exp1'] && now < p.skillCooldowns['exp1'] && p.id !== "Kei") {
+                 trueDmg = Math.floor(serverAtkPwr); 
+             } else {
+                 trueDmg = Math.floor(serverAtkPwr); // Initial impact
+                 p.skillCooldowns['exp1'] = now + getReducedCd(p, 12000); 
+
+                 // 🔥 MOLOTOV DoT ENGINE (Improved Oil Passive Included)
+                 let durationTicks = p.level >= 25 ? 10 : 3;
+                 let ticksDone = 0;
+                 const instId = p.instanceId;
+                 const targetMobId = m.id;
+                 
+                 const fireInt = setInterval(() => {
+                     ticksDone++;
+                     let tm = worlds[instId]?.monsters[targetMobId];
+                     if (ticksDone > durationTicks || !tm || !tm.alive) {
+                         clearInterval(fireInt); return;
+                     }
+                     
+                     let dotDmg = Math.max(1, Math.floor(serverAtkPwr) - (tm.def || 0));
+                     tm.currentHp -= dotDmg;
+                     if (tm.currentHp <= 0) tm.currentHp = 1; // Safely burns them to 1 HP so EXP engine doesn't crash!
+                     tm.threatTable[p.id] = (tm.threatTable[p.id] || 0) + dotDmg;
+                     
+                     io.to(instId).emit('monsterHit', { monsterId: tm.id, attackerId: p.id, damage: dotDmg, newHp: tm.currentHp, maxHp: tm.maxHp });
+                 }, 1000);
+             }
+         } else if (payload.skillId === 'exp3') {
+             if (pClass !== 'Explosives Expert') return;
+             if (p.skillCooldowns['exp3'] && now < p.skillCooldowns['exp3'] && p.id !== "Kei") {
+                 trueDmg = Math.floor(serverAtkPwr); 
+             } else {
+                 trueDmg = Math.floor(serverAtkPwr * 5); 
+                 p.skillCooldowns['exp3'] = now + getReducedCd(p, 30000); 
+             }
+         } else if (payload.skillId === 'fox_bite') {
+             trueDmg = 1; // Pure 1 damage, bypasses defense later
+         } else if (payload.skillId === 'bld3') {
              if (pClass !== 'Blademaster') return; // Hacker check!
              if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && p.id !== "Kei") {
                  trueDmg = Math.floor(serverAtkPwr);
