@@ -1347,21 +1347,22 @@ socket.on('broadcastSkill', (data) => {
     const level = p.level || 1;
     const skillId = String(data?.skillId || '');
 
+   // 🌟 ADDED 'name' properties so the server knows what text to broadcast
     const SKILL_RULES = {
-        heal1: { className: 'Healer', unlock: 1, cd: 20000, auraColor: 'green' },
-        heal3: { className: 'Healer', unlock: 50, cd: 100000, auraColor: 'green' },
+        heal1: { className: 'Healer', name: 'Heal', unlock: 1, cd: 20000, auraColor: 'green' },
+        heal3: { className: 'Healer', name: 'Purification', unlock: 50, cd: 100000, auraColor: 'green' },
 
-        sum1:  { className: 'Summoner', unlock: 1, cd: 25000, auraColor: 'blue' },
-        sum3:  { className: 'Summoner', unlock: 50, cd: 100000, auraColor: 'blue' },
+        sum1:  { className: 'Summoner', name: 'Summon Slime', unlock: 1, cd: 25000, auraColor: 'blue' },
+        sum3:  { className: 'Summoner', name: 'Enhance!', unlock: 50, cd: 100000, auraColor: 'blue' },
 
-        ice1:  { className: 'Ice Master', unlock: 1, cd: 25000, auraColor: 'blue' },
-        ice3:  { className: 'Ice Master', unlock: 50, cd: 100000, auraColor: 'blue' },
+        ice1:  { className: 'Ice Master', name: 'Icicle Spear', unlock: 1, cd: 25000, auraColor: 'blue' },
+        ice3:  { className: 'Ice Master', name: 'Icicle Storm', unlock: 50, cd: 100000, auraColor: 'blue' },
 
-        ber1:  { className: 'Berserker', unlock: 1, cd: 14000, auraColor: 'red' },
-        ber3:  { className: 'Berserker', unlock: 50, cd: 100000, auraColor: 'red' },
+        ber1:  { className: 'Berserker', name: 'Callout!', unlock: 1, cd: 14000, auraColor: 'red' },
+        ber3:  { className: 'Berserker', name: 'Immortal', unlock: 50, cd: 100000, auraColor: 'red' },
 
-        bld2:  { className: 'Blademaster', unlock: 25, cd: 15000, auraColor: 'red' },
-        bld3:  { className: 'Blademaster', unlock: 50, cd: 50000, auraColor: 'red' }
+        bld2:  { className: 'Blademaster', name: 'Blur!', unlock: 25, cd: 15000, auraColor: 'red' },
+        bld3:  { className: 'Blademaster', name: 'Mega Slash', unlock: 50, cd: 50000, auraColor: 'red' }
     };
 
     const rule = SKILL_RULES[skillId];
@@ -1376,12 +1377,10 @@ socket.on('broadcastSkill', (data) => {
     if (p.skillCooldowns[cdKey] && now < p.skillCooldowns[cdKey]) return;
     p.skillCooldowns[cdKey] = now + getReducedCd(p, rule.cd);
 
-   // 🛡️ THE FIX: The Server now tracks your 10-second Immortal buff!
     if (skillId === 'ber3') {
         p.immortalUntil = now + 10000;
     }
 
-    // 🌟 THE SUMMONER FIX: Tell the server to buff the pet's math to 100%!
     if (skillId === 'sum3') {
         const world = worlds[p.instanceId];
         if (world && world.pets) {
@@ -1393,9 +1392,12 @@ socket.on('broadcastSkill', (data) => {
         }
     }
 
+    // 🌟 THE FIX: Broadcast the Name and the Weapon Sprite
     socket.to(p.instanceId).emit('remoteSkillEffect', {
         playerId: p.id,
         skillId: skillId,
+        skillName: rule.name,
+        weaponSprite: p.equips?.weapon?.sprite || '',
         x: p.x,
         y: p.y,
         auraColor: rule.auraColor
