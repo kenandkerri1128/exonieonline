@@ -1370,9 +1370,21 @@ socket.on('broadcastSkill', (data) => {
     if (p.skillCooldowns[cdKey] && now < p.skillCooldowns[cdKey]) return;
     p.skillCooldowns[cdKey] = now + rule.cd;
 
-    // 🛡️ THE FIX: The Server now tracks your 10-second Immortal buff!
+   // 🛡️ THE FIX: The Server now tracks your 10-second Immortal buff!
     if (skillId === 'ber3') {
         p.immortalUntil = now + 10000;
+    }
+
+    // 🌟 THE SUMMONER FIX: Tell the server to buff the pet's math to 100%!
+    if (skillId === 'sum3') {
+        const world = worlds[p.instanceId];
+        if (world && world.pets) {
+            for (let petId in world.pets) {
+                if (world.pets[petId].ownerId === p.id) {
+                    world.pets[petId].enhancedUntil = now + 10000;
+                }
+            }
+        }
     }
 
     socket.to(p.instanceId).emit('remoteSkillEffect', {
