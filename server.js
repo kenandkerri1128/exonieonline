@@ -518,7 +518,7 @@ function ensureWorldFromMapData(instanceId, mapData) {
 // ⚡ SPEED STAT: Cooldown Reduction Math Helper
 function getReducedCd(p, baseCd) {
     const spd = getServerTotalStat(p, 'speed') || 0;
-    const reductionMs = Math.floor(spd / 300) * 1000; // Every 300 speed = 1 sec
+    const reductionMs = Math.floor(spd / 200) * 1000; // Every 300 speed = 1 sec
     return Math.max(500, baseCd - reductionMs); // Hard cap at 0.5s
 }
 // 🛡️ ANTI-CHEAT: SERVER-SIDE STAT CALCULATOR
