@@ -2311,19 +2311,17 @@ socket.on('saveData', async (playerData) => {
                         supabase.from('Exonians').update({ base_stats: roomPlayer.baseStats }).eq('character_name', roomPlayer.id).then(()=>{});
                     }
 
-                    // Kick them back to Portal B after 4 seconds
+                    // Kick them back to Town after 4 seconds
                     setTimeout(() => {
-                        if (roomPlayer.dungeonReturnData) {
-                            let ret = roomPlayer.dungeonReturnData;
-                            roomPlayer.mapId = ret.mapId;
-                            roomPlayer.x = ret.x; roomPlayer.y = ret.y;
-                            roomPlayer.instanceId = getInstanceId(roomPlayer.id, ret.mapId);
-                            
-                            const rsid = findSocketIdByPlayerId(roomPlayer.id);
-                            if (rsid) io.to(rsid).emit('forceTeleport', { mapId: ret.mapId, x: ret.x, y: ret.y }); 
-                            
-                            roomPlayer.dungeonReturnData = null; // Clear it
-                        }
+                        roomPlayer.mapId = 'town';
+                        roomPlayer.x = 960; 
+                        roomPlayer.y = 1000;
+                        roomPlayer.instanceId = getInstanceId(roomPlayer.id, 'town');
+                        
+                        const rsid = findSocketIdByPlayerId(roomPlayer.id);
+                        if (rsid) io.to(rsid).emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); 
+                        
+                        roomPlayer.dungeonReturnData = null; // Clear it just in case
                     }, 4000);
                 });
             }
