@@ -2804,23 +2804,29 @@ socket.on('requestConfirmTrade', () => {
         return;
     }
 
-    // Verify exact offered item IDs still exist
+  // Verify exact offered item IDs still exist
     let myValidItems = [];
     let theirValidItems = [];
+    let myClaimedIndices = new Set(); // 🛡️ ANTI-DUPE: Track used slots
+    let theirClaimedIndices = new Set(); // 🛡️ ANTI-DUPE: Track used slots
 
     if (Array.isArray(myOffer.items)) {
         for (const offeredItem of myOffer.items) {
             if (!offeredItem || !offeredItem.id) continue;
-            const realIdx = me.inventory.findIndex(invItem => invItem && invItem.id === offeredItem.id);
+            
+            // 🛡️ ANTI-DUPE: Ensure we don't count the exact same item slot twice!
+            const realIdx = me.inventory.findIndex((invItem, idx) => invItem && invItem.id === offeredItem.id && !myClaimedIndices.has(idx));
+            
             if (realIdx === -1) {
                 me.tradeConfirmed = false;
                 them.tradeConfirmed = false;
-                socket.emit('systemMessage', 'Trade failed: one of your offered items is missing.');
+                socket.emit('systemMessage', 'Trade failed: one of your offered items is missing or duplicated.');
                 io.to(themSid).emit('systemMessage', 'Trade failed: other player changed or lost an offered item.');
                 socket.emit('tradeConfirmStatus', { meConfirmed: false, otherConfirmed: false });
                 io.to(themSid).emit('tradeConfirmStatus', { meConfirmed: false, otherConfirmed: false });
                 return;
             }
+            myClaimedIndices.add(realIdx);
             myValidItems.push({ index: realIdx, item: me.inventory[realIdx] });
         }
     }
@@ -2828,16 +2834,20 @@ socket.on('requestConfirmTrade', () => {
     if (Array.isArray(theirOffer.items)) {
         for (const offeredItem of theirOffer.items) {
             if (!offeredItem || !offeredItem.id) continue;
-            const realIdx = them.inventory.findIndex(invItem => invItem && invItem.id === offeredItem.id);
+            
+            // 🛡️ ANTI-DUPE: Ensure we don't count the exact same item slot twice!
+            const realIdx = them.inventory.findIndex((invItem, idx) => invItem && invItem.id === offeredItem.id && !theirClaimedIndices.has(idx));
+            
             if (realIdx === -1) {
                 me.tradeConfirmed = false;
                 them.tradeConfirmed = false;
                 socket.emit('systemMessage', 'Trade failed: other player changed or lost an offered item.');
-                io.to(themSid).emit('systemMessage', 'Trade failed: one of your offered items is missing.');
+                io.to(themSid).emit('systemMessage', 'Trade failed: one of your offered items is missing or duplicated.');
                 socket.emit('tradeConfirmStatus', { meConfirmed: false, otherConfirmed: false });
                 io.to(themSid).emit('tradeConfirmStatus', { meConfirmed: false, otherConfirmed: false });
                 return;
             }
+            theirClaimedIndices.add(realIdx);
             theirValidItems.push({ index: realIdx, item: them.inventory[realIdx] });
         }
     }
@@ -3635,172 +3645,74 @@ socket.on('playerDied', () => {
         }
     });
 // 🌟 ADMIN SPECTATE ENGINE
-  socket.on('requestSpectate', (targetId) => {
-    const p = onlinePlayers[socket.id];
-    if (!p || p.id !== "Kei") return;
+    socket.on('requestSpectate', (targetId) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.id !== "Kei") return;
 
-    const target = getPlayerById(targetId);
-    if (!target) return;
+        const target = getPlayerById(targetId);
+        if (!target) return;
 
-    if (!p.savedSpectatePos) {
-        p.savedSpectatePos = {
-            mapId: p.mapId,
-            x: p.x,
-            y: p.y,
-            instanceId: p.instanceId,
-            wasGhost: !!p.isGhost
-        };
-    }
+        if (!p.savedSpectatePos) {
+            p.savedSpectatePos = {
+                mapId: p.mapId,
+                x: p.x,
+                y: p.y,
+                instanceId: p.instanceId,
+                wasGhost: !!p.isGhost
+            };
+        }
 
-    // Admin becomes hidden + ghost while spectating
-    p.isHiddenAdmin = true;
-    p.isGhost = true;
-    p.currentPortal = null;
-    p.untargetableUntil = Date.now() + 999999999;
+        // Admin becomes hidden + ghost while spectating
+        p.isHiddenAdmin = true;
+        p.isGhost = true;
+        p.currentPortal = null;
+        p.untargetableUntil = Date.now() + 999999999;
 
-    socket.leave(p.instanceId);
-    socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
+        socket.leave(p.instanceId);
+        socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
 
-    p.mapId = target.mapId;
-    p.x = target.x;
-    p.y = target.y;
-    p.instanceId = target.instanceId;
+        p.mapId = target.mapId;
+        p.x = target.x;
+        p.y = target.y;
+        p.instanceId = target.instanceId;
 
-    socket.join(p.instanceId);
+        socket.join(p.instanceId);
 
-    socket.emit('forceTeleport', {
-        mapId: p.mapId,
-        x: p.x,
-        y: p.y,
-        spectateTarget: targetId
-    });
-
-    const playersInInst = Object.values(onlinePlayers).filter(remote =>
-        remote.instanceId === p.instanceId &&
-        remote.id !== p.id &&
-        !remote.isHiddenAdmin
-    );
-
-    socket.emit('mapPlayersList', playersInInst.map(pp => ({
-        id: pp.id,
-        name: pp.name,
-        mapId: pp.mapId,
-        x: pp.x,
-        y: pp.y,
-        spriteData: pp.spriteData,
-        isGhost: pp.isGhost
-    })));
-});
-
-   socket.on('stopSpectate', () => {
-    const p = onlinePlayers[socket.id];
-    if (!p || p.id !== "Kei" || !p.savedSpectatePos) return;
-
-    const tp = p.savedSpectatePos;
-    p.savedSpectatePos = null;
-
-    socket.leave(p.instanceId);
-
-    p.isHiddenAdmin = false;
-    p.isGhost = !!tp.wasGhost;
-    p.untargetableUntil = 0;
-    p.currentPortal = null;
-
-    p.mapId = tp.mapId;
-    p.x = tp.x;
-    p.y = tp.y;
-    p.instanceId = tp.instanceId;
-
-    socket.join(p.instanceId);
-
-    socket.emit('forceTeleport', {
-        mapId: p.mapId,
-        x: p.x,
-        y: p.y
-    });
-
-    socket.to(p.instanceId).emit('remotePlayerJoined', {
-        id: p.id,
-        name: p.name,
-        mapId: p.mapId,
-        instanceId: p.instanceId,
-        x: p.x,
-        y: p.y,
-        spriteData: p.spriteData,
-        isGhost: p.isGhost
-    });
-
-    const playersInInst = Object.values(onlinePlayers).filter(remote =>
-        remote.instanceId === p.instanceId &&
-        remote.id !== p.id &&
-        !remote.isHiddenAdmin
-    );
-
-    socket.emit('mapPlayersList', playersInInst.map(pp => ({
-        id: pp.id,
-        name: pp.name,
-        mapId: pp.mapId,
-        x: pp.x,
-        y: pp.y,
-        spriteData: pp.spriteData,
-        isGhost: pp.isGhost
-    })));
-});
-
-   socket.on('stopSpectate', () => {
-    const p = onlinePlayers[socket.id];
-    if (!p || p.id !== "Kei" || !p.savedSpectatePos) return;
-
-    const tp = p.savedSpectatePos;
-    p.savedSpectatePos = null;
-
-    socket.leave(p.instanceId);
-
-    p.isHiddenAdmin = false;
-    p.isGhost = !!tp.wasGhost;
-    p.untargetableUntil = 0;
-    p.currentPortal = null;
-
-    p.mapId = tp.mapId;
-    p.x = tp.x;
-    p.y = tp.y;
-    p.instanceId = tp.instanceId;
-
-    socket.join(p.instanceId);
-
-    socket.emit('forceTeleport', {
-        mapId: p.mapId,
-        x: p.x,
-        y: p.y
+        socket.emit('forceTeleport', {
+            mapId: p.mapId,
+            x: p.x,
+            y: p.y,
+            spectateTarget: targetId
+        });
     });
 
-    socket.to(p.instanceId).emit('remotePlayerJoined', {
-        id: p.id,
-        name: p.name,
-        mapId: p.mapId,
-        instanceId: p.instanceId,
-        x: p.x,
-        y: p.y,
-        spriteData: p.spriteData,
-        isGhost: p.isGhost
+    socket.on('stopSpectate', () => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.id !== "Kei" || !p.savedSpectatePos) return;
+
+        const tp = p.savedSpectatePos;
+        p.savedSpectatePos = null;
+
+        socket.leave(p.instanceId);
+
+        p.isHiddenAdmin = false;
+        p.isGhost = !!tp.wasGhost;
+        p.untargetableUntil = 0;
+        p.currentPortal = null;
+
+        p.mapId = tp.mapId;
+        p.x = tp.x;
+        p.y = tp.y;
+        p.instanceId = tp.instanceId;
+
+        socket.join(p.instanceId);
+
+        socket.emit('forceTeleport', {
+            mapId: p.mapId,
+            x: p.x,
+            y: p.y
+        });
     });
-
-    const playersInInst = Object.values(onlinePlayers).filter(remote =>
-        remote.instanceId === p.instanceId &&
-        remote.id !== p.id &&
-        !remote.isHiddenAdmin
-    );
-
-    socket.emit('mapPlayersList', playersInInst.map(pp => ({
-        id: pp.id,
-        name: pp.name,
-        mapId: pp.mapId,
-        x: pp.x,
-        y: pp.y,
-        spriteData: pp.spriteData,
-        isGhost: pp.isGhost
-    })));
-});
    socket.on('requestEnhance', async (data) => {
     const p = onlinePlayers[socket.id];
     if (!p) return;
@@ -4382,10 +4294,15 @@ socket.on('requestSell', async (data) => {
         socket.emit('systemMessage', 'Entering the Training Tavern...');
     });
 socket.on('startDungeon', async (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || p.isGhost) return;
+        const p = onlinePlayers[socket.id];
+        if (!p || p.isGhost) return;
 
-        const pid = playerParty[p.id];
+        // 🛡️ ANTI-MACRO EXPLOIT LOCK: Prevents spamming while DB saves
+        if (p.isStartingInstance) return;
+        p.isStartingInstance = true;
+        setTimeout(() => { if (onlinePlayers[socket.id]) onlinePlayers[socket.id].isStartingInstance = false; }, 3000);
+
+        const pid = playerParty[p.id];
         let playersToEnter = [p];
 
         // 1. Party Logic & Entry Verification
