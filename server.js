@@ -2000,7 +2000,8 @@ socket.on('saveData', async (playerData) => {
 
         // 🛡️ SERVER-SIDE ANTI-WALLHACK
         const world = worlds[p.instanceId];
-        if (world && world.collisions && !p.isGhost) {
+        // 🌟 THE FIX: If they just teleported, ignore wallhacks for 4 seconds so they don't bounce!
+        if (world && world.collisions && !p.isGhost && (!p.teleportGrace || Date.now() > p.teleportGrace)) {
             const hitX = data.x + 12; 
             const hitY = data.y + 76; 
             let isHacking = false;
@@ -3315,11 +3316,12 @@ socket.on('requestConfirmTrade', () => {
             }
         }
 
-        p.mapId = data.mapId;
+       p.mapId = data.mapId;
         p.x = data.x;
         p.y = data.y;
         p.currentPortal = null;
         p.instanceId = getInstanceId(p.id, data.mapId);
+        p.teleportGrace = Date.now() + 4000; // 🌟 Reset their immunity timer when they land
 
         socket.join(p.instanceId);
 
@@ -4398,6 +4400,7 @@ socket.on('startDungeon', async (data) => {
         // 🌟 FORCE THE TELEPORT TO EVERYONE IN THE PARTY
         playersToEnter.forEach(mp => {
             mp.dungeonReturnData = data.returnData; 
+            mp.teleportGrace = Date.now() + 4000; // 🌟 Grant them 4 seconds of Anti-Cheat Immunity!
             const msid = findSocketIdByPlayerId(mp.id);
             if (msid) {
                 io.to(msid).emit('closeDungeonUI'); 
