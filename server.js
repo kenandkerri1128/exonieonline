@@ -4323,11 +4323,20 @@ socket.on('startDungeon', async (data) => {
             playersToEnter = [];
             for (const memberId of party.members) {
                 const mp = getPlayerById(memberId);
-                if (!mp) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
-                if (mp.isGhost) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
-                if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
+                if (!mp) {
+                    io.to(p.instanceId).emit('closeDungeonUI');
+                    return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
+                }
+                if (mp.isGhost) {
+                    io.to(p.instanceId).emit('closeDungeonUI');
+                    return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
+                }
+                if (mp.instanceId !== p.instanceId) {
+                    io.to(p.instanceId).emit('closeDungeonUI');
+                    return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
+                }
                 
-                // Check Weekly Entries for this specific member
+                // Check Weekly Entries
                 const now = new Date();
                 let dayOfWeek = now.getDay();
                 let daysSinceMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
@@ -4370,43 +4379,42 @@ socket.on('startDungeon', async (data) => {
             }
         }
 
-        // 🌟 NEW: DEDUCT ENTRIES FOR EVERYONE UPON ENTERING
+        // 🌟 CRASH-PROOF FIX: Deduct entries carefully so the server doesn't halt
         playersToEnter.forEach(mp => {
-            if (mp.id !== 'Kei') {
-                mp.baseStats.dungeonEntries--;
+            if (mp.id !== 'Kei' && mp.baseStats) {
+                mp.baseStats.dungeonEntries = (mp.baseStats.dungeonEntries || 7) - 1;
                 supabase.from('Exonians').update({ base_stats: mp.baseStats }).eq('character_name', mp.id).then(()=>{});
             }
         });
 
-        // Determine Level based on Difficulty (Editable)
+        // Determine Level based on Difficulty
         let dLevel = 10;
         if (data.difficulty === 'Medium') dLevel = 30;
         if (data.difficulty === 'Hard') dLevel = 50;
 
-        // Define the Target Instance ID (This groups the party into the exact same private room!)
         const targetMapId = 'dungeon1';
         const newInstId = getInstanceId(p.id, targetMapId);
 
-        // Teleport everyone in the list
+        // 🌟 FORCE THE TELEPORT TO EVERYONE
         playersToEnter.forEach(mp => {
-            mp.dungeonReturnData = data.returnData; // Store where to return
+            mp.dungeonReturnData = data.returnData; 
             const msid = findSocketIdByPlayerId(mp.id);
             if (msid) {
+                io.to(msid).emit('closeDungeonUI'); 
                 io.to(msid).emit('forceTeleport', { mapId: targetMapId, x: 960, y: 1000 });
                 io.to(msid).emit('systemMessage', `Entering Dungeon on ${data.difficulty} Mode...`);
             }
         });
 
-        // Wait 1 second for everyone to load, then populate the room!
+        // Wait 1 second for everyone to load, then populate the room
         setTimeout(() => {
             if (!worlds[newInstId]) worlds[newInstId] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
-            worlds[newInstId].monsters = {}; // Wipe any old runs
+            worlds[newInstId].monsters = {}; 
 
-            // Editable Spawn Coordinates for the 5 Monsters
             const spawns = [
                 { key: 'floor_boss1', x: 960, y: 400 },
                 { key: 'mini_boss1', x: 700, y: 550 },
-                { key: 'mini_boss1', x: 1220, y: 550 },
+                { key: 'common_mobs1', x: 1220, y: 550 },
                 { key: 'common_mobs1', x: 800, y: 750 },
                 { key: 'common_mobs1', x: 1120, y: 750 }
             ];
