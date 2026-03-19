@@ -189,6 +189,28 @@ function getBossCountdown(lastDeathTime) {
     const respawnTime = parseInt(lastDeathTime) + oneDay;
     return respawnTime - now; // Returns remaining milliseconds
 }
+function generatePowerGem(level, rarity) {
+    const stats = [...STAT_TYPES];
+    const rStat = stats[Math.floor(Math.random() * stats.length)];
+    let statVal = getBaseStat(level) + ({"Basic":0,"Rare":2,"Unique":5,"Legendary":8,"Godly":12}[rarity] || 0);
+    
+    return {
+        id: Date.now() + Math.random(),
+        name: `${rarity} Power Gem`,
+        type: 'gem',
+        sprite: rarity.toLowerCase() + 'gem',
+        level: level,
+        rarity: rarity,
+        color: RARITY_COLORS[rarity],
+        fixedStat: { [rStat]: statVal }, 
+        randomStat: {},
+        enhanceLevel: 0,
+        quantity: 1,
+        description: `Apply to an Accessory to permanently add +${statVal} ${rStat.toUpperCase()}.`
+    };
+}
+
+function generateDungeonLoot(m) {
 function generateDungeonLoot(m) {
     if (Math.random() < 0.25) return null; // 25% chance of NO DROP
 
