@@ -206,7 +206,7 @@ function generatePowerGem(level, rarity) {
         randomStat: { [rStat]: statVal }, // 🛡️ THE FIX: Moves stat to randomStat so it displays below the main stat
         enhanceLevel: 0,
         quantity: 1,
-        description: `Apply to an Accessory to permanently add +${statVal} ${rStat.toUpperCase()}.`
+        description: `+${statVal} ${rStat.toUpperCase()}.`
     };
 }
 function generateDungeonLoot(m) {
