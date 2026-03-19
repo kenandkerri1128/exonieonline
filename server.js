@@ -4395,7 +4395,7 @@ socket.on('startDungeon', async (data) => {
         const targetMapId = 'dungeon1';
         const newInstId = getInstanceId(p.id, targetMapId);
 
-        // 🌟 FORCE THE TELEPORT TO EVERYONE
+        // 🌟 FORCE THE TELEPORT TO EVERYONE IN THE PARTY
         playersToEnter.forEach(mp => {
             mp.dungeonReturnData = data.returnData; 
             const msid = findSocketIdByPlayerId(mp.id);
