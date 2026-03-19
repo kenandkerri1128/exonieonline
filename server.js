@@ -161,7 +161,8 @@ function sanitizeBaseStats(baseStats) {
     safe.gotWisp = baseStats ? !!baseStats.gotWisp : false;
     safe.watchedTutorial = baseStats ? !!baseStats.watchedTutorial : false;
     safe.tavernEntries = (baseStats && typeof baseStats.tavernEntries === 'number') ? baseStats.tavernEntries : 5;
-    safe.tavernReset = baseStats ? baseStats.tavernReset : 0;
+    safe.dungeonEntries = (baseStats && typeof baseStats.dungeonEntries === 'number') ? baseStats.dungeonEntries : 7;
+    safe.dungeonReset = baseStats ? baseStats.dungeonReset : 0;
     
     return safe;
 }
@@ -186,6 +187,51 @@ function getBossCountdown(lastDeathTime) {
     const oneDay = 24 * 60 * 60 * 1000;
     const respawnTime = parseInt(lastDeathTime) + oneDay;
     return respawnTime - now; // Returns remaining milliseconds
+}
+function generateDungeonLoot(m) {
+    if (Math.random() < 0.25) return null; // 25% chance of NO DROP
+
+    let roll = Math.random();
+    let rarity = "Basic";
+    
+    if (roll < 0.013) rarity = "Godly";       
+    else if (roll < 0.066) rarity = "Legendary"; 
+    else if (roll < 0.40) rarity = "Unique";   
+    else if (roll < 0.66) rarity = "Rare";       
+    else rarity = "Basic";                     
+
+    // 50% chance for a Power Gem, 50% chance for Equipment (No Accessories)
+    if (Math.random() < 0.5) {
+        return generatePowerGem(m.level, rarity);
+    } else {
+        // 🛡️ THE FIX: Added 'pendant' to the drop pool!
+        const equipKeys = ['sword', 'staff', 'pendant', 'gun', 'armor', 'leggings'];
+        const typeKey = equipKeys[Math.floor(Math.random() * equipKeys.length)];
+        const template = ITEM_TEMPLATES[typeKey];
+        const rPfx = rarity === "Starter" ? "basic" : rarity.toLowerCase();
+        
+        let item = { 
+            id: Date.now() + Math.random(), name: `${rarity} ${template.baseName}`, 
+            type: template.slot, sprite: rPfx + template.spriteName, 
+            level: m.level, rarity: rarity, color: RARITY_COLORS[rarity], 
+            fixedStat: {}, randomStat: {}, enhanceLevel: 0, quantity: 1 
+        };
+        
+        let statVal = getBaseStat(m.level) + ({ "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0);
+        
+        // 🛡️ THE FIX: 50% stat penalty correctly applied to BOTH Gun and Pendant!
+        if (typeKey === 'gun' || typeKey === 'pendant') statVal = Math.floor(statVal / 2); 
+        
+        item.fixedStat[template.statKey] = statVal;
+
+        let availableStats = [...STAT_TYPES]; 
+        for (let i = 0; i < (rarity === "Godly" ? 3 : (rarity === "Legendary" ? 2 : 1)); i++) {
+            let rIdx = Math.floor(Math.random() * availableStats.length);
+            let sKey = availableStats.splice(rIdx, 1)[0]; 
+            item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(m.level)) + 1;
+        }
+        return item;
+    }
 }
 function generateLoot(monster) {
     // 🌟 GOLDEN SLIME CUSTOM LOOT TABLE
@@ -2210,7 +2256,60 @@ socket.on('saveData', async (playerData) => {
             monsterId: m.id,
             killerId: p.id
         });
+// 🏰 DUNGEON 1 WIN CONDITION (PARTY ENABLED)
+        if (p.mapId === 'dungeon1') {
+            // Drop custom dungeon loot to the specific player who scored the hit
+            let drop = generateDungeonLoot(m);
+            if (drop && playerAcceptsLoot(p, drop)) {
+                const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
+                const emp = inv.findIndex(i => i === null);
+                if (emp !== -1) { 
+                    inv[emp] = drop; 
+                    p.inventory = inv; 
+                    socket.emit('syncInventory', p.inventory); 
+                    socket.emit('lootDropped', drop); 
+                    if (drop.rarity === 'Legendary' || drop.rarity === 'Godly') {
+                        io.emit('rareLootBroadcast', { playerName: p.name || p.id, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
+                    }
+                    supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
+                }
+            }
 
+            // Check if all 5 monsters in the room are dead
+            const activeMobs = Object.values(worlds[p.instanceId].monsters).filter(mob => mob.alive).length;
+            if (activeMobs === 0) {
+                // Emit the massive victory text to EVERYONE in the room
+                io.to(p.instanceId).emit('dungeonVictory');
+                
+                // Process the exit for EVERYONE in the room
+                const playersInRoom = playersInInstance(p.instanceId);
+                playersInRoom.forEach(roomPlayer => {
+                    // Deduct the entry NOW that they cleared it!
+                    if (roomPlayer.id !== 'Kei') {
+                        roomPlayer.baseStats.dungeonEntries--;
+                        supabase.from('Exonians').update({ base_stats: roomPlayer.baseStats }).eq('character_name', roomPlayer.id).then(()=>{});
+                    }
+
+                    // Kick them back to Portal B after 4 seconds
+                    setTimeout(() => {
+                        if (roomPlayer.dungeonReturnData) {
+                            let ret = roomPlayer.dungeonReturnData;
+                            roomPlayer.mapId = ret.mapId;
+                            roomPlayer.x = ret.x; roomPlayer.y = ret.y;
+                            roomPlayer.instanceId = getInstanceId(roomPlayer.id, ret.mapId);
+                            
+                            const rsid = findSocketIdByPlayerId(roomPlayer.id);
+                            if (rsid) io.to(rsid).emit('forceTeleport', { mapId: ret.mapId, x: ret.x, y: ret.y }); 
+                            
+                            roomPlayer.dungeonReturnData = null; // Clear it
+                        }
+                    }, 4000);
+                });
+            }
+            
+            // Return here so it bypasses normal map loot drops below
+            return;
+        }
         // 1. Process EXP & Gold First (Applies to both Tavern and Open World)
         const expAmount = m.expYield || 25;
         const goldAmount = m.goldYield || 15;
@@ -3961,7 +4060,35 @@ socket.on('adminSpawnItem', async (data) => {
         }
         supabase.from('Exonians').update({ inventory: p.inventory, equips: p.equips }).eq('character_name', p.id).then(()=>{});
     });
+// 💎 POWER GEM APPLICATION
+    socket.on('requestApplyGem', (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
 
+        const gem = p.inventory[data.gemIndex];
+        const targetAcc = p.inventory[data.targetIndex];
+
+        if (!gem || !targetAcc || gem.type !== 'gem') return;
+        
+        // Ensure it's an accessory
+        if (!['necklace', 'ring', 'earrings'].includes(targetAcc.type)) {
+            return socket.emit('systemMessage', `Power Gems can only be applied to Accessories (Necklace, Ring, Earrings)!`);
+        }
+
+        // Merge the Gem's stats into the Accessory permanently!
+        if (!targetAcc.fixedStat) targetAcc.fixedStat = {};
+        for (let statKey in gem.fixedStat) {
+            targetAcc.fixedStat[statKey] = (targetAcc.fixedStat[statKey] || 0) + gem.fixedStat[statKey];
+        }
+
+        // Destroy the Gem
+        gem.quantity = (gem.quantity || 1) - 1;
+        if (gem.quantity <= 0) p.inventory[data.gemIndex] = null;
+
+        socket.emit('syncInventory', p.inventory);
+        socket.emit('systemMessage', `💎 Successfully embedded ${gem.name} into your ${targetAcc.name}!`);
+        supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
+    });
     // 🛡️ SECURE AURA EXTRACTION (Optimized)
     socket.on('requestExtractAura', (data) => {
         const p = onlinePlayers[socket.id];
@@ -4133,7 +4260,112 @@ socket.on('requestSell', async (data) => {
         socket.emit('forceTeleport', { mapId: 'trainingtavern', x: 960, y: 1000 });
         socket.emit('systemMessage', 'Entering the Training Tavern...');
     });
+// ==========================================
+    // 🏰 DUNGEON 1 SYSTEM (PARTY ENABLED)
+    // ==========================================
+    socket.on('startDungeon', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.isGhost) return;
 
+        const pid = playerParty[p.id];
+        let playersToEnter = [p];
+
+        // 1. Party Logic & Entry Verification
+        if (pid && parties[pid]) {
+            const party = parties[pid];
+            
+            // Only the leader can start the dungeon for the group
+            if (party.leaderId !== p.id && p.id !== "Kei") {
+                return socket.emit('systemMessage', "❌ Only the Party Leader can start the dungeon.");
+            }
+            
+            // Gather all members and strictly verify them
+            playersToEnter = [];
+            for (const memberId of party.members) {
+                const mp = getPlayerById(memberId);
+                if (!mp) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
+                if (mp.isGhost) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
+                if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
+                
+                // Check Weekly Entries for this specific member
+                const now = new Date();
+                let dayOfWeek = now.getDay();
+                let daysSinceMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
+                let lastMonday = new Date(now);
+                lastMonday.setDate(now.getDate() - daysSinceMonday);
+                lastMonday.setHours(0, 0, 0, 0);
+
+                if (!mp.baseStats.dungeonReset || mp.baseStats.dungeonReset < lastMonday.getTime()) {
+                    mp.baseStats.dungeonEntries = 7;
+                    mp.baseStats.dungeonReset = Date.now();
+                }
+
+                if (mp.baseStats.dungeonEntries <= 0 && mp.id !== 'Kei') {
+                    return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} has no Dungeon entries left this week.`);
+                }
+                
+                playersToEnter.push(mp);
+            }
+        } else {
+            // Solo Entry Verification
+            const now = new Date();
+            let dayOfWeek = now.getDay();
+            let daysSinceMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
+            let lastMonday = new Date(now);
+            lastMonday.setDate(now.getDate() - daysSinceMonday);
+            lastMonday.setHours(0, 0, 0, 0);
+
+            if (!p.baseStats.dungeonReset || p.baseStats.dungeonReset < lastMonday.getTime()) {
+                p.baseStats.dungeonEntries = 7;
+                p.baseStats.dungeonReset = Date.now();
+            }
+
+            if (p.baseStats.dungeonEntries <= 0 && p.id !== 'Kei') {
+                return socket.emit('systemMessage', '❌ You have no Dungeon entries left this week.');
+            }
+        }
+
+        // Determine Level based on Difficulty (Editable)
+        let dLevel = 10;
+        if (data.difficulty === 'Medium') dLevel = 30;
+        if (data.difficulty === 'Hard') dLevel = 50;
+
+        // Define the Target Instance ID (This groups the party into the exact same private room!)
+        const targetMapId = 'dungeon1';
+        const newInstId = getInstanceId(p.id, targetMapId);
+
+        // Teleport everyone in the list
+        playersToEnter.forEach(mp => {
+            mp.dungeonReturnData = data.returnData; // Store where to return
+            const msid = findSocketIdByPlayerId(mp.id);
+            if (msid) {
+                io.to(msid).emit('forceTeleport', { mapId: targetMapId, x: 960, y: 1000 });
+                io.to(msid).emit('systemMessage', `Entering Dungeon on ${data.difficulty} Mode...`);
+            }
+        });
+
+        // Wait 1 second for everyone to load, then populate the room!
+        setTimeout(() => {
+            if (!worlds[newInstId]) worlds[newInstId] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
+            worlds[newInstId].monsters = {}; // Wipe any old runs
+
+            // Editable Spawn Coordinates for the 5 Monsters
+            const spawns = [
+                { key: 'floor_boss1', x: 960, y: 400 },
+                { key: 'mini_boss1', x: 700, y: 550 },
+                { key: 'common_mobs1', x: 1220, y: 550 },
+                { key: 'common_mobs1', x: 800, y: 750 },
+                { key: 'common_mobs1', x: 1120, y: 750 }
+            ];
+
+            spawns.forEach((sp, i) => {
+                const mobId = `d1_mob_${i}`;
+                const newMob = spawnMonster(newInstId, mobId, sp.key, { spawnArea: { minX: sp.x, minY: sp.y }, level: dLevel });
+                worlds[newInstId].monsters[mobId] = newMob;
+                io.to(newInstId).emit('monsterSpawned', serializeMonster(newMob));
+            });
+        }, 1000);
+    });
     socket.on('getTavernLeaderboard', async () => {
         const { data } = await supabase.from('Tavern_Leaderboard').select('*').order('time_taken', { ascending: true }).limit(50);
         
