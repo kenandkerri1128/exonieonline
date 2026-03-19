@@ -796,6 +796,16 @@ var floor3MapData = {
             "h": 61,
             "portalId": 7,
             "targetMapId": "floor4"
+        },
+        {
+            "x": 1501,
+            "y": 1018,
+            "w": 42,
+            "h": 51,
+            "portalId": "B",
+            "targetMapId": "dungeon1",
+            "targetX": 960,
+            "targetY": 1000
         }
     ],
     "normalSpawns": [
