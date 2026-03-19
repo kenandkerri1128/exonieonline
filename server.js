@@ -3176,7 +3176,20 @@ socket.on('requestConfirmTrade', () => {
             }
         }
     });
-    socket.on('partyInvite', ({ targetId }) => { const me = onlinePlayers[socket.id]; if (!me || !targetId) return; const targetSid = findSocketIdByPlayerId(targetId); if (!targetSid) return socket.emit('partyError', 'Target is not online.'); io.to(targetSid).emit('partyInviteReceived', { fromId: me.id }); });
+    socket.on('partyInvite', ({ targetId }) => { 
+        const me = onlinePlayers[socket.id]; 
+        if (!me || !targetId) return; 
+        
+        // 🛡️ NEW: Party Leader Only Check
+        const pid = playerParty[me.id];
+        if (pid && parties[pid] && parties[pid].leaderId !== me.id) {
+            return socket.emit('partyError', '❌ Only the Party Leader can invite new members.');
+        }
+
+        const targetSid = findSocketIdByPlayerId(targetId); 
+        if (!targetSid) return socket.emit('partyError', 'Target is not online.'); 
+        io.to(targetSid).emit('partyInviteReceived', { fromId: me.id }); 
+    });
     
     socket.on('partyInviteResponse', ({ fromId, accept }) => {
         const me = onlinePlayers[socket.id]; 
@@ -4290,10 +4303,7 @@ socket.on('requestSell', async (data) => {
         socket.emit('forceTeleport', { mapId: 'trainingtavern', x: 960, y: 1000 });
         socket.emit('systemMessage', 'Entering the Training Tavern...');
     });
-// ==========================================
-    // 🏰 DUNGEON 1 SYSTEM (PARTY ENABLED)
-    // ==========================================
-    socket.on('startDungeon', async (data) => {
+socket.on('startDungeon', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || p.isGhost) return;
 
@@ -4331,6 +4341,10 @@ socket.on('requestSell', async (data) => {
                 }
 
                 if (mp.baseStats.dungeonEntries <= 0 && mp.id !== 'Kei') {
+                    for (const mId of party.members) {
+                        const msid = findSocketIdByPlayerId(mId);
+                        if (msid) io.to(msid).emit('closeDungeonUI');
+                    }
                     return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} has no Dungeon entries left this week.`);
                 }
                 
@@ -4351,9 +4365,18 @@ socket.on('requestSell', async (data) => {
             }
 
             if (p.baseStats.dungeonEntries <= 0 && p.id !== 'Kei') {
+                socket.emit('closeDungeonUI');
                 return socket.emit('systemMessage', '❌ You have no Dungeon entries left this week.');
             }
         }
+
+        // 🌟 NEW: DEDUCT ENTRIES FOR EVERYONE UPON ENTERING
+        playersToEnter.forEach(mp => {
+            if (mp.id !== 'Kei') {
+                mp.baseStats.dungeonEntries--;
+                supabase.from('Exonians').update({ base_stats: mp.baseStats }).eq('character_name', mp.id).then(()=>{});
+            }
+        });
 
         // Determine Level based on Difficulty (Editable)
         let dLevel = 10;
@@ -4383,7 +4406,7 @@ socket.on('requestSell', async (data) => {
             const spawns = [
                 { key: 'floor_boss1', x: 960, y: 400 },
                 { key: 'mini_boss1', x: 700, y: 550 },
-                { key: 'common_mobs1', x: 1220, y: 550 },
+                { key: 'mini_boss1', x: 1220, y: 550 },
                 { key: 'common_mobs1', x: 800, y: 750 },
                 { key: 'common_mobs1', x: 1120, y: 750 }
             ];
