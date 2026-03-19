@@ -2161,86 +2161,79 @@ socket.on('saveData', async (playerData) => {
         let trueDmg = Math.floor(serverAtkPwr * (0.9 + Math.random() * 0.2));
         let pClass = p.baseStats?.playerClass;
 
-       // 🔫 NEW GUN CLASSES DAMAGE LOGIC
+// 🔫 NEW GUN CLASSES DAMAGE LOGIC
         if (payload.skillId === 'snp2') {
              if (pClass !== 'Sniper') return;
-             if (p.skillCooldowns['snp2'] && now < p.skillCooldowns['snp2'] && p.id !== "Kei") {
-                 trueDmg = Math.floor(serverAtkPwr);
-             } else {
-                 trueDmg = Math.floor(serverAtkPwr * 2);
-                 p.skillCooldowns['snp2'] = now + getReducedCd(p, 5000); 
-             }
+             if (p.skillCooldowns['snp2'] && now < p.skillCooldowns['snp2'] && p.id !== "Kei") return; // 🛡️ ANTI-CHEAT: Block Attack
+             
+             trueDmg = Math.floor(serverAtkPwr * 2);
+             p.skillCooldowns['snp2'] = now + getReducedCd(p, 5000); 
+             
          } else if (payload.skillId === 'snp3') {
              if (pClass !== 'Sniper') return;
-             if (p.skillCooldowns['snp3'] && now < p.skillCooldowns['snp3'] && p.id !== "Kei") {
-                 trueDmg = Math.floor(serverAtkPwr); 
-             } else {
-                 trueDmg = Math.floor(serverAtkPwr * 4);
-                 p.skillCooldowns['snp3'] = now + getReducedCd(p, 50000); 
-             }
+             if (p.skillCooldowns['snp3'] && now < p.skillCooldowns['snp3'] && p.id !== "Kei") return; // 🛡️ ANTI-CHEAT: Block Attack
+             
+             trueDmg = Math.floor(serverAtkPwr * 4);
+             p.skillCooldowns['snp3'] = now + getReducedCd(p, 50000); 
+             
          } else if (payload.skillId === 'exp1') {
              if (pClass !== 'Explosives Expert') return;
-             if (p.skillCooldowns['exp1'] && now < p.skillCooldowns['exp1'] && p.id !== "Kei") {
-                 trueDmg = Math.floor(serverAtkPwr); 
-             } else {
-                 trueDmg = Math.floor(serverAtkPwr); // Initial impact
-                 p.skillCooldowns['exp1'] = now + getReducedCd(p, 12000); 
+             if (p.skillCooldowns['exp1'] && now < p.skillCooldowns['exp1'] && p.id !== "Kei") return; // 🛡️ ANTI-CHEAT: Block Attack
+             
+             trueDmg = Math.floor(serverAtkPwr); // Initial impact
+             p.skillCooldowns['exp1'] = now + getReducedCd(p, 12000); 
 
-                 // 🔥 MOLOTOV DoT ENGINE (Improved Oil Passive Included)
-                 let durationTicks = p.level >= 25 ? 10 : 3;
-                 let ticksDone = 0;
-                 const instId = p.instanceId;
-                 const targetMobId = m.id;
+             // 🔥 MOLOTOV DoT ENGINE (Improved Oil Passive Included)
+             let durationTicks = p.level >= 25 ? 10 : 3;
+             let ticksDone = 0;
+             const instId = p.instanceId;
+             const targetMobId = m.id;
+             
+             const fireInt = setInterval(() => {
+                 ticksDone++;
+                 let tm = worlds[instId]?.monsters[targetMobId];
+                 if (ticksDone > durationTicks || !tm || !tm.alive) {
+                     clearInterval(fireInt); return;
+                 }
                  
-                 const fireInt = setInterval(() => {
-                     ticksDone++;
-                     let tm = worlds[instId]?.monsters[targetMobId];
-                     if (ticksDone > durationTicks || !tm || !tm.alive) {
-                         clearInterval(fireInt); return;
-                     }
-                     
-                     let dotDmg = Math.max(1, Math.floor(serverAtkPwr) - (tm.def || 0));
-                     tm.currentHp -= dotDmg;
-                     if (tm.currentHp <= 0) tm.currentHp = 1; // Safely burns them to 1 HP so EXP engine doesn't crash!
-                     tm.threatTable[p.id] = (tm.threatTable[p.id] || 0) + dotDmg;
-                     
-                     io.to(instId).emit('monsterHit', { monsterId: tm.id, attackerId: p.id, damage: dotDmg, newHp: tm.currentHp, maxHp: tm.maxHp });
-                 }, 1000);
-             }
+                 let dotDmg = Math.max(1, Math.floor(serverAtkPwr) - (tm.def || 0));
+                 tm.currentHp -= dotDmg;
+                 if (tm.currentHp <= 0) tm.currentHp = 1; // Safely burns them to 1 HP so EXP engine doesn't crash!
+                 tm.threatTable[p.id] = (tm.threatTable[p.id] || 0) + dotDmg;
+                 
+                 io.to(instId).emit('monsterHit', { monsterId: tm.id, attackerId: p.id, damage: dotDmg, newHp: tm.currentHp, maxHp: tm.maxHp });
+             }, 1000);
+             
          } else if (payload.skillId === 'exp3') {
              if (pClass !== 'Explosives Expert') return;
-             if (p.skillCooldowns['exp3'] && now < p.skillCooldowns['exp3'] && p.id !== "Kei") {
-                 trueDmg = Math.floor(serverAtkPwr); 
-             } else {
-                 trueDmg = Math.floor(serverAtkPwr * 5); 
-                 p.skillCooldowns['exp3'] = now + getReducedCd(p, 30000); 
-             }
+             if (p.skillCooldowns['exp3'] && now < p.skillCooldowns['exp3'] && p.id !== "Kei") return; // 🛡️ ANTI-CHEAT: Block Attack
+             
+             trueDmg = Math.floor(serverAtkPwr * 5); 
+             p.skillCooldowns['exp3'] = now + getReducedCd(p, 30000); 
+             
          } else if (payload.skillId === 'fox_bite') {
              trueDmg = 1; // Pure 1 damage, bypasses defense later
          } else if (payload.skillId === 'bld3') {
-             if (pClass !== 'Blademaster') return; // Hacker check!
-             if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && p.id !== "Kei") {
-                 trueDmg = Math.floor(serverAtkPwr);
-             } else {
-                 trueDmg = Math.floor(serverAtkPwr * 5);
-                 p.skillCooldowns['heavyAttack'] = now + getReducedCd(p, 49000); 
-             }
+             if (pClass !== 'Blademaster') return; 
+             if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && p.id !== "Kei") return; // 🛡️ ANTI-CHEAT: Block Attack
+             
+             trueDmg = Math.floor(serverAtkPwr * 5);
+             p.skillCooldowns['heavyAttack'] = now + getReducedCd(p, 49000); 
+             
          } else if (payload.skillId === 'ice1') {
-             if (pClass !== 'Ice Master') return; // Hacker check!
-             if (p.skillCooldowns['ice1'] && now < p.skillCooldowns['ice1'] && p.id !== "Kei") {
-                 trueDmg = Math.floor(serverAtkPwr); 
-             } else {
-                 trueDmg = Math.floor(serverAtkPwr * 2);
-                 p.skillCooldowns['ice1'] = now + getReducedCd(p, 23000);
-             }
+             if (pClass !== 'Ice Master') return; 
+             if (p.skillCooldowns['ice1'] && now < p.skillCooldowns['ice1'] && p.id !== "Kei") return; // 🛡️ ANTI-CHEAT: Block Attack
+             
+             trueDmg = Math.floor(serverAtkPwr * 2);
+             p.skillCooldowns['ice1'] = now + getReducedCd(p, 23000);
+             
          } else if (payload.skillId === 'ice3') {
-             if (pClass !== 'Ice Master') return; // Hacker check!
-             if (p.skillCooldowns['ice3'] && now < p.skillCooldowns['ice3'] && p.id !== "Kei") {
-                 trueDmg = Math.floor(serverAtkPwr); 
-             } else {
-                 trueDmg = Math.floor(serverAtkPwr * 6); 
-                 p.skillCooldowns['ice3'] = now + getReducedCd(p, 98000); 
-             }
+             if (pClass !== 'Ice Master') return; 
+             if (p.skillCooldowns['ice3'] && now < p.skillCooldowns['ice3'] && p.id !== "Kei") return; // 🛡️ ANTI-CHEAT: Block Attack
+             
+             trueDmg = Math.floor(serverAtkPwr * 6); 
+             p.skillCooldowns['ice3'] = now + getReducedCd(p, 98000); 
+             
          } else if (payload.skillId === 'pet') {
             const world = worlds[p.instanceId];
             const pet = world.pets[payload.petId]; 
@@ -3305,7 +3298,18 @@ socket.on('requestConfirmTrade', () => {
       socket.on('playerTeleported', async (data) => {
         const p = onlinePlayers[socket.id];
           if (!onlinePlayers[socket.id]) return;
-          p.purificationUses = 0;
+          
+        // 🛑 ANTI-CHEAT: THE BOUNCER
+        // If they are trying to load into a restricted zone, check their ticket!
+        if (data.mapId === 'trainingtavern' || String(data.mapId).startsWith('dungeon')) {
+            if (p.expectedMapId !== data.mapId && p.id !== "Kei") {
+                console.log(`[ANTI-CHEAT] ${p.id} attempted to spoof teleport into ${data.mapId}!`);
+                return socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
+            }
+        }
+        p.expectedMapId = null; // Shred the ticket so it can't be reused!
+        
+        p.purificationUses = 0;
 
         const oldInstId = p.instanceId;
         socket.leave(p.instanceId);
@@ -4371,6 +4375,7 @@ socket.on('requestSell', async (data) => {
         };
 
         // Teleport them. The injection happens when they arrive!
+        p.expectedMapId = 'trainingtavern'; // 🎟️ THE FIX: Hand them a secure server ticket!
         socket.emit('forceTeleport', { mapId: 'trainingtavern', x: 960, y: 1000 });
         socket.emit('systemMessage', 'Entering the Training Tavern...');
     });
@@ -4466,10 +4471,11 @@ socket.on('startDungeon', async (data) => {
         const targetMapId = 'dungeon1';
         const newInstId = getInstanceId(p.id, targetMapId);
 
-        // 🌟 FORCE THE TELEPORT TO EVERYONE IN THE PARTY
+        // 🌟 FORCE THE TELEPORT TO EVERYONE IN THE PARTY (Tavern Style)
         playersToEnter.forEach(mp => {
             mp.dungeonReturnData = data.returnData; 
-            mp.teleportGrace = Date.now() + 4000; // 🌟 Grant them 4 seconds of Anti-Cheat Immunity!
+            mp.teleportGrace = Date.now() + 4000; 
+            mp.expectedMapId = targetMapId; // 🎟️ THE FIX: Hand them a secure server ticket!
             const msid = findSocketIdByPlayerId(mp.id);
             if (msid) {
                 io.to(msid).emit('closeDungeonUI'); 
