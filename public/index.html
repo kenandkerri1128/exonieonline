@@ -92,9 +92,13 @@
         .claim-btn { background: #4CAF50; border: none; color: white; padding: 8px; width: 100%; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: 'MedievalSharp', cursive; }
         .claim-btn:disabled { background: #555; cursor: not-allowed; }
 
-        /* --- GAME WORLD --- */
-        #game-screen { position: relative; width: 100%; height: 100%; background-color: #000; }
-        #world { position: absolute; width: 2000px; height: 1333px; background-size: 100% 100%; transform-origin: top left; transition: background-image 0.5s; }
+       /* --- GAME WORLD --- */
+        #game-screen { position: relative; width: 100%; height: 100%; background-color: #000; overflow: hidden; }
+        #world { position: absolute; width: 2000px; height: 1333px; background-size: 100% 100%; transform-origin: top left; transition: background-image 0.5s; z-index: 100; }
+
+        /* 🌫️ SOFT FOG OF WAR CANVAS */
+        #fow-canvas { position: absolute; top: 0; left: 0; width: 2000px; height: 1333px; z-index: 150; pointer-events: none; opacity: 0; transition: opacity 1s ease-in-out; }
+        #fow-canvas.active { opacity: 1; }
 
         .collision-box { position: absolute; background: transparent; z-index: 900; pointer-events: none; }
         #world.admin-active .collision-box { background: rgba(255, 0, 0, 0.4) !important; border: 1px solid red; pointer-events: auto; cursor: pointer; }
@@ -1548,6 +1552,7 @@
         </div>
         
         <div id="world">
+            <canvas id="fow-canvas" width="2000" height="1333"></canvas>
             <div id="collision-layers"></div>
             
             <div id="player-container" class="entity" style="left: 960px; top: 1000px;">
