@@ -4094,12 +4094,22 @@ socket.on('adminSpawnItem', async (data) => {
             return socket.emit('systemMessage', `❌ Power Gems can only be applied to Accessories (Necklace, Ring, Earrings)!`);
         }
 
-        // 🛡️ THE FIX: Add the gem's stat to the accessory's randomStat array, keeping the level free
+        // 🛡️ NEW FIX: Limit Gem sockets based on Accessory Rarity
+        const maxGems = { "Basic": 1, "Rare": 1, "Unique": 2, "Legendary": 3, "Godly": 4 }[targetAcc.rarity] || 1;
+        targetAcc.gemCount = targetAcc.gemCount || 0;
+
+        if (targetAcc.gemCount >= maxGems) {
+            return socket.emit('systemMessage', `❌ This ${targetAcc.rarity} accessory has reached its maximum of ${maxGems} socket(s)!`);
+        }
+
+        // Apply the gem's stats
         if (!targetAcc.randomStat) targetAcc.randomStat = {};
-        
         for (let statKey in gem.randomStat) {
             targetAcc.randomStat[statKey] = (targetAcc.randomStat[statKey] || 0) + gem.randomStat[statKey];
         }
+
+        // Increase the socket counter
+        targetAcc.gemCount++;
 
         // Destroy the Gem
         gem.quantity = (gem.quantity || 1) - 1;
