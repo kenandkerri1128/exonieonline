@@ -16,7 +16,7 @@ const supabaseKey = process.env.SUPABASE_KEY; 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Caches images and audio in the player's browser for 1 day
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 const onlinePlayers = {}; 
 const parties = {};        
