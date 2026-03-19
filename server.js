@@ -1710,7 +1710,13 @@ socket.on('login', async (data) => {
             }
         }
 
-        console.log(`[LOGIN SUCCESS] ${username} authenticated successfully.`);
+       console.log(`[LOGIN SUCCESS] ${username} authenticated successfully.`);
+
+        // 🌟 NEW: Record the exact time they logged in to Supabase (Runs silently in background)
+        supabase.from('Exonians')
+            .update({ last_login: new Date().toISOString() })
+            .eq('character_name', username)
+            .then(() => {});
 
         activeLogins.add(username);
         socket.username = username;
