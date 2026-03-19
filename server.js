@@ -202,8 +202,8 @@ function generatePowerGem(level, rarity) {
         level: level,
         rarity: rarity,
         color: RARITY_COLORS[rarity],
-        fixedStat: { [rStat]: statVal }, 
-        randomStat: {},
+        fixedStat: {}, 
+        randomStat: { [rStat]: statVal }, // 🛡️ THE FIX: Moves stat to randomStat so it displays below the main stat
         enhanceLevel: 0,
         quantity: 1,
         description: `Apply to an Accessory to permanently add +${statVal} ${rStat.toUpperCase()}.`
@@ -4091,13 +4091,14 @@ socket.on('adminSpawnItem', async (data) => {
         
         // Ensure it's an accessory
         if (!['necklace', 'ring', 'earrings'].includes(targetAcc.type)) {
-            return socket.emit('systemMessage', `Power Gems can only be applied to Accessories (Necklace, Ring, Earrings)!`);
+            return socket.emit('systemMessage', `❌ Power Gems can only be applied to Accessories (Necklace, Ring, Earrings)!`);
         }
 
-        // Merge the Gem's stats into the Accessory permanently!
-        if (!targetAcc.fixedStat) targetAcc.fixedStat = {};
-        for (let statKey in gem.fixedStat) {
-            targetAcc.fixedStat[statKey] = (targetAcc.fixedStat[statKey] || 0) + gem.fixedStat[statKey];
+        // 🛡️ THE FIX: Add the gem's stat to the accessory's randomStat array, keeping the level free
+        if (!targetAcc.randomStat) targetAcc.randomStat = {};
+        
+        for (let statKey in gem.randomStat) {
+            targetAcc.randomStat[statKey] = (targetAcc.randomStat[statKey] || 0) + gem.randomStat[statKey];
         }
 
         // Destroy the Gem
