@@ -209,8 +209,6 @@ function generatePowerGem(level, rarity) {
         description: `Apply to an Accessory to permanently add +${statVal} ${rStat.toUpperCase()}.`
     };
 }
-
-function generateDungeonLoot(m) {
 function generateDungeonLoot(m) {
     if (Math.random() < 0.25) return null; // 25% chance of NO DROP
 
