@@ -1034,8 +1034,11 @@ setInterval(() => {
 
         // 3. Calculate custom Line-of-Sight for EACH player
         for (const p of playersInRoom) {
-            // Ignore admins who are spectating out of bounds or dead players
-            if (p.isGhost || p.isHiddenAdmin) continue; 
+            // 🛡️ THE FIX: Ghosts and Spectators get full "God Vision" to watch the fight!
+            if (p.isGhost || p.isHiddenAdmin) {
+                io.to(p.socketId).emit('monsterState', allMonsters.map(serializeMonster));
+                continue; 
+            }
 
             const visibleMonsters = [];
             const px = p.x + 24; // Center of player
@@ -3625,62 +3628,117 @@ socket.on('playerDied', () => {
             socket.emit('latestNews', []);
         }
     });
-    // 🌟 ADMIN SPECTATE ENGINE
+// 🌟 ADMIN SPECTATE ENGINE
   socket.on('requestSpectate', (targetId) => {
-    const p = onlinePlayers[socket.id];
-    if (!p || p.id !== "Kei") return;
+    const p = onlinePlayers[socket.id];
+    if (!p || p.id !== "Kei") return;
 
-    const target = getPlayerById(targetId);
-    if (!target) return;
+    const target = getPlayerById(targetId);
+    if (!target) return;
 
-    if (!p.savedSpectatePos) {
-        p.savedSpectatePos = {
-            mapId: p.mapId,
-            x: p.x,
-            y: p.y,
-            instanceId: p.instanceId,
-            wasGhost: !!p.isGhost
-        };
-    }
+    if (!p.savedSpectatePos) {
+        p.savedSpectatePos = {
+            mapId: p.mapId,
+            x: p.x,
+            y: p.y,
+            instanceId: p.instanceId,
+            wasGhost: !!p.isGhost
+        };
+    }
 
-    // Admin becomes hidden + ghost while spectating
-    p.isHiddenAdmin = true;
-    p.isGhost = true;
-    p.currentPortal = null;
-    p.untargetableUntil = Date.now() + 999999999;
+    // Admin becomes hidden + ghost while spectating
+    p.isHiddenAdmin = true;
+    p.isGhost = true;
+    p.currentPortal = null;
+    p.untargetableUntil = Date.now() + 999999999;
 
-    socket.leave(p.instanceId);
-    socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
+    socket.leave(p.instanceId);
+    socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
 
-    p.mapId = target.mapId;
-    p.x = target.x;
-    p.y = target.y;
-    p.instanceId = target.instanceId;
+    p.mapId = target.mapId;
+    p.x = target.x;
+    p.y = target.y;
+    p.instanceId = target.instanceId;
 
-    socket.join(p.instanceId);
+    socket.join(p.instanceId);
 
-    socket.emit('forceTeleport', {
-        mapId: p.mapId,
-        x: p.x,
-        y: p.y,
-        spectateTarget: targetId
-    });
+    socket.emit('forceTeleport', {
+        mapId: p.mapId,
+        x: p.x,
+        y: p.y,
+        spectateTarget: targetId
+    });
 
-    const playersInInst = Object.values(onlinePlayers).filter(remote =>
-        remote.instanceId === p.instanceId &&
-        remote.id !== p.id &&
-        !remote.isHiddenAdmin
-    );
+    const playersInInst = Object.values(onlinePlayers).filter(remote =>
+        remote.instanceId === p.instanceId &&
+        remote.id !== p.id &&
+        !remote.isHiddenAdmin
+    );
 
-    socket.emit('mapPlayersList', playersInInst.map(pp => ({
-        id: pp.id,
-        name: pp.name,
-        mapId: pp.mapId,
-        x: pp.x,
-        y: pp.y,
-        spriteData: pp.spriteData,
-        isGhost: pp.isGhost
-    })));
+    socket.emit('mapPlayersList', playersInInst.map(pp => ({
+        id: pp.id,
+        name: pp.name,
+        mapId: pp.mapId,
+        x: pp.x,
+        y: pp.y,
+        spriteData: pp.spriteData,
+        isGhost: pp.isGhost
+    })));
+});
+
+   socket.on('stopSpectate', () => {
+    const p = onlinePlayers[socket.id];
+    if (!p || p.id !== "Kei" || !p.savedSpectatePos) return;
+
+    const tp = p.savedSpectatePos;
+    p.savedSpectatePos = null;
+
+    socket.leave(p.instanceId);
+
+    p.isHiddenAdmin = false;
+    p.isGhost = !!tp.wasGhost;
+    p.untargetableUntil = 0;
+    p.currentPortal = null;
+
+    p.mapId = tp.mapId;
+    p.x = tp.x;
+    p.y = tp.y;
+    p.instanceId = tp.instanceId;
+
+    socket.join(p.instanceId);
+
+    socket.emit('forceTeleport', {
+        mapId: p.mapId,
+        x: p.x,
+        y: p.y
+    });
+
+    socket.to(p.instanceId).emit('remotePlayerJoined', {
+        id: p.id,
+        name: p.name,
+        mapId: p.mapId,
+        instanceId: p.instanceId,
+        x: p.x,
+        y: p.y,
+        spriteData: p.spriteData,
+        isGhost: p.isGhost
+    });
+
+    const playersInInst = Object.values(onlinePlayers).filter(remote =>
+        remote.instanceId === p.instanceId &&
+        remote.id !== p.id &&
+        !remote.isHiddenAdmin
+    );
+
+    socket.emit('mapPlayersList', playersInInst.map(pp => ({
+        id: pp.id,
+        name: pp.name,
+        mapId: pp.mapId,
+        x: pp.x,
+        y: pp.y,
+        spriteData: pp.spriteData,
+        isGhost: pp.isGhost
+    })));
 });
 
    socket.on('stopSpectate', () => {
@@ -4270,11 +4328,16 @@ socket.on('requestSell', async (data) => {
     // ⚔️ TAVERN SYSTEM & LEADERBOARD
     // ==========================================
    socket.on('startTavern', async (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || p.isGhost) return;
+        const p = onlinePlayers[socket.id];
+        if (!p || p.isGhost) return;
 
-       // 🛡️ SERVER-SIDE PARTY BLOCK
-        if (playerParty[p.id] && p.id !== "Kei") {
+        // 🛡️ ANTI-MACRO EXPLOIT LOCK: Prevents spamming while DB saves
+        if (p.isStartingInstance) return;
+        p.isStartingInstance = true;
+        setTimeout(() => { if (onlinePlayers[socket.id]) onlinePlayers[socket.id].isStartingInstance = false; }, 3000);
+
+       // 🛡️ SERVER-SIDE PARTY BLOCK
+        if (playerParty[p.id] && p.id !== "Kei") {
             return socket.emit('systemMessage', "❌ Access Denied: Leave your party to enter the solo challenge.");
         }
 
