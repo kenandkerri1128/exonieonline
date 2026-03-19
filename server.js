@@ -98,7 +98,8 @@ function sanitizeItem(item) {
     safe.name = String(safe.name || 'Unknown Item');
     safe.type = String(safe.type || '');
     safe.sprite = String(safe.sprite || '');
-    safe.level = clamp(safe.level, 1, 50);
+    // 🛡️ THE FIX: Allow items up to Level 9999 so high-level gear isn't downgraded!
+    safe.level = clamp(safe.level, 1, 9999);
     safe.rarity = safe.rarity || 'Basic';
     safe.color = typeof safe.color === 'string' ? safe.color : '#ffffff';
     safe.enhanceLevel = Number(safe.enhanceLevel) || 0;
@@ -176,11 +177,17 @@ function sanitizePlayerRecordFromDb(row) {
     return safe;
 }
 
-function getBaseStat(lvl) { 
-    if (lvl >= 50) return 100; if (lvl >= 45) return 45; if (lvl >= 40) return 40; 
-    if (lvl >= 35) return 30; if (lvl >= 30) return 27; if (lvl >= 25) return 22; 
-    if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; 
-    if (lvl >= 5) return 8; return 5; 
+function getBaseStat(lvl) { 
+    // 🛡️ THE FIX: Controlled Scaling. +3 stats for every 5 levels beyond 50.
+    if (lvl >= 50) {
+        let extraTicks = Math.floor((lvl - 50) / 5);
+        return 100 + (extraTicks * 3);
+    }
+    
+    if (lvl >= 45) return 45; if (lvl >= 40) return 40; 
+    if (lvl >= 35) return 30; if (lvl >= 30) return 27; if (lvl >= 25) return 22; 
+    if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; 
+    if (lvl >= 5) return 8; return 5; 
 }
 // 🛡️ NEW: BOSS COUNTDOWN HELPER
 function getBossCountdown(lastDeathTime) {
