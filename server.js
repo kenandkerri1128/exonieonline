@@ -1032,14 +1032,10 @@ setInterval(() => {
         // 2. Fetch all active players in this specific room
         const playersInRoom = playersInInstance(instId);
 
-        // 3. Calculate custom Line-of-Sight for EACH player
+      // 3. Calculate custom Line-of-Sight for EACH player
         for (const p of playersInRoom) {
-            // 🛡️ THE FIX: Ghosts and Spectators get full "God Vision" to watch the fight!
-            if (p.isGhost || p.isHiddenAdmin) {
-                io.to(p.socketId).emit('monsterState', allMonsters.map(serializeMonster));
-                continue; 
-            }
-
+            // 🛡️ THE FIX: No more God Vision and no more blindness! 
+            // Ghosts and Spectators now run through the exact same distance and raycast checks as living players.
             const visibleMonsters = [];
             const px = p.x + 24; // Center of player
             const py = p.y + 48;
@@ -3286,10 +3282,12 @@ socket.on('requestConfirmTrade', () => {
         checkAndResetInstance(oldInstId); // 🌟 RUN THE RESET CHECK
         
         socket.emit('forceTeleport', tp); 
-        socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
+        if (!p.isHiddenAdmin) {
+            socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
+        }
         
         // 🌟 FIX: Ensures the newly teleported player loads the room's population!
-        const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id);
+        const playersInInst = Object.values(onlinePlayers).filter(remote => remote.instanceId === p.instanceId && remote.id !== p.id && !remote.isHiddenAdmin);
         socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
         
         supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', p.id).then(()=>{});
@@ -3348,19 +3346,21 @@ socket.on('requestConfirmTrade', () => {
         // Keep your existing sync flow too
         socket.emit('requestMapSync', { mapId: data.mapId, instanceId: p.instanceId });
 
-        socket.to(p.instanceId).emit('remotePlayerJoined', {
-            id: p.id,
-            name: p.name,
-            mapId: p.mapId,
-            instanceId: p.instanceId,
-            x: p.x,
-            y: p.y,
-            spriteData: p.spriteData,
-            isGhost: p.isGhost
-        });
+      if (!p.isHiddenAdmin) {
+            socket.to(p.instanceId).emit('remotePlayerJoined', {
+                id: p.id,
+                name: p.name,
+                mapId: p.mapId,
+                instanceId: p.instanceId,
+                x: p.x,
+                y: p.y,
+                spriteData: p.spriteData,
+                isGhost: p.isGhost
+            });
+        }
 
         const playersInInst = Object.values(onlinePlayers).filter(
-            remote => remote.instanceId === p.instanceId && remote.id !== p.id
+            remote => remote.instanceId === p.instanceId && remote.id !== p.id && !remote.isHiddenAdmin
         );
 
         socket.emit('mapPlayersList', playersInInst.map(pp => ({
@@ -3509,19 +3509,21 @@ socket.on('requestConfirmTrade', () => {
         y: 1000
     });
 
-    socket.to(p.instanceId).emit('remotePlayerJoined', {
-        id: p.id,
-        name: p.name,
-        mapId: p.mapId,
-        instanceId: p.instanceId,
-        x: p.x,
-        y: p.y,
-        spriteData: p.spriteData,
-        isGhost: false
-    });
+    if (!p.isHiddenAdmin) {
+        socket.to(p.instanceId).emit('remotePlayerJoined', {
+            id: p.id,
+            name: p.name,
+            mapId: p.mapId,
+            instanceId: p.instanceId,
+            x: p.x,
+            y: p.y,
+            spriteData: p.spriteData,
+            isGhost: false
+        });
+    }
 
     const playersInInst = Object.values(onlinePlayers).filter(
-        remote => remote.instanceId === p.instanceId && remote.id !== p.id
+        remote => remote.instanceId === p.instanceId && remote.id !== p.id && !remote.isHiddenAdmin
     );
 
     socket.emit('mapPlayersList', playersInInst.map(pp => ({
