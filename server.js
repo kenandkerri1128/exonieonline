@@ -2293,36 +2293,37 @@ socket.on('saveData', async (playerData) => {
         });
 // 🏰 DUNGEON 1 WIN CONDITION (PARTY ENABLED)
         if (p.mapId === 'dungeon1') {
-            // Drop custom dungeon loot to the specific player who scored the hit
-            let drop = generateDungeonLoot(m);
-            if (drop && playerAcceptsLoot(p, drop)) {
-                const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
-                const emp = inv.findIndex(i => i === null);
-                if (emp !== -1) { 
-                    inv[emp] = drop; 
-                    p.inventory = inv; 
-                    socket.emit('syncInventory', p.inventory); 
-                    socket.emit('lootDropped', drop); 
-                    if (drop.rarity === 'Legendary' || drop.rarity === 'Godly') {
-                        io.emit('rareLootBroadcast', { playerName: p.name || p.id, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
-                    }
-                    supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
-                }
-            }
-
-            // Check if all 5 monsters in the room are dead
+            // Check if all monsters in the room are dead
             const activeMobs = Object.values(worlds[p.instanceId].monsters).filter(mob => mob.alive).length;
+            
             if (activeMobs === 0) {
                 // Emit the massive victory text to EVERYONE in the room
                 io.to(p.instanceId).emit('dungeonVictory');
                 
-                // Process the exit for EVERYONE in the room
+                // Process the exit & LOOT for EVERYONE in the room (Not just the killer!)
                 const playersInRoom = playersInInstance(p.instanceId);
                 playersInRoom.forEach(roomPlayer => {
-                    // Deduct the entry NOW that they cleared it!
-                    if (!isAdmin(roomPlayer.id)) {
-                        roomPlayer.baseStats.dungeonEntries--;
-                        supabase.from('Exonians').update({ base_stats: roomPlayer.baseStats }).eq('character_name', roomPlayer.id).then(()=>{});
+                    
+                    // 💎 GIVE EVERYONE THEIR OWN BOSS LOOT AND POWER GEMS!
+                    let drop = generateDungeonLoot(m);
+                    if (drop && playerAcceptsLoot(roomPlayer, drop)) {
+                        const inv = Array.isArray(roomPlayer.inventory) ? roomPlayer.inventory : new Array(20).fill(null);
+                        const emp = inv.findIndex(i => i === null);
+                        if (emp !== -1) { 
+                            inv[emp] = drop; 
+                            roomPlayer.inventory = inv; 
+                            const rsid = findSocketIdByPlayerId(roomPlayer.id);
+                            if (rsid) {
+                                io.to(rsid).emit('syncInventory', roomPlayer.inventory); 
+                                io.to(rsid).emit('lootDropped', drop); 
+                            }
+                            
+                            // 🌟 WORLD BROADCAST FOR GODLY/LEGENDARY GEMS & GEAR
+                            if (drop.rarity === 'Legendary' || drop.rarity === 'Godly') {
+                                io.emit('rareLootBroadcast', { playerName: roomPlayer.name || roomPlayer.id, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
+                            }
+                            supabase.from('Exonians').update({ inventory: roomPlayer.inventory }).eq('character_name', roomPlayer.id).then(()=>{});
+                        }
                     }
 
                     // Kick them back to Town after 4 seconds
@@ -2335,7 +2336,7 @@ socket.on('saveData', async (playerData) => {
                         const rsid = findSocketIdByPlayerId(roomPlayer.id);
                         if (rsid) io.to(rsid).emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); 
                         
-                        roomPlayer.dungeonReturnData = null; // Clear it just in case
+                        roomPlayer.dungeonReturnData = null; 
                     }, 4000);
                 });
             }
@@ -3328,14 +3329,16 @@ socket.on('requestConfirmTrade', () => {
           if (!onlinePlayers[socket.id]) return;
           
         // 🛑 ANTI-CHEAT: THE BOUNCER
-        // If they are trying to load into a restricted zone, check their ticket!
         if (data.mapId === 'trainingtavern' || String(data.mapId).startsWith('dungeon')) {
-            if (p.expectedMapId !== data.mapId && !isAdmin(p.id)) {
-                console.log(`[ANTI-CHEAT] ${p.id} attempted to spoof teleport into ${data.mapId}!`);
-                return socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
+            // 🛡️ THE FIX: If they are ALREADY in the map, ignore the duplicate lag signal!
+            if (p.mapId !== data.mapId) {
+                if (p.expectedMapId !== data.mapId && !isAdmin(p.id)) {
+                    console.log(`[ANTI-CHEAT] ${p.id} attempted to spoof teleport into ${data.mapId}!`);
+                    return socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
+                }
             }
         }
-        p.expectedMapId = null; // Shred the ticket so it can't be reused!
+        p.expectedMapId = null; // Shred the ticket safely
         
         p.purificationUses = 0;
 
@@ -4394,11 +4397,17 @@ socket.on('startDungeon', async (data) => {
             }
         }
 
-        // 🌟 CRASH-PROOF FIX: Deduct entries carefully so the server doesn't halt
+        /// 🌟 CRASH-PROOF FIX: Deduct entries carefully so the server doesn't halt
         playersToEnter.forEach(mp => {
             if (!isAdmin(mp.id) && mp.baseStats) {
-                mp.baseStats.dungeonEntries = (mp.baseStats.dungeonEntries || 7) - 1;
+                mp.baseStats.dungeonEntries = Math.max(0, (mp.baseStats.dungeonEntries || 7) - 1);
                 supabase.from('Exonians').update({ base_stats: mp.baseStats }).eq('character_name', mp.id).then(()=>{});
+                
+                // 🎟️ THE UI FIX: Tell the player instantly how many entries they have left!
+                const msid = findSocketIdByPlayerId(mp.id);
+                if (msid) {
+                    io.to(msid).emit('systemMessage', `🎟️ Dungeon Entry used. Remaining: ${mp.baseStats.dungeonEntries}/7`);
+                }
             }
         });
 
