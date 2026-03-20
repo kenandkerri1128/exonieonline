@@ -2569,7 +2569,7 @@ socket.on('saveData', async (playerData) => {
         // ==========================================
 
         // 🛡️ HARD-SAVE TO SUPABASE
-        if (m.category === "floor_boss") {
+        if (m.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern') {
             const floorId = p.mapId;
             const deathTime = Date.now();
 
