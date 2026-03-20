@@ -22,7 +22,7 @@ const onlinePlayers = {}; 
 const parties = {}; 
 // 🛡️ GLOBAL ADMIN LIST
 // Add any usernames here that should have full GM powers!
-const ADMINS = ['Kei', 'YourFriend', 'TesterName'];
+const ADMINS = ['Kei', 'Jubs4DaWin', 'TesterName'];
 
 function isAdmin(username) { 
     return ADMINS.includes(username); 
