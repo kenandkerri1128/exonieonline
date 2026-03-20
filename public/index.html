@@ -15,10 +15,140 @@
     <style>
         /* --- GLOBAL STYLES --- */
         body { margin: 0; font-family: 'MedievalSharp', cursive; background-color: #121212; color: #e0e0e0; display: flex; justify-content: center; align-items: center; height: 100vh; user-select: none; overflow: hidden; }
-        #game-container { width: 100vw; height: 100vh; background-color: #1e1e1e; position: relative; overflow: hidden; image-rendering: pixelated; }
-        .screen { width: 100%; height: 100%; display: none; } 
-        .screen.active { display: flex; }
+        #game-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    image-rendering: pixelated;
+}
+/* ===== HUD ===== */
 
+#hud{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+}
+
+/* PLAYER BARS */
+
+#player-bars{
+    position:absolute;
+    top:20px;
+    left:20px;
+    width:220px;
+}
+
+.bar{
+    margin-bottom:8px;
+}
+
+.bar-label{
+    font-size:12px;
+    margin-bottom:2px;
+}
+
+.bar-bg{
+    width:100%;
+    height:14px;
+    background:#111;
+    border:1px solid #555;
+    border-radius:4px;
+    overflow:hidden;
+}
+
+.bar-fill{
+    height:100%;
+    width:100%;
+    transition:width .3s;
+}
+
+/* COLORS */
+
+.hp{
+    background:linear-gradient(#ff4d4d,#b30000);
+}
+
+.mana{
+    background:linear-gradient(#4da6ff,#0033cc);
+}
+
+.xp{
+    background:linear-gradient(#66ff66,#2e7d32);
+}
+/* MINIMAP */
+
+#minimap{
+    position:absolute;
+    top:20px;
+    right:20px;
+
+    width:150px;
+    height:150px;
+
+    border:2px solid #555;
+    border-radius:8px;
+
+    background:#0a0a0a;
+
+    box-shadow:0 0 12px rgba(0,0,0,0.8);
+
+    overflow:hidden;
+}
+
+#minimapCanvas{
+    width:100%;
+    height:100%;
+}
+/* HOTBAR */
+
+#hotbar{
+    position:absolute;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+
+    display:flex;
+    gap:6px;
+}
+
+.slot{
+    width:50px;
+    height:50px;
+
+    background:#111;
+
+    border:2px solid #555;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    font-size:14px;
+
+    box-shadow:0 0 6px rgba(0,0,0,0.7);
+}
+/* particle atmosphere layer */
+#game-container::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.25;
+    animation: particlesMove 60s linear infinite;
+    pointer-events: none;
+}
+
+#game-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: 
+        radial-gradient(circle at center, #1f1f1f 0%, #0e0e0e 70%),
+        linear-gradient(180deg, #181818, #0a0a0a);
+}
         /* --- DEATH & TRANSITION SCREENS (NOW CAMERA-PROOF) --- */
         #death-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); color: red; z-index: 2147483647; flex-direction: column; justify-content: center; align-items: center; display: none; }
         #death-screen h1 { font-size: 80px; letter-spacing: 10px; margin-bottom: 30px; text-shadow: 0 0 20px red; }
@@ -43,18 +173,48 @@
         input[type="text"], input[type="password"], input[type="number"] { background: #111; color: #0f0; border: 1px solid #4CAF50; padding: 10px; border-radius: 4px; font-size: 18px; width: calc(100% - 22px); outline: none; margin-bottom: 15px; box-sizing: border-box; }
         input:read-only { color: #888; border-color: #555; background: #222; }
         select { background: #111; color: #fff; border: 1px solid #4CAF50; padding: 5px; border-radius: 4px; outline: none; font-size: 16px; }
-        .btn { background-color: #3a3a3a; color: white; border: 1px solid #555; padding: 8px 12px; cursor: pointer; border-radius: 4px; transition: background 0.2s; font-size: 16px; }
-        .btn:hover { background-color: #555; } 
-        .btn.selected { background-color: #4CAF50; border-color: #4CAF50; }
-        .btn-large { background-color: #4CAF50; font-size: 20px; font-weight: bold; padding: 15px; margin-top: 20px; width: 100%; }
-        .btn-large:hover { background-color: #45a049; }
-        
-        .panel-section { background-color: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #333; }
-        .panel-section h4 { margin: 0 0 10px 0; color: #aaa; text-transform: uppercase; font-size: 14px;}
-        .button-group, .color-group { display: flex; gap: 8px; flex-wrap: wrap; }
-        .color-swatch { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; } 
-        .color-swatch:hover { transform: scale(1.1); } 
-        .color-swatch.selected { border-color: white; }
+        .btn{
+    background: linear-gradient(180deg,#3a3a3a,#1c1c1c);
+    border:1px solid #555;
+    color:white;
+
+    padding:10px 14px;
+    border-radius:6px;
+    cursor:pointer;
+
+    transition:all .2s;
+}
+
+.btn:hover{
+    background:linear-gradient(180deg,#4CAF50,#2e7d32);
+    border-color:#4CAF50;
+
+    box-shadow:
+        0 0 10px rgba(76,175,80,0.7);
+}
+
+.btn:active{
+    transform:scale(0.96);
+}
+        .panel-section{
+    background: linear-gradient(145deg,#2a2a2a,#1c1c1c);
+    border:1px solid #3a3a3a;
+    padding:15px;
+    border-radius:10px;
+
+    box-shadow:
+        inset 0 0 10px rgba(0,0,0,0.7),
+        0 0 10px rgba(0,0,0,0.6);
+
+    transition:all 0.25s;
+}
+
+.panel-section:hover{
+    border-color:#4CAF50;
+    box-shadow:
+        inset 0 0 12px rgba(0,0,0,0.8),
+        0 0 15px rgba(76,175,80,0.3);
+}
 
         /* --- AUTH SCREENS --- */
         .auth-container { position: relative; z-index: 10; width: 400px; padding: 30px; background: #1e1e1e; border-radius: 8px; border: 2px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: center; margin: auto; }
@@ -261,9 +421,9 @@
         
         /* AURA & SKILL EFFECTS */
         .aura { position: absolute; width: 150px; height: 150px; bottom: -25px; left: 50%; transform: translateX(-50%); border-radius: 50%; opacity: 0; pointer-events: none; z-index: 5; }
-        .aura-green { background: radial-gradient(circle, rgba(76,175,80,0.8) 0%, rgba(76,175,80,0) 70%); }
-        .aura-blue { background: radial-gradient(circle, rgba(33,150,243,0.8) 0%, rgba(33,150,243,0) 70%); }
-        .aura-red { background: radial-gradient(circle, rgba(244,67,54,0.8) 0%, rgba(244,67,54,0) 70%); }
+        .aura-green { background: radial-gradient(circle, rgba(76,175,80,0.😎 0%, rgba(76,175,80,0) 70%); }
+        .aura-blue { background: radial-gradient(circle, rgba(33,150,243,0.😎 0%, rgba(33,150,243,0) 70%); }
+        .aura-red { background: radial-gradient(circle, rgba(244,67,54,0.😎 0%, rgba(244,67,54,0) 70%); }
         @keyframes aura-burst { 0% { transform: translateX(-50%) scale(0.2); opacity: 1; } 100% { transform: translateX(-50%) scale(2.5); opacity: 0; } }
 
         .icicle { position: absolute; width: 15px; height: 40px; background: linear-gradient(to bottom, #fff, #00ffff); box-shadow: 0 0 10px #fff; border-radius: 2px 2px 50% 50%; pointer-events: none; z-index: 250; }
@@ -493,7 +653,7 @@
             10% { opacity: 1; transform: scale(1.2) translateY(0); } 
             20% { transform: scale(1); } 
             80% { opacity: 1; transform: scale(1); } 
-            100% { opacity: 0; transform: scale(0.8) translateY(-30px); } 
+            100% { opacity: 0; transform: scale(0.😎 translateY(-30px); } 
         }
     
         /* ✅ INVENTORY WINDOW CSS UPDATED */
@@ -731,8 +891,17 @@
         /* ========================================== */
         @media (max-width: 950px) {
             #permanent-map-name { font-size: 12px !important; padding: 4px 10px !important; top: 5px !important; }
-            #map-announcement h1 { font-size: 28px !important; letter-spacing: 2px !important; }
-            #portal-timer-ui {
+#map-announcement h1{
+    font-size:52px;
+
+    text-shadow:
+        0 0 5px black,
+        0 0 10px black,
+        0 0 20px #4CAF50,
+        0 0 40px #4CAF50;
+
+    letter-spacing:8px;
+}            #portal-timer-ui {
                 position: absolute;
                 top: 50px; 
                 left: 50%;
@@ -1133,7 +1302,54 @@
     </style>
 </head>
 <body>
-<div id="game-container">
+<div id="game-container"><div id="hud">
+
+    <!-- PLAYER BARS -->
+    <div id="player-bars">
+
+        <div class="bar">
+            <div class="bar-label">HP</div>
+            <div class="bar-bg">
+                <div id="hp-bar" class="bar-fill hp"></div>
+            </div>
+        </div>
+
+        <div class="bar">
+            <div class="bar-label">MP</div>
+            <div class="bar-bg">
+                <div id="mana-bar" class="bar-fill mana"></div>
+            </div>
+        </div>
+
+        <div class="bar">
+            <div class="bar-label">XP</div>
+            <div class="bar-bg">
+                <div id="xp-bar" class="bar-fill xp"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MINIMAP -->
+<div id="minimap">
+    <canvas id="minimapCanvas" width="150" height="150"></canvas>
+</div>
+
+    <!-- HOTBAR -->
+    <div id="hotbar">
+
+        <div class="slot">1</div>
+        <div class="slot">2</div>
+        <div class="slot">3</div>
+        <div class="slot">4</div>
+        <div class="slot">5</div>
+        <div class="slot">6</div>
+        <div class="slot">7</div>
+        <div class="slot">8</div>
+
+    </div>
+
+</div>
     <div id="chat-input-container"><input type="text" id="chat-input" placeholder="Press Enter to Chat..." autocomplete="off"></div>
     <div id="death-screen" class="screen">
         <h1>YOU DIED</h1>
@@ -1390,8 +1606,8 @@
     </div>
 
     <div id="game-screen" class="screen">
-        <div id="mobile-controls"><div id="joystick-knob"></div></div>
-        <button id="mobile-rank-btn" onclick="window.toggleLeaderboard()">🏆</button>
+        <div id="mobile-controls"><div id="joystick-knob"></div></div>
+        <button id="mobile-rank-btn" onclick="window.toggleLeaderboard()">🏆</button>
         <div id="mobile-actions">
             <div class="m-row">
                 <div class="m-btn" style="border-color: #ff9800;" onclick="window.forceUnstuck()">Fix</div>
@@ -1681,41 +1897,99 @@
         <div id="news-content" style="color: #e0e0e0; font-size: 18px; line-height: 1.6; margin: 20px 0; max-height: 300px; overflow-y: auto; text-align: left; padding-right: 10px;">
             Please wait, fetching latest news...
         </div>
-
+@keyframes particlesMove {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 400px 400px;
+    }
+}
         <button class="btn btn-large" style="width: 200px; margin-top: 10px;" onclick="window.closeWelcomeMessage()">CLOSE</button>
     </div>
 </div>
+<script>
+/* Example HUD update */
+
+function updateHUD(hp, mana, xp){
+
+    document.getElementById("hp-bar").style.width = hp + "%";
+    document.getElementById("mana-bar").style.width = mana + "%";
+    document.getElementById("xp-bar").style.width = xp + "%";
+
+}
+
+/* Test animation */
+
+let hp = 100;
+
+setInterval(()=>{
+    hp -= 2;
+    if(hp < 0) hp = 100;
+
+    updateHUD(hp, 80, 40);
+
+},1000);
+
+</script>
+<script>
+
+const minimap = document.getElementById("minimapCanvas");
+const ctx = minimap.getContext("2d");
+
+const mapWidth = 2000;
+const mapHeight = 2000;
+
+/* example player data */
+
+const player = {
+    x:1000,
+    y:1000
+};
+
+const enemies = [
+    {x:900,y:950},
+    {x:1100,y:1050},
+    {x:1200,y:900}
+];
+
+const otherPlayers = [
+    {x:1020,y:1000},
+    {x:980,y:990}
+];
+
+function drawMinimap(){
+
+    ctx.clearRect(0,0,minimap.width,minimap.height);
+
+    const scaleX = minimap.width / mapWidth;
+    const scaleY = minimap.height / mapHeight;
+
+    /* draw enemies */
+
+    ctx.fillStyle = "red";
+    enemies.forEach(e=>{
+        ctx.fillRect(e.x*scaleX, e.y*scaleY,4,4);
+    });
+
+    /* draw other players */
+
+    ctx.fillStyle = "cyan";
+    otherPlayers.forEach(p=>{
+        ctx.fillRect(p.x*scaleX, p.y*scaleY,4,4);
+    });
+
+    /* draw player */
+
+    ctx.fillStyle = "lime";
+    ctx.beginPath();
+    ctx.arc(player.x*scaleX, player.y*scaleY,4,0,Math.PI*2);
+    ctx.fill();
+
+}
+
+setInterval(drawMinimap,100);
+
+</script>
     </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
