@@ -19,7 +19,14 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 app.use(express.static(path.join(__dirname, 'public')));
 
 const onlinePlayers = {}; 
-const parties = {};        
+const parties = {}; 
+// 🛡️ GLOBAL ADMIN LIST
+// Add any usernames here that should have full GM powers!
+const ADMINS = ['Kei', 'YourFriend', 'TesterName'];
+
+function isAdmin(username) { 
+    return ADMINS.includes(username); 
+}
 const playerParty = {};    
 
 // 🏆 GLOBAL TAVERN RANKINGS
@@ -1083,9 +1090,9 @@ io.on('connection', (socket) => {
         if (!sid) return;
 
         // 👑 ADMIN OVERRIDE: Kei sees all online players with full data
-        if (username === 'Kei') {
+        if (isAdmin(username)) {
             const allOnline = Object.values(onlinePlayers)
-                .filter(p => p.id !== 'Kei') 
+                .filter(p => !isAdmin(p.id)) 
                 .map(p => ({ 
                     id: p.id, online: true, level: p.level || 1, 
                     mapId: p.mapId || 'Unknown', pClass: p.baseStats?.playerClass || 'Novice' 
@@ -1313,7 +1320,7 @@ io.on('connection', (socket) => {
     socket.on('saveMapFile', (data) => {
         const p = onlinePlayers[socket.id];
         // 🛡️ ANTI-CHEAT: ONLY THE REAL SERVER ADMIN CAN SAVE MAPS
-        if (!p || p.id !== "Kei") {
+        if (!p || !isAdmin(p.id)) {
             console.log(`[CRITICAL WARNING] ${socket.id} attempted to overwrite map ${data.mapId}!`);
             return; 
         }
@@ -1495,7 +1502,7 @@ socket.on('broadcastSkill', (data) => {
 
    socket.on('adminSpawnMonster', (data) => {
         const p = onlinePlayers[socket.id];
-        if (!p || p.id !== "Kei") return; // 🛡️ SECURITY: Only the real Kei can do this!
+        if (!p || !isAdmin(p.id)) return; // 🛡️ SECURITY: Only the real Kei can do this!
 
         if (!worlds[data.instanceId]) return;
         const newMobId = 'admin_' + Date.now();
@@ -1873,7 +1880,8 @@ socket.on('login', async (data) => {
             weapon: safeUser.equips.weapon?.sprite || null,
             aura: safeUser.equips.armor?.aura || null,
             pet: safeUser.equips.leggings?.aura || null,
-            title: safeUser.title || null
+            title: safeUser.title || null,
+            isAdmin: isAdmin(safeUser.character_name) // 👑 THE FIX: Tells the client to render the GM tag!
         },
         lootFilter: {
             Starter: true,
@@ -2022,7 +2030,7 @@ socket.on('saveData', async (playerData) => {
                     isHacking = true; break;
                 }
             }
-            if (isHacking && p.id !== "Kei") {
+            if (isHacking && !isAdmin(p.id)) {
                 socket.emit('forceTeleport', { mapId: p.mapId, x: p.x, y: p.y });
                 return; 
             }
@@ -2167,21 +2175,21 @@ socket.on('saveData', async (playerData) => {
 // 🔫 NEW GUN CLASSES DAMAGE LOGIC
         if (payload.skillId === 'snp2') {
              if (pClass !== 'Sniper') return;
-             if (p.skillCooldowns['snp2'] && now < p.skillCooldowns['snp2'] && p.id !== "Kei") return; // 🛡️ ANTI-CHEAT: Block Attack
+             if (p.skillCooldowns['snp2'] && now < p.skillCooldowns['snp2'] && !isAdmin(p.id)) return; // 🛡️ ANTI-CHEAT: Block Attack
              
              trueDmg = Math.floor(serverAtkPwr * 2);
              p.skillCooldowns['snp2'] = now + getReducedCd(p, 5000); 
              
          } else if (payload.skillId === 'snp3') {
              if (pClass !== 'Sniper') return;
-             if (p.skillCooldowns['snp3'] && now < p.skillCooldowns['snp3'] && p.id !== "Kei") return; // 🛡️ ANTI-CHEAT: Block Attack
+             if (p.skillCooldowns['snp3'] && now < p.skillCooldowns['snp3'] && !isAdmin(p.id)) return; // 🛡️ ANTI-CHEAT: Block Attack
              
              trueDmg = Math.floor(serverAtkPwr * 4);
              p.skillCooldowns['snp3'] = now + getReducedCd(p, 50000); 
              
          } else if (payload.skillId === 'exp1') {
              if (pClass !== 'Explosives Expert') return;
-             if (p.skillCooldowns['exp1'] && now < p.skillCooldowns['exp1'] && p.id !== "Kei") return; // 🛡️ ANTI-CHEAT: Block Attack
+             if (p.skillCooldowns['exp1'] && now < p.skillCooldowns['exp1'] && !isAdmin(p.id)) return; // 🛡️ ANTI-CHEAT: Block Attack
              
              trueDmg = Math.floor(serverAtkPwr); // Initial impact
              p.skillCooldowns['exp1'] = now + getReducedCd(p, 12000); 
@@ -2209,7 +2217,7 @@ socket.on('saveData', async (playerData) => {
              
          } else if (payload.skillId === 'exp3') {
              if (pClass !== 'Explosives Expert') return;
-             if (p.skillCooldowns['exp3'] && now < p.skillCooldowns['exp3'] && p.id !== "Kei") return; // 🛡️ ANTI-CHEAT: Block Attack
+             if (p.skillCooldowns['exp3'] && now < p.skillCooldowns['exp3'] && !isAdmin(p.id)) return; // 🛡️ ANTI-CHEAT: Block Attack
              
              trueDmg = Math.floor(serverAtkPwr * 5); 
              p.skillCooldowns['exp3'] = now + getReducedCd(p, 30000); 
@@ -2218,21 +2226,21 @@ socket.on('saveData', async (playerData) => {
              trueDmg = 1; // Pure 1 damage, bypasses defense later
          } else if (payload.skillId === 'bld3') {
              if (pClass !== 'Blademaster') return; 
-             if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && p.id !== "Kei") return; // 🛡️ ANTI-CHEAT: Block Attack
+             if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && !isAdmin(p.id)) return; // 🛡️ ANTI-CHEAT: Block Attack
              
              trueDmg = Math.floor(serverAtkPwr * 5);
              p.skillCooldowns['heavyAttack'] = now + getReducedCd(p, 49000); 
              
          } else if (payload.skillId === 'ice1') {
              if (pClass !== 'Ice Master') return; 
-             if (p.skillCooldowns['ice1'] && now < p.skillCooldowns['ice1'] && p.id !== "Kei") return; // 🛡️ ANTI-CHEAT: Block Attack
+             if (p.skillCooldowns['ice1'] && now < p.skillCooldowns['ice1'] && !isAdmin(p.id)) return; // 🛡️ ANTI-CHEAT: Block Attack
              
              trueDmg = Math.floor(serverAtkPwr * 2);
              p.skillCooldowns['ice1'] = now + getReducedCd(p, 23000);
              
          } else if (payload.skillId === 'ice3') {
              if (pClass !== 'Ice Master') return; 
-             if (p.skillCooldowns['ice3'] && now < p.skillCooldowns['ice3'] && p.id !== "Kei") return; // 🛡️ ANTI-CHEAT: Block Attack
+             if (p.skillCooldowns['ice3'] && now < p.skillCooldowns['ice3'] && !isAdmin(p.id)) return; // 🛡️ ANTI-CHEAT: Block Attack
              
              trueDmg = Math.floor(serverAtkPwr * 6); 
              p.skillCooldowns['ice3'] = now + getReducedCd(p, 98000); 
@@ -2312,7 +2320,7 @@ socket.on('saveData', async (playerData) => {
                 const playersInRoom = playersInInstance(p.instanceId);
                 playersInRoom.forEach(roomPlayer => {
                     // Deduct the entry NOW that they cleared it!
-                    if (roomPlayer.id !== 'Kei') {
+                    if (!isAdmin(roomPlayer.id)) {
                         roomPlayer.baseStats.dungeonEntries--;
                         supabase.from('Exonians').update({ base_stats: roomPlayer.baseStats }).eq('character_name', roomPlayer.id).then(()=>{});
                     }
@@ -3172,22 +3180,27 @@ socket.on('requestConfirmTrade', () => {
         
         // 🛡️ ANTI-CHEAT: CHAT SPAM & BOMB PROTECTION
         const now = Date.now();
-        if (p.lastChatTime && now - p.lastChatTime < 500) return; // Max 1 message per 0.5s
+        if (p.lastChatTime && now - p.lastChatTime < 500) return; 
         p.lastChatTime = now;
 
-        // Force string type and slice it to a max of 120 characters
         let safeText = String(data.text).slice(0, 120); 
         
+        // 👑 THE FIX: Inject the Red [GM] tag for Admins
+        let displayName = p.id;
+        if (isAdmin(p.id)) {
+            displayName = `<span style="color:#ff4444; font-weight:bold;">[GM]</span> ${p.id}`;
+        }
+        
         // 1. Emit the local text bubble to everyone in the room
-        io.to(p.instanceId).emit('chatMessage', { id: p.id, text: safeText }); 
+        io.to(p.instanceId).emit('chatMessage', { id: displayName, text: safeText }); 
 
-        // 2. Automatically log it in the persistent Party Chat box if they are in a party!
+        // 2. Automatically log it in the persistent Party Chat box if they are in a party
         const pid = playerParty[p.id];
         if (pid && parties[pid]) {
             for (const memberId of parties[pid].members) {
                 const sid = findSocketIdByPlayerId(memberId);
                 if (sid) {
-                    io.to(sid).emit('partyChatMessage', { from: p.id, text: safeText });
+                    io.to(sid).emit('partyChatMessage', { from: displayName, text: safeText });
                 }
             }
         }
@@ -3248,7 +3261,7 @@ socket.on('requestConfirmTrade', () => {
    // ✅ GLOBAL ADMIN BROADCAST
     socket.on('adminBroadcast', (data) => {
         const p = onlinePlayers[socket.id];
-        if (!p || p.id !== "Kei") return; // 🛡️ SECURITY: Only the real Kei can do this!
+        if (!p || !isAdmin(p.id)) return; // 🛡️ SECURITY: Only the real Kei can do this!
 
         // Broadcasts an unmissable yellow system message to EVERY single player online
         io.emit('systemMessage', `[SERVER ANNOUNCEMENT] ${data.text}`);
@@ -3274,13 +3287,13 @@ socket.on('requestConfirmTrade', () => {
         if (!p) return;
         
         // ⚔️ TAVERN ANTI-CHEAT: Block Escaping
-        if (p.mapId === 'trainingtavern' && p.id !== "Kei") {
+        if (p.mapId === 'trainingtavern' && !isAdmin(p.id)) {
             socket.emit('systemMessage', "❌ You cannot use Unstuck to escape the Training Tavern.");
             return; 
         }
         
         // 🛡️ BLOCK UNSTUCK BUTTON IF IN A PARTY
-        if (playerParty[p.id] && p.id !== "Kei") {
+        if (playerParty[p.id] && !isAdmin(p.id)) {
             socket.emit('systemMessage', "❌ You cannot use Unstuck while in a party. Please leave the party first.");
             return; // 🛑 Stops the teleport completely!
         }
@@ -3317,7 +3330,7 @@ socket.on('requestConfirmTrade', () => {
         // 🛑 ANTI-CHEAT: THE BOUNCER
         // If they are trying to load into a restricted zone, check their ticket!
         if (data.mapId === 'trainingtavern' || String(data.mapId).startsWith('dungeon')) {
-            if (p.expectedMapId !== data.mapId && p.id !== "Kei") {
+            if (p.expectedMapId !== data.mapId && !isAdmin(p.id)) {
                 console.log(`[ANTI-CHEAT] ${p.id} attempted to spoof teleport into ${data.mapId}!`);
                 return socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
             }
@@ -3654,7 +3667,7 @@ socket.on('playerDied', () => {
 // 🌟 ADMIN SPECTATE ENGINE
     socket.on('requestSpectate', (targetId) => {
         const p = onlinePlayers[socket.id];
-        if (!p || p.id !== "Kei") return;
+        if (!p || !isAdmin(p.id)) return;
 
         const target = getPlayerById(targetId);
         if (!target) return;
@@ -3695,7 +3708,7 @@ socket.on('playerDied', () => {
 
     socket.on('stopSpectate', () => {
         const p = onlinePlayers[socket.id];
-        if (!p || p.id !== "Kei" || !p.savedSpectatePos) return;
+        if (!p || !isAdmin(p.id) || !p.savedSpectatePos) return;
 
         const tp = p.savedSpectatePos;
         p.savedSpectatePos = null;
@@ -3932,7 +3945,7 @@ socket.on('useRevivalJuice', async (data) => {
     });
 socket.on('adminSpawnItem', async (data) => {
         const p = onlinePlayers[socket.id];
-        if (!p || p.id !== "Kei") return; // 🛡️ Security Check
+        if (!p || !isAdmin(p.id)) return; // 🛡️ Security Check
 
         const { rarity, type, level, enhanceLevel } = data;
         let item;
@@ -4000,7 +4013,7 @@ socket.on('adminSpawnItem', async (data) => {
     // 🛡️ PERMANENT ADMIN LEVEL SETTER
     socket.on('adminSetLevel', async (level) => {
         const p = onlinePlayers[socket.id];
-        if (!p || p.id !== "Kei") return; // 🛡️ Ironclad Security Check
+        if (!p || !isAdmin(p.id)) return; // 🛡️ Ironclad Security Check
 
         let newLevel = clamp(level, 1, 50);
         p.level = newLevel;
@@ -4262,7 +4275,7 @@ socket.on('requestSell', async (data) => {
         setTimeout(() => { if (onlinePlayers[socket.id]) onlinePlayers[socket.id].isStartingInstance = false; }, 3000);
 
        // 🛡️ SERVER-SIDE PARTY BLOCK
-        if (playerParty[p.id] && p.id !== "Kei") {
+        if (playerParty[p.id] && !isAdmin(p.id)) {
             return socket.emit('systemMessage', "❌ Access Denied: Leave your party to enter the solo challenge.");
         }
 
@@ -4282,7 +4295,7 @@ socket.on('requestSell', async (data) => {
             p.baseStats.tavernReset = Date.now(); // Stamp it so it knows they claimed this week
         }
 
-        if (p.baseStats.tavernEntries <= 0 && p.id !== 'Kei') {
+        if (p.baseStats.tavernEntries <= 0 && !isAdmin(p.id)) {
             return socket.emit('systemMessage', '❌ You have no Tavern entries left this week. Resets Monday at 12:00 AM.');
         }
 
@@ -4317,7 +4330,7 @@ socket.on('startDungeon', async (data) => {
             const party = parties[pid];
             
             // Only the leader can start the dungeon for the group
-            if (party.leaderId !== p.id && p.id !== "Kei") {
+            if (party.leaderId !== p.id && !isAdmin(p.id)) {
                 return socket.emit('systemMessage', "❌ Only the Party Leader can start the dungeon.");
             }
             
@@ -4351,7 +4364,7 @@ socket.on('startDungeon', async (data) => {
                     mp.baseStats.dungeonReset = Date.now();
                 }
 
-                if (mp.baseStats.dungeonEntries <= 0 && mp.id !== 'Kei') {
+                if (mp.baseStats.dungeonEntries <= 0 && !isAdmin(mp.id)) {
                     for (const mId of party.members) {
                         const msid = findSocketIdByPlayerId(mId);
                         if (msid) io.to(msid).emit('closeDungeonUI');
@@ -4375,7 +4388,7 @@ socket.on('startDungeon', async (data) => {
                 p.baseStats.dungeonReset = Date.now();
             }
 
-            if (p.baseStats.dungeonEntries <= 0 && p.id !== 'Kei') {
+            if (p.baseStats.dungeonEntries <= 0 && !isAdmin(p.id)) {
                 socket.emit('closeDungeonUI');
                 return socket.emit('systemMessage', '❌ You have no Dungeon entries left this week.');
             }
@@ -4383,7 +4396,7 @@ socket.on('startDungeon', async (data) => {
 
         // 🌟 CRASH-PROOF FIX: Deduct entries carefully so the server doesn't halt
         playersToEnter.forEach(mp => {
-            if (mp.id !== 'Kei' && mp.baseStats) {
+            if (!isAdmin(mp.id) && mp.baseStats) {
                 mp.baseStats.dungeonEntries = (mp.baseStats.dungeonEntries || 7) - 1;
                 supabase.from('Exonians').update({ base_stats: mp.baseStats }).eq('character_name', mp.id).then(()=>{});
             }
