@@ -2291,42 +2291,14 @@ socket.on('saveData', async (playerData) => {
             monsterId: m.id,
             killerId: p.id
         });
-// 🏰 DUNGEON 1 WIN CONDITION (PARTY ENABLED)
+// 🏰 DUNGEON 1 WIN CONDITION & AUTO-KICK
         if (p.mapId === 'dungeon1') {
-            // Check if all monsters in the room are dead
             const activeMobs = Object.values(worlds[p.instanceId].monsters).filter(mob => mob.alive).length;
-            
             if (activeMobs === 0) {
-                // Emit the massive victory text to EVERYONE in the room
                 io.to(p.instanceId).emit('dungeonVictory');
                 
-                // Process the exit & LOOT for EVERYONE in the room (Not just the killer!)
                 const playersInRoom = playersInInstance(p.instanceId);
                 playersInRoom.forEach(roomPlayer => {
-                    
-                    // 💎 GIVE EVERYONE THEIR OWN BOSS LOOT AND POWER GEMS!
-                    let drop = generateDungeonLoot(m);
-                    if (drop && playerAcceptsLoot(roomPlayer, drop)) {
-                        const inv = Array.isArray(roomPlayer.inventory) ? roomPlayer.inventory : new Array(20).fill(null);
-                        const emp = inv.findIndex(i => i === null);
-                        if (emp !== -1) { 
-                            inv[emp] = drop; 
-                            roomPlayer.inventory = inv; 
-                            const rsid = findSocketIdByPlayerId(roomPlayer.id);
-                            if (rsid) {
-                                io.to(rsid).emit('syncInventory', roomPlayer.inventory); 
-                                io.to(rsid).emit('lootDropped', drop); 
-                            }
-                            
-                            // 🌟 WORLD BROADCAST FOR GODLY/LEGENDARY GEMS & GEAR
-                            if (drop.rarity === 'Legendary' || drop.rarity === 'Godly') {
-                                io.emit('rareLootBroadcast', { playerName: roomPlayer.name || roomPlayer.id, itemName: drop.name, rarity: drop.rarity, level: drop.level, color: drop.color });
-                            }
-                            supabase.from('Exonians').update({ inventory: roomPlayer.inventory }).eq('character_name', roomPlayer.id).then(()=>{});
-                        }
-                    }
-
-                    // Kick them back to Town after 4 seconds
                     setTimeout(() => {
                         roomPlayer.mapId = 'town';
                         roomPlayer.x = 960; 
@@ -2340,11 +2312,9 @@ socket.on('saveData', async (playerData) => {
                     }, 4000);
                 });
             }
-            
-            // Return here so it bypasses normal map loot drops below
-            return;
         }
-        // 1. Process EXP & Gold First (Applies to both Tavern and Open World)
+
+        // 1. Process EXP & Gold First
         const expAmount = m.expYield || 25;
         const goldAmount = m.goldYield || 15;
         const pid = playerParty[p.id];
@@ -2355,7 +2325,6 @@ socket.on('saveData', async (playerData) => {
             targetPlayer.exp += expAmount;
             targetPlayer.gold += goldAmount;
 
-            // 🛡️ SERVER-SIDE LEVEL UP ENGINE
             let leveledUp = false;
             while (targetPlayer.exp >= targetPlayer.maxExp && targetPlayer.level < 50) {
                 targetPlayer.exp -= targetPlayer.maxExp;
@@ -2368,9 +2337,7 @@ socket.on('saveData', async (playerData) => {
             }
             
             if (leveledUp) {
-                if (!targetPlayer.isGhost) {
-                    targetPlayer.currentHp = getServerTotalStat(targetPlayer, 'hp') || 100;
-                }
+                if (!targetPlayer.isGhost) targetPlayer.currentHp = getServerTotalStat(targetPlayer, 'hp') || 100;
                 
                 if (targetSid) {
                     io.to(targetSid).emit('serverLevelUp', { 
@@ -2394,9 +2361,10 @@ socket.on('saveData', async (playerData) => {
                 }
             }
 
-            // ONLY generate normal map loot if they are NOT in the Tavern
             if (targetPlayer.mapId !== 'trainingtavern') {
-                let drop = generateLoot(m);
+                
+                // 💎 USE DUNGEON LOOT TABLE IF IN A DUNGEON!
+                let drop = String(targetPlayer.mapId).startsWith('dungeon') ? generateDungeonLoot(m) : generateLoot(m);
                 let dropAccepted = drop && playerAcceptsLoot(targetPlayer, drop);
 
                 if (dropAccepted) {
@@ -2418,31 +2386,22 @@ socket.on('saveData', async (playerData) => {
                     targetPlayer.inventory = inv;
                 }
 
-                // 👑 TITLE UNLOCK LOGIC (Progressive)
                 if (m.category === "floor_boss" && targetPlayer.mapId) {
                     const match = targetPlayer.mapId.match(/floor(\d+)/i);
                     const killedFloorNum = match ? parseInt(match[1]) : null;
-                    
                     if (killedFloorNum) {
                         let currentHighestFloor = 0;
                         const existingTitle = targetPlayer.title; 
-                        
                         if (existingTitle && existingTitle.startsWith('FLOOR CONQUEROR')) {
                             const parts = existingTitle.split(' ');
                             currentHighestFloor = parseInt(parts[2]) || 0;
                         }
-                        
                         if (killedFloorNum > currentHighestFloor) {
                             const newTitle = `FLOOR CONQUEROR ${killedFloorNum}`;
                             targetPlayer.title = newTitle; 
-                            
                             if (!targetPlayer.spriteData) targetPlayer.spriteData = {};
                             targetPlayer.spriteData.title = newTitle;
-                            
-                            if (targetSid) {
-                                io.to(targetSid).emit('titleUnlocked', newTitle);
-                            }
-
+                            if (targetSid) io.to(targetSid).emit('titleUnlocked', newTitle);
                             io.emit('systemMessage', `<span style="color:#ffd700; font-weight:bold; text-shadow: 0 0 5px #ff9800;">🏆 [WORLD] ${targetPlayer.name || targetPlayer.id} has conquered Floor ${killedFloorNum} and earned the title &lt;${newTitle}&gt;!</span>`);
                         }
                     }
@@ -2452,6 +2411,7 @@ socket.on('saveData', async (playerData) => {
                     if (dropAccepted) {
                         io.to(targetSid).emit('lootDropped', drop); 
 
+                        // 🌟 BROADCAST GODLY & LEGENDARY ITEMS/GEMS TO WORLD
                         if (drop.rarity === 'Legendary' || drop.rarity === 'Godly') {
                             io.emit('rareLootBroadcast', {
                                 playerName: targetPlayer.name || targetPlayer.id,
@@ -2467,16 +2427,9 @@ socket.on('saveData', async (playerData) => {
                 }
             }
 
-            // Always save stats/exp regardless of map
             supabase.from('Exonians').update({
-                gold: targetPlayer.gold,
-                exp: targetPlayer.exp,
-                level: targetPlayer.level,
-                max_exp: targetPlayer.maxExp,
-                base_stats: targetPlayer.baseStats,
-                current_hp: targetPlayer.currentHp,
-                inventory: targetPlayer.inventory,
-                title: targetPlayer.title
+                gold: targetPlayer.gold, exp: targetPlayer.exp, level: targetPlayer.level, max_exp: targetPlayer.maxExp,
+                base_stats: targetPlayer.baseStats, current_hp: targetPlayer.currentHp, inventory: targetPlayer.inventory, title: targetPlayer.title
             }).eq('character_name', targetPlayer.id).then(() => {});
 
             if (targetSid) {
@@ -2485,7 +2438,6 @@ socket.on('saveData', async (playerData) => {
             }
         };
 
-        // Distribute rewards to Party or Solo
         if (pid && parties[pid]) {
             for (const memberId of parties[pid].members) {
                 processRewards(getPlayerById(memberId), findSocketIdByPlayerId(memberId));
