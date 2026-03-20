@@ -778,6 +778,18 @@ var floor3MapData = {
             "y": 175,
             "w": 90,
             "h": 62
+        },
+        {
+            "x": 1485,
+            "y": 998,
+            "w": 74,
+            "h": 41
+        },
+        {
+            "x": 1751,
+            "y": 199,
+            "w": 37,
+            "h": 26
         }
     ],
     "teleports": [
@@ -790,20 +802,22 @@ var floor3MapData = {
             "targetMapId": "floor2"
         },
         {
-            "x": 1755,
-            "y": 205,
-            "w": 29,
-            "h": 61,
-            "portalId": 7,
-            "targetMapId": "floor4"
-        },
-        {
-            "x": 1501,
-            "y": 1018,
+            "x": 1499,
+            "y": 1042,
             "w": 42,
-            "h": 51,
+            "h": 24,
             "portalId": "B",
             "targetMapId": "dungeon1",
+            "targetX": 960,
+            "targetY": 1000
+        },
+        {
+            "x": 1752,
+            "y": 229,
+            "w": 30,
+            "h": 33,
+            "portalId": 7,
+            "targetMapId": "floor4",
             "targetX": 960,
             "targetY": 1000
         }
