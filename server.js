@@ -2609,8 +2609,8 @@ socket.on('saveData', async (playerData) => {
             }, fullCooldown);
         }
 
-        // Normal Respawn Logic
-        if (m.respawnDelayMs !== -1) {
+        // Normal Respawn Logic (🛡️ THE FIX: Strictly block Dungeons and Tavern from respawning!)
+        if (m.respawnDelayMs !== -1 && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern') {
             setTimeout(() => {
                 const cfg = {
                     spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY },
@@ -2621,7 +2621,6 @@ socket.on('saveData', async (playerData) => {
                 io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
             }, m.respawnDelayMs || 10000);
         }
-    }
     });
 
    socket.on('inspectRequest', (data) => {
