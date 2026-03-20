@@ -2621,6 +2621,7 @@ socket.on('saveData', async (playerData) => {
                 io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
             }, m.respawnDelayMs || 10000);
         }
+    }
     });
 
    socket.on('inspectRequest', (data) => {
