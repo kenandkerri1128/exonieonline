@@ -4554,6 +4554,53 @@ socket.on('startDungeon', async (data) => {
         }
     });
 });
+// ==========================================
+// 🧹 AUTOMATIC DATABASE CLEANUP ENGINE
+// ==========================================
+async function runDatabaseCleanup() {
+    try {
+        console.log("[CLEANUP] Running scheduled database sweep...");
+        const now = Date.now();
+        
+        // Calculate the exact cutoff timestamps
+        const oneDayAgo = new Date(now - (24 * 60 * 60 * 1000)).toISOString();
+        const twoWeeksAgo = new Date(now - (14 * 24 * 60 * 60 * 1000)).toISOString();
+
+        // 🛑 RULE 1: Delete Level 4 and below (Inactive for 1 Day)
+        const { data: purge1, error: err1 } = await supabase
+            .from('Exonians')
+            .delete()
+            .lte('level', 4)
+            .lt('last_login', oneDayAgo)
+            .select('character_name');
+
+        if (purge1 && purge1.length > 0) {
+            console.log(`[CLEANUP] Swept ${purge1.length} abandoned beginner accounts (Lv 1-4).`);
+        }
+
+        // 🛑 RULE 2: Delete Level 14 and below (Inactive for 2 Weeks)
+        const { data: purge2, error: err2 } = await supabase
+            .from('Exonians')
+            .delete()
+            .lte('level', 14)
+            .lt('last_login', twoWeeksAgo)
+            .select('character_name');
+
+        if (purge2 && purge2.length > 0) {
+            console.log(`[CLEANUP] Swept ${purge2.length} inactive low-level accounts (Lv 5-14).`);
+        }
+
+    } catch (e) {
+        console.error("[CLEANUP ERROR] Failed to run database sweep:", e.message);
+    }
+}
+
+// 1. Run the cleanup engine immediately when the server boots
+runDatabaseCleanup();
+
+// 2. Set it to run automatically every 12 hours while the server is alive
+setInterval(runDatabaseCleanup, 12 * 60 * 60 * 1000);
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, "0.0.0.0", () => console.log(`Exonie server running on port ${PORT} (0.0.0.0)`));
 
