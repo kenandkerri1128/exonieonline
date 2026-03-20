@@ -224,14 +224,14 @@ function generatePowerGem(level, rarity) {
     };
 }
 function generateDungeonLoot(m) {
-    if (Math.random() < 0.25) return null; // 25% chance of NO DROP
+    if (Math.random() < 0.45) return null; // 45% chance of NO DROP
 
     let roll = Math.random();
     let rarity = "Basic";
     
     if (roll < 0.013) rarity = "Godly";       
-    else if (roll < 0.066) rarity = "Legendary"; 
-    else if (roll < 0.40) rarity = "Unique";   
+    else if (roll < 0.040) rarity = "Legendary"; 
+    else if (roll < 0.66) rarity = "Unique";   
     else if (roll < 0.66) rarity = "Rare";       
     else rarity = "Basic";                     
 
