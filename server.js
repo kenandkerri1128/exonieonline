@@ -4560,8 +4560,24 @@ socket.on('startDungeon', async (data) => {
         let serverAtkPwr = isMagicClass ? getServerMagicAttack(p) : getServerAttackPower(p);
         let trueDmg = Math.floor(serverAtkPwr * (0.9 + Math.random() * 0.2));
         
-        // Apply Defense
-        const dmg = Math.max(1, trueDmg - getServerDefense(target));
+        // 🐾 PET DAMAGE LOGIC IN PVP
+        if (payload.skillId === 'pet') {
+            const world = worlds[p.instanceId];
+            const pet = world?.pets ? world.pets[payload.petId] : null;
+            if (!pet) return; // Pet doesn't exist
+            
+            if (pet.lastAttackTs && now - pet.lastAttackTs < 900) return;
+            pet.lastAttackTs = now;
+            
+            let multiplier = 0.25; // Base 25%
+            if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0;
+            trueDmg = Math.floor(getServerMagicAttack(p) * multiplier);
+        } else if (payload.skillId === 'fox_bite') {
+            trueDmg = 1; // Pure 1 damage, bypasses defense later
+        }
+        
+        // Apply Defense (Fox bite always ignores defense)
+        const dmg = payload.skillId === 'fox_bite' ? 1 : Math.max(1, trueDmg - getServerDefense(target));
         
         target.currentHp -= dmg;
         if (target.currentHp <= 0 && target.immortalUntil && now < target.immortalUntil) {
