@@ -3391,14 +3391,18 @@ socket.on('requestConfirmTrade', () => {
             if (timer) {
                 let remaining = 0;
                 if (queryBossId === 'neutralzone_boss') {
-                    // 🌟 THE FIX: Neutral Zone uses a strict 5-hour countdown!
                     remaining = (parseInt(timer.last_death_time) + (5 * 60 * 60 * 1000)) - Date.now();
                 } else {
-                    // Normal Floor Bosses use the standard 24-hour math
                     remaining = getBossCountdown(timer.last_death_time);
                 }
                 
                 if (remaining > 0) socket.emit('bossCooldownActive', { remaining });
+            } else if (p.mapId === 'neutralzone') {
+                // 🌟 THE FIX: If there's no timer in the DB, AND the boss isn't alive in RAM, spawn it!
+                let boss = worlds['neutralzone']?.monsters['neutral_boss_1'];
+                if (!boss || !boss.alive) {
+                    spawnNeutralBoss();
+                }
             }
         });
           // 🌟 THE TAVERN INJECTION 🌟
@@ -4678,6 +4682,11 @@ async function checkNeutralBoss() {
 function spawnNeutralBoss() {
     if (!worlds['neutralzone']) worlds['neutralzone'] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
     
+    // 🛑 SAFETY FIX: Prevent duplicate bosses if multiple players enter at the exact same time!
+    if (worlds['neutralzone'].monsters['neutral_boss_1'] && worlds['neutralzone'].monsters['neutral_boss_1'].alive) {
+        return; 
+    }
+
     // Clean up DB lock
     supabase.from('boss_timers').delete().eq('boss_id', 'neutralzone_boss').then(()=>{});
 
@@ -4686,6 +4695,7 @@ function spawnNeutralBoss() {
     const randomLevel = Math.floor(Math.random() * 100) + 1; // Level 1 to 100
 
     const bossId = 'neutral_boss_1';
+    // NOTE: Change the 960 and 1000 here to whatever X/Y coordinate you want the boss to spawn at!
     const cfg = { spawnArea: { minX: 960, maxX: 960, minY: 1000, maxY: 1000 }, level: randomLevel };
     
     const newBoss = spawnMonster('neutralzone', bossId, randomKey, cfg);
