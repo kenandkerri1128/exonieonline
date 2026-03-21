@@ -4454,10 +4454,17 @@ socket.on('startDungeon', async (data) => {
                 io.to(newInstId).emit('monsterSpawned', serializeMonster(newMob));
             });
 
-           // ⏳ EXTREME MODE 20-MINUTE TIMER
+          // ⏳ EXTREME MODE 20-MINUTE TIMER
             if (data.difficulty === 'Extreme') {
-                io.to(newInstId).emit('systemMessage', `<span style="color:#ff9800; font-weight:bold;">⏳ EXTREME MODE: You have exactly 20 minutes to clear this dungeon!</span>`);
-                io.to(newInstId).emit('dungeonTimerStart', { durationMs: 20 * 60 * 1000, startTime: Date.now() });
+                // 🛡️ THE FIX: Send the timer directly to the players' personal socket IDs!
+                // This guarantees they receive the timer even if they are stuck on a loading screen.
+                playersToEnter.forEach(mp => {
+                    const msid = findSocketIdByPlayerId(mp.id);
+                    if (msid) {
+                        io.to(msid).emit('systemMessage', `<span style="color:#ff9800; font-weight:bold;">⏳ EXTREME MODE: You have exactly 20 minutes to clear this dungeon!</span>`);
+                        io.to(msid).emit('dungeonTimerStart', { durationMs: 20 * 60 * 1000, startTime: Date.now() });
+                    }
+                });
                 
                 worlds[newInstId].failTimer = setTimeout(() => {
                     if (worlds[newInstId]) {
