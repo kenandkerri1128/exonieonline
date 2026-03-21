@@ -705,13 +705,13 @@ function serializeMonster(m) { 
 }
 
 function checkAndResetInstance(instId) {
-    if (!worlds[instId] || instId === 'town') return;
+    // 🛡️ THE FIX: Never delete Town or Neutral Zone from memory!
+    if (!worlds[instId] || instId === 'town' || instId === 'neutralzone') return;
 
     // Check if there are any REAL players left (ignoring invisible admins)
     const activePlayers = playersInInstance(instId).filter(p => !p.isHiddenAdmin);
 
     if (activePlayers.length === 0) {
-        // 🛡️ THE FIX: Delete the room from memory entirely!
         // This forces the server to read your floor1.js spawns fresh the next time a player enters.
         delete worlds[instId];
     }
