@@ -2340,10 +2340,10 @@ socket.on('saveData', async (playerData) => {
             targetPlayer.gold += goldAmount;
 
             let leveledUp = false;
-            while (targetPlayer.exp >= targetPlayer.maxExp && targetPlayer.level < 50) {
+            while (targetPlayer.exp >= targetPlayer.maxExp && targetPlayer.level < 80) {
                 targetPlayer.exp -= targetPlayer.maxExp;
                 targetPlayer.level++;
-                targetPlayer.maxExp += (targetPlayer.level >= 41 ? 1500 : targetPlayer.level >= 31 ? 1000 : targetPlayer.level >= 21 ? 750 : targetPlayer.level >= 11 ? 500 : 100);
+                targetPlayer.maxExp += (targetPlayer.level >= 71 ? 10000 : targetPlayer.level >= 61 ? 7500 : targetPlayer.level >= 51 ? 5000 : targetPlayer.level >= 41 ? 1500 : targetPlayer.level >= 31 ? 1000 : targetPlayer.level >= 21 ? 750 : targetPlayer.level >= 11 ? 500 : 100);
                 targetPlayer.baseStats.hp += 10;
                 targetPlayer.baseStats.str += 2;
                 targetPlayer.baseStats.int += 2;
@@ -2922,7 +2922,7 @@ socket.on('requestConfirmTrade', () => {
 
     // Do NOT trust client HP / maxHp.
     // Only allow level sync if needed for UI.
-    p.level = clamp(data.level ?? p.level, 1, 50);
+    p.level = clamp(data.level ?? p.level, 1, 80);
 
     const pid = playerParty[p.id];
     if (pid && parties[pid]) {
@@ -3997,7 +3997,7 @@ socket.on('adminSpawnItem', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || !isAdmin(p.id)) return; // 🛡️ Ironclad Security Check
 
-        let newLevel = clamp(level, 1, 50);
+        let newLevel = clamp(level, 1, 80);
         p.level = newLevel;
         p.maxExp = 100 + (newLevel * 100);
         
