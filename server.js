@@ -2309,6 +2309,11 @@ socket.on('saveData', async (playerData) => {
         if (p.mapId === 'dungeon1') {
             const activeMobs = Object.values(worlds[p.instanceId].monsters).filter(mob => mob.alive).length;
             if (activeMobs === 0) {
+                // Clear the Extreme Fail Timer so it doesn't boot them while looking at loot!
+                if (worlds[p.instanceId] && worlds[p.instanceId].failTimer) {
+                    clearTimeout(worlds[p.instanceId].failTimer);
+                }
+                
                 io.to(p.instanceId).emit('dungeonVictory');
                 
                 const playersInRoom = playersInInstance(p.instanceId);
@@ -4354,6 +4359,15 @@ socket.on('startDungeon', async (data) => {
                     return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} has no Dungeon entries left this week.`);
                 }
                 
+                // 🛡️ EXTREME PARTY CHECK: Everyone must be 50!
+                if (data.difficulty === 'Extreme' && mp.level < 50 && !isAdmin(mp.id)) {
+                    for (const mId of party.members) {
+                        const msid = findSocketIdByPlayerId(mId);
+                        if (msid) io.to(msid).emit('closeDungeonUI');
+                    }
+                    return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
+                }
+                
                 playersToEnter.push(mp);
             }
         } else {
@@ -4373,6 +4387,10 @@ socket.on('startDungeon', async (data) => {
             if (p.baseStats.dungeonEntries <= 0 && !isAdmin(p.id)) {
                 socket.emit('closeDungeonUI');
                 return socket.emit('systemMessage', '❌ You have no Dungeon entries left this week.');
+            }
+            if (data.difficulty === 'Extreme' && p.level < 50 && !isAdmin(p.id)) {
+                socket.emit('closeDungeonUI');
+                return socket.emit('systemMessage', '❌ You must be Level 50 to enter Extreme mode.');
             }
         }
 
@@ -4425,11 +4443,36 @@ socket.on('startDungeon', async (data) => {
             ];
 
             spawns.forEach((sp, i) => {
+                // ⚙️ EXTREME STAT FIX: You can easily edit '75' below to make them harder/easier!
+                let finalLevel = dLevel;
+                if (data.difficulty === 'Extreme') finalLevel = 75;
+
                 const mobId = `d1_mob_${i}`;
-                const newMob = spawnMonster(newInstId, mobId, sp.key, { spawnArea: { minX: sp.x, minY: sp.y }, level: dLevel });
+                const newMob = spawnMonster(newInstId, mobId, sp.key, { spawnArea: { minX: sp.x, minY: sp.y }, level: finalLevel });
                 worlds[newInstId].monsters[mobId] = newMob;
                 io.to(newInstId).emit('monsterSpawned', serializeMonster(newMob));
             });
+
+            // ⏳ EXTREME MODE 20-MINUTE TIMER
+            if (data.difficulty === 'Extreme') {
+                io.to(newInstId).emit('systemMessage', `<span style="color:#ff9800; font-weight:bold;">⏳ EXTREME MODE: You have exactly 20 minutes to clear this dungeon!</span>`);
+                
+                worlds[newInstId].failTimer = setTimeout(() => {
+                    if (worlds[newInstId]) {
+                        io.to(newInstId).emit('systemMessage', "⏳ Time is up! You failed to clear the Extreme Dungeon.");
+                        const playersInRoom = playersInInstance(newInstId);
+                        playersInRoom.forEach(roomPlayer => {
+                            roomPlayer.mapId = 'town';
+                            roomPlayer.x = 960; roomPlayer.y = 1000;
+                            roomPlayer.instanceId = getInstanceId(roomPlayer.id, 'town');
+                            const rsid = findSocketIdByPlayerId(roomPlayer.id);
+                            if (rsid) io.to(rsid).emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
+                            roomPlayer.dungeonReturnData = null; 
+                        });
+                        delete worlds[newInstId]; // Wipe the room to clean memory
+                    }
+                }, 20 * 60 * 1000); // 20 Minutes
+            }
         }, 1000);
     });
     socket.on('getTavernLeaderboard', async () => {
