@@ -523,9 +523,10 @@ function removeFromParty(playerId) {
 }
 
 function getInstanceId(playerId, mapId) {
-    if (mapId === 'town') return 'town'; 
-    const partyId = playerParty[playerId];
-    return partyId ? `${mapId}_${partyId}` : `${mapId}_solo_${playerId}`; 
+    // 🛡️ THE FIX: Neutral Zone is now a public instance for everyone!
+    if (mapId === 'town' || mapId === 'neutralzone') return mapId; 
+    const partyId = playerParty[playerId];
+    return partyId ? `${mapId}_${partyId}` : `${mapId}_solo_${playerId}`; 
 }
 
 const worlds = {}; 
@@ -2292,7 +2293,14 @@ socket.on('saveData', async (playerData) => {
         m.forcedTargetId = null;
         m.forcedUntil = 0;
         m.frozenUntil = 0;
-
+// 🌟 NEUTRAL ZONE BOSS DEATH HOOK
+            if (m.isNeutralBoss) {
+                clearTimeout(global.neutralBossDespawnTimer);
+                supabase.from('boss_timers').upsert({ boss_id: 'neutralzone_boss', last_death_time: Date.now() }, { onConflict: 'boss_id' }).then(()=>{
+                    io.emit('systemMessage', `🏆 [WORLD] The Neutral Zone Boss was defeated by ${p.name}! Respawning in 5 hours.`);
+                    checkNeutralBoss(); // Start the 5 hr timer
+                });
+            }
         io.to(p.instanceId).emit('monsterDied', {
             monsterId: m.id,
             killerId: p.id
@@ -4424,6 +4432,67 @@ socket.on('startDungeon', async (data) => {
 
         socket.emit('updateLeaderboardUI', sorted);
     });
+    // ==========================================
+    // ⚔️ NEUTRAL ZONE PvP ENGINE
+    // ==========================================
+    socket.on('attackPlayer', (payload) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.isGhost || p.mapId !== 'neutralzone') return;
+        
+        const now = Date.now();
+        if (payload.skillId === 'basic') {
+            if (p.lastBasicAttack && now - p.lastBasicAttack < 800) return;
+            p.lastBasicAttack = now;
+        }
+
+        const target = getPlayerById(payload.targetId);
+        if (!target || target.isGhost || target.mapId !== 'neutralzone' || target.untargetableUntil > now) return;
+
+        // 🛡️ ANTI-TK: Prevent damaging your own party members
+        if (playerParty[p.id] && playerParty[p.id] === playerParty[target.id]) return;
+
+        // Calculate Distance
+        const pcx = p.x + 24; const pcy = p.y + 48; 
+        const tcx = target.x + 24; const tcy = target.y + 48;
+        const dist = Math.hypot(pcx - tcx, pcy - tcy);
+        let maxDist = 350;
+        if (p.baseStats?.playerClass === 'Sniper') maxDist = 402.5; 
+        if (dist > maxDist) return;
+
+        // Calculate Damage (Basic hit for PvP)
+        let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(p.baseStats?.playerClass);
+        let serverAtkPwr = isMagicClass ? getServerMagicAttack(p) : getServerAttackPower(p);
+        let trueDmg = Math.floor(serverAtkPwr * (0.9 + Math.random() * 0.2));
+        
+        // Apply Defense
+        const dmg = Math.max(1, trueDmg - getServerDefense(target));
+        
+        target.currentHp -= dmg;
+        if (target.currentHp <= 0 && target.immortalUntil && now < target.immortalUntil) {
+            target.currentHp = 1;
+        }
+
+        io.to('neutralzone').emit('playerHit', { 
+            targetId: target.id, attackerId: p.id, damage: dmg, newHp: Math.max(0, target.currentHp)
+        });
+
+        // Handle PvP Death
+        if (target.currentHp <= 0) {
+            target.currentHp = 0;
+            target.isGhost = true;
+            target.currentPortal = null;
+            io.to('neutralzone').emit('remotePlayerGhosted', target.id);
+            io.emit('systemMessage', `⚔️ [PvP] <span style="color:#f44336;">${p.name} has slain ${target.name} in the Neutral Zone!</span>`);
+            
+            const targetSid = findSocketIdByPlayerId(target.id);
+            if (targetSid) io.to(targetSid).emit('showDeathScreen');
+            
+            supabase.from('Exonians').update({ current_hp: 0 }).eq('character_name', target.id).then(()=>{});
+        } else {
+            const targetSid = findSocketIdByPlayerId(target.id);
+            if (targetSid) io.to(targetSid).emit('playerVitals', { currentHp: target.currentHp, maxHp: target.maxHp, level: target.level });
+        }
+    });
     // 🎒 INVENTORY DRAG & DROP SWAPPING/MERGING
     socket.on('swapInventory', (data) => {
         const p = onlinePlayers[socket.id];
@@ -4574,7 +4643,63 @@ async function runDatabaseCleanup() {
         console.error("[CLEANUP ERROR] Failed to run database sweep:", e.message);
     }
 }
+// ==========================================
+// ⚔️ NEUTRAL ZONE BOSS ENGINE
+// ==========================================
+global.neutralBossDespawnTimer = null;
+const NEUTRAL_SPAWN_CD = 5 * 60 * 60 * 1000; // 5 hours
+const NEUTRAL_DESPAWN_TIME = 12 * 60 * 60 * 1000; // 12 hours
 
+async function checkNeutralBoss() {
+    if (!worlds['neutralzone']) worlds['neutralzone'] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
+
+    const { data: timer } = await supabase.from('boss_timers').select('last_death_time').eq('boss_id', 'neutralzone_boss').single();
+    
+    let remaining = 0;
+    if (timer) remaining = (parseInt(timer.last_death_time) + NEUTRAL_SPAWN_CD) - Date.now();
+
+    if (remaining > 0) {
+        io.to('neutralzone').emit('bossCooldownActive', { remaining: remaining });
+        setTimeout(spawnNeutralBoss, remaining);
+    } else {
+        spawnNeutralBoss();
+    }
+}
+
+function spawnNeutralBoss() {
+    if (!worlds['neutralzone']) worlds['neutralzone'] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
+    
+    // Clean up DB lock
+    supabase.from('boss_timers').delete().eq('boss_id', 'neutralzone_boss').then(()=>{});
+
+    const keys = Object.keys(MonsterDatabase);
+    const randomKey = keys[Math.floor(Math.random() * keys.length)];
+    const randomLevel = Math.floor(Math.random() * 100) + 1; // Level 1 to 100
+
+    const bossId = 'neutral_boss_1';
+    const cfg = { spawnArea: { minX: 960, maxX: 960, minY: 1000, maxY: 1000 }, level: randomLevel };
+    
+    const newBoss = spawnMonster('neutralzone', bossId, randomKey, cfg);
+    newBoss.isNeutralBoss = true; 
+    newBoss.respawnDelayMs = -1; // Never auto-respawns, handled by engine
+    worlds['neutralzone'].monsters[bossId] = newBoss;
+
+    io.to('neutralzone').emit('monsterSpawned', serializeMonster(newBoss));
+    io.emit('systemMessage', `⚠️ A Level ${randomLevel} ${newBoss.name} has appeared in the Neutral Zone!`);
+
+    clearTimeout(global.neutralBossDespawnTimer);
+    global.neutralBossDespawnTimer = setTimeout(async () => {
+        if (worlds['neutralzone'] && worlds['neutralzone'].monsters[bossId] && worlds['neutralzone'].monsters[bossId].alive) {
+            worlds['neutralzone'].monsters[bossId].alive = false;
+            io.to('neutralzone').emit('monsterDied', { monsterId: bossId, killerId: null });
+            io.emit('systemMessage', `💨 The Neutral Zone boss has despawned after 12 hours.`);
+            await supabase.from('boss_timers').upsert({ boss_id: 'neutralzone_boss', last_death_time: Date.now() }, { onConflict: 'boss_id' });
+            checkNeutralBoss();
+        }
+    }, NEUTRAL_DESPAWN_TIME);
+}
+// Start Engine on boot
+setTimeout(checkNeutralBoss, 5000);
 // 1. Run the cleanup engine immediately when the server boots
 runDatabaseCleanup();
 
