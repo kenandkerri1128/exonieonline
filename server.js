@@ -275,53 +275,67 @@ function generateDungeonLoot(m) {
     }
 }
 function generateLoot(monster) {
-    // 🌟 GOLDEN SLIME CUSTOM LOOT TABLE
-    if (monster.monsterKey === "common_mobs_golden") {
-        let mLevel = monster.level || 1;
-        let roll = Math.random();
+  // 🌟 GOLDEN SLIME CUSTOM LOOT TABLE
+    if (monster.monsterKey === "common_mobs_golden") {
+        let mLevel = monster.level || 1;
+        let roll = Math.random();
 
-        // 5% Chance: Class Reset Book
-        if (roll < 0.05) {
-            return { 
-                id: Date.now() + Math.random(), 
-                name: "Class Reset Book", 
-                type: "consumable", 
-                rarity: "Godly", 
-                color: RARITY_COLORS["Godly"], 
-                description: "Resets your chosen class so you can pick a new one.", 
-                quantity: 1 
-            };
-        } 
-        
-        // 95% Chance: 45% Legendary or 50% Unique
-        let rarity = (roll < 0.50) ? "Legendary" : "Unique"; 
-        
-        const keys = Object.keys(ITEM_TEMPLATES);
-        const typeKey = keys[Math.floor(Math.random() * keys.length)];
-        const template = ITEM_TEMPLATES[typeKey];
-        
-        let item = { 
-            id: Date.now() + Math.random(), 
-            name: `${rarity} ${template.baseName}`, 
-            type: template.slot, 
-            sprite: rarity.toLowerCase() + template.spriteName, 
-            level: mLevel, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 
-        };
-        
-        let statVal = getBaseStat(mLevel) + ({ "Unique": 5, "Legendary": 8 }[rarity] || 0);
-        if (typeKey === 'pendant' || typeKey === 'gun') statVal = Math.floor(statVal / 2); 
-        item.fixedStat[template.statKey] = statVal;
-        
-        item.randomStat = {};
-        let numStats = rarity === "Legendary" ? 2 : 1;
-        let availableStats = [...STAT_TYPES]; 
-        for (let i = 0; i < numStats; i++) {
-            let rIdx = Math.floor(Math.random() * availableStats.length);
-            let sKey = availableStats.splice(rIdx, 1)[0]; 
-            item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(mLevel)) + 1;
-        }
-        return item;
-    }
+        // 5% Chance: Class Reset Book
+        if (roll < 0.05) {
+            return { 
+                id: Date.now() + Math.random(), 
+                name: "Class Reset Book", 
+                type: "consumable", 
+                rarity: "Godly", 
+                color: RARITY_COLORS["Godly"], 
+                description: "Resets your chosen class so you can pick a new one.", 
+                quantity: 1 
+            };
+        } 
+        // 🌟 NEW: 5% Chance for Divine Essence (0.05 to 0.10)
+        else if (roll < 0.10) {
+            return {
+                id: 'mat_' + Math.random().toString(36).substr(2, 9),
+                name: 'Divine Essence',
+                type: 'material',
+                rarity: 'Divine',
+                level: 1,
+                stats: { atk: 0, matk: 0, def: 0, hp: 0, str: 0, int: 0, spd: 0 },
+                sellPrice: 100000,
+                description: 'A blindingly bright golden essence. Required to craft Divine equipment.',
+                quantity: 1
+            };
+        }
+        
+        // 90% Chance Remaining: 45% Legendary (0.10 to 0.55) or 45% Unique (0.55+)
+        let rarity = (roll < 0.55) ? "Legendary" : "Unique"; 
+        
+        const keys = Object.keys(ITEM_TEMPLATES);
+        const typeKey = keys[Math.floor(Math.random() * keys.length)];
+        const template = ITEM_TEMPLATES[typeKey];
+        
+        let item = { 
+            id: Date.now() + Math.random(), 
+            name: `${rarity} ${template.baseName}`, 
+            type: template.slot, 
+            sprite: rarity.toLowerCase() + template.spriteName, 
+            level: mLevel, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 
+        };
+        
+        let statVal = getBaseStat(mLevel) + ({ "Unique": 5, "Legendary": 8 }[rarity] || 0);
+        if (typeKey === 'pendant' || typeKey === 'gun') statVal = Math.floor(statVal / 2); 
+        item.fixedStat[template.statKey] = statVal;
+        
+        item.randomStat = {};
+        let numStats = rarity === "Legendary" ? 2 : 1;
+        let availableStats = [...STAT_TYPES]; 
+        for (let i = 0; i < numStats; i++) {
+            let rIdx = Math.floor(Math.random() * availableStats.length);
+            let sKey = availableStats.splice(rIdx, 1)[0]; 
+            item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(mLevel)) + 1;
+        }
+        return item;
+    }
     
     // ==========================================
     // 1. CALCULATE ITEM DROP LEVEL (90% Same, 10% Lower)
