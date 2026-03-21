@@ -53,7 +53,13 @@ async function updateAndBroadcastTopTavern() {
     } catch(e) { console.error("Error updating top tavern:", e); }
 }
 // Initialize the rankings immediately when the server boots
-updateAndBroadcastTopTavern(); 
+updateAndBroadcastTopTavern(); 
+
+// 🌟 THE FIX: Auto-refresh the Leaderboard every 60 seconds!
+// This ensures that if you manually delete a hacker or admin from the database, 
+// the server will automatically update everyone's glowing nameplates within a minute.
+setInterval(updateAndBroadcastTopTavern, 60000);
+
 // ==========================================
 // LOOT, GOLD & STAT GENERATION ENGINE
 // ==========================================
