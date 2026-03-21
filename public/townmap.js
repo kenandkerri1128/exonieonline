@@ -873,6 +873,16 @@ var townMapData = {
             "targetMapId": "trainingtavern",
             "targetX": 960,
             "targetY": 1000
+        },
+        {
+            "x": 1727,
+            "y": 977,
+            "w": 36,
+            "h": 69,
+            "portalId": "C",
+            "targetMapId": "neutralzone",
+            "targetX": 960,
+            "targetY": 1000
         }
     ]
 };
