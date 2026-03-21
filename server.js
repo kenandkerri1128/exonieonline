@@ -3385,10 +3385,19 @@ socket.on('requestConfirmTrade', () => {
             .update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y })
             .eq('character_name', currentUser)
             .then(() => {});
-          // 🛡️ VISUAL MAP TIMER: Send cooldown to the client
-        supabase.from('boss_timers').select('last_death_time').eq('boss_id', p.mapId).single().then(({data: timer}) => {
+         // 🛡️ VISUAL MAP TIMER: Send cooldown to the client
+        let queryBossId = p.mapId === 'neutralzone' ? 'neutralzone_boss' : p.mapId;
+        supabase.from('boss_timers').select('last_death_time').eq('boss_id', queryBossId).single().then(({data: timer}) => {
             if (timer) {
-                const remaining = getBossCountdown(timer.last_death_time);
+                let remaining = 0;
+                if (queryBossId === 'neutralzone_boss') {
+                    // 🌟 THE FIX: Neutral Zone uses a strict 5-hour countdown!
+                    remaining = (parseInt(timer.last_death_time) + (5 * 60 * 60 * 1000)) - Date.now();
+                } else {
+                    // Normal Floor Bosses use the standard 24-hour math
+                    remaining = getBossCountdown(timer.last_death_time);
+                }
+                
                 if (remaining > 0) socket.emit('bossCooldownActive', { remaining });
             }
         });
