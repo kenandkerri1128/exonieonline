@@ -180,7 +180,18 @@ var neutralzoneMapData = {
             "h": 175
         }
     ],
-    "teleports": [],
+    "teleports": [
+        {
+            "x": 878,
+            "y": 1271,
+            "w": 261,
+            "h": 34,
+            "portalId": "D",
+            "targetMapId": "town",
+            "targetX": 960,
+            "targetY": 1000
+        }
+    ],
     "normalSpawns": [],
     "miniBossSpawns": [],
     "floorBossSpawns": []
