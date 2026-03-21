@@ -244,6 +244,12 @@ var neutralzoneMapData = {
             "y": 179,
             "w": 41,
             "h": 134
+        },
+        {
+            "x": 1284,
+            "y": 586,
+            "w": 22,
+            "h": 27
         }
     ],
     "teleports": [
