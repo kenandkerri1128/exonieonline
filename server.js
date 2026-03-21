@@ -3326,6 +3326,15 @@ socket.on('requestConfirmTrade', () => {
         }
         p.expectedMapId = null; // Shred the ticket safely
         
+        // ⚔️ NEUTRAL ZONE ENTRY CHECK
+        if (data.mapId === 'neutralzone' && p.baseStats?.neutralLockout) {
+            if (Date.now() < p.baseStats.neutralLockout) {
+                const remainingMins = Math.ceil((p.baseStats.neutralLockout - Date.now()) / 60000);
+                socket.emit('systemMessage', `❌ You cannot enter the Neutral Zone for ${remainingMins} more minutes after your recent defeat.`);
+                return socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
+            }
+        }
+
         p.purificationUses = 0;
 
         const oldInstId = p.instanceId;
@@ -3508,6 +3517,13 @@ socket.on('requestConfirmTrade', () => {
 
     // Real respawn flow: leave old map, go to town, then revive
     const oldInstId = p.instanceId;
+
+    // ⚔️ NEUTRAL ZONE DEATH PENALTY
+    // If they are respawning to town from the Neutral Zone, apply a 30-minute lockout!
+    if (p.mapId === 'neutralzone') {
+        if (!p.baseStats) p.baseStats = {};
+        p.baseStats.neutralLockout = Date.now() + (30 * 60 * 1000); // 30 Minutes
+    }
 
     socket.leave(p.instanceId);
     socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
