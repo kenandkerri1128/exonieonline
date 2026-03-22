@@ -4207,6 +4207,177 @@ socket.on('adminSpawnItem', async (data) => {
         }
         supabase.from('Exonians').update({ inventory: p.inventory, equips: p.equips }).eq('character_name', p.id).then(()=>{});
     });
+    // ==========================================
+    // ⚖️ AUCTION HOUSE ENGINE
+    // ==========================================
+    socket.on('ah_search', async (query) => {
+        try {
+            let q = supabase.from('Auction_House').select('*').order('created_at', { ascending: false }).limit(50);
+            if (query && query.trim() !== '') {
+                q = q.ilike('item_name', `%${query.trim()}%`);
+            }
+            const { data } = await q;
+            socket.emit('ah_searchResults', data || []);
+        } catch (e) { console.error("AH Search Error:", e); }
+    });
+
+    socket.on('ah_getMyAuctions', async () => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+        try {
+            const { data } = await supabase.from('Auction_House').select('*').eq('seller_name', p.id).order('created_at', { ascending: false });
+            socket.emit('ah_myAuctions', { count: (data || []).length, auctions: data || [] });
+        } catch (e) { console.error("AH Get My Error:", e); }
+    });
+
+    socket.on('ah_list', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || typeof data.invIndex !== 'number' || !data.price || data.price < 1) return;
+
+        // 1. Check if they hit the limit
+        const { count, error } = await supabase.from('Auction_House').select('*', { count: 'exact', head: true }).eq('seller_name', p.id);
+        if (count >= 5) {
+            return socket.emit('systemMessage', "❌ You can only have 5 items on the Auction House at once.");
+        }
+
+        const inv = Array.isArray(p.inventory) ? p.inventory : [];
+        let originalItem = inv[data.invIndex];
+        if (!originalItem) return socket.emit('systemMessage', "Item not found.");
+
+        // 2. Create the exact item data to save (Force quantity to 1)
+        let auctionItem = JSON.parse(JSON.stringify(originalItem));
+        auctionItem.quantity = 1;
+
+        // 3. Deduct from inventory
+        if (originalItem.quantity > 1) {
+            originalItem.quantity -= 1;
+        } else {
+            inv[data.invIndex] = null;
+        }
+        p.inventory = inv;
+
+        try {
+            // 4. Update DB Inventory & Insert Auction
+            await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
+            await supabase.from('Auction_House').insert([{
+                seller_name: p.id,
+                item_name: auctionItem.name,
+                item_data: auctionItem,
+                price: Math.floor(data.price)
+            }]);
+            
+            socket.emit('syncInventory', p.inventory);
+            socket.emit('ah_listSuccess');
+        } catch (e) {
+            console.error("AH List Error:", e);
+            socket.emit('systemMessage', "Server error listing item.");
+        }
+    });
+
+    socket.on('ah_cancel', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.auctionId) return;
+
+        try {
+            const { data: auc } = await supabase.from('Auction_House').select('*').eq('id', data.auctionId).single();
+            if (!auc || auc.seller_name !== p.id) return socket.emit('systemMessage', "Auction not found.");
+
+            // Give item back
+            const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
+            const emptySlot = inv.findIndex(i => i === null);
+            if (emptySlot === -1) return socket.emit('systemMessage', "❌ Inventory full! Cannot cancel auction.");
+
+            inv[emptySlot] = auc.item_data;
+            p.inventory = inv;
+
+            await supabase.from('Auction_House').delete().eq('id', data.auctionId);
+            await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
+
+            socket.emit('syncInventory', p.inventory);
+            socket.emit('systemMessage', `Cancelled auction for ${auc.item_name}.`);
+            
+            // Refresh their UI
+            const { data: refreshData } = await supabase.from('Auction_House').select('*').eq('seller_name', p.id).order('created_at', { ascending: false });
+            socket.emit('ah_myAuctions', { count: (refreshData || []).length, auctions: refreshData || [] });
+
+        } catch (e) { console.error("AH Cancel Error:", e); }
+    });
+
+    socket.on('ah_buy', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.auctionId) return;
+
+        try {
+            // 1. Get the auction
+            const { data: auc } = await supabase.from('Auction_House').select('*').eq('id', data.auctionId).single();
+            if (!auc) return socket.emit('systemMessage', "❌ This item has already been sold or cancelled.");
+
+            // 2. Check Buyer Gold
+            if (p.gold < auc.price) return socket.emit('systemMessage', "❌ Not enough gold.");
+
+            // 3. Check Buyer Inventory
+            const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
+            
+            // We need to check if it stacks or needs an empty slot
+            let added = false;
+            let boughtItem = auc.item_data;
+            if (['potion', 'material', 'consumable'].includes(boughtItem.type)) {
+                let existIdx = inv.findIndex(i => i && i.name === boughtItem.name);
+                if (existIdx !== -1) {
+                    inv[existIdx].quantity = (inv[existIdx].quantity || 1) + 1;
+                    added = true;
+                }
+            }
+            if (!added) {
+                const emptySlot = inv.findIndex(i => i === null);
+                if (emptySlot === -1) return socket.emit('systemMessage', "❌ Inventory full!");
+                inv[emptySlot] = boughtItem;
+            }
+
+            // 4. Delete the Auction to lock the transaction
+            const { error: delErr } = await supabase.from('Auction_House').delete().eq('id', auc.id);
+            if (delErr) throw delErr; // If someone else bought it a millisecond ago, this will fail safely.
+
+            // 5. Update Buyer (Deduct Gold, Add Item)
+            p.gold -= auc.price;
+            p.inventory = inv;
+            await supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id);
+
+            // 6. Reward the Seller! (Direct DB update)
+            const { data: sellerData } = await supabase.from('Exonians').select('gold').eq('character_name', auc.seller_name).single();
+            if (sellerData) {
+                await supabase.from('Exonians').update({ gold: sellerData.gold + auc.price }).eq('character_name', auc.seller_name);
+                
+                // If seller is online, sync their gold instantly
+                const sellerSid = findSocketIdByPlayerId(auc.seller_name);
+                if (sellerSid && onlinePlayers[sellerSid]) {
+                    onlinePlayers[sellerSid].gold += auc.price;
+                    io.to(sellerSid).emit('purchaseSuccess', { newGold: onlinePlayers[sellerSid].gold, inventory: onlinePlayers[sellerSid].inventory });
+                    io.to(sellerSid).emit('systemMessage', `💰 Auction Sold: ${auc.item_name} for ${auc.price} Gold!`);
+                }
+            }
+
+            // 7. Send System Mail Receipt to Seller
+            await supabase.from('System_Mail').insert([{
+                recipient_name: auc.seller_name,
+                message_text: `Your auction for [${auc.item_name}] has sold!\n\n${auc.price} Gold has been automatically deposited into your account.`,
+                is_claimed: false
+            }]);
+
+            // 8. Tell Buyer Success
+            socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
+            socket.emit('systemMessage', `🛒 Successfully purchased ${auc.item_name} for ${auc.price} Gold!`);
+            
+            // Refresh Browse Tab
+            let q = supabase.from('Auction_House').select('*').order('created_at', { ascending: false }).limit(50);
+            const { data: freshAh } = await q;
+            socket.emit('ah_searchResults', freshAh || []);
+
+        } catch (e) {
+            console.error("AH Buy Error:", e);
+            socket.emit('systemMessage', "Transaction failed.");
+        }
+    });
 socket.on('requestSell', async (data) => {
     const p = onlinePlayers[socket.id];
     if (!p) return;
