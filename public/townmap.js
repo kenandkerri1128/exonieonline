@@ -633,12 +633,6 @@ var townMapData = {
             "h": 28
         },
         {
-            "x": 1372,
-            "y": 755,
-            "w": 185,
-            "h": 126
-        },
-        {
             "x": 1364,
             "y": 738,
             "w": 191,
@@ -853,6 +847,18 @@ var townMapData = {
             "y": 266,
             "w": 128,
             "h": 30
+        },
+        {
+            "x": 1377,
+            "y": 870,
+            "w": 19,
+            "h": 27
+        },
+        {
+            "x": 1443,
+            "y": 869,
+            "w": 115,
+            "h": 28
         }
     ],
     "teleports": [
@@ -881,6 +887,16 @@ var townMapData = {
             "h": 69,
             "portalId": "C",
             "targetMapId": "neutralzone",
+            "targetX": 960,
+            "targetY": 1000
+        },
+        {
+            "x": 1401,
+            "y": 870,
+            "w": 36,
+            "h": 23,
+            "portalId": "E",
+            "targetMapId": "town",
             "targetX": 960,
             "targetY": 1000
         }
