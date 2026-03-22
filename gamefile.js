@@ -2907,7 +2907,10 @@ socket.on('forceTeleport', (tp) => {
                 safeMapData.id = nextMapId; // 🛡️ CRITICAL FIX: FORCES MAP ID TO UPDATE SO MONSTERS RENDER!
                 
                 let targetId;
-                if (typeof tp.portalId === 'number') {
+                // 🛡️ THE FIX: Skip pairing math if this is a fast-travel Maze Guide jump!
+                if (tp.exactTarget) {
+                    targetId = tp.portalId;
+                } else if (typeof tp.portalId === 'number') {
                     targetId = tp.portalId % 2 === 1 ? tp.portalId + 1 : tp.portalId - 1; 
                 } else {
                     let code = String(tp.portalId).charCodeAt(0);
