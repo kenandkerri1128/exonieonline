@@ -4580,6 +4580,81 @@ socket.on('requestSell', async (data) => {
         price: sellPrice
     });
 });
+    // ==========================================
+    // 🗺️ MAZE GUIDE & FAST TRAVEL ENGINE
+    // ==========================================
+    socket.on('requestMazeTeleport', (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.isGhost) return;
+        
+        const targetFloor = parseInt(data.targetFloor);
+        if (isNaN(targetFloor) || targetFloor < 1) return;
+
+        // 🧮 SCALABLE MATH: Map is floorN, Portal is N * 2
+        const targetMapId = `floor${targetFloor}`;
+        const targetPortalId = targetFloor * 2;
+
+        // Helper function to extract highest floor from title safely
+        const getMaxFloor = (playerObj) => {
+            let maxF = 0;
+            if (playerObj && playerObj.title && playerObj.title.includes('FLOOR CONQUEROR')) {
+                const match = playerObj.title.match(/FLOOR CONQUEROR (\d+)/);
+                if (match) maxF = parseInt(match[1]);
+            }
+            return maxF;
+        };
+
+        const pid = playerParty[p.id];
+        
+        if (pid && parties[pid]) {
+            // --- PARTY MODE ---
+            const party = parties[pid];
+            
+            if (party.leaderId !== p.id) {
+                return socket.emit('systemMessage', "❌ Only the Party Leader can use the Maze Guide.");
+            }
+
+            let allEligible = true;
+            let ineligibleName = "";
+            
+            // Verify every single member before authorizing the jump
+            for (const memberId of party.members) {
+                const mp = getPlayerById(memberId);
+                if (!mp) {
+                    allEligible = false; ineligibleName = memberId + " (Offline)"; break;
+                }
+                if (mp.instanceId !== p.instanceId) {
+                    allEligible = false; ineligibleName = mp.name + " (Not in same map)"; break;
+                }
+                if (mp.isGhost) {
+                    allEligible = false; ineligibleName = mp.name + " (Dead)"; break;
+                }
+                if (getMaxFloor(mp) < targetFloor) {
+                    allEligible = false; ineligibleName = mp.name; break;
+                }
+            }
+
+            if (!allEligible) {
+                socket.emit('systemMessage', `❌ Cannot teleport: ${ineligibleName} has not conquered Floor ${targetFloor} yet.`);
+                return;
+            }
+
+            // Everyone passed! Sync the teleport to the entire party
+            for (const memberId of party.members) {
+                const msid = findSocketIdByPlayerId(memberId);
+                if (msid) {
+                    io.to(msid).emit('teleportApproved', { portalId: targetPortalId, targetMapId: targetMapId });
+                }
+            }
+        } else {
+            // --- SOLO MODE ---
+            if (getMaxFloor(p) < targetFloor) {
+                return socket.emit('systemMessage', `❌ You have not conquered Floor ${targetFloor} yet.`);
+            }
+            // Authorized!
+            socket.emit('teleportApproved', { portalId: targetPortalId, targetMapId: targetMapId });
+        }
+    });
   // ==========================================
     // ⚔️ TAVERN SYSTEM & LEADERBOARD
     // ==========================================
