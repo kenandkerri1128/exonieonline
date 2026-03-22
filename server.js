@@ -989,11 +989,19 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
         if (!victim || victim.isGhost || victim.isHiddenAdmin || victim.mapId === 'town') return;
         if (victim.untargetableUntil > now) return;
 
-        // 🍃 NINJA ASSASSIN DODGE CHECK
-        if (victim.baseStats?.playerClass === 'Ninja Assassin' && victim.level >= 25) {
-            let dodgeChance = victim.level >= 75 ? 0.35 : 0.25;
+        // 🍃 NINJA ASSASSIN DODGE CHECK (Target dodges)
+        if (target.baseStats?.playerClass === 'Ninja Assassin' && target.level >= 25) {
+            let dodgeChance = target.level >= 75 ? 0.35 : 0.25;
             if (Math.random() < dodgeChance) {
-                io.to(instId).emit('attackEvaded', { targetId: victim.id, monsterId: m.id, type: 'dodge' });
+                io.to('neutralzone').emit('attackEvaded', { targetId: target.id, attackerId: p.id, type: 'dodge' });
+                return;
+            }
+        }
+
+        // ⚔️ BLADEMASTER PARRY CHECK
+        if (target.parryUntil && now < target.parryUntil) {
+            if (Math.random() < 0.70) {
+                io.to('neutralzone').emit('attackEvaded', { targetId: target.id, attackerId: p.id, type: 'parry' });
                 return;
             }
         }
@@ -1474,7 +1482,7 @@ socket.on('broadcastSkill', (data) => {
         ber1:  { className: 'Berserker', name: 'Callout!', unlock: 1, cd: 14000, auraColor: 'red' },
         ber3:  { className: 'Berserker', name: 'Immortal', unlock: 50, cd: 100000, auraColor: 'red' },
 
-        bld2:  { className: 'Blademaster', name: 'Blur!', unlock: 25, cd: 15000, auraColor: 'red' },
+     bld2:  { className: 'Blademaster', name: 'Parry', unlock: 25, cd: 13000, auraColor: 'red' },
         bld3:  { className: 'Blademaster', name: 'Mega Slash', unlock: 50, cd: 50000, auraColor: 'red' },
 
         snp2:  { className: 'Sniper', name: 'Silver Bullet', unlock: 25, cd: 5000, auraColor: 'white' },
@@ -2171,16 +2179,16 @@ socket.on('saveData', async (playerData) => {
         socket.to(p.instanceId).emit('remotePetSync', { ownerId: p.id, petData: data });
     });
 
-    socket.on('setUntargetable', () => { // 🛡️ Ignored client data
-        const p = onlinePlayers[socket.id];
-        if (p && p.mapId !== 'town' && p.baseStats?.playerClass === 'Blademaster') { 
-            const now = Date.now();
-            if (p.skillCooldowns['setUntargetable'] && now < p.skillCooldowns['setUntargetable']) return;
-            p.skillCooldowns['setUntargetable'] = now + getReducedCd(p, 14000);
+    socket.on('setParryStance', () => { 
+        const p = onlinePlayers[socket.id];
+        if (p && p.mapId !== 'town' && p.baseStats?.playerClass === 'Blademaster') { 
+            const now = Date.now();
+            if (p.skillCooldowns['setParryStance'] && now < p.skillCooldowns['setParryStance']) return;
+            p.skillCooldowns['setParryStance'] = now + getReducedCd(p, 13000);
 
-            p.untargetableUntil = Date.now() + 10000; // 🛡️ Server enforces 10s
-        }
-    });
+            p.parryUntil = Date.now() + 10000; // 🛡️ Server enforces 10s buff
+        }
+    });
 
   socket.on('attackMonster', async (payload) => {
         const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return; 
@@ -4790,11 +4798,19 @@ socket.on('startDungeon', async (data) => {
             }
         }
 
-        // 🍃 NINJA ASSASSIN DODGE CHECK (Target dodges)
-        if (target.baseStats?.playerClass === 'Ninja Assassin' && target.level >= 25) {
-            let dodgeChance = target.level >= 75 ? 0.35 : 0.25;
+        // 🍃 NINJA ASSASSIN DODGE CHECK
+        if (victim.baseStats?.playerClass === 'Ninja Assassin' && victim.level >= 25) {
+            let dodgeChance = victim.level >= 75 ? 0.35 : 0.25;
             if (Math.random() < dodgeChance) {
-                io.to('neutralzone').emit('attackEvaded', { targetId: target.id, attackerId: p.id, type: 'dodge' });
+                io.to(instId).emit('attackEvaded', { targetId: victim.id, monsterId: m.id, type: 'dodge' });
+                return;
+            }
+        }
+
+        // ⚔️ BLADEMASTER PARRY CHECK
+        if (victim.parryUntil && now < victim.parryUntil) {
+            if (Math.random() < 0.70) {
+                io.to(instId).emit('attackEvaded', { targetId: victim.id, monsterId: m.id, type: 'parry' });
                 return;
             }
         }
