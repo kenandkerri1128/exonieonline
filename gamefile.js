@@ -2499,9 +2499,14 @@ if(socket) {
                 document.getElementById('player-title-tag').innerText = userData.title ? `<${userData.title}>` : '';
             }
          
+            // 🛡️ THE FIX: Tell the client to actually remember the title sent from the database!
+            game.player.title = userData.title || null;
+            if (!game.player.spriteData) game.player.spriteData = {};
+            game.player.spriteData.title = userData.title || null;
+
             game.player.level = userData.level || 1; 
             game.player.exp = userData.exp || 0; 
-            game.player.maxExp = userData.max_exp || 200; 
+            game.player.maxExp = userData.max_exp || 200;
             game.player.gold = userData.gold || 0; 
             game.player.baseStats = (typeof userData.base_stats === 'object' && userData.base_stats !== null) ? userData.base_stats : { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }; 
             if (game.player.baseStats.playerClass && (!CLASSES || !CLASSES[game.player.baseStats.playerClass])) { game.player.baseStats.playerClass = null; }
@@ -3881,15 +3886,20 @@ window.openMazeGuide = function() {
         }
     }
 
-    let maxFloor = 0;
-    // 🛡️ THE FIX: Look at both the hidden memory AND the actual text floating above the player's head!
-    let titleRaw = game.player.spriteData?.title || game.player.title || "";
+   let maxFloor = 0;
+    
+    // 🛡️ THE FIX: Check every possible location the title could be stored in memory!
+    let title1 = game.player.title || "";
+    let title2 = game.player.spriteData?.title || "";
+    let title3 = game.cachedUserData?.title || ""; // The raw Supabase row
     let domTitle = document.getElementById('player-title-tag') ? document.getElementById('player-title-tag').innerText : "";
-    let title = (titleRaw + " " + domTitle).toUpperCase(); // Combine them and force uppercase to prevent typo bugs
+    
+    // Combine all sources so if it exists ANYWHERE, we find it
+    let combinedTitle = `${title1} ${title2} ${title3} ${domTitle}`.toUpperCase();
 
-    if (title.includes('FLOOR CONQUEROR')) {
-        const match = title.match(/FLOOR CONQUEROR (\d+)/);
-        if (match) maxFloor = parseInt(match[1]);
+    const match = combinedTitle.match(/FLOOR CONQUEROR (\d+)/);
+    if (match) {
+        maxFloor = parseInt(match[1]);
     }
 
     if (maxFloor === 0) {
