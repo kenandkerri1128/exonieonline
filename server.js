@@ -2702,7 +2702,6 @@ socket.on('saveData', async (playerData) => {
                 io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
             }, m.respawnDelayMs || 10000);
         }
-    }
     });
 
    socket.on('inspectRequest', (data) => {
@@ -5170,7 +5169,6 @@ setInterval(runDatabaseCleanup, 12 * 60 * 60 * 1000);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, "0.0.0.0", () => console.log(`Exonie server running on port ${PORT} (0.0.0.0)`));
-
 
 
 
