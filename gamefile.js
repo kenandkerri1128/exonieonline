@@ -986,6 +986,14 @@ function gameLoop(ts) {
                 document.getElementById('merchant-modal').style.display = 'block';
                 return;
             }
+           // 🗺️ MAZE GUIDE INTERCEPT: Portal F
+            if (onPortal.portalId === 'F') {
+                game.player.currentPortal = null;
+                game.player.y += 15; // Bounce back safely
+                game.player.teleportCooldown = 2000;
+                window.openMazeGuide();
+                return;
+            }
           // ⚔️ TAVERN INTERCEPT: Portal A
             if (onPortal.portalId === 'A') {
                 game.player.currentPortal = null;
@@ -3861,6 +3869,60 @@ window.addEventListener('resize', function() {
 // ==========================================
 // 🛡️ SYSTEM UTILITIES & MAILBOX ENGINE
 // ==========================================
+// ==========================================
+// 🗺️ MAZE GUIDE SYSTEM
+// ==========================================
+window.openMazeGuide = function() {
+    // 🛡️ Party Logic: Only leader can use it
+    if (game.party && game.party.members && game.party.members.length > 1) {
+        if (game.party.leaderId !== game.player.id) {
+            dom.log.innerText = "❌ Only the Party Leader can use the Maze Guide.";
+            return;
+        }
+    }
+
+    let maxFloor = 0;
+    // Extract highest floor from player's current title
+    let title = game.player.spriteData?.title || game.player.title || "";
+    if (title.includes('FLOOR CONQUEROR')) {
+        const match = title.match(/FLOOR CONQUEROR (\d+)/);
+        if (match) maxFloor = parseInt(match[1]);
+    }
+
+    if (maxFloor === 0) {
+        dom.log.innerText = "❌ You haven't conquered any floors yet!";
+        return;
+    }
+
+    // Dynamically create the UI window so you don't have to touch index.html
+    let modal = document.getElementById('maze-guide-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'maze-guide-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#222; border:2px solid #2196F3; padding:20px; z-index:9000; width:300px; border-radius:8px; box-shadow:0 0 20px #2196F3; color:white; text-align:center;';
+        document.body.appendChild(modal);
+    }
+
+    let html = '<h2 style="margin-top:0; color:#2196F3;">🗺️ Maze Guide</h2>';
+    html += '<p style="font-size:12px; color:#aaa;">Select a conquered floor to fast-travel.</p>';
+    html += '<div style="max-height:300px; overflow-y:auto; margin-bottom:15px; padding-right:5px;">';
+    
+    for (let i = 1; i <= maxFloor; i++) {
+        html += `<button class="btn" style="width:100%; margin-bottom:5px; background:#4CAF50;" onclick="window.requestMazeTeleport(${i})">Teleport to Floor ${i}</button>`;
+    }
+    
+    html += '</div>';
+    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('maze-guide-modal').style.display='none'">Close</button>`;
+    
+    modal.innerHTML = html;
+    modal.style.display = 'block';
+};
+
+window.requestMazeTeleport = function(floorNum) {
+    document.getElementById('maze-guide-modal').style.display = 'none';
+    if (socket) socket.emit('requestMazeTeleport', { targetFloor: floorNum });
+};
 // ==========================================
 // ⚔️ TAVERN & LEADERBOARD LOGIC
 // ==========================================
