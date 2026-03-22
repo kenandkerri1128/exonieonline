@@ -1006,7 +1006,16 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
             }
         }
 
-        const damage = Math.max(1, m.atk - getServerDefense(victim));
+        let damage = Math.max(1, m.atk - getServerDefense(victim));
+
+        // 🩸 BERSERKER: I Love PAIN (Lv 75)
+        if (victim.baseStats?.playerClass === 'Berserker' && victim.level >= 75 && Math.random() < 0.15) {
+            const heal = Math.floor(damage / 3);
+            damage = damage - heal;
+            victim.currentHp = Math.min(getServerTotalStat(victim, 'hp') || 100, victim.currentHp + heal);
+            io.to(instId).emit('playerHealed', { id: victim.id, amount: heal, currentHp: victim.currentHp });
+        }
+
         victim.currentHp = Math.max(0, victim.currentHp - damage);
 
         // 🛡️ THE FIX: If Immortal is active, force HP to 1 instead of 0
@@ -2234,30 +2243,53 @@ socket.on('saveData', async (playerData) => {
             }
         }
 
-        // ⚔️ PHANTOM STRIKER: Sleight of Hand (Lv 25) - Double Hit
+// ⚔️ PHANTOM STRIKER: Sleight of Hand (Lv 25) - Double Hit
         if (pClass === 'Phantom Striker' && p.level >= 25 && payload.skillId !== 'pet' && Math.random() < 0.50) {
             hitCount = 2;
+            io.to(p.instanceId).emit('systemMessage', `<span style="color:#ffffff; font-weight:bold;">🗡️ Sleight of Hand triggered a double attack!</span>`);
+        }
+
+        // 🎯 SNIPER: Dual Bullet (Lv 75)
+        if (pClass === 'Sniper' && p.level >= 75 && payload.skillId !== 'pet' && Math.random() < 0.50) {
+            hitCount *= 2;
+        }
+
+        // ⚕️ HEALER: Healing Touch (Lv 75)
+        if (pClass === 'Healer' && p.level >= 75 && payload.skillId === 'basic') {
+            const healAmt = Math.max(1, Math.floor((getServerTotalStat(p, 'int') || 10) * 0.05));
+            const pid = playerParty[p.id];
+            if (pid && parties[pid]) {
+                for (const memberId of parties[pid].members) {
+                    const mp = getPlayerById(memberId);
+                    if (mp && !mp.isGhost && mp.instanceId === p.instanceId) {
+                        let memberMaxHp = getServerTotalStat(mp, 'hp') || 100;
+                        mp.currentHp = Math.min(memberMaxHp, mp.currentHp + healAmt);
+                        io.to(p.instanceId).emit('playerHealed', { id: mp.id, amount: healAmt, currentHp: mp.currentHp });
+                    }
+                }
+            } else {
+                let myMaxHp = getServerTotalStat(p, 'hp') || 100;
+                p.currentHp = Math.min(myMaxHp, p.currentHp + healAmt);
+                io.to(p.instanceId).emit('playerHealed', { id: p.id, amount: healAmt, currentHp: p.currentHp });
+            }
         }
 
 // 🔫 SKILL DAMAGE LOGIC
         if (payload.skillId === 'snp2') {
              if (pClass !== 'Sniper') return;
              if (p.skillCooldowns['snp2'] && now < p.skillCooldowns['snp2'] && !isAdmin(p.id)) return; 
-             
              trueDmg = Math.floor(serverAtkPwr * 2);
              p.skillCooldowns['snp2'] = now + getReducedCd(p, 5000); 
              
          } else if (payload.skillId === 'snp3') {
              if (pClass !== 'Sniper') return;
              if (p.skillCooldowns['snp3'] && now < p.skillCooldowns['snp3'] && !isAdmin(p.id)) return; 
-             
              trueDmg = Math.floor(serverAtkPwr * 4);
              p.skillCooldowns['snp3'] = now + getReducedCd(p, 50000); 
              
          } else if (payload.skillId === 'exp1') {
              if (pClass !== 'Explosives Expert') return;
              if (p.skillCooldowns['exp1'] && now < p.skillCooldowns['exp1'] && !isAdmin(p.id)) return; 
-             
              trueDmg = Math.floor(serverAtkPwr); 
              p.skillCooldowns['exp1'] = now + getReducedCd(p, 12000); 
 
@@ -2272,7 +2304,6 @@ socket.on('saveData', async (playerData) => {
                  if (ticksDone > durationTicks || !tm || !tm.alive) {
                      clearInterval(fireInt); return;
                  }
-                 
                  let dotDmg = Math.max(1, Math.floor(serverAtkPwr) - (tm.def || 0));
                  tm.currentHp -= dotDmg;
                  if (tm.currentHp <= 0) tm.currentHp = 1; 
@@ -2283,7 +2314,6 @@ socket.on('saveData', async (playerData) => {
          } else if (payload.skillId === 'exp3') {
              if (pClass !== 'Explosives Expert') return;
              if (p.skillCooldowns['exp3'] && now < p.skillCooldowns['exp3'] && !isAdmin(p.id)) return; 
-             
              trueDmg = Math.floor(serverAtkPwr * 5); 
              p.skillCooldowns['exp3'] = now + getReducedCd(p, 30000); 
 
@@ -2291,7 +2321,6 @@ socket.on('saveData', async (playerData) => {
          } else if (payload.skillId === 'nin1') {
              if (pClass !== 'Ninja Assassin') return;
              if (p.skillCooldowns['nin1'] && now < p.skillCooldowns['nin1'] && !isAdmin(p.id)) return; 
-             
              m.smokeBombUntil = now + 10000;
              trueDmg = 1; // Pure 1 damage impact
              p.skillCooldowns['nin1'] = now + getReducedCd(p, 10000); 
@@ -2300,7 +2329,6 @@ socket.on('saveData', async (playerData) => {
          } else if (payload.skillId === 'phs3') {
              if (pClass !== 'Phantom Striker') return;
              if (p.skillCooldowns['phs3'] && now < p.skillCooldowns['phs3'] && !isAdmin(p.id)) return; 
-             
              trueDmg = Math.floor(serverAtkPwr * 2);
              p.skillCooldowns['phs3'] = now + getReducedCd(p, 30000); 
              
@@ -2309,56 +2337,88 @@ socket.on('saveData', async (playerData) => {
          } else if (payload.skillId === 'bld3') {
              if (pClass !== 'Blademaster') return; 
              if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && !isAdmin(p.id)) return; 
-             
              trueDmg = Math.floor(serverAtkPwr * 5);
              p.skillCooldowns['heavyAttack'] = now + getReducedCd(p, 49000); 
              
          } else if (payload.skillId === 'ice1') {
              if (pClass !== 'Ice Master') return; 
              if (p.skillCooldowns['ice1'] && now < p.skillCooldowns['ice1'] && !isAdmin(p.id)) return; 
-             
              trueDmg = Math.floor(serverAtkPwr * 2);
              p.skillCooldowns['ice1'] = now + getReducedCd(p, 23000);
              
          } else if (payload.skillId === 'ice3') {
              if (pClass !== 'Ice Master') return; 
              if (p.skillCooldowns['ice3'] && now < p.skillCooldowns['ice3'] && !isAdmin(p.id)) return; 
-             
              trueDmg = Math.floor(serverAtkPwr * 6); 
              p.skillCooldowns['ice3'] = now + getReducedCd(p, 98000); 
              
          } else if (payload.skillId === 'pet') {
             const world = worlds[p.instanceId];
             const pet = world.pets[payload.petId]; 
-            
             if (!pet) return;
             if (pet.lastAttackTs && now - pet.lastAttackTs < 900) return; 
             pet.lastAttackTs = now;
             
             let multiplier = 0.25; 
             if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0; 
-            if (pet.isClone) multiplier = 1.0; // 🥷 Shadow Clones have 100% ATK!
+            if (pet.isClone) multiplier = 1.0; 
+            if (payload.isBigBoss) multiplier = 0.0; // Handled dynamically below
             
             let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
             trueDmg = Math.floor(sourceAtk * multiplier);
-            hitCount = 1; // Pets don't double hit
+            hitCount = 1; 
         }
 
-        // 🛡️ APPLY DAMAGE LOOP (Supports Double Hit Passive!)
-        for (let hc = 0; hc < hitCount; hc++) {
-            // Add a tiny delay between double hits so it doesn't merge visually on bad ping
-            setTimeout(() => {
-                if (!m.alive) return;
-                const dmg = Math.max(1, trueDmg - (m.def || 0)); 
-                m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; 
-                m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
-                
-                let didFreeze = false;
-                if (p.baseStats?.playerClass === 'Ice Master' && p.level >= 25 && (payload.skillId === 'basic' || payload.skillId === 'ice1' || payload.skillId === 'ice3')) {
-                    if (Math.random() < 0.25) { m.frozenUntil = Date.now() + 3000; didFreeze = true; }
-                }
+        // 🌟 LEVEL 75 AoE LOGIC & BIG BOSS
+        let targets = [m];
+        if (p.level >= 75) {
+            if (pClass === 'Ice Master' && (payload.skillId === 'ice1' || payload.skillId === 'ice3')) {
+                targets = Object.values(world.monsters).filter(mob => mob.alive && Math.hypot(mob.x - m.x, mob.y - m.y) <= 300);
+            }
+            if (pClass === 'Explosives Expert' && payload.skillId === 'exp3') {
+                targets = Object.values(world.monsters).filter(mob => mob.alive && Math.hypot(mob.x - m.x, mob.y - m.y) <= 500);
+            }
+        }
+        if (payload.skillId === 'pet' && payload.isBigBoss) {
+            trueDmg = 550; // 👑 Level 1 Floor Boss ATK
+            targets = Object.values(world.monsters).filter(mob => mob.alive && Math.hypot(mob.x - m.x, mob.y - m.y) <= 400);
+            io.to(p.instanceId).emit('monsterSkill', { monsterId: p.id, skillName: 'Earthquake', x: m.x, y: m.y, radius: 400 });
+        }
 
-                io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: isPendant, didFreeze: didFreeze });
+        // 🛡️ APPLY DAMAGE LOOP 
+        for (let hc = 0; hc < hitCount; hc++) {
+            setTimeout(() => {
+                targets.forEach(targetMob => {
+                    if (!targetMob.alive) return;
+                    const dmg = Math.max(1, trueDmg - (targetMob.def || 0)); 
+                    targetMob.currentHp -= dmg; if (targetMob.currentHp < 0) targetMob.currentHp = 0; 
+                    targetMob.threatTable[p.id] = (targetMob.threatTable[p.id] || 0) + dmg;
+                    
+                    let didFreeze = false;
+                    if (pClass === 'Ice Master' && p.level >= 25 && (payload.skillId === 'basic' || payload.skillId === 'ice1' || payload.skillId === 'ice3')) {
+                        if (Math.random() < 0.25) { targetMob.frozenUntil = Date.now() + 3000; didFreeze = true; }
+                    }
+
+                    // 🩸 BLADEMASTER: Sharp Edge (Lv 75)
+                    if (pClass === 'Blademaster' && p.level >= 75 && Math.random() < 0.25 && payload.skillId !== 'pet') {
+                        const bleedDmg = Math.max(1, Math.floor(serverAtkPwr * 0.15));
+                        let ticks = 0;
+                        const bleedInt = setInterval(() => {
+                            ticks++;
+                            if (ticks > 3 || !targetMob.alive) { clearInterval(bleedInt); return; }
+                            targetMob.currentHp -= bleedDmg; if (targetMob.currentHp < 0) targetMob.currentHp = 0;
+                            targetMob.threatTable[p.id] = (targetMob.threatTable[p.id] || 0) + bleedDmg;
+                            io.to(p.instanceId).emit('monsterHit', { monsterId: targetMob.id, attackerId: p.id, damage: bleedDmg, newHp: targetMob.currentHp, maxHp: targetMob.maxHp, isPendant: false, didFreeze: false });
+                            
+                            // Safe Bleed Death check
+                            if (targetMob.currentHp <= 0 && targetMob.alive) {
+                                targetMob.alive = false;
+                                io.to(p.instanceId).emit('monsterDied', { monsterId: targetMob.id, killerId: p.id });
+                            }
+                        }, 1000);
+                    }
+
+                    io.to(p.instanceId).emit('monsterHit', { monsterId: targetMob.id, attackerId: p.id, damage: dmg, newHp: targetMob.currentHp, maxHp: targetMob.maxHp, isPendant: isPendant, didFreeze: didFreeze });
                 
                 if (m.currentHp <= 0) {
                     m.alive = false;
