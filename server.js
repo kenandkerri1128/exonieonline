@@ -4594,13 +4594,15 @@ socket.on('requestSell', async (data) => {
         const targetMapId = `floor${targetFloor}`;
         const targetPortalId = targetFloor * 2;
 
-        // Helper function to extract highest floor from title safely
+       // Helper function to extract highest floor from title safely
         const getMaxFloor = (playerObj) => {
             let maxF = 0;
-            if (playerObj && playerObj.title && playerObj.title.includes('FLOOR CONQUEROR')) {
-                const match = playerObj.title.match(/FLOOR CONQUEROR (\d+)/);
-                if (match) maxF = parseInt(match[1]);
-            }
+            // 🛡️ THE FIX: Check every possible place the title might be saved, and ignore case sensitivity!
+            let titleString = (playerObj?.title || playerObj?.spriteData?.title || playerObj?.baseStats?.title || "").toUpperCase();
+            
+            const match = titleString.match(/FLOOR CONQUEROR (\d+)/);
+            if (match) maxF = parseInt(match[1]);
+            
             return maxF;
         };
 
