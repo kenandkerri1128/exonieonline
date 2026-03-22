@@ -4307,12 +4307,13 @@ window.openDivineForge = function() {
 };
 
 let forgeSelectedIndex = -1;
+let forgeSelectedIndex = -1;
 window.renderDivineForge = function() {
     let modal = document.getElementById('divine-forge-modal');
     
     let html = '<h2 style="margin-top:0; color:#ffea00; text-shadow: 0 0 10px #ffea00;">✨ Divine Forge</h2>';
     html += '<p style="font-size:12px; color:#aaa;">Select a Godly equipment to ascend it to Divine.</p>';
-    html += '<div id="forge-grid" style="display:flex; flex-wrap:wrap; gap:5px; justify-content:center; max-height:150px; overflow-y:auto; margin-bottom:15px; padding:5px; border:1px solid #333; background:#111;">';
+    html += '<div id="forge-grid" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; max-height:160px; overflow-y:auto; margin-bottom:15px; padding:10px 5px; border:1px solid #333; background:#111; align-items:flex-start;">';
     
     const inv = game.player.inventory || [];
     let hasGodly = false;
@@ -4321,10 +4322,11 @@ window.renderDivineForge = function() {
         if (inv[i] && inv[i].rarity === 'Godly' && ['weapon', 'armor', 'leggings', 'necklace', 'ring', 'earrings'].includes(inv[i].type)) {
             hasGodly = true;
             let isSelected = (forgeSelectedIndex === i);
-            let borderCol = isSelected ? '#ffea00' : inv[i].color;
-            let bgCol = isSelected ? 'rgba(255, 234, 0, 0.2)' : 'transparent';
+            let borderCol = isSelected ? '#ffea00' : '#444';
+            let bgCol = isSelected ? 'rgba(255, 234, 0, 0.2)' : '#222';
             
-            html += `<div class="inv-slot" style="border:2px solid ${borderCol}; background:${bgCol}; cursor:pointer;" onclick="window.selectForgeItem(${i})">
+            // 🛡️ THE FIX: Removed the restrictive 'inv-slot' class and replaced it with a flexible, wide button!
+            html += `<div style="border:2px solid ${borderCol}; background:${bgCol}; cursor:pointer; padding:8px 12px; border-radius:6px; font-size:13px; font-weight:bold; color:${inv[i].color}; display:inline-block; text-align:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); transition:all 0.2s ease;" onclick="window.selectForgeItem(${i})">
                         ${inv[i].enhanceLevel ? `${inv[i].name} +${inv[i].enhanceLevel}` : inv[i].name}
                      </div>`;
         }
@@ -4371,7 +4373,6 @@ window.renderDivineForge = function() {
     
     modal.innerHTML = html;
 };
-
 window.selectForgeItem = function(index) {
     forgeSelectedIndex = index;
     window.renderDivineForge();
@@ -4391,16 +4392,25 @@ if (socket) {
     });
 }
 
-// 🪄 INJECT THE FORGE BUTTON INTO THE MERCHANT MODAL WITHOUT TOUCHING INDEX.HTML
+// 🪄 HOOK INTO THE EXISTING BLACKSMITH BUTTON
 setTimeout(() => {
     let merchantModal = document.getElementById('merchant-modal');
     if (merchantModal) {
-        let forgeBtn = document.createElement('button');
-        forgeBtn.className = 'btn';
-        forgeBtn.style.cssText = 'background: linear-gradient(45deg, #ff9800, #ffea00); color: black; font-weight: bold; width: 100%; margin-top: 10px; border: 2px solid #fff; box-shadow: 0 0 10px #ff9800;';
-        forgeBtn.innerText = '✨ OPEN DIVINE FORGE ✨';
-        forgeBtn.onclick = window.openDivineForge;
-        merchantModal.appendChild(forgeBtn);
+        // Find all buttons inside the merchant window
+        let buttons = merchantModal.getElementsByTagName('button');
+        for (let btn of buttons) {
+            // Look for the one that says Blacksmith
+            if (btn.innerText.toLowerCase().includes('blacksmith')) {
+                // Update its text and style to look legendary!
+                btn.innerText = '🔨 Blacksmith (Divine Forge)';
+                btn.onclick = window.openDivineForge;
+                btn.style.background = 'linear-gradient(45deg, #ff9800, #ffea00)';
+                btn.style.color = 'black';
+                btn.style.fontWeight = 'bold';
+                btn.style.boxShadow = '0 0 10px #ff9800';
+                break; // Stop searching once we find it
+            }
+        }
     }
 }, 2000);
 window.openAuctionHouse = function() {
