@@ -859,6 +859,12 @@ var townMapData = {
             "y": 869,
             "w": 115,
             "h": 28
+        },
+        {
+            "x": 900,
+            "y": 397,
+            "w": 43,
+            "h": 71
         }
     ],
     "teleports": [
@@ -896,6 +902,16 @@ var townMapData = {
             "w": 36,
             "h": 23,
             "portalId": "E",
+            "targetMapId": "town",
+            "targetX": 960,
+            "targetY": 1000
+        },
+        {
+            "x": 899,
+            "y": 469,
+            "w": 43,
+            "h": 33,
+            "portalId": "F",
             "targetMapId": "town",
             "targetX": 960,
             "targetY": 1000
