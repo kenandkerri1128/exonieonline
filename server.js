@@ -4509,14 +4509,14 @@ socket.on('requestSell', async (data) => {
             return socket.emit('systemMessage', "❌ Access Denied: Leave your party to enter the solo challenge.");
         }
 
-        // 📅 WEEKLY MONDAY 12 MN RESET LOGIC
+        // 📅 STRICT UTC WEEKLY MONDAY RESET (8:00 AM PHT)
         const now = new Date();
-        let dayOfWeek = now.getDay(); // 0 is Sunday, 1 is Monday
+        let dayOfWeek = now.getUTCDay(); // Strict UTC Day
         let daysSinceMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
         
-        let lastMonday = new Date(now);
-        lastMonday.setDate(now.getDate() - daysSinceMonday);
-        lastMonday.setHours(0, 0, 0, 0); // Lock it exactly to Midnight
+        let lastMonday = new Date(now.getTime());
+        lastMonday.setUTCDate(now.getUTCDate() - daysSinceMonday);
+        lastMonday.setUTCHours(0, 0, 0, 0); // Strict UTC Midnight
         const lastMondayTs = lastMonday.getTime();
 
         // If they have never entered, OR their last reset timestamp is older than THIS week's Monday...
@@ -4801,9 +4801,10 @@ socket.on('startDungeon', async (data) => {
             }
         }
 
-        // ⚔️ PHANTOM STRIKER: Sleight of Hand (Lv 25) - Double Hit
+       // ⚔️ PHANTOM STRIKER: Sleight of Hand (Lv 25) - Double Hit
         if (pClass === 'Phantom Striker' && p.level >= 25 && payload.skillId !== 'pet' && Math.random() < 0.50) {
             hitCount = 2;
+            io.to(p.instanceId).emit('systemMessage', `<span style="color:#ffffff; font-weight:bold;">🗡️ Sleight of Hand triggered a double attack!</span>`);
         }
 
         // 🔫 SKILL DAMAGE LOGIC FOR PVP
