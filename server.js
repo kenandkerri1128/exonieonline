@@ -2762,11 +2762,11 @@ socket.on('saveData', async (playerData) => {
     const targetSid = findSocketIdByPlayerId(me.tradeTarget);
     if (!them || !targetSid) return;
 
-    // Save THIS player's latest offer on the server
-    me.currentTradeOffer = {
-        gold: Math.max(0, parseInt(data.gold) || 0),
-        items: Array.isArray(data.items) ? data.items.filter(Boolean) : []
-    };
+    // Save THIS player's latest offer on the server (🛡️ Stripping out any injected auras/pets)
+    me.currentTradeOffer = {
+        gold: Math.max(0, parseInt(data.gold) || 0),
+        items: Array.isArray(data.items) ? data.items.filter(Boolean).filter(i => i.type !== 'aura') : []
+    };
 
     // Any change to offer resets both confirmations
     me.tradeConfirmed = false;
@@ -4287,10 +4287,15 @@ socket.on('adminSpawnItem', async (data) => {
         }
 
         const inv = Array.isArray(p.inventory) ? p.inventory : [];
-        let originalItem = inv[data.invIndex];
-        if (!originalItem) return socket.emit('systemMessage', "Item not found.");
+        let originalItem = inv[data.invIndex];
+        if (!originalItem) return socket.emit('systemMessage', "Item not found.");
 
-        // 2. Create the exact item data to save (Force quantity to 1)
+        // 🛡️ ANTI-CHEAT: Block server from auctioning cosmetics/pets
+        if (originalItem.type === 'aura') {
+            return socket.emit('systemMessage', "Cosmetics and pets cannot be auctioned.");
+        }
+
+        // 2. Create the exact item data to save (Force quantity to 1)
         let auctionItem = JSON.parse(JSON.stringify(originalItem));
         auctionItem.quantity = 1;
 
@@ -4454,11 +4459,16 @@ socket.on('requestSell', async (data) => {
     }
 
     const serverItem = inv[sellIndex];
-    if (!serverItem) {
-        return socket.emit('systemMessage', 'Item no longer exists.');
+    if (!serverItem) {
+        return socket.emit('systemMessage', 'Item no longer exists.');
+    }
+
+    // 🛡️ ANTI-CHEAT: Block server from selling cosmetics/pets
+    if (serverItem.type === 'aura') {
+        return socket.emit('systemMessage', 'Cosmetics and pets cannot be sold.');
     }
 
-    let baseVal = (serverItem.level || 1) * 2;
+    let baseVal = (serverItem.level || 1) * 2;
     let multiplier = {
         "Starter": 1,
         "Basic": 2,
