@@ -2363,346 +2363,341 @@ socket.on('saveData', async (playerData) => {
                         });
                     }
                     io.to(p.instanceId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
-                }
-            }, hc * 150); // 150ms delay on the second hit
-        }
-// 🏰 DUNGEON 1 WIN CONDITION & AUTO-KICK
-        if (p.mapId === 'dungeon1') {
-            const activeMobs = Object.values(worlds[p.instanceId].monsters).filter(mob => mob.alive).length;
-            if (activeMobs === 0) {
-                // Clear the Extreme Fail Timer so it doesn't boot them while looking at loot!
-                if (worlds[p.instanceId] && worlds[p.instanceId].failTimer) {
-                    clearTimeout(worlds[p.instanceId].failTimer);
-                }
-                
-                io.to(p.instanceId).emit('dungeonTimerStop');
-                io.to(p.instanceId).emit('dungeonVictory');
-                
-                const playersInRoom = playersInInstance(p.instanceId);
-                playersInRoom.forEach(roomPlayer => {
-                    setTimeout(() => {
-                        roomPlayer.mapId = 'town';
-                        roomPlayer.x = 960; 
-                        roomPlayer.y = 1000;
-                        roomPlayer.instanceId = getInstanceId(roomPlayer.id, 'town');
-                        
-                        const rsid = findSocketIdByPlayerId(roomPlayer.id);
-                        if (rsid) io.to(rsid).emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); 
-                        
-                        roomPlayer.dungeonReturnData = null; 
-                    }, 4000);
-                });
-            }
-        }
 
-        // 1. Process EXP & Gold First
-        const expAmount = m.expYield || 25;
-        const goldAmount = m.goldYield || 15;
-        const pid = playerParty[p.id];
-
-        const processRewards = async (targetPlayer, targetSid) => {
-            if (!targetPlayer) return;
-
-            targetPlayer.exp += expAmount;
-            targetPlayer.gold += goldAmount;
-
-            let leveledUp = false;
-            while (targetPlayer.exp >= targetPlayer.maxExp && targetPlayer.level < 80) {
-                targetPlayer.exp -= targetPlayer.maxExp;
-                targetPlayer.level++;
-                targetPlayer.maxExp += (targetPlayer.level >= 71 ? 10000 : targetPlayer.level >= 61 ? 7500 : targetPlayer.level >= 51 ? 5000 : targetPlayer.level >= 41 ? 1500 : targetPlayer.level >= 31 ? 1000 : targetPlayer.level >= 21 ? 750 : targetPlayer.level >= 11 ? 500 : 100);
-                targetPlayer.baseStats.hp += 10;
-                targetPlayer.baseStats.str += 2;
-                targetPlayer.baseStats.int += 2;
-                leveledUp = true;
-            }
-            
-            if (leveledUp) {
-                if (!targetPlayer.isGhost) targetPlayer.currentHp = getServerTotalStat(targetPlayer, 'hp') || 100;
-                
-                if (targetSid) {
-                    io.to(targetSid).emit('serverLevelUp', { 
-                        level: targetPlayer.level, exp: targetPlayer.exp, maxExp: targetPlayer.maxExp, 
-                        baseStats: targetPlayer.baseStats, currentHp: targetPlayer.currentHp 
-                    }); 
-                }
-
-                if (targetPlayer.level >= 50 && !targetPlayer.baseStats.gotWisp) {
-                    targetPlayer.baseStats.gotWisp = true;
-                    const wispItem = { id: Date.now() + Math.random(), name: "Sky Wisp Pet", type: 'aura', auraId: 'wisp', sprite: 'aurastone', level: 50, rarity: 'Godly', color: '#87CEEB', description: "Apply it on leggings. A loyal companion.", quantity: 1 };
-                    
-                    supabase.from('System_Mail').insert([{
-                        recipient_name: targetPlayer.id,
-                        message_text: "Congratulations on reaching Level 50! Here is your exclusive Sky Wisp. Apply it on leggings to equip it.",
-                        attached_item: JSON.stringify(wispItem),
-                        is_claimed: false
-                    }]).then(() => {
-                        if (targetSid) io.to(targetSid).emit('systemMessage', `<span style="color:#87CEEB; font-weight:bold;">🎉 LEVEL 50 REWARD: A reward has been sent to your Mailbox (M)!</span>`);
-                    });
-                }
-            }
-
-            if (targetPlayer.mapId !== 'trainingtavern') {
-                
-                // 💎 USE DUNGEON LOOT TABLE IF IN A DUNGEON!
-                let drop = String(targetPlayer.mapId).startsWith('dungeon') ? generateDungeonLoot(m) : generateLoot(m);
-                let dropAccepted = drop && playerAcceptsLoot(targetPlayer, drop);
-
-                if (dropAccepted) {
-                    const inv = Array.isArray(targetPlayer.inventory) ? targetPlayer.inventory : new Array(20).fill(null);
-                    let stacked = false;
-
-                    if (['potion', 'material', 'consumable'].includes(drop.type)) {
-                        let idx = inv.findIndex(i => i && i.name === drop.name);
-                        if (idx !== -1) {
-                            inv[idx].quantity = (inv[idx].quantity || 1) + (drop.quantity || 1);
-                            stacked = true;
-                        }
-                    }
-
-                    if (!stacked) {
-                        let emptySlot = inv.findIndex(i => i === null);
-                        if (emptySlot !== -1) inv[emptySlot] = drop;
-                    }
-                    targetPlayer.inventory = inv;
-                }
-
-                if (m.category === "floor_boss" && targetPlayer.mapId) {
-                    const match = targetPlayer.mapId.match(/floor(\d+)/i);
-                    const killedFloorNum = match ? parseInt(match[1]) : null;
-                    if (killedFloorNum) {
-                        let currentHighestFloor = 0;
-                        const existingTitle = targetPlayer.title; 
-                        if (existingTitle && existingTitle.startsWith('FLOOR CONQUEROR')) {
-                            const parts = existingTitle.split(' ');
-                            currentHighestFloor = parseInt(parts[2]) || 0;
-                        }
-                        if (killedFloorNum > currentHighestFloor) {
-                            const newTitle = `FLOOR CONQUEROR ${killedFloorNum}`;
-                            targetPlayer.title = newTitle; 
-                            if (!targetPlayer.spriteData) targetPlayer.spriteData = {};
-                            targetPlayer.spriteData.title = newTitle;
-                            if (targetSid) io.to(targetSid).emit('titleUnlocked', newTitle);
-                            io.emit('systemMessage', `<span style="color:#ffd700; font-weight:bold; text-shadow: 0 0 5px #ff9800;">🏆 [WORLD] ${targetPlayer.name || targetPlayer.id} has conquered Floor ${killedFloorNum} and earned the title &lt;${newTitle}&gt;!</span>`);
-                        }
-                    }
-                }
-
-                if (targetSid) {
-                    if (dropAccepted) {
-                        io.to(targetSid).emit('lootDropped', drop); 
-
-                        // 🌟 BROADCAST GODLY & LEGENDARY ITEMS/GEMS TO WORLD
-                        if (drop.rarity === 'Legendary' || drop.rarity === 'Godly') {
-                            io.emit('rareLootBroadcast', {
-                                playerName: targetPlayer.name || targetPlayer.id,
-                                itemName: drop.name,
-                                rarity: drop.rarity,
-                                level: drop.level,
-                                color: drop.color
+                    // 🏰 DUNGEON 1 WIN CONDITION & AUTO-KICK
+                    if (p.mapId === 'dungeon1') {
+                        const activeMobs = Object.values(worlds[p.instanceId].monsters).filter(mob => mob.alive).length;
+                        if (activeMobs === 0) {
+                            if (worlds[p.instanceId] && worlds[p.instanceId].failTimer) {
+                                clearTimeout(worlds[p.instanceId].failTimer);
+                            }
+                            
+                            io.to(p.instanceId).emit('dungeonTimerStop');
+                            io.to(p.instanceId).emit('dungeonVictory');
+                            
+                            const playersInRoom = playersInInstance(p.instanceId);
+                            playersInRoom.forEach(roomPlayer => {
+                                setTimeout(() => {
+                                    roomPlayer.mapId = 'town';
+                                    roomPlayer.x = 960; 
+                                    roomPlayer.y = 1000;
+                                    roomPlayer.instanceId = getInstanceId(roomPlayer.id, 'town');
+                                    
+                                    const rsid = findSocketIdByPlayerId(roomPlayer.id);
+                                    if (rsid) io.to(rsid).emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); 
+                                    
+                                    roomPlayer.dungeonReturnData = null; 
+                                }, 4000);
                             });
                         }
-                    } else if (drop) {
-                        io.to(targetSid).emit('systemMessage', `Filtered loot ignored: ${drop.name} [${drop.rarity}]`);
                     }
-                }
-            }
 
-            supabase.from('Exonians').update({
-                gold: targetPlayer.gold, exp: targetPlayer.exp, level: targetPlayer.level, max_exp: targetPlayer.maxExp,
-                base_stats: targetPlayer.baseStats, current_hp: targetPlayer.currentHp, inventory: targetPlayer.inventory, title: targetPlayer.title
-            }).eq('character_name', targetPlayer.id).then(() => {});
+                    // 1. Process EXP & Gold First
+                    const expAmount = m.expYield || 25;
+                    const goldAmount = m.goldYield || 15;
+                    const pid = playerParty[p.id];
 
-            if (targetSid) {
-                io.to(targetSid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name });
-                io.to(targetSid).emit('syncInventory', targetPlayer.inventory);
-            }
-        };
+                    const processRewards = async (targetPlayer, targetSid) => {
+                        if (!targetPlayer) return;
 
-        if (pid && parties[pid]) {
-            for (const memberId of parties[pid].members) {
-                processRewards(getPlayerById(memberId), findSocketIdByPlayerId(memberId));
-            }
-        } else {
-            processRewards(p, socket.id);
-        }
+                        targetPlayer.exp += expAmount;
+                        targetPlayer.gold += goldAmount;
 
-        // ⚔️ TAVERN WIN CONDITION & LOOT (Strict Map Check)
-        if (p.mapId === 'trainingtavern' && m.id === p.tavernTargetId) {
-            const timeTaken = Date.now() - p.tavernStartTime;
-            
-            // 🛑 1. Instantly stop the timer directly on the killer's client
-            socket.emit('tavernTimerStop');
-            socket.emit('systemMessage', `🏁 Tavern Cleared in ${(timeTaken/1000).toFixed(2)}s!`);
-            
-            // 🏆 2. Database Record Engine (Strict Personal Best Hierarchy)
-            (async () => {
-                try {
-                    // Fetch the single master record for this player
-                    const { data: existingRecord } = await supabase
-                        .from('Tavern_Leaderboard')
-                        .select('*')
-                        .eq('character_name', p.id)
-                        .single();
-
-                    let isNewBest = false;
-                    const weight = { 'floor_boss': 3, 'mini_boss': 2, 'common_mobs': 1 };
-
-                    if (!existingRecord) {
-                        // No record exists at all
-                        isNewBest = true;
-                    } else {
-                        // Weight check 1: Boss Type
-                        let oldW = weight[existingRecord.mob_type] || 0;
-                        let newW = weight[m.category] || 0;
+                        let leveledUp = false;
+                        while (targetPlayer.exp >= targetPlayer.maxExp && targetPlayer.level < 80) {
+                            targetPlayer.exp -= targetPlayer.maxExp;
+                            targetPlayer.level++;
+                            targetPlayer.maxExp += (targetPlayer.level >= 71 ? 10000 : targetPlayer.level >= 61 ? 7500 : targetPlayer.level >= 51 ? 5000 : targetPlayer.level >= 41 ? 1500 : targetPlayer.level >= 31 ? 1000 : targetPlayer.level >= 21 ? 750 : targetPlayer.level >= 11 ? 500 : 100);
+                            targetPlayer.baseStats.hp += 10;
+                            targetPlayer.baseStats.str += 2;
+                            targetPlayer.baseStats.int += 2;
+                            leveledUp = true;
+                        }
                         
-                        if (newW > oldW) {
-                            isNewBest = true; // Beat a harder tier boss
-                        } else if (newW === oldW) {
-                            // Weight check 2: Boss Level
-                            if (m.level > existingRecord.mob_level) {
-                                isNewBest = true; // Beat a higher level of the same boss
-                            } else if (m.level === existingRecord.mob_level) {
-                                // Weight check 3: Timer
-                                if (timeTaken < existingRecord.time_taken) {
-                                    isNewBest = true; // Beat the time on the exact same boss & level
+                        if (leveledUp) {
+                            if (!targetPlayer.isGhost) targetPlayer.currentHp = getServerTotalStat(targetPlayer, 'hp') || 100;
+                            
+                            if (targetSid) {
+                                io.to(targetSid).emit('serverLevelUp', { 
+                                    level: targetPlayer.level, exp: targetPlayer.exp, maxExp: targetPlayer.maxExp, 
+                                    baseStats: targetPlayer.baseStats, currentHp: targetPlayer.currentHp 
+                                }); 
+                            }
+
+                            if (targetPlayer.level >= 50 && !targetPlayer.baseStats.gotWisp) {
+                                targetPlayer.baseStats.gotWisp = true;
+                                const wispItem = { id: Date.now() + Math.random(), name: "Sky Wisp Pet", type: 'aura', auraId: 'wisp', sprite: 'aurastone', level: 50, rarity: 'Godly', color: '#87CEEB', description: "Apply it on leggings. A loyal companion.", quantity: 1 };
+                                
+                                supabase.from('System_Mail').insert([{
+                                    recipient_name: targetPlayer.id,
+                                    message_text: "Congratulations on reaching Level 50! Here is your exclusive Sky Wisp. Apply it on leggings to equip it.",
+                                    attached_item: JSON.stringify(wispItem),
+                                    is_claimed: false
+                                }]).then(() => {
+                                    if (targetSid) io.to(targetSid).emit('systemMessage', `<span style="color:#87CEEB; font-weight:bold;">🎉 LEVEL 50 REWARD: A reward has been sent to your Mailbox (M)!</span>`);
+                                });
+                            }
+                        }
+
+                        if (targetPlayer.mapId !== 'trainingtavern') {
+                            
+                            // 💎 USE DUNGEON LOOT TABLE IF IN A DUNGEON!
+                            let drop = String(targetPlayer.mapId).startsWith('dungeon') ? generateDungeonLoot(m) : generateLoot(m);
+                            let dropAccepted = drop && playerAcceptsLoot(targetPlayer, drop);
+
+                            if (dropAccepted) {
+                                const inv = Array.isArray(targetPlayer.inventory) ? targetPlayer.inventory : new Array(20).fill(null);
+                                let stacked = false;
+
+                                if (['potion', 'material', 'consumable'].includes(drop.type)) {
+                                    let idx = inv.findIndex(i => i && i.name === drop.name);
+                                    if (idx !== -1) {
+                                        inv[idx].quantity = (inv[idx].quantity || 1) + (drop.quantity || 1);
+                                        stacked = true;
+                                    }
+                                }
+
+                                if (!stacked) {
+                                    let emptySlot = inv.findIndex(i => i === null);
+                                    if (emptySlot !== -1) inv[emptySlot] = drop;
+                                }
+                                targetPlayer.inventory = inv;
+                            }
+
+                            if (m.category === "floor_boss" && targetPlayer.mapId) {
+                                const match = targetPlayer.mapId.match(/floor(\d+)/i);
+                                const killedFloorNum = match ? parseInt(match[1]) : null;
+                                if (killedFloorNum) {
+                                    let currentHighestFloor = 0;
+                                    const existingTitle = targetPlayer.title; 
+                                    if (existingTitle && existingTitle.startsWith('FLOOR CONQUEROR')) {
+                                        const parts = existingTitle.split(' ');
+                                        currentHighestFloor = parseInt(parts[2]) || 0;
+                                    }
+                                    if (killedFloorNum > currentHighestFloor) {
+                                        const newTitle = `FLOOR CONQUEROR ${killedFloorNum}`;
+                                        targetPlayer.title = newTitle; 
+                                        if (!targetPlayer.spriteData) targetPlayer.spriteData = {};
+                                        targetPlayer.spriteData.title = newTitle;
+                                        if (targetSid) io.to(targetSid).emit('titleUnlocked', newTitle);
+                                        io.emit('systemMessage', `<span style="color:#ffd700; font-weight:bold; text-shadow: 0 0 5px #ff9800;">🏆 [WORLD] ${targetPlayer.name || targetPlayer.id} has conquered Floor ${killedFloorNum} and earned the title &lt;${newTitle}&gt;!</span>`);
+                                    }
+                                }
+                            }
+
+                            if (targetSid) {
+                                if (dropAccepted) {
+                                    io.to(targetSid).emit('lootDropped', drop); 
+
+                                    // 🌟 BROADCAST GODLY & LEGENDARY ITEMS/GEMS TO WORLD
+                                    if (drop.rarity === 'Legendary' || drop.rarity === 'Godly') {
+                                        io.emit('rareLootBroadcast', {
+                                            playerName: targetPlayer.name || targetPlayer.id,
+                                            itemName: drop.name,
+                                            rarity: drop.rarity,
+                                            level: drop.level,
+                                            color: drop.color
+                                        });
+                                    }
+                                } else if (drop) {
+                                    io.to(targetSid).emit('systemMessage', `Filtered loot ignored: ${drop.name} [${drop.rarity}]`);
                                 }
                             }
                         }
-                    }
 
-                    if (isNewBest) {
-                        const pClass = p.baseStats?.playerClass || 'Novice';
-                        
-                        if (existingRecord) {
-                            // Update the single row they own
-                            await supabase.from('Tavern_Leaderboard')
-                                .update({ 
-                                    mob_type: m.category, mob_level: m.level, time_taken: timeTaken, achieved_at: new Date(),
-                                    player_level: p.level, player_class: pClass
-                                })
-                                .eq('id', existingRecord.id);
-                        } else {
-                            // Create their one and only row
-                            await supabase.from('Tavern_Leaderboard').insert([{ 
-                                character_name: p.id, mob_type: m.category, mob_level: m.level, time_taken: timeTaken,
-                                player_level: p.level, player_class: pClass
-                            }]);
+                        supabase.from('Exonians').update({
+                            gold: targetPlayer.gold, exp: targetPlayer.exp, level: targetPlayer.level, max_exp: targetPlayer.maxExp,
+                            base_stats: targetPlayer.baseStats, current_hp: targetPlayer.currentHp, inventory: targetPlayer.inventory, title: targetPlayer.title
+                        }).eq('character_name', targetPlayer.id).then(() => {});
+
+                        if (targetSid) {
+                            io.to(targetSid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name });
+                            io.to(targetSid).emit('syncInventory', targetPlayer.inventory);
                         }
-                    }
-
-                    socket.emit('tavernVictory', { time: timeTaken, isNewBest: isNewBest });
-                    
-                    // 🌟 Check if they broke into the Top 3 and broadcast it instantly to the server!
-                    if (isNewBest) updateAndBroadcastTopTavern();
-                } catch (e) { console.error("[TAVERN RECORD ERROR]", e.message); }
-            })();
-
-            // 🎁 3. Tavern Accessory Drop
-            if (Math.random() < 0.5) {
-                let rarityRoll = Math.random(); 
-                let r = "Basic";
-                if (m.category === "floor_boss") { r = rarityRoll < 0.05 ? "Godly" : (rarityRoll < 0.25 ? "Legendary" : "Unique"); } 
-                else if (m.category === "mini_boss") { r = rarityRoll < 0.10 ? "Unique" : (rarityRoll < 0.40 ? "Rare" : "Basic"); } 
-                else { r = rarityRoll < 0.20 ? "Rare" : "Basic"; }
-                
-                let accDrop = generateTavernLoot(m.level, r);
-                const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
-                const emp = inv.findIndex(i => i === null);
-                if (emp !== -1) { 
-                    inv[emp] = accDrop; 
-                    p.inventory = inv; 
-                    socket.emit('syncInventory', p.inventory); 
-                    socket.emit('lootDropped', accDrop); 
-                    
-                    // 🌟 NEW: BROADCAST TAVERN GODLY/LEGENDARY LOOT
-                    if (r === 'Legendary' || r === 'Godly') {
-                        io.emit('rareLootBroadcast', {
-                            playerName: p.name || p.id,
-                            itemName: accDrop.name,
-                            rarity: accDrop.rarity,
-                            level: accDrop.level,
-                            color: accDrop.color
-                        });
-                    }
-
-                    supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
-                }
-            }
-
-            // 🥾 4. Auto-kick back to town
-            setTimeout(() => { 
-                const checkP = onlinePlayers[socket.id];
-                if (checkP && checkP.instanceId === p.instanceId) {
-                    checkP.mapId = 'town';
-                    checkP.x = 960; checkP.y = 1000;
-                    checkP.instanceId = getInstanceId(p.id, 'town');
-                    socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); 
-                }
-            }, 5000);
-            
-            // 🛑 CRITICAL: Return here to absolutely prevent normal maze loot, world boss messages, and respawns!
-            return; 
-        }
-
-        // ==========================================
-        // NORMAL OPEN WORLD BOSS SAVES & RESPAWNS
-        // ==========================================
-
-        // 🛡️ HARD-SAVE TO SUPABASE
-        if (m.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern') {
-            const floorId = p.mapId;
-            const deathTime = Date.now();
-
-            // We use await to ensure it hits the DB before the code continues
-            const { error } = await supabase.from('boss_timers').upsert({ 
-                boss_id: floorId, 
-                last_death_time: deathTime 
-            }, { onConflict: 'boss_id' });
-
-            if (error) {
-                console.error("CRITICAL: Boss timer failed to save to Supabase!", error.message);
-            } else {
-                console.log(`SUCCESS: ${floorId} timer is now visible in Supabase dashboard.`);
-            }
-
-            m.respawnDelayMs = -1;
-            io.emit('systemMessage', `🏆 [WORLD] ${floorId.toUpperCase()} Boss Defeated!`);
-            
-            // 🌟 AUTOMATIC CLEANUP & SPAWN SCHEDULE 🌟
-            const fullCooldown = 24 * 60 * 60 * 1000; // 24 Hours in milliseconds
-            
-            setTimeout(async () => {
-                // Automatically delete from Supabase exactly 24h later
-                await supabase.from('boss_timers').delete().eq('boss_id', floorId);
-                
-                // If players are waiting in the room, spawn it instantly!
-                if (worlds[p.instanceId]) {
-                    const cfg = {
-                        spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY },
-                        level: m.level
                     };
-                    const nm = spawnMonster(p.instanceId, m.id, m.originalKey || m.monsterKey, cfg);
-                    worlds[p.instanceId].monsters[m.id] = nm;
-                    io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
-                    io.emit('systemMessage', `⚠️ The ${floorId.toUpperCase()} Boss has respawned!`);
-                }
-            }, fullCooldown);
-        }
 
-        // Normal Respawn Logic (🛡️ THE FIX: Strictly block Dungeons and Tavern from respawning!)
-        if (m.respawnDelayMs !== -1 && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern') {
-            setTimeout(() => {
-                const cfg = {
-                    spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY },
-                    level: m.level
-                };
-                const nm = spawnMonster(p.instanceId, m.id, m.originalKey || m.monsterKey, cfg);
-                world.monsters[m.id] = nm;
-                io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
-            }, m.respawnDelayMs || 10000);
+                    if (pid && parties[pid]) {
+                        for (const memberId of parties[pid].members) {
+                            processRewards(getPlayerById(memberId), findSocketIdByPlayerId(memberId));
+                        }
+                    } else {
+                        processRewards(p, socket.id);
+                    }
+
+                    // ⚔️ TAVERN WIN CONDITION & LOOT (Strict Map Check)
+                    if (p.mapId === 'trainingtavern' && m.id === p.tavernTargetId) {
+                        const timeTaken = Date.now() - p.tavernStartTime;
+                        
+                        // 🛑 1. Instantly stop the timer directly on the killer's client
+                        socket.emit('tavernTimerStop');
+                        socket.emit('systemMessage', `🏁 Tavern Cleared in ${(timeTaken/1000).toFixed(2)}s!`);
+                        
+                        // 🏆 2. Database Record Engine (Strict Personal Best Hierarchy)
+                        (async () => {
+                            try {
+                                // Fetch the single master record for this player
+                                const { data: existingRecord } = await supabase
+                                    .from('Tavern_Leaderboard')
+                                    .select('*')
+                                    .eq('character_name', p.id)
+                                    .single();
+
+                                let isNewBest = false;
+                                const weight = { 'floor_boss': 3, 'mini_boss': 2, 'common_mobs': 1 };
+
+                                if (!existingRecord) {
+                                    // No record exists at all
+                                    isNewBest = true;
+                                } else {
+                                    // Weight check 1: Boss Type
+                                    let oldW = weight[existingRecord.mob_type] || 0;
+                                    let newW = weight[m.category] || 0;
+                                    
+                                    if (newW > oldW) {
+                                        isNewBest = true; // Beat a harder tier boss
+                                    } else if (newW === oldW) {
+                                        // Weight check 2: Boss Level
+                                        if (m.level > existingRecord.mob_level) {
+                                            isNewBest = true; // Beat a higher level of the same boss
+                                        } else if (m.level === existingRecord.mob_level) {
+                                            // Weight check 3: Timer
+                                            if (timeTaken < existingRecord.time_taken) {
+                                                isNewBest = true; // Beat the time on the exact same boss & level
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (isNewBest) {
+                                    const pClass = p.baseStats?.playerClass || 'Novice';
+                                    
+                                    if (existingRecord) {
+                                        // Update the single row they own
+                                        await supabase.from('Tavern_Leaderboard')
+                                            .update({ 
+                                                mob_type: m.category, mob_level: m.level, time_taken: timeTaken, achieved_at: new Date(),
+                                                player_level: p.level, player_class: pClass
+                                            })
+                                            .eq('id', existingRecord.id);
+                                    } else {
+                                        // Create their one and only row
+                                        await supabase.from('Tavern_Leaderboard').insert([{ 
+                                            character_name: p.id, mob_type: m.category, mob_level: m.level, time_taken: timeTaken,
+                                            player_level: p.level, player_class: pClass
+                                        }]);
+                                    }
+                                }
+
+                                socket.emit('tavernVictory', { time: timeTaken, isNewBest: isNewBest });
+                                
+                                // 🌟 Check if they broke into the Top 3 and broadcast it instantly to the server!
+                                if (isNewBest) updateAndBroadcastTopTavern();
+                            } catch (e) { console.error("[TAVERN RECORD ERROR]", e.message); }
+                        })();
+
+                        // 🎁 3. Tavern Accessory Drop
+                        if (Math.random() < 0.5) {
+                            let rarityRoll = Math.random(); 
+                            let r = "Basic";
+                            if (m.category === "floor_boss") { r = rarityRoll < 0.05 ? "Godly" : (rarityRoll < 0.25 ? "Legendary" : "Unique"); } 
+                            else if (m.category === "mini_boss") { r = rarityRoll < 0.10 ? "Unique" : (rarityRoll < 0.40 ? "Rare" : "Basic"); } 
+                            else { r = rarityRoll < 0.20 ? "Rare" : "Basic"; }
+                            
+                            let accDrop = generateTavernLoot(m.level, r);
+                            const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
+                            const emp = inv.findIndex(i => i === null);
+                            if (emp !== -1) { 
+                                inv[emp] = accDrop; 
+                                p.inventory = inv; 
+                                socket.emit('syncInventory', p.inventory); 
+                                socket.emit('lootDropped', accDrop); 
+                                
+                                // 🌟 NEW: BROADCAST TAVERN GODLY/LEGENDARY LOOT
+                                if (r === 'Legendary' || r === 'Godly') {
+                                    io.emit('rareLootBroadcast', {
+                                        playerName: p.name || p.id,
+                                        itemName: accDrop.name,
+                                        rarity: accDrop.rarity,
+                                        level: accDrop.level,
+                                        color: accDrop.color
+                                    });
+                                }
+
+                                supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
+                            }
+                        }
+
+                        // 🥾 4. Auto-kick back to town
+                        setTimeout(() => { 
+                            const checkP = onlinePlayers[socket.id];
+                            if (checkP && checkP.instanceId === p.instanceId) {
+                                checkP.mapId = 'town';
+                                checkP.x = 960; checkP.y = 1000;
+                                checkP.instanceId = getInstanceId(p.id, 'town');
+                                socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); 
+                            }
+                        }, 5000);
+                        
+                        return; 
+                    }
+
+                    // ==========================================
+                    // NORMAL OPEN WORLD BOSS SAVES & RESPAWNS
+                    // ==========================================
+
+                    // 🛡️ HARD-SAVE TO SUPABASE
+                    if (m.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern') {
+                        const floorId = p.mapId;
+                        const deathTime = Date.now();
+
+                        // We use await to ensure it hits the DB before the code continues
+                        supabase.from('boss_timers').upsert({ 
+                            boss_id: floorId, 
+                            last_death_time: deathTime 
+                        }, { onConflict: 'boss_id' }).then(({error}) => {
+                            if (error) console.error("CRITICAL: Boss timer failed", error.message);
+                        });
+
+                        m.respawnDelayMs = -1;
+                        io.emit('systemMessage', `🏆 [WORLD] ${floorId.toUpperCase()} Boss Defeated!`);
+                        
+                        // 🌟 AUTOMATIC CLEANUP & SPAWN SCHEDULE 🌟
+                        const fullCooldown = 24 * 60 * 60 * 1000; // 24 Hours in milliseconds
+                        
+                        setTimeout(async () => {
+                            // Automatically delete from Supabase exactly 24h later
+                            await supabase.from('boss_timers').delete().eq('boss_id', floorId);
+                            
+                            // If players are waiting in the room, spawn it instantly!
+                            if (worlds[p.instanceId]) {
+                                const cfg = {
+                                    spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY },
+                                    level: m.level
+                                };
+                                const nm = spawnMonster(p.instanceId, m.id, m.originalKey || m.monsterKey, cfg);
+                                worlds[p.instanceId].monsters[m.id] = nm;
+                                io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
+                                io.emit('systemMessage', `⚠️ The ${floorId.toUpperCase()} Boss has respawned!`);
+                            }
+                        }, fullCooldown);
+                    }
+
+                    // Normal Respawn Logic (🛡️ THE FIX: Strictly block Dungeons and Tavern from respawning!)
+                    if (m.respawnDelayMs !== -1 && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern') {
+                        setTimeout(() => {
+                            const cfg = {
+                                spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY },
+                                level: m.level
+                            };
+                            const nm = spawnMonster(p.instanceId, m.id, m.originalKey || m.monsterKey, cfg);
+                            world.monsters[m.id] = nm;
+                            io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
+                        }, m.respawnDelayMs || 10000);
+                    }
+                }
+            }, hc * 150); // 150ms delay on the second hit
         }
-    });
+    });
 
    socket.on('inspectRequest', (data) => {
         const targetId = data.targetId;
