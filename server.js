@@ -70,6 +70,7 @@ const ITEM_TEMPLATES = {
     staff: { slot: 'weapon', statKey: 'magic', baseName: 'Staff', spriteName: 'staff' }, 
     pendant: { slot: 'weapon', statKey: 'magic', baseName: 'Pendant', spriteName: 'pendant' }, 
     gun: { slot: 'weapon', statKey: 'attack', baseName: 'Gun', spriteName: 'gun' }, 
+    dagger: { slot: 'weapon', statKey: 'attack', baseName: 'Dagger', spriteName: 'dagger' },
     armor: { slot: 'armor', statKey: 'defense', baseName: 'Armor', spriteName: 'armor' }, 
     leggings: { slot: 'leggings', statKey: 'hp', baseName: 'Leggings', spriteName: 'leggings' } 
 };
@@ -246,7 +247,7 @@ function generateDungeonLoot(m) {
         return generatePowerGem(m.level, rarity);
     } else {
         // 🛡️ THE FIX: Added 'pendant' to the drop pool!
-        const equipKeys = ['sword', 'staff', 'pendant', 'gun', 'armor', 'leggings'];
+        const equipKeys = ['sword', 'staff', 'pendant', 'gun', 'dagger', 'armor', 'leggings'];
         const typeKey = equipKeys[Math.floor(Math.random() * equipKeys.length)];
         const template = ITEM_TEMPLATES[typeKey];
         const rPfx = rarity === "Starter" ? "basic" : rarity.toLowerCase();
@@ -971,20 +972,31 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
     if (now - m.lastAttack > 1500) {
         m.lastAttack = now;
 
+        // 🌫️ SMOKE BOMB MISS CHECK
+        if (m.smokeBombUntil && now < m.smokeBombUntil) {
+            if (Math.random() < 0.25) {
+                io.to(instId).emit('attackEvaded', { targetId: target.id, monsterId: m.id, type: 'miss' });
+                return;
+            }
+        }
+
         if (target.isPet) {
-            io.to(instId).emit('monsterAttack', {
-                monsterId: m.id,
-                targetId: target.id,
-                targetX: target.x,
-                targetY: target.y,
-                atk: m.atk
-            });
+            io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: target.id, targetX: target.x, targetY: target.y, atk: m.atk });
             return;
         }
 
         const victim = getPlayerById(target.id);
         if (!victim || victim.isGhost || victim.isHiddenAdmin || victim.mapId === 'town') return;
         if (victim.untargetableUntil > now) return;
+
+        // 🍃 NINJA ASSASSIN DODGE CHECK
+        if (victim.baseStats?.playerClass === 'Ninja Assassin' && victim.level >= 25) {
+            let dodgeChance = victim.level >= 75 ? 0.35 : 0.25;
+            if (Math.random() < dodgeChance) {
+                io.to(instId).emit('attackEvaded', { targetId: victim.id, monsterId: m.id, type: 'dodge' });
+                return;
+            }
+        }
 
         const damage = Math.max(1, m.atk - getServerDefense(victim));
         victim.currentHp = Math.max(0, victim.currentHp - damage);
@@ -1469,7 +1481,11 @@ socket.on('broadcastSkill', (data) => {
         snp3:  { className: 'Sniper', name: 'Killshot', unlock: 50, cd: 50000, auraColor: 'white' },
 
         exp1:  { className: 'Explosives Expert', name: 'Molotov', unlock: 1, cd: 12000, auraColor: 'orange' },
-        exp3:  { className: 'Explosives Expert', name: 'Go Boom!', unlock: 50, cd: 30000, auraColor: 'orange' }
+        exp3:  { className: 'Explosives Expert', name: 'Go Boom!', unlock: 50, cd: 30000, auraColor: 'orange' },
+        phs1:  { className: 'Phantom Striker', name: 'Shadow Step', unlock: 1, cd: 5000, auraColor: 'liquid' },
+        phs3:  { className: 'Phantom Striker', name: 'Blink Stab', unlock: 50, cd: 30000, auraColor: 'liquid' },
+        nin1:  { className: 'Ninja Assassin', name: 'Smoke Bomb', unlock: 1, cd: 10000, auraColor: 'lightning' },
+        nin3:  { className: 'Ninja Assassin', name: 'Shadow Copy', unlock: 50, cd: 50000, auraColor: 'lightning' }
     };
 
     const rule = SKILL_RULES[skillId];
@@ -1791,9 +1807,10 @@ socket.on('login', async (data) => {
             starterInventory[1] = { id: Date.now() + Math.random(), name: "Starter Staff", type: "weapon", sprite: "starterstaff", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 3 } };
             starterInventory[2] = { id: Date.now() + Math.random(), name: "Starter Pendant", type: "weapon", sprite: "starterpendant", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 2 } };
             starterInventory[3] = { id: Date.now() + Math.random(), name: "Starter Gun", type: "weapon", sprite: "startergun", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { attack: 2 } };
+            starterInventory[4] = { id: Date.now() + Math.random(), name: "Starter Dagger", type: "weapon", sprite: "starterdagger", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { attack: 3, speed: 2 } };
             
-            // 🎁 STARTER GIFT: 10 Health Potions! (Moved to slot 4)
-            starterInventory[4] = { id: Date.now() + Math.random(), name: "Health Potion", type: "potion", sprite: "potion1", level: 1, rarity: "Basic", color: "#8B4513", fixedStat: { hpHeal: 50 }, quantity: 10 };
+            // 🎁 STARTER GIFT: 10 Health Potions! (Moved to slot 5)
+            starterInventory[5] = { id: Date.now() + Math.random(), name: "Health Potion", type: "potion", sprite: "potion1", level: 1, rarity: "Basic", color: "#8B4513", fixedStat: { hpHeal: 50 }, quantity: 10 };
 
             const { data: user, error } = await supabase.from('Exonians')
                 .update({ 
@@ -2189,33 +2206,48 @@ socket.on('saveData', async (playerData) => {
         let serverAtkPwr = isMagicClass ? getServerMagicAttack(p) : getServerAttackPower(p);
         let isPendant = p.equips?.weapon?.sprite?.includes('pendant') || false;
         
-        // Base Swing (90% to 110%)
-        let trueDmg = Math.floor(serverAtkPwr * (0.9 + Math.random() * 0.2));
-        let pClass = p.baseStats?.playerClass;
+       // Base Swing (90% to 110%)
+        let trueDmg = Math.floor(serverAtkPwr * (0.9 + Math.random() * 0.2));
+        let pClass = p.baseStats?.playerClass;
+        let hitCount = 1;
 
-// 🔫 NEW GUN CLASSES DAMAGE LOGIC
+        // 🌀 PHANTOM STRIKER: Craftiness (Lv 75) - CD Reset
+        if (pClass === 'Phantom Striker' && p.level >= 75 && payload.skillId === 'basic') {
+            if (Math.random() < 0.25) {
+                for (let key in p.skillCooldowns) p.skillCooldowns[key] = 0;
+                io.to(p.instanceId).emit('systemMessage', `<span style="color:#00E5FF; font-weight:bold;">🌀 ${p.name}'s Craftiness reset their skill cooldowns!</span>`);
+                const msid = findSocketIdByPlayerId(p.id);
+                if (msid) io.to(msid).emit('cdReset'); 
+            }
+        }
+
+        // ⚔️ PHANTOM STRIKER: Sleight of Hand (Lv 25) - Double Hit
+        if (pClass === 'Phantom Striker' && p.level >= 25 && payload.skillId !== 'pet' && Math.random() < 0.50) {
+            hitCount = 2;
+        }
+
+// 🔫 SKILL DAMAGE LOGIC
         if (payload.skillId === 'snp2') {
              if (pClass !== 'Sniper') return;
-             if (p.skillCooldowns['snp2'] && now < p.skillCooldowns['snp2'] && !isAdmin(p.id)) return; // 🛡️ ANTI-CHEAT: Block Attack
+             if (p.skillCooldowns['snp2'] && now < p.skillCooldowns['snp2'] && !isAdmin(p.id)) return; 
              
              trueDmg = Math.floor(serverAtkPwr * 2);
              p.skillCooldowns['snp2'] = now + getReducedCd(p, 5000); 
              
          } else if (payload.skillId === 'snp3') {
              if (pClass !== 'Sniper') return;
-             if (p.skillCooldowns['snp3'] && now < p.skillCooldowns['snp3'] && !isAdmin(p.id)) return; // 🛡️ ANTI-CHEAT: Block Attack
+             if (p.skillCooldowns['snp3'] && now < p.skillCooldowns['snp3'] && !isAdmin(p.id)) return; 
              
              trueDmg = Math.floor(serverAtkPwr * 4);
              p.skillCooldowns['snp3'] = now + getReducedCd(p, 50000); 
              
          } else if (payload.skillId === 'exp1') {
              if (pClass !== 'Explosives Expert') return;
-             if (p.skillCooldowns['exp1'] && now < p.skillCooldowns['exp1'] && !isAdmin(p.id)) return; // 🛡️ ANTI-CHEAT: Block Attack
+             if (p.skillCooldowns['exp1'] && now < p.skillCooldowns['exp1'] && !isAdmin(p.id)) return; 
              
-             trueDmg = Math.floor(serverAtkPwr); // Initial impact
+             trueDmg = Math.floor(serverAtkPwr); 
              p.skillCooldowns['exp1'] = now + getReducedCd(p, 12000); 
 
-             // 🔥 MOLOTOV DoT ENGINE (Improved Oil Passive Included)
              let durationTicks = p.level >= 25 ? 10 : 3;
              let ticksDone = 0;
              const instId = p.instanceId;
@@ -2230,38 +2262,54 @@ socket.on('saveData', async (playerData) => {
                  
                  let dotDmg = Math.max(1, Math.floor(serverAtkPwr) - (tm.def || 0));
                  tm.currentHp -= dotDmg;
-                 if (tm.currentHp <= 0) tm.currentHp = 1; // Safely burns them to 1 HP so EXP engine doesn't crash!
+                 if (tm.currentHp <= 0) tm.currentHp = 1; 
                  tm.threatTable[p.id] = (tm.threatTable[p.id] || 0) + dotDmg;
-                 
                  io.to(instId).emit('monsterHit', { monsterId: tm.id, attackerId: p.id, damage: dotDmg, newHp: tm.currentHp, maxHp: tm.maxHp });
              }, 1000);
              
          } else if (payload.skillId === 'exp3') {
              if (pClass !== 'Explosives Expert') return;
-             if (p.skillCooldowns['exp3'] && now < p.skillCooldowns['exp3'] && !isAdmin(p.id)) return; // 🛡️ ANTI-CHEAT: Block Attack
+             if (p.skillCooldowns['exp3'] && now < p.skillCooldowns['exp3'] && !isAdmin(p.id)) return; 
              
              trueDmg = Math.floor(serverAtkPwr * 5); 
              p.skillCooldowns['exp3'] = now + getReducedCd(p, 30000); 
+
+         // 🌫️ NINJA: Smoke Bomb
+         } else if (payload.skillId === 'nin1') {
+             if (pClass !== 'Ninja Assassin') return;
+             if (p.skillCooldowns['nin1'] && now < p.skillCooldowns['nin1'] && !isAdmin(p.id)) return; 
+             
+             m.smokeBombUntil = now + 10000;
+             trueDmg = 1; // Pure 1 damage impact
+             p.skillCooldowns['nin1'] = now + getReducedCd(p, 10000); 
+             
+         // 🗡️ PHANTOM: Blink Stab
+         } else if (payload.skillId === 'phs3') {
+             if (pClass !== 'Phantom Striker') return;
+             if (p.skillCooldowns['phs3'] && now < p.skillCooldowns['phs3'] && !isAdmin(p.id)) return; 
+             
+             trueDmg = Math.floor(serverAtkPwr * 2);
+             p.skillCooldowns['phs3'] = now + getReducedCd(p, 30000); 
              
          } else if (payload.skillId === 'fox_bite') {
-             trueDmg = 1; // Pure 1 damage, bypasses defense later
+             trueDmg = 1; 
          } else if (payload.skillId === 'bld3') {
              if (pClass !== 'Blademaster') return; 
-             if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && !isAdmin(p.id)) return; // 🛡️ ANTI-CHEAT: Block Attack
+             if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && !isAdmin(p.id)) return; 
              
              trueDmg = Math.floor(serverAtkPwr * 5);
              p.skillCooldowns['heavyAttack'] = now + getReducedCd(p, 49000); 
              
          } else if (payload.skillId === 'ice1') {
              if (pClass !== 'Ice Master') return; 
-             if (p.skillCooldowns['ice1'] && now < p.skillCooldowns['ice1'] && !isAdmin(p.id)) return; // 🛡️ ANTI-CHEAT: Block Attack
+             if (p.skillCooldowns['ice1'] && now < p.skillCooldowns['ice1'] && !isAdmin(p.id)) return; 
              
              trueDmg = Math.floor(serverAtkPwr * 2);
              p.skillCooldowns['ice1'] = now + getReducedCd(p, 23000);
              
          } else if (payload.skillId === 'ice3') {
              if (pClass !== 'Ice Master') return; 
-             if (p.skillCooldowns['ice3'] && now < p.skillCooldowns['ice3'] && !isAdmin(p.id)) return; // 🛡️ ANTI-CHEAT: Block Attack
+             if (p.skillCooldowns['ice3'] && now < p.skillCooldowns['ice3'] && !isAdmin(p.id)) return; 
              
              trueDmg = Math.floor(serverAtkPwr * 6); 
              p.skillCooldowns['ice3'] = now + getReducedCd(p, 98000); 
@@ -2270,55 +2318,54 @@ socket.on('saveData', async (playerData) => {
             const world = worlds[p.instanceId];
             const pet = world.pets[payload.petId]; 
             
-            // 🛡️ STRICT PET SERVER COOLDOWN: Prevents pet spam hacks!
             if (!pet) return;
-            if (pet.lastAttackTs && now - pet.lastAttackTs < 900) return; // 900ms allows for tiny network lag
+            if (pet.lastAttackTs && now - pet.lastAttackTs < 900) return; 
             pet.lastAttackTs = now;
             
-            // 🛡️ SUMMONER STAT FIX: Use Magic Attack for pet damage
-            const serverMagicAtk = getServerMagicAttack(p);
+            let multiplier = 0.25; 
+            if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0; 
+            if (pet.isClone) multiplier = 1.0; // 🥷 Shadow Clones have 100% ATK!
             
-            let multiplier = 0.25; // Base 25% of Magic Attack
-            if (pet && pet.enhancedUntil && Date.now() < pet.enhancedUntil) {
-                multiplier = 1.0; // Buffed to 100% of Magic Attack
-            }
-            
-            trueDmg = Math.floor(serverMagicAtk * multiplier);
+            let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
+            trueDmg = Math.floor(sourceAtk * multiplier);
+            hitCount = 1; // Pets don't double hit
         }
 
-        const dmg = Math.max(1, trueDmg - (m.def || 0)); 
-        m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
-        
-        // Server controls Freeze logic exclusively
-        let didFreeze = false;
-        if (p.baseStats?.playerClass === 'Ice Master' && p.level >= 25 && (payload.skillId === 'basic' || payload.skillId === 'ice1' || payload.skillId === 'ice3')) {
-            if (Math.random() < 0.25) {
-                m.frozenUntil = Date.now() + 3000;
-                didFreeze = true; // 🛡️ Flag it!
-            }
-        }
+        // 🛡️ APPLY DAMAGE LOOP (Supports Double Hit Passive!)
+        for (let hc = 0; hc < hitCount; hc++) {
+            // Add a tiny delay between double hits so it doesn't merge visually on bad ping
+            setTimeout(() => {
+                if (!m.alive) return;
+                const dmg = Math.max(1, trueDmg - (m.def || 0)); 
+                m.currentHp -= dmg; if (m.currentHp < 0) m.currentHp = 0; 
+                m.threatTable[p.id] = (m.threatTable[p.id] || 0) + dmg;
+                
+                let didFreeze = false;
+                if (p.baseStats?.playerClass === 'Ice Master' && p.level >= 25 && (payload.skillId === 'basic' || payload.skillId === 'ice1' || payload.skillId === 'ice3')) {
+                    if (Math.random() < 0.25) { m.frozenUntil = Date.now() + 3000; didFreeze = true; }
+                }
 
-        io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: isPendant, didFreeze: didFreeze });
-        
-   if (m.currentHp <= 0) {
-        m.alive = false;
-        m.targetId = null;
-        m.threatTable = {};
-        m.forcedTargetId = null;
-        m.forcedUntil = 0;
-        m.frozenUntil = 0;
-// 🌟 NEUTRAL ZONE BOSS DEATH HOOK
-            if (m.isNeutralBoss) {
-                clearTimeout(global.neutralBossDespawnTimer);
-                supabase.from('boss_timers').upsert({ boss_id: 'neutralzone_boss', last_death_time: Date.now() }, { onConflict: 'boss_id' }).then(()=>{
-                    io.emit('systemMessage', `🏆 [WORLD] The Neutral Zone Boss was defeated by ${p.name}! Respawning in 5 hours.`);
-                    checkNeutralBoss(); // Start the 5 hr timer
-                });
-            }
-        io.to(p.instanceId).emit('monsterDied', {
-            monsterId: m.id,
-            killerId: p.id
-        });
+                io.to(p.instanceId).emit('monsterHit', { monsterId: m.id, attackerId: p.id, damage: dmg, newHp: m.currentHp, maxHp: m.maxHp, isPendant: isPendant, didFreeze: didFreeze });
+                
+                if (m.currentHp <= 0) {
+                    m.alive = false;
+                    m.targetId = null;
+                    m.threatTable = {};
+                    m.forcedTargetId = null;
+                    m.forcedUntil = 0;
+                    m.frozenUntil = 0;
+                    
+                    if (m.isNeutralBoss) {
+                        clearTimeout(global.neutralBossDespawnTimer);
+                        supabase.from('boss_timers').upsert({ boss_id: 'neutralzone_boss', last_death_time: Date.now() }, { onConflict: 'boss_id' }).then(()=>{
+                            io.emit('systemMessage', `🏆 [WORLD] The Neutral Zone Boss was defeated by ${p.name}! Respawning in 5 hours.`);
+                            checkNeutralBoss(); 
+                        });
+                    }
+                    io.to(p.instanceId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
+                }
+            }, hc * 150); // 150ms delay on the second hit
+        }
 // 🏰 DUNGEON 1 WIN CONDITION & AUTO-KICK
         if (p.mapId === 'dungeon1') {
             const activeMobs = Object.values(worlds[p.instanceId].monsters).filter(mob => mob.alive).length;
@@ -4699,7 +4746,7 @@ socket.on('startDungeon', async (data) => {
 
         socket.emit('updateLeaderboardUI', sorted);
     });
-    // ==========================================
+  // ==========================================
     // ⚔️ NEUTRAL ZONE PvP ENGINE
     // ==========================================
     socket.on('attackPlayer', (payload) => {
@@ -4726,54 +4773,180 @@ socket.on('startDungeon', async (data) => {
         if (p.baseStats?.playerClass === 'Sniper') maxDist = 402.5; 
         if (dist > maxDist) return;
 
+        // 🌫️ SMOKE BOMB MISS CHECK (Attacker is blinded)
+        if (p.smokeBombUntil && now < p.smokeBombUntil) {
+            if (Math.random() < 0.25) {
+                io.to('neutralzone').emit('attackEvaded', { targetId: target.id, attackerId: p.id, type: 'miss' });
+                return;
+            }
+        }
+
+        // 🍃 NINJA ASSASSIN DODGE CHECK (Target dodges)
+        if (target.baseStats?.playerClass === 'Ninja Assassin' && target.level >= 25) {
+            let dodgeChance = target.level >= 75 ? 0.35 : 0.25;
+            if (Math.random() < dodgeChance) {
+                io.to('neutralzone').emit('attackEvaded', { targetId: target.id, attackerId: p.id, type: 'dodge' });
+                return;
+            }
+        }
+
         // Calculate Damage (Basic hit for PvP)
         let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(p.baseStats?.playerClass);
         let serverAtkPwr = isMagicClass ? getServerMagicAttack(p) : getServerAttackPower(p);
         let trueDmg = Math.floor(serverAtkPwr * (0.9 + Math.random() * 0.2));
-        
-        // 🐾 PET DAMAGE LOGIC IN PVP
-        if (payload.skillId === 'pet') {
+        let pClass = p.baseStats?.playerClass;
+        let hitCount = 1;
+
+        // 🌀 PHANTOM STRIKER: Craftiness (Lv 75) - CD Reset
+        if (pClass === 'Phantom Striker' && p.level >= 75 && payload.skillId === 'basic') {
+            if (Math.random() < 0.25) {
+                for (let key in p.skillCooldowns) p.skillCooldowns[key] = 0;
+                io.to(p.instanceId).emit('systemMessage', `<span style="color:#00E5FF; font-weight:bold;">🌀 ${p.name}'s Craftiness reset their skill cooldowns!</span>`);
+                const msid = findSocketIdByPlayerId(p.id);
+                if (msid) io.to(msid).emit('cdReset'); 
+            }
+        }
+
+        // ⚔️ PHANTOM STRIKER: Sleight of Hand (Lv 25) - Double Hit
+        if (pClass === 'Phantom Striker' && p.level >= 25 && payload.skillId !== 'pet' && Math.random() < 0.50) {
+            hitCount = 2;
+        }
+
+        // 🔫 SKILL DAMAGE LOGIC FOR PVP
+        if (payload.skillId === 'snp2') {
+             if (pClass !== 'Sniper') return;
+             if (p.skillCooldowns['snp2'] && now < p.skillCooldowns['snp2'] && !isAdmin(p.id)) return; 
+             trueDmg = Math.floor(serverAtkPwr * 2);
+             p.skillCooldowns['snp2'] = now + getReducedCd(p, 5000); 
+             
+         } else if (payload.skillId === 'snp3') {
+             if (pClass !== 'Sniper') return;
+             if (p.skillCooldowns['snp3'] && now < p.skillCooldowns['snp3'] && !isAdmin(p.id)) return; 
+             trueDmg = Math.floor(serverAtkPwr * 4);
+             p.skillCooldowns['snp3'] = now + getReducedCd(p, 50000); 
+             
+         } else if (payload.skillId === 'exp1') {
+             if (pClass !== 'Explosives Expert') return;
+             if (p.skillCooldowns['exp1'] && now < p.skillCooldowns['exp1'] && !isAdmin(p.id)) return; 
+             trueDmg = Math.floor(serverAtkPwr); 
+             p.skillCooldowns['exp1'] = now + getReducedCd(p, 12000); 
+
+             let durationTicks = p.level >= 25 ? 10 : 3;
+             let ticksDone = 0;
+             const targetPlayerId = target.id;
+             
+             const fireInt = setInterval(() => {
+                 ticksDone++;
+                 let tp = getPlayerById(targetPlayerId);
+                 if (ticksDone > durationTicks || !tp || tp.isGhost || tp.mapId !== 'neutralzone') {
+                     clearInterval(fireInt); return;
+                 }
+                 
+                 let dotDmg = Math.max(1, Math.floor(serverAtkPwr) - getServerDefense(tp));
+                 tp.currentHp -= dotDmg;
+                 if (tp.currentHp <= 0) tp.currentHp = 1; // Safely burns them to 1 HP
+                 
+                 io.to('neutralzone').emit('playerHit', { targetId: tp.id, attackerId: p.id, damage: dotDmg, newHp: tp.currentHp });
+             }, 1000);
+             
+         } else if (payload.skillId === 'exp3') {
+             if (pClass !== 'Explosives Expert') return;
+             if (p.skillCooldowns['exp3'] && now < p.skillCooldowns['exp3'] && !isAdmin(p.id)) return; 
+             trueDmg = Math.floor(serverAtkPwr * 5); 
+             p.skillCooldowns['exp3'] = now + getReducedCd(p, 30000); 
+
+         // 🌫️ NINJA: Smoke Bomb
+         } else if (payload.skillId === 'nin1') {
+             if (pClass !== 'Ninja Assassin') return;
+             if (p.skillCooldowns['nin1'] && now < p.skillCooldowns['nin1'] && !isAdmin(p.id)) return; 
+             
+             target.smokeBombUntil = now + 10000;
+             trueDmg = 1; // Pure 1 damage impact
+             p.skillCooldowns['nin1'] = now + getReducedCd(p, 10000); 
+             
+         // 🗡️ PHANTOM: Blink Stab
+         } else if (payload.skillId === 'phs3') {
+             if (pClass !== 'Phantom Striker') return;
+             if (p.skillCooldowns['phs3'] && now < p.skillCooldowns['phs3'] && !isAdmin(p.id)) return; 
+             
+             trueDmg = Math.floor(serverAtkPwr * 2);
+             p.skillCooldowns['phs3'] = now + getReducedCd(p, 30000); 
+             
+         } else if (payload.skillId === 'fox_bite') {
+             trueDmg = 1; 
+         } else if (payload.skillId === 'bld3') {
+             if (pClass !== 'Blademaster') return; 
+             if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && !isAdmin(p.id)) return; 
+             
+             trueDmg = Math.floor(serverAtkPwr * 5);
+             p.skillCooldowns['heavyAttack'] = now + getReducedCd(p, 49000); 
+             
+         } else if (payload.skillId === 'ice1') {
+             if (pClass !== 'Ice Master') return; 
+             if (p.skillCooldowns['ice1'] && now < p.skillCooldowns['ice1'] && !isAdmin(p.id)) return; 
+             
+             trueDmg = Math.floor(serverAtkPwr * 2);
+             p.skillCooldowns['ice1'] = now + getReducedCd(p, 23000);
+             
+         } else if (payload.skillId === 'ice3') {
+             if (pClass !== 'Ice Master') return; 
+             if (p.skillCooldowns['ice3'] && now < p.skillCooldowns['ice3'] && !isAdmin(p.id)) return; 
+             
+             trueDmg = Math.floor(serverAtkPwr * 6); 
+             p.skillCooldowns['ice3'] = now + getReducedCd(p, 98000); 
+             
+         } else if (payload.skillId === 'pet') {
             const world = worlds[p.instanceId];
-            const pet = world?.pets ? world.pets[payload.petId] : null;
-            if (!pet) return; // Pet doesn't exist
+            const pet = world.pets[payload.petId]; 
             
-            if (pet.lastAttackTs && now - pet.lastAttackTs < 900) return;
+            if (!pet) return;
+            if (pet.lastAttackTs && now - pet.lastAttackTs < 900) return; 
             pet.lastAttackTs = now;
             
-            let multiplier = 0.25; // Base 25%
-            if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0;
-            trueDmg = Math.floor(getServerMagicAttack(p) * multiplier);
-        } else if (payload.skillId === 'fox_bite') {
-            trueDmg = 1; // Pure 1 damage, bypasses defense later
-        }
-        
-        // Apply Defense (Fox bite always ignores defense)
-        const dmg = payload.skillId === 'fox_bite' ? 1 : Math.max(1, trueDmg - getServerDefense(target));
-        
-        target.currentHp -= dmg;
-        if (target.currentHp <= 0 && target.immortalUntil && now < target.immortalUntil) {
-            target.currentHp = 1;
+            let multiplier = 0.25; 
+            if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0; 
+            if (pet.isClone) multiplier = 1.0; // 🥷 Shadow Clones have 100% ATK!
+            
+            let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
+            trueDmg = Math.floor(sourceAtk * multiplier);
+            hitCount = 1; // Pets don't double hit
         }
 
-        io.to('neutralzone').emit('playerHit', { 
-            targetId: target.id, attackerId: p.id, damage: dmg, newHp: Math.max(0, target.currentHp)
-        });
+        // 🛡️ APPLY DAMAGE LOOP FOR PVP (Supports Double Hit Passive!)
+        for (let hc = 0; hc < hitCount; hc++) {
+            setTimeout(() => {
+                if (target.isGhost || target.mapId !== 'neutralzone') return;
+                
+                // Fox bite always ignores defense
+                const dmg = payload.skillId === 'fox_bite' ? 1 : Math.max(1, trueDmg - getServerDefense(target));
+                
+                target.currentHp -= dmg;
+                if (target.currentHp <= 0 && target.immortalUntil && Date.now() < target.immortalUntil) {
+                    target.currentHp = 1;
+                }
 
-        // Handle PvP Death
-        if (target.currentHp <= 0) {
-            target.currentHp = 0;
-            target.isGhost = true;
-            target.currentPortal = null;
-            io.to('neutralzone').emit('remotePlayerGhosted', target.id);
-            io.emit('systemMessage', `⚔️ [PvP] <span style="color:#f44336;">${p.name} has slain ${target.name} in the Neutral Zone!</span>`);
-            
-            const targetSid = findSocketIdByPlayerId(target.id);
-            if (targetSid) io.to(targetSid).emit('showDeathScreen');
-            
-            supabase.from('Exonians').update({ current_hp: 0 }).eq('character_name', target.id).then(()=>{});
-        } else {
-            const targetSid = findSocketIdByPlayerId(target.id);
-            if (targetSid) io.to(targetSid).emit('playerVitals', { currentHp: target.currentHp, maxHp: target.maxHp, level: target.level });
+                io.to('neutralzone').emit('playerHit', { 
+                    targetId: target.id, attackerId: p.id, damage: dmg, newHp: Math.max(0, target.currentHp)
+                });
+
+                // Handle PvP Death
+                if (target.currentHp <= 0) {
+                    target.currentHp = 0;
+                    target.isGhost = true;
+                    target.currentPortal = null;
+                    
+                    io.to('neutralzone').emit('remotePlayerGhosted', target.id);
+                    io.emit('systemMessage', `⚔️ [PvP] <span style="color:#f44336;">${p.name} has slain ${target.name} in the Neutral Zone!</span>`);
+                    
+                    const targetSid = findSocketIdByPlayerId(target.id);
+                    if (targetSid) io.to(targetSid).emit('showDeathScreen');
+                    
+                    supabase.from('Exonians').update({ current_hp: 0 }).eq('character_name', target.id).then(()=>{});
+                } else {
+                    const targetSid = findSocketIdByPlayerId(target.id);
+                    if (targetSid) io.to(targetSid).emit('playerVitals', { currentHp: target.currentHp, maxHp: target.maxHp, level: target.level });
+                }
+            }, hc * 150);
         }
     });
     // 🎒 INVENTORY DRAG & DROP SWAPPING/MERGING
