@@ -172,37 +172,44 @@ const CLASSES = {
     "Healer": { weapon: "pendant", aura: "green", skills: [
         { id: 'heal1', name: "Heal", unlock: 1, cd: 20000, type: 'active', desc: "Heals all party members in range x2 of your INT." },
         { id: 'heal2', name: "Boost", unlock: 25, type: 'passive', desc: "Makes your heal x3 of your INT." },
-        { id: 'heal3', name: "Purification", unlock: 50, cd: 100000, type: 'active', desc: "Revives dead party members globally and heals everyone." }
+        { id: 'heal3', name: "Purification", unlock: 50, cd: 100000, type: 'active', desc: "Revives dead party members globally and heals everyone." },
+        { id: 'heal4', name: "Healing Touch", unlock: 75, type: 'passive', desc: "Normal attacks heal all party members for 5% of your INT." }
     ]},
     "Summoner": { weapon: "staff", aura: "blue", skills: [
         { id: 'sum1', name: "Summon Slime", unlock: 1, cd: 25000, type: 'active', desc: "Summons a slime with 25% stats to fight alongside you." },
         { id: 'sum2', name: "Duplicate", unlock: 25, type: 'passive', desc: "Summon Slime now spawns 2 slimes." },
-        { id: 'sum3', name: "Enhance!", unlock: 50, cd: 100000, type: 'active', desc: "Your slimes gain 100% of your stats for 10 seconds." }
+        { id: 'sum3', name: "Enhance!", unlock: 50, cd: 100000, type: 'active', desc: "Your slimes gain 100% of your stats for 10 seconds." },
+        { id: 'sum4', name: "Big Boss", unlock: 75, type: 'passive', desc: "Summon Slime also summons a Boss Slime with Earthquake." }
     ]},
     "Ice Master": { weapon: "staff", aura: "blue", skills: [
         { id: 'ice1', name: "Icicle Spear", unlock: 1, cd: 25000, type: 'active', desc: "Drops an icicle dealing 2x Magic Attack." },
         { id: 'ice2', name: "Chill!", unlock: 25, type: 'passive', desc: "Your attacks have a 25% chance to freeze enemies." },
-        { id: 'ice3', name: "Icicle Storm", unlock: 50, cd: 100000, type: 'active', desc: "Drops 3 icicles on the enemy." }
+        { id: 'ice3', name: "Icicle Storm", unlock: 50, cd: 100000, type: 'active', desc: "Drops 3 icicles on the enemy." },
+        { id: 'ice4', name: "Ice Splash", unlock: 75, type: 'passive', desc: "Your skills become AoE and hit all nearby enemies." }
     ]},
    "Berserker": { weapon: "sword", aura: "red", skills: [
         { id: 'ber1', name: "Callout!", unlock: 1, cd: 14000, type: 'active', desc: "Taunts enemies and multiplies Defense by 3x for 10s." },
         { id: 'ber2', name: "Bulk Up!", unlock: 25, type: 'passive', desc: "Increases base Defense and HP by 25%." },
-        { id: 'ber3', name: "Immortal", unlock: 50, cd: 100000, type: 'active', desc: "Your HP cannot drop below 1 for 10 seconds." }
+        { id: 'ber3', name: "Immortal", unlock: 50, cd: 100000, type: 'active', desc: "Your HP cannot drop below 1 for 10 seconds." },
+        { id: 'ber4', name: "I love PAIN", unlock: 75, type: 'passive', desc: "15% chance to heal a third of all incoming damage." }
     ]},
     "Blademaster": { weapon: "sword", aura: "red", skills: [
         { id: 'bld1', name: "Sharpen Up!", unlock: 1, type: 'passive', desc: "Increases base Attack by 25%." },
         { id: 'bld2', name: "Parry", unlock: 25, cd: 13000, type: 'active', desc: "70% chance to parry any attacks for 10 seconds." },
-        { id: 'bld3', name: "Mega Slash", unlock: 50, cd: 50000, type: 'active', desc: "Slashes the enemy for 5x Attack Power." }
+        { id: 'bld3', name: "Mega Slash", unlock: 50, cd: 50000, type: 'active', desc: "Slashes the enemy for 5x Attack Power." },
+        { id: 'bld4', name: "Sharp Edge", unlock: 75, type: 'passive', desc: "25% chance to Bleed enemies for 15% ATK over 3 seconds." }
     ]},
 "Sniper": { weapon: "gun", aura: "white", skills: [
         { id: 'snp1', name: "Eagle Eye", unlock: 1, type: 'passive', desc: "Increases basic attack range by 15%." },
         { id: 'snp2', name: "Silver Bullet", unlock: 25, cd: 5000, type: 'active', desc: "Fires a fast silver bullet dealing 2x Attack Power." },
-        { id: 'snp3', name: "Killshot", unlock: 50, cd: 50000, type: 'active', desc: "Fires a devastating bullet dealing 4x Attack Power." }
+        { id: 'snp3', name: "Killshot", unlock: 50, cd: 50000, type: 'active', desc: "Fires a devastating bullet dealing 4x Attack Power." },
+        { id: 'snp4', name: "Dual Bullet", unlock: 75, type: 'passive', desc: "50% chance to release a double bullet on any attack." }
     ]},
     "Explosives Expert": { weapon: "gun", aura: "orange", skills: [
         { id: 'exp1', name: "Molotov", unlock: 1, cd: 12000, type: 'active', desc: "Throws a firebomb dealing 100% ATK per second on the ground." },
         { id: 'exp2', name: "Improved Oil", unlock: 25, type: 'passive', desc: "Increases Molotov ground fire duration from 3s to 10s." },
-        { id: 'exp3', name: "Go Boom!", unlock: 50, cd: 30000, type: 'active', desc: "Throws a massive bomb dealing 5x Attack Power." }
+        { id: 'exp3', name: "Go Boom!", unlock: 50, cd: 30000, type: 'active', desc: "Throws a massive bomb dealing 5x Attack Power." },
+        { id: 'exp4', name: "Big Explosion", unlock: 75, type: 'passive', desc: "Go Boom! becomes a massive AoE explosion." }
     ]},
 "Phantom Striker": { weapon: "dagger", aura: "white", skills: [
         { id: 'phs1', name: "Shadow Step", unlock: 1, cd: 5000, type: 'active', desc: "Blinks in the direction you are facing." },
@@ -210,12 +217,12 @@ const CLASSES = {
         { id: 'phs3', name: "Blink Stab", unlock: 50, cd: 30000, type: 'active', desc: "Blink to the enemy and stab for 2x Attack." },
         { id: 'phs4', name: "Craftiness", unlock: 75, type: 'passive', desc: "25% chance on normal attack to reset all skill cooldowns." }
     ]},
-    "Ninja Assassin": { weapon: "dagger", aura: "white", skills: [
+    "Ninja Assassin": { weapon: "dagger", aura: "lightning", skills: [
         { id: 'nin1', name: "Smoke Bomb", unlock: 1, cd: 10000, type: 'active', desc: "Throws a smoke bomb. Enemies miss 25% of attacks for 10s." },
         { id: 'nin2', name: "Agility", unlock: 25, type: 'passive', desc: "25% chance to dodge any incoming attack." },
         { id: 'nin3', name: "Shadow Copy", unlock: 50, cd: 50000, type: 'active', desc: "Summons a 100% stat clone for 10 seconds." },
         { id: 'nin4', name: "More Agility", unlock: 75, type: 'passive', desc: "Increases your dodge chance to 35%." }
-    ]},
+    ]}
 };
 
 window.toggleSkillScreen = function() {
@@ -452,6 +459,7 @@ window.executeSkill = function(skillId, className) {
         }, 10000);
         return;
     }
+   // 🟢 SUMMON SLIME
     if (skillId === 'sum1') {
         if (game.player.activePets && game.player.activePets.length > 0) return;
         window.showAura(CLASSES[className].aura); 
@@ -467,6 +475,20 @@ window.executeSkill = function(skillId, className) {
             let pet = { id: petId, dom: pEl, x: game.player.x, y: game.player.y, hp: maxPetHp, maxHp: maxPetHp, skillRef: game.player.activeSkills.find(s=>s.id==='sum1') };
             game.player.activePets.push(pet);
             if(socket) socket.emit('syncPet', { id: petId, x: pet.x, y: pet.y, alive: true });
+        }
+        // 👑 SUMMONER 75 PASSIVE: BIG BOSS
+        if (game.player.level >= 75) {
+            let bossId = Date.now() + 99;
+            let bEl = document.createElement('div'); bEl.className = 'pet-slime';
+            bEl.innerHTML = '<div class="pet-hp-bar" style="top:-15px;"><div class="pet-hp-fill" id="pet-hp"></div></div>';
+            bEl.style.left = game.player.x + 'px'; bEl.style.top = game.player.y + 'px';
+            bEl.style.transform = 'scale(2.5)';
+            bEl.style.filter = 'hue-rotate(90deg) brightness(1.5)';
+            dom.world.appendChild(bEl);
+            let bossHp = 35000;
+            let bossPet = { id: bossId, dom: bEl, x: game.player.x, y: game.player.y, hp: bossHp, maxHp: bossHp, skillRef: game.player.activeSkills.find(s=>s.id==='sum1'), isBigBoss: true };
+            game.player.activePets.push(bossPet);
+            if(socket) socket.emit('syncPet', { id: bossId, x: bossPet.x, y: bossPet.y, alive: true, isBigBoss: true });
         }
         return; 
     }
@@ -805,8 +827,8 @@ function gameLoop(ts) {
                     setTimeout(() => { 
                         if (p.dom) p.dom.style.transform = 'scale(1)'; 
                         if(socket) {
-                            if (targetMob) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'pet', petId: p.id });
-                            else socket.emit('attackPlayer', { targetId: targetPlayer.id, skillId: 'pet', petId: p.id });
+                            if (targetMob) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss });
+                            else socket.emit('attackPlayer', { targetId: targetPlayer.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss });
                         }
                     }, 200); 
                 }
