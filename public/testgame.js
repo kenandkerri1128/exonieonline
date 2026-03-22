@@ -210,7 +210,7 @@ const CLASSES = {
         { id: 'phs3', name: "Blink Stab", unlock: 50, cd: 30000, type: 'active', desc: "Blink to the enemy and stab for 2x Attack." },
         { id: 'phs4', name: "Craftiness", unlock: 75, type: 'passive', desc: "25% chance on normal attack to reset all skill cooldowns." }
     ]},
-    "Ninja Assassin": { weapon: "dagger", aura: "lightning", skills: [
+    "Ninja Assassin": { weapon: "dagger", aura: "white", skills: [
         { id: 'nin1', name: "Smoke Bomb", unlock: 1, cd: 10000, type: 'active', desc: "Throws a smoke bomb. Enemies miss 25% of attacks for 10s." },
         { id: 'nin2', name: "Agility", unlock: 25, type: 'passive', desc: "25% chance to dodge any incoming attack." },
         { id: 'nin3', name: "Shadow Copy", unlock: 50, cd: 50000, type: 'active', desc: "Summons a 100% stat clone for 10 seconds." },
