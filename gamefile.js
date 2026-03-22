@@ -1921,7 +1921,28 @@ window.usePotionHotkey = function() {
 
     window.useItem(potionIndex);
 };
-window.attemptEnhance = function(targetIndex, e) { e.stopPropagation(); let stone = game.player.inventory[activeInvIndex]; let targetItem = game.player.inventory[targetIndex]; if (!stone || !targetItem || stone.type !== 'material' || targetItem.type === 'material' || targetItem.type === 'potion' || targetItem.rarity === "Starter" || (stone.rarity||'') !== (targetItem.rarity||'') || (stone.level||0) !== (targetItem.level||0) || (targetItem.enhanceLevel||0) >= 20) { isEnhancing = false; window.renderInventory(); return; } if(socket) socket.emit('requestEnhance', { stoneIndex: activeInvIndex, targetIndex: targetIndex }); isEnhancing = false; window.renderInventory(); }
+window.attemptEnhance = function(targetIndex, e) { 
+    e.stopPropagation(); 
+    let stone = game.player.inventory[activeInvIndex]; 
+    let targetItem = game.player.inventory[targetIndex]; 
+    
+    if (!stone || !targetItem || stone.type !== 'material' || targetItem.type === 'material' || targetItem.type === 'potion' || targetItem.rarity === "Starter") { 
+        isEnhancing = false; window.renderInventory(); return; 
+    } 
+    
+    // 🛡️ THE FIX: Divine Enhancement Stones ignore the level check!
+    let isDivineMatch = (stone.rarity === 'Divine' && targetItem.rarity === 'Divine' && stone.name === 'Divine Enhancement Stone');
+    let isNormalMatch = (stone.rarity === targetItem.rarity && stone.level === targetItem.level && stone.name !== 'Divine Enhancement Stone');
+    
+    let maxEnhance = window.MAX_ENHANCE_BY_RARITY[targetItem.rarity] || 20;
+
+    if ((!isDivineMatch && !isNormalMatch) || (targetItem.enhanceLevel || 0) >= maxEnhance) { 
+        isEnhancing = false; window.renderInventory(); return; 
+    } 
+    
+    if(socket) socket.emit('requestEnhance', { stoneIndex: activeInvIndex, targetIndex: targetIndex }); 
+    isEnhancing = false; window.renderInventory(); 
+}
 window.updateEquipmentDisplay = function() { 
     try { 
         const buildDisplayStr = (item) => item ? (item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name) : 'None'; 
@@ -4266,7 +4287,122 @@ window.playTutorialVideo = function() {
 // ⚖️ AUCTION HOUSE UI LOGIC
 // ==========================================
 let ahSelectedInvIndex = -1;
+// ==========================================
+// ✨ DIVINE FORGE UI ENGINE
+// ==========================================
+window.openDivineForge = function() {
+    document.getElementById('merchant-modal').style.display = 'none';
+    
+    let modal = document.getElementById('divine-forge-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'divine-forge-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #ffea00; padding:20px; z-index:9000; width:450px; border-radius:8px; box-shadow:0 0 30px #ffea00; color:white; text-align:center;';
+        document.body.appendChild(modal);
+    }
+    
+    window.renderDivineForge();
+    modal.style.display = 'block';
+};
 
+let forgeSelectedIndex = -1;
+window.renderDivineForge = function() {
+    let modal = document.getElementById('divine-forge-modal');
+    
+    let html = '<h2 style="margin-top:0; color:#ffea00; text-shadow: 0 0 10px #ffea00;">✨ Divine Forge</h2>';
+    html += '<p style="font-size:12px; color:#aaa;">Select a Godly equipment to ascend it to Divine.</p>';
+    html += '<div id="forge-grid" style="display:flex; flex-wrap:wrap; gap:5px; justify-content:center; max-height:150px; overflow-y:auto; margin-bottom:15px; padding:5px; border:1px solid #333; background:#111;">';
+    
+    const inv = game.player.inventory || [];
+    let hasGodly = false;
+    
+    for (let i = 0; i < inv.length; i++) {
+        if (inv[i] && inv[i].rarity === 'Godly' && ['weapon', 'armor', 'leggings', 'necklace', 'ring', 'earrings'].includes(inv[i].type)) {
+            hasGodly = true;
+            let isSelected = (forgeSelectedIndex === i);
+            let borderCol = isSelected ? '#ffea00' : inv[i].color;
+            let bgCol = isSelected ? 'rgba(255, 234, 0, 0.2)' : 'transparent';
+            
+            html += `<div class="inv-slot" style="border:2px solid ${borderCol}; background:${bgCol}; cursor:pointer;" onclick="window.selectForgeItem(${i})">
+                        ${inv[i].enhanceLevel ? `${inv[i].name} +${inv[i].enhanceLevel}` : inv[i].name}
+                     </div>`;
+        }
+    }
+    
+    if (!hasGodly) html += '<p style="color:#555; width:100%; margin:10px 0;">No Godly equipment found in inventory.</p>';
+    html += '</div>';
+    
+    html += '<div id="forge-reqs" style="background:#222; padding:10px; border-radius:5px; margin-bottom:15px; min-height:80px; font-size:13px; text-align:left;">';
+    if (forgeSelectedIndex !== -1 && inv[forgeSelectedIndex]) {
+        let item = inv[forgeSelectedIndex];
+        let type = item.type;
+        let reqE = 0, reqR = 0, reqG = 0, reqB = 0, reqGold = 0;
+        
+        if (type === 'weapon') { reqE=3; reqR=1; reqG=1; reqB=1; reqGold=3000000; }
+        else if (type === 'armor' || type === 'leggings') { reqE=1; reqR=1; reqG=1; reqB=1; reqGold=1000000; }
+        else { reqE=5; reqR=2; reqG=2; reqB=2; reqGold=5000000; }
+        
+        let cE=0, cR=0, cG=0, cB=0;
+        inv.forEach(x => {
+            if(x && x.name === 'Divine Essence') cE += x.quantity||1;
+            if(x && x.name === 'Red Exo Metal') cR += x.quantity||1;
+            if(x && x.name === 'Green Exo Metal') cG += x.quantity||1;
+            if(x && x.name === 'Blue Exo Metal') cB += x.quantity||1;
+        });
+        
+        const col = (have, need) => have >= need ? '#4CAF50' : '#f44336';
+        const gCol = (game.player.gold >= reqGold) ? '#4CAF50' : '#f44336';
+        
+        html += `<div style="text-align:center; font-weight:bold; margin-bottom:5px; color:#fff;">Requirements to ascend ${item.name}</div>`;
+        html += `<div><span style="color:${col(cE,reqE)}">${cE}/${reqE} Divine Essence</span></div>`;
+        html += `<div><span style="color:${col(cR,reqR)}">${cR}/${reqR} Red Exo Metal</span></div>`;
+        html += `<div><span style="color:${col(cG,reqG)}">${cG}/${reqG} Green Exo Metal</span></div>`;
+        html += `<div><span style="color:${col(cB,reqB)}">${cB}/${reqB} Blue Exo Metal</span></div>`;
+        html += `<div style="margin-top:5px; font-weight:bold; color:${gCol}">${game.player.gold.toLocaleString()} / ${reqGold.toLocaleString()} Gold</div>`;
+        
+        let canCraft = (cE>=reqE && cR>=reqR && cG>=reqG && cB>=reqB && game.player.gold >= reqGold);
+        html += `</div><button class="btn" style="background:${canCraft ? '#2196F3' : '#555'}; width:100%; margin-bottom:5px;" ${canCraft ? '' : 'disabled'} onclick="window.requestDivineCraft()">Ascend to Divine</button>`;
+    } else {
+        html += '<p style="color:#aaa; text-align:center; margin-top:25px;">Select a Godly item to view requirements.</p></div>';
+    }
+    
+    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('divine-forge-modal').style.display='none'; document.getElementById('merchant-modal').style.display='block'; forgeSelectedIndex = -1;">Back</button>`;
+    
+    modal.innerHTML = html;
+};
+
+window.selectForgeItem = function(index) {
+    forgeSelectedIndex = index;
+    window.renderDivineForge();
+};
+
+window.requestDivineCraft = function() {
+    if (forgeSelectedIndex === -1) return;
+    socket.emit('requestCraftDivine', { baseIndex: forgeSelectedIndex });
+    document.getElementById('divine-forge-modal').innerHTML = '<h2 style="color:#ffea00; margin-top: 50px;">Forging in the Heavens...</h2>';
+};
+
+// Listen for Success to return to the UI
+if (socket) {
+    socket.on('craftSuccess', () => {
+        forgeSelectedIndex = -1;
+        setTimeout(() => { if (document.getElementById('divine-forge-modal').style.display === 'block') window.renderDivineForge(); }, 1500);
+    });
+}
+
+// 🪄 INJECT THE FORGE BUTTON INTO THE MERCHANT MODAL WITHOUT TOUCHING INDEX.HTML
+setTimeout(() => {
+    let merchantModal = document.getElementById('merchant-modal');
+    if (merchantModal) {
+        let forgeBtn = document.createElement('button');
+        forgeBtn.className = 'btn';
+        forgeBtn.style.cssText = 'background: linear-gradient(45deg, #ff9800, #ffea00); color: black; font-weight: bold; width: 100%; margin-top: 10px; border: 2px solid #fff; box-shadow: 0 0 10px #ff9800;';
+        forgeBtn.innerText = '✨ OPEN DIVINE FORGE ✨';
+        forgeBtn.onclick = window.openDivineForge;
+        merchantModal.appendChild(forgeBtn);
+    }
+}, 2000);
 window.openAuctionHouse = function() {
     document.getElementById('merchant-modal').style.display = 'none';
     document.getElementById('ah-modal').style.display = 'block';
