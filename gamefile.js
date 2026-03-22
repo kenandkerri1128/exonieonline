@@ -1457,7 +1457,8 @@ window.MAX_ENHANCE_BY_RARITY = {
     Rare: 12,
     Unique: 14,
     Legendary: 15,
-    Godly: 20
+    Godly: 20,
+    Divine: 25
 };
 
 window.sanitizeEquippedItem = function(item, expectedSlot) {
