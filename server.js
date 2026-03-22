@@ -1000,7 +1000,7 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
 
         // ⚔️ BLADEMASTER PARRY CHECK
         if (target.parryUntil && now < target.parryUntil) {
-            if (Math.random() < 0.70) {
+            if (Math.random() < 0.75) {
                 io.to('neutralzone').emit('attackEvaded', { targetId: target.id, attackerId: p.id, type: 'parry' });
                 return;
             }
@@ -1517,8 +1517,12 @@ socket.on('broadcastSkill', (data) => {
     if (p.skillCooldowns[cdKey] && now < p.skillCooldowns[cdKey]) return;
     p.skillCooldowns[cdKey] = now + getReducedCd(p, rule.cd);
 
-    if (skillId === 'ber3') {
+   if (skillId === 'ber3') {
         p.immortalUntil = now + 10000;
+    }
+
+    if (skillId === 'bld2') {
+        p.parryUntil = now + 10000;
     }
 
     if (skillId === 'sum3') {
@@ -4870,7 +4874,7 @@ socket.on('startDungeon', async (data) => {
 
         // ⚔️ BLADEMASTER PARRY CHECK
         if (victim.parryUntil && now < victim.parryUntil) {
-            if (Math.random() < 0.70) {
+            if (Math.random() < 0.75) {
                 io.to(instId).emit('attackEvaded', { targetId: victim.id, monsterId: m.id, type: 'parry' });
                 return;
             }
