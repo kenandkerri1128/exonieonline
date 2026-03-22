@@ -2768,6 +2768,7 @@ socket.on('saveData', async (playerData) => {
                         }, m.respawnDelayMs || 10000);
                     }
                 }
+                    });
             }, hc * 150); // 150ms delay on the second hit
         }
     });
