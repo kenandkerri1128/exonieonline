@@ -3220,144 +3220,89 @@ socket.on('revivalJuiceUsed', (data) => {
         Object.keys(game.monsters).forEach(id => { if (!currentIds.has(id)) { let staleEl = document.getElementById('mob_' + id); if (staleEl) staleEl.remove(); delete game.monsters[id]; } });
     });
 
-   socket.on('monsterAttack', (data) => {
-        if (!data) return;
-        const targetId = data.targetId;
+socket.on('monsterAttack', (data) => {
+    if (!data) return;
+    const targetId = data.targetId;
 
-        let hitPet = null;
-        if (game.player.activePets) {
-            hitPet = game.player.activePets.find(p => p.id === targetId);
+    let hitPet = null;
+    if (game.player.activePets) {
+        hitPet = game.player.activePets.find(p => p.id === targetId);
+    }
+
+    if (hitPet) {
+        const serverAtk = Number(data.atk || 25);
+        const petDef = Math.floor(window.getDefense() * 0.25);
+        const actualDmg = Math.max(1, serverAtk - petDef);
+        hitPet.hp -= actualDmg;
+        window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, actualDmg, '#ff0000');
+    } else if (targetId === game.player.id) {
+        game.player.currentHp = Math.max(0, data.newHp);
+        if (data.damage > 0) {
+            window.spawnDamageText(game.player.x + 24, game.player.y - 10, data.damage, '#f44336');
+            window.spawnSpark(game.player.x + 24, game.player.y + 48);
         }
-
-        if (hitPet) {
-            const serverAtk = Number(data.atk || 25);
-            const petDef = Math.floor(window.getDefense() * 0.25);
-            const actualDmg = Math.max(1, serverAtk - petDef);
-            hitPet.hp -= actualDmg;
-            window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, actualDmg, '#ff0000');
-        } else if (targetId === game.player.id) {
-            game.player.currentHp = Math.max(0, data.newHp);
-            if (data.damage > 0) {
-                window.spawnDamageText(game.player.x + 24, game.player.y - 10, data.damage, '#f44336');
-                window.spawnSpark(game.player.x + 24, game.player.y + 48);
-            }
-            if (game.player.currentHp <= 0 && Date.now() < game.player.immortalUntil) {
-                game.player.currentHp = 1;
-                window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMORTAL", '#ffeb3b');
-            }
-            window.updateUI();
-        } else if (game.remotePlayers[targetId]) {
-            const rp = game.remotePlayers[targetId];
-            if (data.damage > 0) {
-                window.spawnDamageText(rp.x + 24, rp.y - 10, data.damage, '#f44336');
-                window.spawnSpark(rp.x + 24, rp.y + 48);
-            }
+        if (game.player.currentHp <= 0 && Date.now() < game.player.immortalUntil) {
+            game.player.currentHp = 1;
+            window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMORTAL", '#ffeb3b');
         }
-
-        if (!game.monsters[data.monsterId]) return;
-        const m = game.monsters[data.monsterId];
-        window.triggerBossBGM(m); 
-        const mEl = document.getElementById('mob_' + m.id);
-        if (!mEl) return;
-
-        let tx = game.player.x + 24; let ty = game.player.y + 48;
-        if (targetId !== game.player.id && game.remotePlayers[targetId]) {
-            tx = game.remotePlayers[targetId].x + 24; ty = game.remotePlayers[targetId].y + 48;
+        window.updateUI();
+    } else if (game.remotePlayers[targetId]) {
+        const rp = game.remotePlayers[targetId];
+        if (data.damage > 0) {
+            window.spawnDamageText(rp.x + 24, rp.y - 10, data.damage, '#f44336');
+            window.spawnSpark(rp.x + 24, rp.y + 48);
         }
-        if (hitPet) { tx = hitPet.x + 15; ty = hitPet.y + 15; }
+    }
 
-        const isElemental = m.monsterKey && String(m.monsterKey).includes('3');
-        const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2);
+    if (!game.monsters[data.monsterId]) return;
+    const m = game.monsters[data.monsterId];
+    window.triggerBossBGM(m);
+    const mEl = document.getElementById('mob_' + m.id);
+    if (!mEl) return;
 
-        if (isElemental) window.shootMonsterFireball(mcx, mcy, tx, ty);
+    let tx = game.player.x + 24;
+    let ty = game.player.y + 48;
+    if (targetId !== game.player.id && game.remotePlayers[targetId]) {
+        tx = game.remotePlayers[targetId].x + 24;
+        ty = game.remotePlayers[targetId].y + 48;
+    }
+    if (hitPet) {
+        tx = hitPet.x + 15;
+        ty = hitPet.y + 15;
+    }
 
-        let dx = tx - mcx; let dy = ty - mcy;
-        let dist = Math.hypot(dx, dy) || 1;
-        let moveX = (dx / dist) * 20; let moveY = (dy / dist) * 20;
+    const isElemental = m.monsterKey && String(m.monsterKey).includes('3');
+    const mcx = m.x + (m.width / 2);
+    const mcy = m.y + (m.height / 2);
 
-        const spriteLayer = mEl.querySelector('.monster-sprite-layer');
-        if (spriteLayer) {
-            if (m.monsterKey.includes('golem')) {
-                spriteLayer.classList.add('attacking');
-                setTimeout(() => spriteLayer.classList.remove('attacking'), 200);
-            }
-            spriteLayer.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`;
-            setTimeout(() => { spriteLayer.style.transform = `translate(0px, 0px) scale(1)`; }, 150);
+    if (isElemental) window.shootMonsterFireball(mcx, mcy, tx, ty);
+
+    let dx = tx - mcx;
+    let dy = ty - mcy;
+    let dist = Math.hypot(dx, dy) || 1;
+    let moveX = (dx / dist) * 20;
+    let moveY = (dy / dist) * 20;
+
+    const spriteLayer = mEl.querySelector('.monster-sprite-layer');
+    if (spriteLayer) {
+        if (m.monsterKey.includes('golem')) {
+            spriteLayer.classList.add('attacking');
+            setTimeout(() => spriteLayer.classList.remove('attacking'), 200);
         }
+        spriteLayer.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`;
+        setTimeout(() => {
+            spriteLayer.style.transform = `translate(0px, 0px) scale(1)`;
+        }, 150);
+    }
 
-        let sfxFile = 'bump';
-        if (m.monsterKey.includes('2')) sfxFile = 'lightning';
-        else if (m.monsterKey.includes('3')) sfxFile = 'splash';
+    let sfxFile = 'bump';
+    if (m.monsterKey.includes('2')) sfxFile = 'lightning';
+    else if (m.monsterKey.includes('3')) sfxFile = 'splash';
 
-        let hitSound = new Audio(`music/${sfxFile}.mp3`);
-        hitSound.volume = 0.4; hitSound.play().catch(e => {});
-    });
-
-        // NOW handle the monster visual animations
-        if (!game.monsters[data.monsterId]) return;
-        const m = game.monsters[data.monsterId];
-        window.triggerBossBGM(m); 
-        const mEl = document.getElementById('mob_' + m.id);
-        if (!mEl) return;
-
-        let tx = game.player.x + 24; let ty = game.player.y + 48;
-        if (targetId !== game.player.id && game.remotePlayers[targetId]) {
-            tx = game.remotePlayers[targetId].x + 24; ty = game.remotePlayers[targetId].y + 48;
-        }
-        if (hitPet) { tx = hitPet.x + 15; ty = hitPet.y + 15; }
-
-        const isElemental = m.monsterKey && String(m.monsterKey).includes('3');
-        const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2);
-
-        if (isElemental) window.shootMonsterFireball(mcx, mcy, tx, ty);
-
-        let dx = tx - mcx; let dy = ty - mcy;
-        let dist = Math.hypot(dx, dy) || 1;
-        let moveX = (dx / dist) * 20; let moveY = (dy / dist) * 20;
-
-        const spriteLayer = mEl.querySelector('.monster-sprite-layer');
-        if (spriteLayer) {
-            if (m.monsterKey.includes('golem')) {
-                spriteLayer.classList.add('attacking');
-                setTimeout(() => spriteLayer.classList.remove('attacking'), 200);
-            }
-            spriteLayer.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`;
-            setTimeout(() => { spriteLayer.style.transform = `translate(0px, 0px) scale(1)`; }, 150);
-        }
-
-        let sfxFile = 'bump';
-        if (m.monsterKey.includes('2')) sfxFile = 'lightning';
-        else if (m.monsterKey.includes('3')) sfxFile = 'splash';
-
-        let hitSound = new Audio(`music/${sfxFile}.mp3`);
-        hitSound.volume = 0.4; hitSound.play().catch(e => {});
-    });
-
-        if (hitPet) {
-            const serverAtk = Number(data.atk || m.atk || 25);
-            const petDef = Math.floor(window.getDefense() * 0.25);
-            const actualDmg = Math.max(1, serverAtk - petDef);
-            hitPet.hp -= actualDmg;
-            window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, actualDmg, '#ff0000');
-        } else if (targetId === game.player.id) {
-            game.player.currentHp = Math.max(0, data.newHp);
-            if (data.damage > 0) {
-                window.spawnDamageText(game.player.x + 24, game.player.y - 10, data.damage, '#f44336');
-                window.spawnSpark(game.player.x + 24, game.player.y + 48);
-            }
-            if (game.player.currentHp <= 0 && Date.now() < game.player.immortalUntil) {
-                game.player.currentHp = 1;
-                window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMORTAL", '#ffeb3b');
-            }
-            window.updateUI();
-        } else if (game.remotePlayers[targetId]) {
-            const rp = game.remotePlayers[targetId];
-            if (data.damage > 0) {
-                window.spawnDamageText(rp.x + 24, rp.y - 10, data.damage, '#f44336');
-                window.spawnSpark(rp.x + 24, rp.y + 48);
-            }
-        }
-    }); 
+    let hitSound = new Audio(`music/${sfxFile}.mp3`);
+    hitSound.volume = 0.4;
+    hitSound.play().catch(e => {});
+});
 
     socket.on('monsterSkill', (data) => { 
         if (data.skillName === 'Earthquake') { 
