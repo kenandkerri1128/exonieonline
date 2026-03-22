@@ -3882,8 +3882,11 @@ window.openMazeGuide = function() {
     }
 
     let maxFloor = 0;
-    // Extract highest floor from player's current title
-    let title = game.player.spriteData?.title || game.player.title || "";
+    // 🛡️ THE FIX: Look at both the hidden memory AND the actual text floating above the player's head!
+    let titleRaw = game.player.spriteData?.title || game.player.title || "";
+    let domTitle = document.getElementById('player-title-tag') ? document.getElementById('player-title-tag').innerText : "";
+    let title = (titleRaw + " " + domTitle).toUpperCase(); // Combine them and force uppercase to prevent typo bugs
+
     if (title.includes('FLOOR CONQUEROR')) {
         const match = title.match(/FLOOR CONQUEROR (\d+)/);
         if (match) maxFloor = parseInt(match[1]);
