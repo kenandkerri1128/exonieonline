@@ -59,7 +59,8 @@
         <p style="color:#ff9800; font-size:14px; margin-top:0;">Select an item from your inventory to sell. (Stacked items will be sold 1 at a time).</p>
         <div class="inv-grid" id="ah-sell-grid" style="grid-template-columns: repeat(6, 1fr); max-height:150px; overflow-y:auto; margin-bottom:15px; border:1px solid #444; padding:5px;"></div>
         <div style="background:#222; padding:15px; border-radius:4px; border:1px dashed #555;">
-            <div id="ah-selected-item-name" style="color:#fff; font-weight:bold; margin-bottom:10px;">No item selected</div>
+            <div id="ah-selected-item-name" style="color:#fff; font-weight:bold; margin-bottom:5px;">No item selected</div>
+            <div id="ah-selected-item-tooltip" style="margin-bottom:15px; font-size:13px; line-height:1.4; color:#aaa; min-height:40px;"></div>
             <div style="display:flex; align-items:center; gap:10px;">
                 <label style="color:gold; font-weight:bold;">Price (Gold):</label>
                 <input type="number" id="ah-sell-price" min="1" value="100" style="width:120px; margin:0;">
