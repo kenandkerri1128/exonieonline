@@ -4645,7 +4645,7 @@ socket.on('requestSell', async (data) => {
             for (const memberId of party.members) {
                 const msid = findSocketIdByPlayerId(memberId);
                 if (msid) {
-                    io.to(msid).emit('teleportApproved', { portalId: targetPortalId, targetMapId: targetMapId });
+                    io.to(msid).emit('teleportApproved', { portalId: targetPortalId, targetMapId: targetMapId, exactTarget: true });
                 }
             }
         } else {
@@ -4654,7 +4654,7 @@ socket.on('requestSell', async (data) => {
                 return socket.emit('systemMessage', `❌ You have not conquered Floor ${targetFloor} yet.`);
             }
             // Authorized!
-            socket.emit('teleportApproved', { portalId: targetPortalId, targetMapId: targetMapId });
+            socket.emit('teleportApproved', { portalId: targetPortalId, targetMapId: targetMapId, exactTarget: true });
         }
     });
   // ==========================================
