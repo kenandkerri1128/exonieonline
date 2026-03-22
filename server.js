@@ -998,10 +998,10 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
             }
         }
 
-        // ⚔️ BLADEMASTER PARRY CHECK
-        if (target.parryUntil && now < target.parryUntil) {
-            if (Math.random() < 0.75) {
-                io.to('neutralzone').emit('attackEvaded', { targetId: target.id, attackerId: p.id, type: 'parry' });
+       // ⚔️ BLADEMASTER PARRY CHECK
+        if (victim.parryUntil && now < victim.parryUntil) {
+            if (Math.random() < 0.70) {
+                io.to(instId).emit('attackEvaded', { targetId: victim.id, monsterId: m.id, type: 'parry' });
                 return;
             }
         }
