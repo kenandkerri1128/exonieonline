@@ -2008,13 +2008,18 @@ socket.on('saveData', async (playerData) => {
         }
     }
 
-    p.x = safeX;
+   p.x = safeX;
     p.y = safeY;
     p.mapId = safeMapId;
 
     const trueMaxHp = getServerTotalStat(p, 'hp') || 100;
     p.maxHp = trueMaxHp;
-    p.currentHp = clamp(typeof playerData.currentHp === 'number' ? playerData.currentHp : p.currentHp, 0, trueMaxHp);
+    
+    if (p.isGhost) {
+        p.currentHp = 0;
+    } else {
+        p.currentHp = clamp(typeof playerData.currentHp === 'number' ? playerData.currentHp : p.currentHp, 0, trueMaxHp);
+    }
 
     p.spriteData.weapon = p.equips?.weapon?.sprite || null;
     p.spriteData.aura = p.equips?.armor?.aura || null;
