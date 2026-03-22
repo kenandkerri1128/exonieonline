@@ -232,6 +232,14 @@ function generatePowerGem(level, rarity) {
     };
 }
 function generateDungeonLoot(m) {
+    // 🌟 EXTREME DUNGEON EXO METALS (Lv 75+)
+    if (m.level >= 75) {
+        let metalRoll = Math.random();
+        if (metalRoll < 0.03) return { id: 'mat_' + Math.random(), name: 'Red Exo Metal', type: 'material', rarity: 'Divine', level: 1, color: '#f44336', description: 'A rare red metal used for Divine crafting.', quantity: 1 };
+        else if (metalRoll < 0.13) return { id: 'mat_' + Math.random(), name: 'Green Exo Metal', type: 'material', rarity: 'Divine', level: 1, color: '#4CAF50', description: 'A rare green metal used for Divine crafting.', quantity: 1 };
+        else if (metalRoll < 0.28) return { id: 'mat_' + Math.random(), name: 'Blue Exo Metal', type: 'material', rarity: 'Divine', level: 1, color: '#2196F3', description: 'A rare blue metal used for Divine crafting.', quantity: 1 };
+    }
+
     if (Math.random() < 0.45) return null; // 45% chance of NO DROP
 
     let roll = Math.random();
@@ -3915,8 +3923,18 @@ socket.on('playerDied', () => {
     const maxAllowed = MAX_ENHANCE_BY_RARITY[targetItem.rarity] || 0;
     const currentEnhance = clamp(targetItem.enhanceLevel || 0, 0, 20);
 
-    if (currentEnhance >= maxAllowed) {
+   if (currentEnhance >= maxAllowed) {
         socket.emit('systemMessage', `${targetItem.rarity} items cannot go above +${maxAllowed}.`);
+        socket.emit('syncInventory', p.inventory);
+        return;
+    }
+
+    // 🛡️ THE FIX: Divine Enhancement Stones ignore the level requirement!
+    let isDivineMatch = (stone.rarity === 'Divine' && targetItem.rarity === 'Divine' && stone.name === 'Divine Enhancement Stone');
+    let isNormalMatch = (stone.rarity === targetItem.rarity && stone.level === targetItem.level && stone.name !== 'Divine Enhancement Stone');
+
+    if (!isDivineMatch && !isNormalMatch) {
+        socket.emit('systemMessage', '❌ Invalid enhancement stone for this item.');
         socket.emit('syncInventory', p.inventory);
         return;
     }
@@ -3946,7 +3964,8 @@ socket.on('playerDied', () => {
             Rare: 3,
             Unique: 5,
             Legendary: 8,
-            Godly: 15
+            Godly: 15,
+            Divine: 25
         }[targetItem.rarity] || 1;
 
         if (targetItem.fixedStat) {
@@ -3981,6 +4000,111 @@ socket.on('playerDied', () => {
 
     socket.emit('syncInventory', p.inventory);
 });
+    // ==========================================
+    // ✨ DIVINE FORGE CRAFTING SYSTEM
+    // ==========================================
+    socket.on('requestCraftDivine', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+        
+        const inv = p.inventory;
+        const baseItem = inv[data.baseIndex];
+
+        if (!baseItem || baseItem.rarity !== 'Godly') {
+            return socket.emit('systemMessage', '❌ You need a Godly equipment base to ascend to Divine.');
+        }
+
+        // Determine requirements based on item type
+        let reqEssence = 0, reqRed = 0, reqGreen = 0, reqBlue = 0, reqGold = 0;
+        const isWeapon = baseItem.type === 'weapon';
+        const isArmor = baseItem.type === 'armor' || baseItem.type === 'leggings';
+        const isAcc = ['necklace', 'ring', 'earrings'].includes(baseItem.type);
+
+        if (isWeapon) { reqEssence = 3; reqRed = 1; reqGreen = 1; reqBlue = 1; reqGold = 3000000; }
+        else if (isArmor) { reqEssence = 1; reqRed = 1; reqGreen = 1; reqBlue = 1; reqGold = 1000000; }
+        else if (isAcc) { reqEssence = 5; reqRed = 2; reqGreen = 2; reqBlue = 2; reqGold = 5000000; }
+        else return socket.emit('systemMessage', '❌ Invalid item type for Divine crafting.');
+
+        if (p.gold < reqGold) return socket.emit('systemMessage', `❌ You need ${reqGold.toLocaleString()} Gold to craft this.`);
+
+        // Count materials
+        let countEssence = 0, countRed = 0, countGreen = 0, countBlue = 0;
+        inv.forEach(i => {
+            if (i && i.name === 'Divine Essence') countEssence += i.quantity || 1;
+            if (i && i.name === 'Red Exo Metal') countRed += i.quantity || 1;
+            if (i && i.name === 'Green Exo Metal') countGreen += i.quantity || 1;
+            if (i && i.name === 'Blue Exo Metal') countBlue += i.quantity || 1;
+        });
+
+        if (countEssence < reqEssence || countRed < reqRed || countGreen < reqGreen || countBlue < reqBlue) {
+            return socket.emit('systemMessage', '❌ You do not have the required materials.');
+        }
+
+        // Deduct materials
+        const deduct = (name, amount) => {
+            let amt = amount;
+            for (let i = 0; i < inv.length; i++) {
+                if (amt <= 0) break;
+                if (inv[i] && inv[i].name === name) {
+                    if (inv[i].quantity > amt) {
+                        inv[i].quantity -= amt;
+                        amt = 0;
+                    } else {
+                        amt -= inv[i].quantity;
+                        inv[i] = null;
+                    }
+                }
+            }
+        };
+
+        deduct('Divine Essence', reqEssence);
+        deduct('Red Exo Metal', reqRed);
+        deduct('Green Exo Metal', reqGreen);
+        deduct('Blue Exo Metal', reqBlue);
+        p.gold -= reqGold;
+
+        // ✨ TRANSFORM ITEM TO DIVINE ✨
+        baseItem.rarity = 'Divine';
+        baseItem.color = '#ffea00';
+        baseItem.name = baseItem.name.replace('Godly', 'Divine');
+        if (!baseItem.name.includes('Divine')) baseItem.name = `Divine ${baseItem.name}`;
+        baseItem.enhanceLevel = 0; // Reset enhancement
+        
+        if (baseItem.gemCount) baseItem.gemCount = 0; // Wipe sockets
+        baseItem.randomStat = {}; // Wipe old random stats
+
+        // Double fixed stats
+        for (let k in baseItem.fixedStat) {
+            baseItem.fixedStat[k] *= 2;
+        }
+
+        // Apply new random stats
+        const ALL_STATS = ['attack', 'magic', 'defense', 'speed', 'int', 'str', 'hp'];
+        let numStats = isAcc ? 2 : 4;
+        let availableStats = [...ALL_STATS];
+        for (let i = 0; i < numStats; i++) {
+            let rIdx = Math.floor(Math.random() * availableStats.length);
+            let sKey = availableStats.splice(rIdx, 1)[0];
+            baseItem.randomStat[sKey] = Math.floor(Math.random() * (baseItem.level || 50)) + 15; // Generous base roll
+        }
+
+        p.inventory = sanitizeInventory(inv);
+
+        // Save & Sync
+        await supabase.from('Exonians').update({ inventory: p.inventory, gold: p.gold }).eq('character_name', p.id);
+        socket.emit('syncInventory', p.inventory);
+        socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory }); // Reusing this event to update the gold UI safely
+        socket.emit('systemMessage', `✨ Successfully forged ${baseItem.name}!`);
+        socket.emit('craftSuccess');
+
+        io.emit('rareLootBroadcast', {
+            playerName: p.name || p.id,
+            itemName: baseItem.name,
+            rarity: 'Divine',
+            level: baseItem.level,
+            color: baseItem.color
+        });
+    });
     // 🛡️ SERVER-SIDE ECONOMY: Buying
     socket.on('requestPurchase', async (data) => {
     const p = onlinePlayers[socket.id];
@@ -4277,9 +4401,8 @@ socket.on('adminSpawnItem', async (data) => {
         if (!['necklace', 'ring', 'earrings'].includes(targetAcc.type)) {
             return socket.emit('systemMessage', `❌ Power Gems can only be applied to Accessories (Necklace, Ring, Earrings)!`);
         }
-
         // 🛡️ NEW FIX: Limit Gem sockets based on Accessory Rarity
-        const maxGems = { "Basic": 1, "Rare": 1, "Unique": 2, "Legendary": 3, "Godly": 4 }[targetAcc.rarity] || 1;
+        const maxGems = { "Basic": 1, "Rare": 1, "Unique": 2, "Legendary": 3, "Godly": 4, "Divine": 5 }[targetAcc.rarity] || 1;
         targetAcc.gemCount = targetAcc.gemCount || 0;
 
         if (targetAcc.gemCount >= maxGems) {
