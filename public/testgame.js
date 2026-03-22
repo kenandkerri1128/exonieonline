@@ -191,7 +191,7 @@ const CLASSES = {
     ]},
     "Blademaster": { weapon: "sword", aura: "red", skills: [
         { id: 'bld1', name: "Sharpen Up!", unlock: 1, type: 'passive', desc: "Increases base Attack by 25%." },
-        { id: 'bld2', name: "Blur!", unlock: 25, cd: 15000, type: 'active', desc: "Become an untargetable ghost for 10 seconds." },
+        { id: 'bld2', name: "Parry", unlock: 25, cd: 13000, type: 'active', desc: "70% chance to parry any attacks for 10 seconds." },
         { id: 'bld3', name: "Mega Slash", unlock: 50, cd: 50000, type: 'active', desc: "Slashes the enemy for 5x Attack Power." }
     ]},
 "Sniper": { weapon: "gun", aura: "white", skills: [
@@ -500,9 +500,9 @@ window.executeSkill = function(skillId, className) {
     }
     if (skillId === 'ber3') { game.player.immortalUntil = Date.now() + 10000; window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMORTAL", '#ffeb3b'); }
     if (skillId === 'bld2') {
-        game.player.untargetableUntil = Date.now() + 10000;
-        dom.playerContainer.style.opacity = '0.5'; setTimeout(() => { if (!game.isGhost) dom.playerContainer.style.opacity = '1'; }, 10000);
-        if(socket) socket.emit('setUntargetable', { duration: 10000 });
+        game.player.parryUntil = Date.now() + 10000;
+        window.spawnDamageText(game.player.x + 24, game.player.y - 10, "PARRY STANCE", '#ffeb3b');
+        if(socket) socket.emit('setParryStance');
     }
     
     if (skillId === 'ice1' || skillId === 'ice3' || skillId === 'bld3' || skillId.startsWith('snp') || skillId.startsWith('exp') || skillId === 'phs3' || skillId === 'nin1') {
@@ -3999,8 +3999,8 @@ socket.on('cdReset', () => {
     });
 
     socket.on('attackEvaded', (data) => {
-        let msg = data.type === 'dodge' ? "DODGE!" : "MISS";
-        let color = data.type === 'dodge' ? "#00E5FF" : "#aaaaaa";
+        let msg = data.type === 'dodge' ? "DODGE!" : (data.type === 'parry' ? "PARRY!" : "MISS");
+        let color = data.type === 'dodge' ? "#00E5FF" : (data.type === 'parry' ? "#ffeb3b" : "#aaaaaa");
         
         let target = null;
         if (data.targetId === game.player.id) target = game.player;
