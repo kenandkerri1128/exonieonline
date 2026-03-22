@@ -281,7 +281,7 @@ function generateLoot(monster) {
         let mLevel = monster.level || 1;
         let roll = Math.random();
 
-        // 5% Chance: Class Reset Book
+        // 5% Chance: Class Reset Book (0.00 to 0.05)
         if (roll < 0.05) {
             return { 
                 id: Date.now() + Math.random(), 
@@ -307,9 +307,22 @@ function generateLoot(monster) {
                 quantity: 1
             };
         }
+        // 🌟 NEW: 15% Chance for Divine Enhancement Stone (0.10 to 0.25)
+        else if (roll < 0.25) {
+            return {
+                id: Date.now() + Math.random(),
+                name: "Divine Enhancement Stone",
+                type: "material",
+                rarity: "Divine",
+                level: mLevel,
+                color: "#ffea00",
+                description: "Enhances Divine equipment.",
+                quantity: 1
+            };
+        }
         
-        // 90% Chance Remaining: 45% Legendary (0.10 to 0.55) or 45% Unique (0.55+)
-        let rarity = (roll < 0.55) ? "Legendary" : "Unique"; 
+        // 75% Chance Remaining: 35% Legendary (0.25 to 0.60) or 40% Unique (0.60+)
+        let rarity = (roll < 0.60) ? "Legendary" : "Unique"; 
         
         const keys = Object.keys(ITEM_TEMPLATES);
         const typeKey = keys[Math.floor(Math.random() * keys.length)];
@@ -349,7 +362,7 @@ function generateLoot(monster) {
         mLevel = Math.max(1, baseLevel - 5);
     }
 
-      // ==========================================
+  // ==========================================
     // 2. COMMON MOB SPECIAL DROP: REVIVAL JUICE (1%)
     // ==========================================
     if (monster.category === "common_mobs" && Math.random() < 0.0009) {
@@ -360,6 +373,22 @@ function generateLoot(monster) {
             rarity: "Unique",
             color: RARITY_COLORS["Unique"],
             description: "Revives you instantly on the spot when used while dead.",
+            quantity: 1
+        };
+    }
+
+    // ==========================================
+    // 2.5 FLOOR BOSS SPECIAL DROP: DIVINE ENHANCEMENT STONE (5%)
+    // ==========================================
+    if (monster.category === "floor_boss" && Math.random() < 0.05) {
+        return {
+            id: Date.now() + Math.random(),
+            name: "Divine Enhancement Stone",
+            type: "material",
+            rarity: "Divine",
+            level: mLevel,
+            color: "#ffea00",
+            description: "Enhances Divine equipment.",
             quantity: 1
         };
     }
