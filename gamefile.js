@@ -4305,8 +4305,6 @@ window.openDivineForge = function() {
     window.renderDivineForge();
     modal.style.display = 'block';
 };
-
-let forgeSelectedIndex = -1;
 let forgeSelectedIndex = -1;
 window.renderDivineForge = function() {
     let modal = document.getElementById('divine-forge-modal');
