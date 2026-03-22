@@ -74,14 +74,15 @@ const ITEM_TEMPLATES = {
     armor: { slot: 'armor', statKey: 'defense', baseName: 'Armor', spriteName: 'armor' }, 
     leggings: { slot: 'leggings', statKey: 'hp', baseName: 'Leggings', spriteName: 'leggings' } 
 };
-const VALID_RARITIES = ['Starter', 'Basic', 'Rare', 'Unique', 'Legendary', 'Godly'];
+const VALID_RARITIES = ['Starter', 'Basic', 'Rare', 'Unique', 'Legendary', 'Godly', 'Divine'];
 const MAX_ENHANCE_BY_RARITY = {
     Starter: 0,
     Basic: 20,
     Rare: 20,
     Unique: 20,
     Legendary: 15,
-    Godly: 10
+    Godly: 10,
+    Divine: 25
 };
 
 function clamp(value, min, max) {
