@@ -135,13 +135,25 @@ rankStyle.innerHTML = `
         to { filter: drop-shadow(0 0 10px #CD7F32); text-shadow: 0 0 8px #fff, 0 0 15px #CD7F32, 0 0 35px #8B4513; }
    }
     
-    .weapon-aura-divine {
-        filter: drop-shadow(0 0 10px #ffea00) drop-shadow(0 0 20px #ff9800) brightness(1.5) !important;
-        animation: divinePulse 1s infinite alternate ease-in-out;
+   .weapon-aura-divine {
+        /* 👑 INSANE BLINDING GLOW */
+        filter: drop-shadow(0 0 10px #ffffff) drop-shadow(0 0 20px #ffea00) drop-shadow(0 0 40px #ff9800) brightness(2) contrast(1.2) !important;
+        animation: divinePulseExtreme 0.8s infinite alternate ease-in-out;
     }
-    @keyframes divinePulse {
-        from { filter: drop-shadow(0 0 10px #ffea00) drop-shadow(0 0 20px #ff9800) brightness(1.2); }
-        to { filter: drop-shadow(0 0 20px #ffea00) drop-shadow(0 0 30px #ffffff) brightness(1.8); }
+    @keyframes divinePulseExtreme {
+        0% { filter: drop-shadow(0 0 10px #ffffff) drop-shadow(0 0 20px #ffea00) drop-shadow(0 0 30px #ff9800) brightness(1.5) contrast(1.1); transform: scale(1); }
+        100% { filter: drop-shadow(0 0 15px #ffffff) drop-shadow(0 0 30px #ffea00) drop-shadow(0 0 60px #ff5722) brightness(2.5) contrast(1.3); transform: scale(1.05); }
+    }
+    
+    /* 👑 SPARKLING GOLDEN TEXT FOR INVENTORY & TOOLTIPS */
+    .rarity-divine-text {
+        color: #ffea00 !important;
+        text-shadow: 0 0 5px #fff, 0 0 10px #ffea00, 0 0 20px #ff9800 !important;
+        animation: textSparkle 1.5s infinite alternate;
+    }
+    @keyframes textSparkle {
+        0% { filter: brightness(1); text-shadow: 0 0 5px #fff, 0 0 10px #ffea00; }
+        100% { filter: brightness(1.5); text-shadow: 0 0 8px #fff, 0 0 15px #ffea00, 0 0 25px #ff9800; }
     }
 `;
 document.head.appendChild(rankStyle);
