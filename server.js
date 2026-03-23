@@ -17,6 +17,45 @@ const transporter = nodemailer.createTransport({
 const axios = require('axios');
 
 const app = express();
+// ==========================================
+// 🔔 PAYMONGO WEBHOOK (Item Delivery)
+// ==========================================
+app.post('/paymongo-webhook', express.json(), async (req, res) => {
+    try {
+        const event = req.body.data;
+        if (event && event.attributes.type === 'checkout_session.payment.paid') {
+            const session = event.attributes.data.attributes;
+            const ref = session.reference_number; // e.g. "Kei_pet_fox_171234567"
+            const [playerName, itemId] = ref.split('_');
+
+           const itemTemplates = {
+                'pet_fox': { name: "Spirit Fox Pet", type: 'aura', auraId: 'fox', rarity: 'Godly', color: '#ff7e00', description: "Click to apply to Leggings.", quantity: 1 },
+                'pet_owl': { name: "Night Owl Pet", type: 'aura', auraId: 'owl', rarity: 'Godly', color: '#a0a0a0', description: "Click to apply to Leggings.", quantity: 1 },
+                'aura_blaze': { name: "Blaze Aura Stone", type: 'aura', auraId: 'blaze', rarity: 'Legendary', color: '#f44336', description: "Click to apply to Armor.", quantity: 1 },
+                'aura_liquid': { name: "Liquid Aura Stone", type: 'aura', auraId: 'liquid', rarity: 'Legendary', color: '#2196F3', description: "Click to apply to Armor.", quantity: 1 },
+                'aura_nature': { name: "Nature Aura Stone", type: 'aura', auraId: 'nature', rarity: 'Legendary', color: '#4CAF50', description: "Click to apply to Armor.", quantity: 1 },
+                'divine_pack': { name: "Divine Enhancement Stone", type: 'material', rarity: 'Divine', color: '#ffea00', description: "Enhances Divine equipment.", quantity: 5 },
+                'revival_pack': { name: "Revival Juice Bundle (x10)", type: "consumable", rarity: "Unique", color: "#9c27b0", description: "Revives you instantly.", quantity: 10 }
+            };
+
+            const deliveryItem = itemTemplates[itemId];
+            if (deliveryItem) {
+                await supabase.from('System_Mail').insert([{
+                    recipient_name: playerName,
+                    message_text: `Thank you for your purchase! Here is your ${deliveryItem.name}.`,
+                    attached_item: JSON.stringify(deliveryItem),
+                    is_claimed: false
+                }]);
+                const tsid = findSocketIdByPlayerId(playerName);
+                if (tsid) {
+                    io.to(tsid).emit('getMail'); 
+                    io.to(tsid).emit('systemMessage', "🎉 Your purchase has arrived! Check your Mailbox (M).");
+                }
+            }
+        }
+    } catch (err) { console.error("Webhook Error:", err); }
+    res.status(200).send('Webhook Received');
+});
 const server = http.createServer(app);
 const io = new Server(server);
 
@@ -1174,6 +1213,87 @@ setInterval(() => {
 }, 100);
 
 io.on('connection', (socket) => {
+    // ==========================================
+    // 💳 REAL MONEY CASH SHOP LISTENERS
+    // ==========================================
+    socket.on('requestShopAccess', async () => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+        const { data: user } = await supabase.from('Exonians').select('email, email_verified').eq('character_name', p.id).single();
+        if (!user || !user.email_verified) {
+            socket.emit('shopAuthState', { state: 'needs_register' });
+        } else {
+            p.verifiedEmail = user.email;
+            socket.emit('shopAuthState', { state: 'shop_open', email: user.email });
+        }
+    });
+
+    socket.on('sendVerificationEmail', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.email) return;
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        await supabase.from('Exonians').update({ email: data.email, verification_code: code }).eq('character_name', p.id);
+        const mailOptions = { from: process.env.EMAIL_USER, to: data.email, subject: 'Exonie Verification Code', text: `Your code: ${code}` };
+        transporter.sendMail(mailOptions, (err) => {
+            if (!err) socket.emit('shopAuthState', { state: 'awaiting_code' });
+        });
+    });
+
+    socket.on('verifyRegistrationCode', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.code) return;
+        const { data: user } = await supabase.from('Exonians').select('verification_code, email').eq('character_name', p.id).single();
+        if (user && user.verification_code === data.code) {
+            await supabase.from('Exonians').update({ email_verified: true, verification_code: null }).eq('character_name', p.id);
+            p.verifiedEmail = user.email;
+            socket.emit('shopAuthState', { state: 'shop_open', email: user.email });
+        }
+    });
+
+    socket.on('requestCheckoutCode', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !p.verifiedEmail) return;
+        const MASTER_CATALOG = {
+            'pet_fox': 56000, 'pet_owl': 56000, 'aura_blaze': 56000, 'aura_liquid': 56000, 'aura_nature': 56000, 'divine_pack': 56000, 'revival_pack': 28000
+        };
+        const price = MASTER_CATALOG[data.itemId];
+        if (!price) return;
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        await supabase.from('Exonians').update({ verification_code: code }).eq('character_name', p.id);
+        const mailOptions = { from: process.env.EMAIL_USER, to: p.verifiedEmail, subject: 'Confirm Your Purchase', text: `Verification code for ${data.itemName}: ${code}` };
+        transporter.sendMail(mailOptions, (err) => {
+            if (!err) socket.emit('checkoutState', { state: 'awaiting_code', itemName: data.itemName, price: data.price });
+        });
+    });
+
+    socket.on('verifyCheckoutCode', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.code) return;
+        const { data: user } = await supabase.from('Exonians').select('verification_code').eq('character_name', p.id).single();
+        if (user && user.verification_code === data.code) {
+            await supabase.from('Exonians').update({ verification_code: null }).eq('character_name', p.id);
+            const MASTER_CATALOG = {
+                'pet_fox': { price: 56000, name: 'Spirit Fox Pet' },
+                'pet_owl': { price: 56000, name: 'Night Owl Pet' },
+                'aura_blaze': { price: 56000, name: 'Blaze Aura Stone' },
+                'aura_liquid': { price: 56000, name: 'Liquid Aura Stone' },
+                'aura_nature': { price: 56000, name: 'Nature Aura Stone' },
+                'divine_pack': { price: 56000, name: 'Divine Stone Bundle (x5)' },
+                'revival_pack': { price: 28000, name: 'Revival Juice Bundle (x5)' }
+            };
+            const item = MASTER_CATALOG[data.itemId];
+            try {
+                const response = await axios.post('https://api.paymongo.com/v1/checkout_sessions', {
+                    data: { attributes: {
+                        line_items: [{ currency: 'PHP', amount: item.price, name: item.name, quantity: 1 }],
+                        payment_method_types: ['card', 'gcash', 'maya'],
+                        reference_number: `${p.id}_${data.itemId}_${Date.now()}`
+                    }}
+                }, { headers: { authorization: `Basic ${Buffer.from(process.env.PAYMONGO_SECRET_KEY + ":").toString('base64')}` }});
+                socket.emit('checkoutState', { state: 'approved', url: response.data.data.attributes.checkout_url });
+            } catch (err) { console.error("PayMongo Error:", err); }
+        }
+    });
     let currentUser = null; 
 // ✅ BACKEND FRIENDS & DM LOGIC
     // Note: For now, friendships are stored in-memory. 
@@ -5354,6 +5474,87 @@ socket.on('startDungeon', async (data) => {
             socket.emit('systemMessage', "You must be in a party to link items!");
         }
     });
+    // ==========================================
+    // 💳 REAL MONEY CASH SHOP LISTENERS
+    // ==========================================
+    socket.on('requestShopAccess', async () => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+        const { data: user } = await supabase.from('Exonians').select('email, email_verified').eq('character_name', p.id).single();
+        if (!user || !user.email_verified) {
+            socket.emit('shopAuthState', { state: 'needs_register' });
+        } else {
+            p.verifiedEmail = user.email;
+            socket.emit('shopAuthState', { state: 'shop_open', email: user.email });
+        }
+    });
+
+    socket.on('sendVerificationEmail', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.email) return;
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        await supabase.from('Exonians').update({ email: data.email, verification_code: code }).eq('character_name', p.id);
+        const mailOptions = { from: process.env.EMAIL_USER, to: data.email, subject: 'Exonie - Verification Code', text: `Your code: ${code}` };
+        transporter.sendMail(mailOptions, (err) => {
+            if (!err) { socket.emit('shopAuthState', { state: 'awaiting_code' }); }
+        });
+    });
+
+    socket.on('verifyRegistrationCode', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.code) return;
+        const { data: user } = await supabase.from('Exonians').select('verification_code, email').eq('character_name', p.id).single();
+        if (user && user.verification_code === data.code) {
+            await supabase.from('Exonians').update({ email_verified: true, verification_code: null }).eq('character_name', p.id);
+            p.verifiedEmail = user.email;
+            socket.emit('shopAuthState', { state: 'shop_open', email: user.email });
+        }
+    });
+
+    socket.on('requestCheckoutCode', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !p.verifiedEmail) return;
+        const MASTER_CATALOG = {
+            'pet_fox': 56000, 'pet_owl': 56000, 'aura_blaze': 56000, 'aura_liquid': 56000, 'aura_nature': 56000, 'divine_pack': 56000, 'revival_pack': 28000
+        };
+        const price = MASTER_CATALOG[data.itemId];
+        if (!price) return;
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        await supabase.from('Exonians').update({ verification_code: code }).eq('character_name', p.id);
+        const mailOptions = { from: process.env.EMAIL_USER, to: p.verifiedEmail, subject: 'Confirm Purchase', text: `Checkout code: ${code}` };
+        transporter.sendMail(mailOptions, (err) => {
+            if (!err) socket.emit('checkoutState', { state: 'awaiting_code', itemName: data.itemName, price: data.price });
+        });
+    });
+
+    socket.on('verifyCheckoutCode', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.code) return;
+        const { data: user } = await supabase.from('Exonians').select('verification_code').eq('character_name', p.id).single();
+        if (user && user.verification_code === data.code) {
+            await supabase.from('Exonians').update({ verification_code: null }).eq('character_name', p.id);
+            const MASTER_CATALOG = {
+                'pet_fox': { price: 56000, name: 'Spirit Fox Pet' },
+                'pet_owl': { price: 56000, name: 'Night Owl Pet' },
+                'aura_blaze': { price: 56000, name: 'Blaze Aura Stone' },
+                'aura_liquid': { price: 56000, name: 'Liquid Aura Stone' },
+                'aura_nature': { price: 56000, name: 'Nature Aura Stone' },
+                'divine_pack': { price: 56000, name: 'Divine Stone Bundle (x5)' },
+                'revival_pack': { price: 28000, name: 'Revival Juice Bundle (x5)' }
+            };
+            const item = MASTER_CATALOG[data.itemId];
+            try {
+                const response = await axios.post('https://api.paymongo.com/v1/checkout_sessions', {
+                    data: { attributes: {
+                        line_items: [{ currency: 'PHP', amount: item.price, name: item.name, quantity: 1 }],
+                        payment_method_types: ['card', 'gcash', 'maya'],
+                        reference_number: `${p.id}_${data.itemId}_${Date.now()}`
+                    }}
+                }, { headers: { authorization: `Basic ${Buffer.from(process.env.PAYMONGO_SECRET_KEY + ":").toString('base64')}` }});
+                socket.emit('checkoutState', { state: 'approved', url: response.data.data.attributes.checkout_url });
+            } catch (err) { console.error(err); }
+        }
+    });
    socket.on('disconnect', async () => {
         if (socket.username) { activeLogins.delete(socket.username); }
 
@@ -5389,193 +5590,6 @@ socket.on('startDungeon', async (data) => {
         }
     });
 });
-// ==========================================
-    // 💳 REAL MONEY CASH SHOP & 2FA ENGINE
-    // ==========================================
-    
-    // Helper to generate a 6-digit code
-    const generateCode = () => Math.floor(100000 + Math.random() * 900000).toString();
-
-    socket.on('requestShopAccess', async () => {
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
-
-        // Fetch their latest email status from DB
-        const { data: user } = await supabase.from('Exonians').select('email, email_verified').eq('character_name', p.id).single();
-        
-        if (!user || !user.email_verified) {
-            socket.emit('shopAuthState', { state: 'needs_register' });
-        } else {
-            p.verifiedEmail = user.email; // Cache it in RAM
-            socket.emit('shopAuthState', { state: 'shop_open', email: user.email });
-        }
-    });
-
-    socket.on('sendVerificationEmail', async (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || !data.email) return;
-
-        const code = generateCode();
-        
-        // Save code to DB
-        await supabase.from('Exonians').update({ email: data.email, verification_code: code }).eq('character_name', p.id);
-
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: data.email,
-            subject: 'Exonie - Cash Shop Verification Code',
-            text: `Hello ${p.id},\n\nYour Exonie verification code is: ${code}\n\nDo not share this code with anyone.`
-        };
-
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                console.error("Email Error:", error);
-                socket.emit('systemMessage', "❌ Failed to send email. Please check the address.");
-            } else {
-                socket.emit('shopAuthState', { state: 'awaiting_code' });
-                socket.emit('systemMessage', "📧 Verification code sent to your email!");
-            }
-        });
-    });
-
-    socket.on('verifyRegistrationCode', async (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || !data.code) return;
-
-        const { data: user } = await supabase.from('Exonians').select('verification_code, email').eq('character_name', p.id).single();
-
-        if (user && user.verification_code === data.code) {
-            await supabase.from('Exonians').update({ email_verified: true, verification_code: null }).eq('character_name', p.id);
-            p.verifiedEmail = user.email;
-            socket.emit('shopAuthState', { state: 'shop_open', email: user.email });
-            socket.emit('systemMessage', "✅ Email successfully verified!");
-        } else {
-            socket.emit('systemMessage', "❌ Incorrect verification code.");
-        }
-    });
-
-    // --- CHECKOUT 2FA ---
-    socket.on('requestCheckoutCode', async (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || !p.verifiedEmail) return;
-
-        // 🛡️ SERVER-SIDE MASTER PRICE LIST (Matches game.js)
-        const MASTER_CATALOG = {
-            'pet_fox': { price: 560, name: 'Spirit Fox Pet' },
-            'pet_owl': { price: 560, name: 'Night Owl Pet' },
-            'aura_blaze': { price: 560, name: 'Blaze Aura Stone' },
-            'aura_liquid': { price: 560, name: 'Liquid Aura Stone' },
-            'aura_nature': { price: 560, name: 'Nature Aura Stone' },
-            'divine_pack': { price: 560, name: 'Divine Stone Bundle (x5)' },
-            'revival_pack': { price: 280, name: 'Revival Juice Bundle (x5)' }
-        };
-
-        const item = MASTER_CATALOG[data.itemId];
-        if (!item) return socket.emit('systemMessage', "❌ Item not found in catalog.");
-
-        const code = generateCode();
-        await supabase.from('Exonians').update({ verification_code: code }).eq('character_name', p.id);
-
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: p.verifiedEmail,
-            subject: 'Exonie - Confirm Your Purchase',
-            html: `
-                <div style="font-family: sans-serif; background: #111; color: white; padding: 20px; border: 2px solid #E040FB; border-radius: 10px;">
-                    <h2 style="color: #E040FB;">🛒 Confirm Purchase</h2>
-                    <p>Hello <b>${p.id}</b>,</p>
-                    <p>You are about to purchase: <span style="color: #ffeb3b;">${item.name}</span></p>
-                    <p>Price: <span style="color: #4CAF50;">${data.price} (₱${item.price}.00)</span></p>
-                    <hr style="border: 0; border-top: 1px solid #333;">
-                    <p style="font-size: 18px;">Your verification code is: <b style="font-size: 24px; color: #00E5FF; letter-spacing: 5px;">${code}</b></p>
-                    <p style="color: #aaa; font-size: 12px;">If you did not request this, please ignore this email.</p>
-                </div>
-            `
-        };
-
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (!error) {
-                socket.emit('checkoutState', { state: 'awaiting_code', itemName: item.name, price: data.price });
-                socket.emit('systemMessage', "📧 Checkout code sent to your email!");
-            } else {
-                console.error("Mail Error:", error);
-                socket.emit('systemMessage', "❌ Failed to send checkout email.");
-            }
-        });
-    });
-// ==========================================
-    // ✅ VERIFY CHECKOUT & INITIALIZE PAYMONGO
-    // ==========================================
-    socket.on('verifyCheckoutCode', async (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || !data.code || !data.itemId) return;
-
-        // 🛡️ SERVER-SIDE PRICE PROTECTION
-        const MASTER_CATALOG = {
-            'pet_fox':     { price: 56000, name: 'Spirit Fox Pet' }, // Prices in CENTS (560.00 PHP)
-            'pet_owl':     { price: 56000, name: 'Night Owl Pet' },
-            'aura_blaze':  { price: 56000, name: 'Blaze Aura Stone' },
-            'aura_liquid': { price: 56000, name: 'Liquid Aura Stone' },
-            'aura_nature': { price: 56000, name: 'Nature Aura Stone' },
-            'divine_pack': { price: 56000, name: 'Divine Stone Bundle (x5)' },
-            'revival_pack':{ price: 28000, name: 'Revival Juice Bundle (x5)' }
-        };
-
-        const item = MASTER_CATALOG[data.itemId];
-        if (!item) return socket.emit('systemMessage', "❌ Security Error: Item not in catalog.");
-
-        // 1. Check the database for the verification code
-        const { data: user } = await supabase.from('Exonians').select('verification_code').eq('character_name', p.id).single();
-
-        if (user && user.verification_code === data.code) {
-            // Clear the code so it can't be reused
-            await supabase.from('Exonians').update({ verification_code: null }).eq('character_name', p.id);
-            
-            // 2. 💳 Create PayMongo Checkout Session
-            try {
-                const options = {
-                    method: 'POST',
-                    url: 'https://api.paymongo.com/v1/checkout_sessions',
-                    headers: {
-                        accept: 'application/json',
-                        'Content-Type': 'application/json',
-                        authorization: `Basic ${Buffer.from(process.env.PAYMONGO_SECRET_KEY + ":").toString('base64')}`
-                    },
-                    data: {
-                        data: {
-                            attributes: {
-                                send_email_receipt: true,
-                                show_description: true,
-                                show_line_items: true,
-                                line_items: [{
-                                    currency: 'PHP',
-                                    amount: item.price,
-                                    name: item.name,
-                                    quantity: 1
-                                }],
-                                payment_method_types: ['card', 'gcash', 'maya'],
-                                description: `Exonie Purchase: ${p.id}`,
-                                // The reference number is what the Webhook uses to deliver the item!
-                                reference_number: `${p.id}_${data.itemId}_${Date.now()}`
-                            }
-                        }
-                    }
-                };
-
-                const response = await axios.request(options);
-                const checkoutUrl = response.data.data.attributes.checkout_url;
-                
-                // 3. Send the link to the player
-                socket.emit('checkoutState', { state: 'approved', url: checkoutUrl });
-
-            } catch (err) {
-                console.error("PayMongo API Error:", err.response ? err.response.data : err.message);
-                socket.emit('systemMessage', "❌ PayMongo error. Please try again or contact support.");
-            }
-        } else {
-            socket.emit('systemMessage', "❌ Incorrect verification code.");
-        }
-    });
 // ==========================================
 // 🧹 AUTOMATIC DATABASE CLEANUP ENGINE
 // ==========================================
