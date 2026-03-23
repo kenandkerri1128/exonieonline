@@ -19,6 +19,7 @@ const socket = io();
 let currentShopItem = null; // 🛡️ GLOBAL TRACKER FOR THE SHOP
 window.isProcessingShop = false; // Anti-Spam Lock
 let isMailboxOpen = false, isChatting = false, isInventoryOpen = false, isSkillOpen = false, isShopping = false, localBossTimer = null, isEnhancing = false, isApplyingAura = false;
+window.isStorageOpen = false; // <-- ADD THIS
 let activeInvIndex = -1, attackCooldownActive = false, isAttacking = false, attackHeld = false, autoAttackMode = false;
 let lastNetTs = 0, lastSentState = 'idle', pendingPartyInvite = null, pendingTradeInvite = null, inTradeMode = false, tradeTarget = null;
 let tradeMyItems = [null,null,null], tradeTheirItems = [null,null,null], lastVitalsSent = {hp:null,maxHp:null,level:null}, lastVitalsTs = 0;
@@ -1079,6 +1080,14 @@ function gameLoop(ts) {
                 window.openHomeSaleUI();
                 return; // Stop the teleport
             }
+           // 🧰 HOME STORAGE INTERCEPT: Portal I
+            if (onPortal.portalId === 'I') {
+                game.player.currentPortal = null;
+                game.player.y += 15; // Bounce back safely
+                game.player.teleportCooldown = 2000;
+                window.openStorageUI();
+                return;
+            }
           // ⚔️ TAVERN INTERCEPT: Portal A
             if (onPortal.portalId === 'A') {
                 game.player.currentPortal = null;
@@ -1736,7 +1745,11 @@ window.renderInventory = function() {
         if (item) {
             if (inTradeMode) { slot.style.border = "1px solid #2196F3"; slot.onclick = () => window.addTradeItem(i); } 
             else if (isEnhancing) { slot.style.border = "1px dashed #ffeb3b"; slot.onclick = (e) => window.attemptEnhance(i, e); } 
-            else if (window.isApplyingAura) { 
+            else if (window.isStorageOpen) { 
+                slot.style.border = "1px dashed #E040FB"; 
+                slot.onclick = () => { if(socket) socket.emit('transferToStorage', i); }; 
+            } // 🧰 ADDED THIS BLOCK FOR STORAGE
+            else if (window.isApplyingAura) {
                 slot.style.border = "1px dashed #00ffff"; 
                 slot.onclick = (e) => {
                     if (game.player.inventory[activeInvIndex]?.type === 'gem') window.attemptApplyGem(i, e);
@@ -4851,3 +4864,69 @@ window.buyHome = function() {
     if (socket) socket.emit('requestBuyHome');
     document.getElementById('home-sale-modal').innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Processing Deeds...</h2>';
 };
+// ==========================================
+// 🧰 HOME STORAGE SYSTEM
+// ==========================================
+window.openStorageUI = function() {
+    window.isStorageOpen = true;
+    if (!isInventoryOpen) window.toggleInventory();
+    if (socket) socket.emit('requestOpenStorage');
+};
+
+window.closeStorageUI = function() {
+    window.isStorageOpen = false;
+    let modal = document.getElementById('storage-modal');
+    if (modal) modal.style.display = 'none';
+    window.renderInventory(); // Reset borders
+};
+
+window.renderStorageGrid = function(storage) {
+    let modal = document.getElementById('storage-modal');
+    if (!modal) return;
+
+    let html = '<h2 style="color:#E040FB; margin-top:0;">🧰 Home Storage</h2>';
+    html += '<p style="font-size:12px; color:#aaa;">Click items in your Inventory to store them. Click items here to retrieve them.</p>';
+    html += '<div style="display:flex; flex-wrap:wrap; gap:5px; justify-content:center; margin-bottom:15px; background:#111; padding:10px; border-radius:5px;">';
+    
+    for (let i = 0; i < 10; i++) {
+        let item = storage[i];
+        html += `<div class="inv-slot" style="border: 2px solid ${item ? item.color || '#fff' : '#444'}; cursor: pointer; width: 60px; height: 60px;" onclick="if(socket) socket.emit('transferFromStorage', ${i})">`;
+        if (item) {
+            html += `<span style="font-size:10px;">${item.enhanceLevel ? `+${item.enhanceLevel}` : ''} ${item.name.substring(0,8)}</span>`;
+            if (item.quantity && item.quantity > 1) html += `<span class="inv-qty">x${item.quantity}</span>`;
+            html += `<div class="tooltip">${window.getItemTooltip(item)}</div>`;
+        } else {
+            html += `<span style="color:#555; font-size:10px;">Empty</span>`;
+        }
+        html += `</div>`;
+    }
+    
+    html += '</div>';
+    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="window.closeStorageUI()">Close Storage</button>`;
+    
+    modal.innerHTML = html;
+};
+
+if (socket) {
+    socket.on('openStorageUI', (storage) => {
+        let modal = document.getElementById('storage-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'storage-modal';
+            modal.className = 'movable-window';
+            modal.style.cssText = 'display:none; position:fixed; top:40%; left:30%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #E040FB; padding:15px; z-index:9000; width:340px; border-radius:8px; box-shadow:0 0 20px #E040FB; color:white; text-align:center;';
+            document.body.appendChild(modal);
+        }
+        modal.style.display = 'block';
+        window.renderStorageGrid(storage);
+        
+        if (window.isMobileUI()) {
+            window.enableMobileWindowControls(modal);
+            window.bringWindowToFront(modal);
+        }
+    });
+
+    socket.on('syncStorage', (storage) => {
+        if (window.isStorageOpen) window.renderStorageGrid(storage);
+    });
+}
