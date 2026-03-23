@@ -25,8 +25,12 @@ app.post('/paymongo-webhook', express.json(), async (req, res) => {
         const event = req.body.data;
         if (event && event.attributes.type === 'checkout_session.payment.paid') {
             const session = event.attributes.data.attributes;
-            const ref = session.reference_number; // e.g. "Kei_pet_fox_171234567"
-            const [playerName, itemId] = ref.split('_');
+            const ref = session.reference_number; // e.g. "Kei-pet_fox-171234567"
+            
+            // 🛡️ THE FIX: Split by DASH, not underscore!
+            const parts = ref.split('-');
+            const playerName = parts[0];
+            const itemId = parts[1];
 
            const itemTemplates = {
                 'pet_fox': { name: "Spirit Fox Pet", type: 'aura', auraId: 'fox', rarity: 'Godly', color: '#ff7e00', description: "Click to apply to Leggings.", quantity: 1 },
@@ -316,15 +320,19 @@ function generateDungeonLoot(m) {
             fixedStat: {}, randomStat: {}, enhanceLevel: 0, quantity: 1 
         };
         
-        let statVal = getBaseStat(m.level) + ({ "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0);
+        let statVal = getBaseStat(m.level) + ({ "Unique": 5, "Legendary": 8, "Godly": 12, "Divine": 12 }[rarity] || 0);
         
-        // 🛡️ THE FIX: 50% stat penalty correctly applied to BOTH Gun and Pendant!
+        // 👑 THE FIX: Divine base stats are strictly DOUBLE the Godly base stats!
+        if (rarity === "Divine") statVal = (getBaseStat(m.level) + 12) * 2;
+
         if (typeKey === 'gun' || typeKey === 'pendant') statVal = Math.floor(statVal / 2); 
-        
         item.fixedStat[template.statKey] = statVal;
 
         let availableStats = [...STAT_TYPES]; 
-        for (let i = 0; i < (rarity === "Godly" ? 3 : (rarity === "Legendary" ? 2 : 1)); i++) {
+        // 👑 THE FIX: Divine gets exactly 4 random stats!
+        let numStats = rarity === "Divine" ? 4 : (rarity === "Godly" ? 3 : (rarity === "Legendary" ? 2 : 1));
+        
+        for (let i = 0; i < numStats; i++) {
             let rIdx = Math.floor(Math.random() * availableStats.length);
             let sKey = availableStats.splice(rIdx, 1)[0]; 
             item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(m.level)) + 1;
@@ -393,18 +401,24 @@ function generateLoot(monster) {
             level: mLevel, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 
         };
         
-        let statVal = getBaseStat(mLevel) + ({ "Unique": 5, "Legendary": 8 }[rarity] || 0);
-        if (typeKey === 'pendant' || typeKey === 'gun') statVal = Math.floor(statVal / 2); 
-        item.fixedStat[template.statKey] = statVal;
-        
-        item.randomStat = {};
-        let numStats = rarity === "Legendary" ? 2 : 1;
-        let availableStats = [...STAT_TYPES]; 
-        for (let i = 0; i < numStats; i++) {
-            let rIdx = Math.floor(Math.random() * availableStats.length);
-            let sKey = availableStats.splice(rIdx, 1)[0]; 
-            item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(mLevel)) + 1;
-        }
+   let statVal = getBaseStat(mLevel) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12, "Divine": 12 }[rarity] || 0);
+    
+    // 👑 THE FIX: Divine base stats are strictly DOUBLE the Godly base stats!
+    if (rarity === "Divine") statVal = (getBaseStat(mLevel) + 12) * 2;
+    
+    if (typeKey === 'pendant' || typeKey === 'gun') statVal = Math.floor(statVal / 2); 
+    item.fixedStat[template.statKey] = statVal;
+    
+    item.randomStat = {};
+    // 👑 THE FIX: Divine gets exactly 4 random stats!
+    let numStats = rarity === "Divine" ? 4 : (rarity === "Godly" ? 3 : (rarity === "Legendary" ? 2 : 1));
+
+    let availableStats = [...STAT_TYPES]; 
+    for (let i = 0; i < numStats; i++) {
+        let rIdx = Math.floor(Math.random() * availableStats.length);
+        let sKey = availableStats.splice(rIdx, 1)[0]; 
+        item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(mLevel)) + 1;
+    }
         return item;
     }
     
@@ -4319,13 +4333,18 @@ socket.on('adminSpawnItem', async (data) => {
             const rPfx = rarity === "Starter" ? "basic" : rarity.toLowerCase();
             item = { id: Date.now() + Math.random(), name: `${rarity} Admin ${tmpl.baseName}`, type: tmpl.slot, sprite: rPfx + tmpl.spriteName, level: level, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: enhanceLevel, quantity: 1 };
             
-            let statVal = getBaseStat(level) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0);
+          let statVal = getBaseStat(level) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12, "Divine": 12 }[rarity] || 0);
+            
+            // 👑 THE FIX: Divine base stats are strictly DOUBLE the Godly base stats!
+            if (rarity === "Divine") statVal = (getBaseStat(level) + 12) * 2;
+            
             if (type === 'pendant') statVal = Math.floor(statVal / 2);
             item.fixedStat[tmpl.statKey] = statVal;
             item.randomStat = {};
             
             if (rarity !== "Starter") {
-                let numStats = rarity === "Godly" ? 3 : (rarity === "Legendary" ? 2 : 1);
+                // 👑 THE FIX: Divine gets exactly 4 random stats!
+                let numStats = rarity === "Divine" ? 4 : (rarity === "Godly" ? 3 : (rarity === "Legendary" ? 2 : 1));
                 let availableStats = [...STAT_TYPES];
                 for (let i = 0; i < numStats; i++) {
                     let rIdx = Math.floor(Math.random() * availableStats.length);
@@ -5576,7 +5595,8 @@ socket.on('startDungeon', async (data) => {
                             show_line_items: true,
                             line_items: [{ currency: 'PHP', amount: item.price, name: item.name, quantity: 1 }],
                             payment_method_types: ['card', 'gcash', 'maya'],
-                            reference_number: `${p.id}_${data.itemId}_${Date.now()}`
+                            // 🛡️ THE FIX: Use dashes so pet_fox doesn't break the webhook!
+                            reference_number: `${p.id}-${data.itemId}-${Date.now()}`
                         }
                     }
                 }, {
