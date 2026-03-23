@@ -839,18 +839,6 @@ function checkAndResetInstance(instId) {
         delete worlds[instId];
     }
 }
-    // 🛡️ THE FIX: Never delete Town or Neutral Zone from memory!
-    if (!worlds[instId] || instId === 'town' || instId === 'neutralzone') return;
-
-    // Check if there are any REAL players left (ignoring invisible admins)
-    const activePlayers = playersInInstance(instId).filter(p => !p.isHiddenAdmin);
-
-    if (activePlayers.length === 0) {
-        // This forces the server to read your floor1.js spawns fresh the next time a player enters.
-        delete worlds[instId];
-    }
-}
-
 function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
     const cols = worlds[instId]?.collisions || [];
     for (let box of cols) { if (mx < box.x + box.w && mx + mWidth > box.x && my < box.y + box.h && my + mHeight > box.y) return true; }
