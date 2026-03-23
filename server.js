@@ -14,6 +14,7 @@ const transporter = nodemailer.createTransport({
         pass: process.env.EMAIL_PASS
     }
 });
+const axios = require('axios');
 
 const app = express();
 const server = http.createServer(app);
@@ -5458,39 +5459,121 @@ socket.on('startDungeon', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || !p.verifiedEmail) return;
 
+        // 🛡️ SERVER-SIDE MASTER PRICE LIST (Matches game.js)
+        const MASTER_CATALOG = {
+            'pet_fox': { price: 560, name: 'Spirit Fox Pet' },
+            'pet_owl': { price: 560, name: 'Night Owl Pet' },
+            'aura_blaze': { price: 560, name: 'Blaze Aura Stone' },
+            'aura_liquid': { price: 560, name: 'Liquid Aura Stone' },
+            'aura_nature': { price: 560, name: 'Nature Aura Stone' },
+            'divine_pack': { price: 560, name: 'Divine Stone Bundle (x5)' },
+            'revival_pack': { price: 280, name: 'Revival Juice Bundle (x5)' }
+        };
+
+        const item = MASTER_CATALOG[data.itemId];
+        if (!item) return socket.emit('systemMessage', "❌ Item not found in catalog.");
+
         const code = generateCode();
         await supabase.from('Exonians').update({ verification_code: code }).eq('character_name', p.id);
 
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: p.verifiedEmail,
-            subject: 'Exonie - Checkout Verification',
-            text: `Hello ${p.id},\n\nYou are attempting to purchase ${data.itemName}. Your checkout verification code is: ${code}\n\nIf you did not request this, please secure your account.`
+            subject: 'Exonie - Confirm Your Purchase',
+            html: `
+                <div style="font-family: sans-serif; background: #111; color: white; padding: 20px; border: 2px solid #E040FB; border-radius: 10px;">
+                    <h2 style="color: #E040FB;">🛒 Confirm Purchase</h2>
+                    <p>Hello <b>${p.id}</b>,</p>
+                    <p>You are about to purchase: <span style="color: #ffeb3b;">${item.name}</span></p>
+                    <p>Price: <span style="color: #4CAF50;">${data.price} (₱${item.price}.00)</span></p>
+                    <hr style="border: 0; border-top: 1px solid #333;">
+                    <p style="font-size: 18px;">Your verification code is: <b style="font-size: 24px; color: #00E5FF; letter-spacing: 5px;">${code}</b></p>
+                    <p style="color: #aaa; font-size: 12px;">If you did not request this, please ignore this email.</p>
+                </div>
+            `
         };
 
         transporter.sendMail(mailOptions, (error, info) => {
             if (!error) {
-                socket.emit('checkoutState', { state: 'awaiting_code', itemName: data.itemName, price: data.price });
+                socket.emit('checkoutState', { state: 'awaiting_code', itemName: item.name, price: data.price });
                 socket.emit('systemMessage', "📧 Checkout code sent to your email!");
+            } else {
+                console.error("Mail Error:", error);
+                socket.emit('systemMessage', "❌ Failed to send checkout email.");
             }
         });
     });
-
+// ==========================================
+    // ✅ VERIFY CHECKOUT & INITIALIZE PAYMONGO
+    // ==========================================
     socket.on('verifyCheckoutCode', async (data) => {
         const p = onlinePlayers[socket.id];
-        if (!p || !data.code) return;
+        if (!p || !data.code || !data.itemId) return;
 
+        // 🛡️ SERVER-SIDE PRICE PROTECTION
+        const MASTER_CATALOG = {
+            'pet_fox':     { price: 56000, name: 'Spirit Fox Pet' }, // Prices in CENTS (560.00 PHP)
+            'pet_owl':     { price: 56000, name: 'Night Owl Pet' },
+            'aura_blaze':  { price: 56000, name: 'Blaze Aura Stone' },
+            'aura_liquid': { price: 56000, name: 'Liquid Aura Stone' },
+            'aura_nature': { price: 56000, name: 'Nature Aura Stone' },
+            'divine_pack': { price: 56000, name: 'Divine Stone Bundle (x5)' },
+            'revival_pack':{ price: 28000, name: 'Revival Juice Bundle (x5)' }
+        };
+
+        const item = MASTER_CATALOG[data.itemId];
+        if (!item) return socket.emit('systemMessage', "❌ Security Error: Item not in catalog.");
+
+        // 1. Check the database for the verification code
         const { data: user } = await supabase.from('Exonians').select('verification_code').eq('character_name', p.id).single();
 
         if (user && user.verification_code === data.code) {
+            // Clear the code so it can't be reused
             await supabase.from('Exonians').update({ verification_code: null }).eq('character_name', p.id);
             
-            // Generate standard PayMongo Link URL here (you can replace this with an actual API call to PayMongo later)
-            const paymentUrl = `https://links.paymongo.com/your-custom-link`; 
-            
-            socket.emit('checkoutState', { state: 'approved', url: paymentUrl });
+            // 2. 💳 Create PayMongo Checkout Session
+            try {
+                const options = {
+                    method: 'POST',
+                    url: 'https://api.paymongo.com/v1/checkout_sessions',
+                    headers: {
+                        accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        authorization: `Basic ${Buffer.from(process.env.PAYMONGO_SECRET_KEY + ":").toString('base64')}`
+                    },
+                    data: {
+                        data: {
+                            attributes: {
+                                send_email_receipt: true,
+                                show_description: true,
+                                show_line_items: true,
+                                line_items: [{
+                                    currency: 'PHP',
+                                    amount: item.price,
+                                    name: item.name,
+                                    quantity: 1
+                                }],
+                                payment_method_types: ['card', 'gcash', 'maya'],
+                                description: `Exonie Purchase: ${p.id}`,
+                                // The reference number is what the Webhook uses to deliver the item!
+                                reference_number: `${p.id}_${data.itemId}_${Date.now()}`
+                            }
+                        }
+                    }
+                };
+
+                const response = await axios.request(options);
+                const checkoutUrl = response.data.data.attributes.checkout_url;
+                
+                // 3. Send the link to the player
+                socket.emit('checkoutState', { state: 'approved', url: checkoutUrl });
+
+            } catch (err) {
+                console.error("PayMongo API Error:", err.response ? err.response.data : err.message);
+                socket.emit('systemMessage', "❌ PayMongo error. Please try again or contact support.");
+            }
         } else {
-            socket.emit('systemMessage', "❌ Incorrect checkout code.");
+            socket.emit('systemMessage', "❌ Incorrect verification code.");
         }
     });
 // ==========================================
