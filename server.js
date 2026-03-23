@@ -5468,7 +5468,7 @@ socket.on('startDungeon', async (data) => {
             socket.emit('systemMessage', '⏳ Sending email... please wait.');
 
             const mailOptions = { 
-                from: process.env.EMAIL_USER, 
+                from: 'a5c708001@smtp-brevo.com',
                 to: data.email, 
                 subject: 'Exonie - Verification Code', 
                 text: `Hello ${p.id},\n\nYour verification code is: ${code}\n\nDo not share this code with anyone.` 
