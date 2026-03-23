@@ -4400,18 +4400,41 @@ window.verifyCheckout = function() {
     socket.emit('verifyCheckoutCode', { code });
 };
 
-// 📱 INJECT MOBILE BUTTON
-setTimeout(() => {
-    let uiContainer = document.getElementById('top-right-ui');
-    if (uiContainer) {
-        let shopBtn = document.createElement('button');
-        shopBtn.className = 'ui-btn';
-        shopBtn.style.cssText = 'background: #E040FB; color: white; font-weight: bold; border: 2px solid #fff; box-shadow: 0 0 10px #E040FB; margin-left:10px; cursor:pointer; border-radius:50%; width:40px; height:40px; font-size:18px; display:inline-flex; justify-content:center; align-items:center;';
-        shopBtn.innerText = '💎';
-        shopBtn.onclick = window.openRealMoneyShop;
-        uiContainer.appendChild(shopBtn);
-    }
-}, 2000);
+// ==========================================
+// 💎 CASH SHOP MOBILE BUTTON INJECTION
+// ==========================================
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        // Look for the existing UI container where the Ranking button is
+        let uiContainer = document.getElementById('top-right-ui') || document.querySelector('.top-right-ui');
+        
+        // If the container exists, inject the button
+        if (uiContainer) {
+            let shopBtn = document.createElement('button');
+            shopBtn.id = 'mobile-shop-btn';
+            
+            // Styling it to match the Exonie aesthetic
+            shopBtn.style.cssText = 'background: #111; color: white; font-weight: bold; border: 2px solid #E040FB; box-shadow: 0 0 10px #E040FB; margin-left: 10px; cursor: pointer; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; display: inline-flex; justify-content: center; align-items: center; pointer-events: auto; z-index: 1000;';
+            shopBtn.innerHTML = '💎';
+            shopBtn.title = "Open Cash Shop";
+            
+            // Handle both mouse clicks and mobile taps securely
+            const openShop = (e) => {
+                e.preventDefault();
+                if (typeof window.openRealMoneyShop === 'function') {
+                    window.openRealMoneyShop();
+                } else {
+                    console.error("Shop function not loaded yet.");
+                }
+            };
+
+            shopBtn.onclick = openShop;
+            shopBtn.ontouchstart = openShop;
+
+            uiContainer.appendChild(shopBtn);
+        }
+    }, 2000); // 2-second delay ensures the rest of the UI has loaded first
+});
 // ==========================================
 // ⚖️ AUCTION HOUSE UI LOGIC
 // ==========================================
