@@ -1071,6 +1071,14 @@ function gameLoop(ts) {
                 window.openMazeGuide();
                 return;
             }
+           // 🏡 HOME FOR SALE INTERCEPT: Portal G
+            if (onPortal.portalId === 'G' && (!game.player.baseStats || !game.player.baseStats.hasHome)) {
+                game.player.currentPortal = null;
+                game.player.y += 15; // Bounce them back so they don't get stuck in the portal
+                game.player.teleportCooldown = 2000;
+                window.openHomeSaleUI();
+                return; // Stop the teleport
+            }
           // ⚔️ TAVERN INTERCEPT: Portal A
             if (onPortal.portalId === 'A') {
                 game.player.currentPortal = null;
@@ -2777,6 +2785,21 @@ socket.on('mailList', (mails) => {
         setTimeout(() => { if(socket) socket.emit('getMail'); }, 500);
     });
     socket.on('purchaseSuccess', (data) => { game.player.gold = data.newGold; game.player.inventory = data.inventory; window.updateUI(); window.renderInventory(); dom.log.innerText = "Purchase successful!"; });
+    socket.on('homeBought', (newGold) => {
+        game.player.gold = newGold;
+        if (!game.player.baseStats) game.player.baseStats = {};
+        game.player.baseStats.hasHome = true;
+        
+        let modal = document.getElementById('home-sale-modal');
+        if (modal) modal.style.display = 'none';
+        
+        if (dom.log) dom.log.innerText = "🎉 Congratulations! You are now a homeowner!";
+        window.updateUI();
+        window.spawnDamageText(game.player.x + 24, game.player.y - 20, "HOME PURCHASED!", "#4CAF50");
+        
+        // Save locally to ensure immediate sync
+        DatabaseManager.savePlayerData(game.player);
+    });
     socket.on('sellSuccess', (data) => { game.player.gold = data.newGold; game.player.inventory = data.inventory; dom.log.innerText = `Item sold for ${data.price} Gold.`; window.updateUI(); window.renderInventory(); });
     socket.on('syncInventory', (serverInventory) => { game.player.inventory = serverInventory; window.updateEquipmentDisplay(); window.renderInventory(); });
    socket.on('inventoryItemUsed', (data) => {
@@ -4847,3 +4870,42 @@ setTimeout(() => {
         });
     }
 }, 2000);
+// ==========================================
+// 🏡 PLAYER HOUSING SYSTEM
+// ==========================================
+window.openHomeSaleUI = function() {
+    let modal = document.getElementById('home-sale-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'home-sale-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #4CAF50; padding:20px; z-index:9000; width:350px; border-radius:8px; box-shadow:0 0 30px #4CAF50; color:white; text-align:center; font-family:sans-serif;';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = `
+        <h2 style="color:#4CAF50; margin-top:0; text-shadow: 0 0 10px #4CAF50;">🏡 Home For Sale!</h2>
+        <p style="color:#ccc; font-size:14px;">Purchase your own private sanctuary. Relax, store your trophies, and invite your party over!</p>
+        <div style="margin: 20px 0; padding: 15px; background: #111; border: 1px dashed #FFD700; border-radius: 8px;">
+            <span style="color:#FFD700; font-size:26px; font-weight:bold; letter-spacing:1px;">1,000,000 G</span>
+        </div>
+        <button class="btn" style="background:#4CAF50; width:100%; margin-bottom:10px; font-size:16px; font-weight:bold; padding:12px;" onclick="window.buyHome()">Purchase Deed</button>
+        <button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('home-sale-modal').style.display='none'">Maybe Later</button>
+    `;
+    modal.style.display = 'block';
+    
+    if (window.isMobileUI()) {
+        window.enableMobileWindowControls(modal);
+        window.bringWindowToFront(modal);
+        window.clampWindowToViewport(modal);
+    }
+};
+
+window.buyHome = function() {
+    if (game.player.gold < 1000000) {
+        if (dom.log) dom.log.innerText = "❌ Not enough gold to buy a home!";
+        return;
+    }
+    if (socket) socket.emit('requestBuyHome');
+    document.getElementById('home-sale-modal').innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Processing Deeds...</h2>';
+};
