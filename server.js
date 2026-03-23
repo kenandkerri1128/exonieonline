@@ -5592,20 +5592,23 @@ socket.on('startDungeon', async (data) => {
                 const response = await axios.post('https://api.paymongo.com/v1/checkout_sessions', {
                     data: {
                         attributes: {
+                            success_url: 'https://exonieonline.onrender.com', 
+                            cancel_url: 'https://exonieonline.onrender.com',
                             send_email_receipt: true,
                             show_description: true,
                             show_line_items: true,
                             line_items: [{ currency: 'PHP', amount: item.price, name: item.name, quantity: 1 }],
-                            payment_method_types: ['card', 'gcash', 'maya'],
+                            // 🛡️ THE FIX: PayMongo API strictly uses 'paymaya', not 'maya'
+                            payment_method_types: ['card', 'gcash', 'paymaya'], 
                             // 🛡️ THE FIX: Use dashes so pet_fox doesn't break the webhook!
                             reference_number: `${p.id}-${data.itemId}-${Date.now()}`
                         }
                     }
                 }, {
                     headers: { 
-                        accept: 'application/json',
                         'Content-Type': 'application/json',
-                        authorization: `Basic ${Buffer.from(process.env.PAYMONGO_SECRET_KEY + ":").toString('base64')}` 
+                        'Accept': 'application/json',
+                        'Authorization': `Basic ${Buffer.from(process.env.PAYMONGO_SECRET_KEY + ":").toString('base64')}` 
                     }
                 });
                 
@@ -5613,9 +5616,11 @@ socket.on('startDungeon', async (data) => {
             } else {
                 socket.emit('systemMessage', "❌ Incorrect checkout code.");
             }
-        } catch (e) {
-            console.error("Checkout Crash:", e.response ? e.response.data : e.message);
-            socket.emit('systemMessage', "❌ Failed to generate payment link.");
+        } catch (err) {
+            // 🐛 THE ULTIMATE DEBUGGER: This will print EXACTLY what PayMongo hates to your game chat!
+            const detail = err.response && err.response.data && err.response.data.errors ? err.response.data.errors[0].detail : err.message;
+            console.error("PayMongo Error Details:", detail);
+            socket.emit('systemMessage', `❌ Payment API Error: ${detail}`);
         }
     });
    socket.on('disconnect', async () => {
