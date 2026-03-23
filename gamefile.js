@@ -1635,8 +1635,9 @@ window.addLoot = function(item) {
 }
 
 window.getItemTooltip = function(item) { 
-    if(!item) return ""; 
-    let html = `<strong class="${item.rarity === "Godly" ? "rarity-godly" : ""}" style="color:${item.color}; font-size: 13px;">${item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name}</strong><br><span style="color:#888;">Lv. ${item.level || 1} ${item.rarity || 'Normal'}</span><br><br>`; 
+    if(!item) return ""; 
+    let nameClass = item.rarity === "Godly" ? "rarity-godly" : (item.rarity === "Divine" ? "rarity-divine-text" : "");
+    let html = `<strong class="${nameClass}" style="color:${item.color}; font-size: 13px;">${item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name}</strong><br><span style="color:#888;">Lv. ${item.level || 1} ${item.rarity || 'Normal'}</span><br><br>`; 
     if(item.type === 'material') return html + `<span style="color:#aaa;"><em>${item.description}</em></span>`; 
 if(item.type === 'gem') return html + `<span style="color:#00ffff;"><em>${item.description}</em></span><br>`;
     if(item.type === 'potion') return html + `Heals ${item.fixedStat.hpHeal} HP`; 
@@ -1742,8 +1743,11 @@ window.renderInventory = function() {
                         window.openItemAction(i, e);
                     }
                 }; 
-            }
-            slot.appendChild(document.createTextNode(item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name));
+           }
+            let nameSpan = document.createElement('span');
+            nameSpan.innerText = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name;
+            if (item.rarity === 'Divine') nameSpan.className = 'rarity-divine-text';
+            slot.appendChild(nameSpan);
             let tip = document.createElement('div'); tip.className = 'tooltip'; tip.innerHTML = window.getItemTooltip(item); slot.appendChild(tip);
             if (item.quantity && item.quantity > 1) { let q = document.createElement('span'); q.className = 'inv-qty'; q.innerText = 'x' + item.quantity; slot.appendChild(q); }
         }
