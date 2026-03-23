@@ -5549,89 +5549,29 @@ socket.on('startDungeon', async (data) => {
         }
     });
 
-   socket.on('requestCheckoutCode', async (data) => {
+  socket.on('requestCheckoutCode', async (data) => {
         const p = onlinePlayers[socket.id];
-        if (!p || !p.verifiedEmail) return;
+        if (!p || !data.itemId) return;
 
-        // ⏳ STRICT 60-SECOND SERVER COOLDOWN
-        const now = Date.now();
-        if (p.lastEmailSent && now - p.lastEmailSent < 60000) {
-            const left = Math.ceil((60000 - (now - p.lastEmailSent)) / 1000);
-            return socket.emit('systemMessage', `⏳ Please wait ${left}s before requesting another code.`);
-        }
-        
+        socket.emit('systemMessage', '⏳ Connecting to PayPal... please wait.');
+
+        // Translated to clean PayPal USD prices
         const MASTER_CATALOG = {
-            'pet_fox': { price: 56000, name: 'Spirit Fox Pet' },
-            'pet_owl': { price: 56000, name: 'Night Owl Pet' },
-            'aura_blaze': { price: 56000, name: 'Blaze Aura Stone' },
-            'aura_liquid': { price: 56000, name: 'Liquid Aura Stone' },
-            'aura_nature': { price: 56000, name: 'Nature Aura Stone' },
-            'divine_pack': { price: 56000, name: 'Divine Stone Bundle (x5)' },
-            'revival_pack': { price: 28000, name: 'Revival Juice Bundle (x5)' }
+            'pet_fox': { priceUSD: '10.00', name: 'Spirit Fox Pet' },
+            'pet_owl': { priceUSD: '10.00', name: 'Night Owl Pet' },
+            'aura_blaze': { priceUSD: '10.00', name: 'Blaze Aura Stone' },
+            'aura_liquid': { priceUSD: '10.00', name: 'Liquid Aura Stone' },
+            'aura_nature': { priceUSD: '10.00', name: 'Nature Aura Stone' },
+            'divine_pack': { priceUSD: '10.00', name: 'Divine Stone Bundle (x5)' },
+            'revival_pack': { priceUSD: '5.00', name: 'Revival Juice Bundle (x10)' }
         };
-        
+
         const item = MASTER_CATALOG[data.itemId];
-        if (!item) return socket.emit('systemMessage', "❌ Item not found in catalog.");
-        
-        // Lock the email timer immediately
-        p.lastEmailSent = now;
+        if (!item) return socket.emit('systemMessage', "❌ Security Error: Item not in catalog.");
 
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
-        await supabase.from('Exonians').update({ verification_code: code }).eq('character_name', p.id);
-        
-        socket.emit('systemMessage', '⏳ Preparing checkout... please wait.');
-
-        const mailOptions = {
-            from: process.env.SENDER_EMAIL, // 🌟 Pulls your real email securely from Render!
-            to: p.verifiedEmail,
-            subject: 'Exonie - Confirm Your Purchase',
-            html: `
-                <div style="font-family: sans-serif; background: #111; color: white; padding: 20px; border: 2px solid #E040FB; border-radius: 10px;">
-                    <h2 style="color: #E040FB;">🛒 Confirm Purchase</h2>
-                    <p>Hello <b>${p.id}</b>,</p>
-                    <p>You are about to purchase: <span style="color: #ffeb3b;">${item.name}</span></p>
-                    <hr style="border: 0; border-top: 1px solid #333;">
-                    <p style="font-size: 18px;">Your checkout code is: <b style="font-size: 24px; color: #00E5FF; letter-spacing: 5px;">${code}</b></p>
-                </div>
-            `
-        };
-
-        transporter.sendMail(mailOptions, (error) => {
-            if (!error) {
-                socket.emit('checkoutState', { state: 'awaiting_code', itemName: item.name, price: data.price, itemId: data.itemId });
-                socket.emit('systemMessage', "📧 Checkout code sent to your email!");
-            } else {
-                p.lastEmailSent = 0; // Unlock if it failed
-                socket.emit('systemMessage', "❌ Failed to send checkout email.");
-            }
-        });
-    });
-   socket.on('verifyCheckoutCode', async (data) => {
-    const p = onlinePlayers[socket.id];
-    if (!p || !data.code || !data.itemId) return;
-
-    // Translated PayMongo prices to clean PayPal USD prices
-    const MASTER_CATALOG = {
-        'pet_fox': { priceUSD: '10.00', name: 'Spirit Fox Pet' },
-        'pet_owl': { priceUSD: '10.00', name: 'Night Owl Pet' },
-        'aura_blaze': { priceUSD: '10.00', name: 'Blaze Aura Stone' },
-        'aura_liquid': { priceUSD: '10.00', name: 'Liquid Aura Stone' },
-        'aura_nature': { priceUSD: '10.00', name: 'Nature Aura Stone' },
-        'divine_pack': { priceUSD: '10.00', name: 'Divine Stone Bundle (x5)' },
-        'revival_pack': { priceUSD: '5.00', name: 'Revival Juice Bundle (x10)' }
-    };
-
-    const item = MASTER_CATALOG[data.itemId];
-    if (!item) return socket.emit('systemMessage', "❌ Security Error: Item not in catalog.");
-
-    try {
-        const { data: user } = await supabase.from('Exonians').select('verification_code').eq('character_name', p.id).single();
-
-        if (user && String(user.verification_code) === String(data.code)) {
-            await supabase.from('Exonians').update({ verification_code: null }).eq('character_name', p.id);
-            
-            // 1. Get PayPal Access Token (Automatically fetches using your Environment Variables)
-            const isLive = true; // ⚠️ Change to TRUE when you want to accept real money!
+        try {
+            // 1. Get PayPal Access Token
+            const isLive = false; // ⚠️ Change to TRUE when you want to accept real money!
             const baseURL = isLive ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
             const auth = Buffer.from(process.env.PAYPAL_CLIENT_ID + ':' + process.env.PAYPAL_SECRET).toString('base64');
             
@@ -5642,7 +5582,7 @@ socket.on('startDungeon', async (data) => {
                 }
             });
 
-            // 2. Create PayPal Order and attach Player Name & Item ID
+            // 2. Create PayPal Order
             const orderReq = await axios.post(`${baseURL}/v2/checkout/orders`, {
                 intent: 'CAPTURE',
                 purchase_units: [{
@@ -5651,10 +5591,10 @@ socket.on('startDungeon', async (data) => {
                     amount: { currency_code: 'USD', value: item.priceUSD }
                 }],
                 application_context: {
-                    return_url: 'https://exonieonline.onrender.com', // Where player goes after paying
+                    return_url: 'https://exonieonline.onrender.com', 
                     cancel_url: 'https://exonieonline.onrender.com',
                     brand_name: 'Exonie Online',
-                    shipping_preference: 'NO_SHIPPING' // Disables physical shipping address requirement
+                    shipping_preference: 'NO_SHIPPING' 
                 }
             }, {
                 headers: { 
@@ -5663,17 +5603,16 @@ socket.on('startDungeon', async (data) => {
                 }
             });
             
-            // 3. Extract the approval link and send to client UI
+            // 3. Extract the approval link and send directly to client UI!
             const checkoutUrl = orderReq.data.links.find(link => link.rel === 'approve').href;
             socket.emit('checkoutState', { state: 'approved', url: checkoutUrl });
-        } else {
-            socket.emit('systemMessage', "❌ Incorrect checkout code.");
+            socket.emit('systemMessage', "✅ Secure PayPal link generated!");
+
+        } catch (err) {
+            console.error("PayPal Error:", err.response ? err.response.data : err.message);
+            socket.emit('systemMessage', `❌ Payment API Error. Check server console.`);
         }
-    } catch (err) {
-        console.error("PayPal Error:", err.response ? err.response.data : err.message);
-        socket.emit('systemMessage', `❌ Payment API Error. Check server console.`);
-    }
-});
+    });
    socket.on('disconnect', async () => {
         if (socket.username) { activeLogins.delete(socket.username); }
 
