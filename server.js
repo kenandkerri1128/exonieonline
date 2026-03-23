@@ -5511,12 +5511,44 @@ socket.on('startDungeon', async (data) => {
     socket.on('sendVerificationEmail', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || !data.email) return;
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
-        await supabase.from('Exonians').update({ email: data.email, verification_code: code }).eq('character_name', p.id);
-        const mailOptions = { from: process.env.EMAIL_USER, to: data.email, subject: 'Exonie - Verification Code', text: `Your code: ${code}` };
-        transporter.sendMail(mailOptions, (err) => {
-            if (!err) { socket.emit('shopAuthState', { state: 'awaiting_code' }); }
-        });
+
+        try {
+            // 1. Check if they already have an email saved in Supabase
+            const { data: user } = await supabase.from('Exonians').select('email').eq('character_name', p.id).single();
+            
+            // 2. 🛡️ SECURITY: If they have an email, and it doesn't match what they just typed, reject it!
+            if (user && user.email && user.email !== data.email) {
+                socket.emit('systemMessage', '❌ That is not the email registered to this account!');
+                return;
+            }
+
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            await supabase.from('Exonians').update({ email: data.email, verification_code: code }).eq('character_name', p.id);
+            
+            const mailOptions = { 
+                from: process.env.EMAIL_USER, 
+                to: data.email, 
+                subject: 'Exonie - Verification Code', 
+                text: `Hello ${p.id},\n\nYour verification code is: ${code}\n\nDo not share this code with anyone.` 
+            };
+
+            // 3. Tell the player the server is working on it
+            socket.emit('systemMessage', '⏳ Sending email... please wait.');
+
+            // 4. Send the email
+            transporter.sendMail(mailOptions, (err) => {
+                if (err) {
+                    console.error("Nodemailer Error:", err.message);
+                    socket.emit('systemMessage', '❌ Failed to send. Check the Server Environment Variables!');
+                } else {
+                    socket.emit('shopAuthState', { state: 'awaiting_code' });
+                    socket.emit('systemMessage', '✅ Verification code sent! Check your inbox (and spam).');
+                }
+            });
+        } catch (e) {
+            console.error("Email processing error:", e);
+            socket.emit('systemMessage', '❌ Server error while processing email.');
+        }
     });
 
     socket.on('verifyRegistrationCode', async (data) => {
