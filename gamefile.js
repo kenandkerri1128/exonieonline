@@ -133,9 +133,72 @@ rankStyle.innerHTML = `
     @keyframes auraBronze {
         from { filter: drop-shadow(0 0 2px #CD7F32); text-shadow: 0 0 5px #fff, 0 0 10px #CD7F32, 0 0 20px #CD7F32; }
         to { filter: drop-shadow(0 0 10px #CD7F32); text-shadow: 0 0 8px #fff, 0 0 15px #CD7F32, 0 0 35px #8B4513; }
+   }
+    
+    .weapon-aura-divine {
+        filter: drop-shadow(0 0 10px #ffea00) drop-shadow(0 0 20px #ff9800) brightness(1.5) !important;
+        animation: divinePulse 1s infinite alternate ease-in-out;
+    }
+    @keyframes divinePulse {
+        from { filter: drop-shadow(0 0 10px #ffea00) drop-shadow(0 0 20px #ff9800) brightness(1.2); }
+        to { filter: drop-shadow(0 0 20px #ffea00) drop-shadow(0 0 30px #ffffff) brightness(1.8); }
     }
 `;
 document.head.appendChild(rankStyle);
+// ==========================================
+// 🚀 LOW-END MODE CSS OPTIMIZATIONS
+// ==========================================
+const perfStyle = document.createElement('style');
+perfStyle.innerHTML = `
+    /* 🛑 Disable Weapon Glows & Animations */
+    body.low-perf .weapon-aura-legendary,
+    body.low-perf .weapon-aura-godly,
+    body.low-perf .weapon-aura-divine {
+        filter: none !important;
+        animation: none !important;
+    }
+    
+    /* 🛑 Completely Hide Cosmetic Armor Auras */
+    body.low-perf .cosmetic-aura,
+    body.low-perf .aura {
+        display: none !important;
+    }
+
+    /* 🛑 Strip Expensive Shadows from Projectiles & Effects */
+    body.low-perf .magic-orb,
+    body.low-perf .monster-fireball,
+    body.low-perf .fox-fireball,
+    body.low-perf .spark,
+    body.low-perf .white-splash,
+    body.low-perf .earthquake-ring {
+        box-shadow: none !important;
+        filter: none !important;
+    }
+
+    /* 🛑 Strip Glows from Pets & Clones */
+    body.low-perf .pet-wisp,
+    body.low-perf .pet-owl,
+    body.low-perf .pet-fox,
+    body.low-perf .pet-clone {
+        box-shadow: none !important;
+        filter: none !important;
+    }
+
+    /* 🛑 Flatten Leaderboard Nameplates */
+    body.low-perf .rank-1-name,
+    body.low-perf .rank-2-name,
+    body.low-perf .rank-3-name {
+        animation: none !important;
+        filter: none !important;
+        text-shadow: 1px 1px 0 #000 !important; 
+    }
+
+    /* 🛑 Hide Fog of War Canvas Completely (Massive CPU Saver) */
+    body.low-perf #fow-canvas {
+        display: none !important;
+    }
+`;
+document.head.appendChild(perfStyle);
 
 window.updateNameplateRanks = function() {
     const ranks = window.topTavernPlayers || [];
@@ -1366,11 +1429,13 @@ window.updateAnimationFrames = function(state) {
         if (game.player.currentWeaponSrc !== wpnSrc) { dom.playerWeapon.src = wpnSrc; game.player.currentWeaponSrc = wpnSrc; } 
         
         // 🛡️ THE FIX: Apply Weapon Auras based on rarity
-        dom.playerWeapon.classList.remove('weapon-aura-legendary', 'weapon-aura-godly');
+        dom.playerWeapon.classList.remove('weapon-aura-legendary', 'weapon-aura-godly', 'weapon-aura-divine');
         if (game.player.equips?.weapon?.rarity === 'Legendary') {
             dom.playerWeapon.classList.add('weapon-aura-legendary');
         } else if (game.player.equips?.weapon?.rarity === 'Godly') {
             dom.playerWeapon.classList.add('weapon-aura-godly');
+        } else if (game.player.equips?.weapon?.rarity === 'Divine') {
+            dom.playerWeapon.classList.add('weapon-aura-divine');
         }
 
     } else if (dom.playerWeapon) { 
@@ -2482,9 +2547,10 @@ window.addRemotePlayer = function(pData) {
         weapon.src = `weapon/${fixedWpn}.png`; 
         game.remotePlayers[pData.id].currentWeaponSrc = weapon.src; 
         
-        // 🛡️ THE FIX: Add Aura for remote players when they first load in
+       // 🛡️ THE FIX: Add Aura for remote players when they first load in
         if (fixedWpn.includes('legendary')) weapon.classList.add('weapon-aura-legendary');
         if (fixedWpn.includes('godly')) weapon.classList.add('weapon-aura-godly');
+        if (fixedWpn.includes('divine')) weapon.classList.add('weapon-aura-divine');
     }
     
     // 🌟 Refresh shines when someone new walks into the room!
@@ -2965,11 +3031,11 @@ socket.on('forceTeleport', (tp) => {
             let wpnSrc = `weapon/${fixedWpn}${(data.state === 'attack' && isAtk && !fixedWpn.includes('pendant')) ? '_attack' : ''}.png`; 
             if (p.currentWeaponSrc !== wpnSrc) { p.weapon.src = wpnSrc; p.currentWeaponSrc = wpnSrc; } 
             if (!p.spriteData) p.spriteData = {}; p.spriteData.weapon = fixedWpn; 
-
-            // 🛡️ THE FIX: Update Aura dynamically when remote players swap weapons
-            p.weapon.classList.remove('weapon-aura-legendary', 'weapon-aura-godly');
+// 🛡️ THE FIX: Update Aura dynamically when remote players swap weapons
+            p.weapon.classList.remove('weapon-aura-legendary', 'weapon-aura-godly', 'weapon-aura-divine');
             if (fixedWpn.includes('legendary')) p.weapon.classList.add('weapon-aura-legendary');
             if (fixedWpn.includes('godly')) p.weapon.classList.add('weapon-aura-godly');
+            if (fixedWpn.includes('divine')) p.weapon.classList.add('weapon-aura-divine');
 
         } else { 
             p.weapon.style.display = 'none'; p.currentWeaponSrc = ''; 
