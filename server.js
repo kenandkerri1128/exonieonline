@@ -221,6 +221,7 @@ function sanitizeBaseStats(baseStats) {
     safe.title = safe.title || null; // 🛡️ Ensure title is kept!
     safe.gotWisp = baseStats ? !!baseStats.gotWisp : false;
     safe.hasHome = baseStats ? !!baseStats.hasHome : false; // 🏡 ADD THIS LINE!
+    safe.homeStorage = (baseStats && Array.isArray(baseStats.homeStorage)) ? baseStats.homeStorage.slice(0, 10) : new Array(10).fill(null);
     safe.watchedTutorial = baseStats ? !!baseStats.watchedTutorial : false;
     safe.tavernEntries = (baseStats && typeof baseStats.tavernEntries === 'number') ? baseStats.tavernEntries : 5;
     safe.dungeonEntries = (baseStats && typeof baseStats.dungeonEntries === 'number') ? baseStats.dungeonEntries : 7;
@@ -1676,26 +1677,35 @@ socket.on('broadcastSkill', (data) => {
         p.currentPortal = data.portalId;
         const pid = playerParty[p.id];
         
-        if (!pid) {
-            socket.emit('teleportApproved', data);
-        } else {
-            const party = parties[pid];
-            let allReady = true;
-            for (const memberId of party.members) {
-                const mp = getPlayerById(memberId);
-                if (mp && mp.instanceId === p.instanceId && mp.currentPortal !== data.portalId && !mp.isGhost) {
-                    allReady = false; break;
-                }
-            }
-            if (allReady) {
-                for (const memberId of party.members) {
-                    const msid = findSocketIdByPlayerId(memberId);
-                    if (msid) io.to(msid).emit('teleportApproved', data);
-                }
-            } else {
-                socket.emit('partyError', 'Waiting for all alive party members to gather on the portal...');
-            }
-        }
+    // 🏡 HOME OWNERSHIP CHECK
+        if (data.targetMapId.includes('home')) {
+            const leaderId = pid ? parties[pid].leaderId : p.id;
+            const leader = getPlayerById(leaderId);
+            if (!leader || !leader.baseStats?.hasHome) {
+                return socket.emit('systemMessage', '❌ The Party Leader does not own a home!');
+            }
+        }
+
+        if (!pid) {
+            socket.emit('teleportApproved', data);
+        } else {
+            const party = parties[pid];
+            let allReady = true;
+            for (const memberId of party.members) {
+                const mp = getPlayerById(memberId);
+                if (mp && mp.instanceId === p.instanceId && mp.currentPortal !== data.portalId && !mp.isGhost) {
+                    allReady = false; break;
+                }
+            }
+            if (allReady) {
+                for (const memberId of party.members) {
+                    const msid = findSocketIdByPlayerId(memberId);
+                    if (msid) io.to(msid).emit('teleportApproved', data);
+                }
+            } else {
+                socket.emit('partyError', 'Waiting for all alive party members to gather on the portal...');
+            }
+        }
     });
 
     socket.on('portalLeave', () => { const p = onlinePlayers[socket.id]; if(p) p.currentPortal = null; });
@@ -5559,6 +5569,46 @@ socket.on('startDungeon', async (data) => {
         }
     });
 });
+// ==========================================
+    // 🧰 HOME STORAGE ENGINE
+    // ==========================================
+    socket.on('requestOpenStorage', () => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+        if (!p.baseStats.homeStorage) p.baseStats.homeStorage = new Array(10).fill(null);
+        socket.emit('openStorageUI', p.baseStats.homeStorage);
+    });
+
+    socket.on('transferToStorage', (invIndex) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !p.inventory[invIndex]) return;
+        if (!p.baseStats.homeStorage) p.baseStats.homeStorage = new Array(10).fill(null);
+        
+        const emptySlot = p.baseStats.homeStorage.findIndex(i => i === null);
+        if (emptySlot === -1) return socket.emit('systemMessage', '❌ Storage is full!');
+        
+        p.baseStats.homeStorage[emptySlot] = p.inventory[invIndex];
+        p.inventory[invIndex] = null;
+        
+        supabase.from('Exonians').update({ inventory: p.inventory, base_stats: p.baseStats }).eq('character_name', p.id);
+        socket.emit('syncInventory', p.inventory);
+        socket.emit('syncStorage', p.baseStats.homeStorage);
+    });
+
+    socket.on('transferFromStorage', (storageIndex) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !p.baseStats.homeStorage || !p.baseStats.homeStorage[storageIndex]) return;
+        
+        const emptySlot = p.inventory.findIndex(i => i === null);
+        if (emptySlot === -1) return socket.emit('systemMessage', '❌ Inventory is full!');
+        
+        p.inventory[emptySlot] = p.baseStats.homeStorage[storageIndex];
+        p.baseStats.homeStorage[storageIndex] = null;
+        
+        supabase.from('Exonians').update({ inventory: p.inventory, base_stats: p.baseStats }).eq('character_name', p.id);
+        socket.emit('syncInventory', p.inventory);
+        socket.emit('syncStorage', p.baseStats.homeStorage);
+    });
 // ==========================================
 // 🧹 AUTOMATIC DATABASE CLEANUP ENGINE
 // ==========================================
