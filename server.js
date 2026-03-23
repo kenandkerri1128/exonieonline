@@ -5506,7 +5506,7 @@ socket.on('startDungeon', async (data) => {
             socket.emit('systemMessage', '⏳ Sending email... please wait.');
 
             const mailOptions = { 
-                from: 'a5c708001@smtp-brevo.com',
+                from: process.env.SENDER_EMAIL, // 🌟 Pulls your real email securely from Render!
                 to: data.email, 
                 subject: 'Exonie - Verification Code', 
                 text: `Hello ${p.id},\n\nYour verification code is: ${code}\n\nDo not share this code with anyone.` 
@@ -5582,7 +5582,7 @@ socket.on('startDungeon', async (data) => {
         socket.emit('systemMessage', '⏳ Preparing checkout... please wait.');
 
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: process.env.SENDER_EMAIL, // 🌟 Pulls your real email securely from Render!
             to: p.verifiedEmail,
             subject: 'Exonie - Confirm Your Purchase',
             html: `
