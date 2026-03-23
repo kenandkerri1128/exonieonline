@@ -5404,6 +5404,9 @@ socket.on('startDungeon', async (data) => {
     // ==========================================
     // 💳 REAL MONEY CASH SHOP LISTENERS
     // ==========================================
+    // ==========================================
+    // 💳 REAL MONEY CASH SHOP & 2FA ENGINE
+    // ==========================================
     socket.on('requestShopAccess', async () => {
         const p = onlinePlayers[socket.id];
         if (!p) return;
@@ -5421,18 +5424,16 @@ socket.on('startDungeon', async (data) => {
         if (!p || !data.email) return;
 
         try {
-            // 1. Check if they already have an email saved in Supabase
             const { data: user } = await supabase.from('Exonians').select('email').eq('character_name', p.id).single();
-            
-            // 2. 🛡️ SECURITY: If they have an email, and it doesn't match what they just typed, reject it!
             if (user && user.email && user.email !== data.email) {
-                socket.emit('systemMessage', '❌ That is not the email registered to this account!');
-                return;
+                return socket.emit('systemMessage', '❌ That is not the email registered to this account!');
             }
 
             const code = Math.floor(100000 + Math.random() * 900000).toString();
             await supabase.from('Exonians').update({ email: data.email, verification_code: code }).eq('character_name', p.id);
             
+            socket.emit('systemMessage', '⏳ Sending email... please wait.');
+
             const mailOptions = { 
                 from: process.env.EMAIL_USER, 
                 to: data.email, 
@@ -5440,21 +5441,16 @@ socket.on('startDungeon', async (data) => {
                 text: `Hello ${p.id},\n\nYour verification code is: ${code}\n\nDo not share this code with anyone.` 
             };
 
-            // 3. Tell the player the server is working on it
-            socket.emit('systemMessage', '⏳ Sending email... please wait.');
-
-            // 4. Send the email
             transporter.sendMail(mailOptions, (err) => {
                 if (err) {
                     console.error("Nodemailer Error:", err.message);
-                    socket.emit('systemMessage', '❌ Failed to send. Check the Server Environment Variables!');
+                    socket.emit('systemMessage', '❌ Failed to send email. Check Server Logs.');
                 } else {
                     socket.emit('shopAuthState', { state: 'awaiting_code' });
                     socket.emit('systemMessage', '✅ Verification code sent! Check your inbox (and spam).');
                 }
             });
         } catch (e) {
-            console.error("Email processing error:", e);
             socket.emit('systemMessage', '❌ Server error while processing email.');
         }
     });
@@ -5465,13 +5461,8 @@ socket.on('startDungeon', async (data) => {
         
         try {
             const { data: user, error } = await supabase.from('Exonians').select('verification_code, email').eq('character_name', p.id).single();
-            
-            if (error) {
-                console.error("DB Error:", error);
-                return socket.emit('systemMessage', "❌ Database error. Please try again.");
-            }
+            if (error) return socket.emit('systemMessage', "❌ Database error.");
 
-            // 🛡️ THE FIX: Wrap both in String() so they perfectly match
             if (user && String(user.verification_code) === String(data.code)) {
                 await supabase.from('Exonians').update({ email_verified: true, verification_code: null }).eq('character_name', p.id);
                 p.verifiedEmail = user.email;
@@ -5488,16 +5479,47 @@ socket.on('startDungeon', async (data) => {
     socket.on('requestCheckoutCode', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || !p.verifiedEmail) return;
+        
         const MASTER_CATALOG = {
-            'pet_fox': 56000, 'pet_owl': 56000, 'aura_blaze': 56000, 'aura_liquid': 56000, 'aura_nature': 56000, 'divine_pack': 56000, 'revival_pack': 28000
+            'pet_fox': { price: 56000, name: 'Spirit Fox Pet' },
+            'pet_owl': { price: 56000, name: 'Night Owl Pet' },
+            'aura_blaze': { price: 56000, name: 'Blaze Aura Stone' },
+            'aura_liquid': { price: 56000, name: 'Liquid Aura Stone' },
+            'aura_nature': { price: 56000, name: 'Nature Aura Stone' },
+            'divine_pack': { price: 56000, name: 'Divine Stone Bundle (x5)' },
+            'revival_pack': { price: 28000, name: 'Revival Juice Bundle (x5)' }
         };
-        const price = MASTER_CATALOG[data.itemId];
-        if (!price) return;
+        
+        const item = MASTER_CATALOG[data.itemId];
+        if (!item) return socket.emit('systemMessage', "❌ Item not found in catalog.");
+        
         const code = Math.floor(100000 + Math.random() * 900000).toString();
         await supabase.from('Exonians').update({ verification_code: code }).eq('character_name', p.id);
-        const mailOptions = { from: process.env.EMAIL_USER, to: p.verifiedEmail, subject: 'Confirm Purchase', text: `Checkout code: ${code}` };
-        transporter.sendMail(mailOptions, (err) => {
-            if (!err) socket.emit('checkoutState', { state: 'awaiting_code', itemName: data.itemName, price: data.price });
+        
+        socket.emit('systemMessage', '⏳ Preparing checkout... please wait.');
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: p.verifiedEmail,
+            subject: 'Exonie - Confirm Your Purchase',
+            html: `
+                <div style="font-family: sans-serif; background: #111; color: white; padding: 20px; border: 2px solid #E040FB; border-radius: 10px;">
+                    <h2 style="color: #E040FB;">🛒 Confirm Purchase</h2>
+                    <p>Hello <b>${p.id}</b>,</p>
+                    <p>You are about to purchase: <span style="color: #ffeb3b;">${item.name}</span></p>
+                    <hr style="border: 0; border-top: 1px solid #333;">
+                    <p style="font-size: 18px;">Your checkout code is: <b style="font-size: 24px; color: #00E5FF; letter-spacing: 5px;">${code}</b></p>
+                </div>
+            `
+        };
+
+        transporter.sendMail(mailOptions, (error) => {
+            if (!error) {
+                socket.emit('checkoutState', { state: 'awaiting_code', itemName: item.name, price: data.price, itemId: data.itemId });
+                socket.emit('systemMessage', "📧 Checkout code sent to your email!");
+            } else {
+                socket.emit('systemMessage', "❌ Failed to send checkout email.");
+            }
         });
     });
 
@@ -5512,7 +5534,7 @@ socket.on('startDungeon', async (data) => {
             'aura_liquid': { price: 56000, name: 'Liquid Aura Stone' },
             'aura_nature': { price: 56000, name: 'Nature Aura Stone' },
             'divine_pack': { price: 56000, name: 'Divine Stone Bundle (x5)' },
-            'revival_pack': { price: 28000, name: 'Revival Juice Bundle (x5)' }
+            'revival_pack': { price: 28000, name: 'Revival Juice Bundle (x10)' }
         };
 
         const item = MASTER_CATALOG[data.itemId];
@@ -5521,7 +5543,6 @@ socket.on('startDungeon', async (data) => {
         try {
             const { data: user } = await supabase.from('Exonians').select('verification_code').eq('character_name', p.id).single();
 
-            // 🛡️ THE FIX: Force String matching
             if (user && String(user.verification_code) === String(data.code)) {
                 await supabase.from('Exonians').update({ verification_code: null }).eq('character_name', p.id);
                 
