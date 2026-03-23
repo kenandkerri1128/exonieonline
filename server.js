@@ -6,16 +6,6 @@ const { Server } = require('socket.io');
 const path = require('path');
 const fs = require('fs');
 const { createClient } = require('@supabase/supabase-js');
-const nodemailer = require('nodemailer');
-const transporter = nodemailer.createTransport({
-    host: 'smtp-relay.brevo.com',
-    port: 587,
-    secure: false, // true for 465, false for other ports
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
 const axios = require('axios');
 
 const app = express();
@@ -5462,91 +5452,12 @@ socket.on('startDungeon', async (data) => {
             socket.emit('systemMessage', "You must be in a party to link items!");
         }
     });
-    // ==========================================
-    // 💳 REAL MONEY CASH SHOP LISTENERS
-    // ==========================================
-    // ==========================================
-    // 💳 REAL MONEY CASH SHOP & 2FA ENGINE
-    // ==========================================
-    socket.on('requestShopAccess', async () => {
+   // 💳 INSTANT CASH SHOP ACCESS (No Email Required)
+    socket.on('requestShopAccess', () => {
         const p = onlinePlayers[socket.id];
         if (!p) return;
-        const { data: user } = await supabase.from('Exonians').select('email, email_verified').eq('character_name', p.id).single();
-        if (!user || !user.email_verified) {
-            socket.emit('shopAuthState', { state: 'needs_register' });
-        } else {
-            p.verifiedEmail = user.email;
-            socket.emit('shopAuthState', { state: 'shop_open', email: user.email });
-        }
-    });
-
-    socket.on('sendVerificationEmail', async (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || !data.email) return;
-
-        // ⏳ STRICT 60-SECOND SERVER COOLDOWN
-        const now = Date.now();
-        if (p.lastEmailSent && now - p.lastEmailSent < 60000) {
-            const left = Math.ceil((60000 - (now - p.lastEmailSent)) / 1000);
-            return socket.emit('systemMessage', `⏳ Please wait ${left}s before requesting another code.`);
-        }
-
-        try {
-            const { data: user } = await supabase.from('Exonians').select('email').eq('character_name', p.id).single();
-            if (user && user.email && user.email !== data.email) {
-                return socket.emit('systemMessage', '❌ That is not the email registered to this account!');
-            }
-
-            // Lock the email timer immediately
-            p.lastEmailSent = now;
-
-            const code = Math.floor(100000 + Math.random() * 900000).toString();
-            await supabase.from('Exonians').update({ email: data.email, verification_code: code }).eq('character_name', p.id);
-            
-            socket.emit('systemMessage', '⏳ Sending email... please wait.');
-
-            const mailOptions = { 
-                from: process.env.SENDER_EMAIL, // 🌟 Pulls your real email securely from Render!
-                to: data.email, 
-                subject: 'Exonie - Verification Code', 
-                text: `Hello ${p.id},\n\nYour verification code is: ${code}\n\nDo not share this code with anyone.` 
-            };
-
-            transporter.sendMail(mailOptions, (err) => {
-                if (err) {
-                    console.error("Nodemailer Error:", err.message);
-                    p.lastEmailSent = 0; // Unlock if it failed so they can try again
-                    socket.emit('systemMessage', '❌ Failed to send email. Check Server Logs.');
-                } else {
-                    socket.emit('shopAuthState', { state: 'awaiting_code' });
-                    socket.emit('systemMessage', '✅ Verification code sent! Check your inbox (and spam).');
-                }
-            });
-        } catch (e) {
-            p.lastEmailSent = 0; // Unlock on error
-            socket.emit('systemMessage', '❌ Server error while processing email.');
-        }
-    });
-
-    socket.on('verifyRegistrationCode', async (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || !data.code) return;
-        
-        try {
-            const { data: user, error } = await supabase.from('Exonians').select('verification_code, email').eq('character_name', p.id).single();
-            if (error) return socket.emit('systemMessage', "❌ Database error.");
-
-            if (user && String(user.verification_code) === String(data.code)) {
-                await supabase.from('Exonians').update({ email_verified: true, verification_code: null }).eq('character_name', p.id);
-                p.verifiedEmail = user.email;
-                socket.emit('shopAuthState', { state: 'shop_open', email: user.email });
-                socket.emit('systemMessage', "✅ Email successfully verified!");
-            } else {
-                socket.emit('systemMessage', "❌ Incorrect verification code.");
-            }
-        } catch (e) {
-            socket.emit('systemMessage', "❌ Server error during verification.");
-        }
+        // Instantly tell the client the shop is open!
+        socket.emit('shopAuthState', { state: 'shop_open' });
     });
 
   socket.on('requestCheckoutCode', async (data) => {
