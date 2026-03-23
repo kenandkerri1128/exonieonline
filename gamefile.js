@@ -4799,7 +4799,6 @@ if (socket) {
         dom.log.innerText = "Item listed on the Auction House!";
         window.switchAhTab('my'); // Auto-switch to see it
     });
-} // <--- THIS IS YOUR LINE 4836
 
 // ==========================================
 // ⚖️ AUCTION HOUSE: LIVE SEARCH FILTER
