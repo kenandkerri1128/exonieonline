@@ -20,21 +20,21 @@ const axios = require('axios');
 
 const app = express();
 // ==========================================
-// 🔔 PAYMONGO WEBHOOK (Item Delivery)
+// 🔔 PAYPAL WEBHOOK (Item Delivery)
 // ==========================================
-app.post('/paymongo-webhook', express.json(), async (req, res) => {
+app.post('/paypal-webhook', express.json(), async (req, res) => {
     try {
-        const event = req.body.data;
-        if (event && event.attributes.type === 'checkout_session.payment.paid') {
-            const session = event.attributes.data.attributes;
-            const ref = session.reference_number; // e.g. "Kei-pet_fox-171234567"
+        const event = req.body;
+        // Listen for successful capture (payment complete)
+        if (event && event.event_type === 'PAYMENT.CAPTURE.COMPLETED') {
+            // We pass the Player Name and Item ID in the 'custom_id' field during checkout
+            const customId = event.resource.custom_id; // e.g. "Kei-pet_fox"
             
-            // 🛡️ THE FIX: Split by DASH, not underscore!
-            const parts = ref.split('-');
+            const parts = customId.split('-');
             const playerName = parts[0];
             const itemId = parts[1];
 
-           const itemTemplates = {
+            const itemTemplates = {
                 'pet_fox': { name: "Spirit Fox Pet", type: 'aura', auraId: 'fox', rarity: 'Godly', color: '#ff7e00', description: "Click to apply to Leggings.", quantity: 1 },
                 'pet_owl': { name: "Night Owl Pet", type: 'aura', auraId: 'owl', rarity: 'Godly', color: '#a0a0a0', description: "Click to apply to Leggings.", quantity: 1 },
                 'aura_blaze': { name: "Blaze Aura Stone", type: 'aura', auraId: 'blaze', rarity: 'Legendary', color: '#f44336', description: "Click to apply to Armor.", quantity: 1 },
@@ -55,11 +55,11 @@ app.post('/paymongo-webhook', express.json(), async (req, res) => {
                 const tsid = findSocketIdByPlayerId(playerName);
                 if (tsid) {
                     io.to(tsid).emit('getMail'); 
-                    io.to(tsid).emit('systemMessage', "🎉 Your purchase has arrived! Check your Mailbox (M).");
+                    io.to(tsid).emit('systemMessage', "🎉 Your PayPal purchase has arrived! Check your Mailbox (M).");
                 }
             }
         }
-    } catch (err) { console.error("Webhook Error:", err); }
+    } catch (err) { console.error("PayPal Webhook Error:", err); }
     res.status(200).send('Webhook Received');
 });
 const server = http.createServer(app);
@@ -5606,63 +5606,74 @@ socket.on('startDungeon', async (data) => {
             }
         });
     });
-    socket.on('verifyCheckoutCode', async (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || !data.code || !data.itemId) return;
+   socket.on('verifyCheckoutCode', async (data) => {
+    const p = onlinePlayers[socket.id];
+    if (!p || !data.code || !data.itemId) return;
 
-        const MASTER_CATALOG = {
-            'pet_fox': { price: 56000, name: 'Spirit Fox Pet' },
-            'pet_owl': { price: 56000, name: 'Night Owl Pet' },
-            'aura_blaze': { price: 56000, name: 'Blaze Aura Stone' },
-            'aura_liquid': { price: 56000, name: 'Liquid Aura Stone' },
-            'aura_nature': { price: 56000, name: 'Nature Aura Stone' },
-            'divine_pack': { price: 56000, name: 'Divine Stone Bundle (x5)' },
-            'revival_pack': { price: 28000, name: 'Revival Juice Bundle (x10)' }
-        };
+    // Translated PayMongo prices to clean PayPal USD prices
+    const MASTER_CATALOG = {
+        'pet_fox': { priceUSD: '10.00', name: 'Spirit Fox Pet' },
+        'pet_owl': { priceUSD: '10.00', name: 'Night Owl Pet' },
+        'aura_blaze': { priceUSD: '10.00', name: 'Blaze Aura Stone' },
+        'aura_liquid': { priceUSD: '10.00', name: 'Liquid Aura Stone' },
+        'aura_nature': { priceUSD: '10.00', name: 'Nature Aura Stone' },
+        'divine_pack': { priceUSD: '10.00', name: 'Divine Stone Bundle (x5)' },
+        'revival_pack': { priceUSD: '5.00', name: 'Revival Juice Bundle (x10)' }
+    };
 
-        const item = MASTER_CATALOG[data.itemId];
-        if (!item) return socket.emit('systemMessage', "❌ Security Error: Item not in catalog.");
+    const item = MASTER_CATALOG[data.itemId];
+    if (!item) return socket.emit('systemMessage', "❌ Security Error: Item not in catalog.");
 
-        try {
-            const { data: user } = await supabase.from('Exonians').select('verification_code').eq('character_name', p.id).single();
+    try {
+        const { data: user } = await supabase.from('Exonians').select('verification_code').eq('character_name', p.id).single();
 
-            if (user && String(user.verification_code) === String(data.code)) {
-                await supabase.from('Exonians').update({ verification_code: null }).eq('character_name', p.id);
-                
-                const response = await axios.post('https://api.paymongo.com/v1/checkout_sessions', {
-                    data: {
-                        attributes: {
-                            success_url: 'https://exonieonline.onrender.com', 
-                            cancel_url: 'https://exonieonline.onrender.com',
-                            send_email_receipt: true,
-                            show_description: true,
-                            show_line_items: true,
-                            line_items: [{ currency: 'PHP', amount: item.price, name: item.name, quantity: 1 }],
-                            // 🛡️ THE FIX: PayMongo API strictly uses 'paymaya', not 'maya'
-                            payment_method_types: ['card', 'gcash', 'paymaya'], 
-                            // 🛡️ THE FIX: Use dashes so pet_fox doesn't break the webhook!
-                            reference_number: `${p.id}-${data.itemId}-${Date.now()}`
-                        }
-                    }
-                }, {
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': `Basic ${Buffer.from(process.env.PAYMONGO_SECRET_KEY + ":").toString('base64')}` 
-                    }
-                });
-                
-                socket.emit('checkoutState', { state: 'approved', url: response.data.data.attributes.checkout_url });
-            } else {
-                socket.emit('systemMessage', "❌ Incorrect checkout code.");
-            }
-        } catch (err) {
-            // 🐛 THE ULTIMATE DEBUGGER: This will print EXACTLY what PayMongo hates to your game chat!
-            const detail = err.response && err.response.data && err.response.data.errors ? err.response.data.errors[0].detail : err.message;
-            console.error("PayMongo Error Details:", detail);
-            socket.emit('systemMessage', `❌ Payment API Error: ${detail}`);
+        if (user && String(user.verification_code) === String(data.code)) {
+            await supabase.from('Exonians').update({ verification_code: null }).eq('character_name', p.id);
+            
+            // 1. Get PayPal Access Token (Automatically fetches using your Environment Variables)
+            const isLive = false; // ⚠️ Change to TRUE when you want to accept real money!
+            const baseURL = isLive ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+            const auth = Buffer.from(process.env.PAYPAL_CLIENT_ID + ':' + process.env.PAYPAL_SECRET).toString('base64');
+            
+            const tokenReq = await axios.post(`${baseURL}/v1/oauth2/token`, 'grant_type=client_credentials', {
+                headers: { 
+                    'Authorization': `Basic ${auth}`, 
+                    'Content-Type': 'application/x-www-form-urlencoded' 
+                }
+            });
+
+            // 2. Create PayPal Order and attach Player Name & Item ID
+            const orderReq = await axios.post(`${baseURL}/v2/checkout/orders`, {
+                intent: 'CAPTURE',
+                purchase_units: [{
+                    custom_id: `${p.id}-${data.itemId}`, // 🛡️ Sent silently to the webhook!
+                    description: item.name,
+                    amount: { currency_code: 'USD', value: item.priceUSD }
+                }],
+                application_context: {
+                    return_url: 'https://exonieonline.onrender.com', // Where player goes after paying
+                    cancel_url: 'https://exonieonline.onrender.com',
+                    brand_name: 'Exonie Online',
+                    shipping_preference: 'NO_SHIPPING' // Disables physical shipping address requirement
+                }
+            }, {
+                headers: { 
+                    'Authorization': `Bearer ${tokenReq.data.access_token}`, 
+                    'Content-Type': 'application/json' 
+                }
+            });
+            
+            // 3. Extract the approval link and send to client UI
+            const checkoutUrl = orderReq.data.links.find(link => link.rel === 'approve').href;
+            socket.emit('checkoutState', { state: 'approved', url: checkoutUrl });
+        } else {
+            socket.emit('systemMessage', "❌ Incorrect checkout code.");
         }
-    });
+    } catch (err) {
+        console.error("PayPal Error:", err.response ? err.response.data : err.message);
+        socket.emit('systemMessage', `❌ Payment API Error. Check server console.`);
+    }
+});
    socket.on('disconnect', async () => {
         if (socket.username) { activeLogins.delete(socket.username); }
 
