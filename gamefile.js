@@ -4472,27 +4472,41 @@ window.sendShopEmail = function() {
     setTimeout(() => { window.isProcessingShop = false; }, 5000); // Unlock after 5s
 };
 
+let currentShopItem = null; // 🛡️ GLOBAL TRACKER FOR THE SHOP
+window.isProcessingShop = false; // Anti-Spam Lock
+
+window.sendShopEmail = function() {
+    if (window.isProcessingShop) return;
+    let email = document.getElementById('rm-email-input').value;
+    if (!email || !email.includes('@')) return dom.log.innerText = "Invalid email address.";
+    window.isProcessingShop = true;
+    socket.emit('sendVerificationEmail', { email });
+    setTimeout(() => { window.isProcessingShop = false; }, 5000);
+};
+
 window.verifyShopCode = function() {
     if (window.isProcessingShop) return;
-    
     let code = document.getElementById('rm-code-input').value.trim();
     if (!code) return;
-    
     window.isProcessingShop = true;
     socket.emit('verifyRegistrationCode', { code });
     setTimeout(() => { window.isProcessingShop = false; }, 3000);
 };
 
+// 🌟 MISSING FUNCTION ADDED HERE 🌟
+window.initiateCheckout = function(itemId, name, price) {
+    currentShopItem = itemId; // Capture the item ID
+    socket.emit('requestCheckoutCode', { itemId, itemName: name, price });
+};
+
 window.verifyCheckout = function() {
     if (window.isProcessingShop) return;
-    
     let code = document.getElementById('rm-checkout-code').value.trim();
     if (!code) return;
     
     window.isProcessingShop = true;
-    // 🛡️ THE FIX: We must send BOTH the code AND the currently selected item ID to the server!
+    // 🛡️ SENDS BOTH PIECES TO SERVER
     socket.emit('verifyCheckoutCode', { code: code, itemId: currentShopItem });
-    
     setTimeout(() => { window.isProcessingShop = false; }, 3000);
 };
 
