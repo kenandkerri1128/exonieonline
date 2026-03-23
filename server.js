@@ -4333,25 +4333,27 @@ socket.on('adminSpawnItem', async (data) => {
             const rPfx = rarity === "Starter" ? "basic" : rarity.toLowerCase();
             item = { id: Date.now() + Math.random(), name: `${rarity} Admin ${tmpl.baseName}`, type: tmpl.slot, sprite: rPfx + tmpl.spriteName, level: level, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: enhanceLevel, quantity: 1 };
             
-          let statVal = getBaseStat(level) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12, "Divine": 12 }[rarity] || 0);
-            
-            // 👑 THE FIX: Divine base stats are strictly DOUBLE the Godly base stats!
-            if (rarity === "Divine") statVal = (getBaseStat(level) + 12) * 2;
-            
-            if (type === 'pendant') statVal = Math.floor(statVal / 2);
-            item.fixedStat[tmpl.statKey] = statVal;
-            item.randomStat = {};
-            
-            if (rarity !== "Starter") {
-                // 👑 THE FIX: Divine gets exactly 4 random stats!
-                let numStats = rarity === "Divine" ? 4 : (rarity === "Godly" ? 3 : (rarity === "Legendary" ? 2 : 1));
-                let availableStats = [...STAT_TYPES];
-                for (let i = 0; i < numStats; i++) {
-                    let rIdx = Math.floor(Math.random() * availableStats.length);
-                    let sKey = availableStats.splice(rIdx, 1)[0];
-                    item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(level)) + 1;
-                }
-            }
+          // Inside socket.on('adminSpawnItem')
+let statVal = getBaseStat(level) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12, "Divine": 12 }[rarity] || 0);
+
+// DOUBLE stats if Divine
+if (rarity === "Divine") {
+    statVal = (getBaseStat(level) + 12) * 2;
+}
+
+item.fixedStat[tmpl.statKey] = statVal;
+item.randomStat = {};
+
+if (rarity !== "Starter") {
+    // Exactly 4 random stats for Divine
+    let numStats = rarity === "Divine" ? 4 : (rarity === "Godly" ? 3 : (rarity === "Legendary" ? 2 : 1));
+    let availableStats = [...STAT_TYPES];
+    for (let i = 0; i < numStats; i++) {
+        let rIdx = Math.floor(Math.random() * availableStats.length);
+        let sKey = availableStats.splice(rIdx, 1)[0];
+        item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(level)) + 1;
+    }
+}
 
             if (enhanceLevel > 0) {
                 const bonusPerLevel = { "Starter": 1, "Basic": 1, "Rare": 3, "Unique": 5, "Legendary": 8, "Godly": 15 }[rarity] || 1;
