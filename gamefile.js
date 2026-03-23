@@ -4497,33 +4497,56 @@ window.verifyCheckout = function() {
 };
 
 // ==========================================
-// 💎 BULLETPROOF MOBILE SHOP BUTTON
+// 💎 ULTIMATE MOBILE SHOP BUTTON INJECTION
 // ==========================================
+let shopRetryCount = 0;
 let shopInjectInterval = setInterval(() => {
-    let uiContainer = document.getElementById('top-right-ui') || document.querySelector('.top-right-ui');
+    const parent = document.getElementById('game-container');
     
-    if (uiContainer && !document.getElementById('mobile-shop-btn')) {
-        let shopBtn = document.createElement('button');
-        shopBtn.id = 'mobile-shop-btn';
-        
-        shopBtn.style.cssText = 'background: #111; color: white; font-weight: bold; border: 2px solid #E040FB; box-shadow: 0 0 10px #E040FB; margin-left: 10px; cursor: pointer; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; display: inline-flex; justify-content: center; align-items: center; pointer-events: auto; z-index: 1000;';
-        shopBtn.innerHTML = '💎';
-        shopBtn.title = "Open Cash Shop";
-        
-        const openShop = (e) => {
-            e.preventDefault();
-            if (typeof window.openRealMoneyShop === 'function') {
-                window.openRealMoneyShop();
+    if (parent) {
+        // Only show on Mobile/Small Screens
+        if (window.isMobileUI()) {
+            if (!document.getElementById('mobile-shop-btn')) {
+                let shopBtn = document.createElement('button');
+                shopBtn.id = 'mobile-shop-btn';
+                shopBtn.innerHTML = '💎';
+                // Positioned specifically to not overlap the Trophy button
+                shopBtn.style.cssText = `
+                    position: fixed; 
+                    top: 125px; 
+                    right: 15px; 
+                    width: 45px; 
+                    height: 45px; 
+                    background: #111; 
+                    color: white; 
+                    border: 2px solid #E040FB; 
+                    border-radius: 8px; 
+                    font-size: 20px; 
+                    display: flex; 
+                    justify-content: center; 
+                    align-items: center; 
+                    z-index: 9999; 
+                    cursor: pointer; 
+                    box-shadow: 0 0 15px #E040FB;
+                `;
+
+                const handleShop = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.openRealMoneyShop();
+                };
+
+                shopBtn.onclick = handleShop;
+                shopBtn.ontouchstart = handleShop;
+                parent.appendChild(shopBtn);
             }
-        };
-
-        shopBtn.onclick = openShop;
-        shopBtn.ontouchstart = openShop;
-
-        uiContainer.appendChild(shopBtn);
-        clearInterval(shopInjectInterval); // Stop checking once successfully placed!
+        }
+        clearInterval(shopInjectInterval);
     }
-}, 1000); // Check every 1 second until the UI loads
+
+    shopRetryCount++;
+    if (shopRetryCount > 30) clearInterval(shopInjectInterval); // Stop after 30s
+}, 1000);
 // ==========================================
 // ⚖️ AUCTION HOUSE UI LOGIC
 // ==========================================
