@@ -5482,7 +5482,7 @@ socket.on('startDungeon', async (data) => {
 
         try {
             // 1. Get PayPal Access Token
-            const isLive = false; // ⚠️ Change to TRUE when you want to accept real money!
+            const isLive = true; // ⚠️ Change to TRUE when you want to accept real money!
             const baseURL = isLive ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
             const auth = Buffer.from(process.env.PAYPAL_CLIENT_ID + ':' + process.env.PAYPAL_SECRET).toString('base64');
             
