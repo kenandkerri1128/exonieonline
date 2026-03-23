@@ -4443,27 +4443,39 @@ if (socket) {
     });
 }
 
+window.isProcessingShop = false; // Anti-Spam Lock
+
 window.sendShopEmail = function() {
+    if (window.isProcessingShop) return;
+    
     let email = document.getElementById('rm-email-input').value;
     if (!email || !email.includes('@')) return dom.log.innerText = "Invalid email address.";
+    
+    window.isProcessingShop = true;
     socket.emit('sendVerificationEmail', { email });
+    setTimeout(() => { window.isProcessingShop = false; }, 5000); // Unlock after 5s
 };
 
 window.verifyShopCode = function() {
+    if (window.isProcessingShop) return;
+    
     let code = document.getElementById('rm-code-input').value.trim();
     if (!code) return;
+    
+    window.isProcessingShop = true;
     socket.emit('verifyRegistrationCode', { code });
-};
-
-window.initiateCheckout = function(itemId, name, price) {
-    currentShopItem = itemId;
-    socket.emit('requestCheckoutCode', { itemId, itemName: name, price });
+    setTimeout(() => { window.isProcessingShop = false; }, 3000);
 };
 
 window.verifyCheckout = function() {
+    if (window.isProcessingShop) return;
+    
     let code = document.getElementById('rm-checkout-code').value.trim();
     if (!code) return;
+    
+    window.isProcessingShop = true;
     socket.emit('verifyCheckoutCode', { code });
+    setTimeout(() => { window.isProcessingShop = false; }, 3000);
 };
 
 // ==========================================
