@@ -6,6 +6,14 @@ const { Server } = require('socket.io');
 const path = require('path');
 const fs = require('fs');
 const { createClient } = require('@supabase/supabase-js');
+const nodemailer = require('nodemailer');
+const transporter = nodemailer.createTransport({
+    service: 'gmail', // Use 'gmail' or your SMTP provider
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
 
 const app = express();
 const server = http.createServer(app);
@@ -5380,6 +5388,111 @@ socket.on('startDungeon', async (data) => {
         }
     });
 });
+// ==========================================
+    // 💳 REAL MONEY CASH SHOP & 2FA ENGINE
+    // ==========================================
+    
+    // Helper to generate a 6-digit code
+    const generateCode = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+    socket.on('requestShopAccess', async () => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+
+        // Fetch their latest email status from DB
+        const { data: user } = await supabase.from('Exonians').select('email, email_verified').eq('character_name', p.id).single();
+        
+        if (!user || !user.email_verified) {
+            socket.emit('shopAuthState', { state: 'needs_register' });
+        } else {
+            p.verifiedEmail = user.email; // Cache it in RAM
+            socket.emit('shopAuthState', { state: 'shop_open', email: user.email });
+        }
+    });
+
+    socket.on('sendVerificationEmail', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.email) return;
+
+        const code = generateCode();
+        
+        // Save code to DB
+        await supabase.from('Exonians').update({ email: data.email, verification_code: code }).eq('character_name', p.id);
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: data.email,
+            subject: 'Exonie - Cash Shop Verification Code',
+            text: `Hello ${p.id},\n\nYour Exonie verification code is: ${code}\n\nDo not share this code with anyone.`
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error("Email Error:", error);
+                socket.emit('systemMessage', "❌ Failed to send email. Please check the address.");
+            } else {
+                socket.emit('shopAuthState', { state: 'awaiting_code' });
+                socket.emit('systemMessage', "📧 Verification code sent to your email!");
+            }
+        });
+    });
+
+    socket.on('verifyRegistrationCode', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.code) return;
+
+        const { data: user } = await supabase.from('Exonians').select('verification_code, email').eq('character_name', p.id).single();
+
+        if (user && user.verification_code === data.code) {
+            await supabase.from('Exonians').update({ email_verified: true, verification_code: null }).eq('character_name', p.id);
+            p.verifiedEmail = user.email;
+            socket.emit('shopAuthState', { state: 'shop_open', email: user.email });
+            socket.emit('systemMessage', "✅ Email successfully verified!");
+        } else {
+            socket.emit('systemMessage', "❌ Incorrect verification code.");
+        }
+    });
+
+    // --- CHECKOUT 2FA ---
+    socket.on('requestCheckoutCode', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !p.verifiedEmail) return;
+
+        const code = generateCode();
+        await supabase.from('Exonians').update({ verification_code: code }).eq('character_name', p.id);
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: p.verifiedEmail,
+            subject: 'Exonie - Checkout Verification',
+            text: `Hello ${p.id},\n\nYou are attempting to purchase ${data.itemName}. Your checkout verification code is: ${code}\n\nIf you did not request this, please secure your account.`
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (!error) {
+                socket.emit('checkoutState', { state: 'awaiting_code', itemName: data.itemName, price: data.price });
+                socket.emit('systemMessage', "📧 Checkout code sent to your email!");
+            }
+        });
+    });
+
+    socket.on('verifyCheckoutCode', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.code) return;
+
+        const { data: user } = await supabase.from('Exonians').select('verification_code').eq('character_name', p.id).single();
+
+        if (user && user.verification_code === data.code) {
+            await supabase.from('Exonians').update({ verification_code: null }).eq('character_name', p.id);
+            
+            // Generate standard PayMongo Link URL here (you can replace this with an actual API call to PayMongo later)
+            const paymentUrl = `https://links.paymongo.com/your-custom-link`; 
+            
+            socket.emit('checkoutState', { state: 'approved', url: paymentUrl });
+        } else {
+            socket.emit('systemMessage', "❌ Incorrect checkout code.");
+        }
+    });
 // ==========================================
 // 🧹 AUTOMATIC DATABASE CLEANUP ENGINE
 // ==========================================
