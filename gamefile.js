@@ -4411,25 +4411,13 @@ window.openRealMoneyShop = function() {
 };
 
 if (socket) {
-    socket.on('shopAuthState', (data) => {
+   socket.on('shopAuthState', (data) => {
         let modal = document.getElementById('rm-shop-modal');
         if (!modal) return;
 
         let html = '<h2 style="margin-top:0; color:#E040FB; text-shadow: 0 0 10px #E040FB;">💎 Exonie Emporium</h2>';
 
-        if (data.state === 'needs_register') {
-            html += `<p style="color:#ccc; font-size:14px;">Please register an active email address to access the Cash Shop.</p>
-                     <input type="email" id="rm-email-input" placeholder="your@email.com" style="width:90%; padding:10px; margin-bottom:10px; background:#222; color:white; border:1px solid #444; border-radius:4px;">
-                     <button class="btn" style="width:100%; background:#2196F3; margin-bottom:10px;" onclick="window.sendShopEmail()">Send Verification Code</button>`;
-        } 
-        else if (data.state === 'awaiting_code') {
-            html += `<p style="color:#ccc; font-size:14px;">We sent a 6-digit code to your email. Enter it below.</p>
-                     <input type="text" id="rm-code-input" placeholder="123456" style="width:90%; padding:10px; margin-bottom:10px; background:#222; color:white; border:1px solid #444; border-radius:4px; text-align:center; letter-spacing:3px; font-size:18px;">
-                     <button class="btn" style="width:100%; background:#4CAF50; margin-bottom:10px;" onclick="window.verifyShopCode()">Verify & Enter</button>`;
-        }
-        else if (data.state === 'shop_open') {
-            html += `<p style="color:#4CAF50; font-size:12px; margin-bottom:15px;">Verified: ${data.email}</p>`;
-            
+        if (data.state === 'shop_open') {
             // 🛒 REAL MONEY CATALOG
             const items = [
                 { id: 'pet_fox', name: 'Spirit Fox Pet', price: '$10.00', desc: 'A loyal fire-fox companion that follows you and attacks enemies.' },
@@ -4459,19 +4447,14 @@ if (socket) {
         modal.innerHTML = html;
     });
 
-    socket.on('checkoutState', (data) => {
+ socket.on('checkoutState', (data) => {
         let modal = document.getElementById('rm-shop-modal');
         if (!modal) return;
 
         let html = '<h2 style="margin-top:0; color:#4CAF50;">🛒 Checkout Verification</h2>';
 
-        if (data.state === 'awaiting_code') {
-            html += `<p style="color:#ccc; font-size:14px;">To purchase <b>${data.itemName}</b> for ${data.price}, enter the code sent to your email.</p>
-                     <input type="text" id="rm-checkout-code" placeholder="123456" style="width:90%; padding:10px; margin-bottom:10px; background:#222; color:white; border:1px solid #444; border-radius:4px; text-align:center; letter-spacing:3px; font-size:18px;">
-                     <button class="btn" style="width:100%; background:#ff9800; margin-bottom:10px;" onclick="window.verifyCheckout()">Confirm Purchase</button>`;
-        } 
-        else if (data.state === 'approved') {
-            html += `<p style="color:#4CAF50; font-weight:bold;">Verification Successful!</p>
+        if (data.state === 'approved') {
+            html += `<p style="color:#4CAF50; font-weight:bold;">Secure Link Generated!</p>
                      <p style="color:#ccc; font-size:13px; margin-bottom:20px;">Click below to complete your payment.</p>
                      <a href="${data.url}" target="_blank" style="text-decoration:none;">
                          <button class="btn" style="width:100%; background:#003087; font-size:16px; padding:15px; font-weight:bold; letter-spacing:1px; color:#ffffff;">💳 Pay with PayPal</button>
@@ -4481,53 +4464,13 @@ if (socket) {
         html += `<button class="btn" style="background:#f44336; width:100%; margin-top:10px;" onclick="window.openRealMoneyShop()">Cancel</button>`;
         modal.innerHTML = html;
     });
-}
 
 window.isProcessingShop = false; // Anti-Spam Lock
-
-window.sendShopEmail = function() {
-    if (window.isProcessingShop) return;
-    
-    let email = document.getElementById('rm-email-input').value;
-    if (!email || !email.includes('@')) return dom.log.innerText = "Invalid email address.";
-    
-    window.isProcessingShop = true;
-    socket.emit('sendVerificationEmail', { email });
-    setTimeout(() => { window.isProcessingShop = false; }, 5000); // Unlock after 5s
-};
-window.sendShopEmail = function() {
-    if (window.isProcessingShop) return;
-    let email = document.getElementById('rm-email-input').value;
-    if (!email || !email.includes('@')) return dom.log.innerText = "Invalid email address.";
-    window.isProcessingShop = true;
-    socket.emit('sendVerificationEmail', { email });
-    setTimeout(() => { window.isProcessingShop = false; }, 5000);
-};
-
-window.verifyShopCode = function() {
-    if (window.isProcessingShop) return;
-    let code = document.getElementById('rm-code-input').value.trim();
-    if (!code) return;
-    window.isProcessingShop = true;
-    socket.emit('verifyRegistrationCode', { code });
-    setTimeout(() => { window.isProcessingShop = false; }, 3000);
-};
 
 // 🌟 MISSING FUNCTION ADDED HERE 🌟
 window.initiateCheckout = function(itemId, name, price) {
     currentShopItem = itemId; // Capture the item ID
     socket.emit('requestCheckoutCode', { itemId, itemName: name, price });
-};
-
-window.verifyCheckout = function() {
-    if (window.isProcessingShop) return;
-    let code = document.getElementById('rm-checkout-code').value.trim();
-    if (!code) return;
-    
-    window.isProcessingShop = true;
-    // 🛡️ SENDS BOTH PIECES TO SERVER
-    socket.emit('verifyCheckoutCode', { code: code, itemId: currentShopItem });
-    setTimeout(() => { window.isProcessingShop = false; }, 3000);
 };
 
 // ==========================================
