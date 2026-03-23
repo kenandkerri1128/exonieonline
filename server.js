@@ -5423,11 +5423,21 @@ socket.on('startDungeon', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || !data.email) return;
 
+        // ⏳ STRICT 60-SECOND SERVER COOLDOWN
+        const now = Date.now();
+        if (p.lastEmailSent && now - p.lastEmailSent < 60000) {
+            const left = Math.ceil((60000 - (now - p.lastEmailSent)) / 1000);
+            return socket.emit('systemMessage', `⏳ Please wait ${left}s before requesting another code.`);
+        }
+
         try {
             const { data: user } = await supabase.from('Exonians').select('email').eq('character_name', p.id).single();
             if (user && user.email && user.email !== data.email) {
                 return socket.emit('systemMessage', '❌ That is not the email registered to this account!');
             }
+
+            // Lock the email timer immediately
+            p.lastEmailSent = now;
 
             const code = Math.floor(100000 + Math.random() * 900000).toString();
             await supabase.from('Exonians').update({ email: data.email, verification_code: code }).eq('character_name', p.id);
@@ -5444,6 +5454,7 @@ socket.on('startDungeon', async (data) => {
             transporter.sendMail(mailOptions, (err) => {
                 if (err) {
                     console.error("Nodemailer Error:", err.message);
+                    p.lastEmailSent = 0; // Unlock if it failed so they can try again
                     socket.emit('systemMessage', '❌ Failed to send email. Check Server Logs.');
                 } else {
                     socket.emit('shopAuthState', { state: 'awaiting_code' });
@@ -5451,6 +5462,7 @@ socket.on('startDungeon', async (data) => {
                 }
             });
         } catch (e) {
+            p.lastEmailSent = 0; // Unlock on error
             socket.emit('systemMessage', '❌ Server error while processing email.');
         }
     });
@@ -5476,9 +5488,16 @@ socket.on('startDungeon', async (data) => {
         }
     });
 
-    socket.on('requestCheckoutCode', async (data) => {
+   socket.on('requestCheckoutCode', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || !p.verifiedEmail) return;
+
+        // ⏳ STRICT 60-SECOND SERVER COOLDOWN
+        const now = Date.now();
+        if (p.lastEmailSent && now - p.lastEmailSent < 60000) {
+            const left = Math.ceil((60000 - (now - p.lastEmailSent)) / 1000);
+            return socket.emit('systemMessage', `⏳ Please wait ${left}s before requesting another code.`);
+        }
         
         const MASTER_CATALOG = {
             'pet_fox': { price: 56000, name: 'Spirit Fox Pet' },
@@ -5493,6 +5512,9 @@ socket.on('startDungeon', async (data) => {
         const item = MASTER_CATALOG[data.itemId];
         if (!item) return socket.emit('systemMessage', "❌ Item not found in catalog.");
         
+        // Lock the email timer immediately
+        p.lastEmailSent = now;
+
         const code = Math.floor(100000 + Math.random() * 900000).toString();
         await supabase.from('Exonians').update({ verification_code: code }).eq('character_name', p.id);
         
@@ -5518,11 +5540,11 @@ socket.on('startDungeon', async (data) => {
                 socket.emit('checkoutState', { state: 'awaiting_code', itemName: item.name, price: data.price, itemId: data.itemId });
                 socket.emit('systemMessage', "📧 Checkout code sent to your email!");
             } else {
+                p.lastEmailSent = 0; // Unlock if it failed
                 socket.emit('systemMessage', "❌ Failed to send checkout email.");
             }
         });
     });
-
     socket.on('verifyCheckoutCode', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || !data.code || !data.itemId) return;
