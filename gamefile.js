@@ -4506,7 +4506,6 @@ let shopInjectInterval = setInterval(() => {
         clearInterval(shopInjectInterval); // Stop checking once successfully placed!
     }
 }, 1000); // Check every 1 second until the UI loads
-});
 // ==========================================
 // ⚖️ AUCTION HOUSE UI LOGIC
 // ==========================================
