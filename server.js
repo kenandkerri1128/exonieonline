@@ -829,6 +829,23 @@ function checkAndResetInstance(instId) {
     const activePlayers = playersInInstance(instId).filter(p => !p.isHiddenAdmin);
 
     if (activePlayers.length === 0) {
+        // ⏳ CRITICAL FIX: Kill any lingering Dungeon or Tavern fail timers before deleting the room!
+        // If we don't do this, JavaScript keeps ticking the clock in the background and will ruin the player's next run.
+        if (worlds[instId].failTimer) {
+            clearTimeout(worlds[instId].failTimer);
+        }
+        
+        // Now safely delete the room so it spawns fresh next time
+        delete worlds[instId];
+    }
+}
+    // 🛡️ THE FIX: Never delete Town or Neutral Zone from memory!
+    if (!worlds[instId] || instId === 'town' || instId === 'neutralzone') return;
+
+    // Check if there are any REAL players left (ignoring invisible admins)
+    const activePlayers = playersInInstance(instId).filter(p => !p.isHiddenAdmin);
+
+    if (activePlayers.length === 0) {
         // This forces the server to read your floor1.js spawns fresh the next time a player enters.
         delete worlds[instId];
     }
