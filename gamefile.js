@@ -141,8 +141,8 @@ rankStyle.innerHTML = `
         animation: divinePulseExtreme 0.8s infinite alternate ease-in-out;
     }
     @keyframes divinePulseExtreme {
-        0% { filter: drop-shadow(0 0 10px #ffffff) drop-shadow(0 0 20px #ffea00) drop-shadow(0 0 30px #ff9800) brightness(1.5) contrast(1.1); transform: scale(1); }
-        100% { filter: drop-shadow(0 0 15px #ffffff) drop-shadow(0 0 30px #ffea00) drop-shadow(0 0 60px #ff5722) brightness(2.5) contrast(1.3); transform: scale(1.05); }
+        0% { filter: drop-shadow(0 0 10px #ffffff) drop-shadow(0 0 20px #ffea00) drop-shadow(0 0 30px #ff9800) brightness(1.5) contrast(1.1); }
+        100% { filter: drop-shadow(0 0 15px #ffffff) drop-shadow(0 0 30px #ffea00) drop-shadow(0 0 60px #ff5722) brightness(2.5) contrast(1.3); }
     }
     
     /* 👑 SPARKLING GOLDEN TEXT FOR INVENTORY & TOOLTIPS */
