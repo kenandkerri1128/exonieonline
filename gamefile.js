@@ -1511,9 +1511,13 @@ window.triggerBossBGM = function(monster) {
 };
 
 window.playBGM = function(trackName) { 
-    // 🎵 THE FIX: Reroute the default music to the Neutral Zone track!
-    if (trackName === 'town' && safeMapData && safeMapData.id === 'neutralzone') {
-        trackName = 'neutralzone';
+    // 🎵 THE FIX: Reroute music for special zones
+    if (safeMapData) {
+        if (safeMapData.id === 'neutralzone') {
+            trackName = 'neutralzone';
+        } else if (safeMapData.id.includes('home')) {
+            trackName = 'home'; // 🏡 Triggers home.mp3
+        }
     }
 
     if (currentTrackName === trackName) return; 
