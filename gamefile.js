@@ -4474,7 +4474,7 @@ if (socket) {
             html += `<p style="color:#4CAF50; font-weight:bold;">Verification Successful!</p>
                      <p style="color:#ccc; font-size:13px; margin-bottom:20px;">Click below to complete your payment.</p>
                      <a href="${data.url}" target="_blank" style="text-decoration:none;">
-                         <button class="btn" style="width:100%; background:#2196F3; font-size:16px; padding:15px;">💳 Pay with PayMongo</button>
+                         <button class="btn" style="width:100%; background:#003087; font-size:16px; padding:15px; font-weight:bold; letter-spacing:1px; color:#ffffff;">💳 Pay with PayPal</button>
                      </a>`;
         }
 
