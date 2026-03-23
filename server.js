@@ -1228,14 +1228,33 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('sendVerificationEmail', async (data) => {
+   socket.on('sendVerificationEmail', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || !data.email) return;
+        
         const code = Math.floor(100000 + Math.random() * 900000).toString();
-        await supabase.from('Exonians').update({ email: data.email, verification_code: code }).eq('character_name', p.id);
-        const mailOptions = { from: process.env.EMAIL_USER, to: data.email, subject: 'Exonie Verification Code', text: `Your code: ${code}` };
-        transporter.sendMail(mailOptions, (err) => {
-            if (!err) socket.emit('shopAuthState', { state: 'awaiting_code' });
+        
+        // 1. Save to DB
+        const { error: dbError } = await supabase.from('Exonians').update({ email: data.email, verification_code: code }).eq('character_name', p.id);
+        if (dbError) console.error("DB Error saving code:", dbError);
+
+        const mailOptions = { 
+            from: process.env.EMAIL_USER, 
+            to: data.email, 
+            subject: 'Exonie Verification Code', 
+            text: `Your code: ${code}` 
+        };
+
+        // 2. Attempt Send
+        transporter.sendMail(mailOptions, (err, info) => {
+            if (err) {
+                console.error("❌ NODEMAILER ERROR:", err.message);
+                socket.emit('systemMessage', "❌ Email failed. Check server logs.");
+            } else {
+                console.log("📧 Email sent successfully to:", data.email);
+                socket.emit('shopAuthState', { state: 'awaiting_code' });
+                socket.emit('systemMessage', "📧 Code sent! Check your inbox (and Spam).");
+            }
         });
     });
 
