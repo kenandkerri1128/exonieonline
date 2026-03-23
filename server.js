@@ -2668,8 +2668,8 @@ socket.on('saveData', async (playerData) => {
                                 if (dropAccepted) {
                                     io.to(targetSid).emit('lootDropped', drop); 
 
-                                    // 🌟 BROADCAST GODLY & LEGENDARY ITEMS/GEMS TO WORLD
-                                    if (drop.rarity === 'Legendary' || drop.rarity === 'Godly') {
+                                   // 🌟 BROADCAST GODLY, LEGENDARY & DIVINE ITEMS/GEMS TO WORLD
+                                   if (drop.rarity === 'Legendary' || drop.rarity === 'Godly' || drop.rarity === 'Divine') {
                                         io.emit('rareLootBroadcast', {
                                             playerName: targetPlayer.name || targetPlayer.id,
                                             itemName: drop.name,
@@ -2791,8 +2791,8 @@ socket.on('saveData', async (playerData) => {
                                 socket.emit('syncInventory', p.inventory); 
                                 socket.emit('lootDropped', accDrop); 
                                 
-                                // 🌟 NEW: BROADCAST TAVERN GODLY/LEGENDARY LOOT
-                                if (r === 'Legendary' || r === 'Godly') {
+                                // 🌟 NEW: BROADCAST TAVERN GODLY/LEGENDARY/DIVINE LOOT
+                              if (r === 'Legendary' || r === 'Godly' || r === 'Divine') {
                                     io.emit('rareLootBroadcast', {
                                         playerName: p.name || p.id,
                                         itemName: accDrop.name,
