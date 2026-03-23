@@ -230,6 +230,7 @@ function sanitizeBaseStats(baseStats) {
     safe.playerClass = safe.playerClass || null;
     safe.title = safe.title || null; // 🛡️ Ensure title is kept!
     safe.gotWisp = baseStats ? !!baseStats.gotWisp : false;
+    safe.hasHome = baseStats ? !!baseStats.hasHome : false; // 🏡 ADD THIS LINE!
     safe.watchedTutorial = baseStats ? !!baseStats.watchedTutorial : false;
     safe.tavernEntries = (baseStats && typeof baseStats.tavernEntries === 'number') ? baseStats.tavernEntries : 5;
     safe.dungeonEntries = (baseStats && typeof baseStats.dungeonEntries === 'number') ? baseStats.dungeonEntries : 7;
@@ -4219,6 +4220,38 @@ socket.on('playerDied', () => {
 
     socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
 });
+    // 🏡 REAL ESTATE ENGINE: Buy a Home
+    socket.on('requestBuyHome', async () => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+
+        const HOME_PRICE = 1000000;
+
+        if (p.gold < HOME_PRICE) {
+            return socket.emit('systemMessage', '❌ Not enough gold to buy a home.');
+        }
+
+        if (p.baseStats && p.baseStats.hasHome) {
+            return socket.emit('systemMessage', '❌ You already own a home!');
+        }
+
+        // Deduct Gold and Grant Deed
+        p.gold -= HOME_PRICE;
+        p.baseStats.hasHome = true;
+
+        try {
+            await supabase
+                .from('Exonians')
+                .update({ gold: p.gold, base_stats: p.baseStats })
+                .eq('character_name', p.id);
+                
+            socket.emit('homeBought', p.gold);
+            socket.emit('systemMessage', '🎉 You successfully bought a Home for 1,000,000 Gold!');
+        } catch (err) {
+            console.error('Home Buy Error:', err);
+            socket.emit('systemMessage', '❌ Server error while purchasing home.');
+        }
+    });
 socket.on('useRevivalJuice', async (data) => {
     const p = onlinePlayers[socket.id];
     if (!p) return;
