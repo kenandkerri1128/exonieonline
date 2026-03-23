@@ -5534,6 +5534,45 @@ socket.on('startDungeon', async (data) => {
             socket.emit('systemMessage', `❌ Payment API Error. Check server console.`);
         }
     });
+    // ==========================================
+    // 🧰 HOME STORAGE ENGINE
+    // ==========================================
+    socket.on('requestOpenStorage', () => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+        if (!p.baseStats.homeStorage) p.baseStats.homeStorage = new Array(10).fill(null);
+        socket.emit('openStorageUI', p.baseStats.homeStorage);
+    });
+
+    socket.on('transferToStorage', (invIndex) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !p.inventory[invIndex]) return;
+        if (!p.baseStats.homeStorage) p.baseStats.homeStorage = new Array(10).fill(null);
+        
+        const emptySlot = p.baseStats.homeStorage.findIndex(i => i === null);
+        if (emptySlot === -1) return socket.emit('systemMessage', '❌ Storage is full!');
+        
+        p.baseStats.homeStorage[emptySlot] = p.inventory[invIndex];
+        p.inventory[invIndex] = null;
+        
+        supabase.from('Exonians').update({ inventory: p.inventory, base_stats: p.baseStats }).eq('character_name', p.id);
+        socket.emit('syncInventory', p.inventory);
+        socket.emit('syncStorage', p.baseStats.homeStorage);
+    });
+    socket.on('transferFromStorage', (storageIndex) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !p.baseStats.homeStorage || !p.baseStats.homeStorage[storageIndex]) return;
+        
+        const emptySlot = p.inventory.findIndex(i => i === null);
+        if (emptySlot === -1) return socket.emit('systemMessage', '❌ Inventory is full!');
+        
+        p.inventory[emptySlot] = p.baseStats.homeStorage[storageIndex];
+        p.baseStats.homeStorage[storageIndex] = null;
+        
+        supabase.from('Exonians').update({ inventory: p.inventory, base_stats: p.baseStats }).eq('character_name', p.id);
+        socket.emit('syncInventory', p.inventory);
+        socket.emit('syncStorage', p.baseStats.homeStorage);
+    });
    socket.on('disconnect', async () => {
         if (socket.username) { activeLogins.delete(socket.username); }
 
@@ -5569,46 +5608,6 @@ socket.on('startDungeon', async (data) => {
         }
     });
 });
-// ==========================================
-    // 🧰 HOME STORAGE ENGINE
-    // ==========================================
-    socket.on('requestOpenStorage', () => {
-        const p = onlinePlayers[socket.id];
-        if (!p) return;
-        if (!p.baseStats.homeStorage) p.baseStats.homeStorage = new Array(10).fill(null);
-        socket.emit('openStorageUI', p.baseStats.homeStorage);
-    });
-
-    socket.on('transferToStorage', (invIndex) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || !p.inventory[invIndex]) return;
-        if (!p.baseStats.homeStorage) p.baseStats.homeStorage = new Array(10).fill(null);
-        
-        const emptySlot = p.baseStats.homeStorage.findIndex(i => i === null);
-        if (emptySlot === -1) return socket.emit('systemMessage', '❌ Storage is full!');
-        
-        p.baseStats.homeStorage[emptySlot] = p.inventory[invIndex];
-        p.inventory[invIndex] = null;
-        
-        supabase.from('Exonians').update({ inventory: p.inventory, base_stats: p.baseStats }).eq('character_name', p.id);
-        socket.emit('syncInventory', p.inventory);
-        socket.emit('syncStorage', p.baseStats.homeStorage);
-    });
-
-    socket.on('transferFromStorage', (storageIndex) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || !p.baseStats.homeStorage || !p.baseStats.homeStorage[storageIndex]) return;
-        
-        const emptySlot = p.inventory.findIndex(i => i === null);
-        if (emptySlot === -1) return socket.emit('systemMessage', '❌ Inventory is full!');
-        
-        p.inventory[emptySlot] = p.baseStats.homeStorage[storageIndex];
-        p.baseStats.homeStorage[storageIndex] = null;
-        
-        supabase.from('Exonians').update({ inventory: p.inventory, base_stats: p.baseStats }).eq('character_name', p.id);
-        socket.emit('syncInventory', p.inventory);
-        socket.emit('syncStorage', p.baseStats.homeStorage);
-    });
 // ==========================================
 // 🧹 AUTOMATIC DATABASE CLEANUP ENGINE
 // ==========================================
