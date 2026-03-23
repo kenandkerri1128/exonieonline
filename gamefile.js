@@ -3106,7 +3106,7 @@ socket.on('forceTeleport', (tp) => {
         function fmtStatBlock(item) { 
             if (!item) return `<div class="inspect-empty">None</div>`; 
             const rarityColor = item.color || (window.RARITY_COLORS[item.rarity] || "#fff"); 
-            const nameClass = item.rarity === "Godly" ? "rarity-godly" : ""; 
+            const nameClass = item.rarity === "Godly" ? "rarity-godly" : (item.rarity === "Divine" ? "rarity-divine-text" : "");
             const displayName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name; 
             let html = `<div class="inspect-title"><div class="inspect-item-name ${nameClass}" style="color:${rarityColor};">${displayName}</div><div class="inspect-sub">Lv.${item.level || 1} ${item.rarity || "Unknown"}</div></div><div class="inspect-stat">`; 
             if (item.fixedStat) { for (const k in item.fixedStat) html += `<div><b>Fixed:</b> +${item.fixedStat[k]} ${k.toUpperCase()}</div>`; } 
