@@ -4479,39 +4479,33 @@ window.verifyCheckout = function() {
 };
 
 // ==========================================
-// 💎 CASH SHOP MOBILE BUTTON INJECTION
+// 💎 BULLETPROOF MOBILE SHOP BUTTON
 // ==========================================
-window.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        // Look for the existing UI container where the Ranking button is
-        let uiContainer = document.getElementById('top-right-ui') || document.querySelector('.top-right-ui');
+let shopInjectInterval = setInterval(() => {
+    let uiContainer = document.getElementById('top-right-ui') || document.querySelector('.top-right-ui');
+    
+    if (uiContainer && !document.getElementById('mobile-shop-btn')) {
+        let shopBtn = document.createElement('button');
+        shopBtn.id = 'mobile-shop-btn';
         
-        // If the container exists, inject the button
-        if (uiContainer) {
-            let shopBtn = document.createElement('button');
-            shopBtn.id = 'mobile-shop-btn';
-            
-            // Styling it to match the Exonie aesthetic
-            shopBtn.style.cssText = 'background: #111; color: white; font-weight: bold; border: 2px solid #E040FB; box-shadow: 0 0 10px #E040FB; margin-left: 10px; cursor: pointer; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; display: inline-flex; justify-content: center; align-items: center; pointer-events: auto; z-index: 1000;';
-            shopBtn.innerHTML = '💎';
-            shopBtn.title = "Open Cash Shop";
-            
-            // Handle both mouse clicks and mobile taps securely
-            const openShop = (e) => {
-                e.preventDefault();
-                if (typeof window.openRealMoneyShop === 'function') {
-                    window.openRealMoneyShop();
-                } else {
-                    console.error("Shop function not loaded yet.");
-                }
-            };
+        shopBtn.style.cssText = 'background: #111; color: white; font-weight: bold; border: 2px solid #E040FB; box-shadow: 0 0 10px #E040FB; margin-left: 10px; cursor: pointer; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; display: inline-flex; justify-content: center; align-items: center; pointer-events: auto; z-index: 1000;';
+        shopBtn.innerHTML = '💎';
+        shopBtn.title = "Open Cash Shop";
+        
+        const openShop = (e) => {
+            e.preventDefault();
+            if (typeof window.openRealMoneyShop === 'function') {
+                window.openRealMoneyShop();
+            }
+        };
 
-            shopBtn.onclick = openShop;
-            shopBtn.ontouchstart = openShop;
+        shopBtn.onclick = openShop;
+        shopBtn.ontouchstart = openShop;
 
-            uiContainer.appendChild(shopBtn);
-        }
-    }, 2000); // 2-second delay ensures the rest of the UI has loaded first
+        uiContainer.appendChild(shopBtn);
+        clearInterval(shopInjectInterval); // Stop checking once successfully placed!
+    }
+}, 1000); // Check every 1 second until the UI loads
 });
 // ==========================================
 // ⚖️ AUCTION HOUSE UI LOGIC
