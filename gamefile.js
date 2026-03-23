@@ -4704,6 +4704,11 @@ window.switchAhTab = function(tab) {
     document.getElementById(`ah-tab-${tab}`).classList.add('selected');
     document.getElementById(`ah-view-${tab}`).style.display = 'block';
 
+    if (tab === 'browse') {
+        document.getElementById('ah-search-input').value = '';
+        document.getElementById('ah-browse-results').innerHTML = '<p style="color:#aaa; text-align:center;">Loading...</p>';
+        socket.emit('ah_search', ''); 
+    }
     if (tab === 'sell') window.renderAhSellGrid();
     if (tab === 'my') {
         document.getElementById('ah-my-results').innerHTML = '<p style="color:#aaa; text-align:center;">Loading...</p>';
@@ -4828,4 +4833,17 @@ if (socket) {
         dom.log.innerText = "Item listed on the Auction House!";
         window.switchAhTab('my'); // Auto-switch to see it
     });
-}
+} // <--- THIS IS YOUR LINE 4836
+
+// ==========================================
+// ⚖️ AUCTION HOUSE: LIVE SEARCH FILTER
+// ==========================================
+setTimeout(() => {
+    let searchInput = document.getElementById('ah-search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            document.getElementById('ah-browse-results').innerHTML = '<p style="color:#aaa; text-align:center;">Searching...</p>';
+            socket.emit('ah_search', this.value.trim());
+        });
+    }
+}, 2000);
