@@ -4464,7 +4464,7 @@ if (socket) {
         html += `<button class="btn" style="background:#f44336; width:100%; margin-top:10px;" onclick="window.openRealMoneyShop()">Cancel</button>`;
         modal.innerHTML = html;
     });
-
+}
 window.isProcessingShop = false; // Anti-Spam Lock
 
 // 🌟 MISSING FUNCTION ADDED HERE 🌟
@@ -4799,7 +4799,7 @@ if (socket) {
         dom.log.innerText = "Item listed on the Auction House!";
         window.switchAhTab('my'); // Auto-switch to see it
     });
-
+}
 // ==========================================
 // ⚖️ AUCTION HOUSE: LIVE SEARCH FILTER
 // ==========================================
