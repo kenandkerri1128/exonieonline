@@ -2364,7 +2364,8 @@ function setKeyState(e, isDown) {
         if (key === 'k' && typeof window.toggleSkillScreen === 'function') window.toggleSkillScreen(); 
         if (key === 'j' && typeof window.openShop === 'function') window.openShop(); 
         if (key === 'm' && typeof window.toggleMailbox === 'function') window.toggleMailbox(); 
-        if (key === 'o') { 
+        if (key === 'c' && typeof window.openRealMoneyShop === 'function') window.openRealMoneyShop();
+        if (key === 'o') {
             if (window.isAdmin(game.player.name)) { 
                 window.adminMode = !window.adminMode; 
                 let pnl = document.getElementById('admin-panel'); if(pnl) pnl.style.display = window.adminMode ? 'block' : 'none'; 
@@ -4282,7 +4283,135 @@ window.playTutorialVideo = function() {
             });
     }
 };
+// ==========================================
+// 💳 REAL MONEY CASH SHOP & 2FA UI
+// ==========================================
+let currentShopItem = null;
 
+window.openRealMoneyShop = function() {
+    let modal = document.getElementById('rm-shop-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'rm-shop-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#111; border:2px solid #E040FB; padding:20px; z-index:9000; width:350px; border-radius:8px; box-shadow:0 0 30px #E040FB; color:white; text-align:center; font-family:sans-serif;';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = '<h2 style="color:#E040FB;">Connecting to Server...</h2>';
+    modal.style.display = 'block';
+    
+    if (socket) socket.emit('requestShopAccess');
+};
+
+if (socket) {
+    socket.on('shopAuthState', (data) => {
+        let modal = document.getElementById('rm-shop-modal');
+        if (!modal) return;
+
+        let html = '<h2 style="margin-top:0; color:#E040FB; text-shadow: 0 0 10px #E040FB;">💎 Exonie Emporium</h2>';
+
+        if (data.state === 'needs_register') {
+            html += `<p style="color:#ccc; font-size:14px;">Please register an active email address to access the Cash Shop.</p>
+                     <input type="email" id="rm-email-input" placeholder="your@email.com" style="width:90%; padding:10px; margin-bottom:10px; background:#222; color:white; border:1px solid #444; border-radius:4px;">
+                     <button class="btn" style="width:100%; background:#2196F3; margin-bottom:10px;" onclick="window.sendShopEmail()">Send Verification Code</button>`;
+        } 
+        else if (data.state === 'awaiting_code') {
+            html += `<p style="color:#ccc; font-size:14px;">We sent a 6-digit code to your email. Enter it below.</p>
+                     <input type="text" id="rm-code-input" placeholder="123456" style="width:90%; padding:10px; margin-bottom:10px; background:#222; color:white; border:1px solid #444; border-radius:4px; text-align:center; letter-spacing:3px; font-size:18px;">
+                     <button class="btn" style="width:100%; background:#4CAF50; margin-bottom:10px;" onclick="window.verifyShopCode()">Verify & Enter</button>`;
+        }
+        else if (data.state === 'shop_open') {
+            html += `<p style="color:#4CAF50; font-size:12px; margin-bottom:15px;">Verified: ${data.email}</p>`;
+            
+            // 🛒 REAL MONEY CATALOG
+            const items = [
+                { id: 'pet_fox', name: 'Spirit Fox Pet', price: '$10.00', desc: 'A loyal fire-fox companion that follows you and attacks enemies.' },
+                { id: 'pet_owl', name: 'Night Owl Pet', price: '$10.00', desc: 'A mysterious owl that flies by your side.' },
+                { id: 'aura_blaze', name: 'Blaze Aura Stone', price: '$10.00', desc: 'Cosmetic: Infuses your armor with a burning red flame effect.' },
+                { id: 'aura_liquid', name: 'Liquid Aura Stone', price: '$10.00', desc: 'Cosmetic: Infuses your armor with a flowing water effect.' },
+                { id: 'aura_nature', name: 'Nature Aura Stone', price: '$10.00', desc: 'Cosmetic: Infuses your armor with a leaf and vine effect.' },
+                { id: 'divine_pack', name: 'Divine Stone Bundle (x5)', price: '$10.00', desc: 'Contains 5 Divine Enhancement Stones. Works on any level.' },
+                { id: 'revival_pack', name: 'Revival Juice Bundle (x10)', price: '$5.00', desc: 'Contains 10 Revival Juices. Revive instantly on the spot.' }
+            ];
+
+            html += `<div style="max-height:250px; overflow-y:auto; padding-right:5px;">`;
+            items.forEach(i => {
+                html += `<div style="background:#222; border:1px solid #444; padding:10px; border-radius:6px; margin-bottom:10px; text-align:left;">
+                            <div style="color:#E040FB; font-weight:bold; font-size:15px;">${i.name}</div>
+                            <div style="color:#aaa; font-size:12px; margin-bottom:8px;">${i.desc}</div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="color:#ffeb3b; font-weight:bold;">${i.price}</span>
+                                <button class="btn" style="background:#4CAF50; padding:5px 15px;" onclick="window.initiateCheckout('${i.id}', '${i.name}', '${i.price}')">Buy</button>
+                            </div>
+                         </div>`;
+            });
+            html += `</div>`;
+        }
+
+        html += `<button class="btn" style="background:#f44336; width:100%; margin-top:10px;" onclick="document.getElementById('rm-shop-modal').style.display='none'">Close</button>`;
+        modal.innerHTML = html;
+    });
+
+    socket.on('checkoutState', (data) => {
+        let modal = document.getElementById('rm-shop-modal');
+        if (!modal) return;
+
+        let html = '<h2 style="margin-top:0; color:#4CAF50;">🛒 Checkout Verification</h2>';
+
+        if (data.state === 'awaiting_code') {
+            html += `<p style="color:#ccc; font-size:14px;">To purchase <b>${data.itemName}</b> for ${data.price}, enter the code sent to your email.</p>
+                     <input type="text" id="rm-checkout-code" placeholder="123456" style="width:90%; padding:10px; margin-bottom:10px; background:#222; color:white; border:1px solid #444; border-radius:4px; text-align:center; letter-spacing:3px; font-size:18px;">
+                     <button class="btn" style="width:100%; background:#ff9800; margin-bottom:10px;" onclick="window.verifyCheckout()">Confirm Purchase</button>`;
+        } 
+        else if (data.state === 'approved') {
+            html += `<p style="color:#4CAF50; font-weight:bold;">Verification Successful!</p>
+                     <p style="color:#ccc; font-size:13px; margin-bottom:20px;">Click below to complete your payment.</p>
+                     <a href="${data.url}" target="_blank" style="text-decoration:none;">
+                         <button class="btn" style="width:100%; background:#2196F3; font-size:16px; padding:15px;">💳 Pay with PayMongo</button>
+                     </a>`;
+        }
+
+        html += `<button class="btn" style="background:#f44336; width:100%; margin-top:10px;" onclick="window.openRealMoneyShop()">Cancel</button>`;
+        modal.innerHTML = html;
+    });
+}
+
+window.sendShopEmail = function() {
+    let email = document.getElementById('rm-email-input').value;
+    if (!email || !email.includes('@')) return dom.log.innerText = "Invalid email address.";
+    socket.emit('sendVerificationEmail', { email });
+};
+
+window.verifyShopCode = function() {
+    let code = document.getElementById('rm-code-input').value.trim();
+    if (!code) return;
+    socket.emit('verifyRegistrationCode', { code });
+};
+
+window.initiateCheckout = function(itemId, name, price) {
+    currentShopItem = itemId;
+    socket.emit('requestCheckoutCode', { itemId, itemName: name, price });
+};
+
+window.verifyCheckout = function() {
+    let code = document.getElementById('rm-checkout-code').value.trim();
+    if (!code) return;
+    socket.emit('verifyCheckoutCode', { code });
+};
+
+// 📱 INJECT MOBILE BUTTON
+setTimeout(() => {
+    let uiContainer = document.getElementById('top-right-ui');
+    if (uiContainer) {
+        let shopBtn = document.createElement('button');
+        shopBtn.className = 'ui-btn';
+        shopBtn.style.cssText = 'background: #E040FB; color: white; font-weight: bold; border: 2px solid #fff; box-shadow: 0 0 10px #E040FB; margin-left:10px; cursor:pointer; border-radius:50%; width:40px; height:40px; font-size:18px; display:inline-flex; justify-content:center; align-items:center;';
+        shopBtn.innerText = '💎';
+        shopBtn.onclick = window.openRealMoneyShop;
+        uiContainer.appendChild(shopBtn);
+    }
+}, 2000);
 // ==========================================
 // ⚖️ AUCTION HOUSE UI LOGIC
 // ==========================================
