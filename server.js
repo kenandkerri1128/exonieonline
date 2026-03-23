@@ -4408,7 +4408,13 @@ socket.on('adminSpawnItem', async (data) => {
 
             item = { id: Date.now() + Math.random(), name: finalName, type: 'aura', auraId: auraType, sprite: 'aurastone', level: 1, rarity: 'Legendary', color: aData.color, description: isPetItem ? "Click to apply to Leggings." : "Click to apply to an Armor. Purely cosmetic.", quantity: 1 };
         } else {
-            const tmpl = ITEM_TEMPLATES[type];
+            const EXTENDED_TEMPLATES = {
+                ...ITEM_TEMPLATES,
+                'necklace': { slot: 'necklace', statKey: 'magic', baseName: 'Necklace', spriteName: 'necklace' },
+                'ring': { slot: 'ring', statKey: 'attack', baseName: 'Ring', spriteName: 'ring' },
+                'earrings': { slot: 'earrings', statKey: 'defense', baseName: 'Earrings', spriteName: 'earrings' }
+            };
+            const tmpl = EXTENDED_TEMPLATES[type];
             if (!tmpl) return;
             const rPfx = rarity === "Starter" ? "basic" : rarity.toLowerCase();
             item = { id: Date.now() + Math.random(), name: `${rarity} Admin ${tmpl.baseName}`, type: tmpl.slot, sprite: rPfx + tmpl.spriteName, level: level, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: enhanceLevel, quantity: 1 };
@@ -5047,15 +5053,16 @@ socket.on('startDungeon', async (data) => {
                     return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
                 }
                 
-                // Check Weekly Entries
-                const now = new Date();
-                let dayOfWeek = now.getDay();
+           const now = new Date();
+                let dayOfWeek = now.getUTCDay();
                 let daysSinceMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
-                let lastMonday = new Date(now);
-                lastMonday.setDate(now.getDate() - daysSinceMonday);
-                lastMonday.setHours(0, 0, 0, 0);
+                
+                let lastMonday = new Date(now.getTime());
+                lastMonday.setUTCDate(now.getUTCDate() - daysSinceMonday);
+                lastMonday.setUTCHours(0, 0, 0, 0);
+                const lastMondayTs = lastMonday.getTime();
 
-                if (!mp.baseStats.dungeonReset || mp.baseStats.dungeonReset < lastMonday.getTime()) {
+                if (!mp.baseStats.dungeonReset || mp.baseStats.dungeonReset < lastMondayTs) {
                     mp.baseStats.dungeonEntries = 7;
                     mp.baseStats.dungeonReset = Date.now();
                 }
@@ -5080,15 +5087,16 @@ socket.on('startDungeon', async (data) => {
                 playersToEnter.push(mp);
             }
         } else {
-            // Solo Entry Verification
-            const now = new Date();
-            let dayOfWeek = now.getDay();
+         const now = new Date();
+            let dayOfWeek = now.getUTCDay();
             let daysSinceMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
-            let lastMonday = new Date(now);
-            lastMonday.setDate(now.getDate() - daysSinceMonday);
-            lastMonday.setHours(0, 0, 0, 0);
+            
+            let lastMonday = new Date(now.getTime());
+            lastMonday.setUTCDate(now.getUTCDate() - daysSinceMonday);
+            lastMonday.setUTCHours(0, 0, 0, 0);
+            const lastMondayTs = lastMonday.getTime();
 
-            if (!p.baseStats.dungeonReset || p.baseStats.dungeonReset < lastMonday.getTime()) {
+            if (!p.baseStats.dungeonReset || p.baseStats.dungeonReset < lastMondayTs) {
                 p.baseStats.dungeonEntries = 7;
                 p.baseStats.dungeonReset = Date.now();
             }
