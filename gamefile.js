@@ -4474,7 +4474,9 @@ window.verifyCheckout = function() {
     if (!code) return;
     
     window.isProcessingShop = true;
-    socket.emit('verifyCheckoutCode', { code });
+    // 🛡️ THE FIX: We must send BOTH the code AND the currently selected item ID to the server!
+    socket.emit('verifyCheckoutCode', { code: code, itemId: currentShopItem });
+    
     setTimeout(() => { window.isProcessingShop = false; }, 3000);
 };
 
