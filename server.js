@@ -5462,11 +5462,26 @@ socket.on('startDungeon', async (data) => {
     socket.on('verifyRegistrationCode', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || !data.code) return;
-        const { data: user } = await supabase.from('Exonians').select('verification_code, email').eq('character_name', p.id).single();
-        if (user && user.verification_code === data.code) {
-            await supabase.from('Exonians').update({ email_verified: true, verification_code: null }).eq('character_name', p.id);
-            p.verifiedEmail = user.email;
-            socket.emit('shopAuthState', { state: 'shop_open', email: user.email });
+        
+        try {
+            const { data: user, error } = await supabase.from('Exonians').select('verification_code, email').eq('character_name', p.id).single();
+            
+            if (error) {
+                console.error("DB Error:", error);
+                return socket.emit('systemMessage', "❌ Database error. Please try again.");
+            }
+
+            // 🛡️ THE FIX: Wrap both in String() so they perfectly match
+            if (user && String(user.verification_code) === String(data.code)) {
+                await supabase.from('Exonians').update({ email_verified: true, verification_code: null }).eq('character_name', p.id);
+                p.verifiedEmail = user.email;
+                socket.emit('shopAuthState', { state: 'shop_open', email: user.email });
+                socket.emit('systemMessage', "✅ Email successfully verified!");
+            } else {
+                socket.emit('systemMessage', "❌ Incorrect verification code.");
+            }
+        } catch (e) {
+            socket.emit('systemMessage', "❌ Server error during verification.");
         }
     });
 
@@ -5488,30 +5503,54 @@ socket.on('startDungeon', async (data) => {
 
     socket.on('verifyCheckoutCode', async (data) => {
         const p = onlinePlayers[socket.id];
-        if (!p || !data.code) return;
-        const { data: user } = await supabase.from('Exonians').select('verification_code').eq('character_name', p.id).single();
-        if (user && user.verification_code === data.code) {
-            await supabase.from('Exonians').update({ verification_code: null }).eq('character_name', p.id);
-            const MASTER_CATALOG = {
-                'pet_fox': { price: 56000, name: 'Spirit Fox Pet' },
-                'pet_owl': { price: 56000, name: 'Night Owl Pet' },
-                'aura_blaze': { price: 56000, name: 'Blaze Aura Stone' },
-                'aura_liquid': { price: 56000, name: 'Liquid Aura Stone' },
-                'aura_nature': { price: 56000, name: 'Nature Aura Stone' },
-                'divine_pack': { price: 56000, name: 'Divine Stone Bundle (x5)' },
-                'revival_pack': { price: 28000, name: 'Revival Juice Bundle (x5)' }
-            };
-            const item = MASTER_CATALOG[data.itemId];
-            try {
+        if (!p || !data.code || !data.itemId) return;
+
+        const MASTER_CATALOG = {
+            'pet_fox': { price: 56000, name: 'Spirit Fox Pet' },
+            'pet_owl': { price: 56000, name: 'Night Owl Pet' },
+            'aura_blaze': { price: 56000, name: 'Blaze Aura Stone' },
+            'aura_liquid': { price: 56000, name: 'Liquid Aura Stone' },
+            'aura_nature': { price: 56000, name: 'Nature Aura Stone' },
+            'divine_pack': { price: 56000, name: 'Divine Stone Bundle (x5)' },
+            'revival_pack': { price: 28000, name: 'Revival Juice Bundle (x5)' }
+        };
+
+        const item = MASTER_CATALOG[data.itemId];
+        if (!item) return socket.emit('systemMessage', "❌ Security Error: Item not in catalog.");
+
+        try {
+            const { data: user } = await supabase.from('Exonians').select('verification_code').eq('character_name', p.id).single();
+
+            // 🛡️ THE FIX: Force String matching
+            if (user && String(user.verification_code) === String(data.code)) {
+                await supabase.from('Exonians').update({ verification_code: null }).eq('character_name', p.id);
+                
                 const response = await axios.post('https://api.paymongo.com/v1/checkout_sessions', {
-                    data: { attributes: {
-                        line_items: [{ currency: 'PHP', amount: item.price, name: item.name, quantity: 1 }],
-                        payment_method_types: ['card', 'gcash', 'maya'],
-                        reference_number: `${p.id}_${data.itemId}_${Date.now()}`
-                    }}
-                }, { headers: { authorization: `Basic ${Buffer.from(process.env.PAYMONGO_SECRET_KEY + ":").toString('base64')}` }});
+                    data: {
+                        attributes: {
+                            send_email_receipt: true,
+                            show_description: true,
+                            show_line_items: true,
+                            line_items: [{ currency: 'PHP', amount: item.price, name: item.name, quantity: 1 }],
+                            payment_method_types: ['card', 'gcash', 'maya'],
+                            reference_number: `${p.id}_${data.itemId}_${Date.now()}`
+                        }
+                    }
+                }, {
+                    headers: { 
+                        accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        authorization: `Basic ${Buffer.from(process.env.PAYMONGO_SECRET_KEY + ":").toString('base64')}` 
+                    }
+                });
+                
                 socket.emit('checkoutState', { state: 'approved', url: response.data.data.attributes.checkout_url });
-            } catch (err) { console.error(err); }
+            } else {
+                socket.emit('systemMessage', "❌ Incorrect checkout code.");
+            }
+        } catch (e) {
+            console.error("Checkout Crash:", e.response ? e.response.data : e.message);
+            socket.emit('systemMessage', "❌ Failed to generate payment link.");
         }
     });
    socket.on('disconnect', async () => {
