@@ -16,6 +16,8 @@ exonieChannel.onmessage = (event) => {
 // 1. CORE VARIABLES & SETUP
 // ==========================================
 const socket = io();
+let currentShopItem = null; // 🛡️ GLOBAL TRACKER FOR THE SHOP
+window.isProcessingShop = false; // Anti-Spam Lock
 let isMailboxOpen = false, isChatting = false, isInventoryOpen = false, isSkillOpen = false, isShopping = false, localBossTimer = null, isEnhancing = false, isApplyingAura = false;
 let activeInvIndex = -1, attackCooldownActive = false, isAttacking = false, attackHeld = false, autoAttackMode = false;
 let lastNetTs = 0, lastSentState = 'idle', pendingPartyInvite = null, pendingTradeInvite = null, inTradeMode = false, tradeTarget = null;
@@ -4368,7 +4370,6 @@ window.playTutorialVideo = function() {
 // ==========================================
 // 💳 REAL MONEY CASH SHOP & 2FA UI
 // ==========================================
-let currentShopItem = null;
 
 window.openRealMoneyShop = function() {
     let modal = document.getElementById('rm-shop-modal');
@@ -4471,10 +4472,6 @@ window.sendShopEmail = function() {
     socket.emit('sendVerificationEmail', { email });
     setTimeout(() => { window.isProcessingShop = false; }, 5000); // Unlock after 5s
 };
-
-let currentShopItem = null; // 🛡️ GLOBAL TRACKER FOR THE SHOP
-window.isProcessingShop = false; // Anti-Spam Lock
-
 window.sendShopEmail = function() {
     if (window.isProcessingShop) return;
     let email = document.getElementById('rm-email-input').value;
