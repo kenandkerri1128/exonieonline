@@ -4561,6 +4561,7 @@ socket.on('adminSpawnItem', async (data) => {
             const auraType = type.split('_')[1];
             const AURA_DATA = {
                 'lightning': { name: 'Lightning', color: '#00ffff' },
+                'divine': { name: 'Aura of the Divine', color: '#ffea00' }, // 👑 NEW: Royal Premium Aura
                 'blaze': { name: 'Blaze', color: '#ff4444' },
                 'liquid': { name: 'Liquid', color: '#44aaff' },
                  'nature': { name: 'Nature', color: '#4CAF50' },
