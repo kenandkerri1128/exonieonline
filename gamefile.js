@@ -1495,7 +1495,15 @@ window.shootFoxFire = function(startX, startY, endX, endY, petType) {
 window.updateAnimationFrames = function(state) {
     let currentAura = game.player.equips?.armor?.aura || null;
     let cAuraEl = document.getElementById('player-cosmetic-aura');
-    if (cAuraEl) { cAuraEl.className = currentAura ? `cosmetic-aura aura-${currentAura}` : 'cosmetic-aura'; }
+    
+    if (cAuraEl) { 
+        // Reset classes
+        cAuraEl.className = 'cosmetic-aura'; 
+        // 👇 THE FIX: Specifically apply the divine class if equipped
+        if (currentAura) {
+            cAuraEl.classList.add(`aura-${currentAura}`);
+        }
+    }
     
     if (dom.playerAvatarContainer) dom.playerAvatarContainer.style.transform = window.facingRight ? 'scaleX(-1)' : 'scaleX(1)';
     
