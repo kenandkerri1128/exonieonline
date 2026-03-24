@@ -4573,10 +4573,11 @@ socket.on('adminSpawnItem', async (data) => {
             
             // 🛡️ THE FIX: Removes "Aura Stone" from the name if it is a pet
             let isPetItem = ['fox', 'owl', 'wisp'].includes(auraType);
-            let finalName = isPetItem ? aData.name : `${aData.name} Aura Stone`;
+        let finalName = isPetItem ? aData.name : `${aData.name} Aura Stone`;
 
-            item = { id: Date.now() + Math.random(), name: finalName, type: 'aura', auraId: auraType, sprite: 'aurastone', level: 1, rarity: 'Legendary', color: aData.color, description: isPetItem ? "Click to apply to Leggings." : "Click to apply to an Armor. Purely cosmetic.", quantity: 1 };
-        } else {
+        // 🛡️ THE FIX: Set rarity to the dynamic variable from the admin panel!
+        item = { id: Date.now() + Math.random(), name: finalName, type: 'aura', auraId: auraType, sprite: 'aurastone', level: 1, rarity: rarity, color: aData.color, description: isPetItem ? "Click to apply to Leggings." : "Click to apply to an Armor. Purely cosmetic.", quantity: 1 };
+    } else {
             const EXTENDED_TEMPLATES = {
                 ...ITEM_TEMPLATES,
                 'necklace': { slot: 'necklace', statKey: 'magic', baseName: 'Necklace', spriteName: 'necklace' },
@@ -4770,7 +4771,7 @@ if (rarity !== "Starter") {
 
         const AURA_DATA = {
             'lightning': { name: 'Lightning', color: '#00ffff' },
-            'divine': { name: 'Aura of the Divine', color: '#ffea00' },
+            'divine': { name: 'Divine', color: '#ffea00' }, // 👑 THE FIX: Added Divine to Extraction
             'blaze': { name: 'Blaze', color: '#ff4444' },
             'liquid': { name: 'Liquid', color: '#44aaff' },
             'nature': { name: 'Nature', color: '#4CAF50' },
@@ -4781,11 +4782,12 @@ if (rarity !== "Starter") {
         let aData = AURA_DATA[item.aura] || AURA_DATA['lightning'];
         let isPetExtract = ['fox', 'owl', 'wisp'].includes(item.aura);
 
+     // 🛡️ THE FIX: Set rarity to 'Divine' for the extracted stone
         let auraStone = { 
             id: Date.now() + Math.random(), 
             name: isPetExtract ? aData.name : `${aData.name} Aura Stone`, 
             type: 'aura', auraId: item.aura, sprite: 'aurastone', 
-            level: 1, rarity: 'Legendary', color: aData.color, 
+            level: 1, rarity: 'Divine', color: aData.color, 
             description: isPetExtract ? "Click to apply to Leggings." : "Click to apply to equipment. Purely cosmetic.", quantity: 1 
         };
 
