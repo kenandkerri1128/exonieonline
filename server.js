@@ -4864,11 +4864,11 @@ socket.on('requestSell', async (data) => {
     let baseVal = (serverItem.level || 1) * 2;
     let multiplier = {
         "Starter": 1,
-        "Basic": 2,
-        "Rare": 5,
-        "Unique": 10,
-        "Legendary": 25,
-        "Godly": 100
+        "Basic": 1,
+        "Rare": 1,
+        "Unique": 2,
+        "Legendary": 3,
+        "Godly": 5
     }[serverItem.rarity] || 1;
 
     let sellPrice = baseVal * multiplier;
