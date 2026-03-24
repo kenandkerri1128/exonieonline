@@ -106,6 +106,150 @@ app.get('/paypal-return', async (req, res) => {
     
    res.send('<script>window.close();</script><p style="font-family: sans-serif; text-align: center; margin-top: 50px;">Payment complete! You can close this tab and return to the game.</p>');
 });
+// ==========================================
+// 👑 PATREON WEBHOOK (Royal Tier Rewards)
+// ==========================================
+app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (req, res) => {
+    try {
+        // 🛡️ SECURITY: Verify the exact cryptographic signature from Patreon
+        const crypto = require('crypto');
+        const signature = req.headers['x-patreon-signature'];
+        const secret = process.env.PATREON_WEBHOOK_SECRET;
+
+        if (!signature || !secret) {
+            console.log('🚨 [Security] Blocked Patreon webhook: Missing signature or secret.');
+            return res.status(401).send('Unauthorized');
+        }
+
+        const hash = crypto.createHmac('md5', secret).update(req.body).digest('hex');
+        
+        if (signature !== hash) {
+            console.log('🚨 [Security] Blocked fake Patreon webhook attempt! Signature mismatch.');
+            return res.status(401).send('Unauthorized');
+        }
+
+        // Parse the raw string back into JSON now that it is fully verified
+        const event = JSON.parse(req.body);
+        const eventType = req.headers['x-patreon-event'];
+        const patronEmail = event?.data?.attributes?.email;
+        
+        if (!patronEmail) return res.status(200).send('No email provided');
+
+        // 👉 TIER DETECTION: Checks for your $115 Tier (11500 cents)
+        const amountCents = event?.data?.attributes?.currently_entitled_amount_cents || 0;
+        const isRoyalTier = amountCents >= 11500; 
+
+        const { data: user } = await supabase
+            .from('Exonians')
+            .select('character_name, inventory, equips')
+            .eq('email', patronEmail)
+            .single();
+
+        if (!user) {
+            console.log(`[Patreon] Ignored webhook: No Exonie account linked to ${patronEmail}`);
+            return res.status(200).send('User not found');
+        }
+
+        const playerName = user.character_name;
+
+        // ❌ THE SCRUBBER: UNSUBSCRIBE / DOWNGRADE LOGIC
+        if (eventType === 'members:pledge:delete' || (!isRoyalTier && eventType === 'members:pledge:update')) {
+            console.log(`🚨 [Patreon] ${playerName} lost Royal Tier status. Removing Divine Aura.`);
+            
+            let inv = Array.isArray(user.inventory) ? user.inventory : [];
+            let eqs = typeof user.equips === 'object' ? user.equips : {};
+            let itemsModified = false;
+
+            for (let i = 0; i < inv.length; i++) {
+                if (inv[i] && (inv[i].auraId === 'divine' || inv[i].aura === 'divine' || inv[i].name.includes('Divine Aura Stone'))) {
+                    inv[i] = null;
+                    itemsModified = true;
+                }
+            }
+
+            for (let key in eqs) {
+                if (eqs[key] && eqs[key].aura === 'divine') {
+                    delete eqs[key].aura;
+                    if (eqs[key].originalName) {
+                        eqs[key].name = eqs[key].originalName;
+                        delete eqs[key].originalName;
+                    } else {
+                        eqs[key].name = eqs[key].name.replace('Divine ', ''); 
+                    }
+                    itemsModified = true;
+                }
+            }
+
+            if (itemsModified) {
+                await supabase.from('Exonians').update({ inventory: inv, equips: eqs }).eq('character_name', playerName);
+                const tsid = findSocketIdByPlayerId(playerName);
+                if (tsid && onlinePlayers[tsid]) {
+                    onlinePlayers[tsid].inventory = inv;
+                    onlinePlayers[tsid].equips = eqs;
+                    if (onlinePlayers[tsid].spriteData && onlinePlayers[tsid].spriteData.aura === 'divine') {
+                        onlinePlayers[tsid].spriteData.aura = null;
+                    }
+                    io.to(tsid).emit('syncInventory', inv);
+                    io.to(tsid).emit('inventoryItemUsed', { inventory: inv, equips: eqs });
+                    io.to(tsid).emit('systemMessage', "🚨 Your Patreon Royal Tier has expired. The Aura of the Divine has been removed.");
+                    
+                    const p = onlinePlayers[tsid];
+                    io.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
+                }
+            }
+            return res.status(200).send('Downgrade processed');
+        }
+
+        if (!isRoyalTier) return res.status(200).send('Not Royal Tier');
+
+        // 👑 EXACT CORRECT ITEM NAMES
+        const divineAura = { 
+            id: Date.now() + Math.random(), 
+            name: "Divine Aura Stone", 
+            type: 'aura', auraId: 'divine', sprite: 'aurastone', 
+            level: 1, rarity: 'Divine', color: '#ffea00', 
+            description: "Click to apply to an Armor. Purely cosmetic. Royal Patron Exclusive.", quantity: 1 
+        };
+
+        const royalGoldSack = {
+            id: Date.now() + Math.random(),
+            name: "Royal Gold Sack",
+            type: 'consumable',
+            rarity: 'Divine',
+            color: '#FFD700',
+            description: "A heavy sack of Royal Patreon Gold. Use to receive 1,000,000 Gold instantly.",
+            quantity: 1
+        };
+
+        if (eventType === 'members:pledge:create') {
+            await supabase.from('System_Mail').insert([
+                { recipient_name: playerName, message_text: "👑 Welcome to the Royal Tier! Here is your exclusive Aura of the Divine Stone.", attached_item: JSON.stringify(divineAura), is_claimed: false },
+                { recipient_name: playerName, message_text: "💰 Thank you for your incredible support! Here is your first 1,000,000 Gold monthly stipend.", attached_item: JSON.stringify(royalGoldSack), is_claimed: false }
+            ]);
+            console.log(`👑 [Patreon] New Royal Patron: ${playerName}! Sent Aura & Gold.`);
+        }
+
+        if (eventType === 'members:pledge:update') {
+            const chargeStatus = event?.data?.attributes?.last_charge_status;
+            if (chargeStatus === 'Paid') {
+                await supabase.from('System_Mail').insert([{
+                    recipient_name: playerName, message_text: "💰 Your monthly Patreon rewards are here! Enjoy your 1,000,000 Gold stipend.", attached_item: JSON.stringify(royalGoldSack), is_claimed: false
+                }]);
+                console.log(`👑 [Patreon] Renewal for Patron: ${playerName}! Sent Monthly Gold.`);
+            }
+        }
+
+        const tsid = findSocketIdByPlayerId(playerName);
+        if (tsid) {
+            io.to(tsid).emit('getMail'); 
+            io.to(tsid).emit('systemMessage', "A Royal Patreon Delivery has arrived in your Mailbox (M)!");
+        }
+
+    } catch (err) {
+        console.error("Patreon Webhook Error:", err.message);
+    }
+    res.status(200).send('Patreon Webhook Received');
+});
 const server = http.createServer(app);
 const io = new Server(server);
 
@@ -3404,12 +3548,30 @@ socket.on('requestConfirmTrade', () => {
             return;
         }
 
+       // 👑 PATREON: ROYAL GOLD SACK
+        if (item.type === 'consumable' && item.name === 'Royal Gold Sack') {
+            p.gold = (p.gold || 0) + 1000000; // Add 1 Million Gold!
+
+            item.quantity = (item.quantity || 1) - 1;
+            inv[index] = item.quantity > 0 ? item : null;
+            p.inventory = inv;
+
+            supabase.from('Exonians').update({
+                inventory: p.inventory,
+                gold: p.gold
+            }).eq('character_name', p.id).then(()=>{});
+
+            // Reusing the purchaseSuccess event because it updates the UI gold counter perfectly!
+            socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
+            socket.emit('systemMessage', `💰 You opened the Royal Gold Sack and received 1,000,000 Gold!`);
+            return;
+        }
+
         // CLASS RESET BOOK
         if (item.type === 'consumable' && item.name === 'Class Reset Book') {
             if (!p.baseStats.playerClass) {
                 return socket.emit('systemMessage', "You don't have a class to reset yet!");
             }
-
             p.baseStats.playerClass = null;
 
             item.quantity = (item.quantity || 1) - 1;
