@@ -391,11 +391,11 @@ function generateDungeonLoot(m) {
 function generateLoot(monster) {
   // 🌟 GOLDEN SLIME CUSTOM LOOT TABLE
     if (monster.monsterKey === "common_mobs_golden") {
-        let mLevel = monster.level || 1;
+      let mLevel = monster.level || 1;
         let roll = Math.random();
 
-        // 5% Chance: Class Reset Book (0.00 to 0.05)
-        if (roll < 0.05) {
+        // 15% Chance: Class Reset Book (0.00 to 0.15)
+        if (roll < 0.15) {
             return { 
                 id: Date.now() + Math.random(), 
                 name: "Class Reset Book", 
@@ -406,8 +406,8 @@ function generateLoot(monster) {
                 quantity: 1 
             };
         } 
-        // 🌟 NEW: 5% Chance for Divine Essence (0.05 to 0.10)
-        else if (roll < 0.10) {
+        // 3% Chance: Divine Essence (0.15 to 0.18)
+        else if (roll < 0.18) {
             return {
                 id: 'mat_' + Math.random().toString(36).substr(2, 9),
                 name: 'Divine Essence',
@@ -420,8 +420,8 @@ function generateLoot(monster) {
                 quantity: 1
             };
         }
-        // 🌟 NEW: 15% Chance for Divine Enhancement Stone (0.10 to 0.25)
-        else if (roll < 0.25) {
+        // 10% Chance: Divine Enhancement Stone (0.18 to 0.28)
+        else if (roll < 0.28) {
             return {
                 id: Date.now() + Math.random(),
                 name: "Divine Enhancement Stone",
@@ -434,8 +434,8 @@ function generateLoot(monster) {
             };
         }
         
-        // 75% Chance Remaining: 35% Legendary (0.25 to 0.60) or 40% Unique (0.60+)
-        let rarity = (roll < 0.60) ? "Legendary" : "Unique"; 
+        // 72% Chance Remaining: 35% Legendary (0.28 to 0.63) or 37% Unique (0.63 to 1.00)
+        let rarity = (roll < 0.63) ? "Legendary" : "Unique";
         
         const keys = Object.keys(ITEM_TEMPLATES);
         const typeKey = keys[Math.floor(Math.random() * keys.length)];
