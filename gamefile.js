@@ -158,6 +158,57 @@ rankStyle.innerHTML = `
         0% { filter: brightness(1); text-shadow: 0 0 5px #fff, 0 0 10px #ffea00; }
         100% { filter: brightness(1.5); text-shadow: 0 0 8px #fff, 0 0 15px #ffea00, 0 0 25px #ff9800; }
     }
+/* 👼 NEW: AURA OF THE DIVINE (ROYAL TIER) */
+    .aura-divine {
+        position: absolute !important;
+        top: -15% !important; left: -15% !important;
+        width: 130% !important; height: 130% !important;
+        background: radial-gradient(circle, rgba(255,255,255,0.8) 20%, rgba(255,234,0,0.5) 50%, transparent 75%) !important;
+        border-radius: 50% !important;
+        box-shadow: 0 0 40px 15px rgba(255, 234, 0, 0.6), inset 0 0 30px 10px rgba(255, 255, 255, 0.9) !important;
+        animation: divineAuraPulse 2s infinite alternate ease-in-out !important;
+        z-index: -1 !important; 
+        pointer-events: none !important;
+    }
+
+    /* 🪽 LEFT WING */
+    .aura-divine::before {
+        content: '';
+        position: absolute;
+        top: 15%; left: -50px;
+        width: 60px; height: 90px;
+        background: radial-gradient(ellipse at right, rgba(255,255,255,1) 10%, rgba(255,234,0,0.8) 60%, transparent 80%);
+        border-radius: 100% 0% 60% 0%;
+        box-shadow: -5px 0 20px #ffea00;
+        transform-origin: right center;
+        animation: wingFlapLeft 2s infinite alternate ease-in-out;
+    }
+
+    /* 🪽 RIGHT WING */
+    .aura-divine::after {
+        content: '';
+        position: absolute;
+        top: 15%; right: -50px;
+        width: 60px; height: 90px;
+        background: radial-gradient(ellipse at left, rgba(255,255,255,1) 10%, rgba(255,234,0,0.8) 60%, transparent 80%);
+        border-radius: 0% 100% 0% 60%;
+        box-shadow: 5px 0 20px #ffea00;
+        transform-origin: left center;
+        animation: wingFlapRight 2s infinite alternate ease-in-out;
+    }
+
+    @keyframes divineAuraPulse {
+        0% { transform: scale(0.95); filter: drop-shadow(0 0 10px #ffffff); opacity: 0.8; }
+        100% { transform: scale(1.1); filter: drop-shadow(0 0 25px #ffea00); opacity: 1; }
+    }
+    @keyframes wingFlapLeft {
+        0% { transform: rotate(5deg) scaleY(1); }
+        100% { transform: rotate(-20deg) scaleY(0.85); }
+    }
+    @keyframes wingFlapRight {
+        0% { transform: rotate(-5deg) scaleY(1); }
+        100% { transform: rotate(20deg) scaleY(0.85); }
+    }
 `;
 document.head.appendChild(rankStyle);
 // ==========================================
