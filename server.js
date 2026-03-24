@@ -4219,6 +4219,7 @@ socket.on('playerDied', () => {
         socket.emit('systemMessage', `✨ Successfully forged ${baseItem.name}!`);
         socket.emit('craftSuccess');
 
+        // --- LINES BEFORE ---
         io.emit('rareLootBroadcast', {
             playerName: p.name || p.id,
             itemName: baseItem.name,
@@ -4227,7 +4228,134 @@ socket.on('playerDied', () => {
             color: baseItem.color
         });
     });
-    // 🛡️ SERVER-SIDE ECONOMY: Buying
+
+    // ==========================================
+    // ✨ STAT FORGER CRAFTING & REROLL ENGINE
+    // ==========================================
+    socket.on('requestCraftForger', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+
+        const targetRarity = data?.rarity || 'Godly';
+        const validRarities = ['Basic', 'Rare', 'Unique', 'Legendary', 'Godly', 'Divine'];
+        if (!validRarities.includes(targetRarity)) return socket.emit('systemMessage', '❌ Invalid rarity selected.');
+
+        if (p.gold < 300000) return socket.emit('systemMessage', '❌ Not enough gold to craft a Forger.');
+
+        const inv = p.inventory;
+        const forgerName = `${targetRarity} Stat Forger`;
+        let forgerIdx = inv.findIndex(i => i && i.name === forgerName);
+        let emptyIdx = inv.findIndex(i => i === null);
+        
+        if (forgerIdx === -1 && emptyIdx === -1) {
+            return socket.emit('systemMessage', '❌ Inventory is full!');
+        }
+
+        let countRed = 0, countGreen = 0, countBlue = 0, countStones = 0;
+        inv.forEach(i => {
+            if (i && i.name === 'Red Exo Metal') countRed += i.quantity || 1;
+            if (i && i.name === 'Green Exo Metal') countGreen += i.quantity || 1;
+            if (i && i.name === 'Blue Exo Metal') countBlue += i.quantity || 1;
+            if (i && i.name === `Refinement Stone Lv.100` && i.rarity === targetRarity) countStones += i.quantity || 1;
+        });
+
+        if (countRed < 3 || countGreen < 3 || countBlue < 3 || countStones < 3) {
+            return socket.emit('systemMessage', '❌ You lack the required materials.');
+        }
+
+        const deduct = (name, amount, reqRarity) => {
+            let amt = amount;
+            for (let i = 0; i < inv.length; i++) {
+                if (amt <= 0) break;
+                if (inv[i] && inv[i].name === name && (!reqRarity || inv[i].rarity === reqRarity)) {
+                    if (inv[i].quantity > amt) {
+                        inv[i].quantity -= amt;
+                        amt = 0;
+                    } else {
+                        amt -= inv[i].quantity;
+                        inv[i] = null;
+                    }
+                }
+            }
+        };
+
+        deduct('Red Exo Metal', 3);
+        deduct('Green Exo Metal', 3);
+        deduct('Blue Exo Metal', 3);
+        deduct('Refinement Stone Lv.100', 3, targetRarity);
+        p.gold -= 300000;
+
+        if (forgerIdx !== -1) {
+            inv[forgerIdx].quantity = (inv[forgerIdx].quantity || 1) + 1;
+        } else {
+            const rColor = RARITY_COLORS[targetRarity] || "#E040FB";
+            inv[emptyIdx] = { id: Date.now() + Math.random(), name: forgerName, type: "forger", rarity: targetRarity, color: rColor, description: `Rerolls a specific sub-stat on ${targetRarity} gear.`, quantity: 1 };
+        }
+
+        p.inventory = sanitizeInventory(inv);
+        await supabase.from('Exonians').update({ inventory: p.inventory, gold: p.gold }).eq('character_name', p.id);
+        
+        socket.emit('syncInventory', p.inventory);
+        socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
+        socket.emit('systemMessage', `✨ Successfully crafted a ${forgerName}!`);
+        socket.emit('craftForgerSuccess');
+    });
+
+    socket.on('requestRerollStat', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+
+        const forger = p.inventory[data.forgerIndex];
+        const targetItem = p.inventory[data.targetIndex];
+        const statKey = data.statKey;
+
+        if (!forger || forger.type !== "forger" || !targetItem) return;
+        
+        if (forger.rarity !== targetItem.rarity) {
+            return socket.emit('systemMessage', `❌ This ${forger.rarity} Forger can only be used on ${targetItem.rarity} items.`);
+        }
+
+        if (['necklace', 'ring', 'earrings'].includes(targetItem.type)) {
+            return socket.emit('systemMessage', '❌ Cannot reroll accessories!');
+        }
+        if (!['weapon', 'armor', 'leggings'].includes(targetItem.type)) {
+             return socket.emit('systemMessage', '❌ Invalid item type for rerolling.');
+        }
+        if (!targetItem.randomStat || typeof targetItem.randomStat[statKey] !== 'number') {
+            return socket.emit('systemMessage', '❌ That stat does not exist on this item.');
+        }
+
+        // 1. Deduct Forger
+        forger.quantity = (forger.quantity || 1) - 1;
+        if (forger.quantity <= 0) p.inventory[data.forgerIndex] = null;
+
+        // 2. Roll a fresh base stat for the item's specific level
+        let newRoll = Math.floor(Math.random() * getBaseStat(targetItem.level || 1)) + 1;
+        
+        // 3. Re-apply any existing enhancement bonuses to the new stat so it isn't weakened!
+        if (targetItem.enhanceLevel && targetItem.enhanceLevel > 0) {
+            const bonusPerLevel = { "Starter": 1, "Basic": 1, "Rare": 3, "Unique": 5, "Legendary": 8, "Godly": 15, "Divine": 25 }[targetItem.rarity] || 1;
+            newRoll += (bonusPerLevel * targetItem.enhanceLevel);
+        }
+
+        let oldVal = targetItem.randomStat[statKey];
+        targetItem.randomStat[statKey] = newRoll;
+
+        p.inventory[data.targetIndex] = sanitizeItem(targetItem);
+
+        await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
+        socket.emit('syncInventory', p.inventory);
+        
+        if (newRoll > oldVal) {
+            socket.emit('systemMessage', `✨ Rerolled ${statKey.toUpperCase()} from ${oldVal} to ${newRoll} (Increased)!`);
+        } else {
+            socket.emit('systemMessage', `⚠️ Rerolled ${statKey.toUpperCase()} from ${oldVal} to ${newRoll} (Decreased).`);
+        }
+        
+        socket.emit('rerollSuccess'); 
+    });
+
+    // 🛡️ SERVER-SIDE ECONOMY: Buying
     socket.on('requestPurchase', async (data) => {
     const p = onlinePlayers[socket.id];
     if (!p) return;
