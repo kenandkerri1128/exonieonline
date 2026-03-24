@@ -158,7 +158,14 @@ rankStyle.innerHTML = `
         0% { filter: brightness(1); text-shadow: 0 0 5px #fff, 0 0 10px #ffea00; }
         100% { filter: brightness(1.5); text-shadow: 0 0 8px #fff, 0 0 15px #ffea00, 0 0 25px #ff9800; }
     }
-/* 👼 NEW: AURA OF THE DIVINE (ROYAL TIER) */
+
+    /* 👼 NEW: AURA OF THE DIVINE (ROYAL TIER) */
+    .cosmetic-aura.aura-divine {
+        display: block !important; /* 👑 THIS UNHIDES THE AURA */
+    }
+    .avatar-rig:has(.aura-divine) {
+        filter: drop-shadow(0 0 5px #ffea00) drop-shadow(0 0 15px #ffea00) !important; /* 👑 Adds outer gold glow */
+    }
     .aura-divine {
         position: absolute !important;
         top: -15% !important; left: -15% !important;
