@@ -1127,7 +1127,7 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
 
         // 🌫️ SMOKE BOMB MISS CHECK
         if (m.smokeBombUntil && now < m.smokeBombUntil) {
-            if (Math.random() < 0.25) {
+            if (Math.random() < 0.75) {
                 io.to(instId).emit('attackEvaded', { targetId: target.id, monsterId: m.id, type: 'miss' });
                 return;
             }
@@ -2375,7 +2375,8 @@ socket.on('saveData', async (playerData) => {
 
             let myPetCount = Object.values(world.pets).filter(pet => pet.ownerId === p.id).length;
             if (myPetCount >= 2 && !world.pets[data.id]) return; 
-            world.pets[data.id] = { id: data.id, ownerId: p.id, x: data.x, y: data.y }; 
+            // 👇 THE FIX: Save the 'isClone' flag into the server's memory so it knows to deal 100% damage!
+            world.pets[data.id] = { id: data.id, ownerId: p.id, x: data.x, y: data.y, isClone: !!data.isClone }; 
         } 
         else { delete world.pets[data.id]; }
         
@@ -5414,7 +5415,7 @@ socket.on('startDungeon', async (data) => {
 
         // 🌫️ SMOKE BOMB MISS CHECK (Attacker is blinded)
         if (p.smokeBombUntil && now < p.smokeBombUntil) {
-            if (Math.random() < 0.25) {
+            if (Math.random() < 0.75) {
                 io.to('neutralzone').emit('attackEvaded', { targetId: target.id, attackerId: p.id, type: 'miss' });
                 return;
             }
