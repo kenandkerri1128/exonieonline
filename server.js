@@ -223,7 +223,7 @@ function sanitizeItem(item) {
     safe.fixedStat = sanitizeStatObject(safe.fixedStat);
     safe.randomStat = sanitizeStatObject(safe.randomStat);
 
-    const VALID_AURAS = ['lightning', 'blaze', 'liquid', 'nature', 'fox', 'owl', 'wisp'];
+    const VALID_AURAS = ['lightning', 'blaze', 'liquid', 'nature', 'fox', 'owl', 'wisp', 'divine'];
     if (safe.aura && !VALID_AURAS.includes(safe.aura)) {
         delete safe.aura;
     }
@@ -4561,7 +4561,7 @@ socket.on('adminSpawnItem', async (data) => {
             const auraType = type.split('_')[1];
             const AURA_DATA = {
                 'lightning': { name: 'Lightning', color: '#00ffff' },
-                'divine': { name: 'Aura of the Divine', color: '#ffea00' }, // 👑 NEW: Royal Premium Aura
+                'divine': { name: 'Divine', color: '#ffea00' }, // 👑 NEW: Royal Premium Aura
                 'blaze': { name: 'Blaze', color: '#ff4444' },
                 'liquid': { name: 'Liquid', color: '#44aaff' },
                  'nature': { name: 'Nature', color: '#4CAF50' },
