@@ -2873,7 +2873,85 @@ socket.on('mailList', (mails) => {
 });
     socket.on('needsCharacterCreation', (username) => { document.getElementById('loading-screen').style.display = 'none'; document.getElementById('char-name-input').value = username; document.getElementById('creation-screen').classList.add('active'); });
     socket.on('rareLootBroadcast', (data) => { let container = document.getElementById('loot-broadcast'); if (!container) { container = document.createElement('div'); container.id = 'loot-broadcast'; container.style.position = 'fixed'; container.style.top = '25%'; container.style.left = '50%'; container.style.transform = 'translateX(-50%)'; container.style.zIndex = '2147483647'; container.style.display = 'flex'; container.style.flexDirection = 'column'; container.style.alignItems = 'center'; container.style.pointerEvents = 'none'; container.style.width = '100%'; document.body.appendChild(container); } const ann = document.createElement('div'); ann.className = 'loot-announcement'; ann.style.borderColor = data.color || '#fff'; ann.style.boxShadow = `0 0 20px ${data.color}`; let glowClass = data.rarity === 'Godly' ? 'rarity-godly' : ''; ann.innerHTML = `<div style="color: #e0e0e0; font-size: 16px; margin-bottom: 5px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 2px 2px 4px #000;">${data.playerName} just got</div><div style="color: ${data.color}; font-size: 28px; font-weight: bold; -webkit-text-stroke: 1px black; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 15px ${data.color};" class="${glowClass}">${data.itemName} Lv. ${data.level}</div>`; container.appendChild(ann); if (dom && dom.log) { dom.log.innerText = `[SERVER] ${data.playerName} obtained ${data.itemName}!`; } setTimeout(() => { if (ann && ann.parentNode) { ann.parentNode.removeChild(ann); } }, 3000); });
-   socket.on('authError', (msg) => {
+   // ==========================================
+    // 📧 EMAIL UI HANDLING
+    // ==========================================
+    let pendingVerifyUsername = "";
+
+    socket.on('requireEmailVerification', (username) => {
+        pendingVerifyUsername = username;
+        document.getElementById('loading-screen').style.display = 'none';
+        
+        let verifyScreen = document.getElementById('email-verify-screen');
+        if (!verifyScreen) {
+            verifyScreen = document.createElement('div');
+            verifyScreen.id = 'email-verify-screen';
+            verifyScreen.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999; display:flex; justify-content:center; align-items:center;';
+            
+            verifyScreen.innerHTML = `
+                <div style="background:#111; border:2px solid #2196F3; padding:30px; border-radius:8px; box-shadow:0 0 30px #2196F3; color:white; text-align:center; width: 350px; font-family:sans-serif;">
+                    <h2 style="color:#2196F3; margin-top:0;">Secure Your Account</h2>
+                    <p style="font-size:13px; color:#aaa; margin-bottom:20px;">Exonie Online now requires email verification. Max 4 characters per email.</p>
+                    
+                    <div id="email-step-1">
+                        <input type="email" id="verify-email-input" placeholder="Enter an active Email address" style="width:100%; padding:10px; margin-bottom:15px; border-radius:4px; border:1px solid #444; background:#222; color:white; box-sizing:border-box;">
+                        <button class="btn" style="width:100%; background:#2196F3; padding:12px; font-weight:bold; font-size:16px;" onclick="window.sendVerificationCode()">Send Code</button>
+                    </div>
+
+                    <div id="email-step-2" style="display:none;">
+                        <p style="font-size:12px; color:#4CAF50;">Code sent! Please check your inbox/spam.</p>
+                        <input type="text" id="verify-code-input" placeholder="Enter 6-digit code" maxlength="6" style="width:100%; padding:10px; margin-bottom:15px; border-radius:4px; border:1px solid #444; background:#222; color:white; text-align:center; font-size:20px; letter-spacing:5px; box-sizing:border-box;">
+                        <button class="btn" style="width:100%; background:#4CAF50; padding:12px; font-weight:bold; font-size:16px;" onclick="window.submitVerificationCode()">Verify & Play</button>
+                    </div>
+                    
+                    <button class="btn" style="width:100%; background:#f44336; margin-top:10px;" onclick="location.reload()">Cancel / Back to Login</button>
+                </div>
+            `;
+            document.body.appendChild(verifyScreen);
+        }
+        
+        document.getElementById('email-step-1').style.display = 'block';
+        document.getElementById('email-step-2').style.display = 'none';
+        verifyScreen.style.display = 'flex';
+    });
+
+    window.sendVerificationCode = function() {
+        const email = document.getElementById('verify-email-input').value.trim();
+        if (!email || !email.includes('@')) return alert("Please enter a valid email.");
+        
+        socket.emit('requestEmailLink', { username: pendingVerifyUsername, email: email });
+        document.getElementById('verify-email-input').disabled = true;
+    };
+
+    window.submitVerificationCode = function() {
+        const code = document.getElementById('verify-code-input').value.trim();
+        if (code.length !== 6) return alert("Code must be 6 digits.");
+        
+        socket.emit('verifyEmailCode', { username: pendingVerifyUsername, code: code });
+    };
+
+    socket.on('emailCodeSent', () => {
+        document.getElementById('email-step-1').style.display = 'none';
+        document.getElementById('email-step-2').style.display = 'block';
+    });
+
+    socket.on('emailError', (msg) => {
+        alert(msg);
+        document.getElementById('verify-email-input').disabled = false;
+    });
+
+    socket.on('emailVerifiedSuccess', (user) => {
+        document.getElementById('email-verify-screen').style.display = 'none';
+        alert("Email successfully linked! Welcome to Exonie.");
+        
+        // Push them forward in the login pipeline
+        if (!global.playerFriends) global.playerFriends = {};
+        global.playerFriends[user.character_name] = new Set(user.friends || []);
+
+        if (!user.skin_color) socket.emit('needsCharacterCreation', user.character_name);
+        else socket.emit('characterSelect', user);
+    });
+    socket.on('authError', (msg) => {
     alert(msg);
     document.getElementById('loading-screen').style.display = 'none';
     document.getElementById('auth-screen').classList.add('active');
