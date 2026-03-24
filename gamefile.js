@@ -2936,7 +2936,7 @@ socket.on('mailList', (mails) => {
 
     socket.on('emailVerifiedSuccess', (user) => {
         document.getElementById('email-verify-screen').style.display = 'none';
-        alert("Email successfully linked! Welcome to Exonie.");
+        alert("Email successfully linked! Welcome to Exonie. PLEASE REFRESH YOUR GAME");
         
         // Push them forward in the login pipeline
         if (!global.playerFriends) global.playerFriends = {};
