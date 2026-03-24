@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const activeLogins = new Set(); // Tracks currently logged-in usernames
+const activeEmailSessions = {}; // 🛡️ NEW: Tracks which emails are currently online
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
@@ -1761,7 +1762,79 @@ socket.on('broadcastSkill', (data) => {
     });
 
     socket.on('portalLeave', () => { const p = onlinePlayers[socket.id]; if(p) p.currentPortal = null; });
+// ==========================================
+    // 📧 EMAIL VERIFICATION ENGINE (BREVO)
+    // ==========================================
+    socket.on('requestEmailLink', async (data) => {
+        const { username, email } = data;
+        if (!username || !email) return socket.emit('emailError', 'Invalid data.');
 
+        try {
+            // 1. Check if this email already has 4 characters
+            const { count, error } = await supabase.from('Exonians')
+                .select('*', { count: 'exact', head: true })
+                .eq('email', email)
+                .eq('email_verified', true);
+
+            if (count >= 4) {
+                return socket.emit('emailError', 'This email already has the maximum of 4 characters linked to it.');
+            }
+
+            // 2. Generate a 6-digit code and save to the database
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            await supabase.from('Exonians')
+                .update({ email: email, verification_code: code })
+                .eq('character_name', username);
+
+            // 3. Send the email using Brevo
+            await axios.post('https://api.brevo.com/v3/smtp/email', {
+                sender: { email: process.env.SENDER_EMAIL, name: "Exonie Online" },
+                to: [{ email: email }],
+                subject: "Exonie Online - Verification Code",
+                htmlContent: `<div style="font-family:sans-serif; text-align:center; padding:20px;">
+                        <h2>Welcome to Exonie!</h2>
+                        <p>Your verification code is:</p>
+                        <h1 style="color:#2196F3; letter-spacing:5px;">${code}</h1>
+                        <p>Please enter this in the game to verify your account.</p>
+                       </div>`
+            }, {
+                headers: {
+                    'accept': 'application/json',
+                    'api-key': process.env.BREVO_API_KEY,
+                    'content-type': 'application/json'
+                }
+            });
+
+            socket.emit('emailCodeSent');
+        } catch (e) {
+            console.error("Brevo Error:", e.response ? e.response.data : e.message);
+            socket.emit('emailError', 'Server error sending email. Check API key.');
+        }
+    });
+
+    socket.on('verifyEmailCode', async (data) => {
+        const { username, code } = data;
+        
+        try {
+            const { data: user } = await supabase.from('Exonians').select('verification_code, email').eq('character_name', username).single();
+            
+            if (!user || user.verification_code !== code) {
+                return socket.emit('emailError', 'Invalid or expired verification code.');
+            }
+
+            // Success! Link the email and verify them in the database
+            await supabase.from('Exonians')
+                .update({ email_verified: true, verification_code: null })
+                .eq('character_name', username);
+            
+            // Now automatically log them in by fetching their fresh data
+            const { data: freshUser } = await supabase.from('Exonians').select('*').eq('character_name', username).single();
+            socket.emit('emailVerifiedSuccess', freshUser);
+        } catch (e) {
+            console.error("Verification Confirm Error:", e);
+            socket.emit('emailError', 'Server error during verification.');
+        }
+    });
    socket.on('register', async (data) => {
     console.log(`[REGISTER ATTEMPT] User: ${data.username}`);
     try {
@@ -1797,7 +1870,7 @@ socket.on('login', async (data) => {
             .eq('password', password)
             .single();
 
-        if (error || !user) {
+       if (error || !user) {
             console.error(
                 `[LOGIN FAILED] Invalid credentials for ${username}. Error:`,
                 error?.message || 'No user found'
@@ -1805,13 +1878,26 @@ socket.on('login', async (data) => {
             return socket.emit('authError', 'Invalid username or password.');
         }
 
-        // ✅ FORCE-REMOVE OLD SESSION IF THIS ACCOUNT IS ALREADY STUCK ONLINE
-                // ✅ FORCE-REMOVE ONLY A REAL EXISTING OLD IN-GAME SESSION
+        // 👇 THE FIX: 1. Intercept Unverified Users
+        if (!user.email_verified) {
+            return socket.emit('requireEmailVerification', username);
+        }
+
+        // 👇 THE FIX: 2. Enforce Single-Character-Per-Email Lock
         let oldSocketId = null;
-        for (const sid of Object.keys(onlinePlayers)) {
-            if (sid !== socket.id && onlinePlayers[sid]?.id === username) {
-                oldSocketId = sid;
-                break;
+
+        // Check if ANY character linked to this email is currently online
+        if (user.email && activeEmailSessions[user.email]) {
+            oldSocketId = activeEmailSessions[user.email];
+            console.log(`[SECURITY] Kicking active character on email ${user.email} to allow ${username} to log in.`);
+        } 
+        // Fallback: Check if the exact character is online (your original logic)
+        else {
+            for (const sid of Object.keys(onlinePlayers)) {
+                if (sid !== socket.id && onlinePlayers[sid]?.id === username) {
+                    oldSocketId = sid;
+                    break;
+                }
             }
         }
 
@@ -1942,7 +2028,6 @@ socket.on('login', async (data) => {
         }
 
        console.log(`[LOGIN SUCCESS] ${username} authenticated successfully.`);
-
         // 🌟 NEW: Record the exact time they logged in to Supabase (Runs silently in background)
         supabase.from('Exonians')
             .update({ last_login: new Date().toISOString() })
@@ -1950,7 +2035,9 @@ socket.on('login', async (data) => {
             .then(() => {});
 
         activeLogins.add(username);
+        if (user.email) activeEmailSessions[user.email] = socket.id; // Map the email to this socket
         socket.username = username;
+        socket.email = user.email; // Save to socket for disconnect cleanup
         currentUser = username;
 
         // 🌟 Send the global top players to the newly logged-in client
@@ -5754,9 +5841,10 @@ socket.on('startDungeon', async (data) => {
         socket.emit('syncStorage', p.baseStats.homeStorage);
     });
    socket.on('disconnect', async () => {
-        if (socket.username) { activeLogins.delete(socket.username); }
+        if (socket.username) { activeLogins.delete(socket.username); }
+        if (socket.email && activeEmailSessions[socket.email] === socket.id) { delete activeEmailSessions[socket.email]; } // Clean up email session
 
-        const p = onlinePlayers[socket.id];
+        const p = onlinePlayers[socket.id];
         if (p) {
             const oldInstId = p.instanceId; 
             socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
