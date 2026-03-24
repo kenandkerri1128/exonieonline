@@ -1884,166 +1884,83 @@ socket.on('login', async (data) => {
             return socket.emit('authError', 'Invalid username or password.');
         }
 
-        // 👇 THE FIX: 1. Intercept Unverified Users
+        // 1. Intercept Unverified Users
         if (!user.email_verified) {
             return socket.emit('requireEmailVerification', username);
         }
 
-        // 👇 THE FIX: 2. Enforce Single-Character-Per-Email Lock
+        // 2. THE ULTIMATE KICK ENGINE: Checks both Username AND Email
         let oldSocketId = null;
+        let oldUsername = null;
 
-        // Check if ANY character linked to this email is currently online
-        if (user.email && activeEmailSessions[user.email]) {
-            oldSocketId = activeEmailSessions[user.email];
-            console.log(`[SECURITY] Kicking active character on email ${user.email} to allow ${username} to log in.`);
-        } 
-        // Fallback: Check if the exact character is online (your original logic)
-        else {
-            for (const sid of Object.keys(onlinePlayers)) {
-                if (sid !== socket.id && onlinePlayers[sid]?.id === username) {
+        // Scan every active connection on the server
+        for (const [sid, s] of io.sockets.sockets.entries()) {
+            if (sid !== socket.id) {
+                // If they share an email OR username, mark them for termination
+                if ((s.email && s.email === user.email) || s.username === username) {
                     oldSocketId = sid;
+                    oldUsername = s.username;
                     break;
                 }
             }
         }
 
+        // If an old session was found, completely wipe it
         if (oldSocketId) {
+            console.log(`[SECURITY] Kicking conflicting session (Socket: ${oldSocketId}) for ${user.email}`);
             const oldSocket = io.sockets.sockets.get(oldSocketId);
             const oldPlayer = onlinePlayers[oldSocketId];
 
-            console.log(`[LOGIN OVERRIDE] Kicking old active session for ${username} (${oldSocketId})`);
-
-            try {
-                if (oldPlayer) {
-                    const oldInstId = oldPlayer.instanceId;
-
-                    if (oldPlayer.instanceId) {
-                        socket.to(oldPlayer.instanceId).emit('remotePlayerLeft', oldPlayer.id);
-                    }
-
-                    if (worlds[oldPlayer.instanceId] && worlds[oldPlayer.instanceId].pets) {
-                        for (const petId in worlds[oldPlayer.instanceId].pets) {
-                            if (worlds[oldPlayer.instanceId].pets[petId].ownerId === oldPlayer.id) {
-                                delete worlds[oldPlayer.instanceId].pets[petId];
-                            }
-                        }
-                    }
-
-                    removeFromParty(oldPlayer.id);
-
-                    let saveMap = oldPlayer.mapId || 'town';
-                    let saveX = typeof oldPlayer.x === 'number' ? oldPlayer.x : 960;
-                    let saveY = typeof oldPlayer.y === 'number' ? oldPlayer.y : 1000;
-
-                    if (oldPlayer.isGhost) {
-                        saveMap = 'town';
-                        saveX = 960;
-                        saveY = 1000;
-                    }
-
-                    supabase
-                        .from('Exonians')
-                        .update({ map_id: saveMap, pos_x: saveX, pos_y: saveY })
-                        .eq('character_name', oldPlayer.id)
-                        .then(() => {});
-
-                    delete onlinePlayers[oldSocketId];
-                    checkAndResetInstance(oldInstId);
-                }
-
-                activeLogins.delete(username);
-
-                if (oldSocket && oldSocket.connected) {
-                    oldSocket.emit('forcedLogout', 'Your account was logged in from another session.');
-                    oldSocket.disconnect(true);
-                }
-            } catch (cleanupErr) {
-                console.error(`[LOGIN OVERRIDE CLEANUP ERROR] ${username}:`, cleanupErr);
-            }
-        }
-        for (const sid of Object.keys(onlinePlayers)) {
-            if (onlinePlayers[sid]?.id === username) {
-                oldSocketId = sid;
-                break;
-            }
-        }
-
-        // Also check raw socket username in case old session never fully entered world
-        if (!oldSocketId) {
-            for (const sid of io.sockets.sockets.keys()) {
-                const s = io.sockets.sockets.get(sid);
-                if (s && s.username === username && sid !== socket.id) {
-                    oldSocketId = sid;
-                    break;
-                }
-            }
-        }
-
-        if (oldSocketId && oldSocketId !== socket.id) {
-            const oldSocket = io.sockets.sockets.get(oldSocketId);
-            const oldPlayer = onlinePlayers[oldSocketId];
-
-            console.log(`[LOGIN OVERRIDE] Kicking stale session for ${username} (socket ${oldSocketId})`);
-
+            // Safely save their data before booting them
             if (oldPlayer) {
                 const oldInstId = oldPlayer.instanceId;
+                if (oldInstId) {
+                    socket.to(oldInstId).emit('remotePlayerLeft', oldPlayer.id);
+                }
 
-                try {
-                    if (oldPlayer.instanceId) {
-                        oldSocket?.to(oldPlayer.instanceId).emit('remotePlayerLeft', oldPlayer.id);
-                    }
-
-                    if (worlds[oldPlayer.instanceId] && worlds[oldPlayer.instanceId].pets) {
-                        for (let petId in worlds[oldPlayer.instanceId].pets) {
-                            if (worlds[oldPlayer.instanceId].pets[petId].ownerId === oldPlayer.id) {
-                                delete worlds[oldPlayer.instanceId].pets[petId];
-                            }
+                if (worlds[oldInstId] && worlds[oldInstId].pets) {
+                    for (let petId in worlds[oldInstId].pets) {
+                        if (worlds[oldInstId].pets[petId].ownerId === oldPlayer.id) {
+                            delete worlds[oldInstId].pets[petId];
                         }
                     }
-
-                    removeFromParty(oldPlayer.id);
-
-                    let saveMap = oldPlayer.mapId;
-                    let saveX = oldPlayer.x;
-                    let saveY = oldPlayer.y;
-                    if (oldPlayer.isGhost) {
-                        saveMap = 'town';
-                        saveX = 960;
-                        saveY = 1000;
-                    }
-
-                    supabase
-                        .from('Exonians')
-                        .update({ map_id: saveMap, pos_x: saveX, pos_y: saveY })
-                        .eq('character_name', oldPlayer.id)
-                        .then(() => {});
-
-                    delete onlinePlayers[oldSocketId];
-                    checkAndResetInstance(oldInstId);
-                } catch (cleanupErr) {
-                    console.error(`[LOGIN OVERRIDE CLEANUP ERROR] ${username}:`, cleanupErr);
                 }
+
+                removeFromParty(oldPlayer.id);
+
+                let saveMap = oldPlayer.isGhost ? 'town' : (oldPlayer.mapId || 'town');
+                let saveX = oldPlayer.isGhost ? 960 : (oldPlayer.x || 960);
+                let saveY = oldPlayer.isGhost ? 1000 : (oldPlayer.y || 1000);
+
+                await supabase.from('Exonians')
+                    .update({ map_id: saveMap, pos_x: saveX, pos_y: saveY })
+                    .eq('character_name', oldPlayer.id);
+
+                delete onlinePlayers[oldSocketId];
+                checkAndResetInstance(oldInstId);
             }
 
-            activeLogins.delete(username);
+            if (oldUsername) activeLogins.delete(oldUsername);
 
-            if (oldSocket) {
-                oldSocket.emit('forcedLogout', 'Your account was logged in from another session.');
+            if (oldSocket && oldSocket.connected) {
+                oldSocket.emit('forcedLogout', 'Your account was logged in from another session or character.');
                 oldSocket.disconnect(true);
             }
         }
 
-       console.log(`[LOGIN SUCCESS] ${username} authenticated successfully.`);
-        // 🌟 NEW: Record the exact time they logged in to Supabase (Runs silently in background)
+        console.log(`[LOGIN SUCCESS] ${username} authenticated successfully.`);
+
+        // 🌟 Record the exact time they logged in to Supabase
         supabase.from('Exonians')
             .update({ last_login: new Date().toISOString() })
             .eq('character_name', username)
             .then(() => {});
 
         activeLogins.add(username);
-        if (user.email) activeEmailSessions[user.email] = socket.id; // Map the email to this socket
+        
+        // 👇 THE FIX: Bind the email tightly to the socket connection!
         socket.username = username;
-        socket.email = user.email; // Save to socket for disconnect cleanup
+        socket.email = user.email; 
         currentUser = username;
 
         // 🌟 Send the global top players to the newly logged-in client
