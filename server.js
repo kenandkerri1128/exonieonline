@@ -12,14 +12,35 @@ const app = express();
 // ==========================================
 // 🔔 PAYPAL WEBHOOK (Item Delivery)
 // ==========================================
+// ==========================================
+// 🔔 PAYPAL WEBHOOK (Item Delivery & Auto-Capture)
+// ==========================================
 app.post('/paypal-webhook', express.json(), async (req, res) => {
     try {
         const event = req.body;
-        // Listen for successful capture (payment complete)
-        if (event && event.event_type === 'PAYMENT.CAPTURE.COMPLETED') {
-            // We pass the Player Name and Item ID in the 'custom_id' field during checkout
-            const customId = event.resource.custom_id; // e.g. "Kei-pet_fox"
+
+        // 1. AUTO-CAPTURE: When player clicks "Approve" on PayPal, we tell PayPal to actually take the money!
+        if (event && event.event_type === 'CHECKOUT.ORDER.APPROVED') {
+            const orderId = event.resource.id;
+            const isLive = true; // ⚠️ Make sure this matches your checkout setting!
+            const baseURL = isLive ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+            const auth = Buffer.from(process.env.PAYPAL_CLIENT_ID + ':' + process.env.PAYPAL_SECRET).toString('base64');
             
+            const tokenReq = await axios.post(`${baseURL}/v1/oauth2/token`, 'grant_type=client_credentials', {
+                headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' }
+            });
+
+            await axios.post(`${baseURL}/v2/checkout/orders/${orderId}/capture`, {}, {
+                headers: { 'Authorization': `Bearer ${tokenReq.data.access_token}`, 'Content-Type': 'application/json' }
+            });
+            console.log(`✅ [PayPal] Auto-Captured Order: ${orderId}`);
+        }
+
+        // 2. DELIVER ITEM: Once PayPal confirms the money is successfully captured.
+        if (event && event.event_type === 'PAYMENT.CAPTURE.COMPLETED') {
+            const customId = event.resource.custom_id; // e.g. "Kei-pet_fox"
+            if (!customId) return res.status(200).send('No custom ID');
+
             const parts = customId.split('-');
             const playerName = parts[0];
             const itemId = parts[1];
@@ -42,14 +63,18 @@ app.post('/paypal-webhook', express.json(), async (req, res) => {
                     attached_item: JSON.stringify(deliveryItem),
                     is_claimed: false
                 }]);
+                
                 const tsid = findSocketIdByPlayerId(playerName);
                 if (tsid) {
                     io.to(tsid).emit('getMail'); 
                     io.to(tsid).emit('systemMessage', "🎉 Your PayPal purchase has arrived! Check your Mailbox (M).");
                 }
+                console.log(`🎁 [PayPal] Delivered ${deliveryItem.name} to ${playerName}`);
             }
         }
-    } catch (err) { console.error("PayPal Webhook Error:", err); }
+    } catch (err) { 
+        console.error("PayPal Webhook Error:", err.response ? err.response.data : err.message); 
+    }
     res.status(200).send('Webhook Received');
 });
 const server = http.createServer(app);
