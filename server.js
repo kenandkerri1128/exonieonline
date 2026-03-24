@@ -1829,6 +1829,12 @@ socket.on('broadcastSkill', (data) => {
             
             // Now automatically log them in by fetching their fresh data
             const { data: freshUser } = await supabase.from('Exonians').select('*').eq('character_name', username).single();
+            // 👇 THE FIX: Register the session in server RAM so the game actually knows you are logged in!
+            activeLogins.add(username);
+            if (freshUser.email) activeEmailSessions[freshUser.email] = socket.id;
+            socket.username = username;
+            socket.email = freshUser.email;
+            currentUser = username;
             socket.emit('emailVerifiedSuccess', freshUser);
         } catch (e) {
             console.error("Verification Confirm Error:", e);
