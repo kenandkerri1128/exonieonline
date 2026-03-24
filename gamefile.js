@@ -159,62 +159,68 @@ rankStyle.innerHTML = `
         100% { filter: brightness(1.5); text-shadow: 0 0 8px #fff, 0 0 15px #ffea00, 0 0 25px #ff9800; }
     }
 
-    /* 👼 NEW: AURA OF THE DIVINE (ROYAL TIER) */
+    /* 👼 NEW: AURA OF THE DIVINE (ROYAL TIER) - REFINED */
     .cosmetic-aura.aura-divine {
-        display: block !important; /* 👑 THIS UNHIDES THE AURA */
-    }
-    .avatar-rig:has(.aura-divine) {
-        filter: drop-shadow(0 0 5px #ffea00) drop-shadow(0 0 15px #ffea00) !important; /* 👑 Adds outer gold glow */
-    }
-    .aura-divine {
+        display: block !important; /* 👑 FORCES VISIBILITY */
         position: absolute !important;
-        top: -15% !important; left: -15% !important;
-        width: 130% !important; height: 130% !important;
-        background: radial-gradient(circle, rgba(255,255,255,0.8) 20%, rgba(255,234,0,0.5) 50%, transparent 75%) !important;
-        border-radius: 50% !important;
-        box-shadow: 0 0 40px 15px rgba(255, 234, 0, 0.6), inset 0 0 30px 10px rgba(255, 255, 255, 0.9) !important;
-        animation: divineAuraPulse 2s infinite alternate ease-in-out !important;
+        inset: 0 !important;
+        background: none !important; /* Removes the ugly wide circle */
+        box-shadow: none !important;
         z-index: -1 !important; 
-        pointer-events: none !important;
     }
 
-    /* 🪽 LEFT WING */
-    .aura-divine::before {
+    /* 1. Tight White Border & Gold Outer Glow */
+    .avatar-rig:has(.aura-divine) {
+        animation: divine-outline-pulse 1.5s infinite alternate ease-in-out !important;
+    }
+
+    @keyframes divine-outline-pulse {
+        0% {
+            filter: 
+                drop-shadow(0 0 1px #fff) drop-shadow(0 0 2px #fff) /* Tight white border */
+                drop-shadow(0 0 6px #ffea00) drop-shadow(0 0 12px #ff9800); /* Outer gold glow */
+        }
+        100% {
+            filter: 
+                drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #fff) 
+                drop-shadow(0 0 12px #ffea00) drop-shadow(0 0 25px #ff9800);
+        }
+    }
+
+    /* 2. Wings attached to the body */
+    .cosmetic-aura.aura-divine::before {
         content: '';
         position: absolute;
-        top: 15%; left: -50px;
-        width: 60px; height: 90px;
+        top: 20px; 
+        left: -15px; /* Pulled inward to attach to the back */
+        width: 35px; height: 60px;
         background: radial-gradient(ellipse at right, rgba(255,255,255,1) 10%, rgba(255,234,0,0.8) 60%, transparent 80%);
         border-radius: 100% 0% 60% 0%;
-        box-shadow: -5px 0 20px #ffea00;
+        box-shadow: -2px 0 10px #ffea00;
         transform-origin: right center;
         animation: wingFlapLeft 2s infinite alternate ease-in-out;
     }
 
-    /* 🪽 RIGHT WING */
-    .aura-divine::after {
+    .cosmetic-aura.aura-divine::after {
         content: '';
         position: absolute;
-        top: 15%; right: -50px;
-        width: 60px; height: 90px;
+        top: 20px; 
+        right: -15px; /* Pulled inward to attach to the back */
+        width: 35px; height: 60px;
         background: radial-gradient(ellipse at left, rgba(255,255,255,1) 10%, rgba(255,234,0,0.8) 60%, transparent 80%);
         border-radius: 0% 100% 0% 60%;
-        box-shadow: 5px 0 20px #ffea00;
+        box-shadow: 2px 0 10px #ffea00;
         transform-origin: left center;
         animation: wingFlapRight 2s infinite alternate ease-in-out;
     }
 
-    @keyframes divineAuraPulse {
-        0% { transform: scale(0.95); filter: drop-shadow(0 0 10px #ffffff); opacity: 0.8; }
-        100% { transform: scale(1.1); filter: drop-shadow(0 0 25px #ffea00); opacity: 1; }
-    }
     @keyframes wingFlapLeft {
-        0% { transform: rotate(5deg) scaleY(1); }
-        100% { transform: rotate(-20deg) scaleY(0.85); }
+        0% { transform: rotate(10deg) scaleY(1); }
+        100% { transform: rotate(-15deg) scaleY(0.9); }
     }
     @keyframes wingFlapRight {
-        0% { transform: rotate(-5deg) scaleY(1); }
-        100% { transform: rotate(20deg) scaleY(0.85); }
+        0% { transform: rotate(-10deg) scaleY(1); }
+        100% { transform: rotate(15deg) scaleY(0.9); }
     }
 `;
 document.head.appendChild(rankStyle);
