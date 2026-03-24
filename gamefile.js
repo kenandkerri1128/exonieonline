@@ -736,7 +736,7 @@ window.shootBullet = function(startX, startY, endX, endY) {
 
 // 🌫️ FOG OF WAR: Entity Reveal Logic
 window.updateMonsterVisibility = function() {
-    if (safeMapData.id === 'town' || game.isGhost || document.body.classList.contains('low-perf')) {
+    if (safeMapData.id === 'town' || String(safeMapData.id).includes('home') || game.isGhost || document.body.classList.contains('low-perf')) {
         for (let mId in game.monsters) {
             const mEl = document.getElementById('mob_' + mId);
             if (mEl && game.monsters[mId].alive) {
@@ -1143,7 +1143,7 @@ function gameLoop(ts) {
     const fow = document.getElementById('fow-canvas');
     if (fow && window.fowFrameCount % 3 === 0) {
         const ctx = fow.getContext('2d', { alpha: true });
-        if (safeMapData.id !== 'town' && !game.isGhost && !document.body.classList.contains('low-perf')) {
+        if (safeMapData.id !== 'town' && !String(safeMapData.id).includes('home') && !game.isGhost && !document.body.classList.contains('low-perf')) {
             fow.classList.add('active');
             ctx.clearRect(0, 0, 2000, 1333);
             ctx.globalCompositeOperation = 'source-over';
