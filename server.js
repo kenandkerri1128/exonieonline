@@ -77,6 +77,34 @@ app.post('/paypal-webhook', express.json(), async (req, res) => {
     }
     res.status(200).send('Webhook Received');
 });
+// ==========================================
+// 💳 PAYPAL INSTANT CAPTURE (Return URL)
+// ==========================================
+app.get('/paypal-return', async (req, res) => {
+    const orderId = req.query.token; // PayPal attaches the Order ID as a token in the URL
+    if (!orderId) return res.redirect('/');
+    
+    try {
+        const isLive = true; // ⚠️ Ensure this is TRUE for real money!
+        const baseURL = isLive ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+        const auth = Buffer.from(process.env.PAYPAL_CLIENT_ID + ':' + process.env.PAYPAL_SECRET).toString('base64');
+        
+        const tokenReq = await axios.post(`${baseURL}/v1/oauth2/token`, 'grant_type=client_credentials', {
+            headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+
+        // Force the Capture instantly!
+        await axios.post(`${baseURL}/v2/checkout/orders/${orderId}/capture`, {}, {
+            headers: { 'Authorization': `Bearer ${tokenReq.data.access_token}`, 'Content-Type': 'application/json' }
+        });
+        console.log(`✅ [PayPal] Instant Capture Successful for Order: ${orderId}`);
+    } catch (err) {
+        console.error("Return Capture Error:", err.response ? err.response.data : err.message);
+    }
+    
+    // Send them back to the game window
+    res.redirect('/');
+});
 const server = http.createServer(app);
 const io = new Server(server);
 
@@ -5537,7 +5565,7 @@ socket.on('startDungeon', async (data) => {
                     amount: { currency_code: 'USD', value: item.priceUSD }
                 }],
                 application_context: {
-                    return_url: 'https://exonieonline.onrender.com', 
+                    return_url: 'https://exonieonline.onrender.com/paypal-return', // 🌟 NOW POINTS TO THE INSTANT CAPTURE!
                     cancel_url: 'https://exonieonline.onrender.com',
                     brand_name: 'Exonie Online',
                     shipping_preference: 'NO_SHIPPING' 
