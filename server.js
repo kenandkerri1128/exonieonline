@@ -1680,7 +1680,7 @@ socket.on('broadcastSkill', (data) => {
     // 👇 THE FIX: 2-Second Immunity (Untargetable/I-Frames) for Phantom Striker Blink
     if (skillId === 'phs1') {
         p.untargetableUntil = now + 2000;
-
+}
     if (skillId === 'sum3') {
         const world = worlds[p.instanceId];
         if (world && world.pets) {
