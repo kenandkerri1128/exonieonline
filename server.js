@@ -4679,6 +4679,7 @@ if (rarity !== "Starter") {
         // 🛡️ THE FIX: Added Owl and Wisp to the dictionary!
         const AURA_DATA = { 
             'lightning': 'Lightning', 
+            'divine': 'Divine',
             'blaze': 'Blaze', 
             'liquid': 'Liquid', 
             'nature': 'Nature', 
@@ -4769,6 +4770,7 @@ if (rarity !== "Starter") {
 
         const AURA_DATA = {
             'lightning': { name: 'Lightning', color: '#00ffff' },
+            'divine': { name: 'Aura of the Divine', color: '#ffea00' },
             'blaze': { name: 'Blaze', color: '#ff4444' },
             'liquid': { name: 'Liquid', color: '#44aaff' },
             'nature': { name: 'Nature', color: '#4CAF50' },
