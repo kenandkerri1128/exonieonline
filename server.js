@@ -102,8 +102,7 @@ app.get('/paypal-return', async (req, res) => {
         console.error("Return Capture Error:", err.response ? err.response.data : err.message);
     }
     
-    // Send them back to the game window
-    res.redirect('/');
+   res.send('<script>window.close();</script><p style="font-family: sans-serif; text-align: center; margin-top: 50px;">Payment complete! You can close this tab and return to the game.</p>');
 });
 const server = http.createServer(app);
 const io = new Server(server);
