@@ -1749,6 +1749,7 @@ window.renderInventory = function() {
         if (item) {
             if (inTradeMode) { slot.style.border = "1px solid #2196F3"; slot.onclick = () => window.addTradeItem(i); } 
             else if (isEnhancing) { slot.style.border = "1px dashed #ffeb3b"; slot.onclick = (e) => window.attemptEnhance(i, e); } 
+           // --- LINES BEFORE ---
             else if (window.isStorageOpen) { 
                 slot.style.border = "1px dashed #E040FB"; 
                 slot.onclick = () => { if(socket) socket.emit('transferToStorage', i); }; 
@@ -1760,9 +1761,14 @@ window.renderInventory = function() {
                     else window.attemptApplyAura(i, e);
                 }; 
             }
+            else if (window.isApplyingForger) {
+                slot.style.border = "1px dashed #E040FB";
+                slot.onclick = (e) => window.openForgerStatSelect(i, e);
+            }
             else { 
                 slot.style.borderBottom = `3px solid ${item.color || '#fff'}`; 
                 slot.onclick = (e) => {
+                // --- LINES AFTER ---
                     // 🔗 SHIFT+CLICK TO LINK ITEM
                     if (e.shiftKey) {
                         window.linkItemToChat(i);
@@ -1804,7 +1810,12 @@ window.openItemAction = function(index, e) {
         window.isApplyingAura = true; // Reusing the aura selection border logic
         dom.log.innerText = `Select an Accessory (Necklace, Ring, Earrings) to socket the gem!`;
     } else {
-        document.getElementById('ctx-btn-equip').innerText = (item.type === 'potion' || item.type === 'consumable') ? "Use" : (item.type === 'material' ? "Enhance" : (item.type === 'aura' ? (isPet ? "Equip Pet" : "Apply Aura") : "Equip"));
+    if (item.type === 'gem') {
+        document.getElementById('ctx-btn-equip').innerText = "Socket Gem";
+        window.isApplyingAura = true; // Reusing the aura selection border logic
+        dom.log.innerText = `Select an Accessory (Necklace, Ring, Earrings) to socket the gem!`;
+    } else {
+        document.getElementById('ctx-btn-equip').innerText = (item.type === 'potion' || item.type === 'consumable') ? "Use" : (item.type === 'material' ? "Enhance" : (item.type === 'aura' ? (isPet ? "Equip Pet" : "Apply Aura") : (item.type === 'forger' ? "Use Forger" : "Equip")));
     }
     document.getElementById('ctx-btn-sell').style.display = isShopping ? 'block' : 'none';
     document.getElementById('ctx-btn-extract-aura').style.display = ((item.type === 'armor' || item.type === 'leggings') && item.aura) ? 'block' : 'none';
@@ -2496,7 +2507,14 @@ function setKeyState(e, isDown) {
     } 
 }
 window.addEventListener('keydown', (e) => setKeyState(e, true), { capture: true }); window.addEventListener('keyup', (e) => setKeyState(e, false), { capture: true }); window.addEventListener('blur', () => { for (const k in game.keys) game.keys[k] = false; attackHeld = false; isChatting = false; });
-window.addEventListener('mousedown', (e) => { if (e.target.classList.contains('ctx-btn')) return; if (!e.target.closest('#inv-context-menu')) document.getElementById('inv-context-menu').style.display = 'none'; if (!e.target.closest('#player-context-menu') && !e.target.closest('.entity')) document.getElementById('player-context-menu').style.display = 'none'; if (isEnhancing && !e.target.closest('#inventory-screen') && !e.target.closest('#inv-context-menu')) { isEnhancing = false; dom.log.innerText = "Enhancement mode cancelled."; window.renderInventory(); } });
+window.addEventListener('blur', () => { for (const k in game.keys) game.keys[k] = false; attackHeld = false; isChatting = false; });
+window.addEventListener('mousedown', (e) => { 
+    if (e.target.classList.contains('ctx-btn')) return; 
+    if (!e.target.closest('#inv-context-menu')) document.getElementById('inv-context-menu').style.display = 'none'; 
+    if (!e.target.closest('#player-context-menu') && !e.target.closest('.entity')) document.getElementById('player-context-menu').style.display = 'none'; 
+    if (isEnhancing && !e.target.closest('#inventory-screen') && !e.target.closest('#inv-context-menu')) { isEnhancing = false; dom.log.innerText = "Enhancement mode cancelled."; window.renderInventory(); } 
+    if (window.isApplyingForger && !e.target.closest('#inventory-screen') && !e.target.closest('#inv-context-menu') && !e.target.closest('#forger-modal') && !e.target.closest('#forger-craft-modal')) { window.isApplyingForger = false; dom.log.innerText = "Forger cancelled."; window.renderInventory(); }
+});
 document.addEventListener('wheel', function(e) { if (e.ctrlKey && !window.adminMode) { e.preventDefault(); } }, { passive: false });
 window.addEventListener('pointerup', () => { attackHeld = false; });
 dom.world.addEventListener('pointerdown', (e) => { if(!window.adminMode && e.target.id === 'world' && !window.isLoading) { attackHeld = true; window.attemptAttack(false); } });
@@ -4639,7 +4657,6 @@ window.requestDivineCraft = function() {
     socket.emit('requestCraftDivine', { baseIndex: forgeSelectedIndex });
     document.getElementById('divine-forge-modal').innerHTML = '<h2 style="color:#ffea00; margin-top: 50px;">Forging in the Heavens...</h2>';
 };
-
 // Listen for Success to return to the UI
 if (socket) {
     socket.on('craftSuccess', () => {
@@ -4648,27 +4665,165 @@ if (socket) {
     });
 }
 
+// ==========================================
+// 🪄 FORGER CRAFTING & REROLL UI
+// ==========================================
+window.isApplyingForger = false;
+
+window.openForgerStatSelect = function(targetIndex, e) {
+    e.stopPropagation();
+    let item = game.player.inventory[targetIndex];
+    let forgerItem = game.player.inventory[activeInvIndex]; 
+
+    if (!item || ['necklace', 'ring', 'earrings'].includes(item.type)) {
+        dom.log.innerText = "❌ Cannot reroll accessories!";
+        window.isApplyingForger = false; window.renderInventory(); return;
+    }
+    if (item.rarity !== forgerItem.rarity) {
+        dom.log.innerText = `❌ You need a ${item.rarity} Forger to reroll this item!`;
+        window.isApplyingForger = false; window.renderInventory(); return;
+    }
+    if (!item.randomStat || Object.keys(item.randomStat).length === 0) {
+        dom.log.innerText = "❌ This item has no sub-stats to reroll.";
+        window.isApplyingForger = false; window.renderInventory(); return;
+    }
+
+    let modal = document.getElementById('forger-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'forger-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #E040FB; padding:20px; z-index:9000; width:320px; border-radius:8px; box-shadow:0 0 30px #E040FB; color:white; text-align:center;';
+        document.body.appendChild(modal);
+    }
+    
+    let html = '<h2 style="margin-top:0; color:#E040FB;">✨ Select Sub-Stat</h2>';
+    html += `<p style="color:#aaa; font-size:12px; margin-bottom:15px;">Target: ${item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name}</p>`;
+    
+    for (let k in item.randomStat) {
+        html += `<button class="btn" style="width:100%; margin-bottom:8px; background:#333; border:1px solid #E040FB; color:#E040FB;" onclick="window.confirmForgerReroll(${targetIndex}, '${k}')">Reroll +${item.randomStat[k]} ${k.toUpperCase()}</button>`;
+    }
+    
+    html += `<button class="btn" style="background:#f44336; width:100%; margin-top:10px;" onclick="document.getElementById('forger-modal').style.display='none'; window.isApplyingForger=false; window.renderInventory();">Cancel</button>`;
+    
+    modal.innerHTML = html;
+    modal.style.display = 'block';
+};
+
+window.confirmForgerReroll = function(targetIndex, statKey) {
+    if (socket) socket.emit('requestRerollStat', { forgerIndex: activeInvIndex, targetIndex: targetIndex, statKey: statKey });
+    document.getElementById('forger-modal').innerHTML = '<h2 style="color:#E040FB; margin-top: 20px;">Rerolling...</h2>';
+};
+
+window.openForgerCrafting = function() {
+    document.getElementById('merchant-modal').style.display = 'none';
+    let modal = document.getElementById('forger-craft-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'forger-craft-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #E040FB; padding:20px; z-index:9000; width:350px; border-radius:8px; box-shadow:0 0 30px #E040FB; color:white; text-align:center;';
+        document.body.appendChild(modal);
+    }
+    window.renderForgerCrafting();
+    modal.style.display = 'block';
+};
+
+window.forgerSelectedRarity = window.forgerSelectedRarity || 'Godly';
+
+window.updateForgerRarity = function(val) {
+    window.forgerSelectedRarity = val;
+    window.renderForgerCrafting();
+};
+
+window.renderForgerCrafting = function() {
+    let modal = document.getElementById('forger-craft-modal');
+    let selRarity = window.forgerSelectedRarity;
+    
+    let reqExo=3, reqGold=300000, reqStones=3;
+    const inv = game.player.inventory || [];
+    let cR=0, cG=0, cB=0, cStones=0;
+    
+    inv.forEach(x => {
+        if(x && x.name === 'Red Exo Metal') cR += x.quantity||1;
+        if(x && x.name === 'Green Exo Metal') cG += x.quantity||1;
+        if(x && x.name === 'Blue Exo Metal') cB += x.quantity||1;
+        if(x && x.name === 'Refinement Stone Lv.100' && x.rarity === selRarity) cStones += x.quantity||1;
+    });
+    
+    const col = (have, need) => have >= need ? '#4CAF50' : '#f44336';
+    const gCol = (game.player.gold >= reqGold) ? '#4CAF50' : '#f44336';
+    let canCraft = (cR>=reqExo && cG>=reqExo && cB>=reqExo && cStones>=reqStones && game.player.gold >= reqGold);
+
+    let html = '<h2 style="margin-top:0; color:#E040FB; text-shadow: 0 0 10px #E040FB;">✨ Stat Forger</h2>';
+    html += '<p style="font-size:12px; color:#aaa;">Craft a magical Forger to reroll a random sub-stat. Select the target rarity below.</p>';
+    
+    html += `<select onchange="window.updateForgerRarity(this.value)" style="width:100%; padding:8px; margin-bottom:10px; background:#333; color:white; border:1px solid #E040FB; border-radius:4px; outline:none;">
+        <option value="Basic" ${selRarity === 'Basic' ? 'selected' : ''}>Basic</option>
+        <option value="Rare" ${selRarity === 'Rare' ? 'selected' : ''}>Rare</option>
+        <option value="Unique" ${selRarity === 'Unique' ? 'selected' : ''}>Unique</option>
+        <option value="Legendary" ${selRarity === 'Legendary' ? 'selected' : ''}>Legendary</option>
+        <option value="Godly" ${selRarity === 'Godly' ? 'selected' : ''}>Godly</option>
+        <option value="Divine" ${selRarity === 'Divine' ? 'selected' : ''}>Divine</option>
+    </select>`;
+
+    html += '<div style="background:#222; padding:10px; border-radius:5px; margin-bottom:15px; font-size:13px; text-align:left;">';
+    html += `<div style="text-align:center; font-weight:bold; margin-bottom:5px; color:#fff;">Requirements</div>`;
+    html += `<div><span style="color:${col(cR,reqExo)}">${cR}/${reqExo} Red Exo Metal</span></div>`;
+    html += `<div><span style="color:${col(cG,reqExo)}">${cG}/${reqExo} Green Exo Metal</span></div>`;
+    html += `<div><span style="color:${col(cB,reqExo)}">${cB}/${reqExo} Blue Exo Metal</span></div>`;
+    html += `<div><span style="color:${col(cStones,reqStones)}">${cStones}/${reqStones} ${selRarity} Ref. Stone Lv.100</span></div>`;
+    html += `<div style="margin-top:5px; font-weight:bold; color:${gCol}">${(game.player.gold || 0).toLocaleString()} / ${reqGold.toLocaleString()} Gold</div>`;
+    html += '</div>';
+
+    html += `<button class="btn" style="background:${canCraft ? '#E040FB' : '#555'}; color:white; width:100%; margin-bottom:5px; font-weight:bold;" ${canCraft ? '' : 'disabled'} onclick="if(socket) socket.emit('requestCraftForger', { rarity: '${selRarity}' })">Craft ${selRarity} Forger</button>`;
+    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('forger-craft-modal').style.display='none'; document.getElementById('merchant-modal').style.display='block';">Back</button>`;
+    modal.innerHTML = html;
+};
+
+if (socket) {
+    socket.on('craftForgerSuccess', () => {
+        setTimeout(() => { if (document.getElementById('forger-craft-modal') && document.getElementById('forger-craft-modal').style.display === 'block') window.renderForgerCrafting(); }, 100);
+    });
+    socket.on('rerollSuccess', () => {
+        let modal = document.getElementById('forger-modal');
+        if (modal) modal.style.display = 'none';
+        window.isApplyingForger = false;
+        activeInvIndex = -1;
+        window.renderInventory();
+    });
+}
+
 // 🪄 HOOK INTO THE EXISTING BLACKSMITH BUTTON
 setTimeout(() => {
     let merchantModal = document.getElementById('merchant-modal');
     if (merchantModal) {
-        // Find all buttons inside the merchant window
         let buttons = merchantModal.getElementsByTagName('button');
         for (let btn of buttons) {
-            // Look for the one that says Blacksmith
             if (btn.innerText.toLowerCase().includes('blacksmith')) {
-                // Update its text and style to look legendary!
                 btn.innerText = '🔨 Blacksmith (Divine Forge)';
                 btn.onclick = window.openDivineForge;
                 btn.style.background = 'linear-gradient(45deg, #ff9800, #ffea00)';
                 btn.style.color = 'black';
                 btn.style.fontWeight = 'bold';
                 btn.style.boxShadow = '0 0 10px #ff9800';
-                break; // Stop searching once we find it
+                
+                // 👇 INJECT FORGER BUTTON RIGHT AFTER IT
+                if (!document.getElementById('btn-forger-craft')) {
+                    let forgerBtn = document.createElement('button');
+                    forgerBtn.id = 'btn-forger-craft';
+                    forgerBtn.className = 'btn';
+                    forgerBtn.innerText = '✨ Stat Forger (Reroll)';
+                    forgerBtn.style.cssText = 'background: linear-gradient(45deg, #9c27b0, #E040FB); color: white; font-weight: bold; width: 100%; margin-bottom: 10px; box-shadow: 0 0 10px #E040FB; border: none; padding: 10px; cursor: pointer; border-radius: 4px;';
+                    forgerBtn.onclick = window.openForgerCrafting;
+                    btn.parentNode.insertBefore(forgerBtn, btn.nextSibling);
+                }
+                break;
             }
         }
     }
 }, 2000);
+
 window.openAuctionHouse = function() {
     document.getElementById('merchant-modal').style.display = 'none';
     document.getElementById('ah-modal').style.display = 'block';
