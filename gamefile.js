@@ -1804,12 +1804,6 @@ window.swapSlots = function(fromIndex, toIndex) {
 window.openItemAction = function(index, e) {
     e.stopPropagation(); activeInvIndex = index; const menu = document.getElementById('inv-context-menu'); const item = game.player.inventory[index]; if (!item) return;
     const isPet = item.type === 'aura' && ['fox', 'owl', 'wisp'].includes(item.auraId);
-    
-    if (item.type === 'gem') {
-        document.getElementById('ctx-btn-equip').innerText = "Socket Gem";
-        window.isApplyingAura = true; // Reusing the aura selection border logic
-        dom.log.innerText = `Select an Accessory (Necklace, Ring, Earrings) to socket the gem!`;
-    } else {
     if (item.type === 'gem') {
         document.getElementById('ctx-btn-equip').innerText = "Socket Gem";
         window.isApplyingAura = true; // Reusing the aura selection border logic
