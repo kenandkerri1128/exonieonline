@@ -1,7 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const activeLogins = new Set(); // Tracks currently logged-in usernames
-const activeEmailSessions = {}; // 🛡️ NEW: Tracks which emails are currently online
+const activeEmailSessions = {}; // 🛡️ Tracks which emails are currently online
+const ipConnections = {}; // 🛡️ NEW: Tracks active IP addresses
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
@@ -1889,7 +1890,19 @@ socket.on('login', async (data) => {
             return socket.emit('requireEmailVerification', username);
         }
 
-        // 2. THE ULTIMATE KICK ENGINE: Checks both Username AND Email
+        // 2. 🛡️ IP ADDRESS CAP (Max 2 per network, Admins bypass)
+        // x-forwarded-for helps get the real IP if your game is hosted behind a proxy like Render or Cloudflare
+        const clientIp = socket.handshake.headers['x-forwarded-for']?.split(',')[0] || socket.handshake.address;
+        
+        if (!isAdmin(username)) {
+            const currentConnections = ipConnections[clientIp] || 0;
+            if (currentConnections >= 2) {
+                console.log(`[SECURITY] Blocked ${username} - IP Cap Reached for ${clientIp}`);
+                return socket.emit('authError', 'Connection Limit: You can only play a maximum of 2 accounts at once on this network.');
+            }
+        }
+
+        // 3. THE ULTIMATE KICK ENGINE: Checks both Username AND Email
         let oldSocketId = null;
         let oldUsername = null;
 
@@ -1958,9 +1971,16 @@ socket.on('login', async (data) => {
 
         activeLogins.add(username);
         
-        // 👇 THE FIX: Bind the email tightly to the socket connection!
+        // 👇 THE FIX: Bind the data tightly to the socket connection!
         socket.username = username;
         socket.email = user.email; 
+        socket.clientIp = clientIp; // Save the IP to the socket for cleanup
+        
+        // Add +1 to the IP tally (unless they are an admin)
+        if (!isAdmin(username)) {
+            ipConnections[clientIp] = (ipConnections[clientIp] || 0) + 1;
+        }
+
         currentUser = username;
 
         // 🌟 Send the global top players to the newly logged-in client
@@ -5765,10 +5785,16 @@ socket.on('startDungeon', async (data) => {
     });
    socket.on('disconnect', async () => {
         if (socket.username) { activeLogins.delete(socket.username); }
-        if (socket.email && activeEmailSessions[socket.email] === socket.id) { delete activeEmailSessions[socket.email]; } // Clean up email session
+        if (socket.email && activeEmailSessions[socket.email] === socket.id) { delete activeEmailSessions[socket.email]; }
+        
+        // 🛡️ Free up the IP slot when they disconnect
+        if (socket.clientIp && ipConnections[socket.clientIp]) {
+            ipConnections[socket.clientIp]--;
+            if (ipConnections[socket.clientIp] <= 0) delete ipConnections[socket.clientIp];
+        }
 
         const p = onlinePlayers[socket.id];
-        if (p) {
+        if (p) {
             const oldInstId = p.instanceId; 
             socket.to(p.instanceId).emit('remotePlayerLeft', p.id);
             if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
