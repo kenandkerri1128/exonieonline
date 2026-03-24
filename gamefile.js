@@ -501,6 +501,9 @@ window.executeSkill = function(skillId, className) {
         
         game.player.x = nx;
         window.spawnWhiteSplash(game.player.x + 24, game.player.y + 48);
+
+        // 👇 THE FIX: Add the "IMMUNE" text so the player knows they have I-frames!
+        window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMUNE", '#00E5FF');
         if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'walk', facingRight: window.facingRight, weaponSprite: wpnSprite });
         return; 
     }
