@@ -864,17 +864,29 @@ window.attemptAttack = function(silent) {
 
     // ⚔️ Check Players (ONLY in Neutral Zone)
     if (safeMapData.id === 'neutralzone') {
-        for (let rId in game.remotePlayers) {
-            let rp = game.remotePlayers[rId];
-            if (rp.isGhost || rp.isHiddenAdmin) continue; // 🛡️ Added Admin check
-            
-            // Skip Party Members
-            if (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id)) continue;
+        // 🛡️ THE FIX: If we clicked a specific player, target them first!
+        if (window.activeTargetPlayerId && game.remotePlayers[window.activeTargetPlayerId]) {
+            let rp = game.remotePlayers[window.activeTargetPlayerId];
+            if (!rp.isGhost && !rp.isHiddenAdmin && !(game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id))) {
+                let dist = Math.hypot(pCenterX - (rp.x + 24), pCenterY - (rp.y + 48));
+                if (dist <= attackRadius) {
+                    minD = dist; closestPlayer = rp; closestMob = null;
+                }
+            }
+            window.activeTargetPlayerId = null; // Clear the lock after calculating
+        } else {
+            // Otherwise, scan for the nearest valid player (Auto-Attack logic)
+            for (let rId in game.remotePlayers) {
+                let rp = game.remotePlayers[rId];
+                if (rp.isGhost || rp.isHiddenAdmin) continue; 
+                
+                if (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id)) continue;
 
-            let rpCenterX = rp.x + 24; let rpCenterY = rp.y + 48;
-            let dist = Math.hypot(pCenterX - rpCenterX, pCenterY - rpCenterY);
-            // 🛡️ THE FIX: Use the dynamic attackRadius here too!
-            if (dist <= attackRadius && dist < minD) { minD = dist; closestPlayer = rp; closestMob = null; }
+                let rpCenterX = rp.x + 24; let rpCenterY = rp.y + 48;
+                let dist = Math.hypot(pCenterX - rpCenterX, pCenterY - rpCenterY);
+                
+                if (dist <= attackRadius && dist < minD) { minD = dist; closestPlayer = rp; closestMob = null; }
+            }
         }
     }
     
@@ -2642,7 +2654,11 @@ window.addRemotePlayer = function(pData) {
         e.stopPropagation(); e.preventDefault(); 
         // ⚔️ NEUTRAL ZONE: Clicking a player attacks them!
         if (safeMapData.id === 'neutralzone') {
-            if (!window.isLoading) window.attemptAttack(false);
+            if (!window.isLoading) {
+                // 🛡️ THE FIX: Tell the game EXACTLY who we are trying to shoot before firing!
+                window.activeTargetPlayerId = pData.id; 
+                window.attemptAttack(false);
+            }
         } else {
             // Town/Other maps: Open the menu
             window.openPlayerContextMenu(pData.id, e); 
