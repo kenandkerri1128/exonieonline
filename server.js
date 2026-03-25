@@ -338,13 +338,12 @@ function sanitizeItem(item) {
     safe.name = String(safe.name || 'Unknown Item');
     safe.type = String(safe.type || '');
     safe.sprite = String(safe.sprite || '');
-    // 🛡️ THE FIX: Allow items up to Level 9999 so high-level gear isn't downgraded!
     safe.level = clamp(safe.level, 1, 9999);
     safe.rarity = safe.rarity || 'Basic';
     safe.color = typeof safe.color === 'string' ? safe.color : '#ffffff';
     safe.quantity = clamp(safe.quantity || 1, 1, 999);
 
-    // 🛡️ THE FIX: Only attach equipment stats to weapons, armor, and auras!
+    // 🛡️ THE CLEANER: Only equipment gets real stats. Materials get safe empty objects.
     const isEquipment = !['material', 'potion', 'consumable', 'forger', 'gem'].includes(safe.type);
 
     if (isEquipment) {
@@ -352,13 +351,13 @@ function sanitizeItem(item) {
         safe.fixedStat = sanitizeStatObject(safe.fixedStat);
         safe.randomStat = sanitizeStatObject(safe.randomStat);
     } else {
-        // 🧹 THE AUTO-CLEANER: Strip out the bloat if it accidentally got saved to a material!
         delete safe.stats;
-        delete safe.fixedStat;
-        delete safe.randomStat;
-        delete safe.enhanceLevel;
+        safe.fixedStat = {};
+        safe.randomStat = {};
+        safe.enhanceLevel = 0;
     }
 
+    // 🐾 AURA & PET CHECKS
     const VALID_AURAS = ['lightning', 'blaze', 'liquid', 'nature', 'fox', 'owl', 'wisp', 'divine', 'egg'];
     if (safe.aura && !VALID_AURAS.includes(safe.aura)) {
         delete safe.aura;
@@ -367,7 +366,7 @@ function sanitizeItem(item) {
         delete safe.auraId;
     }
 
-    return safe;
+    return safe; // 🌟 CRITICAL: This is what was missing!
 }
 
 function sanitizeInventory(inventory) {
