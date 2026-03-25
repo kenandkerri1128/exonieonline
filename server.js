@@ -4430,8 +4430,7 @@ socket.on('playerDied', () => {
             color: baseItem.color
         });
     });
-
-    // ==========================================
+// ==========================================
     // ✨ STAT FORGER CRAFTING & REROLL ENGINE
     // ==========================================
     socket.on('requestCraftForger', async (data) => {
@@ -4453,28 +4452,43 @@ socket.on('playerDied', () => {
             return socket.emit('systemMessage', '❌ Inventory is full!');
         }
 
+        // 🛡️ THE FIX: Make the Refinement Stone check flexible (checks name + level property instead of exact string)
         let countRed = 0, countGreen = 0, countBlue = 0, countStones = 0;
         inv.forEach(i => {
-            if (i && i.name === 'Red Exo Metal') countRed += i.quantity || 1;
-            if (i && i.name === 'Green Exo Metal') countGreen += i.quantity || 1;
-            if (i && i.name === 'Blue Exo Metal') countBlue += i.quantity || 1;
-            if (i && i.name === `Refinement Stone Lv.100` && i.rarity === targetRarity) countStones += i.quantity || 1;
+            if (!i) return;
+            if (i.name === 'Red Exo Metal') countRed += i.quantity || 1;
+            else if (i.name === 'Green Exo Metal') countGreen += i.quantity || 1;
+            else if (i.name === 'Blue Exo Metal') countBlue += i.quantity || 1;
+            else if (i.name.includes('Refinement Stone') && i.level >= 100 && i.rarity === targetRarity) {
+                countStones += i.quantity || 1;
+            }
         });
 
         if (countRed < 3 || countGreen < 3 || countBlue < 3 || countStones < 3) {
             return socket.emit('systemMessage', '❌ You lack the required materials.');
         }
 
-        const deduct = (name, amount, reqRarity) => {
+        // 🛡️ THE FIX: Flexible deduct function to handle the fuzzy matching
+        const deduct = (nameStr, amount, reqRarity, isStone = false) => {
             let amt = amount;
             for (let i = 0; i < inv.length; i++) {
                 if (amt <= 0) break;
-                if (inv[i] && inv[i].name === name && (!reqRarity || inv[i].rarity === reqRarity)) {
-                    if (inv[i].quantity > amt) {
-                        inv[i].quantity -= amt;
+                let item = inv[i];
+                if (!item) continue;
+
+                let isMatch = false;
+                if (isStone) {
+                    isMatch = item.name.includes('Refinement Stone') && item.level >= 100 && item.rarity === reqRarity;
+                } else {
+                    isMatch = item.name === nameStr;
+                }
+
+                if (isMatch) {
+                    if (item.quantity > amt) {
+                        item.quantity -= amt;
                         amt = 0;
                     } else {
-                        amt -= inv[i].quantity;
+                        amt -= item.quantity;
                         inv[i] = null;
                     }
                 }
@@ -4484,7 +4498,8 @@ socket.on('playerDied', () => {
         deduct('Red Exo Metal', 3);
         deduct('Green Exo Metal', 3);
         deduct('Blue Exo Metal', 3);
-        deduct('Refinement Stone Lv.100', 3, targetRarity);
+        deduct('Refinement Stone', 3, targetRarity, true); // Flagged as true to use the fuzzy stone logic
+        
         p.gold -= 300000;
 
         if (forgerIdx !== -1) {
