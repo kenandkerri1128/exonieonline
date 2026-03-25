@@ -846,14 +846,19 @@ window.attemptAttack = function(silent) {
     const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; 
     let weaponSprite = game.player.equips && game.player.equips.weapon ? game.player.equips.weapon.sprite : ''; 
     const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant') || weaponSprite.includes('gun'); 
+    
+    // 🛡️ THE FIX: Set the base attack radius, then immediately apply the Sniper boost!
     let attackRadius = isRanged ? 250 : 80;
-    if (game.player.baseStats?.playerClass === 'Sniper') attackRadius = 287.5; 
+    if (game.player.baseStats?.playerClass === 'Sniper') {
+        attackRadius = 287.5; // +15% Range for Sniper passive!
+    }
     
     // Check Monsters
     for(let mId in game.monsters) { 
         let m = game.monsters[mId]; if(!m.alive) continue; 
         let mCenterX = m.x + (m.width/2); let mCenterY = m.y + (m.height/2); 
         let dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY); 
+        // 🛡️ THE FIX: Use the dynamic attackRadius here!
         if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
     }
 
@@ -861,13 +866,14 @@ window.attemptAttack = function(silent) {
     if (safeMapData.id === 'neutralzone') {
         for (let rId in game.remotePlayers) {
             let rp = game.remotePlayers[rId];
-            if (rp.isGhost) continue;
+            if (rp.isGhost || rp.isHiddenAdmin) continue; // 🛡️ Added Admin check
             
             // Skip Party Members
             if (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id)) continue;
 
             let rpCenterX = rp.x + 24; let rpCenterY = rp.y + 48;
             let dist = Math.hypot(pCenterX - rpCenterX, pCenterY - rpCenterY);
+            // 🛡️ THE FIX: Use the dynamic attackRadius here too!
             if (dist <= attackRadius && dist < minD) { minD = dist; closestPlayer = rp; closestMob = null; }
         }
     }
