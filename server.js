@@ -920,12 +920,12 @@ function getServerTotalStat(p, statName) {
         }
     });
 
-    if (baseStats.playerClass === 'Berserker' && (statName === 'hp' || statName === 'defense')) {
-        base += Math.floor((Number(baseStats[statName]) || 0) * 0.25);
+if (baseStats.playerClass === 'Berserker' && (statName === 'hp' || statName === 'defense')) {
+        base += Math.floor(base * 0.25);
     }
 
     if (baseStats.playerClass === 'Blademaster' && statName === 'attack') {
-        base += Math.floor((Number(baseStats.attack) || 0) * 0.25);
+        base += Math.floor(base * 0.25);
     }
 
     return base;
@@ -1269,10 +1269,10 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
         if (victim.untargetableUntil > now) return;
 
         // 🍃 NINJA ASSASSIN DODGE CHECK (Target dodges)
-        if (target.baseStats?.playerClass === 'Ninja Assassin' && target.level >= 25) {
-            let dodgeChance = target.level >= 75 ? 0.35 : 0.25;
+        if (victim.baseStats?.playerClass === 'Ninja Assassin' && victim.level >= 25) {
+            let dodgeChance = victim.level >= 75 ? 0.35 : 0.25;
             if (Math.random() < dodgeChance) {
-                io.to('neutralzone').emit('attackEvaded', { targetId: target.id, attackerId: p.id, type: 'dodge' });
+                io.to(instId).emit('attackEvaded', { targetId: victim.id, monsterId: m.id, type: 'dodge' });
                 return;
             }
         }
