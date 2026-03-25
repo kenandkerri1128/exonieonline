@@ -4961,19 +4961,20 @@ window.updateForgerRarity = function(val) {
 };
 
 window.renderForgerCrafting = function() {
-    let modal = document.getElementById('forger-craft-modal');
-    let selRarity = window.forgerSelectedRarity;
-    
-    let reqExo=3, reqGold=300000, reqStones=3;
-    const inv = game.player.inventory || [];
-    let cR=0, cG=0, cB=0, cStones=0;
-    
-    inv.forEach(x => {
-        if(x && x.name === 'Red Exo Metal') cR += x.quantity||1;
-        if(x && x.name === 'Green Exo Metal') cG += x.quantity||1;
-        if(x && x.name === 'Blue Exo Metal') cB += x.quantity||1;
-        if(x && x.name === 'Refinement Stone Lv.100' && x.rarity === selRarity) cStones += x.quantity||1;
-    });
+    let modal = document.getElementById('forger-craft-modal');
+    let selRarity = window.forgerSelectedRarity;
+    
+    let reqExo=3, reqGold=300000, reqStones=3;
+    const inv = game.player.inventory || [];
+    let cR=0, cG=0, cB=0, cStones=0;
+    
+    inv.forEach(x => {
+        if(x && x.name === 'Red Exo Metal') cR += x.quantity||1;
+        if(x && x.name === 'Green Exo Metal') cG += x.quantity||1;
+        if(x && x.name === 'Blue Exo Metal') cB += x.quantity||1;
+        // 🛡️ THE FIX: Makes the UI flexible enough to read higher rarity stones!
+        if(x && x.name.includes('Refinement Stone') && x.level >= 100 && x.rarity === selRarity) cStones += x.quantity||1;
+    });
     
     const col = (have, need) => have >= need ? '#4CAF50' : '#f44336';
     const gCol = (game.player.gold >= reqGold) ? '#4CAF50' : '#f44336';
