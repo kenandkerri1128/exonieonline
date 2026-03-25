@@ -522,8 +522,6 @@ window.updatePotionHotbar();
 }
 
 window.executeSkill = function(skillId, className) {
-    // 🛡️ THE FIX: Removed the buggy top-level cooldown overrides from here!
-
     if (safeMapData.id === 'town') { if(dom.log) dom.log.innerText = "You cannot use skills in Town!"; return; }
     
     let skillObj = game.player.activeSkills.find(s => s.id === skillId);
@@ -531,11 +529,9 @@ window.executeSkill = function(skillId, className) {
     
     if (Date.now() < skillObj.cooldownReadyAt) {
         if(dom.log) dom.log.innerText = `${skillObj.name} is on cooldown!`;
-        return; // Prevents the player from spamming the server!
+        return;
     }
 
-    // 🛡️ THE FIX: Lock the basic attack ONLY IF the skill actually casts!
-    // We use 800ms to perfectly sync with the basic attack cycle, stopping the "double attack" barrage!
     attackCooldownActive = true;
     setTimeout(() => { attackCooldownActive = false; }, 800); 
 
@@ -556,33 +552,26 @@ window.executeSkill = function(skillId, className) {
         aura.style.animation = 'aura-burst 0.6s ease-out forwards';
     }
 
-    // 🌟 THE FIX: Play Weapon SFX and Spawn Floating Skill Name!
     const wpnSprite = game.player.equips?.weapon?.sprite || '';
     if (typeof window.playSFX === 'function') window.playSFX(wpnSprite);
     if (typeof window.spawnSkillText === 'function') window.spawnSkillText(game.player.x + 24, game.player.y - 20, skillObj.name, '#00E5FF');
 
-// 🗡️ SHADOW STEP (No target needed)
+    // 🛡️ NON-TARGETED SKILLS 
     if (skillId === 'phs1') {
-        // 🛡️ THE FIX: Step forward checking for walls to stop exactly AT the wall
         let step = window.facingRight ? 10 : -10;
-        let maxSteps = 18; // 180 total distance
+        let maxSteps = 18; 
         let nx = game.player.x;
-        
         for (let i = 0; i < maxSteps; i++) {
-            if (window.isColliding(nx + step, game.player.y)) break; // Stop moving if next step is a wall
+            if (window.isColliding(nx + step, game.player.y)) break; 
             nx += step;
         }
-        
         game.player.x = nx;
         window.spawnWhiteSplash(game.player.x + 24, game.player.y + 48);
-
-        // 👇 THE FIX: Add the "IMMUNE" text so the player knows they have I-frames!
         window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMUNE", '#00E5FF');
         if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'walk', facingRight: window.facingRight, weaponSprite: wpnSprite });
         return; 
     }
 
-   // 🥷 SHADOW COPY (Summon Clone)
     if (skillId === 'nin3') {
         if (!game.player.activePets) game.player.activePets = [];
         let petId = Date.now();
@@ -590,20 +579,15 @@ window.executeSkill = function(skillId, className) {
         pEl.style.position = 'absolute'; pEl.style.left = game.player.x + 'px'; pEl.style.top = game.player.y + 'px';
         pEl.style.width = '48px'; pEl.style.height = '96px';
         pEl.style.zIndex = '50';
-        
-        // 🌟 THE FIX: Clone the player's exact visual rig from the DOM!
         let cloneRig = dom.playerAvatarContainer.cloneNode(true);
         cloneRig.style.filter = 'brightness(0) opacity(0.6) drop-shadow(0 0 5px #000)'; 
-        
         pEl.innerHTML = `<div class="pet-hp-bar" style="position:absolute; top:-10px; width:100%;"><div class="pet-hp-fill" id="pet-hp" style="width:100%; background:#4CAF50; height:100%;"></div></div>`;
         pEl.appendChild(cloneRig);
         dom.world.appendChild(pEl);
-        
         let maxPetHp = window.getMaxHp(); 
         let pet = { id: petId, dom: pEl, x: game.player.x, y: game.player.y, hp: maxPetHp, maxHp: maxPetHp, isClone: true, skillRef: skillObj };
         game.player.activePets.push(pet);
         if(socket) socket.emit('syncPet', { id: petId, x: pet.x, y: pet.y, alive: true, isClone: true });
-        
         setTimeout(() => {
             let idx = game.player.activePets.findIndex(p => p.id === petId);
             if (idx !== -1) {
@@ -614,7 +598,7 @@ window.executeSkill = function(skillId, className) {
         }, 10000);
         return;
     }
-   // 🟢 SUMMON SLIME
+
     if (skillId === 'sum1') {
         if (game.player.activePets && game.player.activePets.length > 0) return;
         window.showAura(CLASSES[className].aura); 
@@ -631,7 +615,6 @@ window.executeSkill = function(skillId, className) {
             game.player.activePets.push(pet);
             if(socket) socket.emit('syncPet', { id: petId, x: pet.x, y: pet.y, alive: true });
         }
-        // 👑 SUMMONER 75 PASSIVE: BIG BOSS
         if (game.player.level >= 75) {
             let bossId = Date.now() + 99;
             let bEl = document.createElement('div'); bEl.className = 'pet-slime';
@@ -652,12 +635,13 @@ window.executeSkill = function(skillId, className) {
     isAttacking = true; 
     setTimeout(() => { isAttacking = false; }, 500); 
 
-    if (skillId === 'heal1') { if (socket) socket.emit('partyHeal'); }
+    if (skillId === 'heal1') { if (socket) socket.emit('partyHeal'); return; }
     if (skillId === 'heal3') {
         game.player.currentHp = window.getMaxHp();
         window.spawnDamageText(game.player.x + 24, game.player.y - 10, "FULL HEAL", '#4CAF50'); 
         window.updateUI(); 
         if (socket && game.party) socket.emit('partyRevive'); 
+        return;
     }
     if (skillId === 'sum3') { 
         if(game.player.activePets) game.player.activePets.forEach(p => { 
@@ -669,29 +653,61 @@ window.executeSkill = function(skillId, className) {
             }
             window.spawnSpark(p.x+15, p.y+15); 
         }); 
+        return;
     }
     if (skillId === 'ber1') {
         if(socket) socket.emit('tauntMonsters', { radius: 300 });
         game.player.tauntBuffUntil = Date.now() + 10000; 
         window.spawnDamageText(game.player.x + 24, game.player.y - 10, "DEF x3!", '#ffeb3b'); window.spawnSpark(game.player.x + 24, game.player.y + 48);
+        return;
     }
-    if (skillId === 'ber3') { game.player.immortalUntil = Date.now() + 10000; window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMORTAL", '#ffeb3b'); }
+    if (skillId === 'ber3') { game.player.immortalUntil = Date.now() + 10000; window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMORTAL", '#ffeb3b'); return; }
     if (skillId === 'bld2') {
         game.player.parryUntil = Date.now() + 10000;
         window.spawnDamageText(game.player.x + 24, game.player.y - 10, "PARRY STANCE", '#ffeb3b');
         if(socket) socket.emit('setParryStance');
+        return;
     }
     
+    // 🛡️ TARGETED SKILLS (REQUIRES A TARGET!)
     if (skillId === 'ice1' || skillId === 'ice3' || skillId === 'bld3' || skillId.startsWith('snp') || skillId.startsWith('exp') || skillId === 'phs3' || skillId === 'nin1') {
-        let closestMob = null; let minD = Infinity; 
+        let closestMob = null; let closestPlayer = null; let minD = Infinity; 
+        const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; 
         
         let attackRadius = (className === 'Ice Master' || className === 'Explosives Expert' || className === 'Sniper') ? 300 : 80;
-        if (className === 'Sniper') attackRadius = 345; // Eagle Eye extension
+        if (className === 'Sniper') attackRadius = 345; 
 
-        for(let mId in game.monsters) { let m = game.monsters[mId]; if(!m.alive) continue; let dist = Math.hypot((game.player.x+24) - (m.x+m.width/2), (game.player.y+48) - (m.y+m.height/2)); if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; } }
+        // Scan Monsters
+        for(let mId in game.monsters) { 
+            let m = game.monsters[mId]; if(!m.alive) continue; 
+            let dist = Math.hypot(pCenterX - (m.x+m.width/2), pCenterY - (m.y+m.height/2)); 
+            if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
+        }
+
+        // Scan Players (Neutral Zone)
+        if (safeMapData.id === 'neutralzone') {
+            for (let rId in game.remotePlayers) {
+                let rp = game.remotePlayers[rId];
+                if (rp.isGhost || rp.isHiddenAdmin) continue; 
+                if (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id)) continue;
+
+                let dist = Math.hypot(pCenterX - (rp.x + 24), pCenterY - (rp.y + 48));
+                if (dist <= attackRadius && dist < minD) { minD = dist; closestPlayer = rp; closestMob = null; }
+            }
+        }
         
-        if (closestMob) {
-            let mCx = closestMob.x + (closestMob.width/2); let mCy = closestMob.y + (closestMob.height/2);
+        const finalTarget = closestMob || closestPlayer;
+
+        if (finalTarget) {
+            let mCx = closestMob ? finalTarget.x + (finalTarget.width/2) : finalTarget.x + 24; 
+            let mCy = closestMob ? finalTarget.y + (finalTarget.height/2) : finalTarget.y + 48;
+            
+            const emitAttack = () => {
+                if(socket) {
+                    if (closestMob) socket.emit('attackMonster', { monsterId: finalTarget.id, skillId: skillId });
+                    else if (closestPlayer) socket.emit('attackPlayer', { targetId: finalTarget.id, skillId: skillId });
+                }
+            };
             
             if (className === 'Ice Master') {
                 let count = skillId === 'ice3' ? 3 : 1; 
@@ -699,22 +715,20 @@ window.executeSkill = function(skillId, className) {
                     setTimeout(() => {
                         let ice = document.createElement('div'); ice.className = 'icicle'; ice.style.left = mCx + 'px'; ice.style.top = (mCy - 100) + 'px'; dom.world.appendChild(ice);
                         let anim = ice.animate([{ top: (mCy - 100) + 'px' }, { top: mCy + 'px' }], { duration: 300, easing: 'ease-in' });
-                        anim.onfinish = () => { ice.remove(); if (i === count - 1 && socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId }); };
+                        anim.onfinish = () => { ice.remove(); if (i === count - 1) emitAttack(); };
                     }, i * 200);
                 }
             }
             if (skillId === 'bld3') {
-                window.spawnWhiteSplash(mCx, mCy); if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId });
+                window.spawnWhiteSplash(mCx, mCy); emitAttack();
             }
-// 🗡️ BLINK STAB
+
             if (skillId === 'phs3') {
-                let targetX = closestMob.x + (closestMob.width/2 > game.player.x ? -40 : 40);
-                let targetY = closestMob.y;
+                let targetX = finalTarget.x + (mCx > pCenterX ? -40 : 40);
+                let targetY = finalTarget.y;
                 
-                // 🛡️ THE FIX: If blinking behind them puts us in a wall, try the other side!
                 if (window.isColliding(targetX, targetY)) {
-                    targetX = closestMob.x + (closestMob.width/2 > game.player.x ? 40 : -40);
-                    // If BOTH sides are a wall, just stab them from where we are standing
+                    targetX = finalTarget.x + (mCx > pCenterX ? 40 : -40);
                     if (window.isColliding(targetX, targetY)) {
                         targetX = game.player.x;
                         targetY = game.player.y;
@@ -724,125 +738,50 @@ window.executeSkill = function(skillId, className) {
                 game.player.x = targetX;
                 game.player.y = targetY;
                 window.spawnWhiteSplash(game.player.x + 24, game.player.y + 48);
-                if(socket) {
-                    socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: wpnSprite });
-                    socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId });
-                }
+                if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: wpnSprite });
+                emitAttack();
             }
             
-          // 🌫️ SMOKE BOMB
             if (skillId === 'nin1') {
-                // Shoot a grey orb to simulate throwing the bomb
-                window.shootOrb(game.player.x + 24, game.player.y - 15, mCx, mCy, '#757575');
-                
+                window.shootOrb(pCenterX, pCenterY - 15, mCx, mCy, '#757575');
                 setTimeout(() => {
-                    if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId });
+                    emitAttack();
                     const smoke = document.createElement('div');
                     smoke.style.cssText = `position:absolute; left:${mCx-40}px; top:${mCy-40}px; width:80px; height:80px; background:radial-gradient(circle, rgba(100,100,100,0.9) 0%, rgba(150,150,150,0.5) 50%, transparent 70%); border-radius:50%; z-index:40; pointer-events:none; animation: pulseText 1.5s infinite alternate;`;
                     dom.world.appendChild(smoke);
                     setTimeout(()=>smoke.remove(), 10000);
-                }, 400); // 400ms delay matches the orb travel time
+                }, 400); 
             }
 
-            // 🔫 SNIPER VISUALS
             if (skillId === 'snp2') {
-                window.shootOrb(game.player.x + 24, game.player.y - 15, mCx, mCy, '#ffffff');
-                setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId }); }, 200);
+                window.shootOrb(pCenterX, pCenterY - 15, mCx, mCy, '#ffffff');
+                setTimeout(() => { emitAttack(); }, 200);
             }
             if (skillId === 'snp3') {
-                window.shootOrb(game.player.x + 24, game.player.y - 15, mCx, mCy, '#ff0000');
+                window.shootOrb(pCenterX, pCenterY - 15, mCx, mCy, '#ff0000');
                 const gameContainer = document.getElementById('game-container'); 
                 gameContainer.classList.add('screen-shake'); 
                 setTimeout(() => gameContainer.classList.remove('screen-shake'), 500); 
-                setTimeout(() => { if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId }); window.spawnWhiteSplash(mCx, mCy); }, 200);
+                setTimeout(() => { emitAttack(); window.spawnWhiteSplash(mCx, mCy); }, 200);
             }
 
-            // 💣 EXPLOSIVES EXPERT VISUALS
             if (skillId === 'exp1') {
-                window.shootOrb(game.player.x + 24, game.player.y - 15, mCx, mCy, '#ff9800');
+                window.shootOrb(pCenterX, pCenterY - 15, mCx, mCy, '#ff9800');
                 setTimeout(() => { 
-                    if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId });
-window.shootBullet = function(startX, startY, endX, endY) { 
-    const bullet = document.createElement('div'); 
-    bullet.style.position = 'absolute';
-    bullet.style.width = '6px';
-    bullet.style.height = '6px';
-    bullet.style.background = '#ffffff';
-    bullet.style.borderRadius = '50%';
-    bullet.style.boxShadow = '0 0 4px #ffffff, 0 0 8px #ffeb3b'; // Yellowish-white glow
-    bullet.style.zIndex = '50';
-    bullet.style.pointerEvents = 'none';
-    
-    // Calculate angle to slightly stretch the bullet
-    const dx = endX - startX;
-    const dy = endY - startY;
-    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-    
-    dom.world.appendChild(bullet); 
-    
-    // Animate it FAST (150ms instead of the orb's 500ms)
-    const animation = bullet.animate([
-        { left: startX + 'px', top: startY + 'px', transform: `translate(-50%, -50%) rotate(${angle}deg) scaleX(2)` }, 
-        { left: endX + 'px', top: endY + 'px', transform: `translate(-50%, -50%) rotate(${angle}deg) scaleX(2)` }
-    ], { duration: 150, easing: 'linear' }); 
-    
-    animation.onfinish = () => { 
-        bullet.remove(); 
-        window.spawnSpark(endX, endY); // Tiny impact spark
-    }; 
-}
+                    emitAttack();
                     window.spawnFireAoE(mCx, mCy, game.player.level >= 25 ? 10000 : 3000);
                 }, 400);
             }
             if (skillId === 'exp3') {
-                window.shootOrb(game.player.x + 24, game.player.y - 15, mCx, mCy, '#424242');
+                window.shootOrb(pCenterX, pCenterY - 15, mCx, mCy, '#424242');
                 setTimeout(() => { 
-                    if(socket) socket.emit('attackMonster', { monsterId: closestMob.id, skillId: skillId });
+                    emitAttack();
                     window.spawnWhiteSplash(mCx, mCy);
                     const gameContainer = document.getElementById('game-container'); 
                     gameContainer.classList.add('screen-shake'); 
                     setTimeout(() => gameContainer.classList.remove('screen-shake'), 500); 
                 }, 500);
             }
-        }
-    }
-}
-// ==========================================
-// 3. COMBAT & MAIN GAME LOOP
-// ==========================================
-
-// 🌫️ FOG OF WAR: Entity Reveal Logic
-window.updateMonsterVisibility = function() {
-    if (safeMapData.id === 'town' || String(safeMapData.id).includes('home') || game.isGhost || document.body.classList.contains('low-perf')) {
-        for (let mId in game.monsters) {
-            const mEl = document.getElementById('mob_' + mId);
-            if (mEl && game.monsters[mId].alive) {
-                mEl.style.visibility = 'visible';
-                mEl.style.filter = 'brightness(1)'; 
-            }
-        }
-        return;
-    }
-
-    const pCx = game.player.x + 24;
-    const pCy = game.player.y + 48;
-    const visRadius = game.player.baseStats?.playerClass === 'Sniper' ? 450 : 350;
-
-    for (let mId in game.monsters) {
-        const m = game.monsters[mId];
-        if (!m.alive) continue;
-        const mEl = document.getElementById('mob_' + mId);
-        if (!mEl) continue;
-
-        const mCx = m.x + (m.width / 2);
-        const mCy = m.y + (m.height / 2);
-        const dist = Math.hypot(pCx - mCx, pCy - mCy);
-
-        if (dist <= visRadius) {
-            mEl.style.visibility = 'visible';
-            mEl.style.filter = 'brightness(1)';
-        } else {
-            mEl.style.visibility = 'hidden';
         }
     }
 };
@@ -857,10 +796,9 @@ window.attemptAttack = function(silent) {
     let weaponSprite = game.player.equips && game.player.equips.weapon ? game.player.equips.weapon.sprite : ''; 
     const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant') || weaponSprite.includes('gun'); 
     
-    // 🛡️ THE FIX: Set the base attack radius, then immediately apply the Sniper boost!
     let attackRadius = isRanged ? 250 : 80;
     if (game.player.baseStats?.playerClass === 'Sniper') {
-        attackRadius = 287.5; // +15% Range for Sniper passive!
+        attackRadius = 287.5; 
     }
     
     // Check Monsters
@@ -868,13 +806,11 @@ window.attemptAttack = function(silent) {
         let m = game.monsters[mId]; if(!m.alive) continue; 
         let mCenterX = m.x + (m.width/2); let mCenterY = m.y + (m.height/2); 
         let dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY); 
-        // 🛡️ THE FIX: Use the dynamic attackRadius here!
         if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
     }
 
-    // ⚔️ Check Players (ONLY in Neutral Zone)
+    // Check Players (ONLY in Neutral Zone)
     if (safeMapData.id === 'neutralzone') {
-        // 🛡️ THE FIX: If we clicked a specific player, target them first!
         if (window.activeTargetPlayerId && game.remotePlayers[window.activeTargetPlayerId]) {
             let rp = game.remotePlayers[window.activeTargetPlayerId];
             if (!rp.isGhost && !rp.isHiddenAdmin && !(game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id))) {
@@ -883,18 +819,15 @@ window.attemptAttack = function(silent) {
                     minD = dist; closestPlayer = rp; closestMob = null;
                 }
             }
-            window.activeTargetPlayerId = null; // Clear the lock after calculating
+            window.activeTargetPlayerId = null; 
         } else {
-            // Otherwise, scan for the nearest valid player (Auto-Attack logic)
             for (let rId in game.remotePlayers) {
                 let rp = game.remotePlayers[rId];
                 if (rp.isGhost || rp.isHiddenAdmin) continue; 
-                
                 if (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id)) continue;
 
                 let rpCenterX = rp.x + 24; let rpCenterY = rp.y + 48;
                 let dist = Math.hypot(pCenterX - rpCenterX, pCenterY - rpCenterY);
-                
                 if (dist <= attackRadius && dist < minD) { minD = dist; closestPlayer = rp; closestMob = null; }
             }
         }
@@ -906,7 +839,6 @@ window.attemptAttack = function(silent) {
     if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: weaponSprite });
     if(typeof window.playSFX === 'function') window.playSFX(weaponSprite);
 
-    // Route event depending on who we are hitting
     const targetCenterX = closestMob ? closestMob.x + (closestMob.width/2) : closestPlayer.x + 24;
     const targetCenterY = closestMob ? closestMob.y + (closestMob.height/2) : closestPlayer.y + 48;
     const targetId = closestMob ? closestMob.id : closestPlayer.id;
@@ -923,7 +855,7 @@ window.attemptAttack = function(silent) {
         setTimeout(() => { if(socket) socket.emit(attackEvent, payload); }, 300); 
     }
     setTimeout(() => { isAttacking = false; }, 500); setTimeout(() => { attackCooldownActive = false; }, 800);
-}
+};
 function gameLoop(ts) {
     // 🛡️ THE FIX: Keep track of animation ID to prevent Ghost Loops
     currentAnimationId = requestAnimationFrame(gameLoop);
