@@ -243,15 +243,17 @@ perfStyle.innerHTML = `
         display: none !important;
     }
 
-    /* 👑 Optimize Divine Aura for Low-End (Keep Wings, Remove Heavy Glows) */
-    body.low-perf .avatar-rig:has(.aura-divine) {
-        animation: none !important;
-        filter: none !important; /* Removes the heavy body drop-shadow */
-    }
-    body.low-perf .cosmetic-aura.aura-divine::before,
-    body.low-perf .cosmetic-aura.aura-divine::after {
-        box-shadow: none !important; /* Remove expensive shadow on the wings themselves */
-    }
+    /* 👑 Optimize Divine Aura for Low-End (Keep Wings & Basic Gold Aura) */
+    body.low-perf .avatar-rig:has(.aura-divine) {
+        animation: none !important;
+        filter: drop-shadow(0 0 5px #ffea00) !important; /* 🌟 THE FIX: A single, lightweight static gold outline */
+    }
+    body.low-perf .cosmetic-aura.aura-divine::before {
+        box-shadow: -2px 0 4px #ffea00 !important; /* Tiny, cheap glow for left wing */
+    }
+    body.low-perf .cosmetic-aura.aura-divine::after {
+        box-shadow: 2px 0 4px #ffea00 !important; /* Tiny, cheap glow for right wing */
+    }
 
     /* 🛑 Strip Expensive Shadows from Projectiles & Effects */
     body.low-perf .magic-orb,
