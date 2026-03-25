@@ -343,15 +343,17 @@ function sanitizeItem(item) {
     safe.color = typeof safe.color === 'string' ? safe.color : '#ffffff';
     safe.quantity = clamp(safe.quantity || 1, 1, 999);
 
-    // 🛡️ THE CLEANER: Only equipment gets real stats. Materials get safe empty objects.
     const isEquipment = !['material', 'potion', 'consumable', 'forger', 'gem'].includes(safe.type);
 
     if (isEquipment) {
         safe.enhanceLevel = Number(safe.enhanceLevel) || 0;
         safe.fixedStat = sanitizeStatObject(safe.fixedStat);
         safe.randomStat = sanitizeStatObject(safe.randomStat);
+        // Ensure legacy stat object exists so UI doesn't choke
+        safe.stats = safe.stats || { hp: 0, atk: 0, def: 0, int: 0, spd: 0, str: 0, matk: 0 }; 
     } else {
-        delete safe.stats;
+        // 🌟 THE CRASH FIX: Do NOT delete them! Give the UI empty, safe shells to read!
+        safe.stats = { hp: 0, atk: 0, def: 0, int: 0, spd: 0, str: 0, matk: 0 };
         safe.fixedStat = {};
         safe.randomStat = {};
         safe.enhanceLevel = 0;
@@ -366,7 +368,7 @@ function sanitizeItem(item) {
         delete safe.auraId;
     }
 
-    return safe; // 🌟 CRITICAL: This is what was missing!
+    return safe; 
 }
 
 function sanitizeInventory(inventory) {
