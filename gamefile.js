@@ -1037,7 +1037,6 @@ function gameLoop(ts) {
                 petEl.className = 'pet-wisp';
             } else if (owner.type === 'egg') {
                 petEl.className = 'pet-egg';
-                petEl.style.cssText = 'width:24px; height:32px; border-radius:50% 50% 50% 50% / 60% 60% 40% 40%; background:repeating-linear-gradient(45deg, #FFC1E3 0px, #FFC1E3 4px, #C1E3FF 4px, #C1E3FF 8px, #FFE3C1 8px, #FFE3C1 12px, #C1FFE3 12px, #C1FFE3 16px); box-shadow:0 0 10px #FFC1E3;';
             }
             
             dom.world.appendChild(petEl);
@@ -5260,3 +5259,50 @@ if (socket) {
         if (window.isStorageOpen) window.renderStorageGrid(storage);
     });
 }
+// ==========================================
+// 🥚 EASTER EGG PET CSS & ANIMATIONS
+// ==========================================
+const eggStyle = document.createElement('style');
+eggStyle.innerHTML = `
+    .pet-egg {
+        position: absolute;
+        width: 48px;
+        height: 48px;
+        background-image: url('animation/easterpet.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        /* A vibrant layered pink aura around the PNG shape */
+        filter: drop-shadow(0 0 8px #FFC1E3) drop-shadow(0 0 15px #ff80ab); 
+        z-index: 49;
+        pointer-events: none;
+        /* Applying the long Sequenced Keyframe (12s loop ensures 'sometimes') */
+        animation: eggFloatShake 12s linear infinite; 
+    }
+
+    @keyframes eggFloatShake {
+        /* Phase 1: 0% - 60% (7.2s) - Pure Smooth Floating */
+        0%, 20%, 40%, 60% { transform: translateY(0); }
+        10%, 30%, 50% { transform: translateY(-12px); } /* Hovering up 12px smoothly */
+
+        /* Phase 2: 60% - 70% (1.2s) - Gentle 'About to Hatch' Shake */
+        62% { transform: translateY(-6px) translateX(1px) rotate(1deg); }
+        64% { transform: translateY(-6px) translateX(-1px) rotate(-1deg); }
+        66% { transform: translateY(-6px) translateX(1px) rotate(1deg); }
+        68% { transform: translateY(-6px) translateX(-1px) rotate(-1deg); }
+        70% { transform: translateY(-6px) rotate(0); } /* Stop shaking, hovering gently */
+
+        /* Phase 3: 70% - 90% (2.4s) - Short Floating Recovery */
+        80% { transform: translateY(-12px); }
+        90% { transform: translateY(0); }
+
+        /* Phase 4: 90% - 100% (1.2s) - Violent 'Ready to Pop!' Shake */
+        91% { transform: translateX(2px) rotate(3deg); }
+        93% { transform: translateX(-2px) rotate(-3deg); }
+        95% { transform: translateX(3px) rotate(4deg); }
+        97% { transform: translateX(-3px) rotate(-4deg); }
+        99% { transform: translateX(1px) rotate(1deg); }
+        100% { transform: translate(0) rotate(0); } /* Loop back to Phase 1 */
+    }
+`;
+document.head.appendChild(eggStyle);
