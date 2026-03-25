@@ -336,12 +336,6 @@ var floor8MapData = {
             "h": 92
         },
         {
-            "x": 986,
-            "y": 1220,
-            "w": 53,
-            "h": 68
-        },
-        {
             "x": 1033,
             "y": 876,
             "w": 26,
@@ -392,6 +386,26 @@ var floor8MapData = {
             "h": 103,
             "portalId": 16,
             "targetMapId": "floor7",
+            "targetX": 960,
+            "targetY": 1000
+        },
+        {
+            "x": 836,
+            "y": 1262,
+            "w": 190,
+            "h": 44,
+            "portalId": 17,
+            "targetMapId": "floor9",
+            "targetX": 960,
+            "targetY": 1000
+        },
+        {
+            "x": 13,
+            "y": 712,
+            "w": 18,
+            "h": 196,
+            "portalId": 19,
+            "targetMapId": "floor10",
             "targetX": 960,
             "targetY": 1000
         }
