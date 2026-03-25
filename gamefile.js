@@ -4635,7 +4635,7 @@ if (socket) {
 
         html += `
             <div style="margin-top:15px; display:flex; gap:10px;">
-                <button class="btn" style="background:#ff424d; flex:1; font-weight:bold;" onclick="window.open('https://www.patreon.com/c/xeniegaming', '_blank')">➕ Get More Gems</button>
+                <button class="btn" style="background:#ff424d; flex:1; font-weight:bold;" onclick="window.open('https://www.patreon.com/c/xeniegaming/membership', '_blank')">➕ Get More Gems (SUBSCRIBE TO PATREON)</button>
                 <button class="btn" style="background:#555; width:80px;" onclick="document.getElementById('rm-shop-modal').style.display='none'">Close</button>
             </div>
         `;
