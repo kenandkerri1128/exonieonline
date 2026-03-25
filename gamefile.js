@@ -1901,18 +1901,25 @@ window.showLinkedItem = function(jsonStr) {
 window.actionEquip = function(e) { 
     if (e) e.stopPropagation(); if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; 
     let item = game.player.inventory[activeInvIndex]; 
+    
     if (item.type === 'material') { 
         isEnhancing = true; dom.log.innerText = `Select equipment to enhance!`; window.renderInventory(); 
     } else if (item.type === 'aura') { 
-        window.isApplyingAura = true; 
-        const isPet = ['fox', 'owl', 'wisp', 'egg'].includes(item.auraId);
+        window.isApplyingAura = true; 
+        const isPet = ['fox', 'owl', 'wisp', 'egg'].includes(item.auraId);
         dom.log.innerText = isPet ? `Select Leggings to equip your Pet!` : `Select an Armor to apply the Aura!`; 
         window.renderInventory(); 
-    // 🛡️ THE FIX: Allow Gems to trigger the target-selection UI
     } else if (item.type === 'gem') {
         window.isApplyingAura = true; 
         dom.log.innerText = `Select an Accessory (Necklace, Ring, Earrings) to socket the gem!`;
         window.renderInventory();
+    
+    // 🌟 THE FIX: Intercept the Forger and turn on the selection mode!
+    } else if (item.type === 'forger') {
+        window.isApplyingForger = true;
+        dom.log.innerText = `Select an equipment piece to reroll its stats!`;
+        window.renderInventory();
+        
     } else { 
         window.useItem(activeInvIndex); 
     } 
