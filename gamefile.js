@@ -1037,8 +1037,7 @@ function gameLoop(ts) {
                 petEl.className = 'pet-wisp';
             } else if (owner.type === 'egg') {
                 petEl.className = 'pet-egg';
-                // 🌟 THE FIX: Using a real img tag guarantees it displays at the original uploaded size!
-                petEl.innerHTML = `<img src="animation/easterpet.png" class="egg-sprite" />`;
+                petEl.innerHTML = ''; /* Pure CSS, no image needed! */
             }
             
             dom.world.appendChild(petEl);
@@ -5268,15 +5267,31 @@ const eggStyle = document.createElement('style');
 eggStyle.innerHTML = `
     .pet-egg {
         position: absolute;
+        width: 32px;
+        height: 42px;
+        /* Perfect egg shape */
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        
+        /* Smooth, ethereal Easter stripes */
+        background: repeating-linear-gradient(
+            45deg,
+            #FFB7B2 0px, #FFB7B2 8px,   /* Pastel Pink */
+            #B5EAD7 8px, #B5EAD7 16px,  /* Pastel Mint */
+            #FFFFB5 16px, #FFFFB5 24px, /* Pastel Yellow */
+            #C7CEEA 24px, #C7CEEA 32px  /* Pastel Periwinkle */
+        );
+        
+        /* 🌟 The Pink Aura & inner wisp-like glow */
+        box-shadow: 0 0 12px 4px rgba(255, 128, 171, 0.8), 
+                    0 0 25px 8px rgba(255, 193, 227, 0.6), 
+                    inset 0 0 10px rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        
         z-index: 49;
         pointer-events: none;
-        /* 🌟 THE FIX: No hardcoded width/height. It naturally fits your image perfectly! */
-    }
-
-    .egg-sprite {
-        display: block; 
-        /* 🌟 THE FIX: The pink aura stays, and the animation is applied here so it doesn't break the pet tracker! */
-        filter: drop-shadow(0 0 8px #FFC1E3) drop-shadow(0 0 15px #ff80ab); 
+        transform-origin: bottom center;
+        
+        /* The requested 12s float and shake loop */
         animation: eggFloatShake 12s linear infinite; 
     }
 
