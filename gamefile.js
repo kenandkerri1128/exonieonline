@@ -4593,43 +4593,56 @@ window.openRealMoneyShop = function() {
 };
 
 if (socket) {
-   socket.on('shopAuthState', (data) => {
+   // --- LINES BEFORE ---
+    socket.on('shopAuthState', (data) => {
         let modal = document.getElementById('rm-shop-modal');
         if (!modal) return;
 
-        let html = '<h2 style="margin-top:0; color:#E040FB; text-shadow: 0 0 10px #E040FB;">💎 Exonie Emporium</h2>';
+        let html = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #444; padding-bottom:10px;">
+                <h2 style="margin:0; color:#E040FB; text-shadow: 0 0 10px #E040FB;">💎 Exo Emporium</h2>
+                <div style="background:#222; padding:5px 10px; border-radius:4px; border:1px solid #E040FB;">
+                    <span style="color:#aaa; font-size:12px;">Balance:</span>
+                    <strong id="ui-gem-balance" style="color:#E040FB; font-size:16px; margin-left:5px;">${data.exoGems || 0}</strong>
+                </div>
+            </div>
+        `;
 
         if (data.state === 'shop_open') {
-            // 🛒 REAL MONEY CATALOG
             const items = [
-                { id: 'pet_fox', name: 'Spirit Fox Pet', price: '$10.00', desc: 'A loyal fire-fox companion that follows you and attacks enemies.' },
-                { id: 'pet_owl', name: 'Night Owl Pet', price: '$10.00', desc: 'A mysterious owl that flies by your side.' },
-                { id: 'aura_blaze', name: 'Blaze Aura Stone', price: '$10.00', desc: 'Cosmetic: Infuses your armor with a burning red flame effect.' },
-                { id: 'aura_liquid', name: 'Liquid Aura Stone', price: '$10.00', desc: 'Cosmetic: Infuses your armor with a flowing water effect.' },
-                { id: 'aura_nature', name: 'Nature Aura Stone', price: '$10.00', desc: 'Cosmetic: Infuses your armor with a leaf and vine effect.' },
-                { id: 'divine_pack', name: 'Divine Stone Bundle (x5)', price: '$10.00', desc: 'Contains 5 Divine Enhancement Stones. Works on any level.' },
-                { id: 'revival_pack', name: 'Revival Juice Bundle (x10)', price: '$5.00', desc: 'Contains 10 Revival Juices. Revive instantly on the spot.' }
+                { id: 'pet_fox', name: 'Spirit Fox Pet', priceUSD: '10.00', priceGems: 10, desc: 'A loyal fire-fox companion that follows you and attacks enemies.' },
+                { id: 'pet_owl', name: 'Night Owl Pet', priceUSD: '10.00', priceGems: 10, desc: 'A mysterious owl that flies by your side.' },
+                { id: 'aura_blaze', name: 'Blaze Aura Stone', priceUSD: '10.00', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a burning red flame effect.' },
+                { id: 'aura_liquid', name: 'Liquid Aura Stone', priceUSD: '10.00', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a flowing water effect.' },
+                { id: 'aura_nature', name: 'Nature Aura Stone', priceUSD: '10.00', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a leaf and vine effect.' },
+                { id: 'divine_pack', name: 'Divine Stone Bundle (x5)', priceUSD: '10.00', priceGems: 10, desc: 'Contains 5 Divine Enhancement Stones. Works on any level.' },
+                { id: 'revival_pack', name: 'Revival Juice Bundle (x10)', priceUSD: '5.00', priceGems: 5, desc: 'Contains 10 Revival Juices. Revive instantly on the spot.' }
             ];
 
-            html += `<div style="max-height:250px; overflow-y:auto; padding-right:5px;">`;
+            html += `<div style="max-height:300px; overflow-y:auto; padding-right:5px;">`;
             items.forEach(i => {
                 html += `<div style="background:#222; border:1px solid #444; padding:10px; border-radius:6px; margin-bottom:10px; text-align:left;">
                             <div style="color:#E040FB; font-weight:bold; font-size:15px;">${i.name}</div>
                             <div style="color:#aaa; font-size:12px; margin-bottom:8px;">${i.desc}</div>
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span style="color:#ffeb3b; font-weight:bold;">${i.price}</span>
-                                <button class="btn" style="background:#4CAF50; padding:5px 15px;" onclick="window.initiateCheckout('${i.id}', '${i.name}', '${i.price}')">Buy</button>
+                            <div style="display:flex; justify-content:space-between; align-items:center; gap:5px;">
+                                <button class="btn" style="background:#003087; padding:5px 10px; font-size:12px; flex:1;" onclick="window.initiateCheckout('${i.id}', '${i.name}', '${i.priceUSD}')">Buy for $${i.priceUSD}</button>
+                                <button class="btn" style="background:#333; padding:5px 10px; font-size:12px; color:#E040FB; border-color:#9c27b0; flex:1;" onclick="window.buyWithGems('${i.id}', '${i.name}', ${i.priceGems})">💎 ${i.priceGems} Gems</button>
                             </div>
                          </div>`;
             });
             html += `</div>`;
         }
 
-        html += `<button class="btn" style="background:#f44336; width:100%; margin-top:10px;" onclick="document.getElementById('rm-shop-modal').style.display='none'">Close</button>`;
+        html += `
+            <div style="margin-top:15px; display:flex; gap:10px;">
+                <button class="btn" style="background:#ff424d; flex:1; font-weight:bold;" onclick="window.open('https://www.patreon.com/c/xeniegaming', '_blank')">➕ Get More Gems</button>
+                <button class="btn" style="background:#555; width:80px;" onclick="document.getElementById('rm-shop-modal').style.display='none'">Close</button>
+            </div>
+        `;
         modal.innerHTML = html;
     });
 
- socket.on('checkoutState', (data) => {
+    socket.on('checkoutState', (data) => {
         let modal = document.getElementById('rm-shop-modal');
         if (!modal) return;
 
@@ -4646,13 +4659,22 @@ if (socket) {
         html += `<button class="btn" style="background:#f44336; width:100%; margin-top:10px;" onclick="window.openRealMoneyShop()">Cancel</button>`;
         modal.innerHTML = html;
     });
-}
-window.isProcessingShop = false; // Anti-Spam Lock
 
-// 🌟 MISSING FUNCTION ADDED HERE 🌟
+    socket.on('gemPurchaseSuccess', (data) => {
+        let balEl = document.getElementById('ui-gem-balance');
+        if (balEl) balEl.innerText = data.newGems;
+    });
+}
+window.isProcessingShop = false; 
+
 window.initiateCheckout = function(itemId, name, price) {
-    currentShopItem = itemId; // Capture the item ID
+    currentShopItem = itemId; 
     socket.emit('requestCheckoutCode', { itemId, itemName: name, price });
+};
+
+window.buyWithGems = function(itemId, name, price) {
+    if (!confirm(`Spend ${price} Exo Gems to purchase ${name}?`)) return;
+    socket.emit('requestGemPurchase', { itemId: itemId });
 };
 
 // ==========================================
