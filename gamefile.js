@@ -5266,24 +5266,34 @@ const eggStyle = document.createElement('style');
 eggStyle.innerHTML = `
     .pet-egg {
         position: absolute;
-        width: 48px;
-        height: 48px;
+        /* 🌟 THE FIX: Use generous placeholder dimensions to prevent clipping, 
+           relying on 'auto' size to show the PNG at original resolution. */
+        width: 128px; 
+        height: 128px;
         background-image: url('animation/easterpet.png');
-        background-size: contain;
+        
+        /* 🌟 THE FIX: retain original size perfectly! Do not stretch or contain. */
+        background-size: auto; 
+        
         background-repeat: no-repeat;
-        background-position: center;
-        /* A vibrant layered pink aura around the PNG shape */
+        
+        /* Anchor the pet at bottom-center so it looks right with the top-down perspective */
+        background-position: center bottom; 
+        
+        /* RETAINED: The vibrant pink layered aura around the PNG shape */
         filter: drop-shadow(0 0 8px #FFC1E3) drop-shadow(0 0 15px #ff80ab); 
+        
         z-index: 49;
         pointer-events: none;
-        /* Applying the long Sequenced Keyframe (12s loop ensures 'sometimes') */
+        
+        /* RETAINED: The 12s sequencing loop (Float -> Gentle Shake -> Violent Shake) */
         animation: eggFloatShake 12s linear infinite; 
     }
 
     @keyframes eggFloatShake {
         /* Phase 1: 0% - 60% (7.2s) - Pure Smooth Floating */
         0%, 20%, 40%, 60% { transform: translateY(0); }
-        10%, 30%, 50% { transform: translateY(-12px); } /* Hovering up 12px smoothly */
+        10%, 30%, 50% { transform: translateY(-12px); } /* Hovering up smoothly */
 
         /* Phase 2: 60% - 70% (1.2s) - Gentle 'About to Hatch' Shake */
         62% { transform: translateY(-6px) translateX(1px) rotate(1deg); }
