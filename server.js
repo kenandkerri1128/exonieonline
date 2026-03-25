@@ -3553,12 +3553,22 @@ socket.on('requestConfirmTrade', () => {
                 base_stats: sanitizeBaseStats(p.baseStats)
             }).eq('character_name', p.id).then(()=>{});
 
+          // 🌟 THE FIX: Send 'playerVitals' so the health bar actually moves!
+            socket.emit('playerVitals', {
+                currentHp: p.currentHp,
+                maxHp: trueMaxHp,
+                level: p.level
+            });
+
             socket.emit('inventoryItemUsed', {
                 inventory: p.inventory,
                 currentHp: p.currentHp,
                 itemName: item.name,
                 healAmount
             });
+
+            // Also alert everyone in the maze that you healed (green numbers)
+            io.to(p.instanceId).emit('playerHealed', { id: p.id, amount: healAmount, currentHp: p.currentHp });
 
             const pid = playerParty[p.id];
             if (pid) emitPartyUpdate(pid);
