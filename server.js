@@ -4958,13 +4958,12 @@ if (rarity !== "Starter") {
 
         if (!stone || !targetItem || stone.type !== 'aura') return;
         
-        const isPet = ['fox', 'owl', 'wisp'].includes(stone.auraId);
+        const isPet = ['fox', 'owl', 'wisp', 'egg'].includes(stone.auraId);
         const expectedType = isPet ? 'leggings' : 'armor';
 
         if (targetItem.type !== expectedType) return socket.emit('systemMessage', `This item only applies to ${expectedType}!`);
         if (targetItem.aura) return socket.emit('systemMessage', `That ${expectedType} already has an enchantment! Extract it first.`);
 
-        // 🛡️ THE FIX: Added Owl and Wisp to the dictionary!
         const AURA_DATA = { 
             'lightning': 'Lightning', 
             'divine': 'Divine',
@@ -4973,7 +4972,8 @@ if (rarity !== "Starter") {
             'nature': 'Nature', 
             'fox': 'Spirit Fox',
             'owl': 'Night Owl',
-            'wisp': 'Sky Wisp'
+            'wisp': 'Sky Wisp',
+            'egg': 'Easter Egg'
         };
         let aName = AURA_DATA[stone.auraId] || 'Lightning';
 
@@ -5056,9 +5056,9 @@ if (rarity !== "Starter") {
         const emptySlot = p.inventory.findIndex(i => i === null);
         if (emptySlot === -1) return socket.emit('systemMessage', "Inventory full! Cannot extract.");
 
-        const AURA_DATA = {
+const AURA_DATA = {
             'lightning': { name: 'Lightning', color: '#00ffff' },
-            'divine': { name: 'Divine', color: '#ffea00' }, // 👑 THE FIX: Added Divine to Extraction
+            'divine': { name: 'Divine', color: '#ffea00' },
             'blaze': { name: 'Blaze', color: '#ff4444' },
             'liquid': { name: 'Liquid', color: '#44aaff' },
             'nature': { name: 'Nature', color: '#4CAF50' },
@@ -5070,7 +5070,6 @@ if (rarity !== "Starter") {
         let aData = AURA_DATA[item.aura] || AURA_DATA['lightning'];
         let isPetExtract = ['fox', 'owl', 'wisp', 'egg'].includes(item.aura);
 
-     // 🛡️ THE FIX: Set rarity to 'Divine' for the extracted stone
         let auraStone = { 
             id: Date.now() + Math.random(), 
             name: isPetExtract ? aData.name : `${aData.name} Aura Stone`, 
@@ -5079,7 +5078,6 @@ if (rarity !== "Starter") {
             description: isPetExtract ? "Click to apply to Leggings." : "Click to apply to equipment. Purely cosmetic.", quantity: 1 
         };
 
-        // 🛡️ THE FIX: Safely removes " [Sky Wisp]" OR "Lightning " from the name depending on what it is
         let cleanPetName = aData.name.replace(' Pet', ''); 
         item.name = item.originalName || item.name.replace(` [${cleanPetName}]`, "").replace(aData.name + " ", "");
         delete item.aura;
@@ -5090,7 +5088,7 @@ if (rarity !== "Starter") {
         socket.emit('syncInventory', p.inventory);
         socket.emit('systemMessage', "Extracted safely!");
 
-        const expectedType = ['fox', 'owl', 'wisp'].includes(auraStone.auraId) ? 'leggings' : 'armor';
+        const expectedType = ['fox', 'owl', 'wisp', 'egg'].includes(auraStone.auraId) ? 'leggings' : 'armor';
         if (p.equips && p.equips[expectedType] && p.equips[expectedType].id === item.id) {
              if (expectedType === 'leggings') p.spriteData.pet = null;
              else p.spriteData.aura = null;
