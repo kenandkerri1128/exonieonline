@@ -370,6 +370,18 @@ var floor8MapData = {
             "y": 702,
             "w": 97,
             "h": 39
+        },
+        {
+            "x": 1509,
+            "y": 591,
+            "w": 136,
+            "h": 145
+        },
+        {
+            "x": 504,
+            "y": 4,
+            "w": 643,
+            "h": 223
         }
     ],
     "teleports": [
@@ -384,8 +396,53 @@ var floor8MapData = {
             "targetY": 1000
         }
     ],
-    "normalSpawns": [],
-    "miniBossSpawns": [],
-    "floorBossSpawns": []
+    "normalSpawns": [
+        {
+            "x": 1880,
+            "y": 1024,
+            "monsterKey": "common_golem",
+            "level": 100
+        },
+        {
+            "x": 1600,
+            "y": 1001,
+            "monsterKey": "common_golem",
+            "level": 100
+        },
+        {
+            "x": 220,
+            "y": 908,
+            "monsterKey": "common_golem",
+            "level": 100
+        },
+        {
+            "x": 669,
+            "y": 525,
+            "monsterKey": "common_golem",
+            "level": 100
+        },
+        {
+            "x": 956,
+            "y": 1052,
+            "monsterKey": "common_golem",
+            "level": 100
+        }
+    ],
+    "miniBossSpawns": [
+        {
+            "x": 1287,
+            "y": 324,
+            "monsterKey": "mini_boss_golem",
+            "level": 150
+        }
+    ],
+    "floorBossSpawns": [
+        {
+            "x": 767,
+            "y": 728,
+            "monsterKey": "floor_boss_golem",
+            "level": 200
+        }
+    ]
 };
 if(typeof window !== 'undefined') window['floor8MapData'] = floor8MapData;
