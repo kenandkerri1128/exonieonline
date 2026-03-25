@@ -4832,12 +4832,13 @@ window.renderDivineForge = function() {
         else { reqE=5; reqR=2; reqG=2; reqB=2; reqGold=5000000; }
         
         let cE=0, cR=0, cG=0, cB=0;
-        inv.forEach(x => {
-            if(x && x.name === 'Divine Essence') cE += x.quantity||1;
-            if(x && x.name === 'Red Exo Metal') cR += x.quantity||1;
-            if(x && x.name === 'Green Exo Metal') cG += x.quantity||1;
-            if(x && x.name === 'Blue Exo Metal') cB += x.quantity||1;
-        });
+       inv.forEach(x => {
+        if(x && x.name === 'Red Exo Metal') cR += x.quantity||1;
+        if(x && x.name === 'Green Exo Metal') cG += x.quantity||1;
+        if(x && x.name === 'Blue Exo Metal') cB += x.quantity||1;
+        // 🛡️ THE FIX: Use .includes() to allow prefixes like "Godly" or "Legendary"
+        if(x && x.name.includes('Refinement Stone') && x.level >= 100 && x.rarity === selRarity) cStones += x.quantity||1;
+    });
         
         const col = (have, need) => have >= need ? '#4CAF50' : '#f44336';
         const gCol = (game.player.gold >= reqGold) ? '#4CAF50' : '#f44336';
