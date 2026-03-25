@@ -318,8 +318,41 @@ var floor9MapData = {
             "targetY": 1000
         }
     ],
-    "normalSpawns": [],
-    "miniBossSpawns": [],
-    "floorBossSpawns": []
+    "normalSpawns": [
+        {
+            "x": 554,
+            "y": 604,
+            "monsterKey": "common_wraith",
+            "level": 175
+        },
+        {
+            "x": 895,
+            "y": 682,
+            "monsterKey": "common_wraith",
+            "level": 175
+        },
+        {
+            "x": 946,
+            "y": 1248,
+            "monsterKey": "common_wraith",
+            "level": 175
+        }
+    ],
+    "miniBossSpawns": [
+        {
+            "x": 922,
+            "y": 375,
+            "monsterKey": "mini_boss_wraith",
+            "level": 210
+        }
+    ],
+    "floorBossSpawns": [
+        {
+            "x": 1674,
+            "y": 1025,
+            "monsterKey": "floor_boss_wraith",
+            "level": 250
+        }
+    ]
 };
 if(typeof window !== 'undefined') window['floor9MapData'] = floor9MapData;
