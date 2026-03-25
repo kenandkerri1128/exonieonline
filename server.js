@@ -5787,20 +5787,25 @@ socket.on('startDungeon', async (data) => {
              let ticksDone = 0;
              const targetPlayerId = target.id;
              
-             const fireInt = setInterval(() => {
-                 ticksDone++;
-                 let tp = getPlayerById(targetPlayerId);
-                 if (ticksDone > durationTicks || !tp || tp.isGhost || tp.mapId !== 'neutralzone') {
-                     clearInterval(fireInt); return;
-                 }
-                 
-                 let dotDmg = Math.max(1, Math.floor(serverAtkPwr) - getServerDefense(tp));
-                 tp.currentHp -= dotDmg;
-                 if (tp.currentHp <= 0) tp.currentHp = 1; // Safely burns them to 1 HP
-                 
-                 io.to('neutralzone').emit('playerHit', { 
-                    targetId: target.id, attackerId: p.id, damage: dmg, newHp: Math.max(0, target.currentHp), didFreeze: didFreeze
-             }, 1000);
+            const fireInt = setInterval(() => {
+    ticksDone++;
+    let tp = getPlayerById(targetPlayerId);
+    if (ticksDone > durationTicks || !tp || tp.isGhost || tp.mapId !== 'neutralzone') {
+        clearInterval(fireInt);
+        return;
+    }
+
+    let dotDmg = Math.max(1, Math.floor(serverAtkPwr) - getServerDefense(tp));
+    tp.currentHp -= dotDmg;
+    if (tp.currentHp <= 0) tp.currentHp = 1; // Safely burns them to 1 HP
+
+    io.to('neutralzone').emit('playerHit', {
+        targetId: tp.id,
+        attackerId: p.id,
+        damage: dotDmg,
+        newHp: Math.max(0, tp.currentHp)
+    });
+}, 1000);
              
          } else if (payload.skillId === 'exp3') {
              if (pClass !== 'Explosives Expert') return;
