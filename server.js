@@ -5870,47 +5870,104 @@ socket.on('startDungeon', async (data) => {
              hitCount = 1; // Pets don't double hit
          }
 
-        // 🛡️ APPLY DAMAGE LOOP FOR PVP (Supports Double Hit Passive!)
+        // 🌟 LEVEL 75 AoE LOGIC FOR PVP (Ice Splash & Big Explosion)
+        let targetPlayers = [target];
+        if (p.level >= 75) {
+            if (pClass === 'Ice Master' && (payload.skillId === 'ice1' || payload.skillId === 'ice3')) {
+                targetPlayers = Object.values(onlinePlayers).filter(rp => 
+                    rp.mapId === 'neutralzone' && !rp.isGhost && !rp.isHiddenAdmin && 
+                    rp.id !== p.id && !(playerParty[p.id] && playerParty[p.id] === playerParty[rp.id]) &&
+                    Math.hypot(rp.x - target.x, rp.y - target.y) <= 300
+                );
+            }
+            if (pClass === 'Explosives Expert' && payload.skillId === 'exp3') {
+                targetPlayers = Object.values(onlinePlayers).filter(rp => 
+                    rp.mapId === 'neutralzone' && !rp.isGhost && !rp.isHiddenAdmin && 
+                    rp.id !== p.id && !(playerParty[p.id] && playerParty[p.id] === playerParty[rp.id]) &&
+                    Math.hypot(rp.x - target.x, rp.y - target.y) <= 500
+                );
+            }
+        }
+
+        // 🛡️ APPLY DAMAGE LOOP FOR PVP (Supports AoE & Double Hits!)
         for (let hc = 0; hc < hitCount; hc++) {
             setTimeout(() => {
-                if (target.isGhost || target.mapId !== 'neutralzone') return;
-                
-                let dmg = payload.skillId === 'fox_bite' ? 1 : Math.max(1, trueDmg - getServerDefense(target));
-                
-                // 🩸 BERSERKER: I Love PAIN (Lv 75) - PVP VERSION
-                if (target.baseStats?.playerClass === 'Berserker' && target.level >= 75 && Math.random() < 0.15) {
-                    const heal = Math.floor(dmg / 3);
-                    dmg = dmg - heal;
-                    target.currentHp = Math.min(getServerTotalStat(target, 'hp') || 100, target.currentHp + heal);
-                    io.to('neutralzone').emit('playerHealed', { id: target.id, amount: heal, currentHp: target.currentHp });
-                }
+                targetPlayers.forEach(tp => {
+                    if (tp.isGhost || tp.mapId !== 'neutralzone') return;
+                    
+                    let dmg = payload.skillId === 'fox_bite' ? 1 : Math.max(1, trueDmg - getServerDefense(tp));
+                    
+                    // ❄️ ICE MASTER: Freeze Passive (Lv 25)
+                    let didFreeze = false;
+                    if (pClass === 'Ice Master' && p.level >= 25 && (payload.skillId === 'basic' || payload.skillId === 'ice1' || payload.skillId === 'ice3')) {
+                        if (Math.random() < 0.25) { 
+                            tp.frozenUntil = Date.now() + 3000; 
+                            didFreeze = true; 
+                        }
+                    }
 
-                target.currentHp -= dmg;
-                if (target.currentHp <= 0 && target.immortalUntil && Date.now() < target.immortalUntil) {
-                    target.currentHp = 1;
-                }
+                    // 🩸 BLADEMASTER: Sharp Edge Bleed (Lv 75)
+                    if (pClass === 'Blademaster' && p.level >= 75 && Math.random() < 0.25 && payload.skillId !== 'pet') {
+                        const bleedDmg = Math.max(1, Math.floor(serverAtkPwr * 0.15));
+                        let ticks = 0;
+                        const bleedInt = setInterval(() => {
+                            ticks++;
+                            if (ticks > 3 || tp.isGhost || tp.mapId !== 'neutralzone') { clearInterval(bleedInt); return; }
+                            tp.currentHp -= bleedDmg;
+                            if (tp.currentHp < 0) tp.currentHp = 0;
+                            
+                            io.to('neutralzone').emit('playerHit', { 
+                                targetId: tp.id, attackerId: p.id, damage: bleedDmg, newHp: tp.currentHp, didFreeze: false 
+                            });
+                            
+                            // Safe Bleed Death check
+                            if (tp.currentHp <= 0 && !tp.isGhost) {
+                                tp.isGhost = true;
+                                tp.currentPortal = null;
+                                io.to('neutralzone').emit('remotePlayerGhosted', tp.id);
+                                io.emit('systemMessage', `⚔️ [PvP] <span style="color:#f44336;">${p.name} has bled ${tp.name} to death!</span>`);
+                                const tpSid = findSocketIdByPlayerId(tp.id);
+                                if (tpSid) io.to(tpSid).emit('showDeathScreen');
+                                supabase.from('Exonians').update({ current_hp: 0 }).eq('character_name', tp.id).then(()=>{});
+                            }
+                        }, 1000);
+                    }
 
-                io.to('neutralzone').emit('playerHit', { 
-                    targetId: target.id, attackerId: p.id, damage: dmg, newHp: Math.max(0, target.currentHp), didFreeze: didFreeze
+                    // 🩸 BERSERKER: I Love PAIN (Lv 75) - PVP VERSION
+                    if (tp.baseStats?.playerClass === 'Berserker' && tp.level >= 75 && Math.random() < 0.15) {
+                        const heal = Math.floor(dmg / 3);
+                        dmg = dmg - heal;
+                        tp.currentHp = Math.min(getServerTotalStat(tp, 'hp') || 100, tp.currentHp + heal);
+                        io.to('neutralzone').emit('playerHealed', { id: tp.id, amount: heal, currentHp: tp.currentHp });
+                    }
+
+                    tp.currentHp -= dmg;
+                    if (tp.currentHp <= 0 && tp.immortalUntil && Date.now() < tp.immortalUntil) {
+                        tp.currentHp = 1;
+                    }
+
+                    io.to('neutralzone').emit('playerHit', { 
+                        targetId: tp.id, attackerId: p.id, damage: dmg, newHp: Math.max(0, tp.currentHp), didFreeze: didFreeze
+                    });
+
+                    // Handle PvP Death
+                    if (tp.currentHp <= 0) {
+                        tp.currentHp = 0;
+                        tp.isGhost = true;
+                        tp.currentPortal = null;
+                        
+                        io.to('neutralzone').emit('remotePlayerGhosted', tp.id);
+                        io.emit('systemMessage', `⚔️ [PvP] <span style="color:#f44336;">${p.name} has slain ${tp.name} in the Neutral Zone!</span>`);
+                        
+                        const tpSid = findSocketIdByPlayerId(tp.id);
+                        if (tpSid) io.to(tpSid).emit('showDeathScreen');
+                        
+                        supabase.from('Exonians').update({ current_hp: 0 }).eq('character_name', tp.id).then(()=>{});
+                    } else {
+                        const tpSid = findSocketIdByPlayerId(tp.id);
+                        if (tpSid) io.to(tpSid).emit('playerVitals', { currentHp: tp.currentHp, maxHp: tp.maxHp, level: tp.level });
+                    }
                 });
-
-                // Handle PvP Death
-                if (target.currentHp <= 0) {
-                    target.currentHp = 0;
-                    target.isGhost = true;
-                    target.currentPortal = null;
-                    
-                    io.to('neutralzone').emit('remotePlayerGhosted', target.id);
-                    io.emit('systemMessage', `⚔️ [PvP] <span style="color:#f44336;">${p.name} has slain ${target.name} in the Neutral Zone!</span>`);
-                    
-                    const targetSid = findSocketIdByPlayerId(target.id);
-                    if (targetSid) io.to(targetSid).emit('showDeathScreen');
-                    
-                    supabase.from('Exonians').update({ current_hp: 0 }).eq('character_name', target.id).then(()=>{});
-                } else {
-                    const targetSid = findSocketIdByPlayerId(target.id);
-                    if (targetSid) io.to(targetSid).emit('playerVitals', { currentHp: target.currentHp, maxHp: target.maxHp, level: target.level });
-                }
             }, hc * 150);
         }
     });
