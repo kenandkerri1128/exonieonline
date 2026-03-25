@@ -4577,6 +4577,76 @@ socket.on('playerDied', () => {
         
         socket.emit('rerollSuccess'); 
     });
+    // ✨ APPEARANCE REROLL HANDLER
+    socket.on('requestAppearanceChange', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || typeof data.index !== 'number' || !data.charData) return;
+
+        const inv = p.inventory || [];
+        const item = inv[data.index];
+        if (!item || item.name !== 'Appearance Reroll Ticket') return;
+
+        // Deduct ticket
+        item.quantity = (item.quantity || 1) - 1;
+        if (item.quantity <= 0) inv[data.index] = null;
+        p.inventory = inv;
+
+        const { skinColor, hairColor, hairStyle } = data.charData;
+        p.spriteData.skin = skinColor; p.spriteData.hair = hairColor; p.spriteData.style = hairStyle;
+
+        try {
+            await supabase.from('Exonians').update({ skin_color: skinColor, hair_color: hairColor, hair_style: hairStyle, inventory: p.inventory }).eq('character_name', p.id);
+            socket.emit('syncInventory', p.inventory);
+            socket.emit('systemMessage', "✨ Appearance successfully changed!");
+            const moveData = { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData };
+            socket.emit('remotePlayerMoved', moveData);
+            socket.to(p.instanceId).emit('remotePlayerMoved', moveData);
+        } catch(e) { console.error(e); }
+    });
+
+    // ✨ NAME CHANGE HANDLER
+    socket.on('requestNameChange', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || typeof data.index !== 'number' || !data.newName) return;
+
+        const inv = p.inventory || [];
+        const item = inv[data.index];
+        if (!item || item.name !== 'Name Change Ticket') return;
+
+        const newName = data.newName.trim();
+        if (newName.length < 3 || newName.length > 16) return socket.emit('systemMessage', "❌ Name must be 3-16 characters.");
+
+        // Check if name is taken
+        const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', newName).single();
+        if (existingUser) return socket.emit('systemMessage', "❌ That name is already taken!");
+
+        // Deduct ticket
+        item.quantity = (item.quantity || 1) - 1;
+        if (item.quantity <= 0) inv[data.index] = null;
+        p.inventory = inv;
+
+        const oldName = p.id;
+
+        try {
+            await supabase.from('Exonians').update({ character_name: newName, inventory: p.inventory }).eq('character_name', oldName);
+            
+            p.id = newName; p.name = newName; socket.username = newName;
+            activeLogins.delete(oldName); activeLogins.add(newName);
+            
+            const pid = playerParty[oldName];
+            if (pid) {
+                playerParty[newName] = pid; delete playerParty[oldName];
+                parties[pid].members.delete(oldName); parties[pid].members.add(newName);
+                if (parties[pid].leaderId === oldName) parties[pid].leaderId = newName;
+                emitPartyUpdate(pid);
+            }
+
+            io.emit('systemMessage', `✨ [World] ${oldName} has changed their name to ${newName}!`);
+            socket.emit('authSuccess', { ...p, character_name: newName, base_stats: p.baseStats, equips: p.equips });
+            io.to(p.instanceId).emit('remotePlayerLeft', oldName);
+            io.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
+        } catch(e) { socket.emit('systemMessage', "❌ Failed to change name. DB Error."); }
+    });
 
     // 🛡️ SERVER-SIDE ECONOMY: Buying
     socket.on('requestPurchase', async (data) => {
@@ -5036,34 +5106,40 @@ if (rarity !== "Starter") {
         const p = onlinePlayers[socket.id];
         if (!p || typeof data.invIndex !== 'number' || !data.price || data.price < 1) return;
 
-        // 1. Check if they hit the limit
-        const { count, error } = await supabase.from('Auction_House').select('*', { count: 'exact', head: true }).eq('seller_name', p.id);
-        if (count >= 5) {
-            return socket.emit('systemMessage', "❌ You can only have 5 items on the Auction House at once.");
-        }
-
-        const inv = Array.isArray(p.inventory) ? p.inventory : [];
-        let originalItem = inv[data.invIndex];
-        if (!originalItem) return socket.emit('systemMessage', "Item not found.");
-
-        // 🛡️ ANTI-CHEAT: Block server from auctioning cosmetics/pets
-       if (originalItem.type === 'aura' || originalItem.aura) {
-            return socket.emit('systemMessage', "❌ Cosmetics, Pets, and enchanted gear cannot be auctioned. Extract it first!");
-        }
-
-        // 2. Create the exact item data to save (Force quantity to 1)
-        let auctionItem = JSON.parse(JSON.stringify(originalItem));
-        auctionItem.quantity = 1;
-
-        // 3. Deduct from inventory
-        if (originalItem.quantity > 1) {
-            originalItem.quantity -= 1;
-        } else {
-            inv[data.invIndex] = null;
-        }
-        p.inventory = inv;
+        // 🛡️ ANTI-SPAM LOCK: Prevents the 5-item bypass exploit!
+        if (p.isListingAH) return socket.emit('systemMessage', "⏳ Processing... please wait.");
+        p.isListingAH = true;
 
         try {
+            // 1. Check if they hit the limit
+            const { count, error } = await supabase.from('Auction_House').select('*', { count: 'exact', head: true }).eq('seller_name', p.id);
+            if (count >= 5) {
+                p.isListingAH = false; // Release lock
+                return socket.emit('systemMessage', "❌ You can only have 5 items on the Auction House at once.");
+            }
+
+            const inv = Array.isArray(p.inventory) ? p.inventory : [];
+            let originalItem = inv[data.invIndex];
+            if (!originalItem) { p.isListingAH = false; return socket.emit('systemMessage', "Item not found."); }
+
+            // 🛡️ ANTI-CHEAT: Block server from auctioning cosmetics/pets
+            if (originalItem.type === 'aura' || originalItem.aura) {
+                p.isListingAH = false;
+                return socket.emit('systemMessage', "❌ Cosmetics, Pets, and enchanted gear cannot be auctioned. Extract it first!");
+            }
+
+            // 2. Create the exact item data to save (Force quantity to 1)
+            let auctionItem = JSON.parse(JSON.stringify(originalItem));
+            auctionItem.quantity = 1;
+
+            // 3. Deduct from inventory
+            if (originalItem.quantity > 1) {
+                originalItem.quantity -= 1;
+            } else {
+                inv[data.invIndex] = null;
+            }
+            p.inventory = inv;
+
             // 4. Update DB Inventory & Insert Auction
             await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
             await supabase.from('Auction_House').insert([{
@@ -5075,8 +5151,10 @@ if (rarity !== "Starter") {
             
             socket.emit('syncInventory', p.inventory);
             socket.emit('ah_listSuccess');
+            p.isListingAH = false; // Release lock
         } catch (e) {
             console.error("AH List Error:", e);
+            p.isListingAH = false; // Release lock
             socket.emit('systemMessage', "Server error listing item.");
         }
     });
@@ -5901,7 +5979,9 @@ socket.on('startDungeon', async (data) => {
         socket.emit('systemMessage', '⏳ Connecting to PayPal... please wait.');
 
         const MASTER_CATALOG = {
-            'pet_fox': { priceUSD: '10.00', name: 'Spirit Fox Pet' },
+            'name_change': { priceGems: 15, item: { name: "Name Change Ticket", type: 'consumable', rarity: 'Legendary', color: '#ff9800', description: "Changes your character's name permanently.", quantity: 1 } },
+            'edit_char': { priceGems: 15, item: { name: "Appearance Reroll Ticket", type: 'consumable', rarity: 'Legendary', color: '#2196F3', description: "Redesign your hair, skin color, and style.", quantity: 1 } },
+            'pet_fox': { priceGems: 10, item: { name: "Spirit Fox Pet", type: 'aura', auraId: 'fox', rarity: 'Godly', color: '#ff7e00', description: "Click to apply to Leggings.", quantity: 1 } },
             'pet_owl': { priceUSD: '10.00', name: 'Night Owl Pet' },
             'aura_blaze': { priceUSD: '10.00', name: 'Blaze Aura Stone' },
             'aura_liquid': { priceUSD: '10.00', name: 'Liquid Aura Stone' },
