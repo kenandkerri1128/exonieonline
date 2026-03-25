@@ -237,10 +237,20 @@ perfStyle.innerHTML = `
         animation: none !important;
     }
     
-    /* 🛑 Completely Hide Cosmetic Armor Auras */
-    body.low-perf .cosmetic-aura,
-    body.low-perf .aura {
+    /* 🛑 Completely Hide Normal Cosmetic Armor Auras, BUT KEEP DIVINE WINGS */
+    body.low-perf .cosmetic-aura:not(.aura-divine),
+    body.low-perf .aura:not(.aura-divine) {
         display: none !important;
+    }
+
+    /* 👑 Optimize Divine Aura for Low-End (Keep Wings, Remove Heavy Glows) */
+    body.low-perf .avatar-rig:has(.aura-divine) {
+        animation: none !important;
+        filter: none !important; /* Removes the heavy body drop-shadow */
+    }
+    body.low-perf .cosmetic-aura.aura-divine::before,
+    body.low-perf .cosmetic-aura.aura-divine::after {
+        box-shadow: none !important; /* Remove expensive shadow on the wings themselves */
     }
 
     /* 🛑 Strip Expensive Shadows from Projectiles & Effects */
