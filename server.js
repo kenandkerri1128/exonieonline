@@ -1354,12 +1354,12 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
                 }
 
                 emitPartyUpdate(pid);
-            }
-        }
+                                }
+                            }
+                        }
+                    }
     }
-}
-}
-setInterval(() => {
+    setInterval(() => {
     const now = Date.now();
     for (const instId of Object.keys(worlds)) {
         const world = worlds[instId];
@@ -4238,6 +4238,8 @@ socket.on('playerDied', () => {
      if (targetItem.aura) {
     socket.emit('systemMessage', '❌ You must extract the Aura or Pet before enhancing this item!');
     socket.emit('syncInventory', p.inventory);
+         return;
+        }
 
     if (!stone || !targetItem || stone.type !== 'material') return;
     if (!VALID_RARITIES.includes(targetItem.rarity)) return;
