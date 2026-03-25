@@ -342,13 +342,22 @@ function sanitizeItem(item) {
     safe.level = clamp(safe.level, 1, 9999);
     safe.rarity = safe.rarity || 'Basic';
     safe.color = typeof safe.color === 'string' ? safe.color : '#ffffff';
-    safe.enhanceLevel = Number(safe.enhanceLevel) || 0;
     safe.quantity = clamp(safe.quantity || 1, 1, 999);
 
-    // 🛡️ REMOVED: The aggressive MAX_ENHANCE block that was deleting items is completely gone.
+    // 🛡️ THE FIX: Only attach equipment stats to weapons, armor, and auras!
+    const isEquipment = !['material', 'potion', 'consumable', 'forger', 'gem'].includes(safe.type);
 
-    safe.fixedStat = sanitizeStatObject(safe.fixedStat);
-    safe.randomStat = sanitizeStatObject(safe.randomStat);
+    if (isEquipment) {
+        safe.enhanceLevel = Number(safe.enhanceLevel) || 0;
+        safe.fixedStat = sanitizeStatObject(safe.fixedStat);
+        safe.randomStat = sanitizeStatObject(safe.randomStat);
+    } else {
+        // 🧹 THE AUTO-CLEANER: Strip out the bloat if it accidentally got saved to a material!
+        delete safe.stats;
+        delete safe.fixedStat;
+        delete safe.randomStat;
+        delete safe.enhanceLevel;
+    }
 
     const VALID_AURAS = ['lightning', 'blaze', 'liquid', 'nature', 'fox', 'owl', 'wisp', 'divine', 'egg'];
     if (safe.aura && !VALID_AURAS.includes(safe.aura)) {
@@ -538,7 +547,7 @@ function generateLoot(monster) {
                 quantity: 1 
             };
         } 
-        // 3% Chance: Divine Essence (0.15 to 0.18)
+       // 3% Chance: Divine Essence (0.15 to 0.18)
         else if (roll < 0.18) {
             return {
                 id: 'mat_' + Math.random().toString(36).substr(2, 9),
@@ -546,7 +555,6 @@ function generateLoot(monster) {
                 type: 'material',
                 rarity: 'Divine',
                 level: 1,
-                stats: { atk: 0, matk: 0, def: 0, hp: 0, str: 0, int: 0, spd: 0 },
                 sellPrice: 100000,
                 description: 'A blindingly bright golden essence. Required to craft Divine equipment.',
                 quantity: 1
