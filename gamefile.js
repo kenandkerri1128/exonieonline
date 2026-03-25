@@ -2097,6 +2097,27 @@ window.useItem = function(index) {
     if (['potion', 'consumable', 'weapon', 'armor', 'leggings', 'necklace', 'ring', 'earrings'].includes(item.type)) {
         if (item.name === "Revival Juice") {
             window.useRevivalJuice(index);
+        } else if (item.name === 'Name Change Ticket') {
+            let newName = prompt("Enter your new character name (Max 16 chars):");
+            if (newName && newName.trim().length >= 3 && newName.trim().length <= 16) {
+                if (socket) socket.emit('requestNameChange', { index: index, newName: newName.trim() });
+            } else if (newName) {
+                if (dom.log) dom.log.innerText = "Name must be between 3 and 16 characters.";
+            }
+        } else if (item.name === 'Appearance Reroll Ticket') {
+            document.getElementById('char-name-input').style.display = 'none'; // Hide name input
+            document.getElementById('creation-screen').classList.add('active'); // Show character editor
+            
+            // Temporarily swap the submit button's behavior
+            const createBtn = document.getElementById('creation-screen').querySelector('.btn');
+            const originalClick = createBtn.onclick;
+            
+            createBtn.onclick = function() {
+                if (socket) socket.emit('requestAppearanceChange', { index: index, charData: window.charData });
+                document.getElementById('creation-screen').classList.remove('active');
+                document.getElementById('char-name-input').style.display = 'block'; // Reset for future use
+                createBtn.onclick = originalClick; // Restore original function
+            };
         } else {
             if (socket) socket.emit('useInventoryItem', { index });
         }
@@ -4615,8 +4636,7 @@ window.openRealMoneyShop = function() {
 };
 
 if (socket) {
-   // --- LINES BEFORE ---
-    socket.on('shopAuthState', (data) => {
+   socket.on('shopAuthState', (data) => {
         let modal = document.getElementById('rm-shop-modal');
         if (!modal) return;
 
@@ -4632,22 +4652,24 @@ if (socket) {
 
         if (data.state === 'shop_open') {
             const items = [
-                { id: 'pet_fox', name: 'Spirit Fox Pet', priceUSD: '10.00', priceGems: 10, desc: 'A loyal fire-fox companion that follows you and attacks enemies.' },
-                { id: 'pet_owl', name: 'Night Owl Pet', priceUSD: '10.00', priceGems: 10, desc: 'A mysterious owl that flies by your side.' },
-                { id: 'aura_blaze', name: 'Blaze Aura Stone', priceUSD: '10.00', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a burning red flame effect.' },
-                { id: 'aura_liquid', name: 'Liquid Aura Stone', priceUSD: '10.00', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a flowing water effect.' },
-                { id: 'aura_nature', name: 'Nature Aura Stone', priceUSD: '10.00', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a leaf and vine effect.' },
-                { id: 'divine_pack', name: 'Divine Stone Bundle (x5)', priceUSD: '10.00', priceGems: 10, desc: 'Contains 5 Divine Enhancement Stones. Works on any level.' },
-                { id: 'revival_pack', name: 'Revival Juice Bundle (x10)', priceUSD: '5.00', priceGems: 5, desc: 'Contains 10 Revival Juices. Revive instantly on the spot.' }
+                { id: 'name_change', name: 'Name Change Ticket', priceGems: 10, desc: 'Permanently changes your character name. (Cannot be undone)' },
+                { id: 'edit_char', name: 'Appearance Reroll Ticket', priceGems: 5, desc: 'Re-open the character creator to change your hair, skin color, and style.' },
+                { id: 'pet_fox', name: 'Spirit Fox Pet', priceGems: 10, desc: 'A loyal fire-fox companion that follows you and attacks enemies.' },
+                { id: 'pet_owl', name: 'Night Owl Pet', priceGems: 10, desc: 'A mysterious owl that flies by your side.' },
+                { id: 'aura_blaze', name: 'Blaze Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a burning red flame effect.' },
+                { id: 'aura_liquid', name: 'Liquid Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a flowing water effect.' },
+                { id: 'aura_nature', name: 'Nature Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a leaf and vine effect.' },
+                { id: 'divine_pack', name: 'Divine Stone Bundle (x5)', priceGems: 10, desc: 'Contains 5 Divine Enhancement Stones. Works on any level.' },
+                { id: 'revival_pack', name: 'Revival Juice Bundle (x10)', priceGems: 5, desc: 'Contains 10 Revival Juices. Revive instantly on the spot.' }
             ];
 
             html += `<div style="max-height:300px; overflow-y:auto; padding-right:5px;">`;
-           items.forEach(i => {
+            items.forEach(i => {
                 html += `<div style="background:#222; border:1px solid #444; padding:10px; border-radius:6px; margin-bottom:10px; text-align:left;">
                             <div style="color:#E040FB; font-weight:bold; font-size:15px;">${i.name}</div>
                             <div style="color:#aaa; font-size:12px; margin-bottom:8px;">${i.desc}</div>
                             <div style="display:flex; justify-content:space-between; align-items:center; gap:5px;">
-                                <button class="btn" style="background:#333; padding:8px 10px; font-size:14px; color:#E040FB; border:color:#9c27b0; flex:1; font-weight:bold; cursor:pointer; box-shadow: 0 0 5px #9c27b0;" onclick="window.buyWithGems('${i.id}', '${i.name}', ${i.priceGems})">💎 Buy for ${i.priceGems} Exo Gems</button>
+                                <button class="btn" style="background:#333; padding:8px 10px; font-size:14px; color:#E040FB; border-color:#9c27b0; flex:1; font-weight:bold; cursor:pointer; box-shadow: 0 0 5px #9c27b0;" onclick="window.buyWithGems('${i.id}', '${i.name}', ${i.priceGems})">💎 Buy for ${i.priceGems} Exo Gems</button>
                             </div>
                          </div>`;
             });
