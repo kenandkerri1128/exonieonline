@@ -425,6 +425,11 @@ function sanitizeBaseStats(baseStats) {
     safe.dungeonEntries = (baseStats && typeof baseStats.dungeonEntries === 'number') ? baseStats.dungeonEntries : 7;
     safe.dungeonReset = baseStats ? baseStats.dungeonReset : 0;
     
+ // 💎 PREMIUM CURRENCY & PATREON TRACKING
+    safe.exoGems = clamp(baseStats?.exoGems || 0, 0, 999999);
+    safe.nextRenewalDate = baseStats?.nextRenewalDate || null;
+    safe.reminderSent = baseStats?.reminderSent || false;
+
     return safe;
 }
 
@@ -3547,6 +3552,23 @@ socket.on('requestConfirmTrade', () => {
             if (pid) emitPartyUpdate(pid);
             return;
         }
+        // 💎 PREMIUM: EXO GEMS CONSUMABLE
+        if (item.type === 'consumable' && item.isGems) {
+            if (!p.baseStats) p.baseStats = {};
+            p.baseStats.exoGems = (p.baseStats.exoGems || 0) + item.quantity;
+            let gemsGained = item.quantity;
+
+            item.quantity = 0;
+            inv[index] = null;
+            p.inventory = inv;
+
+            supabase.from('Exonians').update({ inventory: p.inventory, base_stats: p.baseStats }).eq('character_name', p.id).then(()=>{});
+
+            socket.emit('syncInventory', p.inventory);
+            socket.emit('gemPurchaseSuccess', { newGems: p.baseStats.exoGems });
+            socket.emit('systemMessage', `💎 You cracked open the bundle and received ${gemsGained} Exo Gems!`);
+            return;
+        }
 
        // 👑 PATREON: ROYAL GOLD SACK
         if (item.type === 'consumable' && item.name === 'Royal Gold Sack') {
@@ -5843,21 +5865,22 @@ socket.on('startDungeon', async (data) => {
             socket.emit('systemMessage', "You must be in a party to link items!");
         }
     });
-   // 💳 INSTANT CASH SHOP ACCESS (No Email Required)
+  // ==========================================
+    // 💳 HYBRID CASH SHOP (PayPal & Exo Gems)
+    // ==========================================
     socket.on('requestShopAccess', () => {
         const p = onlinePlayers[socket.id];
         if (!p) return;
-        // Instantly tell the client the shop is open!
-        socket.emit('shopAuthState', { state: 'shop_open' });
+        socket.emit('shopAuthState', { state: 'shop_open', exoGems: p.baseStats?.exoGems || 0 });
     });
 
-  socket.on('requestCheckoutCode', async (data) => {
+    // 1. PAYPAL CHECKOUT (One-Time Cash)
+    socket.on('requestCheckoutCode', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || !data.itemId) return;
 
         socket.emit('systemMessage', '⏳ Connecting to PayPal... please wait.');
 
-        // Translated to clean PayPal USD prices
         const MASTER_CATALOG = {
             'pet_fox': { priceUSD: '10.00', name: 'Spirit Fox Pet' },
             'pet_owl': { priceUSD: '10.00', name: 'Night Owl Pet' },
@@ -5872,47 +5895,92 @@ socket.on('startDungeon', async (data) => {
         if (!item) return socket.emit('systemMessage', "❌ Security Error: Item not in catalog.");
 
         try {
-            // 1. Get PayPal Access Token
-            const isLive = true; // ⚠️ Change to TRUE when you want to accept real money!
+            const isLive = true; 
             const baseURL = isLive ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
             const auth = Buffer.from(process.env.PAYPAL_CLIENT_ID + ':' + process.env.PAYPAL_SECRET).toString('base64');
             
             const tokenReq = await axios.post(`${baseURL}/v1/oauth2/token`, 'grant_type=client_credentials', {
-                headers: { 
-                    'Authorization': `Basic ${auth}`, 
-                    'Content-Type': 'application/x-www-form-urlencoded' 
-                }
+                headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' }
             });
 
-            // 2. Create PayPal Order
             const orderReq = await axios.post(`${baseURL}/v2/checkout/orders`, {
                 intent: 'CAPTURE',
                 purchase_units: [{
-                    custom_id: `${p.id}-${data.itemId}`, // 🛡️ Sent silently to the webhook!
+                    custom_id: `${p.id}-${data.itemId}`, 
                     description: item.name,
                     amount: { currency_code: 'USD', value: item.priceUSD }
                 }],
                 application_context: {
-                    return_url: 'https://exonieonline.onrender.com/paypal-return', // 🌟 NOW POINTS TO THE INSTANT CAPTURE!
+                    return_url: 'https://exonieonline.onrender.com/paypal-return', 
                     cancel_url: 'https://exonieonline.onrender.com',
                     brand_name: 'Exonie Online',
                     shipping_preference: 'NO_SHIPPING' 
                 }
             }, {
-                headers: { 
-                    'Authorization': `Bearer ${tokenReq.data.access_token}`, 
-                    'Content-Type': 'application/json' 
-                }
+                headers: { 'Authorization': `Bearer ${tokenReq.data.access_token}`, 'Content-Type': 'application/json' }
             });
             
-            // 3. Extract the approval link and send directly to client UI!
             const checkoutUrl = orderReq.data.links.find(link => link.rel === 'approve').href;
             socket.emit('checkoutState', { state: 'approved', url: checkoutUrl });
             socket.emit('systemMessage', "✅ Secure PayPal link generated!");
 
         } catch (err) {
-            console.error("PayPal Error:", err.response ? err.response.data : err.message);
             socket.emit('systemMessage', `❌ Payment API Error. Check server console.`);
+        }
+    });
+
+    // 2. EXO GEMS CHECKOUT (Premium Currency)
+    socket.on('requestGemPurchase', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.itemId) return;
+
+        const MASTER_CATALOG = {
+            'pet_fox': { priceGems: 10, item: { name: "Spirit Fox Pet", type: 'aura', auraId: 'fox', rarity: 'Godly', color: '#ff7e00', description: "Click to apply to Leggings.", quantity: 1 } },
+            'pet_owl': { priceGems: 10, item: { name: "Night Owl Pet", type: 'aura', auraId: 'owl', rarity: 'Godly', color: '#a0a0a0', description: "Click to apply to Leggings.", quantity: 1 } },
+            'aura_blaze': { priceGems: 10, item: { name: "Blaze Aura Stone", type: 'aura', auraId: 'blaze', rarity: 'Legendary', color: '#f44336', description: "Click to apply to Armor.", quantity: 1 } },
+            'aura_liquid': { priceGems: 10, item: { name: "Liquid Aura Stone", type: 'aura', auraId: 'liquid', rarity: 'Legendary', color: '#2196F3', description: "Click to apply to Armor.", quantity: 1 } },
+            'aura_nature': { priceGems: 10, item: { name: "Nature Aura Stone", type: 'aura', auraId: 'nature', rarity: 'Legendary', color: '#4CAF50', description: "Click to apply to Armor.", quantity: 1 } },
+            'divine_pack': { priceGems: 10, item: { name: "Divine Enhancement Stone", type: 'material', rarity: 'Divine', color: '#ffea00', description: "Enhances Divine equipment.", quantity: 5 } },
+            'revival_pack': { priceGems: 5, item: { name: "Revival Juice Bundle (x10)", type: "consumable", rarity: "Unique", color: "#9c27b0", description: "Revives you instantly.", quantity: 10 } }
+        };
+
+        const catalogItem = MASTER_CATALOG[data.itemId];
+        if (!catalogItem) return socket.emit('systemMessage', "❌ Item not found in catalog.");
+
+        if (!p.baseStats) p.baseStats = {};
+        if ((p.baseStats.exoGems || 0) < catalogItem.priceGems) {
+            return socket.emit('systemMessage', "❌ Not enough Exo Gems! Click 'Get More Gems' to top up via Patreon.");
+        }
+
+        const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
+        let added = false;
+        let deliveryItem = JSON.parse(JSON.stringify(catalogItem.item));
+        deliveryItem.id = Date.now() + Math.random();
+
+        if (['potion', 'material', 'consumable'].includes(deliveryItem.type)) {
+            const existingIndex = inv.findIndex(i => i && i.name === deliveryItem.name);
+            if (existingIndex !== -1) {
+                inv[existingIndex].quantity = (inv[existingIndex].quantity || 1) + deliveryItem.quantity;
+                added = true;
+            }
+        }
+
+        if (!added) {
+            const emptySlot = inv.findIndex(i => i === null);
+            if (emptySlot === -1) return socket.emit('systemMessage', "❌ Inventory full! Clear space first.");
+            inv[emptySlot] = deliveryItem;
+        }
+
+        p.baseStats.exoGems -= catalogItem.priceGems;
+        p.inventory = inv;
+
+        try {
+            await supabase.from('Exonians').update({ inventory: p.inventory, base_stats: p.baseStats }).eq('character_name', p.id);
+            socket.emit('syncInventory', p.inventory);
+            socket.emit('gemPurchaseSuccess', { newGems: p.baseStats.exoGems });
+            socket.emit('systemMessage', `💎 Successfully purchased ${deliveryItem.name}!`);
+        } catch (e) {
+            socket.emit('systemMessage', "❌ Transaction failed. Server error.");
         }
     });
     // ==========================================
