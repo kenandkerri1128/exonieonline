@@ -4544,58 +4544,73 @@ socket.on('playerDied', () => {
         socket.emit('craftForgerSuccess');
     });
 
-    socket.on('requestRerollStat', async (data) => {
+   socket.on('requestRerollStat', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p) return;
 
-        const forger = p.inventory[data.forgerIndex];
-        const targetItem = p.inventory[data.targetIndex];
-        const statKey = data.statKey;
+        const forgerIndex = data.forgerIndex;
+        const targetIndex = data.targetIndex;
+        const oldStatKey = data.statKey; // The stat they want to sacrifice (e.g., 'int')
 
-        if (!forger || forger.type !== "forger" || !targetItem) return;
+        const forgerItem = p.inventory[forgerIndex];
+        const targetItem = p.inventory[targetIndex];
+
+        // Security Checks
+        if (!forgerItem || forgerItem.type !== 'forger' || !targetItem) return;
+        if (forgerItem.rarity !== targetItem.rarity) {
+            return socket.emit('systemMessage', "Rarity mismatch!");
+        }
+        if (!targetItem.randomStat || typeof targetItem.randomStat[oldStatKey] === 'undefined') {
+            return socket.emit('systemMessage', "That sub-stat does not exist on this item!");
+        }
+
+        // 1. Define the pool of possible stats
+        const STAT_TYPES = ['attack', 'magic', 'defense', 'speed', 'int', 'str', 'hp'];
+
+        // 2. Delete the old stat from the item
+        delete targetItem.randomStat[oldStatKey];
+
+        // 3. Pick a new random stat (but make sure it doesn't accidentally pick a stat the item ALREADY has!)
+        let availableStats = STAT_TYPES.filter(s => typeof targetItem.randomStat[s] === 'undefined');
         
-        if (forger.rarity !== targetItem.rarity) {
-            return socket.emit('systemMessage', `❌ This ${forger.rarity} Forger can only be used on ${targetItem.rarity} items.`);
-        }
+        // If the item somehow has every single stat in the game, fall back to allowing the same stat
+        if (availableStats.length === 0) availableStats = [oldStatKey]; 
 
-        if (['necklace', 'ring', 'earrings'].includes(targetItem.type)) {
-            return socket.emit('systemMessage', '❌ Cannot reroll accessories!');
-        }
-        if (!['weapon', 'armor', 'leggings'].includes(targetItem.type)) {
-             return socket.emit('systemMessage', '❌ Invalid item type for rerolling.');
-        }
-        if (!targetItem.randomStat || typeof targetItem.randomStat[statKey] !== 'number') {
-            return socket.emit('systemMessage', '❌ That stat does not exist on this item.');
-        }
+        // Add the old stat back into the pool of possibilities, so there's a chance it stays the same type but gets a new number
+        if (!availableStats.includes(oldStatKey)) availableStats.push(oldStatKey);
 
-        // 1. Deduct Forger
-        forger.quantity = (forger.quantity || 1) - 1;
-        if (forger.quantity <= 0) p.inventory[data.forgerIndex] = null;
+        const newStatKey = availableStats[Math.floor(Math.random() * availableStats.length)];
 
-        // 2. Roll a fresh base stat for the item's specific level
-        let newRoll = Math.floor(Math.random() * getBaseStat(targetItem.level || 1)) + 1;
+        // 4. Generate a new numeric value for it based on the item's level and rarity
+        const rMult = { "Starter": 1, "Basic": 2, "Rare": 3, "Unique": 5, "Legendary": 8, "Godly": 15, "Divine": 25 }[targetItem.rarity] || 1;
+        const baseVal = Math.max(1, targetItem.level) * rMult;
         
-        // 3. Re-apply any existing enhancement bonuses to the new stat so it isn't weakened!
-        if (targetItem.enhanceLevel && targetItem.enhanceLevel > 0) {
-            const bonusPerLevel = { "Starter": 1, "Basic": 1, "Rare": 3, "Unique": 5, "Legendary": 8, "Godly": 15, "Divine": 25 }[targetItem.rarity] || 1;
-            newRoll += (bonusPerLevel * targetItem.enhanceLevel);
-        }
+        // Give it a ±20% variance
+        let newValue = Math.floor(baseVal * (0.8 + (Math.random() * 0.4)));
+        if (newValue < 1) newValue = 1;
+        
+        // HP stats are typically inflated compared to standard stats
+        if (newStatKey === 'hp') newValue *= 5; 
 
-        let oldVal = targetItem.randomStat[statKey];
-        targetItem.randomStat[statKey] = newRoll;
+        // 5. Apply the newly reforged stat to the item
+        targetItem.randomStat[newStatKey] = newValue;
 
-        p.inventory[data.targetIndex] = sanitizeItem(targetItem);
+        // 6. Consume 1 Forger
+        forgerItem.quantity = (forgerItem.quantity || 1) - 1;
+        if (forgerItem.quantity <= 0) p.inventory[forgerIndex] = null;
 
+        // 7. Save and Sync
         await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
+        
         socket.emit('syncInventory', p.inventory);
+        socket.emit('rerollSuccess');
         
-        if (newRoll > oldVal) {
-            socket.emit('systemMessage', `✨ Rerolled ${statKey.toUpperCase()} from ${oldVal} to ${newRoll} (Increased)!`);
-        } else {
-            socket.emit('systemMessage', `⚠️ Rerolled ${statKey.toUpperCase()} from ${oldVal} to ${newRoll} (Decreased).`);
-        }
-        
-        socket.emit('rerollSuccess'); 
+        // Optional: Let them know what it turned into!
+        let msg = oldStatKey === newStatKey 
+            ? `Stat reforged! It stayed ${newStatKey.toUpperCase()} but rolled a new value of +${newValue}.`
+            : `Stat reforged! The old ${oldStatKey.toUpperCase()} mutated into +${newValue} ${newStatKey.toUpperCase()}!`;
+            
+        socket.emit('systemMessage', msg);
     });
     // ✨ APPEARANCE REROLL HANDLER
     socket.on('requestAppearanceChange', async (data) => {
