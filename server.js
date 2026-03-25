@@ -189,6 +189,7 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
         safeStats.reminderSent = false; 
 
         if (eventType === 'members:pledge:create') {
+            safeStats.lastChargeDate = event?.data?.attributes?.last_charge_date || new Date().toISOString();
             await supabase.from('System_Mail').insert([
                 { recipient_name: playerName, message_text: `💎 Thank you for subscribing! Here are your ${gemsToGive} Exo Gems.`, attached_item: JSON.stringify(exoGemsBundle), is_claimed: false }
             ]);
@@ -207,7 +208,12 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
 
         if (eventType === 'members:pledge:update') {
             const chargeStatus = event?.data?.attributes?.last_charge_status;
-            if (chargeStatus === 'Paid') {
+            const chargeDate = event?.data?.attributes?.last_charge_date;
+
+            // 🛡️ THE FIX: Only give gems if the charge date is NEW!
+            if (chargeStatus === 'Paid' && safeStats.lastChargeDate !== chargeDate) {
+                safeStats.lastChargeDate = chargeDate; // Save new charge date
+
                 await supabase.from('System_Mail').insert([{ recipient_name: playerName, message_text: `💎 Your monthly Patreon renewal is here! Enjoy your ${gemsToGive} Exo Gems.`, attached_item: JSON.stringify(exoGemsBundle), is_claimed: false }]);
                 
                 if (isRoyalTier) {
