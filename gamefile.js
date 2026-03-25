@@ -4652,8 +4652,8 @@ if (socket) {
 
         if (data.state === 'shop_open') {
             const items = [
-                { id: 'name_change', name: 'Name Change Ticket', priceGems: 10, desc: 'Permanently changes your character name. (Cannot be undone)' },
-                { id: 'edit_char', name: 'Appearance Reroll Ticket', priceGems: 5, desc: 'Re-open the character creator to change your hair, skin color, and style.' },
+                { id: 'name_change', name: 'Name Change Ticket', priceGems: 15, desc: 'Permanently changes your character name. (Cannot be undone)' },
+                { id: 'edit_char', name: 'Appearance Reroll Ticket', priceGems: 15, desc: 'Re-open the character creator to change your hair, skin color, and style.' },
                 { id: 'pet_fox', name: 'Spirit Fox Pet', priceGems: 10, desc: 'A loyal fire-fox companion that follows you and attacks enemies.' },
                 { id: 'pet_owl', name: 'Night Owl Pet', priceGems: 10, desc: 'A mysterious owl that flies by your side.' },
                 { id: 'aura_blaze', name: 'Blaze Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a burning red flame effect.' },
