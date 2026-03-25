@@ -2214,6 +2214,24 @@ socket.on('login', async (data) => {
             io.emit('systemMessage', epicWelcomeMsg);
         }, 2000);
     }
+     // 📅 PATREON RENEWAL REMINDER (3 Days Before)
+    if (safeUser.base_stats.nextRenewalDate && !safeUser.base_stats.reminderSent) {
+        const now = Date.now();
+        const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
+        
+        // If the current time is within 3 days of the renewal date
+        if (now >= (safeUser.base_stats.nextRenewalDate - threeDaysMs)) {
+            safeUser.base_stats.reminderSent = true; // Mark as sent so they aren't spammed every login
+            
+            // 🔥 This handles the $30 (x3) case perfectly!
+            const pledgeAmount = safeUser.base_stats.lastPledgeAmount || 10; 
+            
+            setTimeout(() => {
+                socket.emit('systemMessage', `⚠️ <span style="color:#ff9800; font-weight:bold;">RENEWAL NOTICE:</span> Your Patreon pledge ($${pledgeAmount}) is set to renew in less than 3 days. If you intended this to be a one-time gem purchase, please remember to adjust your pledge on Patreon!`);
+            }, 5000); // Wait 5 seconds after login so they see it
+        }
+    }
+    // 🎁 LEVEL 50 FREE WISP PET LOGIC (Mailed on Login)
    // 🎁 LEVEL 50 FREE WISP PET LOGIC (Mailed on Login)
     if (safeUser.level >= 50 && !safeUser.base_stats.gotWisp) {
         safeUser.base_stats.gotWisp = true;
