@@ -4713,7 +4713,6 @@ socket.on('playerDied', () => {
         await supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id);
         socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
     });
-});
     // 🏡 REAL ESTATE ENGINE: Buy a Home
     socket.on('requestBuyHome', async () => {
         const p = onlinePlayers[socket.id];
