@@ -1755,10 +1755,11 @@ io.on('connection', (socket) => {
         }
     });
 socket.on('broadcastSkill', (data) => {
-    const p = onlinePlayers[socket.id];
-    if (!p || p.isGhost || p.mapId === 'town') return;
+    const p = onlinePlayers[socket.id];
+    if (!p || p.isGhost || p.mapId === 'town') return;
 
-    const now = Date.now();
+    const now = Date.now();
+    if (p.frozenUntil && now < p.frozenUntil) return; // ❄️ Frozen players cannot cast skills!
     const pClass = p.baseStats?.playerClass || null;
     const level = p.level || 1;
     const skillId = String(data?.skillId || '');
@@ -2551,6 +2552,7 @@ socket.on('saveData', async (playerData) => {
         const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return; 
         if (p.mapId === 'town') return; 
         const now = Date.now();
+        if (p.frozenUntil && now < p.frozenUntil) return; // ❄️ Frozen players cannot attack!
 
         // 👇 STRICT ANTI-CHEAT (NO MORE BURSTS) 👇
         if (payload.skillId === 'basic') {
@@ -5690,10 +5692,11 @@ socket.on('startDungeon', async (data) => {
     // ⚔️ NEUTRAL ZONE PvP ENGINE
     // ==========================================
     socket.on('attackPlayer', (payload) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || p.isGhost || p.mapId !== 'neutralzone') return;
-        
-        const now = Date.now();
+        const p = onlinePlayers[socket.id];
+        if (!p || p.isGhost || p.mapId !== 'neutralzone') return;
+        
+        const now = Date.now();
+        if (p.frozenUntil && now < p.frozenUntil) return; // ❄️ Frozen players cannot attack!
         if (payload.skillId === 'basic') {
             if (p.lastBasicAttack && now - p.lastBasicAttack < 800) return;
             p.lastBasicAttack = now;
@@ -5795,7 +5798,8 @@ socket.on('startDungeon', async (data) => {
                  tp.currentHp -= dotDmg;
                  if (tp.currentHp <= 0) tp.currentHp = 1; // Safely burns them to 1 HP
                  
-                 io.to('neutralzone').emit('playerHit', { targetId: tp.id, attackerId: p.id, damage: dotDmg, newHp: tp.currentHp });
+                 io.to('neutralzone').emit('playerHit', { 
+                    targetId: target.id, attackerId: p.id, damage: dmg, newHp: Math.max(0, target.currentHp), didFreeze: didFreeze
              }, 1000);
              
          } else if (payload.skillId === 'exp3') {
@@ -5881,8 +5885,8 @@ socket.on('startDungeon', async (data) => {
                     target.currentHp = 1;
                 }
 
-                io.to('neutralzone').emit('playerHit', { 
-                    targetId: target.id, attackerId: p.id, damage: dmg, newHp: Math.max(0, target.currentHp)
+                io.to('neutralzone').emit('playerHit', { 
+                    targetId: target.id, attackerId: p.id, damage: dmg, newHp: Math.max(0, target.currentHp), didFreeze: didFreeze
                 });
 
                 // Handle PvP Death
