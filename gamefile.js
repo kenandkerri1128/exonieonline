@@ -5294,7 +5294,7 @@ eggStyle.innerHTML = `
                     inset 0 0 10px rgba(255, 255, 255, 0.9);
         border: 1px solid rgba(255, 255, 255, 0.6);
         
-        z-index: 49;
+        z-index: 105;
         pointer-events: none;
         transform-origin: bottom center;
         
