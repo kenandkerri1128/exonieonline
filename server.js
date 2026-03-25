@@ -6034,8 +6034,8 @@ socket.on('startDungeon', async (data) => {
         if (!p || !data.itemId) return;
 
         const MASTER_CATALOG = {
-            'name_change': { priceGems: 10, item: { name: "Name Change Ticket", type: 'consumable', rarity: 'Legendary', color: '#ff9800', description: "Changes your character's name permanently.", quantity: 1 } },
-            'edit_char': { priceGems: 5, item: { name: "Appearance Reroll Ticket", type: 'consumable', rarity: 'Legendary', color: '#2196F3', description: "Redesign your hair, skin color, and style.", quantity: 1 } },
+            'name_change': { priceGems: 15, item: { name: "Name Change Ticket", type: 'consumable', rarity: 'Legendary', color: '#ff9800', description: "Changes your character's name permanently.", quantity: 1 } },
+            'edit_char': { priceGems: 15, item: { name: "Appearance Reroll Ticket", type: 'consumable', rarity: 'Legendary', color: '#2196F3', description: "Redesign your hair, skin color, and style.", quantity: 1 } },
             'pet_fox': { priceGems: 10, item: { name: "Spirit Fox Pet", type: 'aura', auraId: 'fox', rarity: 'Godly', color: '#ff7e00', description: "Click to apply to Leggings.", quantity: 1 } },
             'pet_owl': { priceGems: 10, item: { name: "Night Owl Pet", type: 'aura', auraId: 'owl', rarity: 'Godly', color: '#a0a0a0', description: "Click to apply to Leggings.", quantity: 1 } },
             'aura_blaze': { priceGems: 10, item: { name: "Blaze Aura Stone", type: 'aura', auraId: 'blaze', rarity: 'Legendary', color: '#f44336', description: "Click to apply to Armor.", quantity: 1 } },
