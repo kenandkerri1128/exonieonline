@@ -2389,10 +2389,13 @@ socket.on('saveData', async (playerData) => {
     const trueMaxHp = getServerTotalStat(p, 'hp') || 100;
     p.maxHp = trueMaxHp;
     
-    if (p.isGhost) {
+  if (p.isGhost) {
         p.currentHp = 0;
     } else {
-        p.currentHp = clamp(typeof playerData.currentHp === 'number' ? playerData.currentHp : p.currentHp, 0, trueMaxHp);
+        // 🛡️ THE FIX: Stop trusting the client's HP value! 
+        // By removing 'playerData.currentHp', we ensure the server's memory 
+        // (which was just updated by the potion) is NOT overwritten by the client.
+        p.currentHp = clamp(p.currentHp, 0, trueMaxHp);
     }
 
     p.spriteData.weapon = p.equips?.weapon?.sprite || null;
