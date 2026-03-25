@@ -354,8 +354,8 @@ function sanitizeItem(item) {
     } else {
         // 🌟 THE CRASH FIX: Do NOT delete them! Give the UI empty, safe shells to read!
         safe.stats = { hp: 0, atk: 0, def: 0, int: 0, spd: 0, str: 0, matk: 0 };
-        safe.fixedStat = sanitizeStateObject(safe.fixedStat);
-        safe.randomStat = sanitizeStateObject(safe.randomStat);
+        safe.fixedStat = sanitizeStatObject(safe.fixedStat);
+        safe.randomStat = sanitizeStatObject(safe.randomStat);
         safe.enhanceLevel = 0;
     }
 
