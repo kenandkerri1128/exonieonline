@@ -418,9 +418,26 @@ var floor10MapData = {
             "y": 277,
             "w": 45,
             "h": 110
+        },
+        {
+            "x": 855,
+            "y": 1299,
+            "w": 43,
+            "h": 49
         }
     ],
-    "teleports": [],
+    "teleports": [
+        {
+            "x": 884,
+            "y": 1268,
+            "w": 263,
+            "h": 27,
+            "portalId": 20,
+            "targetMapId": "floor8",
+            "targetX": 960,
+            "targetY": 1000
+        }
+    ],
     "normalSpawns": [],
     "miniBossSpawns": [],
     "floorBossSpawns": [
