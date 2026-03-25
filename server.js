@@ -187,7 +187,7 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
         renewalDate.setDate(renewalDate.getDate() + 30);
         safeStats.nextRenewalDate = renewalDate.getTime();
         safeStats.reminderSent = false; 
-
+        safeStats.lastPledgeAmount = Math.floor(amountCents / 100); // 💰 Saves the dollar amount for the reminder!
         if (eventType === 'members:pledge:create') {
             safeStats.lastChargeDate = event?.data?.attributes?.last_charge_date || new Date().toISOString();
             await supabase.from('System_Mail').insert([
