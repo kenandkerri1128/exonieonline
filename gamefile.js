@@ -4642,13 +4642,12 @@ if (socket) {
             ];
 
             html += `<div style="max-height:300px; overflow-y:auto; padding-right:5px;">`;
-            items.forEach(i => {
+           items.forEach(i => {
                 html += `<div style="background:#222; border:1px solid #444; padding:10px; border-radius:6px; margin-bottom:10px; text-align:left;">
                             <div style="color:#E040FB; font-weight:bold; font-size:15px;">${i.name}</div>
                             <div style="color:#aaa; font-size:12px; margin-bottom:8px;">${i.desc}</div>
                             <div style="display:flex; justify-content:space-between; align-items:center; gap:5px;">
-                                <button class="btn" style="background:#003087; padding:5px 10px; font-size:12px; flex:1;" onclick="window.initiateCheckout('${i.id}', '${i.name}', '${i.priceUSD}')">Buy for $${i.priceUSD}</button>
-                                <button class="btn" style="background:#333; padding:5px 10px; font-size:12px; color:#E040FB; border-color:#9c27b0; flex:1;" onclick="window.buyWithGems('${i.id}', '${i.name}', ${i.priceGems})">💎 ${i.priceGems} Gems</button>
+                                <button class="btn" style="background:#333; padding:8px 10px; font-size:14px; color:#E040FB; border:color:#9c27b0; flex:1; font-weight:bold; cursor:pointer; box-shadow: 0 0 5px #9c27b0;" onclick="window.buyWithGems('${i.id}', '${i.name}', ${i.priceGems})">💎 Buy for ${i.priceGems} Exo Gems</button>
                             </div>
                          </div>`;
             });
