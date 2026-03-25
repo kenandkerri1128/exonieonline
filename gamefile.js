@@ -1844,7 +1844,7 @@ window.swapSlots = function(fromIndex, toIndex) {
 
 window.openItemAction = function(index, e) {
     e.stopPropagation(); activeInvIndex = index; const menu = document.getElementById('inv-context-menu'); const item = game.player.inventory[index]; if (!item) return;
-    const isPet = item.type === 'aura' && ['fox', 'owl', 'wisp'].includes(item.auraId);
+    const isPet = item.type === 'aura' && ['fox', 'owl', 'wisp', 'egg'].includes(item.auraId);
     if (item.type === 'gem') {
         document.getElementById('ctx-btn-equip').innerText = "Socket Gem";
         window.isApplyingAura = true; // Reusing the aura selection border logic
@@ -1904,8 +1904,8 @@ window.actionEquip = function(e) {
     if (item.type === 'material') { 
         isEnhancing = true; dom.log.innerText = `Select equipment to enhance!`; window.renderInventory(); 
     } else if (item.type === 'aura') { 
-        window.isApplyingAura = true; 
-        const isPet = ['fox', 'owl', 'wisp'].includes(item.auraId);
+        window.isApplyingAura = true; 
+        const isPet = ['fox', 'owl', 'wisp', 'egg'].includes(item.auraId);
         dom.log.innerText = isPet ? `Select Leggings to equip your Pet!` : `Select an Armor to apply the Aura!`; 
         window.renderInventory(); 
     // 🛡️ THE FIX: Allow Gems to trigger the target-selection UI
