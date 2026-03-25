@@ -350,7 +350,7 @@ function sanitizeItem(item) {
     safe.fixedStat = sanitizeStatObject(safe.fixedStat);
     safe.randomStat = sanitizeStatObject(safe.randomStat);
 
-    const VALID_AURAS = ['lightning', 'blaze', 'liquid', 'nature', 'fox', 'owl', 'wisp', 'divine'];
+    const VALID_AURAS = ['lightning', 'blaze', 'liquid', 'nature', 'fox', 'owl', 'wisp', 'divine', 'egg'];
     if (safe.aura && !VALID_AURAS.includes(safe.aura)) {
         delete safe.aura;
     }
@@ -4853,12 +4853,13 @@ socket.on('adminSpawnItem', async (data) => {
                  'nature': { name: 'Nature', color: '#4CAF50' },
                 'fox': { name: 'Spirit Fox Pet', color: '#ff7e00' },
                 'owl': { name: 'Night Owl Pet', color: '#a0a0a0' },
-            'wisp': { name: 'Sky Wisp Pet', color: '#87CEEB' }
+            'wisp': { name: 'Sky Wisp Pet', color: '#87CEEB' },
+                'egg': { name: 'Easter Egg Pet', color: '#FFC1E3' }
             };
             let aData = AURA_DATA[auraType] || AURA_DATA['lightning'];
             
             // 🛡️ THE FIX: Removes "Aura Stone" from the name if it is a pet
-            let isPetItem = ['fox', 'owl', 'wisp'].includes(auraType);
+            let isPetItem = ['fox', 'owl', 'wisp', 'egg'].includes(auraType);
         let finalName = isPetItem ? aData.name : `${aData.name} Aura Stone`;
 
         // 🛡️ THE FIX: Set rarity to the dynamic variable from the admin panel!
@@ -5063,10 +5064,11 @@ if (rarity !== "Starter") {
             'nature': { name: 'Nature', color: '#4CAF50' },
             'fox': { name: 'Spirit Fox Pet', color: '#ff7e00' },
             'owl': { name: 'Night Owl Pet', color: '#a0a0a0' },
-            'wisp': { name: 'Sky Wisp Pet', color: '#87CEEB' }
+            'wisp': { name: 'Sky Wisp Pet', color: '#87CEEB' },
+            'egg': { name: 'Easter Egg Pet', color: '#FFC1E3' }
         };
         let aData = AURA_DATA[item.aura] || AURA_DATA['lightning'];
-        let isPetExtract = ['fox', 'owl', 'wisp'].includes(item.aura);
+        let isPetExtract = ['fox', 'owl', 'wisp', 'egg'].includes(item.aura);
 
      // 🛡️ THE FIX: Set rarity to 'Divine' for the extracted stone
         let auraStone = { 
