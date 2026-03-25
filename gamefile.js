@@ -1033,10 +1033,12 @@ function gameLoop(ts) {
             } else if (owner.type === 'owl') {
                 petEl.className = 'pet-owl';
                 petEl.innerHTML = `<div class="wing wing-l"></div><div class="wing wing-r"></div><div class="eyes"><div class="eye"></div><div class="eye"></div></div><div class="beak"></div>`;
-            } else if (owner.type === 'wisp') {
+           } else if (owner.type === 'wisp') {
                 petEl.className = 'pet-wisp';
             } else if (owner.type === 'egg') {
                 petEl.className = 'pet-egg';
+                // 🌟 THE FIX: Using a real img tag guarantees it displays at the original uploaded size!
+                petEl.innerHTML = `<img src="animation/easterpet.png" class="egg-sprite" />`;
             }
             
             dom.world.appendChild(petEl);
@@ -5266,34 +5268,22 @@ const eggStyle = document.createElement('style');
 eggStyle.innerHTML = `
     .pet-egg {
         position: absolute;
-        /* 🌟 THE FIX: Use generous placeholder dimensions to prevent clipping, 
-           relying on 'auto' size to show the PNG at original resolution. */
-        width: 128px; 
-        height: 128px;
-        background-image: url('animation/easterpet.png');
-        
-        /* 🌟 THE FIX: retain original size perfectly! Do not stretch or contain. */
-        background-size: auto; 
-        
-        background-repeat: no-repeat;
-        
-        /* Anchor the pet at bottom-center so it looks right with the top-down perspective */
-        background-position: center bottom; 
-        
-        /* RETAINED: The vibrant pink layered aura around the PNG shape */
-        filter: drop-shadow(0 0 8px #FFC1E3) drop-shadow(0 0 15px #ff80ab); 
-        
         z-index: 49;
         pointer-events: none;
-        
-        /* RETAINED: The 12s sequencing loop (Float -> Gentle Shake -> Violent Shake) */
+        /* 🌟 THE FIX: No hardcoded width/height. It naturally fits your image perfectly! */
+    }
+
+    .egg-sprite {
+        display: block; 
+        /* 🌟 THE FIX: The pink aura stays, and the animation is applied here so it doesn't break the pet tracker! */
+        filter: drop-shadow(0 0 8px #FFC1E3) drop-shadow(0 0 15px #ff80ab); 
         animation: eggFloatShake 12s linear infinite; 
     }
 
     @keyframes eggFloatShake {
         /* Phase 1: 0% - 60% (7.2s) - Pure Smooth Floating */
         0%, 20%, 40%, 60% { transform: translateY(0); }
-        10%, 30%, 50% { transform: translateY(-12px); } /* Hovering up smoothly */
+        10%, 30%, 50% { transform: translateY(-12px); } /* Hovering up 12px smoothly */
 
         /* Phase 2: 60% - 70% (1.2s) - Gentle 'About to Hatch' Shake */
         62% { transform: translateY(-6px) translateX(1px) rotate(1deg); }
