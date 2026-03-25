@@ -765,15 +765,15 @@ const MonsterDatabase = {
     // TYPE 4: STONE GOLEMS (Massive Tanks, Slow, High Defense)
     // ==================
     "common_golem": { name: "Stone Golem", category: "common_mobs", level: 10, maxHp: 400, atk: 45, def: 20, speed: 1.5, expYield: 60, goldYield: 1, aggroRadius: 200, chaseRadius: 350, attackRange: 60, width: 50, height: 50, respawnDelay: 12000, cssColor: '#795548', cssBorder: '#4E342E' },
-    "mini_boss_golem": { name: "Obsidian Behemoth", category: "mini_boss", level: 20, maxHp: 28000, atk: 350, def: 75, speed: 1.8, expYield: 1200, goldYield: 3, aggroRadius: 300, chaseRadius: 450, attackRange: 90, width: 80, height: 80, respawnDelay: 120000, cssColor: '#424242', cssBorder: '#212121' },
-    "floor_boss_golem": { name: "Titan of the Deep", category: "floor_boss", level: 35, maxHp: 75000, atk: 1150, def: 150, speed: 2.2, expYield: 6000, goldYield: 5, aggroRadius: 400, chaseRadius: 600, attackRange: 140, width: 120, height: 120, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #5D4037, #212121)', cssBorder: '#3E2723' },
+    "mini_boss_golem": { name: "Obsidian Behemoth", category: "mini_boss", level: 15, maxHp: 28000, atk: 350, def: 75, speed: 1.8, expYield: 1200, goldYield: 3, aggroRadius: 300, chaseRadius: 450, attackRange: 90, width: 80, height: 80, respawnDelay: 120000, cssColor: '#424242', cssBorder: '#212121' },
+    "floor_boss_golem": { name: "Titan of the Deep", category: "floor_boss", level: 25, maxHp: 75000, atk: 1250, def: 150, speed: 2.2, expYield: 6000, goldYield: 5, aggroRadius: 400, chaseRadius: 600, attackRange: 140, width: 120, height: 120, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #5D4037, #212121)', cssBorder: '#3E2723' },
 
     // ==================
     // TYPE 5: SPECTRAL WRAITHS (Ethereal, Fast, Ranged Assassins)
     // ==================
     "common_wraith": { name: "Spectral Wraith", category: "common_mobs", level: 10, maxHp: 150, atk: 75, def: 0, speed: 4.8, expYield: 65, goldYield: 1, aggroRadius: 400, chaseRadius: 600, attackRange: 250, width: 40, height: 40, respawnDelay: 10000, cssColor: 'rgba(156, 39, 176, 0.7)', cssBorder: '#7B1FA2' },
-    "mini_boss_wraith": { name: "Soul Reaper", category: "mini_boss", level: 20, maxHp: 11000, atk: 480, def: 10, speed: 5.5, expYield: 1300, goldYield: 3, aggroRadius: 500, chaseRadius: 700, attackRange: 300, width: 60, height: 60, respawnDelay: 120000, cssColor: 'rgba(103, 58, 183, 0.8)', cssBorder: '#512DA8' },
-    "floor_boss_wraith": { name: "The Void King", category: "floor_boss", level: 35, maxHp: 32000, atk: 1700, def: 30, speed: 6.5, expYield: 6500, goldYield: 5, aggroRadius: 700, chaseRadius: 1000, attackRange: 350, width: 100, height: 100, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #4A148C, #000000)', cssBorder: '#311B92' }
+    "mini_boss_wraith": { name: "Soul Reaper", category: "mini_boss", level: 15, maxHp: 11000, atk: 480, def: 10, speed: 5.5, expYield: 1300, goldYield: 3, aggroRadius: 500, chaseRadius: 700, attackRange: 300, width: 60, height: 60, respawnDelay: 120000, cssColor: 'rgba(103, 58, 183, 0.8)', cssBorder: '#512DA8' },
+    "floor_boss_wraith": { name: "The Void King", category: "floor_boss", level: 25, maxHp: 32000, atk: 1700, def: 30, speed: 6.5, expYield: 6500, goldYield: 5, aggroRadius: 700, chaseRadius: 1000, attackRange: 350, width: 100, height: 100, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #4A148C, #000000)', cssBorder: '#311B92' }
 };
 
 function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
