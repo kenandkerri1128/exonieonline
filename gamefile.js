@@ -936,8 +936,9 @@ function gameLoop(ts) {
         if(typeof window.leaveParty === 'function') window.leaveParty();
     }
 
-    let nextX = game.player.x; let nextY = game.player.y; let isMoving = false; const moveSpeed = 5; 
-    let canInputMove = (!isChatting && !window.isLoading && !window.isDungeonUIOpen);
+   let nextX = game.player.x; let nextY = game.player.y; let isMoving = false; const moveSpeed = 5; 
+    let isFrozen = (game.player.frozenUntil && Date.now() < game.player.frozenUntil);
+    let canInputMove = (!isChatting && !window.isLoading && !window.isDungeonUIOpen && !isFrozen);
     
     if (game.isGhost) {
         if (!game.party || !Array.isArray(game.party.members)) { canInputMove = false; } 
