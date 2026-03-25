@@ -4543,8 +4543,7 @@ socket.on('playerDied', () => {
         socket.emit('systemMessage', `✨ Successfully crafted a ${forgerName}!`);
         socket.emit('craftForgerSuccess');
     });
-
-   socket.on('requestRerollStat', async (data) => {
+socket.on('requestRerollStat', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p) return;
 
@@ -4564,51 +4563,40 @@ socket.on('playerDied', () => {
             return socket.emit('systemMessage', "That sub-stat does not exist on this item!");
         }
 
+        // 🌟 THE FIX: Capture the exact old numeric value BEFORE deleting it
+        const exactOldValue = targetItem.randomStat[oldStatKey];
+
         // 1. Define the pool of possible stats
         const STAT_TYPES = ['attack', 'magic', 'defense', 'speed', 'int', 'str', 'hp'];
 
-        // 2. Delete the old stat from the item
-        delete targetItem.randomStat[oldStatKey];
-
-        // 3. Pick a new random stat (but make sure it doesn't accidentally pick a stat the item ALREADY has!)
+        // 2. Pick a new random stat (but make sure it doesn't accidentally pick a stat the item ALREADY has!)
         let availableStats = STAT_TYPES.filter(s => typeof targetItem.randomStat[s] === 'undefined');
         
-        // If the item somehow has every single stat in the game, fall back to allowing the same stat
         if (availableStats.length === 0) availableStats = [oldStatKey]; 
 
-        // Add the old stat back into the pool of possibilities, so there's a chance it stays the same type but gets a new number
+        // Add the old stat back into the pool so there's a chance it stays the same
         if (!availableStats.includes(oldStatKey)) availableStats.push(oldStatKey);
 
         const newStatKey = availableStats[Math.floor(Math.random() * availableStats.length)];
 
-        // 4. Generate a new numeric value for it based on the item's level and rarity
-        const rMult = { "Starter": 1, "Basic": 2, "Rare": 3, "Unique": 5, "Legendary": 8, "Godly": 15, "Divine": 25 }[targetItem.rarity] || 1;
-        const baseVal = Math.max(1, targetItem.level) * rMult;
-        
-        // Give it a ±20% variance
-        let newValue = Math.floor(baseVal * (0.8 + (Math.random() * 0.4)));
-        if (newValue < 1) newValue = 1;
-        
-        // HP stats are typically inflated compared to standard stats
-        if (newStatKey === 'hp') newValue *= 5; 
+        // 🌟 THE FIX: Delete the old stat, and apply the EXACT same number to the new stat
+        delete targetItem.randomStat[oldStatKey];
+        targetItem.randomStat[newStatKey] = exactOldValue;
 
-        // 5. Apply the newly reforged stat to the item
-        targetItem.randomStat[newStatKey] = newValue;
-
-        // 6. Consume 1 Forger
+        // 3. Consume 1 Forger
         forgerItem.quantity = (forgerItem.quantity || 1) - 1;
         if (forgerItem.quantity <= 0) p.inventory[forgerIndex] = null;
 
-        // 7. Save and Sync
+        // 4. Save and Sync
         await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
         
         socket.emit('syncInventory', p.inventory);
         socket.emit('rerollSuccess');
         
-        // Optional: Let them know what it turned into!
+        // Let them know exactly what happened!
         let msg = oldStatKey === newStatKey 
-            ? `Stat reforged! It stayed ${newStatKey.toUpperCase()} but rolled a new value of +${newValue}.`
-            : `Stat reforged! The old ${oldStatKey.toUpperCase()} mutated into +${newValue} ${newStatKey.toUpperCase()}!`;
+            ? `Stat reforged! It stayed as ${newStatKey.toUpperCase()} (+${exactOldValue}).`
+            : `Stat reforged! Your +${exactOldValue} ${oldStatKey.toUpperCase()} mutated into +${exactOldValue} ${newStatKey.toUpperCase()}!`;
             
         socket.emit('systemMessage', msg);
     });
