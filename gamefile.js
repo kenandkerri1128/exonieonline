@@ -5272,29 +5272,30 @@ if (socket) {
 // ==========================================
 const eggStyle = document.createElement('style');
 eggStyle.innerHTML = `
-    .pet-egg {
+   .pet-egg {
         position: absolute;
-        width: 32px;
-        height: 42px;
+        /* 🌟 THE FIX: Shrunk the egg to a cuter, less intrusive size */
+        width: 22px;
+        height: 30px;
         /* Perfect egg shape */
         border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
         
-        /* Smooth, ethereal Easter stripes */
+        /* 🌟 THE FIX: Tightened the stripes so they still show up nicely on a smaller egg */
         background: repeating-linear-gradient(
             45deg,
-            #FFB7B2 0px, #FFB7B2 8px,   /* Pastel Pink */
-            #B5EAD7 8px, #B5EAD7 16px,  /* Pastel Mint */
-            #FFFFB5 16px, #FFFFB5 24px, /* Pastel Yellow */
-            #C7CEEA 24px, #C7CEEA 32px  /* Pastel Periwinkle */
+            #FFB7B2 0px, #FFB7B2 6px,   /* Pastel Pink */
+            #B5EAD7 6px, #B5EAD7 12px,  /* Pastel Mint */
+            #FFFFB5 12px, #FFFFB5 18px, /* Pastel Yellow */
+            #C7CEEA 18px, #C7CEEA 24px  /* Pastel Periwinkle */
         );
         
-        /* 🌟 The Pink Aura & inner wisp-like glow */
-        box-shadow: 0 0 12px 4px rgba(255, 128, 171, 0.8), 
-                    0 0 25px 8px rgba(255, 193, 227, 0.6), 
-                    inset 0 0 10px rgba(255, 255, 255, 0.9);
+        /* 🌟 THE FIX: Scaled down the glow slightly so it doesn't overwhelm the small body */
+        box-shadow: 0 0 10px 3px rgba(255, 128, 171, 0.8), 
+                    0 0 18px 6px rgba(255, 193, 227, 0.6), 
+                    inset 0 0 6px rgba(255, 255, 255, 0.9);
         border: 1px solid rgba(255, 255, 255, 0.6);
         
-        z-index: 105;
+        z-index: 105; /* Kept at 105 so it stays in front of the avatar */
         pointer-events: none;
         transform-origin: bottom center;
         
