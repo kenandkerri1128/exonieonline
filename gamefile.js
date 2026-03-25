@@ -961,7 +961,7 @@ function gameLoop(ts) {
 
     // --- 🐾 UNIVERSAL PET LOGIC ---
     let petOwners = [];
-    const VALID_PETS = ['fox', 'owl', 'wisp'];
+    const VALID_PETS = ['fox', 'owl', 'wisp', 'egg'];
     
     let myPet = game.player.equips?.leggings?.aura;
     if (VALID_PETS.includes(myPet)) {
@@ -1035,6 +1035,9 @@ function gameLoop(ts) {
                 petEl.innerHTML = `<div class="wing wing-l"></div><div class="wing wing-r"></div><div class="eyes"><div class="eye"></div><div class="eye"></div></div><div class="beak"></div>`;
             } else if (owner.type === 'wisp') {
                 petEl.className = 'pet-wisp';
+            } else if (owner.type === 'egg') {
+                petEl.className = 'pet-egg';
+                petEl.style.cssText = 'width:24px; height:32px; border-radius:50% 50% 50% 50% / 60% 60% 40% 40%; background:repeating-linear-gradient(45deg, #FFC1E3 0px, #FFC1E3 4px, #C1E3FF 4px, #C1E3FF 8px, #FFE3C1 8px, #FFE3C1 12px, #C1FFE3 12px, #C1FFE3 16px); box-shadow:0 0 10px #FFC1E3;';
             }
             
             dom.world.appendChild(petEl);
@@ -1067,7 +1070,7 @@ function gameLoop(ts) {
     });
 
     // Cleanup unequipped pets
-    document.querySelectorAll('.pet-fox, .pet-owl, .pet-wisp').forEach(pet => {
+    document.querySelectorAll('.pet-fox, .pet-owl, .pet-wisp, .pet-egg').forEach(pet => {
         let ownerId = pet.id.replace('cosmetic_pet_', '');
         if (!currentPetIds.has(ownerId)) {
             pet.remove();
