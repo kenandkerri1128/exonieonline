@@ -4667,51 +4667,52 @@ socket.on('playerDied', () => {
             io.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
         } catch(e) { socket.emit('systemMessage', "❌ Failed to change name. DB Error."); }
     });
+// 🛡️ SECURE GOLD SHOP: Server now generates items, not the client!
+    socket.on('requestPurchase', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
 
-    // 🛡️ SERVER-SIDE ECONOMY: Buying
-    socket.on('requestPurchase', async (data) => {
-    const p = onlinePlayers[socket.id];
-    if (!p) return;
+        const type = data.type; // 'potion' or 'stone'
+        const qty = Math.max(1, Math.min(99, parseInt(data.qty) || 1));
+        let cost = 0;
+        let item = null;
 
-    const cost = Number(data.totalCost) || 0;
-    const item = data.item;
-
-    if (!item || cost < 0) return;
-
-    if (p.gold < cost) {
-        socket.emit('systemMessage', "Insufficient Gold (Server Verified).");
-        return;
-    }
-
-    const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
-    let added = false;
-
-    if (['potion', 'material', 'consumable'].includes(item.type)) {
-        const existingIndex = inv.findIndex(i => i && i.name === item.name);
-        if (existingIndex !== -1) {
-            inv[existingIndex].quantity = (inv[existingIndex].quantity || 1) + (item.quantity || 1);
-            added = true;
+        if (type === 'potion') {
+            cost = qty * 25;
+            item = { id: Date.now() + Math.random(), name: "Health Potion", type: "potion", rarity: "Basic", color: "#fff", fixedStat: { hpHeal: 100 }, quantity: qty };
+        } else if (type === 'stone') {
+            const lvl = Math.max(1, Math.min(100, parseInt(data.level) || 10));
+            const rarity = data.rarity || 'Basic';
+            const rMult = { "Basic": 1, "Rare": 3, "Unique": 8, "Legendary": 20, "Godly": 50 }[rarity] || 1;
+            cost = (lvl * 15) * rMult * qty;
+            item = { id: Date.now() + Math.random(), name: (rarity === "Basic" ? "" : rarity + " ") + "Refinement Stone Lv." + lvl, type: "material", rarity: rarity, level: lvl, color: RARITY_COLORS[rarity], quantity: qty };
         }
-    }
 
-    if (!added) {
-        const emptySlot = inv.findIndex(i => i === null);
-        if (emptySlot === -1) {
-            socket.emit('systemMessage', "Inventory full!");
-            return;
+        if (!item || p.gold < cost) {
+            return socket.emit('systemMessage', "❌ Purchase Failed: Invalid item or insufficient gold.");
         }
-        inv[emptySlot] = item;
-    }
 
-    p.gold -= cost;
-    p.inventory = inv;
+        const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
+        let added = false;
+        if (['potion', 'material', 'consumable'].includes(item.type)) {
+            const existingIndex = inv.findIndex(i => i && i.name === item.name);
+            if (existingIndex !== -1) {
+                inv[existingIndex].quantity = (inv[existingIndex].quantity || 1) + item.quantity;
+                added = true;
+            }
+        }
+        if (!added) {
+            const emptySlot = inv.findIndex(i => i === null);
+            if (emptySlot === -1) return socket.emit('systemMessage', "Inventory full!");
+            inv[emptySlot] = item;
+        }
 
-    await supabase
-        .from('Exonians')
-        .update({ gold: p.gold, inventory: p.inventory })
-        .eq('character_name', p.id);
+        p.gold -= cost;
+        p.inventory = inv;
 
-    socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
+        await supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id);
+        socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
+    });
 });
     // 🏡 REAL ESTATE ENGINE: Buy a Home
     socket.on('requestBuyHome', async () => {
