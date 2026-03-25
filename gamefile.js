@@ -2592,11 +2592,20 @@ window.closeShop = function() { isShopping = false; document.getElementById('sho
 window.updatePotionPrice = function() { let qty = parseInt(document.getElementById('shop-potion-qty').value) || 1; if (qty < 1) { qty = 1; document.getElementById('shop-potion-qty').value = 1; } document.getElementById('shop-potion-buy-btn').innerText = (qty * 25) + " Gold"; }
 window.updateStonePrice = function() { let lvl = parseInt(document.getElementById('shop-stone-level').value) || 10; let rarity = document.getElementById('shop-stone-rarity').value || 'Basic'; let qty = parseInt(document.getElementById('shop-stone-qty').value) || 1; if (qty < 1) { qty = 1; document.getElementById('shop-stone-qty').value = 1; } let basePrice = lvl * 15; let rMult = { "Basic": 1, "Rare": 3, "Unique": 8, "Legendary": 20, "Godly": 50 }[rarity] || 1; let totalCost = basePrice * rMult * qty; document.getElementById('shop-stone-buy-btn').innerText = totalCost + " Gold"; }
 window.buyItem = function(type) {
-    let cost = 0; let item = null;
-    if (type === 'potion') { let qty = parseInt(document.getElementById('shop-potion-qty').value) || 1; cost = qty * 25; item = { id: Date.now(), name: "Health Potion", type: "potion", rarity: "Basic", color: "#fff", fixedStat: { hpHeal: 100 }, quantity: qty }; }
-    else if (type === 'stone') { let lvl = parseInt(document.getElementById('shop-stone-level').value) || 10; let rarity = document.getElementById('shop-stone-rarity').value || 'Basic'; let qty = parseInt(document.getElementById('shop-stone-qty').value) || 1; let basePrice = lvl * 15; let rMult = { "Basic": 1, "Rare": 3, "Unique": 8, "Legendary": 20, "Godly": 50 }[rarity] || 1; cost = basePrice * rMult * qty; item = { id: Date.now() + Math.random(), name: (rarity === "Basic" ? "" : rarity + " ") + "Refinement Stone Lv." + lvl, type: "material", rarity: rarity, level: lvl, color: window.RARITY_COLORS[rarity], quantity: qty }; }
-    if (game.player.gold < cost) { if(dom.log) dom.log.innerText = "Not enough gold!"; return; }
-    if (socket) socket.emit('requestPurchase', { totalCost: cost, item: item });
+    let qty = 1;
+    let payload = { type: type };
+
+    if (type === 'potion') {
+        qty = parseInt(document.getElementById('shop-potion-qty').value) || 1;
+        payload.qty = qty;
+    } else if (type === 'stone') {
+        qty = parseInt(document.getElementById('shop-stone-qty').value) || 1;
+        payload.qty = qty;
+        payload.level = parseInt(document.getElementById('shop-stone-level').value) || 10;
+        payload.rarity = document.getElementById('shop-stone-rarity').value || 'Basic';
+    }
+
+    if (socket) socket.emit('requestPurchase', payload);
 }
 window.toggleMailbox = function() {
     isMailboxOpen = !isMailboxOpen;
