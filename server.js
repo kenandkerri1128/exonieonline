@@ -4234,6 +4234,11 @@ socket.on('playerDied', () => {
     let stone = p.inventory[data.stoneIndex];
     let targetItem = p.inventory[data.targetIndex];
 
+    // 🛡️ ANTI-CHEAT: Block enhancing if an Aura or Pet is attached!
+     if (targetItem.aura) {
+    socket.emit('systemMessage', '❌ You must extract the Aura or Pet before enhancing this item!');
+    socket.emit('syncInventory', p.inventory);
+
     if (!stone || !targetItem || stone.type !== 'material') return;
     if (!VALID_RARITIES.includes(targetItem.rarity)) return;
 
@@ -4704,7 +4709,14 @@ socket.on('useRevivalJuice', async (data) => {
         if (!p || typeof data?.index !== 'number') return;
         
         const inv = p.inventory || [];
-        if (inv[data.index]) {
+        const itemToThrow = inv[data.index];
+        
+        if (itemToThrow) {
+            // 🛡️ ANTI-CHEAT: Block throwing if an Aura or Pet is attached!
+            if (itemToThrow.aura) {
+                return socket.emit('systemMessage', '❌ You must extract the Aura or Pet before throwing this item away!');
+            }
+            
             inv[data.index] = null;
             p.inventory = inv;
             await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
@@ -5012,8 +5024,8 @@ if (rarity !== "Starter") {
         if (!originalItem) return socket.emit('systemMessage', "Item not found.");
 
         // 🛡️ ANTI-CHEAT: Block server from auctioning cosmetics/pets
-        if (originalItem.type === 'aura') {
-            return socket.emit('systemMessage', "Cosmetics and pets cannot be auctioned.");
+       if (originalItem.type === 'aura' || originalItem.aura) {
+            return socket.emit('systemMessage', "❌ Cosmetics, Pets, and enchanted gear cannot be auctioned. Extract it first!");
         }
 
         // 2. Create the exact item data to save (Force quantity to 1)
@@ -5184,9 +5196,9 @@ socket.on('requestSell', async (data) => {
         return socket.emit('systemMessage', 'Item no longer exists.');
     }
 
-    // 🛡️ ANTI-CHEAT: Block server from selling cosmetics/pets
-    if (serverItem.type === 'aura') {
-        return socket.emit('systemMessage', 'Cosmetics and pets cannot be sold.');
+    // 🛡️ ANTI-CHEAT: Block server from selling cosmetics/pets AND enchanted gear
+    if (serverItem.type === 'aura' || serverItem.aura) {
+        return socket.emit('systemMessage', '❌ Cosmetics, Pets, and enchanted gear cannot be sold. Extract it first!');
     }
 
     let baseVal = (serverItem.level || 1) * 2;
@@ -5591,18 +5603,18 @@ socket.on('startDungeon', async (data) => {
         }
 
         // 🍃 NINJA ASSASSIN DODGE CHECK
-        if (victim.baseStats?.playerClass === 'Ninja Assassin' && victim.level >= 25) {
-            let dodgeChance = victim.level >= 75 ? 0.35 : 0.25;
+        if (target.baseStats?.playerClass === 'Ninja Assassin' && target.level >= 25) {
+            let dodgeChance = target.level >= 75 ? 0.35 : 0.25;
             if (Math.random() < dodgeChance) {
-                io.to(instId).emit('attackEvaded', { targetId: victim.id, monsterId: m.id, type: 'dodge' });
+                io.to('neutralzone').emit('attackEvaded', { targetId: target.id, attackerId: p.id, type: 'dodge' });
                 return;
             }
         }
 
         // ⚔️ BLADEMASTER PARRY CHECK
-        if (victim.parryUntil && now < victim.parryUntil) {
+        if (target.parryUntil && now < target.parryUntil) {
             if (Math.random() < 0.75) {
-                io.to(instId).emit('attackEvaded', { targetId: victim.id, monsterId: m.id, type: 'parry' });
+                io.to('neutralzone').emit('attackEvaded', { targetId: target.id, attackerId: p.id, type: 'parry' });
                 return;
             }
         }
@@ -5714,30 +5726,37 @@ socket.on('startDungeon', async (data) => {
              p.skillCooldowns['ice3'] = now + getReducedCd(p, 98000); 
              
          } else if (payload.skillId === 'pet') {
-            const world = worlds[p.instanceId];
-            const pet = world.pets[payload.petId]; 
-            
-            if (!pet) return;
-            if (pet.lastAttackTs && now - pet.lastAttackTs < 900) return; 
-            pet.lastAttackTs = now;
-            
-            let multiplier = 0.25; 
-            if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0; 
-            if (pet.isClone) multiplier = 1.0; // 🥷 Shadow Clones have 100% ATK!
-            
-            let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
-            trueDmg = Math.floor(sourceAtk * multiplier);
-            hitCount = 1; // Pets don't double hit
-        }
+             const world = worlds[p.instanceId];
+             const pet = world.pets[payload.petId]; 
+             
+             if (!pet) return;
+             if (pet.lastAttackTs && now - pet.lastAttackTs < 900) return; 
+             pet.lastAttackTs = now;
+             
+             let multiplier = 0.25; 
+             if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0; 
+             if (pet.isClone) multiplier = 1.0; // 🥷 Shadow Clones have 100% ATK!
+             
+             let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
+             trueDmg = Math.floor(sourceAtk * multiplier);
+             hitCount = 1; // Pets don't double hit
+         }
 
         // 🛡️ APPLY DAMAGE LOOP FOR PVP (Supports Double Hit Passive!)
         for (let hc = 0; hc < hitCount; hc++) {
             setTimeout(() => {
                 if (target.isGhost || target.mapId !== 'neutralzone') return;
                 
-                // Fox bite always ignores defense
-                const dmg = payload.skillId === 'fox_bite' ? 1 : Math.max(1, trueDmg - getServerDefense(target));
+                let dmg = payload.skillId === 'fox_bite' ? 1 : Math.max(1, trueDmg - getServerDefense(target));
                 
+                // 🩸 BERSERKER: I Love PAIN (Lv 75) - PVP VERSION
+                if (target.baseStats?.playerClass === 'Berserker' && target.level >= 75 && Math.random() < 0.15) {
+                    const heal = Math.floor(dmg / 3);
+                    dmg = dmg - heal;
+                    target.currentHp = Math.min(getServerTotalStat(target, 'hp') || 100, target.currentHp + heal);
+                    io.to('neutralzone').emit('playerHealed', { id: target.id, amount: heal, currentHp: target.currentHp });
+                }
+
                 target.currentHp -= dmg;
                 if (target.currentHp <= 0 && target.immortalUntil && Date.now() < target.immortalUntil) {
                     target.currentHp = 1;
