@@ -1988,24 +1988,45 @@ socket.on('broadcastSkill', (data) => {
         }
     });
    socket.on('register', async (data) => {
-    console.log(`[REGISTER ATTEMPT] User: ${data.username}`);
-    try {
-        const { username, password } = data;
-        if (!username || !password) return socket.emit('authError', 'Invalid data.');
-        
-        const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', username).single();
-        if (existingUser) return socket.emit('authError', 'Username is already taken!');
-        
-        const { error } = await supabase.from('Exonians').insert([{ character_name: username, password: password }]);
-        if (error) {
-            console.error(`[REGISTER ERROR] DB failed for ${username}:`, error.message);
-            return socket.emit('authError', `Database Error: ${error.message}`);
-        }
-        socket.emit('registerSuccess', username);
-    } catch(e) {
-        console.error(`[REGISTER CRASH]`, e);
-        socket.emit('authError', 'Server Error');
-    }
+    console.log(`[REGISTER ATTEMPT] User: ${data.username}`);
+    try {
+        const { username, password } = data;
+        if (!username || !password) return socket.emit('authError', 'Invalid data.');
+
+        // 🛡️ THE FIX: Grab the user's real IP address
+        const clientIp = socket.handshake.headers['x-forwarded-for']?.split(',')[0] || socket.handshake.address;
+
+        // 🛡️ ANTI-SPAM: Count how many characters this IP has already created
+        const { count, error: ipError } = await supabase
+            .from('Exonians')
+            .select('*', { count: 'exact', head: true })
+            .eq('ip_address', clientIp);
+
+        // If they already have 3 characters, block the registration!
+        if (count >= 3) {
+            console.log(`[SECURITY] Blocked Registration - IP ${clientIp} reached the 3-character limit.`);
+            return socket.emit('authError', 'Registration Limit: You can only create a maximum of 3 characters per network.');
+        }
+
+        const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', username).single();
+        if (existingUser) return socket.emit('authError', 'Username is already taken!');
+
+        // 🛡️ THE FIX: Save the IP address into the database so we can track them forever
+        const { error } = await supabase.from('Exonians').insert([{ 
+            character_name: username, 
+            password: password, 
+            ip_address: clientIp 
+        }]);
+
+        if (error) {
+            console.error(`[REGISTER ERROR] DB failed for ${username}:`, error.message);
+            return socket.emit('authError', `Database Error: ${error.message}`);
+        }
+        socket.emit('registerSuccess', username);
+    } catch(e) {
+        console.error(`[REGISTER CRASH]`, e);
+        socket.emit('authError', 'Server Error');
+    }
 });
 socket.on('login', async (data) => {
     console.log(`[LOGIN ATTEMPT] User: ${data.username}`);
