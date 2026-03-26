@@ -5086,7 +5086,7 @@ socket.on('adminSpawnItem', async (data) => {
                 'liquid': { name: 'Liquid', color: '#44aaff' },
                  'nature': { name: 'Nature', color: '#4CAF50' },
                 'easter': { name: 'Easter', color: '#FFB7B2' }, // 🐰 ADDED EASTER AURA
-                'void': { name: 'Void Pet', color: '#E040FB' }
+                'void': { name: 'Void Pet', color: '#E040FB' },
                 'fox': { name: 'Spirit Fox Pet', color: '#ff7e00' },
                 'owl': { name: 'Night Owl Pet', color: '#a0a0a0' },
             'wisp': { name: 'Sky Wisp Pet', color: '#87CEEB' },
@@ -5301,7 +5301,7 @@ const AURA_DATA = {
             'liquid': { name: 'Liquid', color: '#44aaff' },
             'nature': { name: 'Nature', color: '#4CAF50' },
             'easter': { name: 'Easter', color: '#FFB7B2' }, // 🐰 ADDED EASTER AURA
-             'void': { name: 'Void Pet', color: '#E040FB' }
+             'void': { name: 'Void Pet', color: '#E040FB' },
             'fox': { name: 'Spirit Fox Pet', color: '#ff7e00' },
             'owl': { name: 'Night Owl Pet', color: '#a0a0a0' },
             'wisp': { name: 'Sky Wisp Pet', color: '#87CEEB' },
