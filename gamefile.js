@@ -5447,38 +5447,38 @@ eggStyle.innerHTML = `
         z-index: 100 !important;
     }
 
-    /* 🐰 EASTER AURA: Bubbling Bunny Heads */
+   /* 🐰 EASTER AURA: Bubbling Bunny Heads */
     .cosmetic-aura.aura-easter::before,
     .cosmetic-aura.aura-easter::after {
         content: '';
         position: absolute;
-        bottom: -20px; /* Start near the feet */
+        bottom: -15px; /* Start slightly higher due to smaller size */
         background: 
             radial-gradient(circle at 50% 65%, #FFB7B2 35%, transparent 36%), 
             radial-gradient(circle at 25% 25%, #FFB7B2 22%, transparent 23%), 
             radial-gradient(circle at 75% 25%, #FFB7B2 22%, transparent 23%); 
-        filter: drop-shadow(0 0 8px #FFB7B2) brightness(1.3);
+        filter: drop-shadow(0 0 5px #FFB7B2) brightness(1.3); /* Slightly less shadow for smaller objects */
         opacity: 0;
         pointer-events: none;
     }
 
-    /* First Bunny: Larger, starts on the left */
+    /* First Bunny: Was 24px -> Now 18px (Scaled down 25%) */
     .cosmetic-aura.aura-easter::before {
-        left: -10px;
-        width: 24px;
-        height: 24px;
+        left: -8px; /* Adjusted position for smaller head */
+        width: 18px;  /* <--- SHRUNKEN */
+        height: 18px; /* <--- SHRUNKEN */
         animation: bunnyBubble 3s ease-in infinite;
     }
 
-    /* Second Bunny: Smaller, starts on the right, delayed so they alternate */
+    /* Second Bunny: Was 18px -> Now 13px (Scaled down ~28%) */
     .cosmetic-aura.aura-easter::after {
-        left: 25px;
-        width: 18px;
-        height: 18px;
+        left: 22px; /* Adjusted position for smaller head */
+        width: 13px;  /* <--- SHRUNKEN */
+        height: 13px; /* <--- SHRUNKEN */
         animation: bunnyBubble 3.5s ease-in infinite 1.5s;
     }
 
-    /* The Bubbling Animation: Rises, sways slightly, fades in and out */
+    /* Keep the bunnyBubble keyframes the same (scale(1.1) is now 1.1x the new, smaller size) */
     @keyframes bunnyBubble {
         0% { transform: translateY(0) scale(0.5); opacity: 0; }
         20% { opacity: 0.9; transform: translateY(-20px) scale(1) translateX(-5px); }
