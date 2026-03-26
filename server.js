@@ -2128,9 +2128,12 @@ socket.on('login', async (data) => {
 
         console.log(`[LOGIN SUCCESS] ${username} authenticated successfully.`);
 
-        // 🌟 Record the exact time they logged in to Supabase
+        // 🌟 Record the exact time they logged in AND tag their IP to catch old accounts
         supabase.from('Exonians')
-            .update({ last_login: new Date().toISOString() })
+            .update({ 
+                last_login: new Date().toISOString(),
+                ip_address: clientIp // 🛡️ THE FIX: Stamps old characters with their real IP!
+            })
             .eq('character_name', username)
             .then(() => {});
 
