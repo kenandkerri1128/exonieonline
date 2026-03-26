@@ -377,8 +377,8 @@ function sanitizeItem(item) {
         safe.enhanceLevel = 0;
     }
 
-    // 🐾 AURA & PET CHECKS
-    const VALID_AURAS = ['lightning', 'blaze', 'liquid', 'nature', 'fox', 'owl', 'wisp', 'divine', 'egg', 'easter'];
+   // 🐾 AURA & PET CHECKS
+    const VALID_AURAS = ['lightning', 'blaze', 'liquid', 'nature', 'fox', 'owl', 'wisp', 'divine', 'egg', 'easter', 'void'];
     if (safe.aura && !VALID_AURAS.includes(safe.aura)) {
         delete safe.aura;
     }
@@ -5086,6 +5086,7 @@ socket.on('adminSpawnItem', async (data) => {
                 'liquid': { name: 'Liquid', color: '#44aaff' },
                  'nature': { name: 'Nature', color: '#4CAF50' },
                 'easter': { name: 'Easter', color: '#FFB7B2' }, // 🐰 ADDED EASTER AURA
+                'void': { name: 'Void Pet', color: '#E040FB' }
                 'fox': { name: 'Spirit Fox Pet', color: '#ff7e00' },
                 'owl': { name: 'Night Owl Pet', color: '#a0a0a0' },
             'wisp': { name: 'Sky Wisp Pet', color: '#87CEEB' },
@@ -5094,7 +5095,7 @@ socket.on('adminSpawnItem', async (data) => {
             let aData = AURA_DATA[auraType] || AURA_DATA['lightning'];
             
             // 🛡️ THE FIX: Removes "Aura Stone" from the name if it is a pet
-            let isPetItem = ['fox', 'owl', 'wisp', 'egg'].includes(auraType);
+            let isPetItem = ['fox', 'owl', 'wisp', 'egg', 'void'].includes(auraType);
         let finalName = isPetItem ? aData.name : `${aData.name} Aura Stone`;
 
         // 🛡️ THE FIX: Set rarity to the dynamic variable from the admin panel!
@@ -5206,6 +5207,7 @@ if (rarity !== "Starter") {
             'liquid': 'Liquid', 
             'nature': 'Nature', 
             'easter': 'Easter', // 🐰 ADDED EASTER AURA
+            'void': 'Void",
             'fox': 'Spirit Fox',
             'owl': 'Night Owl',
             'wisp': 'Sky Wisp',
@@ -5299,13 +5301,14 @@ const AURA_DATA = {
             'liquid': { name: 'Liquid', color: '#44aaff' },
             'nature': { name: 'Nature', color: '#4CAF50' },
             'easter': { name: 'Easter', color: '#FFB7B2' }, // 🐰 ADDED EASTER AURA
+             'void': { name: 'Void Pet', color: '#E040FB' }
             'fox': { name: 'Spirit Fox Pet', color: '#ff7e00' },
             'owl': { name: 'Night Owl Pet', color: '#a0a0a0' },
             'wisp': { name: 'Sky Wisp Pet', color: '#87CEEB' },
             'egg': { name: 'Easter Egg Pet', color: '#FFC1E3' }
         };
         let aData = AURA_DATA[item.aura] || AURA_DATA['lightning'];
-        let isPetExtract = ['fox', 'owl', 'wisp', 'egg'].includes(item.aura);
+        let isPetExtract = ['fox', 'owl', 'wisp', 'egg', 'void'].includes(item.aura);
 
         let auraStone = { 
             id: Date.now() + Math.random(), 
@@ -6496,6 +6499,62 @@ socket.on('startDungeon', async (data) => {
         supabase.from('Exonians').update({ inventory: p.inventory, base_stats: p.baseStats }).eq('character_name', p.id);
         socket.emit('syncInventory', p.inventory);
         socket.emit('syncStorage', p.baseStats.homeStorage);
+    });
+// ==========================================
+    // 👻 COSMETICS CRAFTING (VOID PET)
+    // ==========================================
+    socket.on('requestCraftVoidPet', async () => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+
+        const inv = p.inventory || [];
+        let soulPieceCount = 0;
+        
+        inv.forEach(i => {
+            if (i && i.name === 'Soul Piece') soulPieceCount += (i.quantity || 1);
+        });
+
+        if (soulPieceCount < 10) return socket.emit('systemMessage', '❌ You need 10 Soul Pieces.');
+
+        let emptyIdx = inv.findIndex(i => i === null);
+        if (emptyIdx === -1) return socket.emit('systemMessage', '❌ Inventory full! Clear a slot for your pet.');
+
+        // Deduct 10 Soul Pieces flexibly across stacks
+        let amtToDeduct = 10;
+        for (let i = 0; i < inv.length; i++) {
+            if (amtToDeduct <= 0) break;
+            if (inv[i] && inv[i].name === 'Soul Piece') {
+                if (inv[i].quantity > amtToDeduct) {
+                    inv[i].quantity -= amtToDeduct;
+                    amtToDeduct = 0;
+                } else {
+                    amtToDeduct -= inv[i].quantity;
+                    inv[i] = null;
+                }
+            }
+        }
+
+        // Generate the Void Pet
+        const voidPet = {
+            id: Date.now() + Math.random(),
+            name: 'Void Pet',
+            type: 'aura',
+            auraId: 'void',
+            sprite: 'aurastone',
+            level: 1,
+            rarity: 'Godly',
+            color: '#E040FB',
+            description: 'Click to apply to Leggings. The tamed soul of the Wraith King.',
+            quantity: 1
+        };
+
+        inv[emptyIdx] = voidPet;
+        p.inventory = sanitizeInventory(inv);
+
+        await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
+        socket.emit('syncInventory', p.inventory);
+        socket.emit('systemMessage', '👻 Successfully crafted the Void Pet!');
+        socket.emit('craftVoidSuccess');
     });
    socket.on('disconnect', async () => {
        if (socket.username) { activeLogins.delete(socket.username); }
