@@ -5200,14 +5200,14 @@ if (rarity !== "Starter") {
         if (targetItem.type !== expectedType) return socket.emit('systemMessage', `This item only applies to ${expectedType}!`);
         if (targetItem.aura) return socket.emit('systemMessage', `That ${expectedType} already has an enchantment! Extract it first.`);
 
-        const AURA_DATA = { 
+       const AURA_DATA = { 
             'lightning': 'Lightning', 
             'divine': 'Divine',
             'blaze': 'Blaze', 
             'liquid': 'Liquid', 
             'nature': 'Nature', 
-            'easter': 'Easter', // 🐰 ADDED EASTER AURA
-            'void': 'Void",
+            'easter': 'Easter', 
+            'void': 'Void',
             'fox': 'Spirit Fox',
             'owl': 'Night Owl',
             'wisp': 'Sky Wisp',
