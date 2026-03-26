@@ -1704,7 +1704,7 @@ window.getItemTooltip = function(item) {
     let html = `<strong class="${nameClass}" style="color:${item.color}; font-size: 13px;">${item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name}</strong><br><span style="color:#888;">Lv. ${item.level || 1} ${item.rarity || 'Normal'}</span><br><br>`; 
     if(item.type === 'material') return html + `<span style="color:#aaa;"><em>${item.description}</em></span>`; 
 if(item.type === 'gem') return html + `<span style="color:#00ffff;"><em>${item.description}</em></span><br>`;
-    if(item.type === 'potion') return html + `Heals ${item.fixedStat.hpHeal} HP`; 
+    if(item.type === 'potion') return html + `Heals 100 HP`;
     if(item.type === 'consumable') return html + `<span style="color:#ffeb3b;"><em>${item.description}</em></span>`;
     if(item.fixedStat) { for(let key in item.fixedStat) html += `+${item.fixedStat[key]} ${key.toUpperCase()}<br>`; } 
     if(item.randomStat) { for(let key in item.randomStat) html += `<span style="color:#4CAF50;">+${item.randomStat[key]} ${key.toUpperCase()} (Bonus)</span><br>`; } 
@@ -2041,7 +2041,8 @@ window.useItem = function(index) {
     if (typeof window.updateHotbarCooldowns === 'function') window.updateHotbarCooldowns();
 
     // 🌟 OPTIMISTIC UI: heal locally too, so maze HP bar moves instantly
-    const healAmount = Number(item.fixedStat?.hpHeal || 0);
+    // 🛡️ CORRUPTION FIX: Hardcode 100 here as well!
+    const healAmount = 100;
     const trueMaxHp = window.getMaxHp() || 100;
     game.player.currentHp = Math.min(trueMaxHp, (game.player.currentHp || 0) + healAmount);
 
