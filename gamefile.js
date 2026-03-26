@@ -1043,7 +1043,7 @@ function gameLoop(ts) {
                 petEl.innerHTML = `
                     <div class="mini-wraith">
                         <div class="w-eye left"></div><div class="w-eye right"></div>
-                        <div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div>
+                        <div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div>
                     </div>`;
             }
             
@@ -5642,17 +5642,18 @@ voidStyle.innerHTML = `
     }
     .pet-void .mini-wraith {
         width: 100%; height: 100%;
-        background: linear-gradient(45deg, #4A148C, #000000);
-        border: 1px solid #E040FB;
-        border-radius: 50% 50% 20% 20%;
+        background: linear-gradient(45deg, #4A148C, #000000); /* Void King Base */
+        border: 2px solid #311B92; /* Match the Void King Border */
+        border-radius: 50% 50% 40% 40%; /* Smoother wraith shape */
         position: relative;
-        box-shadow: 0 0 15px #E040FB;
+        box-shadow: 0 0 15px #311B92; /* Deep purple glow */
         animation: eggFloatShake 4s linear infinite;
     }
     .pet-void .w-eye {
         position: absolute; width: 6px; height: 6px;
-        background: #E040FB; border-radius: 50%; top: 12px;
-        box-shadow: 0 0 8px #fff;
+        background: #ffffff; /* Bright white/yellowish wraith eyes */
+        border-radius: 50%; top: 12px;
+        box-shadow: 0 0 8px #ffffff;
     }
     .pet-void .w-eye.left { left: 8px; }
     .pet-void .w-eye.right { right: 8px; }
@@ -5661,12 +5662,14 @@ voidStyle.innerHTML = `
         display: flex; justify-content: space-around; 
     }
     .pet-void .w-p { 
-        width: 6px; height: 12px; background: #E040FB; 
+        width: 6px; height: 12px; background: #311B92; /* Tails match the border */
         border-radius: 50%; opacity: 0.6; 
         animation: wraithTail 1s infinite alternate; 
     }
-    .pet-void .w-p:nth-child(2) { animation-delay: 0.3s; }
-    .pet-void .w-p:nth-child(3) { animation-delay: 0.6s; }
+    .pet-void .w-p:nth-child(2) { animation-delay: 0.2s; }
+    .pet-void .w-p:nth-child(3) { animation-delay: 0.4s; }
+    .pet-void .w-p:nth-child(4) { animation-delay: 0.6s; } /* 4th tail animation */
+    
     @keyframes wraithTail { 0% { transform: translateY(0); opacity: 0.8; } 100% { transform: translateY(8px); opacity: 0.1; } }
 `;
 document.head.appendChild(voidStyle);
