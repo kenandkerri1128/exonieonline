@@ -3539,7 +3539,8 @@ socket.on('requestConfirmTrade', () => {
             }
             p.skillCooldowns['potion'] = now + 5000;
 
-            const healAmount = clamp(item.fixedStat?.hpHeal || 0, 0, 999999);
+           // 🌟 THE CORRUPTION FIX: Hardcode 100 so it ignores broken database items!
+            const healAmount = 100;
             const trueMaxHp = getServerTotalStat(p, 'hp') || p.maxHp || 100;
 
             p.maxHp = trueMaxHp;
