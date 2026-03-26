@@ -4400,25 +4400,27 @@ socket.on('playerDied', () => {
 
         if (p.gold < reqGold) return socket.emit('systemMessage', `❌ You need ${reqGold.toLocaleString()} Gold to craft this.`);
 
-        // Count materials
+       // 🛡️ THE FLEXIBLE CHECKER: Counts materials even if they are "old" versions
         let countEssence = 0, countRed = 0, countGreen = 0, countBlue = 0;
         inv.forEach(i => {
-            if (i && i.name === 'Divine Essence') countEssence += i.quantity || 1;
-            if (i && i.name === 'Red Exo Metal') countRed += i.quantity || 1;
-            if (i && i.name === 'Green Exo Metal') countGreen += i.quantity || 1;
-            if (i && i.name === 'Blue Exo Metal') countBlue += i.quantity || 1;
+            if (!i || !i.name) return;
+            const n = String(i.name).trim();
+            if (n.includes('Divine Essence')) countEssence += i.quantity || 1;
+            if (n.includes('Red Exo Metal')) countRed += i.quantity || 1;
+            if (n.includes('Green Exo Metal')) countGreen += i.quantity || 1;
+            if (n.includes('Blue Exo Metal')) countBlue += i.quantity || 1;
         });
 
         if (countEssence < reqEssence || countRed < reqRed || countGreen < reqGreen || countBlue < reqBlue) {
             return socket.emit('systemMessage', '❌ You do not have the required materials.');
         }
 
-        // Deduct materials
-        const deduct = (name, amount) => {
+        // 🛡️ THE FLEXIBLE DEDUCTOR: Removes materials using fuzzy matching
+        const deduct = (namePart, amount) => {
             let amt = amount;
             for (let i = 0; i < inv.length; i++) {
                 if (amt <= 0) break;
-                if (inv[i] && inv[i].name === name) {
+                if (inv[i] && inv[i].name && String(inv[i].name).trim().includes(namePart)) {
                     if (inv[i].quantity > amt) {
                         inv[i].quantity -= amt;
                         amt = 0;
@@ -4501,14 +4503,15 @@ socket.on('playerDied', () => {
             return socket.emit('systemMessage', '❌ Inventory is full!');
         }
 
-        // 🛡️ THE FIX: Make the Refinement Stone check flexible (checks name + level property instead of exact string)
+        // 🛡️ THE FIX: Make ALL material checks flexible to support old items
         let countRed = 0, countGreen = 0, countBlue = 0, countStones = 0;
         inv.forEach(i => {
-            if (!i) return;
-            if (i.name === 'Red Exo Metal') countRed += i.quantity || 1;
-            else if (i.name === 'Green Exo Metal') countGreen += i.quantity || 1;
-            else if (i.name === 'Blue Exo Metal') countBlue += i.quantity || 1;
-            else if (i.name.includes('Refinement Stone') && i.level >= 100 && i.rarity === targetRarity) {
+            if (!i || !i.name) return;
+            const n = String(i.name).trim();
+            if (n.includes('Red Exo Metal')) countRed += i.quantity || 1;
+            else if (n.includes('Green Exo Metal')) countGreen += i.quantity || 1;
+            else if (n.includes('Blue Exo Metal')) countBlue += i.quantity || 1;
+            else if (n.includes('Refinement Stone') && i.level >= 50 && i.rarity === targetRarity) {
                 countStones += i.quantity || 1;
             }
         });
@@ -4517,19 +4520,21 @@ socket.on('playerDied', () => {
             return socket.emit('systemMessage', '❌ You lack the required materials.');
         }
 
-        // 🛡️ THE FIX: Flexible deduct function to handle the fuzzy matching
-        const deduct = (nameStr, amount, reqRarity, isStone = false) => {
+        // 🛡️ THE FIX: Flexible deduct function to handle the fuzzy matching for all items
+        const deduct = (namePart, amount, reqRarity, isStone = false) => {
             let amt = amount;
             for (let i = 0; i < inv.length; i++) {
                 if (amt <= 0) break;
                 let item = inv[i];
-                if (!item) continue;
-
+                if (!item || !item.name) continue;
+                
+                const n = String(item.name).trim();
                 let isMatch = false;
+
                 if (isStone) {
-                    isMatch = item.name.includes('Refinement Stone') && item.level >= 100 && item.rarity === reqRarity;
+                    isMatch = n.includes('Refinement Stone') && item.level >= 50 && item.rarity === reqRarity;
                 } else {
-                    isMatch = item.name === nameStr;
+                    isMatch = n.includes(namePart);
                 }
 
                 if (isMatch) {
@@ -4547,7 +4552,7 @@ socket.on('playerDied', () => {
         deduct('Red Exo Metal', 3);
         deduct('Green Exo Metal', 3);
         deduct('Blue Exo Metal', 3);
-        deduct('Refinement Stone', 3, targetRarity, true); // Flagged as true to use the fuzzy stone logic
+        deduct('Refinement Stone', 3, targetRarity, true);
         
         p.gold -= 300000;
 
