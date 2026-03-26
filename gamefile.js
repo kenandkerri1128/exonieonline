@@ -5577,6 +5577,9 @@ eggStyle.innerHTML = `
         80% { opacity: 0.9; transform: translateY(-80px) scale(0.9) translateX(-3px); }
         100% { transform: translateY(-110px) scale(0.5); opacity: 0; }
     }
+`;
+document.head.appendChild(eggStyle);
+
 // ==========================================
 // 👻 COSMETICS CRAFTING UI
 // ==========================================
