@@ -5425,16 +5425,17 @@ eggStyle.innerHTML = `
         99% { transform: translateX(1px) rotate(1deg); }
         100% { transform: translate(0) rotate(0); } /* Loop back to Phase 1 */
     }
-    /* 🐰 EASTER AURA: Color-Shifting Glow */
+   /* 🐰 EASTER AURA: Supercharged Color-Shifting Glow */
     .avatar-rig:has(.aura-easter) {
         animation: easterColorShift 4s infinite alternate ease-in-out !important;
     }
 
+    /* 🔥 Boosted the shadows with a 3rd layer and added brightness for intensity */
     @keyframes easterColorShift {
-        0% { filter: drop-shadow(0 0 8px #FFB7B2) drop-shadow(0 0 15px #FFB7B2); }   /* Pastel Pink */
-        33% { filter: drop-shadow(0 0 8px #FFFFB5) drop-shadow(0 0 15px #FFFFB5); }  /* Pastel Yellow */
-        66% { filter: drop-shadow(0 0 8px #B5EAD7) drop-shadow(0 0 15px #B5EAD7); }  /* Pastel Mint */
-        100% { filter: drop-shadow(0 0 8px #C7CEEA) drop-shadow(0 0 15px #C7CEEA); } /* Pastel Sky Blue */
+        0% { filter: drop-shadow(0 0 10px #FFB7B2) drop-shadow(0 0 20px #FFB7B2) drop-shadow(0 0 40px #FF919D) brightness(1.4); }   
+        33% { filter: drop-shadow(0 0 10px #FFFFB5) drop-shadow(0 0 20px #FFFFB5) drop-shadow(0 0 40px #FFEA00) brightness(1.4); }  
+        66% { filter: drop-shadow(0 0 10px #B5EAD7) drop-shadow(0 0 20px #B5EAD7) drop-shadow(0 0 40px #69F0AE) brightness(1.4); }  
+        100% { filter: drop-shadow(0 0 10px #C7CEEA) drop-shadow(0 0 20px #C7CEEA) drop-shadow(0 0 40px #8C9EFF) brightness(1.4); } 
     }
 
     .cosmetic-aura.aura-easter {
@@ -5443,32 +5444,47 @@ eggStyle.innerHTML = `
         inset: 0 !important;
         background: none !important;
         box-shadow: none !important;
-        z-index: 100 !important; /* Put it in front so the bunny overlaps nicely */
+        z-index: 100 !important;
     }
 
-    /* 🐰 EASTER AURA: Floating Mickey-Style Bunny Head */
-    .cosmetic-aura.aura-easter::before {
+    /* 🐰 EASTER AURA: Bubbling Bunny Heads */
+    .cosmetic-aura.aura-easter::before,
+    .cosmetic-aura.aura-easter::after {
         content: '';
         position: absolute;
-        top: 20px;
-        left: 0;
-        width: 24px;
-        height: 24px;
-        /* Pure CSS Mickey/Bunny Head using 3 radial gradients */
+        bottom: -20px; /* Start near the feet */
         background: 
-            radial-gradient(circle at 50% 65%, #FFB7B2 35%, transparent 36%), /* Main Face */
-            radial-gradient(circle at 25% 25%, #FFB7B2 22%, transparent 23%), /* Left Ear */
-            radial-gradient(circle at 75% 25%, #FFB7B2 22%, transparent 23%); /* Right Ear */
-        filter: drop-shadow(0 0 5px #FFB7B2);
-        
-        /* Orbit Animation */
-        animation: bunnyOrbit 3s linear infinite;
+            radial-gradient(circle at 50% 65%, #FFB7B2 35%, transparent 36%), 
+            radial-gradient(circle at 25% 25%, #FFB7B2 22%, transparent 23%), 
+            radial-gradient(circle at 75% 25%, #FFB7B2 22%, transparent 23%); 
+        filter: drop-shadow(0 0 8px #FFB7B2) brightness(1.3);
+        opacity: 0;
+        pointer-events: none;
     }
 
-    /* Double-rotation trick keeps the bunny head upright while orbiting */
-    @keyframes bunnyOrbit {
-        from { transform: rotate(0deg) translateX(35px) rotate(0deg); }
-        to   { transform: rotate(360deg) translateX(35px) rotate(-360deg); }
+    /* First Bunny: Larger, starts on the left */
+    .cosmetic-aura.aura-easter::before {
+        left: -10px;
+        width: 24px;
+        height: 24px;
+        animation: bunnyBubble 3s ease-in infinite;
+    }
+
+    /* Second Bunny: Smaller, starts on the right, delayed so they alternate */
+    .cosmetic-aura.aura-easter::after {
+        left: 25px;
+        width: 18px;
+        height: 18px;
+        animation: bunnyBubble 3.5s ease-in infinite 1.5s;
+    }
+
+    /* The Bubbling Animation: Rises, sways slightly, fades in and out */
+    @keyframes bunnyBubble {
+        0% { transform: translateY(0) scale(0.5); opacity: 0; }
+        20% { opacity: 0.9; transform: translateY(-20px) scale(1) translateX(-5px); }
+        50% { transform: translateY(-50px) scale(1.1) translateX(5px); }
+        80% { opacity: 0.9; transform: translateY(-80px) scale(0.9) translateX(-3px); }
+        100% { transform: translateY(-110px) scale(0.5); opacity: 0; }
     }
 `;
 document.head.appendChild(eggStyle);
