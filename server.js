@@ -346,12 +346,27 @@ function sanitizeItem(item) {
     const isEquipment = !['material', 'potion', 'consumable', 'forger', 'gem'].includes(safe.type);
 
     if (isEquipment) {
-        safe.enhanceLevel = Number(safe.enhanceLevel) || 0;
-        safe.fixedStat = sanitizeStatObject(safe.fixedStat);
-        safe.randomStat = sanitizeStatObject(safe.randomStat);
-        // Ensure legacy stat object exists so UI doesn't choke
-        safe.stats = safe.stats || { hp: 0, atk: 0, def: 0, int: 0, spd: 0, str: 0, matk: 0 }; 
-    } else {
+        safe.enhanceLevel = Number(safe.enhanceLevel) || 0;
+        safe.fixedStat = sanitizeStatObject(safe.fixedStat);
+        safe.randomStat = sanitizeStatObject(safe.randomStat);
+        
+        // 🛡️ THE MIGRATION FIX: Automatically convert old gem stats into the new randomStat format
+        if (safe.stats) {
+            const statMap = { atk: 'attack', matk: 'magic', def: 'defense', spd: 'speed', hp: 'hp', int: 'int', str: 'str' };
+            for (let oldKey in statMap) {
+                if (safe.stats[oldKey] && safe.stats[oldKey] > 0) {
+                    let newKey = statMap[oldKey];
+                    // Move the stat over to randomStat so it shows up as a green bonus
+                    safe.randomStat[newKey] = (safe.randomStat[newKey] || 0) + safe.stats[oldKey];
+                    // Wipe the old stat so it never double-dips
+                    safe.stats[oldKey] = 0; 
+                }
+            }
+        }
+
+        // Ensure legacy stat object exists so UI doesn't choke
+        safe.stats = safe.stats || { hp: 0, atk: 0, def: 0, int: 0, spd: 0, str: 0, matk: 0 }; 
+    } else {
         // 🌟 THE CRASH FIX: Do NOT delete them! Give the UI empty, safe shells to read!
         safe.stats = { hp: 0, atk: 0, def: 0, int: 0, spd: 0, str: 0, matk: 0 };
         safe.fixedStat = sanitizeStatObject(safe.fixedStat);
