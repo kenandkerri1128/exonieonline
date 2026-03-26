@@ -1409,9 +1409,9 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
                 if (dist > 1200) continue; // 1200px is roughly the edge of a widescreen
 
                 // RAYCAST: Check if a wall is blocking the view
-                if (hasLineOfSight(instId, px, py, mx, my)) {
-                    visibleMonsters.push(serializeMonster(m));
-                }
+                if (hasLineOfSight(instId, px, py, mx, my)) {
+                    visibleMonsters.push(serializeMonster(m));
+                }
             }
 
             // 4. Send this highly customized list ONLY to this specific player's socket
@@ -2039,14 +2039,13 @@ socket.on('login', async (data) => {
         // x-forwarded-for helps get the real IP if your game is hosted behind a proxy like Render or Cloudflare
         const clientIp = socket.handshake.headers['x-forwarded-for']?.split(',')[0] || socket.handshake.address;
         
-        if (!isAdmin(username)) {
-            const currentConnections = ipConnections[clientIp] || 0;
-            if (currentConnections >= 2) {
-                console.log(`[SECURITY] Blocked ${username} - IP Cap Reached for ${clientIp}`);
-                return socket.emit('authError', 'Connection Limit: You can only play a maximum of 2 accounts at once on this network.');
-            }
-        }
-
+       if (!isAdmin(username)) {
+            const currentConnections = ipConnections[clientIp] || 0;
+            if (currentConnections >= 2) {
+                console.log(`[SECURITY] Blocked ${username} - IP Cap Reached for ${clientIp}`);
+                return socket.emit('authError', 'Connection Limit: You can only play a maximum of 2 accounts at once on this network.');
+            }
+        }
         // 3. THE ULTIMATE KICK ENGINE: Checks both Username AND Email
         let oldSocketId = null;
         let oldUsername = null;
@@ -2939,11 +2938,6 @@ socket.on('saveData', async (playerData) => {
                                 }
                             }
                         }
-
-                        supabase.from('Exonians').update({
-                            gold: targetPlayer.gold, exp: targetPlayer.exp, level: targetPlayer.level, max_exp: targetPlayer.maxExp,
-                            base_stats: targetPlayer.baseStats, current_hp: targetPlayer.currentHp, inventory: targetPlayer.inventory, title: targetPlayer.title
-                        }).eq('character_name', targetPlayer.id).then(() => {});
 
                         if (targetSid) {
                             io.to(targetSid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name });
