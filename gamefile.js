@@ -1121,6 +1121,14 @@ function gameLoop(ts) {
                 window.openStorageUI();
                 return;
             }
+           // 👻 HAUNTED HOUSE INTERCEPT: Portal J
+            if (onPortal.portalId === 'J') {
+                game.player.currentPortal = null;
+                game.player.y += 15; // Bounce back safely
+                game.player.teleportCooldown = 2000;
+                window.openHauntedHouseUI();
+                return;
+            }
           // ⚔️ TAVERN INTERCEPT: Portal A
             if (onPortal.portalId === 'A') {
                 game.player.currentPortal = null;
@@ -3192,7 +3200,7 @@ socket.on('forceTeleport', (tp) => {
             dom.world.style.backgroundImage = `url('${safeMapData.image}')`;
             window.buildCollisionLayers();
             // 🎵 THE FIX: Both Tavern and Dungeons will now trigger the Boss BGM!
-            window.playBGM((tp.mapId === 'trainingtavern' || String(tp.mapId).includes('dungeon')) ? 'bossfight' : (String(tp.mapId).includes('floor') ? 'floors' : 'town'));
+            window.playBGM((tp.mapId === 'trainingtavern' || tp.mapId === 'hauntedhouse' || String(tp.mapId).includes('dungeon')) ? 'bossfight' : (String(tp.mapId).includes('floor') ? 'floors' : 'town'));
             window.showMapAnnouncement(tp.mapId);
 
             if (tp.spectateTarget) {
@@ -5362,6 +5370,71 @@ if (socket) {
 
     socket.on('syncStorage', (storage) => {
         if (window.isStorageOpen) window.renderStorageGrid(storage);
+    });
+}
+// ==========================================
+// 👻 HAUNTED HOUSE ENGINE
+// ==========================================
+window.openHauntedHouseUI = function() {
+    if (game.party && game.party.members && game.party.members.length > 1) {
+        if (dom.log) dom.log.innerText = "❌ The Haunted House is a solo challenge. Please leave your party.";
+        return;
+    }
+
+    let modal = document.getElementById('haunted-house-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'haunted-house-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #9c27b0; padding:20px; z-index:9000; width:350px; border-radius:8px; box-shadow:0 0 30px #9c27b0; color:white; text-align:center; font-family:sans-serif;';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = `
+        <h2 style="color:#E040FB; margin-top:0; text-shadow: 0 0 10px #9c27b0;">👻 Haunted House</h2>
+        <p style="color:#ccc; font-size:13px; margin-bottom:20px;">Unlimited entries. No timers. Face the Wraith King.<br>The monster's level will be randomly rolled based on the difficulty.</p>
+        
+        <button class="btn" style="background:#4CAF50; width:100%; margin-bottom:10px; font-size:15px; font-weight:bold; padding:10px;" onclick="window.startHauntedHouse('Easy')">Easy (Lv 1-15) - 1,000 G</button>
+        <button class="btn" style="background:#FF9800; width:100%; margin-bottom:10px; font-size:15px; font-weight:bold; padding:10px;" onclick="window.startHauntedHouse('Normal')">Normal (Lv 16-30) - 10,000 G</button>
+        <button class="btn" style="background:#f44336; width:100%; margin-bottom:15px; font-size:15px; font-weight:bold; padding:10px;" onclick="window.startHauntedHouse('Hard')">Hard (Lv 31-80) - 100,000 G</button>
+        
+        <button class="btn" style="background:#555; width:100%;" onclick="document.getElementById('haunted-house-modal').style.display='none'">Close</button>
+    `;
+    modal.style.display = 'block';
+    
+    if (window.isMobileUI()) {
+        window.enableMobileWindowControls(modal);
+        window.bringWindowToFront(modal);
+        window.clampWindowToViewport(modal);
+    }
+};
+
+window.startHauntedHouse = function(diff) {
+    if (socket) socket.emit('startHauntedHouse', { difficulty: diff });
+    document.getElementById('haunted-house-modal').innerHTML = '<h2 style="color:#E040FB; margin-top: 20px;">Paying the Toll...</h2>';
+};
+
+if (socket) {
+    socket.on('closeHauntedUI', () => {
+        let modal = document.getElementById('haunted-house-modal');
+        if (modal) modal.style.display = 'none';
+    });
+
+    socket.on('hauntedVictory', () => {
+        const vText = document.createElement('div');
+        vText.innerHTML = `
+            <h1 style="font-size:70px; margin:0; text-shadow:0 0 30px #E040FB, 4px 4px 0 #000; letter-spacing: 5px; animation: pulseText 1s infinite alternate;">HOUSE CLEAR!</h1>
+        `;
+        vText.style.position = 'fixed';
+        vText.style.top = '40%';
+        vText.style.left = '50%';
+        vText.style.transform = 'translate(-50%, -50%)';
+        vText.style.textAlign = 'center';
+        vText.style.color = '#E040FB';
+        vText.style.zIndex = '9999';
+        document.body.appendChild(vText);
+        
+        setTimeout(() => { vText.remove(); }, 4000);
     });
 }
 
