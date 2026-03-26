@@ -429,12 +429,6 @@ var townMapData = {
             "h": 51
         },
         {
-            "x": 497,
-            "y": 108,
-            "w": 189,
-            "h": 155
-        },
-        {
             "x": 687,
             "y": 138,
             "w": 71,
@@ -889,6 +883,24 @@ var townMapData = {
             "y": 908,
             "w": 58,
             "h": 31
+        },
+        {
+            "x": 499,
+            "y": 134,
+            "w": 64,
+            "h": 124
+        },
+        {
+            "x": 538,
+            "y": 134,
+            "w": 161,
+            "h": 103
+        },
+        {
+            "x": 602,
+            "y": 241,
+            "w": 87,
+            "h": 20
         }
     ],
     "teleports": [
@@ -947,6 +959,16 @@ var townMapData = {
             "h": 17,
             "portalId": "G",
             "targetMapId": "home",
+            "targetX": 960,
+            "targetY": 1000
+        },
+        {
+            "x": 568,
+            "y": 241,
+            "w": 29,
+            "h": 17,
+            "portalId": "J",
+            "targetMapId": "hauntedhouse",
             "targetX": 960,
             "targetY": 1000
         }
