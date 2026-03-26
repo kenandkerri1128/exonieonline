@@ -961,7 +961,7 @@ function gameLoop(ts) {
 
     // --- 🐾 UNIVERSAL PET LOGIC ---
     let petOwners = [];
-    const VALID_PETS = ['fox', 'owl', 'wisp', 'egg'];
+    const VALID_PETS = ['fox', 'owl', 'wisp', 'egg', 'void'];
     
     let myPet = game.player.equips?.leggings?.aura;
     if (VALID_PETS.includes(myPet)) {
@@ -1038,6 +1038,13 @@ function gameLoop(ts) {
             } else if (owner.type === 'egg') {
                 petEl.className = 'pet-egg';
                 petEl.innerHTML = ''; /* Pure CSS, no image needed! */
+            } else if (owner.type === 'void') {
+                petEl.className = 'pet-void';
+                petEl.innerHTML = `
+                    <div class="mini-wraith">
+                        <div class="w-eye left"></div><div class="w-eye right"></div>
+                        <div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div>
+                    </div>`;
             }
             
             dom.world.appendChild(petEl);
@@ -5091,7 +5098,7 @@ setTimeout(() => {
                 btn.style.fontWeight = 'bold';
                 btn.style.boxShadow = '0 0 10px #ff9800';
                 
-                // 👇 INJECT FORGER BUTTON RIGHT AFTER IT
+               // 👇 INJECT FORGER BUTTON RIGHT AFTER IT
                 if (!document.getElementById('btn-forger-craft')) {
                     let forgerBtn = document.createElement('button');
                     forgerBtn.id = 'btn-forger-craft';
@@ -5100,6 +5107,17 @@ setTimeout(() => {
                     forgerBtn.style.cssText = 'background: linear-gradient(45deg, #9c27b0, #E040FB); color: white; font-weight: bold; width: 100%; margin-bottom: 10px; box-shadow: 0 0 10px #E040FB; border: none; padding: 10px; cursor: pointer; border-radius: 4px;';
                     forgerBtn.onclick = window.openForgerCrafting;
                     btn.parentNode.insertBefore(forgerBtn, btn.nextSibling);
+                    
+                    // 👇 INJECT COSMETICS BUTTON RIGHT AFTER FORGER
+                    if (!document.getElementById('btn-cosmetics-craft')) {
+                        let cosBtn = document.createElement('button');
+                        cosBtn.id = 'btn-cosmetics-craft';
+                        cosBtn.className = 'btn';
+                        cosBtn.innerText = '👻 Cosmetics Crafting (Pets)';
+                        cosBtn.style.cssText = 'background: linear-gradient(45deg, #311B92, #E040FB); color: white; font-weight: bold; width: 100%; margin-bottom: 10px; box-shadow: 0 0 10px #E040FB; border: none; padding: 10px; cursor: pointer; border-radius: 4px;';
+                        cosBtn.onclick = window.openCosmeticsCrafting;
+                        forgerBtn.parentNode.insertBefore(cosBtn, forgerBtn.nextSibling);
+                    }
                 }
                 break;
             }
@@ -5559,5 +5577,93 @@ eggStyle.innerHTML = `
         80% { opacity: 0.9; transform: translateY(-80px) scale(0.9) translateX(-3px); }
         100% { transform: translateY(-110px) scale(0.5); opacity: 0; }
     }
+// ==========================================
+// 👻 COSMETICS CRAFTING UI
+// ==========================================
+window.openCosmeticsCrafting = function() {
+    document.getElementById('merchant-modal').style.display = 'none';
+    let modal = document.getElementById('cosmetics-craft-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'cosmetics-craft-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #E040FB; padding:20px; z-index:9000; width:350px; border-radius:8px; box-shadow:0 0 30px #E040FB; color:white; text-align:center;';
+        document.body.appendChild(modal);
+    }
+    window.renderCosmeticsCrafting();
+    modal.style.display = 'block';
+};
+
+window.renderCosmeticsCrafting = function() {
+    let modal = document.getElementById('cosmetics-craft-modal');
+    const inv = game.player.inventory || [];
+    
+    let cSouls = 0;
+    inv.forEach(x => {
+        if (x && x.name === 'Soul Piece') cSouls += x.quantity || 1;
+    });
+
+    const reqSouls = 10;
+    let canCraft = cSouls >= reqSouls;
+    let col = canCraft ? '#4CAF50' : '#f44336';
+
+    let html = '<h2 style="margin-top:0; color:#E040FB; text-shadow: 0 0 10px #E040FB;">👻 Cosmetics Crafting</h2>';
+    html += '<p style="font-size:12px; color:#aaa;">Exchange boss materials for rare pets and cosmetics.</p>';
+
+    html += '<div style="background:#222; padding:15px; border-radius:5px; margin-bottom:15px; font-size:14px; text-align:left; border: 1px solid #444;">';
+    html += `<div style="color:#E040FB; font-weight:bold; font-size:16px; margin-bottom:10px;">Void Pet <span style="color:#aaa; font-size:12px;">(Godly)</span></div>`;
+    html += `<div><span style="color:${col}">${cSouls}/${reqSouls} Soul Pieces</span></div>`;
+    html += '</div>';
+
+    html += `<button class="btn" style="background:${canCraft ? '#E040FB' : '#555'}; color:white; width:100%; margin-bottom:5px; font-weight:bold;" ${canCraft ? '' : 'disabled'} onclick="if(socket) socket.emit('requestCraftVoidPet')">Craft Void Pet</button>`;
+    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('cosmetics-craft-modal').style.display='none'; document.getElementById('merchant-modal').style.display='block';">Back</button>`;
+    modal.innerHTML = html;
+};
+
+if (socket) {
+    socket.on('craftVoidSuccess', () => {
+        setTimeout(() => { if (document.getElementById('cosmetics-craft-modal') && document.getElementById('cosmetics-craft-modal').style.display === 'block') window.renderCosmeticsCrafting(); }, 100);
+    });
+}
+
+// ==========================================
+// 👻 VOID PET CSS
+// ==========================================
+const voidStyle = document.createElement('style');
+voidStyle.innerHTML = `
+    .pet-void {
+        position: absolute;
+        width: 35px; height: 35px;
+        z-index: 105; pointer-events: none;
+        transform-origin: center center;
+    }
+    .pet-void .mini-wraith {
+        width: 100%; height: 100%;
+        background: linear-gradient(45deg, #4A148C, #000000);
+        border: 1px solid #E040FB;
+        border-radius: 50% 50% 20% 20%;
+        position: relative;
+        box-shadow: 0 0 15px #E040FB;
+        animation: eggFloatShake 4s linear infinite;
+    }
+    .pet-void .w-eye {
+        position: absolute; width: 6px; height: 6px;
+        background: #E040FB; border-radius: 50%; top: 12px;
+        box-shadow: 0 0 8px #fff;
+    }
+    .pet-void .w-eye.left { left: 8px; }
+    .pet-void .w-eye.right { right: 8px; }
+    .pet-void .w-particles { 
+        position: absolute; bottom: -8px; width: 100%; 
+        display: flex; justify-content: space-around; 
+    }
+    .pet-void .w-p { 
+        width: 6px; height: 12px; background: #E040FB; 
+        border-radius: 50%; opacity: 0.6; 
+        animation: wraithTail 1s infinite alternate; 
+    }
+    .pet-void .w-p:nth-child(2) { animation-delay: 0.3s; }
+    .pet-void .w-p:nth-child(3) { animation-delay: 0.6s; }
+    @keyframes wraithTail { 0% { transform: translateY(0); opacity: 0.8; } 100% { transform: translateY(8px); opacity: 0.1; } }
 `;
-document.head.appendChild(eggStyle);
+document.head.appendChild(voidStyle);
