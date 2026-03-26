@@ -3499,13 +3499,25 @@ socket.on('tradeDone', (data) => {
     window.renderTradeSlots();
 });
     socket.on('partyUpdate', (partyData) => { game.party = partyData || null; window.renderPartyUI(); });
-   socket.on('receiveExp', (data) => { 
-        game.player.exp += data.amount; 
+   window.justLeveledUp = false;
+
+    socket.on('receiveExp', (data) => { 
+        // 🛡️ THE UI DESYNC FIX: If the server just forced a level up, the exact leftover EXP is already calculated perfectly.
+        // We skip adding data.amount so the UI bar doesn't "double dip" and overfill visually!
+        if (window.justLeveledUp) {
+            window.justLeveledUp = false; // Consume the flag
+        } else {
+            game.player.exp += data.amount; 
+        }
+        
         if(data.gold) game.player.gold += data.gold; 
         dom.log.innerText = `Gained ${data.amount} EXP${data.gold ? ` & ${data.gold} Gold` : ''} from ${data.source}!`; 
         window.updateUI(); 
     });
+
     socket.on('serverLevelUp', (data) => {
+        window.justLeveledUp = true; // 🛡️ Tell receiveExp to ignore its addition
+        
         game.player.level = data.level;
         game.player.exp = data.exp;
         game.player.maxExp = data.maxExp;
