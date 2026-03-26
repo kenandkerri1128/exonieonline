@@ -1987,35 +1987,38 @@ socket.on('broadcastSkill', (data) => {
             socket.emit('emailError', 'Server error during verification.');
         }
     });
-   socket.on('register', async (data) => {
+  socket.on('register', async (data) => {
     console.log(`[REGISTER ATTEMPT] User: ${data.username}`);
     try {
-        const { username, password } = data;
+        const { username, password, deviceId } = data;
         if (!username || !password) return socket.emit('authError', 'Invalid data.');
 
-        // 🛡️ THE FIX: Grab the user's real IP address
         const clientIp = socket.handshake.headers['x-forwarded-for']?.split(',')[0] || socket.handshake.address;
+        const safeDeviceId = deviceId || 'unknown_device';
 
-        // 🛡️ ANTI-SPAM: Count how many characters this IP has already created
-        const { count, error: ipError } = await supabase
-            .from('Exonians')
-            .select('*', { count: 'exact', head: true })
-            .eq('ip_address', clientIp);
-
-        // If they already have 3 characters, block the registration!
-        if (count >= 3) {
-            console.log(`[SECURITY] Blocked Registration - IP ${clientIp} reached the 3-character limit.`);
+        // 🛡️ ANTI-SPAM 1: Check IP Limit (Max 3)
+        const { count: ipCount } = await supabase.from('Exonians').select('*', { count: 'exact', head: true }).eq('ip_address', clientIp);
+        if (ipCount >= 3) {
+            console.log(`[SECURITY] Blocked Registration - IP ${clientIp} reached the limit.`);
             return socket.emit('authError', 'Registration Limit: You can only create a maximum of 3 characters per network.');
+        }
+
+        // 🛡️ ANTI-VPN 2: Check Device ID Limit (Max 3)
+        const { count: devCount } = await supabase.from('Exonians').select('*', { count: 'exact', head: true }).eq('device_id', safeDeviceId);
+        if (devCount >= 3) {
+            console.log(`[SECURITY] Blocked VPN Registration - Device ${safeDeviceId} reached the limit.`);
+            return socket.emit('authError', 'Registration Limit: You have reached the maximum number of characters for this device.');
         }
 
         const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', username).single();
         if (existingUser) return socket.emit('authError', 'Username is already taken!');
 
-        // 🛡️ THE FIX: Save the IP address into the database so we can track them forever
+        // 🛡️ THE FIX: Save BOTH the IP and Device ID to track them
         const { error } = await supabase.from('Exonians').insert([{ 
             character_name: username, 
             password: password, 
-            ip_address: clientIp 
+            ip_address: clientIp,
+            device_id: safeDeviceId
         }]);
 
         if (error) {
@@ -2128,11 +2131,12 @@ socket.on('login', async (data) => {
 
         console.log(`[LOGIN SUCCESS] ${username} authenticated successfully.`);
 
-        // 🌟 Record the exact time they logged in AND tag their IP to catch old accounts
+        // 🌟 Record the exact time they logged in AND tag their IP/Device to catch old accounts
         supabase.from('Exonians')
             .update({ 
                 last_login: new Date().toISOString(),
-                ip_address: clientIp // 🛡️ THE FIX: Stamps old characters with their real IP!
+                ip_address: clientIp,
+                device_id: data.deviceId || 'unknown_device' // 🛡️ ANTI-VPN: Stamps old characters with their Device ID!
             })
             .eq('character_name', username)
             .then(() => {});
