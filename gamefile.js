@@ -2031,21 +2031,27 @@ window.useItem = function(index) {
         return;
     }
 
-    // 🛡️ FRONTEND POTION COOLDOWN & INSTANT UPDATE
     if (item.type === 'potion') {
-        if (Date.now() < window.potionCooldownReadyAt) {
-            if (dom.log) dom.log.innerText = "Potion is on cooldown!";
-            return;
-        }
-        window.potionCooldownReadyAt = Date.now() + 5000;
-        if (typeof window.updateHotbarCooldowns === 'function') window.updateHotbarCooldowns();
-
-        // 🌟 OPTIMISTIC UI: Deduct instantly so the hotbar feels snappy!
-        item.quantity = (item.quantity || 1) - 1;
-        if (item.quantity <= 0) game.player.inventory[index] = null;
-        if (typeof window.updatePotionHotbar === 'function') window.updatePotionHotbar();
-        if (typeof isInventoryOpen !== 'undefined' && isInventoryOpen && typeof window.renderInventory === 'function') window.renderInventory();
+    if (Date.now() < window.potionCooldownReadyAt) {
+        if (dom.log) dom.log.innerText = "Potion is on cooldown!";
+        return;
     }
+
+    window.potionCooldownReadyAt = Date.now() + 5000;
+    if (typeof window.updateHotbarCooldowns === 'function') window.updateHotbarCooldowns();
+
+    // 🌟 OPTIMISTIC UI: heal locally too, so maze HP bar moves instantly
+    const healAmount = Number(item.fixedStat?.hpHeal || 0);
+    const trueMaxHp = window.getMaxHp() || 100;
+    game.player.currentHp = Math.min(trueMaxHp, (game.player.currentHp || 0) + healAmount);
+
+    item.quantity = (item.quantity || 1) - 1;
+    if (item.quantity <= 0) game.player.inventory[index] = null;
+
+    if (typeof window.updateUI === 'function') window.updateUI();
+    if (typeof window.updatePotionHotbar === 'function') window.updatePotionHotbar();
+    if (typeof isInventoryOpen !== 'undefined' && isInventoryOpen && typeof window.renderInventory === 'function') window.renderInventory();
+}
 
     // 🛡️ THE FIX: Let the server handle ALL usable items instantly!
    // 🛡️ THE FIX: Let the server handle ALL usable items instantly!
