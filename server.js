@@ -1931,15 +1931,15 @@ socket.on('broadcastSkill', (data) => {
         if (!username || !email) return socket.emit('emailError', 'Invalid data.');
 
         try {
-            // 1. Check if this email already has 4 characters
-            const { count, error } = await supabase.from('Exonians')
-                .select('*', { count: 'exact', head: true })
-                .eq('email', email)
-                .eq('email_verified', true);
+            // 🛡️ ANTI-SPAM 3: Check Email Limit (Max 2)
+        const { count, error } = await supabase.from('Exonians')
+            .select('*', { count: 'exact', head: true })
+            .eq('email', email)
+            .eq('email_verified', true);
 
-            if (count >= 4) {
-                return socket.emit('emailError', 'This email already has the maximum of 4 characters linked to it.');
-            }
+        if (count >= 2) {
+            return socket.emit('emailError', 'Registration Limit: This email already has the maximum of 2 characters linked to it.');
+        }
 
             // 2. Generate a 6-digit code and save to the database
             const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -2013,18 +2013,18 @@ socket.on('broadcastSkill', (data) => {
 
         // 🛡️ THE FIX: Admins completely bypass the character creation limits!
         if (!isAdmin(username)) {
-            // 🛡️ ANTI-SPAM 1: Check IP Limit (Max 3)
+            // 🛡️ ANTI-SPAM 1: Check IP Limit (Max 1)
             const { count: ipCount } = await supabase.from('Exonians').select('*', { count: 'exact', head: true }).eq('ip_address', clientIp);
-            if (ipCount >= 3) {
+            if (ipCount >= 1) {
                 console.log(`[SECURITY] Blocked Registration - IP ${clientIp} reached the limit.`);
-                return socket.emit('authError', 'Registration Limit: You can only create a maximum of 3 characters per network.');
+                return socket.emit('authError', 'Registration Limit: You can only create 1 character per network.');
             }
 
-            // 🛡️ ANTI-VPN 2: Check Device ID Limit (Max 3)
+            // 🛡️ ANTI-VPN 2: Check Device ID Limit (Max 2)
             const { count: devCount } = await supabase.from('Exonians').select('*', { count: 'exact', head: true }).eq('device_id', safeDeviceId);
-            if (devCount >= 3) {
+            if (devCount >= 2) {
                 console.log(`[SECURITY] Blocked VPN Registration - Device ${safeDeviceId} reached the limit.`);
-                return socket.emit('authError', 'Registration Limit: You have reached the maximum number of characters for this device.');
+                return socket.emit('authError', 'Registration Limit: You have reached the maximum of 2 characters for this device.');
             }
         }
 
@@ -2165,6 +2165,7 @@ socket.on('login', async (data) => {
         socket.username = username;
         socket.email = user.email; 
         socket.clientIp = clientIp; // Save the IP to the socket for cleanup
+        socket.deviceId = data.deviceId || 'unknown_device'; // 🛡️ Store Device ID in memory to block alt parties!
         
         // Add +1 to the IP tally (unless they are an admin)
         if (!isAdmin(username)) {
@@ -3792,7 +3793,38 @@ socket.on('requestConfirmTrade', () => {
             return; // Stops them from being added
         }
 
-        if (!pid) { 
+        // 🛡️ ANTI-MULTI-BOXING: Block teaming up with same IP, Email, or Device
+        let isSpamAlt = false;
+        let membersToCheck = pid && parties[pid] ? Array.from(parties[pid].members) : [fromId];
+
+        if (!isAdmin(me.id)) {
+            for (const mId of membersToCheck) {
+                if (isAdmin(mId)) continue; // Let admins do whatever they want
+                
+                const mSid = findSocketIdByPlayerId(mId);
+                if (mSid) {
+                    const mSocket = io.sockets.sockets.get(mSid);
+                    if (mSocket) {
+                        if (
+                            (mSocket.clientIp && mSocket.clientIp === socket.clientIp) ||
+                            (mSocket.email && mSocket.email === socket.email) ||
+                            (mSocket.deviceId && mSocket.deviceId === socket.deviceId && socket.deviceId !== 'unknown_device')
+                        ) {
+                            isSpamAlt = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (isSpamAlt) {
+            socket.emit('systemMessage', '❌ You cannot party with accounts on the same Network, Email, or Device.');
+            io.to(fromSid).emit('systemMessage', `❌ ${me.id} cannot join due to multi-boxing restrictions.`);
+            return;
+        }
+
+        if (!pid) {
             pid = `party_${Date.now()}_${Math.floor(Math.random() * 9999)}`; 
             parties[pid] = { id: pid, leaderId: fromId, members: new Set([fromId]) }; 
             playerParty[fromId] = pid; 
