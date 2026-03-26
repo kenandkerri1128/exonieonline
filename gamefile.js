@@ -4337,12 +4337,19 @@ window.requestMazeTeleport = function(floorNum) {
 // ⚔️ TAVERN & LEADERBOARD LOGIC
 // ==========================================
 window.startTavern = function() {
-// 🛡️ PARTY CHECK: Strictly Solo
-    if (game.party && game.party.members && game.party.members.length > 1) {
-        if (dom.log) dom.log.innerText = "❌ Solo Challenge! You must leave your party to enter the Tavern.";
+// 🛡️ LEVEL 50 LOCK
+    if (game.player.level < 50 && !window.isAdmin(game.player.name)) {
+        if (dom.log) dom.log.innerText = "❌ You must be at least Level 50 to enter the Training Tavern.";
         document.getElementById('tavern-modal').style.display = 'none';
         return;
     }
+
+// 🛡️ PARTY CHECK: Strictly Solo
+    if (game.party && game.party.members && game.party.members.length > 1) {
+        if (dom.log) dom.log.innerText = "❌ Solo Challenge! You must leave your party to enter the Tavern.";
+        document.getElementById('tavern-modal').style.display = 'none';
+        return;
+    }
     let type = document.getElementById('tavern-mob-type').value;
     let lvl = parseInt(document.getElementById('tavern-level').value) || 10;
     
