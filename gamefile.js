@@ -5364,6 +5364,7 @@ if (socket) {
         if (window.isStorageOpen) window.renderStorageGrid(storage);
     });
 }
+
 // ==========================================
 // 🥚 EASTER EGG PET CSS & ANIMATIONS
 // ==========================================
@@ -5423,6 +5424,51 @@ eggStyle.innerHTML = `
         97% { transform: translateX(-3px) rotate(-4deg); }
         99% { transform: translateX(1px) rotate(1deg); }
         100% { transform: translate(0) rotate(0); } /* Loop back to Phase 1 */
+    }
+    /* 🐰 EASTER AURA: Color-Shifting Glow */
+    .avatar-rig:has(.aura-easter) {
+        animation: easterColorShift 4s infinite alternate ease-in-out !important;
+    }
+
+    @keyframes easterColorShift {
+        0% { filter: drop-shadow(0 0 8px #FFB7B2) drop-shadow(0 0 15px #FFB7B2); }   /* Pastel Pink */
+        33% { filter: drop-shadow(0 0 8px #FFFFB5) drop-shadow(0 0 15px #FFFFB5); }  /* Pastel Yellow */
+        66% { filter: drop-shadow(0 0 8px #B5EAD7) drop-shadow(0 0 15px #B5EAD7); }  /* Pastel Mint */
+        100% { filter: drop-shadow(0 0 8px #C7CEEA) drop-shadow(0 0 15px #C7CEEA); } /* Pastel Sky Blue */
+    }
+
+    .cosmetic-aura.aura-easter {
+        display: block !important;
+        position: absolute !important;
+        inset: 0 !important;
+        background: none !important;
+        box-shadow: none !important;
+        z-index: 100 !important; /* Put it in front so the bunny overlaps nicely */
+    }
+
+    /* 🐰 EASTER AURA: Floating Mickey-Style Bunny Head */
+    .cosmetic-aura.aura-easter::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 0;
+        width: 24px;
+        height: 24px;
+        /* Pure CSS Mickey/Bunny Head using 3 radial gradients */
+        background: 
+            radial-gradient(circle at 50% 65%, #FFB7B2 35%, transparent 36%), /* Main Face */
+            radial-gradient(circle at 25% 25%, #FFB7B2 22%, transparent 23%), /* Left Ear */
+            radial-gradient(circle at 75% 25%, #FFB7B2 22%, transparent 23%); /* Right Ear */
+        filter: drop-shadow(0 0 5px #FFB7B2);
+        
+        /* Orbit Animation */
+        animation: bunnyOrbit 3s linear infinite;
+    }
+
+    /* Double-rotation trick keeps the bunny head upright while orbiting */
+    @keyframes bunnyOrbit {
+        from { transform: rotate(0deg) translateX(35px) rotate(0deg); }
+        to   { transform: rotate(360deg) translateX(35px) rotate(-360deg); }
     }
 `;
 document.head.appendChild(eggStyle);
