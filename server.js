@@ -1996,18 +1996,21 @@ socket.on('broadcastSkill', (data) => {
         const clientIp = socket.handshake.headers['x-forwarded-for']?.split(',')[0] || socket.handshake.address;
         const safeDeviceId = deviceId || 'unknown_device';
 
-        // 🛡️ ANTI-SPAM 1: Check IP Limit (Max 3)
-        const { count: ipCount } = await supabase.from('Exonians').select('*', { count: 'exact', head: true }).eq('ip_address', clientIp);
-        if (ipCount >= 3) {
-            console.log(`[SECURITY] Blocked Registration - IP ${clientIp} reached the limit.`);
-            return socket.emit('authError', 'Registration Limit: You can only create a maximum of 3 characters per network.');
-        }
+        // 🛡️ THE FIX: Admins completely bypass the character creation limits!
+        if (!isAdmin(username)) {
+            // 🛡️ ANTI-SPAM 1: Check IP Limit (Max 3)
+            const { count: ipCount } = await supabase.from('Exonians').select('*', { count: 'exact', head: true }).eq('ip_address', clientIp);
+            if (ipCount >= 3) {
+                console.log(`[SECURITY] Blocked Registration - IP ${clientIp} reached the limit.`);
+                return socket.emit('authError', 'Registration Limit: You can only create a maximum of 3 characters per network.');
+            }
 
-        // 🛡️ ANTI-VPN 2: Check Device ID Limit (Max 3)
-        const { count: devCount } = await supabase.from('Exonians').select('*', { count: 'exact', head: true }).eq('device_id', safeDeviceId);
-        if (devCount >= 3) {
-            console.log(`[SECURITY] Blocked VPN Registration - Device ${safeDeviceId} reached the limit.`);
-            return socket.emit('authError', 'Registration Limit: You have reached the maximum number of characters for this device.');
+            // 🛡️ ANTI-VPN 2: Check Device ID Limit (Max 3)
+            const { count: devCount } = await supabase.from('Exonians').select('*', { count: 'exact', head: true }).eq('device_id', safeDeviceId);
+            if (devCount >= 3) {
+                console.log(`[SECURITY] Blocked VPN Registration - Device ${safeDeviceId} reached the limit.`);
+                return socket.emit('authError', 'Registration Limit: You have reached the maximum number of characters for this device.');
+            }
         }
 
         const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', username).single();
