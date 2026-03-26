@@ -1612,9 +1612,21 @@ window.sanitizeEquippedItem = function(item, expectedSlot) {
     clean.enhanceLevel = Number(clean.enhanceLevel || 0);
 
     if (!clean.fixedStat || typeof clean.fixedStat !== 'object') clean.fixedStat = {};
-    if (!clean.randomStat || typeof clean.randomStat !== 'object') clean.randomStat = {};
+    if (!clean.randomStat || typeof clean.randomStat !== 'object') clean.randomStat = {};
 
-    Object.keys(clean.fixedStat).forEach(k => {
+    // 🛡️ THE MIGRATION FIX: Client-side stat conversion
+    if (clean.stats) {
+        const statMap = { atk: 'attack', matk: 'magic', def: 'defense', spd: 'speed', hp: 'hp', int: 'int', str: 'str' };
+        for (let oldKey in statMap) {
+            if (clean.stats[oldKey] && clean.stats[oldKey] > 0) {
+                let newKey = statMap[oldKey];
+                clean.randomStat[newKey] = (clean.randomStat[newKey] || 0) + clean.stats[oldKey];
+                clean.stats[oldKey] = 0;
+            }
+        }
+    }
+
+    Object.keys(clean.fixedStat).forEach(k => {
         if (typeof clean.fixedStat[k] !== 'number' || !Number.isFinite(clean.fixedStat[k])) clean.fixedStat[k] = 0;
     });
 
