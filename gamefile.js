@@ -1885,7 +1885,7 @@ window.swapSlots = function(fromIndex, toIndex) {
 
 window.openItemAction = function(index, e) {
     e.stopPropagation(); activeInvIndex = index; const menu = document.getElementById('inv-context-menu'); const item = game.player.inventory[index]; if (!item) return;
-    const isPet = item.type === 'aura' && ['fox', 'owl', 'wisp', 'egg'].includes(item.auraId);
+    const isPet = item.type === 'aura' && ['fox', 'owl', 'wisp', 'egg', 'void'].includes(item.auraId);
     if (item.type === 'gem') {
         document.getElementById('ctx-btn-equip').innerText = "Socket Gem";
         window.isApplyingAura = true; // Reusing the aura selection border logic
@@ -1947,7 +1947,7 @@ window.actionEquip = function(e) {
         isEnhancing = true; dom.log.innerText = `Select equipment to enhance!`; window.renderInventory(); 
     } else if (item.type === 'aura') { 
         window.isApplyingAura = true; 
-        const isPet = ['fox', 'owl', 'wisp', 'egg'].includes(item.auraId);
+        const isPet = ['fox', 'owl', 'wisp', 'egg', 'void'].includes(item.auraId);
         dom.log.innerText = isPet ? `Select Leggings to equip your Pet!` : `Select an Armor to apply the Aura!`; 
         window.renderInventory(); 
     } else if (item.type === 'gem') {
