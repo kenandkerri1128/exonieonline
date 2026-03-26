@@ -2919,50 +2919,46 @@ socket.on('mailList', (mails) => {
     });
     socket.on('sellSuccess', (data) => { game.player.gold = data.newGold; game.player.inventory = data.inventory; dom.log.innerText = `Item sold for ${data.price} Gold.`; window.updateUI(); window.renderInventory(); });
     socket.on('syncInventory', (serverInventory) => { game.player.inventory = serverInventory; window.updateEquipmentDisplay(); window.renderInventory(); });
-  socket.on('inventoryItemUsed', (data) => {
-    if (data.inventory) {
-        game.player.inventory = data.inventory;
-        renderInventory();
-    }
+ // 🌟 THE FIX: The Brand New Listener so your Potions actually move the red bar!
+    socket.on('playerVitals', (data) => {
+        if (!data) return;
+        if (typeof data.currentHp === 'number') game.player.currentHp = data.currentHp;
+        if (typeof data.maxHp === 'number') game.player.maxHp = data.maxHp;
+        if (typeof data.level === 'number') game.player.level = data.level;
+        if (typeof window.updateUI === 'function') window.updateUI();
+    });
 
-    if (data.equips) {
-        game.player.equips = data.equips;
-        renderInventory();
-    }
+    socket.on('inventoryItemUsed', (data) => {
+        if (!data) return;
 
-    if (typeof data.currentHp === 'number') {
-        game.player.currentHp = data.currentHp;
-    }
+        if (Array.isArray(data.inventory)) game.player.inventory = data.inventory;
+        if (typeof data.currentHp === 'number') game.player.currentHp = data.currentHp;
+        
+        if (data.equips) {
+            game.player.equips = data.equips;
+            if (typeof window.updateEquipmentDisplay === 'function') window.updateEquipmentDisplay();
+            if (typeof window.updateSkillMenu === 'function') window.updateSkillMenu();
+        }
 
-    if (typeof data.maxHp === 'number') {
-        game.player.maxHp = data.maxHp;
-    }
+        if (data.classReset) {
+            if (!game.player.baseStats) game.player.baseStats = {};
+            game.player.baseStats.playerClass = null;
+            game.player.activeSkills = [];
+            if (typeof window.updateSkillMenu === 'function') window.updateSkillMenu();
+            if (typeof isSkillOpen !== 'undefined' && isSkillOpen && typeof window.renderSkillScreen === 'function') window.renderSkillScreen();
+            window.spawnDamageText(game.player.x + 24, game.player.y - 20, "CLASS RESET", '#ffeb3b');
+            if (dom.log) dom.log.innerText = `You reset your class! Open Skills (K) to pick a new one.`;
+        } else if (data.healAmount) {
+            window.spawnDamageText(game.player.x + 24, game.player.y - 20, `+${data.healAmount} HP`, '#4CAF50');
+            if (dom.log) dom.log.innerText = `Using ${data.itemName}...`;
+        } else {
+            if (dom.log) dom.log.innerText = `${data.itemName} used.`;
+        }
 
-    updateHud();
-});
-
-    if (data.classReset) {
-        if (!game.player.baseStats) game.player.baseStats = {};
-        game.player.baseStats.playerClass = null;
-        game.player.activeSkills = [];
-        if (typeof window.updateSkillMenu === 'function') window.updateSkillMenu();
-        if (typeof isSkillOpen !== 'undefined' && isSkillOpen && typeof window.renderSkillScreen === 'function') window.renderSkillScreen();
-        window.spawnDamageText(game.player.x + 24, game.player.y - 20, "CLASS RESET", '#ffeb3b');
-        if (dom.log) dom.log.innerText = `You reset your class! Open Skills (K) to pick a new one.`;
-    } else if (data.healAmount) {
-        window.spawnDamageText(game.player.x + 24, game.player.y - 20, `+${data.healAmount} HP`, '#4CAF50');
-        if (dom.log) dom.log.innerText = `Using ${data.itemName}...`;
-    } else {
-        if (dom.log) dom.log.innerText = `${data.itemName} used.`;
-    }
-
-    if (typeof window.updateUI === 'function') window.updateUI();
-    if (typeof window.renderInventory === 'function') window.renderInventory();
-    if (typeof window.updatePotionHotbar === 'function') window.updatePotionHotbar();
-    
-    // 🛡️ CRASH PREVENTION: Only emit vitals if the function actually exists!
-    if (typeof window.emitVitalsIfNeeded === 'function') window.emitVitalsIfNeeded(true);
-});
+        if (typeof window.updateUI === 'function') window.updateUI();
+        if (typeof window.renderInventory === 'function') window.renderInventory();
+        if (typeof window.updatePotionHotbar === 'function') window.updatePotionHotbar();
+    });
     socket.on('needsCharacterCreation', (username) => { document.getElementById('loading-screen').style.display = 'none'; document.getElementById('char-name-input').value = username; document.getElementById('creation-screen').classList.add('active'); });
     socket.on('rareLootBroadcast', (data) => { let container = document.getElementById('loot-broadcast'); if (!container) { container = document.createElement('div'); container.id = 'loot-broadcast'; container.style.position = 'fixed'; container.style.top = '25%'; container.style.left = '50%'; container.style.transform = 'translateX(-50%)'; container.style.zIndex = '2147483647'; container.style.display = 'flex'; container.style.flexDirection = 'column'; container.style.alignItems = 'center'; container.style.pointerEvents = 'none'; container.style.width = '100%'; document.body.appendChild(container); } const ann = document.createElement('div'); ann.className = 'loot-announcement'; ann.style.borderColor = data.color || '#fff'; ann.style.boxShadow = `0 0 20px ${data.color}`; let glowClass = data.rarity === 'Godly' ? 'rarity-godly' : ''; ann.innerHTML = `<div style="color: #e0e0e0; font-size: 16px; margin-bottom: 5px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 2px 2px 4px #000;">${data.playerName} just got</div><div style="color: ${data.color}; font-size: 28px; font-weight: bold; -webkit-text-stroke: 1px black; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 15px ${data.color};" class="${glowClass}">${data.itemName} Lv. ${data.level}</div>`; container.appendChild(ann); if (dom && dom.log) { dom.log.innerText = `[SERVER] ${data.playerName} obtained ${data.itemName}!`; } setTimeout(() => { if (ann && ann.parentNode) { ann.parentNode.removeChild(ann); } }, 3000); });
    // ==========================================
