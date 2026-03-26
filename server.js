@@ -4982,6 +4982,7 @@ socket.on('adminSpawnItem', async (data) => {
                 'blaze': { name: 'Blaze', color: '#ff4444' },
                 'liquid': { name: 'Liquid', color: '#44aaff' },
                  'nature': { name: 'Nature', color: '#4CAF50' },
+                'easter': { name: 'Easter', color: '#FFB7B2' }, // 🐰 ADDED EASTER AURA
                 'fox': { name: 'Spirit Fox Pet', color: '#ff7e00' },
                 'owl': { name: 'Night Owl Pet', color: '#a0a0a0' },
             'wisp': { name: 'Sky Wisp Pet', color: '#87CEEB' },
@@ -5101,6 +5102,7 @@ if (rarity !== "Starter") {
             'blaze': 'Blaze', 
             'liquid': 'Liquid', 
             'nature': 'Nature', 
+            'easter': 'Easter', // 🐰 ADDED EASTER AURA
             'fox': 'Spirit Fox',
             'owl': 'Night Owl',
             'wisp': 'Sky Wisp',
@@ -5193,6 +5195,7 @@ const AURA_DATA = {
             'blaze': { name: 'Blaze', color: '#ff4444' },
             'liquid': { name: 'Liquid', color: '#44aaff' },
             'nature': { name: 'Nature', color: '#4CAF50' },
+            'easter': { name: 'Easter', color: '#FFB7B2' }, // 🐰 ADDED EASTER AURA
             'fox': { name: 'Spirit Fox Pet', color: '#ff7e00' },
             'owl': { name: 'Night Owl Pet', color: '#a0a0a0' },
             'wisp': { name: 'Sky Wisp Pet', color: '#87CEEB' },
