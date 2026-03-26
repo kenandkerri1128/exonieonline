@@ -554,7 +554,7 @@ function generateLoot(monster) {
       let mLevel = monster.level || 1;
         let roll = Math.random();
 
-        // 15% Chance: Class Reset Book (0.00 to 0.15)
+        // 14% Chance: Class Reset Book (0.00 to 0.15)
         if (roll < 0.15) {
             return { 
                 id: Date.now() + Math.random(), 
@@ -566,8 +566,8 @@ function generateLoot(monster) {
                 quantity: 1 
             };
         } 
-       // 3% Chance: Divine Essence (0.15 to 0.18)
-        else if (roll < 0.18) {
+       // 4% Chance: Divine Essence (0.15 to 0.18)
+        else if (roll < 0.19) {
             return {
                 id: 'mat_' + Math.random().toString(36).substr(2, 9),
                 name: 'Divine Essence',
