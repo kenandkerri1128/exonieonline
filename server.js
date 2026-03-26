@@ -2992,6 +2992,9 @@ socket.on('saveData', async (playerData) => {
 
                     const processRewards = async (targetPlayer, targetSid) => {
                         if (!targetPlayer) return;
+                        
+                        // 🛡️ ANTI-AFK EXPLOIT: Only give rewards if they are actually in the boss room!
+                        if (targetPlayer.instanceId !== p.instanceId) return;
 
                         targetPlayer.exp += expAmount;
                         targetPlayer.gold += goldAmount;
@@ -3064,17 +3067,26 @@ socket.on('saveData', async (playerData) => {
                                 targetPlayer.inventory = inv;
                             }
 
+                            // 🏆 TITLE ENGINE FIX
                             if (m.category === "floor_boss" && targetPlayer.mapId) {
                                 const match = targetPlayer.mapId.match(/floor(\d+)/i);
                                 const killedFloorNum = match ? parseInt(match[1]) : null;
+                                
                                 if (killedFloorNum) {
                                     let currentHighestFloor = 0;
-                                    const existingTitle = targetPlayer.title; 
+                                    let hasCustomTitle = false;
+                                    
+                                    const existingTitle = targetPlayer.title ? String(targetPlayer.title).toUpperCase() : ""; 
+                                    
                                     if (existingTitle && existingTitle.startsWith('FLOOR CONQUEROR')) {
                                         const parts = existingTitle.split(' ');
                                         currentHighestFloor = parseInt(parts[2]) || 0;
+                                    } else if (existingTitle && existingTitle.length > 0) {
+                                        // 🛡️ They have a special title (like GM). Do not overwrite it!
+                                        hasCustomTitle = true;
                                     }
-                                    if (killedFloorNum > currentHighestFloor) {
+                                    
+                                    if (!hasCustomTitle && killedFloorNum > currentHighestFloor) {
                                         const newTitle = `FLOOR CONQUEROR ${killedFloorNum}`;
                                         targetPlayer.title = newTitle; 
                                         if (!targetPlayer.spriteData) targetPlayer.spriteData = {};
@@ -3110,7 +3122,7 @@ socket.on('saveData', async (playerData) => {
                             io.to(targetSid).emit('syncInventory', targetPlayer.inventory);
                         }
                         
-                        // 🛡️ REVERT FIX: Auto-update to Supabase so stats never desync!
+                        // 🛡️ CRITICAL FIX: Ensure Title actually saves to the Database!
                         supabase.from('Exonians').update({
                             level: targetPlayer.level,
                             exp: targetPlayer.exp,
@@ -3118,7 +3130,8 @@ socket.on('saveData', async (playerData) => {
                             gold: targetPlayer.gold,
                             base_stats: targetPlayer.baseStats,
                             current_hp: targetPlayer.currentHp,
-                            inventory: targetPlayer.inventory
+                            inventory: targetPlayer.inventory,
+                            title: targetPlayer.title 
                         }).eq('character_name', targetPlayer.id).then(()=>{});
                     };
 
