@@ -378,7 +378,7 @@ function sanitizeItem(item) {
     }
 
     // 🐾 AURA & PET CHECKS
-    const VALID_AURAS = ['lightning', 'blaze', 'liquid', 'nature', 'fox', 'owl', 'wisp', 'divine', 'egg'];
+    const VALID_AURAS = ['lightning', 'blaze', 'liquid', 'nature', 'fox', 'owl', 'wisp', 'divine', 'egg', 'easter'];
     if (safe.aura && !VALID_AURAS.includes(safe.aura)) {
         delete safe.aura;
     }
