@@ -260,7 +260,8 @@ const playerParty = {};
 global.topTavernPlayers = [];
 async function updateAndBroadcastTopTavern() {
     try {
-        const { data } = await supabase.from('Tavern_Leaderboard').select('character_name, mob_type, mob_level, time_taken').order('time_taken', { ascending: true }).limit(100);
+        // 🛡️ THE FIX: Grab a massive chunk of data (1000) ignoring speed, so the JS can properly sort the hardest bosses to the top!
+        const { data } = await supabase.from('Tavern_Leaderboard').select('character_name, mob_type, mob_level, time_taken').limit(1000);
         let sorted = (data || []).sort((a, b) => {
             const w = { 'floor_boss': 3, 'mini_boss': 2, 'common_mobs': 1 };
             let aW = w[a.mob_type] || 0; let bW = w[b.mob_type] || 0;
@@ -5811,7 +5812,8 @@ socket.on('startDungeon', async (data) => {
         }, 1000);
     });
     socket.on('getTavernLeaderboard', async () => {
-        const { data } = await supabase.from('Tavern_Leaderboard').select('*').order('time_taken', { ascending: true }).limit(50);
+        // 🛡️ THE FIX: Fetch up to 1000 records so we don't miss the high-level bosses
+        const { data } = await supabase.from('Tavern_Leaderboard').select('*').limit(1000);
         
         let sorted = (data || []).sort((a, b) => {
             const w = { 'floor_boss': 3, 'mini_boss': 2, 'common_mobs': 1 };
@@ -5821,7 +5823,8 @@ socket.on('startDungeon', async (data) => {
             return a.time_taken - b.time_taken; 
         });
 
-        socket.emit('updateLeaderboardUI', sorted);
+        // 🌟 Slice to exactly 50 AFTER the sort, so the UI correctly numbers them 1 to 50!
+        socket.emit('updateLeaderboardUI', sorted.slice(0, 50));
     });
   // ==========================================
     // ⚔️ NEUTRAL ZONE PvP ENGINE
