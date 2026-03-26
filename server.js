@@ -3,6 +3,8 @@ const express = require('express');
 const activeLogins = new Set(); // Tracks currently logged-in usernames
 const activeEmailSessions = {}; // 🛡️ Tracks which emails are currently online
 const ipConnections = {}; // 🛡️ NEW: Tracks active IP addresses
+const deviceConnections = {}; // 🛡️ Tracks active devices
+const emailConnections = {}; // 🛡️ Tracks email multi-boxing
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
@@ -2020,11 +2022,11 @@ socket.on('broadcastSkill', (data) => {
                 return socket.emit('authError', 'Registration Limit: You can only create 1 character per network.');
             }
 
-            // 🛡️ ANTI-VPN 2: Check Device ID Limit (Max 2)
+            // 🛡️ ANTI-VPN 2: Check Device ID Limit (Max 1)
             const { count: devCount } = await supabase.from('Exonians').select('*', { count: 'exact', head: true }).eq('device_id', safeDeviceId);
-            if (devCount >= 2) {
+            if (devCount >= 1) {
                 console.log(`[SECURITY] Blocked VPN Registration - Device ${safeDeviceId} reached the limit.`);
-                return socket.emit('authError', 'Registration Limit: You have reached the maximum of 2 characters for this device.');
+                return socket.emit('authError', 'Registration Limit: You can only create 1 character per device.');
             }
         }
 
@@ -2077,26 +2079,34 @@ socket.on('login', async (data) => {
             return socket.emit('requireEmailVerification', username);
         }
 
-        // 2. 🛡️ IP ADDRESS CAP (Max 2 per network, Admins bypass)
+        // 2. 🛡️ CONNECTION CAPS (2 IP, 1 Device, 2 Email) - Admins bypass
         // x-forwarded-for helps get the real IP if your game is hosted behind a proxy like Render or Cloudflare
         const clientIp = socket.handshake.headers['x-forwarded-for']?.split(',')[0] || socket.handshake.address;
+        const safeDeviceId = data.deviceId || 'unknown_device';
         
        if (!isAdmin(username)) {
-            const currentConnections = ipConnections[clientIp] || 0;
-            if (currentConnections >= 2) {
-                console.log(`[SECURITY] Blocked ${username} - IP Cap Reached for ${clientIp}`);
-                return socket.emit('authError', 'Connection Limit: You can only play a maximum of 2 accounts at once on this network.');
-            }
-        }
-        // 3. THE ULTIMATE KICK ENGINE: Checks both Username AND Email
+            if ((ipConnections[clientIp] || 0) >= 2) {
+                console.log(`[SECURITY] Blocked ${username} - IP Cap Reached for ${clientIp}`);
+                return socket.emit('authError', 'Connection Limit: Max 2 accounts per network.');
+            }
+            if (safeDeviceId !== 'unknown_device' && (deviceConnections[safeDeviceId] || 0) >= 1) {
+                console.log(`[SECURITY] Blocked ${username} - Device Cap Reached for ${safeDeviceId}`);
+                return socket.emit('authError', 'Connection Limit: Max 1 account per device.');
+            }
+            if (user.email && (emailConnections[user.email] || 0) >= 2) {
+                console.log(`[SECURITY] Blocked ${username} - Email Cap Reached for ${user.email}`);
+                return socket.emit('authError', 'Connection Limit: Max 2 accounts per email.');
+            }
+        }
+        // 3. THE ULTIMATE KICK ENGINE: Checks Username Only (Since Email is now capped at 2)
         let oldSocketId = null;
         let oldUsername = null;
 
         // Scan every active connection on the server
         for (const [sid, s] of io.sockets.sockets.entries()) {
             if (sid !== socket.id) {
-                // If they share an email OR username, mark them for termination
-                if ((s.email && s.email === user.email) || s.username === username) {
+                // If they share a username, mark them for termination (Email kick removed so they can multibox 2 accounts!)
+                if (s.username === username) {
                     oldSocketId = sid;
                     oldUsername = s.username;
                     break;
@@ -2167,9 +2177,15 @@ socket.on('login', async (data) => {
         socket.clientIp = clientIp; // Save the IP to the socket for cleanup
         socket.deviceId = data.deviceId || 'unknown_device'; // 🛡️ Store Device ID in memory to block alt parties!
         
-        // Add +1 to the IP tally (unless they are an admin)
+        // Add +1 to the connection tallies (unless they are an admin)
         if (!isAdmin(username)) {
             ipConnections[clientIp] = (ipConnections[clientIp] || 0) + 1;
+            if (socket.deviceId !== 'unknown_device') {
+                deviceConnections[socket.deviceId] = (deviceConnections[socket.deviceId] || 0) + 1;
+            }
+            if (user.email) {
+                emailConnections[user.email] = (emailConnections[user.email] || 0) + 1;
+            }
         }
 
         currentUser = username;
@@ -2990,6 +3006,17 @@ socket.on('saveData', async (playerData) => {
                             io.to(targetSid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name });
                             io.to(targetSid).emit('syncInventory', targetPlayer.inventory);
                         }
+                        
+                        // 🛡️ REVERT FIX: Auto-update to Supabase so stats never desync!
+                        supabase.from('Exonians').update({
+                            level: targetPlayer.level,
+                            exp: targetPlayer.exp,
+                            max_exp: targetPlayer.maxExp,
+                            gold: targetPlayer.gold,
+                            base_stats: targetPlayer.baseStats,
+                            current_hp: targetPlayer.currentHp,
+                            inventory: targetPlayer.inventory
+                        }).eq('character_name', targetPlayer.id).then(()=>{});
                     };
 
                     if (pid && parties[pid]) {
@@ -6316,13 +6343,21 @@ socket.on('startDungeon', async (data) => {
         socket.emit('syncStorage', p.baseStats.homeStorage);
     });
    socket.on('disconnect', async () => {
-        if (socket.username) { activeLogins.delete(socket.username); }
+       if (socket.username) { activeLogins.delete(socket.username); }
         if (socket.email && activeEmailSessions[socket.email] === socket.id) { delete activeEmailSessions[socket.email]; }
         
-        // 🛡️ Free up the IP slot when they disconnect
+        // 🛡️ Free up the connection slots when they disconnect
         if (socket.clientIp && ipConnections[socket.clientIp]) {
             ipConnections[socket.clientIp]--;
             if (ipConnections[socket.clientIp] <= 0) delete ipConnections[socket.clientIp];
+        }
+        if (socket.deviceId && socket.deviceId !== 'unknown_device' && deviceConnections[socket.deviceId]) {
+            deviceConnections[socket.deviceId]--;
+            if (deviceConnections[socket.deviceId] <= 0) delete deviceConnections[socket.deviceId];
+        }
+        if (socket.email && emailConnections[socket.email]) {
+            emailConnections[socket.email]--;
+            if (emailConnections[socket.email] <= 0) delete emailConnections[socket.email];
         }
 
         const p = onlinePlayers[socket.id];
