@@ -1267,7 +1267,7 @@ function updateMonsterAI(instId, m, now) {
                     const players = playersInInstance(instId);
                     players.forEach(p => {
                         // 🌟 ADDED p.isHiddenAdmin bypass so Earthquake ignores you
-                        if (p.isGhost || p.isHiddenAdmin || p.mapId === 'town') return;
+                        if (p.isGhost || p.isHiddenAdmin || p.mapId === 'town' || p.untargetableUntil > now) return;
                         const pDist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
                         if (pDist <= aoeRadius) {
                             const damage = Math.max(1, m.atk - getServerDefense(p));
@@ -4018,7 +4018,8 @@ socket.on('requestConfirmTrade', () => {
         }
 
         p.mapId = tp.mapId; p.x = tp.x; p.y = tp.y; p.currentPortal = null;
-        p.instanceId = getInstanceId(p.id, tp.mapId); 
+       p.instanceId = getInstanceId(p.id, tp.mapId); 
+        p.untargetableUntil = Date.now() + 3000; // 🛡️ 3-Second Spawn Protection (Invincible & Untargetable)
         socket.join(p.instanceId);
         
         checkAndResetInstance(oldInstId); // 🌟 RUN THE RESET CHECK
@@ -4086,7 +4087,7 @@ socket.on('requestConfirmTrade', () => {
         p.currentPortal = null;
         p.instanceId = getInstanceId(p.id, data.mapId);
         p.teleportGrace = Date.now() + 4000; // 🌟 Reset their immunity timer when they land
-
+        p.untargetableUntil = Date.now() + 3000; // 🛡️ 3-Second Spawn Protection (Invincible & Untargetable)
         socket.join(p.instanceId);
 
         checkAndResetInstance(oldInstId);
