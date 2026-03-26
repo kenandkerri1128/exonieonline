@@ -4808,14 +4808,16 @@ window.renderDivineForge = function() {
         else if (type === 'armor' || type === 'leggings') { reqE=1; reqR=1; reqG=1; reqB=1; reqGold=1000000; }
         else { reqE=5; reqR=2; reqG=2; reqB=2; reqGold=5000000; }
         
+       // 🛡️ UI FIX: We actually need to count the Divine Essence, and use fuzzy matching!
         let cE=0, cR=0, cG=0, cB=0;
-       inv.forEach(x => {
-        if(x && x.name === 'Red Exo Metal') cR += x.quantity||1;
-        if(x && x.name === 'Green Exo Metal') cG += x.quantity||1;
-        if(x && x.name === 'Blue Exo Metal') cB += x.quantity||1;
-        // 🛡️ THE FIX: Use .includes() to allow prefixes like "Godly" or "Legendary"
-        if(x && x.name.includes('Refinement Stone') && x.level >= 100 && x.rarity === selRarity) cStones += x.quantity||1;
-    });
+        inv.forEach(x => {
+            if (!x || !x.name) return;
+            const n = String(x.name).trim();
+            if (n.includes('Divine Essence')) cE += x.quantity || 1;
+            if (n.includes('Red Exo Metal')) cR += x.quantity || 1;
+            if (n.includes('Green Exo Metal')) cG += x.quantity || 1;
+            if (n.includes('Blue Exo Metal')) cB += x.quantity || 1;
+        });
         
         const col = (have, need) => have >= need ? '#4CAF50' : '#f44336';
         const gCol = (game.player.gold >= reqGold) ? '#4CAF50' : '#f44336';
@@ -4932,15 +4934,16 @@ window.renderForgerCrafting = function() {
     
     let reqExo=3, reqGold=300000, reqStones=3;
     const inv = game.player.inventory || [];
-    let cR=0, cG=0, cB=0, cStones=0;
-    
-    inv.forEach(x => {
-        if(x && x.name === 'Red Exo Metal') cR += x.quantity||1;
-        if(x && x.name === 'Green Exo Metal') cG += x.quantity||1;
-        if(x && x.name === 'Blue Exo Metal') cB += x.quantity||1;
-        // 🛡️ THE FIX: Makes the UI flexible enough to read higher rarity stones!
-        if(x && x.name.includes('Refinement Stone') && x.level >= 100 && x.rarity === selRarity) cStones += x.quantity||1;
-    });
+   // 🛡️ UI FIX: Use fuzzy matching for metals and lower the stone requirement to Level 50
+        let cR=0, cG=0, cB=0, cStones=0;
+        inv.forEach(x => {
+            if (!x || !x.name) return;
+            const n = String(x.name).trim();
+            if (n.includes('Red Exo Metal')) cR += x.quantity || 1;
+            if (n.includes('Green Exo Metal')) cG += x.quantity || 1;
+            if (n.includes('Blue Exo Metal')) cB += x.quantity || 1;
+            if (n.includes('Refinement Stone') && x.level >= 50 && x.rarity === selRarity) cStones += x.quantity || 1;
+        });
     
     const col = (have, need) => have >= need ? '#4CAF50' : '#f44336';
     const gCol = (game.player.gold >= reqGold) ? '#4CAF50' : '#f44336';
