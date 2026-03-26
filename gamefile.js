@@ -2919,17 +2919,27 @@ socket.on('mailList', (mails) => {
     });
     socket.on('sellSuccess', (data) => { game.player.gold = data.newGold; game.player.inventory = data.inventory; dom.log.innerText = `Item sold for ${data.price} Gold.`; window.updateUI(); window.renderInventory(); });
     socket.on('syncInventory', (serverInventory) => { game.player.inventory = serverInventory; window.updateEquipmentDisplay(); window.renderInventory(); });
-   socket.on('inventoryItemUsed', (data) => {
-    if (!data) return;
-
-    if (Array.isArray(data.inventory)) game.player.inventory = data.inventory;
-    if (typeof data.currentHp === 'number') game.player.currentHp = data.currentHp;
+  socket.on('inventoryItemUsed', (data) => {
+    if (data.inventory) {
+        game.player.inventory = data.inventory;
+        renderInventory();
+    }
 
     if (data.equips) {
         game.player.equips = data.equips;
-        if (typeof window.updateEquipmentDisplay === 'function') window.updateEquipmentDisplay();
-        if (typeof window.updateSkillMenu === 'function') window.updateSkillMenu();
+        renderInventory();
     }
+
+    if (typeof data.currentHp === 'number') {
+        game.player.currentHp = data.currentHp;
+    }
+
+    if (typeof data.maxHp === 'number') {
+        game.player.maxHp = data.maxHp;
+    }
+
+    updateHud();
+});
 
     if (data.classReset) {
         if (!game.player.baseStats) game.player.baseStats = {};
