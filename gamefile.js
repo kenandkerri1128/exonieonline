@@ -1704,9 +1704,23 @@ window.getItemTooltip = function(item) {
     let html = `<strong class="${nameClass}" style="color:${item.color}; font-size: 13px;">${item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name}</strong><br><span style="color:#888;">Lv. ${item.level || 1} ${item.rarity || 'Normal'}</span><br><br>`; 
     if(item.type === 'material') return html + `<span style="color:#aaa;"><em>${item.description}</em></span>`; 
 if(item.type === 'gem') return html + `<span style="color:#00ffff;"><em>${item.description}</em></span><br>`;
-    if(item.type === 'potion') return html + `Heals 100 HP`;
-    if(item.type === 'consumable') return html + `<span style="color:#ffeb3b;"><em>${item.description}</em></span>`;
-    if(item.fixedStat) { for(let key in item.fixedStat) html += `+${item.fixedStat[key]} ${key.toUpperCase()}<br>`; } 
+    if(item.type === 'potion') return html + `Heals 100 HP`; 
+    if(item.type === 'consumable') return html + `<span style="color:#ffeb3b;"><em>${item.description}</em></span>`;
+
+    // 💎 THE FIX: Visual indicator for Power Gem Sockets
+    if (['necklace', 'ring', 'earrings'].includes(item.type)) {
+        let maxGems = { "Basic": 1, "Rare": 1, "Unique": 2, "Legendary": 3, "Godly": 4, "Divine": 5 }[item.rarity] || 0;
+        if (maxGems > 0) {
+            let count = item.gemCount || 0;
+            let sockets = "";
+            for(let i = 0; i < maxGems; i++) {
+                sockets += (i < count) ? "♦" : "♢";
+            }
+            html += `<span style="color:#00ffff; font-size:13px; letter-spacing:2px;">Sockets: ${sockets}</span><br>`;
+        }
+    }
+
+    if(item.fixedStat) { for(let key in item.fixedStat) html += `+${item.fixedStat[key]} ${key.toUpperCase()}<br>`; }
     if(item.randomStat) { for(let key in item.randomStat) html += `<span style="color:#4CAF50;">+${item.randomStat[key]} ${key.toUpperCase()} (Bonus)</span><br>`; } 
     return html; 
 }
@@ -3327,13 +3341,27 @@ socket.on('forceTeleport', (tp) => {
             { key: 'earrings', label: 'Earrings' }
         ]; 
         
-        function fmtStatBlock(item) { 
-            if (!item) return `<div class="inspect-empty">None</div>`; 
-            const rarityColor = item.color || (window.RARITY_COLORS[item.rarity] || "#fff"); 
-            const nameClass = item.rarity === "Godly" ? "rarity-godly" : (item.rarity === "Divine" ? "rarity-divine-text" : "");
-            const displayName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name; 
-            let html = `<div class="inspect-title"><div class="inspect-item-name ${nameClass}" style="color:${rarityColor};">${displayName}</div><div class="inspect-sub">Lv.${item.level || 1} ${item.rarity || "Unknown"}</div></div><div class="inspect-stat">`; 
-            if (item.fixedStat) { for (const k in item.fixedStat) html += `<div><b>Fixed:</b> +${item.fixedStat[k]} ${k.toUpperCase()}</div>`; } 
+        function fmtStatBlock(item) { 
+            if (!item) return `<div class="inspect-empty">None</div>`; 
+            const rarityColor = item.color || (window.RARITY_COLORS[item.rarity] || "#fff"); 
+            const nameClass = item.rarity === "Godly" ? "rarity-godly" : (item.rarity === "Divine" ? "rarity-divine-text" : "");
+            const displayName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name; 
+            let html = `<div class="inspect-title"><div class="inspect-item-name ${nameClass}" style="color:${rarityColor};">${displayName}</div><div class="inspect-sub">Lv.${item.level || 1} ${item.rarity || "Unknown"}</div></div><div class="inspect-stat">`; 
+
+            // 💎 THE FIX: Visual indicator for Inspect Menu
+            if (['necklace', 'ring', 'earrings'].includes(item.type)) {
+                let maxGems = { "Basic": 1, "Rare": 1, "Unique": 2, "Legendary": 3, "Godly": 4, "Divine": 5 }[item.rarity] || 0;
+                if (maxGems > 0) {
+                    let count = item.gemCount || 0;
+                    let sockets = "";
+                    for(let i = 0; i < maxGems; i++) {
+                        sockets += (i < count) ? "♦" : "♢";
+                    }
+                    html += `<div style="color:#00ffff; font-size:13px; margin-bottom:4px; letter-spacing:2px;">Sockets: ${sockets}</div>`;
+                }
+            }
+
+            if (item.fixedStat) { for (const k in item.fixedStat) html += `<div><b>Fixed:</b> +${item.fixedStat[k]} ${k.toUpperCase()}</div>`; }
             if (item.randomStat) { for (const k in item.randomStat) html += `<div><b>Random:</b> +${item.randomStat[k]} ${k.toUpperCase()}</div>`; } 
             if (item.sprite) { html += `<div style="color:#888; margin-top:6px;">Sprite: ${item.sprite}.png</div>`; } 
             html += `</div>`; return html; 
