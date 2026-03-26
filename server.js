@@ -5194,7 +5194,7 @@ if (rarity !== "Starter") {
 
         if (!stone || !targetItem || stone.type !== 'aura') return;
         
-        const isPet = ['fox', 'owl', 'wisp', 'egg'].includes(stone.auraId);
+       const isPet = ['fox', 'owl', 'wisp', 'egg', 'void'].includes(stone.auraId);
         const expectedType = isPet ? 'leggings' : 'armor';
 
         if (targetItem.type !== expectedType) return socket.emit('systemMessage', `This item only applies to ${expectedType}!`);
@@ -5328,7 +5328,7 @@ const AURA_DATA = {
         socket.emit('syncInventory', p.inventory);
         socket.emit('systemMessage', "Extracted safely!");
 
-        const expectedType = ['fox', 'owl', 'wisp', 'egg'].includes(auraStone.auraId) ? 'leggings' : 'armor';
+        const expectedType = ['fox', 'owl', 'wisp', 'egg', 'void'].includes(auraStone.auraId) ? 'leggings' : 'armor';
         if (p.equips && p.equips[expectedType] && p.equips[expectedType].id === item.id) {
              if (expectedType === 'leggings') p.spriteData.pet = null;
              else p.spriteData.aura = null;
