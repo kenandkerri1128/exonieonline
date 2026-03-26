@@ -2544,7 +2544,8 @@ socket.on('saveData', async (playerData) => {
         level: p.level,       // Uses server memory
         exp: p.exp,           // Uses server memory
         max_exp: p.maxExp,    // Uses server memory
-        gold: p.gold,         // Uses server memory
+        // 🛡️ SECURITY: Hard-cap gold at 50,000,000. No one should ever have more than this legitimately.
+        gold: Math.min(50000000, Math.max(0, p.gold)),
         base_stats: p.baseStats, // Uses server memory
         current_hp: p.currentHp,
         pos_x: p.x,
@@ -3251,7 +3252,7 @@ socket.on('saveData', async (playerData) => {
                     // ==========================================
 
                     // 🛡️ HARD-SAVE TO SUPABASE
-                    if (m.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern') {
+                    if (m.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse') {
                         const floorId = p.mapId;
                         const deathTime = Date.now();
 
@@ -3287,8 +3288,8 @@ socket.on('saveData', async (playerData) => {
                         }, fullCooldown);
                     }
 
-                    // Normal Respawn Logic (🛡️ THE FIX: Strictly block Dungeons and Tavern from respawning!)
-                    if (m.respawnDelayMs !== -1 && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern') {
+                    // Normal Respawn Logic (🛡️ THE FIX: Strictly block Dungeons, Tavern, and Haunted House from respawning!)
+                    if (m.respawnDelayMs !== -1 && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse') {
                         setTimeout(() => {
                             const cfg = {
                                 spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY },
@@ -4039,7 +4040,7 @@ socket.on('requestConfirmTrade', () => {
           if (!onlinePlayers[socket.id]) return;
           
         // 🛑 ANTI-CHEAT: THE BOUNCER
-        if (data.mapId === 'trainingtavern' || String(data.mapId).startsWith('dungeon')) {
+        if (data.mapId === 'trainingtavern' || String(data.mapId).startsWith('dungeon') || data.mapId === 'hauntedhouse') {
             // 🛡️ THE FIX: If they are ALREADY in the map, ignore the duplicate lag signal!
             if (p.mapId !== data.mapId) {
                 if (p.expectedMapId !== data.mapId && !isAdmin(p.id)) {
@@ -5557,21 +5558,18 @@ socket.on('requestSell', async (data) => {
         return socket.emit('systemMessage', '❌ Cosmetics, Pets, and enchanted gear cannot be sold. Extract it first!');
     }
 
-    let baseVal = (serverItem.level || 1) * 2;
-    let multiplier = {
-        "Starter": 1,
-        "Basic": 1,
-        "Rare": 1,
-        "Unique": 2,
-        "Legendary": 3,
-        "Godly": 5
-    }[serverItem.rarity] || 1;
+    // 🛡️ SECURITY: Force everything to be a clean number
+    let baseVal = (Number(serverItem.level) || 1) * 2;
+    let multiplier = { "Starter": 1, "Basic": 1, "Rare": 1, "Unique": 2, "Legendary": 3, "Godly": 5 }[serverItem.rarity] || 1;
+    
+    let sellPrice = Math.floor(baseVal * multiplier);
+    
+    // Ensure quantity is a real number and not negative
+    let safeQty = Math.max(1, Math.min(999, Number(serverItem.quantity) || 1));
+    sellPrice *= safeQty;
 
-    let sellPrice = baseVal * multiplier;
-    // 🛡️ THE FIX: Multiply the final price by the stack quantity!
-    if (serverItem.quantity && serverItem.quantity > 1) {
-        sellPrice *= serverItem.quantity;
-    }
+    // Safety check: Don't let a single sell give more than 500k gold
+    sellPrice = Math.min(500000, sellPrice);
 
     p.gold += sellPrice;
     inv[sellIndex] = null;
@@ -5744,7 +5742,7 @@ socket.on('requestSell', async (data) => {
         let cost = 0; let minLvl = 1; let maxLvl = 15;
         if (data.difficulty === 'Easy') { cost = 1000; minLvl = 1; maxLvl = 15; }
         else if (data.difficulty === 'Normal') { cost = 10000; minLvl = 16; maxLvl = 30; }
-        else if (data.difficulty === 'Hard') { cost = 100000; minLvl = 31; maxLvl = 80; }
+        else if (data.difficulty === 'Hard') { cost = 300000; minLvl = 31; maxLvl = 80; }
 
         if (p.gold < cost) {
             socket.emit('closeHauntedUI');
