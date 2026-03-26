@@ -5521,10 +5521,15 @@ socket.on('requestSell', async (data) => {
         p.isStartingInstance = true;
         setTimeout(() => { if (onlinePlayers[socket.id]) onlinePlayers[socket.id].isStartingInstance = false; }, 3000);
 
+      // 🛡️ LEVEL 50 LOCK
+        if (p.level < 50 && !isAdmin(p.id)) {
+            return socket.emit('systemMessage', "❌ You must be at least Level 50 to enter the Training Tavern.");
+        }
+
        // 🛡️ SERVER-SIDE PARTY BLOCK
         if (playerParty[p.id] && !isAdmin(p.id)) {
-            return socket.emit('systemMessage', "❌ Access Denied: Leave your party to enter the solo challenge.");
-        }
+            return socket.emit('systemMessage', "❌ Access Denied: Leave your party to enter the solo challenge.");
+        }
 
         // 📅 STRICT UTC WEEKLY MONDAY RESET (8:00 AM PHT)
         const now = new Date();
