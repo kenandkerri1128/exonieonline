@@ -2412,7 +2412,29 @@ window.attemptLogin = function() {
     if(socket) socket.emit('login', { username: u, password: p, deviceId: deviceId }); 
     window.playBGM('loginmenu'); window.goFullscreen(); 
 };
-window.attemptRegister = function() { const u = document.getElementById('reg-user').value.trim(); const p = document.getElementById('reg-pass').value; if (!u || !p) return; localStorage.setItem('exonie_user', u); localStorage.setItem('exonie_pass', p); document.getElementById('auth-screen').classList.remove('active'); document.getElementById('loading-screen').style.display = 'flex'; if(socket) socket.emit('register', { username: u, password: p }); window.playBGM('loginmenu'); window.goFullscreen(); };
+window.attemptRegister = function() { 
+    const u = document.getElementById('reg-user').value.trim(); 
+    const p = document.getElementById('reg-pass').value; 
+    if (!u || !p) return; 
+
+    // 🛡️ GENERATE OR FETCH DEVICE ID
+    let deviceId = localStorage.getItem('exonie_device_id');
+    if (!deviceId) {
+        deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('exonie_device_id', deviceId);
+    }
+
+    localStorage.setItem('exonie_user', u); 
+    localStorage.setItem('exonie_pass', p); 
+    document.getElementById('auth-screen').classList.remove('active'); 
+    document.getElementById('loading-screen').style.display = 'flex'; 
+    
+    // 🛡️ THE FIX: Send the deviceId to the server!
+    if(socket) socket.emit('register', { username: u, password: p, deviceId: deviceId }); 
+    
+    window.playBGM('loginmenu'); 
+    window.goFullscreen(); 
+};
 window.submitCharacterCreation = function() { const username = document.getElementById('char-name-input').value; document.getElementById('creation-screen').classList.remove('active'); document.getElementById('loading-text').innerText = "Forging Avatar..."; document.getElementById('loading-screen').style.display = 'flex'; window.playBGM('loginmenu'); if(socket) socket.emit('createCharacter', { username, charData: window.charData }); window.goFullscreen(); };
 window.enterGameWorld = function() { 
     if (!game.cachedUserData) return; 
