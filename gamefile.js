@@ -5396,7 +5396,7 @@ window.openHauntedHouseUI = function() {
         
         <button class="btn" style="background:#4CAF50; width:100%; margin-bottom:10px; font-size:15px; font-weight:bold; padding:10px;" onclick="window.startHauntedHouse('Easy')">Easy (Lv 1-15) - 1,000 G</button>
         <button class="btn" style="background:#FF9800; width:100%; margin-bottom:10px; font-size:15px; font-weight:bold; padding:10px;" onclick="window.startHauntedHouse('Normal')">Normal (Lv 16-30) - 10,000 G</button>
-        <button class="btn" style="background:#f44336; width:100%; margin-bottom:15px; font-size:15px; font-weight:bold; padding:10px;" onclick="window.startHauntedHouse('Hard')">Hard (Lv 31-80) - 100,000 G</button>
+        <button class="btn" style="background:#f44336; width:100%; margin-bottom:15px; font-size:15px; font-weight:bold; padding:10px;" onclick="window.startHauntedHouse('Hard')">Hard (Lv 31-80) - 500,000 G</button>
         
         <button class="btn" style="background:#555; width:100%;" onclick="document.getElementById('haunted-house-modal').style.display='none'">Close</button>
     `;
