@@ -491,6 +491,81 @@ function generatePowerGem(level, rarity) {
         description: `+${statVal} ${rStat.toUpperCase()}.`
     };
 }
+function generateHauntedLoot(mLevel) {
+    if (Math.random() < 0.5) return null; // 50% chance of NO DROP
+
+    let typeRoll = Math.random();
+    let rarityRoll = Math.random();
+    
+    // Rarity for Equip/Gem/Acc (Unique to Godly)
+    let gearRarity = "Unique";
+    if (rarityRoll > 0.6) gearRarity = "Legendary";
+    if (rarityRoll > 0.9) gearRarity = "Godly";
+
+    // Refinement Stone Rarity (Basic to Divine)
+    let stoneRarity = "Basic";
+    let sRoll = Math.random();
+    if (sRoll > 0.4) stoneRarity = "Rare";
+    if (sRoll > 0.7) stoneRarity = "Unique";
+    if (sRoll > 0.85) stoneRarity = "Legendary";
+    if (sRoll > 0.95) stoneRarity = "Godly";
+    if (sRoll > 0.99) stoneRarity = "Divine";
+
+    if (typeRoll < 0.50) { // 50% Equipment
+        const equipKeys = ['sword', 'staff', 'pendant', 'gun', 'dagger', 'armor', 'leggings'];
+        const typeKey = equipKeys[Math.floor(Math.random() * equipKeys.length)];
+        const template = ITEM_TEMPLATES[typeKey];
+        const rPfx = gearRarity.toLowerCase();
+        
+        let item = { 
+            id: Date.now() + Math.random(), name: `${gearRarity} ${template.baseName}`, 
+            type: template.slot, sprite: rPfx + template.spriteName, 
+            level: mLevel, rarity: gearRarity, color: RARITY_COLORS[gearRarity], 
+            fixedStat: {}, randomStat: {}, enhanceLevel: 0, quantity: 1 
+        };
+        
+        let statVal = getBaseStat(mLevel) + ({ "Unique": 5, "Legendary": 8, "Godly": 12 }[gearRarity] || 0);
+        if (typeKey === 'gun' || typeKey === 'pendant') statVal = Math.floor(statVal / 2); 
+        item.fixedStat[template.statKey] = statVal;
+
+        let availableStats = [...STAT_TYPES]; 
+        let numStats = gearRarity === "Godly" ? 3 : (gearRarity === "Legendary" ? 2 : 1);
+        
+        for (let i = 0; i < numStats; i++) {
+            let rIdx = Math.floor(Math.random() * availableStats.length);
+            let sKey = availableStats.splice(rIdx, 1)[0]; 
+            item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(mLevel)) + 1;
+        }
+        return item;
+    } 
+    else if (typeRoll < 0.75) { // 25% Power Gems
+        return generatePowerGem(mLevel, gearRarity);
+    }
+    else if (typeRoll < 0.90) { // 15% Refinement Stone
+        return {
+            id: Date.now() + Math.random(), name: `Refinement Stone Lv.${mLevel}`,
+            type: "material", rarity: stoneRarity, level: mLevel, color: RARITY_COLORS[stoneRarity],
+            description: "Enhances equipment.", quantity: 1
+        };
+    }
+    else if (typeRoll < 0.95) { // 5% Accessories
+        return generateTavernLoot(mLevel, gearRarity);
+    }
+    else if (typeRoll < 0.98) { // 3% Soul Piece
+        return {
+            id: 'mat_' + Math.random(), name: 'Soul Piece',
+            type: 'material', rarity: 'Legendary', level: 1, color: '#E040FB',
+            description: 'A glowing fragment of a Wraith. Used for crafting a ghost pet.', quantity: 1
+        };
+    }
+    else { // 2% Divine Essence
+        return {
+            id: 'mat_' + Math.random(), name: 'Divine Essence',
+            type: 'material', rarity: 'Divine', level: 1, color: '#ffea00',
+            description: 'A blindingly bright golden essence. Required to craft Divine equipment.', quantity: 1
+        };
+    }
+}
 function generateDungeonLoot(m) {
     // 🌟 EXTREME DUNGEON EXO METALS (Lv 75+)
     if (m.level >= 75) {
@@ -2889,6 +2964,25 @@ socket.on('saveData', async (playerData) => {
                             });
                         }
                     }
+                    // 👻 HAUNTED HOUSE WIN CONDITION & AUTO-KICK
+                    if (p.mapId === 'hauntedhouse') {
+                        const activeMobs = Object.values(worlds[p.instanceId].monsters).filter(mob => mob.alive).length;
+                        if (activeMobs === 0) {
+                            io.to(p.instanceId).emit('hauntedVictory');
+                            
+                            const playersInRoom = playersInInstance(p.instanceId);
+                            playersInRoom.forEach(roomPlayer => {
+                                setTimeout(() => {
+                                    roomPlayer.mapId = 'town';
+                                    roomPlayer.x = 960; roomPlayer.y = 1000;
+                                    roomPlayer.instanceId = getInstanceId(roomPlayer.id, 'town');
+                                    
+                                    const rsid = findSocketIdByPlayerId(roomPlayer.id);
+                                    if (rsid) io.to(rsid).emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); 
+                                }, 4000);
+                            });
+                        }
+                    }
 
                     // 1. Process EXP & Gold First
                     const expAmount = m.expYield || 25;
@@ -2939,8 +3033,15 @@ socket.on('saveData', async (playerData) => {
 
                         if (targetPlayer.mapId !== 'trainingtavern') {
                             
-                            // 💎 USE DUNGEON LOOT TABLE IF IN A DUNGEON!
-                            let drop = String(targetPlayer.mapId).startsWith('dungeon') ? generateDungeonLoot(m) : generateLoot(m);
+                            // 💎 DYNAMIC LOOT ROUTING
+                            let drop = null;
+                            if (targetPlayer.mapId === 'hauntedhouse') {
+                                drop = generateHauntedLoot(m.level);
+                            } else if (String(targetPlayer.mapId).startsWith('dungeon')) {
+                                drop = generateDungeonLoot(m);
+                            } else {
+                                drop = generateLoot(m);
+                            }
                             let dropAccepted = drop && playerAcceptsLoot(targetPlayer, drop);
 
                             if (dropAccepted) {
@@ -5627,6 +5728,55 @@ socket.on('requestSell', async (data) => {
         p.expectedMapId = 'trainingtavern'; // 🎟️ THE FIX: Hand them a secure server ticket!
         socket.emit('forceTeleport', { mapId: 'trainingtavern', x: 960, y: 1000 });
         socket.emit('systemMessage', 'Entering the Training Tavern...');
+    });
+    socket.on('startHauntedHouse', (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.isGhost) return;
+
+        if (p.isStartingInstance) return;
+        p.isStartingInstance = true;
+        setTimeout(() => { if (onlinePlayers[socket.id]) onlinePlayers[socket.id].isStartingInstance = false; }, 3000);
+
+        if (playerParty[p.id] && !isAdmin(p.id)) {
+            return socket.emit('systemMessage', "❌ The Haunted House is a solo-only challenge. Please leave your party.");
+        }
+
+        let cost = 0; let minLvl = 1; let maxLvl = 15;
+        if (data.difficulty === 'Easy') { cost = 1000; minLvl = 1; maxLvl = 15; }
+        else if (data.difficulty === 'Normal') { cost = 10000; minLvl = 16; maxLvl = 30; }
+        else if (data.difficulty === 'Hard') { cost = 100000; minLvl = 31; maxLvl = 80; }
+
+        if (p.gold < cost) {
+            socket.emit('closeHauntedUI');
+            return socket.emit('systemMessage', `❌ Not enough gold! You need ${cost.toLocaleString()} G.`);
+        }
+
+        p.gold -= cost;
+        supabase.from('Exonians').update({ gold: p.gold }).eq('character_name', p.id).then(()=>{});
+        socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory }); // Sync gold UI safely
+
+        const targetMapId = 'hauntedhouse';
+        const newInstId = getInstanceId(p.id, targetMapId);
+        const randomLevel = Math.floor(Math.random() * (maxLvl - minLvl + 1)) + minLvl;
+
+        p.teleportGrace = Date.now() + 4000; 
+        p.expectedMapId = targetMapId; 
+        
+        socket.emit('closeHauntedUI');
+        socket.emit('forceTeleport', { mapId: targetMapId, x: 960, y: 1000 });
+        socket.emit('systemMessage', `👻 Entering Haunted House (${data.difficulty})... Boss Level: ${randomLevel}`);
+
+        setTimeout(() => {
+            if (!worlds[newInstId]) worlds[newInstId] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
+            worlds[newInstId].monsters = {}; 
+
+            const mobId = `hh_boss_${Date.now()}`;
+            // 💀 Spawns the Void King from your database at the rolled level!
+            const newMob = spawnMonster(newInstId, mobId, 'floor_boss_wraith', { spawnArea: { minX: 960, minY: 400 }, level: randomLevel });
+            worlds[newInstId].monsters[mobId] = newMob;
+            
+            io.to(newInstId).emit('monsterSpawned', serializeMonster(newMob));
+        }, 1000);
     });
 socket.on('startDungeon', async (data) => {
         const p = onlinePlayers[socket.id];
