@@ -15,14 +15,20 @@ exonieChannel.onmessage = (event) => {
 // ==========================================
 // 1. CORE VARIABLES & SETUP
 // ==========================================
-// 🌐 SMART CONNECT ENGINE
-// If we are NOT on our main site or localhost, use the absolute Render URL
-const isExternal = !window.location.hostname.includes('onrender.com') && 
-                   !window.location.hostname.includes('localhost') && 
-                   !window.location.hostname.includes('127.0.0.1');
+// 🌐 AUTO-DETECTS TEST OR LIVE SERVER + MOBILE RECONNECTS
+const serverUrl = window.location.origin; 
+const socket = io(serverUrl, {
+    reconnection: true,            // 🔄 Try to reconnect automatically if data drops
+    reconnectionAttempts: 10,      // Try 10 times before giving up completely
+    reconnectionDelay: 2000,       // Wait 2 seconds between attempts
+    reconnectionDelayMax: 5000,    // Never wait more than 5 seconds
+    timeout: 20000,                // Give the connection 20 seconds to establish
+});
 
-// 🧪 HARDCODED TO TEST SERVER (Forces Itch.io to look at Render)
-const socket = io('https://testexonie.onrender.com');
+// 🔔 OPTIONAL: Log to console if the internet flickers
+socket.on('reconnect_attempt', () => {
+    console.log("Internet connection unstable. Attempting to reconnect...");
+});
 let currentShopItem = null; // 🛡️ GLOBAL TRACKER FOR THE SHOP
 window.isProcessingShop = false; // Anti-Spam Lock
 let isMailboxOpen = false, isChatting = false, isInventoryOpen = false, isSkillOpen = false, isShopping = false, localBossTimer = null, isEnhancing = false, isApplyingAura = false;
