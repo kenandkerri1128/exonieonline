@@ -2928,8 +2928,13 @@ socket.on('saveData', async (playerData) => {
             }
         }
       if (payload.skillId === 'pet' && payload.isBigBoss) {
-            targets = Object.values(world.monsters).filter(mob => mob.alive && Math.hypot(mob.x - m.x, mob.y - m.y) <= 400);
-            io.to(p.instanceId).emit('monsterSkill', { monsterId: payload.petId, skillName: 'Earthquake', x: m.x, y: m.y, radius: 400 });
+            const pet = world.pets[payload.petId];
+            if (pet && (!pet.lastEqTs || now - pet.lastEqTs > 4000)) {
+                pet.lastEqTs = now;
+                targets = Object.values(world.monsters).filter(mob => mob.alive && Math.hypot(mob.x - m.x, mob.y - m.y) <= 400);
+                // 🛡️ THE FIX: Big Boss Earthquake is BLUE!
+                io.to(p.instanceId).emit('monsterSkill', { monsterId: payload.petId, skillName: 'Earthquake', x: m.x, y: m.y, radius: 400, color: 'blue' });
+            }
         }
 
         // 🛡️ APPLY DAMAGE LOOP 
@@ -6378,12 +6383,17 @@ socket.on('startDungeon', async (data) => {
             }
         }
 if (payload.skillId === 'pet' && payload.isBigBoss) {
-            targetPlayers = Object.values(onlinePlayers).filter(rp => 
-                rp.mapId === 'neutralzone' && !rp.isGhost && !rp.isHiddenAdmin && 
-                rp.id !== p.id && !(playerParty[p.id] && playerParty[p.id] === playerParty[rp.id]) &&
-                Math.hypot(rp.x - target.x, rp.y - target.y) <= 400
-            );
-            io.to(p.instanceId).emit('monsterSkill', { monsterId: payload.petId, skillName: 'Earthquake', x: target.x, y: target.y, radius: 400 });
+            const pet = world.pets[payload.petId];
+            if (pet && (!pet.lastEqTs || now - pet.lastEqTs > 4000)) {
+                pet.lastEqTs = now;
+                targetPlayers = Object.values(onlinePlayers).filter(rp => 
+                    rp.mapId === 'neutralzone' && !rp.isGhost && !rp.isHiddenAdmin && 
+                    rp.id !== p.id && !(playerParty[p.id] && playerParty[p.id] === playerParty[rp.id]) &&
+                    Math.hypot(rp.x - target.x, rp.y - target.y) <= 400
+                );
+                // 🛡️ THE FIX: Big Boss Earthquake is BLUE!
+                io.to(p.instanceId).emit('monsterSkill', { monsterId: payload.petId, skillName: 'Earthquake', x: target.x, y: target.y, radius: 400, color: 'blue' });
+            }
         }
         // 🛡️ APPLY DAMAGE LOOP FOR PVP (Supports AoE & Double Hits!)
         for (let hc = 0; hc < hitCount; hc++) {
