@@ -253,40 +253,10 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY; 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// 🛡️ THE IMPROVED TEST BOUNCER
+// 🛡️ THE BOUNCER (Currently DISABLED so normal PC Browsers can play)
 app.use((req, res, next) => {
-    const userAgent = req.headers['user-agent'] || '';
-    const referer = req.headers['referer'] || '';
-    const origin = req.headers['origin'] || '';
-    const host = req.hostname || '';
-
-    const isMobile = /Mobile|Android|iP(hone|od|ad)|IEMobile|BlackBerry|Kindle/i.test(userAgent);
-    
-    const isItch = referer.includes('itch.io') || 
-                   referer.includes('itch.zone') || 
-                   origin.includes('itch.io') || 
-                   origin.includes('itch.zone') ||
-                   referer.includes('hwcdn.net') ||
-                   host.includes('hwcdn.net');
-
-    const isLocal = host.includes('localhost') || host.includes('127.0.0.1');
-    const isWebhook = req.path.includes('webhook') || req.path.includes('paypal');
-
-    // 🔓 Always allow the socket library and manifest
-    if (req.path.includes('socket.io') || req.path.includes('manifest.json')) {
-        return next();
-    }
-
-    if (isMobile || isItch || isLocal || isWebhook) {
-        next(); 
-    } else {
-        res.status(403).send(`
-            <div style="background: #111; color: #fff; padding: 50px; text-align: center;">
-                <h1 style="color: #E040FB;">Exonie Test Server</h1>
-                <p>Access restricted to Itch.io or Mobile only.</p>
-            </div>
-        `);
-    }
+    // We are letting everyone in for now!
+    next(); 
 });
 
 // Caches images and audio in the player's browser for 1 day
