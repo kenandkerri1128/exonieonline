@@ -3855,14 +3855,21 @@ socket.on('monsterAttack', (data) => {
                 }
             }
 
-            const ring = document.createElement('div'); 
+           const ring = document.createElement('div'); 
             ring.className = 'earthquake-ring'; 
             ring.style.left = (data.x - data.radius) + 'px'; 
             ring.style.top = (data.y - data.radius) + 'px'; 
             ring.style.width = (data.radius * 2) + 'px'; 
             ring.style.height = (data.radius * 2) + 'px'; 
+            
+            // 🛡️ THE FIX: Color the enemy boss earthquake BLUE so it stands out!
+            if (data.color === 'blue') {
+                ring.style.border = '4px solid #2196F3';
+                ring.style.boxShadow = '0 0 30px #2196F3, inset 0 0 30px #2196F3';
+            }
+            
             document.getElementById('world').appendChild(ring); 
-            setTimeout(() => ring.remove(), 800); 
+            setTimeout(() => ring.remove(), 800);
         } else if (data.skillName === 'Vanish') {
             const poof = document.createElement('div');
             poof.style.cssText = `position:absolute; left:${data.x}px; top:${data.y}px; width:50px; height:50px; border-radius:50%; background:rgba(156,39,176,0.8); box-shadow:0 0 30px #9c27b0; z-index:300; pointer-events:none; transition:all 0.4s ease-out; transform:translate(-50%, -50%) scale(0.5); opacity:1;`;
