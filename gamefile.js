@@ -4827,8 +4827,13 @@ if (socket) {
             </div>
         `;
 
-        if (data.state === 'shop_open') {
+       if (data.state === 'shop_open') {
             const items = [
+                // 🐰 SEASONAL ITEMS (Top of the list)
+                { id: 'aura_easter', name: 'Easter Aura Stone', priceGems: 15, desc: 'Seasonal Cosmetic: A beautiful pastel aura that shifts colors.', isSeasonal: true },
+                { id: 'pet_egg', name: 'Easter Egg Pet', priceGems: 15, desc: 'Seasonal Cosmetic: A cute floating Easter Egg that follows you.', isSeasonal: true },
+                
+                // NORMAL ITEMS
                 { id: 'name_change', name: 'Name Change Ticket', priceGems: 15, desc: 'Permanently changes your character name. (Cannot be undone)' },
                 { id: 'edit_char', name: 'Appearance Reroll Ticket', priceGems: 15, desc: 'Re-open the character creator to change your hair, skin color, and style.' },
                 { id: 'pet_fox', name: 'Spirit Fox Pet', priceGems: 10, desc: 'A loyal fire-fox companion that follows you and attacks enemies.' },
@@ -4842,8 +4847,14 @@ if (socket) {
 
             html += `<div style="max-height:300px; overflow-y:auto; padding-right:5px;">`;
             items.forEach(i => {
-                html += `<div style="background:#222; border:1px solid #444; padding:10px; border-radius:6px; margin-bottom:10px; text-align:left;">
-                            <div style="color:#E040FB; font-weight:bold; font-size:15px;">${i.name}</div>
+                // 🌟 DYNAMIC STYLING: Make Seasonal Items Glow Gold!
+                let nameColor = i.isSeasonal ? '#FFD700' : '#E040FB';
+                let shadow = i.isSeasonal ? 'text-shadow: 0 0 10px #FFD700;' : '';
+                let border = i.isSeasonal ? 'border: 2px solid #FFD700; box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.15);' : 'border: 1px solid #444;';
+                let tag = i.isSeasonal ? ' <span style="font-size:11px; color:#fff;">🐰 (Seasonal)</span>' : '';
+
+                html += `<div style="background:#222; ${border} padding:10px; border-radius:6px; margin-bottom:10px; text-align:left;">
+                            <div style="color:${nameColor}; font-weight:bold; font-size:15px; ${shadow}">${i.name}${tag}</div>
                             <div style="color:#aaa; font-size:12px; margin-bottom:8px;">${i.desc}</div>
                             <div style="display:flex; justify-content:space-between; align-items:center; gap:5px;">
                                 <button class="btn" style="background:#333; padding:8px 10px; font-size:14px; color:#E040FB; border-color:#9c27b0; flex:1; font-weight:bold; cursor:pointer; box-shadow: 0 0 5px #9c27b0;" onclick="window.buyWithGems('${i.id}', '${i.name}', ${i.priceGems})">💎 Buy for ${i.priceGems} Exo Gems</button>
