@@ -56,7 +56,7 @@ app.post('/paypal-webhook', express.json(), async (req, res) => {
                 'aura_liquid': { name: "Liquid Aura Stone", type: 'aura', auraId: 'liquid', rarity: 'Legendary', color: '#2196F3', description: "Click to apply to Armor.", quantity: 1 },
                 'aura_nature': { name: "Nature Aura Stone", type: 'aura', auraId: 'nature', rarity: 'Legendary', color: '#4CAF50', description: "Click to apply to Armor.", quantity: 1 },
                 'divine_pack': { name: "Divine Enhancement Stone", type: 'material', rarity: 'Divine', color: '#ffea00', description: "Enhances Divine equipment.", quantity: 5 },
-                'revival_pack': { name: "Revival Juice Bundle (x10)", type: "consumable", rarity: "Unique", color: "#9c27b0", description: "Revives you instantly.", quantity: 10 }
+                'revival_pack': { name: "Revival Juice", type: "consumable", rarity: "Unique", color: "#9c27b0", description: "Revives you instantly on the spot when used while dead.", quantity: 10 }
             };
 
             const deliveryItem = itemTemplates[itemId];
@@ -6633,7 +6633,7 @@ if (payload.skillId === 'pet' && payload.isBigBoss) {
             'aura_liquid': { priceGems: 10, item: { name: "Liquid Aura Stone", type: 'aura', auraId: 'liquid', rarity: 'Legendary', color: '#2196F3', description: "Click to apply to Armor.", quantity: 1 } },
             'aura_nature': { priceGems: 10, item: { name: "Nature Aura Stone", type: 'aura', auraId: 'nature', rarity: 'Legendary', color: '#4CAF50', description: "Click to apply to Armor.", quantity: 1 } },
             'divine_pack': { priceGems: 10, item: { name: "Divine Enhancement Stone", type: 'material', rarity: 'Divine', color: '#ffea00', description: "Enhances Divine equipment.", quantity: 5 } },
-            'revival_pack': { priceGems: 5, item: { name: "Revival Juice Bundle (x10)", type: "consumable", rarity: "Unique", color: "#9c27b0", description: "Revives you instantly.", quantity: 10 } }
+            'revival_pack': { priceGems: 5, item: { name: "Revival Juice", type: "consumable", rarity: "Unique", color: "#9c27b0", description: "Revives you instantly on the spot when used while dead.", quantity: 10 } }
         };
 
         const catalogItem = MASTER_CATALOG[data.itemId];
