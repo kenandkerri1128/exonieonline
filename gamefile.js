@@ -329,11 +329,11 @@ const CLASSES = {
         { id: 'heal3', name: "Purification", unlock: 50, cd: 100000, type: 'active', desc: "Revives dead party members globally and heals everyone." },
         { id: 'heal4', name: "Healing Touch", unlock: 75, type: 'passive', desc: "Normal attacks heal all party members for 5% of your INT." }
     ]},
-    "Summoner": { weapon: "staff", aura: "blue", skills: [
-        { id: 'sum1', name: "Summon Slime", unlock: 1, cd: 25000, type: 'active', desc: "Summons a slime with 25% stats to fight alongside you." },
+  "Summoner": { weapon: "staff", aura: "blue", skills: [
+        { id: 'sum1', name: "Summon Slime", unlock: 1, cd: 25000, type: 'active', desc: "Summons a permanent slime with 25% stats to fight alongside you." },
         { id: 'sum2', name: "Duplicate", unlock: 25, type: 'passive', desc: "Summon Slime now spawns 2 slimes." },
-        { id: 'sum3', name: "Enhance!", unlock: 50, cd: 100000, type: 'active', desc: "Your slimes gain 100% of your stats for 10 seconds." },
-        { id: 'sum4', name: "Big Boss", unlock: 75, type: 'passive', desc: "Summon Slime also summons a Boss Slime with Earthquake." }
+        { id: 'sum3', name: "Enhance!", unlock: 50, cd: 100000, type: 'active', desc: "10s: Slimes gain 100% stats. Big Boss deals 4x Damage (1800 AoE)." },
+        { id: 'sum4', name: "Big Boss", unlock: 75, type: 'passive', desc: "Summon Slime also summons a Giant White Boss Slime (5x HP) with Earthquake." }
     ]},
     "Ice Master": { weapon: "staff", aura: "blue", skills: [
         { id: 'ice1', name: "Icicle Spear", unlock: 1, cd: 25000, type: 'active', desc: "Drops an icicle dealing 2x Magic Attack." },
