@@ -247,31 +247,41 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY; 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// 🛡️ THE BOUNCER: Block PC Web Browsers
+// 🛡️ THE IMPROVED BOUNCER: Recognizing Itch.io's Secret Domains
 app.use((req, res, next) => {
     const userAgent = req.headers['user-agent'] || '';
     const referer = req.headers['referer'] || '';
+    const origin = req.headers['origin'] || '';
     const host = req.hostname || '';
 
-    // Check if it's a mobile device
+    // 📱 Check for Mobile
     const isMobile = /Mobile|Android|iP(hone|od|ad)|IEMobile|BlackBerry|Kindle/i.test(userAgent);
     
-    // Check if it's coming from Itch.io
-    const isItch = referer.includes('itch.io') || referer.includes('itch.zone');
-    
-    // Check if it's you testing locally, or if it's a backend webhook (PayPal/Patreon)
+    // 🕹️ Check for Itch.io (Itch uses multiple domains like itch.zone and hwcdn)
+    const isItch = referer.includes('itch.io') || 
+                   referer.includes('itch.zone') || 
+                   origin.includes('itch.io') || 
+                   origin.includes('itch.zone') ||
+                   referer.includes('hwcdn.net') ||
+                   host.includes('hwcdn.net');
+
+    // 💻 Check for your local testing or webhooks
     const isLocal = host.includes('localhost') || host.includes('127.0.0.1');
-    const isWebhook = req.path.includes('webhook') || req.path.includes('paypal-return');
+    const isWebhook = req.path.includes('webhook') || req.path.includes('paypal');
+
+    // 🔓 SPECIAL RULE: Always allow the socket library and manifest to load
+    if (req.path.includes('socket.io') || req.path.includes('manifest.json')) {
+        return next();
+    }
 
     if (isMobile || isItch || isLocal || isWebhook) {
-        next(); // Let them in!
+        next(); 
     } else {
-        // Kick them to your Itch page! (Replace with your actual Itch URL later)
         res.status(403).send(`
             <div style="font-family: sans-serif; text-align: center; margin-top: 50px; background: #111; color: #fff; padding: 50px;">
                 <h1 style="color: #E040FB;">Exonie Online</h1>
-                <p>PC Web Browser access is disabled.</p>
-                <p>Please play the game on our official <a href="https://itch.io" style="color: #2196F3;">Itch.io page</a> or use a mobile device!</p>
+                <p>PC Web Browser access is disabled for security.</p>
+                <p>Please play via our official <a href="https://itch.io" style="color: #2196F3;">Itch.io Page</a> or Mobile!</p>
             </div>
         `);
     }
