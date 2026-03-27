@@ -949,66 +949,50 @@ function gameLoop(ts) {
             
            let finalTarget = targetMob || targetPlayer;
             if (finalTarget) {
-                let dist = Math.hypot(finalTarget.x - p.x, finalTarget.y - p.y);
-                // 🛡️ THE FIX: Big Boss stops at 100px (Boss range), Slimes at 40px
-               // 🛡️ THE FIX: Big Boss has boss range (100) and boss attack speed (1500ms)
-                let stopDist = p.isBigBoss ? 100 : 40; 
+    let dist = Math.hypot(finalTarget.x - p.x, finalTarget.y - p.y);
+    let stopDist = p.isBigBoss ? 100 : 40;
 
-                if (dist > stopDist) { 
-                    if (p.isBigBoss) {
-                        // 👑 BOSS MOVEMENT: Slow, menacing float
-                        p.x += (finalTarget.x - p.x) * 0.05; 
-                        p.y += (finalTarget.y - p.y) * 0.05; 
-                    } else {
-                        p.x += (finalTarget.x - p.x) * 0.15; 
-                        p.y += (finalTarget.y - p.y) * 0.15; 
-                    }
-                } else {
-                    let atkCooldown = p.isBigBoss ? 1500 : 1000;
-                    if (!p.lastAttack || Date.now() - p.lastAttack > atkCooldown) { 
-                        p.lastAttack = Date.now();
-                        
-                        // 🛡️ THE ANIMATION FIX: Prevent the Big Boss from permanently shrinking!
-                        let baseScale = p.isBigBoss ? 2.5 : 1;
-                        let atkScale = p.isBigBoss ? 3.0 : 1.5;
-                        
-                        p.dom.style.transform = `scale(${atkScale}) translateY(-20px)`; 
-                        setTimeout(() => { 
-                            if (p.dom) p.dom.style.transform = `scale(${baseScale})`; 
-                            if(socket) {
-                                if (targetMob) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss });
-                                else socket.emit('attackPlayer', { targetId: targetPlayer.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss });
-                            }
-                        }, 200); 
-                    }
+    if (dist > stopDist) {
+        if (p.isBigBoss) {
+            p.x += (finalTarget.x - p.x) * 0.05;
+            p.y += (finalTarget.y - p.y) * 0.05;
+        } else {
+            p.x += (finalTarget.x - p.x) * 0.15;
+            p.y += (finalTarget.y - p.y) * 0.15;
+        }
+    } else {
+        let atkCooldown = p.isBigBoss ? 1500 : 1000;
+        if (!p.lastAttack || Date.now() - p.lastAttack > atkCooldown) {
+            p.lastAttack = Date.now();
+
+            let baseScale = p.isBigBoss ? 2.5 : 1;
+            let atkScale = p.isBigBoss ? 3.0 : 1.5;
+
+            p.dom.style.transform = `scale(${atkScale}) translateY(-20px)`;
+            setTimeout(() => {
+                if (p.dom) p.dom.style.transform = `scale(${baseScale})`;
+                if (socket) {
+                    if (targetMob) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss });
+                    else socket.emit('attackPlayer', { targetId: targetPlayer.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss });
                 }
-            } else {
-                if (p.isBigBoss) {
-                    // 👑 BIG BOSS: Detached from player! Returns to its spawn location and waits.
-                    let targetX = p.homeX || p.x; 
-                    let targetY = p.homeY || p.y;
-                    p.x += (targetX - p.x) * 0.05; 
-                    p.y += (targetY - p.y) * 0.05;
-                } else {
-                    let targetX = game.player.x + (idx === 0 ? -40 : 40); let targetY = game.player.y - 20;
-                    p.x += (targetX - p.x) * 0.15; p.y += (targetY - p.y) * 0.15;
-                }
-            }
-                else if (!p.lastAttack || Date.now() - p.lastAttack > 1000) {
-                    p.lastAttack = Date.now();
-                    p.dom.style.transform = 'scale(1.5) translateY(-20px)'; 
-                    setTimeout(() => { 
-                        if (p.dom) p.dom.style.transform = 'scale(1)'; 
-                        if(socket) {
-                            if (targetMob) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss });
-                            else socket.emit('attackPlayer', { targetId: targetPlayer.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss });
-                        }
-                    }, 200); 
-                }
-            } else {
-                let targetX = game.player.x + (idx === 0 ? -40 : 40); let targetY = game.player.y - 20;
-                p.x += (targetX - p.x) * 0.15; p.y += (targetY - p.y) * 0.15;
-            }
+            }, 200);
+        }
+    }
+} else {
+    let targetX, targetY;
+
+    if (p.isBigBoss) {
+        targetX = p.homeX || p.x;
+        targetY = p.homeY || p.y;
+        p.x += (targetX - p.x) * 0.05;
+        p.y += (targetY - p.y) * 0.05;
+    } else {
+        targetX = game.player.x + (idx === 0 ? -40 : 40);
+        targetY = game.player.y - 20;
+        p.x += (targetX - p.x) * 0.15;
+        p.y += (targetY - p.y) * 0.15;
+    }
+}
             p.dom.style.left = p.x + 'px'; p.dom.style.top = p.y + 'px';
             let hpBar = p.dom.querySelector('#pet-hp');
             if (hpBar) hpBar.style.width = (p.hp / p.maxHp) * 100 + '%';
