@@ -1728,9 +1728,15 @@ window.addLoot = function(item) {
 }
 
 window.getItemTooltip = function(item) { 
-    if(!item) return ""; 
+    if(!item) return ""; 
     let nameClass = item.rarity === "Godly" ? "rarity-godly" : (item.rarity === "Divine" ? "rarity-divine-text" : "");
-    let html = `<strong class="${nameClass}" style="color:${item.color}; font-size: 13px;">${item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name}</strong><br><span style="color:#888;">Lv. ${item.level || 1} ${item.rarity || 'Normal'}</span><br><br>`; 
+    let html = `<strong class="${nameClass}" style="color:${item.color}; font-size: 13px;">${item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name}</strong><br><span style="color:#888;">Lv. ${item.level || 1} ${item.rarity || 'Normal'}</span><br>`; 
+    
+    // 🛡️ THE FIX: Display Untradeable tag for enhanced Godly/Divine gear
+    if ((item.rarity === 'Godly' || item.rarity === 'Divine') && item.enhanceLevel > 0) {
+        html += `<span style="color:#f44336; font-size:11px; font-weight:bold; letter-spacing:1px;">[UNTRADEABLE]</span><br>`;
+    }
+    html += `<br>`;
     if(item.type === 'material') return html + `<span style="color:#aaa;"><em>${item.description}</em></span>`; 
 if(item.type === 'gem') return html + `<span style="color:#00ffff;"><em>${item.description}</em></span><br>`;
     if(item.type === 'potion') return html + `Heals 100 HP`; 
@@ -2556,7 +2562,13 @@ window.addTradeItem = function(invIndex) {
     const item = game.player.inventory[invIndex]; 
     if (!item) return; 
     if (item.type === 'aura') { dom.log.innerText = "Cosmetics and pets cannot be traded!"; return; }
-    const emptyTradeSlot = tradeMyItems.findIndex(i => i === null); if (emptyTradeSlot === -1) { dom.log.innerText = "Trade offer full!"; return; } tradeMyItems[emptyTradeSlot] = item; game.player.inventory[invIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
+    
+    // 🛡️ THE FIX: Prevent adding bound gear to trade window
+    if ((item.rarity === 'Godly' || item.rarity === 'Divine') && item.enhanceLevel > 0) {
+        dom.log.innerText = "Enhanced Godly and Divine gear cannot be traded!"; return;
+    }
+    
+    const emptyTradeSlot = tradeMyItems.findIndex(i => i === null); if (emptyTradeSlot === -1) { dom.log.innerText = "Trade offer full!"; return; } tradeMyItems[emptyTradeSlot] = item; game.player.inventory[invIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); };
 window.removeFromTrade = function(tradeIndex) { if (!inTradeMode) return; const item = tradeMyItems[tradeIndex]; if (!item) return; window.addLoot(item); tradeMyItems[tradeIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
 document.getElementById('trade-my-gold').addEventListener('input', (e) => { let val = parseInt(e.target.value) || 0; if (val > game.player.gold) { val = game.player.gold; e.target.value = val; } window.syncTrade(); }); 
 window.renderTradeSlots = function() { const myGrid = document.getElementById('trade-my-items'); myGrid.innerHTML = ''; const theirGrid = document.getElementById('trade-their-items'); theirGrid.innerHTML = ''; for (let i = 0; i < 3; i++) { const mySlot = document.createElement('div'); mySlot.className = 'inv-slot'; if (tradeMyItems[i]) { mySlot.style.border = `2px solid ${tradeMyItems[i].color || '#fff'}`; mySlot.innerText = tradeMyItems[i].enhanceLevel ? `${tradeMyItems[i].name} +${tradeMyItems[i].enhanceLevel}` : tradeMyItems[i].name; mySlot.onclick = () => window.removeFromTrade(i); } else { mySlot.innerText = "Empty"; mySlot.style.color = "#555"; } myGrid.appendChild(mySlot); const theirSlot = document.createElement('div'); theirSlot.className = 'inv-slot'; if (tradeTheirItems[i]) { theirSlot.style.border = `2px solid ${tradeTheirItems[i].color || '#fff'}`; theirSlot.innerText = tradeTheirItems[i].enhanceLevel ? `${tradeTheirItems[i].name} +${tradeTheirItems[i].enhanceLevel}` : tradeTheirItems[i].name; } else { theirSlot.innerText = "Empty"; theirSlot.style.color = "#555"; } theirGrid.appendChild(theirSlot); } }; 
@@ -5228,6 +5240,12 @@ window.ahList = function() {
     if (ahSelectedInvIndex === -1) return dom.log.innerText = "Select an item to sell first.";
     const item = game.player.inventory[ahSelectedInvIndex];
     if (item && item.type === 'aura') return dom.log.innerText = "Cosmetics and pets cannot be auctioned!";
+    
+    // 🛡️ THE FIX: Prevent listing bound gear
+    if (item && (item.rarity === 'Godly' || item.rarity === 'Divine') && item.enhanceLevel > 0) {
+        return dom.log.innerText = "Enhanced Godly and Divine gear cannot be auctioned!";
+    }
+
     const price = parseInt(document.getElementById('ah-sell-price').value);
     if (isNaN(price) || price < 1) return dom.log.innerText = "Invalid price.";
     
