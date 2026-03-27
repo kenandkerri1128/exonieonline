@@ -2745,11 +2745,21 @@ socket.on('saveData', async (playerData) => {
         const m = world.monsters[payload.monsterId]; 
         if (!m || !m.alive) return;
         
-        const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); const dist = Math.hypot(pcx - mcx, pcy - mcy); 
-        // 🛡️ EAGLE EYE PASSIVE: Sniper Range Check
+        const pcx = p.x + 24; const pcy = p.y + 48; const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2); 
+        
+        // 🛡️ THE FIX: Check Pet distance if it's a pet attack, otherwise check Player distance
+        let dist = Math.hypot(pcx - mcx, pcy - mcy);
+        if (payload.skillId === 'pet' && world.pets && world.pets[payload.petId]) {
+            const pet = world.pets[payload.petId];
+            dist = Math.hypot(pet.x - mcx, pet.y - mcy);
+        }
+
         let maxDist = 350;
-        if (p.baseStats?.playerClass === 'Sniper') maxDist = 402.5; // +15% Range
-        if (dist > maxDist) return;
+        if (p.baseStats?.playerClass === 'Sniper') maxDist = 402.5; 
+        
+        // Pets have their own range (Boss: 400 AoE, Slime: 150)
+        let finalMax = payload.skillId === 'pet' ? 450 : maxDist;
+        if (dist > finalMax) return;
         
         // 🛡️ 100% SERVER-SIDE MATH: The client's opinions are ignored entirely.
         let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(p.baseStats?.playerClass);
@@ -6175,10 +6185,16 @@ socket.on('startDungeon', async (data) => {
         // Calculate Distance
         const pcx = p.x + 24; const pcy = p.y + 48; 
         const tcx = target.x + 24; const tcy = target.y + 48;
-        const dist = Math.hypot(pcx - tcx, pcy - tcy);
+        
+        let dist = Math.hypot(pcx - tcx, pcy - tcy);
+        if (payload.skillId === 'pet' && world.pets && world.pets[payload.petId]) {
+            const pet = world.pets[payload.petId];
+            dist = Math.hypot(pet.x - tcx, pet.y - tcy);
+        }
+
         let maxDist = 350;
-        if (p.baseStats?.playerClass === 'Sniper') maxDist = 402.5; 
-        if (dist > maxDist) return;
+        let finalMax = payload.skillId === 'pet' ? 450 : maxDist;
+        if (dist > finalMax) return;
 
         // 🌫️ SMOKE BOMB MISS CHECK (Attacker is blinded)
         if (p.smokeBombUntil && now < p.smokeBombUntil) {
