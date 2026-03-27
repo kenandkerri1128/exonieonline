@@ -929,14 +929,30 @@ function gameLoop(ts) {
                 });
             }
             
-            let finalTarget = targetMob || targetPlayer;
+           let finalTarget = targetMob || targetPlayer;
             if (finalTarget) {
                 let dist = Math.hypot(finalTarget.x - p.x, finalTarget.y - p.y);
-                if (dist > 40) { 
-                    p.x += (finalTarget.x - p.x) * 0.15; 
-                    p.y += (finalTarget.y - p.y) * 0.15; 
+                // 🛡️ THE FIX: Big Boss stops at 100px (Boss range), Slimes at 40px
+                let stopDist = p.isBigBoss ? 100 : 40; 
+
+                if (dist > stopDist) { 
+                    if (p.isBigBoss) {
+                        // 👑 BOSS MOVEMENT: Fixed speed (3.5) + Collision detection
+                        let angle = Math.atan2(finalTarget.y - p.y, finalTarget.x - p.x);
+                        let moveSpeed = 3.5; 
+                        let nextX = p.x + Math.cos(angle) * moveSpeed;
+                        let nextY = p.y + Math.sin(angle) * moveSpeed;
+
+                        // Big Boss respects walls!
+                        if (!window.isColliding(nextX, p.y)) p.x = nextX;
+                        if (!window.isColliding(p.x, nextY)) p.y = nextY;
+                    } else {
+                        // Slime Movement: Linear/Sticky Lerp
+                        p.x += (finalTarget.x - p.x) * 0.15; 
+                        p.y += (finalTarget.y - p.y) * 0.15; 
+                    }
                 }
-                else if (!p.lastAttack || Date.now() - p.lastAttack > 1000) { 
+                else if (!p.lastAttack || Date.now() - p.lastAttack > 1000) {
                     p.lastAttack = Date.now();
                     p.dom.style.transform = 'scale(1.5) translateY(-20px)'; 
                     setTimeout(() => { 
