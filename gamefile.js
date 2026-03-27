@@ -639,7 +639,7 @@ if (skillId === 'sum1') {
             bEl.innerHTML = '<div class="pet-hp-bar" style="top:-15px;"><div class="pet-hp-fill" id="pet-hp"></div></div>';
             bEl.style.left = game.player.x + 'px'; bEl.style.top = game.player.y + 'px';
             
-            // 🌟 BIG BOSS STYLING: White, 100x100 (Dragon Slime Size)
+            // 🌟 BIG BOSS STYLING: White, 100x100
             bEl.style.width = '100px';
             bEl.style.height = '100px';
             bEl.style.backgroundColor = '#ffffff';
@@ -651,7 +651,7 @@ if (skillId === 'sum1') {
             
             // 🛡️ SCALES WITH PLAYER: x5 HP
             let bossHp = window.getMaxHp() * 5; 
-            let bossPet = { id: bossId, dom: bEl, x: game.player.x, y: game.player.y, hp: bossHp, maxHp: bossHp, skillRef: game.player.activeSkills.find(s=>s.id==='sum1'), isBigBoss: true };
+            let bossPet = { id: bossId, dom: bEl, x: game.player.x, y: game.player.y, homeX: game.player.x, homeY: game.player.y, hp: bossHp, maxHp: bossHp, skillRef: game.player.activeSkills.find(s=>s.id==='sum1'), isBigBoss: true };
             game.player.activePets.push(bossPet);
             if(socket) socket.emit('syncPet', { id: bossId, x: bossPet.x, y: bossPet.y, alive: true, isBigBoss: true });
         }
@@ -951,25 +951,49 @@ function gameLoop(ts) {
             if (finalTarget) {
                 let dist = Math.hypot(finalTarget.x - p.x, finalTarget.y - p.y);
                 // 🛡️ THE FIX: Big Boss stops at 100px (Boss range), Slimes at 40px
+               // 🛡️ THE FIX: Big Boss has boss range (100) and boss attack speed (1500ms)
                 let stopDist = p.isBigBoss ? 100 : 40; 
 
                 if (dist > stopDist) { 
                     if (p.isBigBoss) {
-                        // 👑 BOSS MOVEMENT: Fixed speed (3.5) + Collision detection
-                        let angle = Math.atan2(finalTarget.y - p.y, finalTarget.x - p.x);
-                        let moveSpeed = 3.5; 
-                        let nextX = p.x + Math.cos(angle) * moveSpeed;
-                        let nextY = p.y + Math.sin(angle) * moveSpeed;
-
-                        // Big Boss respects walls!
-                        if (!window.isColliding(nextX, p.y)) p.x = nextX;
-                        if (!window.isColliding(p.x, nextY)) p.y = nextY;
+                        // 👑 BOSS MOVEMENT: Slow, menacing float
+                        p.x += (finalTarget.x - p.x) * 0.05; 
+                        p.y += (finalTarget.y - p.y) * 0.05; 
                     } else {
-                        // Slime Movement: Linear/Sticky Lerp
                         p.x += (finalTarget.x - p.x) * 0.15; 
                         p.y += (finalTarget.y - p.y) * 0.15; 
                     }
+                } else {
+                    let atkCooldown = p.isBigBoss ? 1500 : 1000;
+                    if (!p.lastAttack || Date.now() - p.lastAttack > atkCooldown) { 
+                        p.lastAttack = Date.now();
+                        
+                        // 🛡️ THE ANIMATION FIX: Prevent the Big Boss from permanently shrinking!
+                        let baseScale = p.isBigBoss ? 2.5 : 1;
+                        let atkScale = p.isBigBoss ? 3.0 : 1.5;
+                        
+                        p.dom.style.transform = `scale(${atkScale}) translateY(-20px)`; 
+                        setTimeout(() => { 
+                            if (p.dom) p.dom.style.transform = `scale(${baseScale})`; 
+                            if(socket) {
+                                if (targetMob) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss });
+                                else socket.emit('attackPlayer', { targetId: targetPlayer.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss });
+                            }
+                        }, 200); 
+                    }
                 }
+            } else {
+                if (p.isBigBoss) {
+                    // 👑 BIG BOSS: Detached from player! Returns to its spawn location and waits.
+                    let targetX = p.homeX || p.x; 
+                    let targetY = p.homeY || p.y;
+                    p.x += (targetX - p.x) * 0.05; 
+                    p.y += (targetY - p.y) * 0.05;
+                } else {
+                    let targetX = game.player.x + (idx === 0 ? -40 : 40); let targetY = game.player.y - 20;
+                    p.x += (targetX - p.x) * 0.15; p.y += (targetY - p.y) * 0.15;
+                }
+            }
                 else if (!p.lastAttack || Date.now() - p.lastAttack > 1000) {
                     p.lastAttack = Date.now();
                     p.dom.style.transform = 'scale(1.5) translateY(-20px)'; 
