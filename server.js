@@ -238,15 +238,15 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: [
-            "https://testexonie.onrender.com", 
-            /\.itch\.io$/, 
-            /\.itch\.zone$/, 
-            "http://localhost:3000"
-        ],
+        origin: ["https://testexonie.onrender.com", "https://exonieonline.onrender.com", /\.itch\.io$/, /\.itch\.zone$/, "http://localhost:3000"],
         methods: ["GET", "POST"],
         credentials: true
-    }
+    },
+    // 📱 MOBILE STABILITY SETTINGS
+    pingTimeout: 60000,  // Wait 60 seconds (instead of 20) before giving up on a player
+    pingInterval: 25000, // Send a "heartbeat" every 25 seconds
+    connectTimeout: 45000, // Give them 45 seconds to finish the initial login
+    allowEIO3: true      // Better compatibility for older mobile browsers
 });
 
 const supabaseUrl = process.env.SUPABASE_URL;
