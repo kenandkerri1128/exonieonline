@@ -1079,7 +1079,7 @@ function gameLoop(ts) {
     });
 
     // Cleanup unequipped pets
-    document.querySelectorAll('.pet-fox, .pet-owl, .pet-wisp, .pet-egg').forEach(pet => {
+    document.querySelectorAll('.pet-fox, .pet-owl, .pet-wisp, .pet-egg, .pet-void').forEach(pet => {
         let ownerId = pet.id.replace('cosmetic_pet_', '');
         if (!currentPetIds.has(ownerId)) {
             pet.remove();
