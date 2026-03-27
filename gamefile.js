@@ -5653,7 +5653,6 @@ if (socket) {
         setTimeout(() => { if (document.getElementById('cosmetics-craft-modal') && document.getElementById('cosmetics-craft-modal').style.display === 'block') window.renderCosmeticsCrafting(); }, 100);
     });
 }
-
 // ==========================================
 // 👻 VOID PET CSS
 // ==========================================
@@ -5667,16 +5666,17 @@ voidStyle.innerHTML = `
     }
     .pet-void .mini-wraith {
         width: 100%; height: 100%;
-        background: linear-gradient(45deg, #4A148C, #000000); /* Void King Base */
-        border: 2px solid #311B92; /* Match the Void King Border */
-        border-radius: 50% 50% 40% 40%; /* Smoother wraith shape */
+        background: linear-gradient(45deg, #4A148C, #000000);
+        border: 2px solid #311B92;
+        border-radius: 50% 50% 40% 40%;
         position: relative;
-        box-shadow: 0 0 15px #311B92; /* Deep purple glow */
-        animation: eggFloatShake 4s linear infinite;
+        box-shadow: 0 0 15px #311B92;
+        /* 👻 THE FIX: Replaced float with the new vanish/fade animation */
+        animation: voidFadeFloat 6s ease-in-out infinite;
     }
     .pet-void .w-eye {
         position: absolute; width: 6px; height: 6px;
-        background: #ffffff; /* Bright white/yellowish wraith eyes */
+        background: #ffffff;
         border-radius: 50%; top: 12px;
         box-shadow: 0 0 8px #ffffff;
     }
@@ -5687,14 +5687,26 @@ voidStyle.innerHTML = `
         display: flex; justify-content: space-around; 
     }
     .pet-void .w-p { 
-        width: 6px; height: 12px; background: #311B92; /* Tails match the border */
+        width: 6px; height: 12px; background: #311B92; 
         border-radius: 50%; opacity: 0.6; 
         animation: wraithTail 1s infinite alternate; 
     }
     .pet-void .w-p:nth-child(2) { animation-delay: 0.2s; }
     .pet-void .w-p:nth-child(3) { animation-delay: 0.4s; }
-    .pet-void .w-p:nth-child(4) { animation-delay: 0.6s; } /* 4th tail animation */
+    .pet-void .w-p:nth-child(4) { animation-delay: 0.6s; }
     
     @keyframes wraithTail { 0% { transform: translateY(0); opacity: 0.8; } 100% { transform: translateY(8px); opacity: 0.1; } }
+
+    /* 👻 THE VANISHING ANIMATION */
+    @keyframes voidFadeFloat {
+        0%   { transform: translateY(0); opacity: 1; }
+        20%  { transform: translateY(-10px); opacity: 1; }
+        40%  { transform: translateY(0); opacity: 1; }
+        45%  { transform: translateY(-5px); opacity: 0; } /* Poof out */
+        65%  { transform: translateY(-15px); opacity: 0; } /* Move while invisible */
+        70%  { transform: translateY(-10px); opacity: 1; } /* Poof in */
+        85%  { transform: translateY(0); opacity: 1; }
+        100% { transform: translateY(0); opacity: 1; }
+    }
 `;
 document.head.appendChild(voidStyle);
