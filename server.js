@@ -1266,171 +1266,145 @@ function updateMonsterAI(instId, m, now) {
         return; 
     }
     
-  if ((m.category === "mini_boss" || m.category === "floor_boss") && m.alive) {
-        if (now - (m.lastSpecialSkill || 0) > 6000) {
-            if (Math.random() < 0.15) {
-                m.lastSpecialSkill = now;
+if ((m.category === "mini_boss" || m.category === "floor_boss") && m.alive) {
+    if (now - (m.lastSpecialSkill || 0) > 6000) {
+        if (Math.random() < 0.15) {
+            m.lastSpecialSkill = now;
 
-               // 👻 WRAITH MECHANIC: VANISH & REPOSITION
-                    m.threatTable = {}; // Instantly drop all aggro!
-                    m.targetId = null;
-                    m.forcedTargetId = null; // Break Berserker taunts!
-                    
-                    // 🛡️ THE FIX: Smart Teleport using Line-of-Sight!
-                    let foundSpot = false;
-                    let nx = m.x;
-                    let ny = m.y;
-                    
-                    // Try up to 10 times to find a safe spot in the same room
-                    for (let tries = 0; tries < 10; tries++) {
-                        const angle = Math.random() * Math.PI * 2;
-                        const jumpDist = 150 + Math.random() * 200; // Jump 150-350px away
-                        
-                        let testX = m.x + Math.cos(angle) * jumpDist;
-                        let testY = m.y + Math.sin(angle) * jumpDist;
-                        
-                        // 1. Check if the landing spot is inside a wall
-                        let hitsWall = isMonsterColliding(instId, testX, testY, m.width, m.height);
-                        // 2. Check if he has to phase through a wall to get there
-                        let pathClear = hasLineOfSight(instId, m.x + m.width/2, m.y + m.height/2, testX + m.width/2, testY + m.height/2);
-                        
-                        if (!hitsWall && pathClear) {
-                            nx = testX;
-                            ny = testY;
-                            foundSpot = true;
-                            break; // We found a valid spot, stop searching!
-                        }
+            const isWraith = m.originalKey && m.originalKey.includes('wraith');
+
+            if (isWraith) {
+                // 👻 WRAITH MECHANIC: VANISH & REPOSITION
+                m.threatTable = {};
+                m.targetId = null;
+                m.forcedTargetId = null;
+
+                let foundSpot = false;
+                let nx = m.x;
+                let ny = m.y;
+
+                for (let tries = 0; tries < 10; tries++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const jumpDist = 150 + Math.random() * 200;
+
+                    let testX = m.x + Math.cos(angle) * jumpDist;
+                    let testY = m.y + Math.sin(angle) * jumpDist;
+
+                    let hitsWall = isMonsterColliding(instId, testX, testY, m.width, m.height);
+                    let pathClear = hasLineOfSight(
+                        instId,
+                        m.x + m.width / 2,
+                        m.y + m.height / 2,
+                        testX + m.width / 2,
+                        testY + m.height / 2
+                    );
+
+                    if (!hitsWall && pathClear) {
+                        nx = testX;
+                        ny = testY;
+                        foundSpot = true;
+                        break;
                     }
-                    
-                    // Only move the boss if a safe spot was found
-                    if (foundSpot) {
-                        m.x = nx;
-                        m.y = ny;
-                    }
-
-                    io.to(instId).emit('systemMessage', `<span style="color:#9c27b0;">👻 The ${m.name} vanishes into the shadows and drops all aggro!</span>`);
-                    io.to(instId).emit('monsterSkill', { monsterId: m.id, skillName: 'Vanish', x: m.x, y: m.y, radius: 0 });
-
-                } else {
-                   // 👻 WRAITH MECHANIC: VANISH & REPOSITION
-                    m.threatTable = {}; // Instantly drop all aggro!
-                    m.targetId = null;
-                    m.forcedTargetId = null; // Break Berserker taunts!
-                    
-                    // 🛡️ THE FIX: Smart Teleport using Line-of-Sight!
-                    let foundSpot = false;
-                    let nx = m.x;
-                    let ny = m.y;
-                    
-                    // Try up to 10 times to find a safe spot in the same room
-                    for (let tries = 0; tries < 10; tries++) {
-                        const angle = Math.random() * Math.PI * 2;
-                        const jumpDist = 150 + Math.random() * 200; // Jump 150-350px away
-                        
-                        let testX = m.x + Math.cos(angle) * jumpDist;
-                        let testY = m.y + Math.sin(angle) * jumpDist;
-                        
-                        // 1. Check if the landing spot is inside a wall
-                        let hitsWall = isMonsterColliding(instId, testX, testY, m.width, m.height);
-                        // 2. Check if he has to phase through a wall to get there
-                        let pathClear = hasLineOfSight(instId, m.x + m.width/2, m.y + m.height/2, testX + m.width/2, testY + m.height/2);
-                        
-                        if (!hitsWall && pathClear) {
-                            nx = testX;
-                            ny = testY;
-                            foundSpot = true;
-                            break; // We found a valid spot, stop searching!
-                        }
-                    }
-                    
-                    // Only move the boss if a safe spot was found
-                    if (foundSpot) {
-                        m.x = nx;
-                        m.y = ny;
-                    }
-
-                    io.to(instId).emit('systemMessage', `<span style="color:#9c27b0;">👻 The ${m.name} vanishes into the shadows and drops all aggro!</span>`);
-                    io.to(instId).emit('monsterSkill', { monsterId: m.id, skillName: 'Vanish', x: m.x, y: m.y, radius: 0 });
-
-                } else {
-                    // 🗿 GOLEM & SLIME MECHANIC: EARTHQUAKE
-                    const aoeRadius = m.category === "floor_boss" ? 400 : 200;
-
-                    io.to(instId).emit('monsterSkill', { monsterId: m.id, skillName: 'Earthquake', x: mcx, y: mcy, radius: aoeRadius });
-
-                    const players = playersInInstance(instId);
-                    players.forEach(p => {
-                        // 🌟 ADDED p.isHiddenAdmin bypass so Earthquake ignores you
-                        if (p.isGhost || p.isHiddenAdmin || p.mapId === 'town' || p.untargetableUntil > now) return;
-                        const pDist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
-                        if (pDist <= aoeRadius) {
-                            const damage = Math.max(1, m.atk - getServerDefense(p));
-                            p.currentHp = Math.max(0, p.currentHp - damage);
-
-                            // 🛡️ THE FIX: If Immortal is active, force HP to 1 instead of 0
-                            if (p.currentHp <= 0 && p.immortalUntil && now < p.immortalUntil) {
-                                p.currentHp = 1;
-                            }
-
-                            io.to(instId).emit('monsterAttack', {
-                                monsterId: m.id,
-                                targetId: p.id,
-                                targetX: p.x + 24,
-                                targetY: p.y + 48,
-                                atk: m.atk,
-                                isAoE: true,
-                                damage: damage,
-                                newHp: p.currentHp
-                            });
-
-                            const victimSid = findSocketIdByPlayerId(p.id);
-                            if (victimSid) {
-                                io.to(victimSid).emit('playerVitals', {
-                                    currentHp: p.currentHp,
-                                    maxHp: p.maxHp,
-                                    level: p.level
-                                });
-                            }
-
-                            if (p.currentHp <= 0 && !p.isGhost) {
-                                p.isGhost = true;
-                                p.currentHp = 0;
-                                p.currentPortal = null;
-
-                                io.to(instId).emit('remotePlayerGhosted', p.id);
-
-                                const pid = playerParty[p.id];
-                                if (!pid || !parties[pid]) {
-                                    if (victimSid) io.to(victimSid).emit('showDeathScreen');
-                                } else {
-                                    const party = parties[pid];
-                                    let allDead = true;
-
-                                    for (const memberId of party.members) {
-                                        const member = getPlayerById(memberId);
-                                        if (member && !member.isGhost) {
-                                            allDead = false;
-                                            break;
-                                        }
-                                    }
-
-                                    if (allDead) {
-                                        for (const memberId of party.members) {
-                                            const memberSid = findSocketIdByPlayerId(memberId);
-                                            if (memberSid) io.to(memberSid).emit('showDeathScreen');
-                                        }
-                                        io.to(instId).emit('partyWiped');
-                                    }
-
-                                    emitPartyUpdate(pid);
-                                }
-                            }
-                        }
-                    });
                 }
+
+                if (foundSpot) {
+                    m.x = nx;
+                    m.y = ny;
+                }
+
+                io.to(instId).emit('systemMessage', `<span style="color:#9c27b0;">👻 The ${m.name} vanishes into the shadows and drops all aggro!</span>`);
+                io.to(instId).emit('monsterSkill', {
+                    monsterId: m.id,
+                    skillName: 'Vanish',
+                    x: m.x,
+                    y: m.y,
+                    radius: 0
+                });
+
+            } else {
+                // 🗿 GOLEM & SLIME MECHANIC: EARTHQUAKE
+                const aoeRadius = m.category === "floor_boss" ? 400 : 200;
+
+                io.to(instId).emit('monsterSkill', {
+                    monsterId: m.id,
+                    skillName: 'Earthquake',
+                    x: mcx,
+                    y: mcy,
+                    radius: aoeRadius
+                });
+
+                const players = playersInInstance(instId);
+                players.forEach(p => {
+                    if (p.isGhost || p.isHiddenAdmin || p.mapId === 'town' || p.untargetableUntil > now) return;
+
+                    const pDist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
+                    if (pDist <= aoeRadius) {
+                        const damage = Math.max(1, m.atk - getServerDefense(p));
+                        p.currentHp = Math.max(0, p.currentHp - damage);
+
+                        if (p.currentHp <= 0 && p.immortalUntil && now < p.immortalUntil) {
+                            p.currentHp = 1;
+                        }
+
+                        io.to(instId).emit('monsterAttack', {
+                            monsterId: m.id,
+                            targetId: p.id,
+                            targetX: p.x + 24,
+                            targetY: p.y + 48,
+                            atk: m.atk,
+                            isAoE: true,
+                            damage: damage,
+                            newHp: p.currentHp
+                        });
+
+                        const victimSid = findSocketIdByPlayerId(p.id);
+                        if (victimSid) {
+                            io.to(victimSid).emit('playerVitals', {
+                                currentHp: p.currentHp,
+                                maxHp: p.maxHp,
+                                level: p.level
+                            });
+                        }
+
+                        if (p.currentHp <= 0 && !p.isGhost) {
+                            p.isGhost = true;
+                            p.currentHp = 0;
+                            p.currentPortal = null;
+
+                            io.to(instId).emit('remotePlayerGhosted', p.id);
+
+                            const pid = playerParty[p.id];
+                            if (!pid || !parties[pid]) {
+                                if (victimSid) io.to(victimSid).emit('showDeathScreen');
+                            } else {
+                                const party = parties[pid];
+                                let allDead = true;
+
+                                for (const memberId of party.members) {
+                                    const member = getPlayerById(memberId);
+                                    if (member && !member.isGhost) {
+                                        allDead = false;
+                                        break;
+                                    }
+                                }
+
+                                if (allDead) {
+                                    for (const memberId of party.members) {
+                                        const memberSid = findSocketIdByPlayerId(memberId);
+                                        if (memberSid) io.to(memberSid).emit('showDeathScreen');
+                                    }
+                                    io.to(instId).emit('partyWiped');
+                                }
+
+                                emitPartyUpdate(pid);
+                            }
+                        }
+                    }
+                });
             }
         }
     }
+}
 
    const dist = Math.hypot(target.x - mcx, target.y - mcy);
 if (dist > m.chaseRadius) {
