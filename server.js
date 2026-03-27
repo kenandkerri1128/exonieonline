@@ -2755,8 +2755,12 @@ socket.on('syncPet', (data) => {
             // 🛡️ THE FIX: Check if we are at the pet limit. But if it's an existing pet moving, let it sync!
             if (myPetCount >= 3 && !world.pets[data.id]) return; 
             
-            // 👇 THE FIX: Save the flags, and ALWAYS allow movement to sync without a cooldown!
-            world.pets[data.id] = { id: data.id, ownerId: p.id, x: data.x, y: data.y, isClone: !!data.isClone, isBigBoss: !!data.isBigBoss }; 
+            // 👇 THE FIX: Preserve the existing flags so the movement sync doesn't downgrade the Boss!
+            let existingPet = world.pets[data.id];
+            let petIsClone = existingPet ? existingPet.isClone : !!data.isClone;
+            let petIsBoss = existingPet ? existingPet.isBigBoss : !!data.isBigBoss;
+            
+            world.pets[data.id] = { id: data.id, ownerId: p.id, x: data.x, y: data.y, isClone: petIsClone, isBigBoss: petIsBoss }; 
         } 
         else { delete world.pets[data.id]; }
         
