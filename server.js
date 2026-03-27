@@ -238,8 +238,14 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: ["https://exonieonline.onrender.com", "https://*.itch.io", "http://localhost:3000"],
-        methods: ["GET", "POST"]
+        origin: [
+            "https://testexonie.onrender.com", 
+            /\.itch\.io$/, 
+            /\.itch\.zone$/, 
+            "http://localhost:3000"
+        ],
+        methods: ["GET", "POST"],
+        credentials: true
     }
 });
 
