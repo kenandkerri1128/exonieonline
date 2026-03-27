@@ -247,6 +247,36 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY; 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// 🛡️ THE BOUNCER: Block PC Web Browsers
+app.use((req, res, next) => {
+    const userAgent = req.headers['user-agent'] || '';
+    const referer = req.headers['referer'] || '';
+    const host = req.hostname || '';
+
+    // Check if it's a mobile device
+    const isMobile = /Mobile|Android|iP(hone|od|ad)|IEMobile|BlackBerry|Kindle/i.test(userAgent);
+    
+    // Check if it's coming from Itch.io
+    const isItch = referer.includes('itch.io') || referer.includes('itch.zone');
+    
+    // Check if it's you testing locally, or if it's a backend webhook (PayPal/Patreon)
+    const isLocal = host.includes('localhost') || host.includes('127.0.0.1');
+    const isWebhook = req.path.includes('webhook') || req.path.includes('paypal-return');
+
+    if (isMobile || isItch || isLocal || isWebhook) {
+        next(); // Let them in!
+    } else {
+        // Kick them to your Itch page! (Replace with your actual Itch URL later)
+        res.status(403).send(`
+            <div style="font-family: sans-serif; text-align: center; margin-top: 50px; background: #111; color: #fff; padding: 50px;">
+                <h1 style="color: #E040FB;">Exonie Online</h1>
+                <p>PC Web Browser access is disabled.</p>
+                <p>Please play the game on our official <a href="https://itch.io" style="color: #2196F3;">Itch.io page</a> or use a mobile device!</p>
+            </div>
+        `);
+    }
+});
+
 // Caches images and audio in the player's browser for 1 day
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -1535,7 +1565,22 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
         }
     }
 }, 100);
+// 🛡️ SOCKET BOUNCER: Reject illegal websocket connections
+io.use((socket, next) => {
+    const userAgent = socket.request.headers['user-agent'] || '';
+    const origin = socket.request.headers.origin || socket.request.headers.referer || '';
 
+    const isMobile = /Mobile|Android|iP(hone|od|ad)|IEMobile|BlackBerry/i.test(userAgent);
+    const isItch = origin.includes('itch.io') || origin.includes('itch.zone');
+    const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
+
+    if (isMobile || isItch || isLocal) {
+        return next();
+    }
+    
+    // Force disconnect if they slipped through
+    return next(new Error('PC web browsers must use the official Itch.io app.'));
+});
 io.on('connection', (socket) => {
     let currentUser = null; 
 // ✅ BACKEND FRIENDS & DM LOGIC
