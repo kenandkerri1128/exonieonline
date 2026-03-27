@@ -6569,7 +6569,9 @@ if (payload.skillId === 'pet' && payload.isBigBoss) {
 
         socket.emit('systemMessage', '⏳ Connecting to PayPal... please wait.');
 
-        const MASTER_CATALOG = {
+       const MASTER_CATALOG = {
+            'aura_easter': { priceGems: 15, item: { name: "Easter Aura Stone", type: 'aura', auraId: 'easter', rarity: 'Divine', color: '#FFB7B2', description: "Click to apply to an Armor. Purely cosmetic.", quantity: 1 } },
+            'pet_egg': { priceGems: 15, item: { name: "Easter Egg Pet", type: 'aura', auraId: 'egg', rarity: 'Divine', color: '#FFC1E3', description: "Click to apply to Leggings.", quantity: 1 } },
             'name_change': { priceGems: 15, item: { name: "Name Change Ticket", type: 'consumable', rarity: 'Legendary', color: '#ff9800', description: "Changes your character's name permanently.", quantity: 1 } },
             'edit_char': { priceGems: 15, item: { name: "Appearance Reroll Ticket", type: 'consumable', rarity: 'Legendary', color: '#2196F3', description: "Redesign your hair, skin color, and style.", quantity: 1 } },
             'pet_fox': { priceGems: 10, item: { name: "Spirit Fox Pet", type: 'aura', auraId: 'fox', rarity: 'Godly', color: '#ff7e00', description: "Click to apply to Leggings.", quantity: 1 } },
