@@ -4183,7 +4183,7 @@ socket.on('requestConfirmTrade', () => {
             .update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y })
             .eq('character_name', currentUser)
             .then(() => {});
-         // 🛡️ VISUAL MAP TIMER: Send cooldown to the client
+     // 🛡️ VISUAL MAP TIMER: Send cooldown to the client
         let queryBossId = p.mapId === 'neutralzone' ? 'neutralzone_boss' : p.mapId;
         supabase.from('boss_timers').select('last_death_time').eq('boss_id', queryBossId).single().then(({data: timer}) => {
             if (timer) {
@@ -4194,7 +4194,8 @@ socket.on('requestConfirmTrade', () => {
                     remaining = getBossCountdown(timer.last_death_time);
                 }
                 
-                if (remaining > 0) socket.emit('bossCooldownActive', { remaining });
+                // 🛡️ MAZE TRIAL FIX: Ignore world timers if in a private Maze Trial
+                if (remaining > 0 && !p.isMazeTrial) socket.emit('bossCooldownActive', { remaining });
             } else if (p.mapId === 'neutralzone') {
                 // 🌟 THE FIX: If there's no timer in the DB, AND the boss isn't alive in RAM, spawn it!
                 let boss = worlds['neutralzone']?.monsters['neutral_boss_1'];
@@ -5799,7 +5800,8 @@ socket.on('requestSell', async (data) => {
             mp.expectedMapId = targetMapId; 
             const msid = findSocketIdByPlayerId(mp.id);
             if (msid) {
-                io.to(msid).emit('forceTeleport', { mapId: targetMapId, x: 960, y: 1000 });
+                // 🛡️ THE FIX: Use teleportApproved so it correctly calculates exact map portal spawn coordinates!
+                io.to(msid).emit('teleportApproved', { portalId: targetPortalId, targetMapId: targetMapId, exactTarget: true });
                 io.to(msid).emit('systemMessage', `Entering Maze Trial: Floor ${targetFloor}...`);
             }
         });
