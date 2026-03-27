@@ -1073,7 +1073,8 @@ function gameLoop(ts) {
         
         petEl.style.left = pData.x + 'px';
         petEl.style.top = pData.y + 'px';
-        petEl.style.transform = owner.facingRight ? 'scaleX(-1) translate(-50%, -50%)' : 'scaleX(1) translate(-50%, -50%)';
+        // 🛡️ THE FIX: Translate MUST come before Scale in CSS, or else the flip reverses the centering math!
+        petEl.style.transform = owner.facingRight ? 'translate(-50%, -50%) scaleX(-1)' : 'translate(-50%, -50%) scaleX(1)';
     });
 
     // Cleanup unequipped pets
