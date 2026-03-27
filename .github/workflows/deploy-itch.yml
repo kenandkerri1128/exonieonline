@@ -1,0 +1,27 @@
+name: Deploy to Itch.io
+
+on:
+  push:
+    branches:
+      - main  # 🚀 Runs every time you push to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Butler
+        run: |
+          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+          unzip butler.zip
+          chmod +x butler
+
+      - name: Push to Itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          # ⚠️ EDIT THESE TWO NAMES BELOW ⚠️
+          # Replace 'YOUR_USERNAME' and 'YOUR_SLUG'
+          ./butler push ./public xenie1128/exonie-online:web
