@@ -3402,11 +3402,16 @@ socket.on('saveData', async (playerData) => {
     const targetSid = findSocketIdByPlayerId(me.tradeTarget);
     if (!them || !targetSid) return;
 
-    // Save THIS player's latest offer on the server (🛡️ Stripping out any injected auras/pets)
-    me.currentTradeOffer = {
-        gold: Math.max(0, parseInt(data.gold) || 0),
-        items: Array.isArray(data.items) ? data.items.filter(Boolean).filter(i => i.type !== 'aura') : []
-    };
+    // Save THIS player's latest offer on the server (🛡️ Stripping out any injected auras/pets/bound gear)
+    me.currentTradeOffer = {
+        gold: Math.max(0, parseInt(data.gold) || 0),
+        items: Array.isArray(data.items) ? data.items.filter(Boolean).filter(i => {
+            if (i.type === 'aura') return false;
+            // 🛡️ THE FIX: Server strips bound items out of the trade array instantly
+            if ((i.rarity === 'Godly' || i.rarity === 'Divine') && i.enhanceLevel > 0) return false;
+            return true;
+        }) : []
+    };
 
     // Any change to offer resets both confirmations
     me.tradeConfirmed = false;
@@ -5427,10 +5432,16 @@ const AURA_DATA = {
             let originalItem = inv[data.invIndex];
             if (!originalItem) { p.isListingAH = false; return socket.emit('systemMessage', "Item not found."); }
 
-            // 🛡️ ANTI-CHEAT: Block server from auctioning cosmetics/pets
+           // 🛡️ ANTI-CHEAT: Block server from auctioning cosmetics/pets
             if (originalItem.type === 'aura' || originalItem.aura) {
                 p.isListingAH = false;
                 return socket.emit('systemMessage', "❌ Cosmetics, Pets, and enchanted gear cannot be auctioned. Extract it first!");
+            }
+
+            // 🛡️ THE FIX: Block server from auctioning bound high-tier gear
+            if ((originalItem.rarity === 'Godly' || originalItem.rarity === 'Divine') && originalItem.enhanceLevel > 0) {
+                p.isListingAH = false;
+                return socket.emit('systemMessage', "❌ Enhanced Godly and Divine equipment cannot be auctioned.");
             }
 
             // 2. Create the exact item data to save (Force quantity to 1)
