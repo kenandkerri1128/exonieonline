@@ -5783,13 +5783,31 @@ socket.on('requestSell', async (data) => {
             }
         }
 
-        playersToEnter.forEach(mp => {
+        playersToEnter.forEach(async (mp) => {
             if (!isAdmin(mp.id) && mp.baseStats) {
-                mp.baseStats.mazeTrialEntries = Math.max(0, (mp.baseStats.mazeTrialEntries || 1) - 1);
-                supabase.from('Exonians').update({ base_stats: mp.baseStats }).eq('character_name', mp.id).then(()=>{});
+                mp.baseStats.mazeTrialEntries = 0;
+                mp.baseStats.mazeTrialReset = Date.now();
+                await supabase.from('Exonians').update({ base_stats: mp.baseStats }).eq('character_name', mp.id);
                 
+                // 🛡️ ACCOUNT-WIDE LOCK: Find all alt characters with the same email and lock them too!
                 const msid = findSocketIdByPlayerId(mp.id);
-                if (msid) io.to(msid).emit('systemMessage', `🎟️ Maze Trial Entry used. Remaining today: 0`);
+                const mSocket = msid ? io.sockets.sockets.get(msid) : null;
+                
+                if (mSocket && mSocket.email) {
+                    const { data: alts } = await supabase.from('Exonians').select('character_name, base_stats').eq('email', mSocket.email);
+                    if (alts) {
+                        for (let alt of alts) {
+                            if (alt.character_name !== mp.id) {
+                                let altStats = alt.base_stats || {};
+                                altStats.mazeTrialEntries = 0;
+                                altStats.mazeTrialReset = Date.now();
+                                await supabase.from('Exonians').update({ base_stats: altStats }).eq('character_name', alt.character_name);
+                            }
+                        }
+                    }
+                }
+                
+                if (msid) io.to(msid).emit('systemMessage', `🎟️ Maze Trial Entry used (Account-Wide). Remaining today: 0`);
             }
             mp.isMazeTrial = true; // 🛡️ Set the instancing flag
         });
