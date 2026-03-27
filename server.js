@@ -2898,15 +2898,23 @@ socket.on('saveData', async (playerData) => {
              if (pet.lastAttackTs && now - pet.lastAttackTs < 900) return; 
              pet.lastAttackTs = now;
              
-             // 🌟 BIG BOSS OVERRIDE (Fixed Stats & Enhancement)
              if (pet.isBigBoss) {
-                 let bossAtk = 450; // Base Level 1 Floor Boss ATK
+                 // 👑 BIG BOSS: Fixed Damage
+                 let bossAtk = 450; // Base Floor Boss 1
                  if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) {
-                     bossAtk = 1800; // 💥 x4 Damage Multiplier!
+                     bossAtk = 1800; // x4 Multiplier
                  }
                  trueDmg = bossAtk;
-                 hitCount = 1;
              } else {
+                 // 🟢 NORMAL SLIMES: % Scaling of Player Magic Attack
+                 let multiplier = 0.25; // 25% Base
+                 if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) {
+                     multiplier = 1.0; // 100% when Enhanced
+                 }
+                 trueDmg = Math.floor(getServerMagicAttack(p) * multiplier);
+             }
+             hitCount = 1; 
+         } else {
                  let multiplier = 0.25; 
                  if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0; 
                  if (pet.isClone) multiplier = 1.0; // 🥷 Shadow Clones have 100% ATK!
@@ -6345,15 +6353,24 @@ socket.on('startDungeon', async (data) => {
              if (!pet) return;
              if (pet.lastAttackTs && now - pet.lastAttackTs < 900) return; 
              pet.lastAttackTs = now;
-            // 🌟 BIG BOSS OVERRIDE (Fixed Stats & Enhancement)
+             
              if (pet.isBigBoss) {
-                 let bossAtk = 450; // Base Level 1 Floor Boss ATK
+                 // 👑 BIG BOSS PvP: Fixed Damage
+                 let bossAtk = 450;
                  if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) {
-                     bossAtk = 1800; // 💥 x4 Damage Multiplier!
+                     bossAtk = 1800; 
                  }
                  trueDmg = bossAtk;
-                 hitCount = 1;
              } else {
+                 // 🟢 NORMAL SLIMES PvP: % Scaling
+                 let multiplier = 0.25;
+                 if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) {
+                     multiplier = 1.0;
+                 }
+                 trueDmg = Math.floor(getServerMagicAttack(p) * multiplier);
+             }
+             hitCount = 1;
+         } else {
                  let multiplier = 0.25; 
                  if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0; 
                  if (pet.isClone) multiplier = 1.0; // 🥷 Shadow Clones have 100% ATK!
