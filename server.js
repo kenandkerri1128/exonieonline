@@ -922,7 +922,14 @@ function removeFromParty(playerId) {
 function getInstanceId(playerId, mapId) {
     // 🛡️ THE FIX: Neutral Zone is now a public instance for everyone!
     if (mapId === 'town' || mapId === 'neutralzone') return mapId; 
+    const p = getPlayerById(playerId);
     const partyId = playerParty[playerId];
+    
+    // ⚔️ Route to a private Maze Trial instance if the flag is active
+    if (p && p.isMazeTrial) {
+        return partyId ? `mazetrial_${mapId}_${partyId}` : `mazetrial_${mapId}_solo_${playerId}`;
+    }
+    
     return partyId ? `${mapId}_${partyId}` : `${mapId}_solo_${playerId}`; 
 }
 
@@ -945,6 +952,17 @@ function ensureWorldFromMapData(instanceId, mapData) {
 
               // 🛡️ SUPABASE-LIVE CHECK
                 if (mKey.includes('floor_boss')) {
+                    // 🛡️ MAZE TRIAL BYPASS: Ignore DB cooldowns and spawn instantly in private rooms!
+                    if (instanceId.startsWith('mazetrial_')) {
+                        const mId = `${instanceId}_mob_${Date.now()}_${i}_${Math.random()}`;
+                        if (!worlds[instanceId]) return;
+                        worlds[instanceId].monsters[mId] = spawnMonster(instanceId, mId, mKey, {
+                            spawnArea: { minX: sp.x, maxX: sp.x, minY: sp.y, maxY: sp.y },
+                            level: sp.level
+                        });
+                        continue; // Skip DB checks!
+                    }
+
                     const floorId = instanceId.split('_')[0]; 
                     
                     const { data: timer } = await supabase.from('boss_timers')
@@ -1964,12 +1982,19 @@ socket.on('broadcastSkill', (data) => {
         io.to(data.instanceId).emit('monsterSpawned', serializeMonster(newMob));
     });
 
-    socket.on('portalStep', (data) => {
-        const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return;
-        p.currentPortal = data.portalId;
-        const pid = playerParty[p.id];
-        
-    // 🏡 HOME OWNERSHIP CHECK
+   socket.on('portalStep', (data) => {
+        const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return;
+        p.currentPortal = data.portalId;
+        
+        // 🛡️ MAZE TRIAL BLOCKER: Prevent teleporting to other floors!
+        if (p.isMazeTrial && data.targetMapId !== 'town') {
+            p.currentPortal = null;
+            return socket.emit('systemMessage', '❌ You are in a Maze Trial! You can only teleport back to Town.');
+        }
+
+        const pid = playerParty[p.id];
+        
+    // 🏡 HOME OWNERSHIP CHECK
         if (data.targetMapId.includes('home')) {
             const leaderId = pid ? parties[pid].leaderId : p.id;
             const leader = getPlayerById(leaderId);
@@ -4017,11 +4042,12 @@ socket.on('requestConfirmTrade', () => {
             return; 
         }
         
-        // 🛡️ BLOCK UNSTUCK BUTTON IF IN A PARTY
-        if (playerParty[p.id] && !isAdmin(p.id)) {
+       if (playerParty[p.id] && !isAdmin(p.id)) {
             socket.emit('systemMessage', "❌ You cannot use Unstuck while in a party. Please leave the party first.");
             return; // 🛑 Stops the teleport completely!
         }
+
+        if (tp.mapId === 'town') p.isMazeTrial = false; // Clear Maze Trial flag
 
         const oldInstId = p.instanceId; // 🌟 SAVE OLD INSTANCE
         socket.leave(p.instanceId); socket.to(p.instanceId).emit('remotePlayerLeft', p.id); 
@@ -4074,7 +4100,11 @@ socket.on('requestConfirmTrade', () => {
             }
         }
 
-        p.purificationUses = 0;
+       // 🛡️ THE FIX: Purification only resets when returning to town!
+        if (data.mapId === 'town') {
+            p.purificationUses = 0;
+            p.isMazeTrial = false; // 🛡️ Also clears the Maze Trial lock when returning to town
+        }
 
         const oldInstId = p.instanceId;
         socket.leave(p.instanceId);
@@ -4285,6 +4315,7 @@ socket.on('requestConfirmTrade', () => {
     p.currentHp = trueMaxHp;
     p.untargetableUntil = 0;
     p.tauntBuffUntil = 0;
+    p.isMazeTrial = false; // Clear Maze Trial flag on death respawn
 
     socket.join(p.instanceId);
 
@@ -5688,9 +5719,94 @@ socket.on('requestSell', async (data) => {
             socket.emit('teleportApproved', { portalId: targetPortalId, targetMapId: targetMapId, exactTarget: true });
         }
     });
+
+    // ⚔️ MAZE TRIALS SYSTEM
+    socket.on('requestMazeTrial', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.isGhost) return;
+
+        if (p.isStartingInstance) return;
+        p.isStartingInstance = true;
+        setTimeout(() => { if (onlinePlayers[socket.id]) onlinePlayers[socket.id].isStartingInstance = false; }, 3000);
+
+        const targetFloor = parseInt(data.targetFloor);
+        if (isNaN(targetFloor) || targetFloor < 1) return;
+
+        const targetMapId = `floor${targetFloor}`;
+        const targetPortalId = targetFloor * 2;
+
+        const pid = playerParty[p.id];
+        let playersToEnter = [p];
+
+        if (pid && parties[pid]) {
+            const party = parties[pid];
+            if (party.leaderId !== p.id && !isAdmin(p.id)) {
+                return socket.emit('systemMessage', "❌ Only the Party Leader can start a Maze Trial.");
+            }
+
+            playersToEnter = [];
+            for (const memberId of party.members) {
+                const mp = getPlayerById(memberId);
+                if (!mp) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
+                if (mp.isGhost) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
+                if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
+                
+                const now = new Date();
+                let todayMidnight = new Date();
+                todayMidnight.setUTCHours(0, 0, 0, 0);
+                const resetTs = todayMidnight.getTime();
+
+                if (!mp.baseStats.mazeTrialReset || mp.baseStats.mazeTrialReset < resetTs) {
+                    mp.baseStats.mazeTrialEntries = 1;
+                    mp.baseStats.mazeTrialReset = Date.now();
+                }
+
+                if (mp.baseStats.mazeTrialEntries <= 0 && !isAdmin(mp.id)) {
+                    return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} has already done a Maze Trial today.`);
+                }
+                playersToEnter.push(mp);
+            }
+        } else {
+            const now = new Date();
+            let todayMidnight = new Date();
+            todayMidnight.setUTCHours(0, 0, 0, 0);
+            const resetTs = todayMidnight.getTime();
+
+            if (!p.baseStats.mazeTrialReset || p.baseStats.mazeTrialReset < resetTs) {
+                p.baseStats.mazeTrialEntries = 1;
+                p.baseStats.mazeTrialReset = Date.now();
+            }
+
+            if (p.baseStats.mazeTrialEntries <= 0 && !isAdmin(p.id)) {
+                return socket.emit('systemMessage', '❌ You have already done a Maze Trial today. Resets at midnight UTC.');
+            }
+        }
+
+        playersToEnter.forEach(mp => {
+            if (!isAdmin(mp.id) && mp.baseStats) {
+                mp.baseStats.mazeTrialEntries = Math.max(0, (mp.baseStats.mazeTrialEntries || 1) - 1);
+                supabase.from('Exonians').update({ base_stats: mp.baseStats }).eq('character_name', mp.id).then(()=>{});
+                
+                const msid = findSocketIdByPlayerId(mp.id);
+                if (msid) io.to(msid).emit('systemMessage', `🎟️ Maze Trial Entry used. Remaining today: 0`);
+            }
+            mp.isMazeTrial = true; // 🛡️ Set the instancing flag
+        });
+
+        // Teleport everyone
+        playersToEnter.forEach(mp => {
+            mp.teleportGrace = Date.now() + 4000; 
+            mp.expectedMapId = targetMapId; 
+            const msid = findSocketIdByPlayerId(mp.id);
+            if (msid) {
+                io.to(msid).emit('forceTeleport', { mapId: targetMapId, x: 960, y: 1000 });
+                io.to(msid).emit('systemMessage', `Entering Maze Trial: Floor ${targetFloor}...`);
+            }
+        });
+    });
+
   // ==========================================
     // ⚔️ TAVERN SYSTEM & LEADERBOARD
-    // ==========================================
    socket.on('startTavern', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || p.isGhost) return;
