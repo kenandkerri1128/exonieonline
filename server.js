@@ -2890,7 +2890,7 @@ socket.on('saveData', async (playerData) => {
              trueDmg = Math.floor(serverAtkPwr * 6); 
              p.skillCooldowns['ice3'] = now + getReducedCd(p, 98000); 
              
-         } else if (payload.skillId === 'pet') {
+        } else if (payload.skillId === 'pet') {
              const world = worlds[p.instanceId];
              const pet = world.pets[payload.petId]; 
              
@@ -2906,23 +2906,15 @@ socket.on('saveData', async (playerData) => {
                  }
                  trueDmg = bossAtk;
              } else {
-                 // 🟢 NORMAL SLIMES: % Scaling of Player Magic Attack
-                 let multiplier = 0.25; // 25% Base
-                 if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) {
-                     multiplier = 1.0; // 100% when Enhanced
-                 }
-                 trueDmg = Math.floor(getServerMagicAttack(p) * multiplier);
-             }
-             hitCount = 1; 
-         } else {
+                 // 🟢 NORMAL SLIMES & 🥷 SHADOW CLONES: % Scaling
                  let multiplier = 0.25; 
                  if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0; 
-                 if (pet.isClone) multiplier = 1.0; // 🥷 Shadow Clones have 100% ATK!
+                 if (pet.isClone) multiplier = 1.0; // Clones always have 100% ATK!
                  
                  let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
                  trueDmg = Math.floor(sourceAtk * multiplier);
-                 hitCount = 1; // Pets don't double hit
              }
+             hitCount = 1; 
          }
 
         // 🌟 LEVEL 75 AoE LOGIC & BIG BOSS
@@ -6362,23 +6354,15 @@ socket.on('startDungeon', async (data) => {
                  }
                  trueDmg = bossAtk;
              } else {
-                 // 🟢 NORMAL SLIMES PvP: % Scaling
-                 let multiplier = 0.25;
-                 if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) {
-                     multiplier = 1.0;
-                 }
-                 trueDmg = Math.floor(getServerMagicAttack(p) * multiplier);
-             }
-             hitCount = 1;
-         } else {
+                 // 🟢 NORMAL SLIMES & 🥷 SHADOW CLONES PvP: % Scaling
                  let multiplier = 0.25; 
                  if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0; 
-                 if (pet.isClone) multiplier = 1.0; // 🥷 Shadow Clones have 100% ATK!
+                 if (pet.isClone) multiplier = 1.0; // Clones always have 100% ATK!
                  
                  let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
                  trueDmg = Math.floor(sourceAtk * multiplier);
-                 hitCount = 1; // Pets don't double hit
              }
+             hitCount = 1; 
          }
 
         // 🌟 LEVEL 75 AoE LOGIC FOR PVP (Ice Splash & Big Explosion)
