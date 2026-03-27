@@ -2744,25 +2744,20 @@ socket.on('saveData', async (playerData) => {
     }
 });
 
- socket.on('syncPet', (data) => {
+socket.on('syncPet', (data) => {
         const p = onlinePlayers[socket.id]; if(!p) return;
         if (p.mapId === 'town') return; 
         const world = worlds[p.instanceId]; if(!world) return;
         if (!world.pets) world.pets = {};
         
-        // 🛡️ 25s COOLDOWN (23s leniency) ON NEW SUMMONS
         if (data.alive) { 
-            const now = Date.now();
-            if (p.skillCooldowns['summonPet'] && now < p.skillCooldowns['summonPet']) return;
-            p.skillCooldowns['summonPet'] = now + getReducedCd(p, 23000);
-
             let myPetCount = Object.values(world.pets).filter(pet => pet.ownerId === p.id).length;
-            // 🛡️ THE FIX: Allow up to 3 pets so the Summoner can have 2 Normal + 1 Big Boss
+            // 🛡️ THE FIX: Check if we are at the pet limit. But if it's an existing pet moving, let it sync!
             if (myPetCount >= 3 && !world.pets[data.id]) return; 
             
-            // 👇 THE FIX: Save the 'isClone' and 'isBigBoss' flags into the server's memory!
+            // 👇 THE FIX: Save the flags, and ALWAYS allow movement to sync without a cooldown!
             world.pets[data.id] = { id: data.id, ownerId: p.id, x: data.x, y: data.y, isClone: !!data.isClone, isBigBoss: !!data.isBigBoss }; 
-        }
+        } 
         else { delete world.pets[data.id]; }
         
         socket.to(p.instanceId).emit('remotePetSync', { ownerId: p.id, petData: data });
