@@ -600,12 +600,13 @@ window.executeSkill = function(skillId, className) {
         }, 10000);
         return;
     }
-
-  if (skillId === 'sum1') {
+if (skillId === 'sum1') {
         if (game.player.activePets && game.player.activePets.length > 0) return;
         window.showAura(CLASSES[className].aura); 
         if (!game.player.activePets) game.player.activePets = [];
         let count = game.player.level >= 25 ? 2 : 1;
+        
+        // 🟢 NORMAL SLIMES: 25% of Player HP
         for (let i=0; i<count; i++) {
             let petId = Date.now() + i;
             let pEl = document.createElement('div'); pEl.className = 'pet-slime';
@@ -617,6 +618,8 @@ window.executeSkill = function(skillId, className) {
             game.player.activePets.push(pet);
             if(socket) socket.emit('syncPet', { id: petId, x: pet.x, y: pet.y, alive: true });
         }
+        
+        // ⚪ BIG BOSS SLIME: x5 Player HP!
         if (game.player.level >= 75) {
             let bossId = Date.now() + 99;
             let bEl = document.createElement('div'); bEl.className = 'pet-slime';
@@ -632,7 +635,9 @@ window.executeSkill = function(skillId, className) {
             bEl.style.boxShadow = '0 0 20px #ffffff';
             
             dom.world.appendChild(bEl);
-            let bossHp = 35000;
+            
+            // 🛡️ SCALES WITH PLAYER: x5 HP
+            let bossHp = window.getMaxHp() * 5; 
             let bossPet = { id: bossId, dom: bEl, x: game.player.x, y: game.player.y, hp: bossHp, maxHp: bossHp, skillRef: game.player.activeSkills.find(s=>s.id==='sum1'), isBigBoss: true };
             game.player.activePets.push(bossPet);
             if(socket) socket.emit('syncPet', { id: bossId, x: bossPet.x, y: bossPet.y, alive: true, isBigBoss: true });
@@ -3598,7 +3603,7 @@ socket.on('tradeDone', (data) => {
                 petEl.className = 'pet-slime'; 
                 petEl.innerHTML = '<div class="pet-hp-bar"><div class="pet-hp-fill" style="width:100%"></div></div>'; 
                 
-                // 🌟 BIG BOSS SYNC STYLING
+                // 🌟 BIG BOSS REMOTE SYNC STYLING
                 if (data.petData.isBigBoss) {
                     petEl.style.width = '100px';
                     petEl.style.height = '100px';
@@ -3764,9 +3769,10 @@ socket.on('monsterAttack', (data) => {
         hitPet = game.player.activePets.find(p => p.id === targetId);
     }
 
-    if (hitPet) {
+if (hitPet) {
         const serverAtk = Number(data.atk || 25);
-        const petDef = Math.floor(window.getDefense() * 0.25);
+        // 🛡️ THE FIX: Big Boss gets 100% Player Defense, Normal Slimes get 25%
+        const petDef = hitPet.isBigBoss ? window.getDefense() : Math.floor(window.getDefense() * 0.25);
         const actualDmg = Math.max(1, serverAtk - petDef);
         hitPet.hp -= actualDmg;
         window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, actualDmg, '#ff0000');
