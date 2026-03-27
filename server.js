@@ -2892,7 +2892,7 @@ socket.on('saveData', async (playerData) => {
              if (pet.isBigBoss) {
                  let bossAtk = 450; // Base Level 1 Floor Boss ATK
                  if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) {
-                     bossAtk = 900; // Level 2 Floor Boss ATK (Doubled)
+                     bossAtk = 1800; // 💥 x4 Damage Multiplier!
                  }
                  trueDmg = bossAtk;
                  hitCount = 1;
@@ -6324,7 +6324,7 @@ socket.on('startDungeon', async (data) => {
              if (!pet) return;
              if (pet.lastAttackTs && now - pet.lastAttackTs < 900) return; 
              pet.lastAttackTs = now;
-             // 🌟 BIG BOSS OVERRIDE (Fixed Stats & Enhancement)
+            // 🌟 BIG BOSS OVERRIDE (Fixed Stats & Enhancement)
              if (pet.isBigBoss) {
                  let bossAtk = 450; // Base Level 1 Floor Boss ATK
                  if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) {
