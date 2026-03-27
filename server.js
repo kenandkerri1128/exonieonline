@@ -1274,21 +1274,42 @@ function updateMonsterAI(instId, m, now) {
                 const isWraith = m.originalKey && m.originalKey.includes('wraith');
 
                 if (isWraith) {
-                    // 👻 WRAITH MECHANIC: VANISH & REPOSITION
+                   // 👻 WRAITH MECHANIC: VANISH & REPOSITION
                     m.threatTable = {}; // Instantly drop all aggro!
                     m.targetId = null;
                     m.forcedTargetId = null; // Break Berserker taunts!
                     
-                    // Teleport them somewhere randomly nearby
-                    const angle = Math.random() * Math.PI * 2;
-                    const jumpDist = 200 + Math.random() * 200;
+                    // 🛡️ THE FIX: Smart Teleport using Line-of-Sight!
+                    let foundSpot = false;
+                    let nx = m.x;
+                    let ny = m.y;
                     
-                    let nx = m.x + Math.cos(angle) * jumpDist;
-                    let ny = m.y + Math.sin(angle) * jumpDist;
+                    // Try up to 10 times to find a safe spot in the same room
+                    for (let tries = 0; tries < 10; tries++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const jumpDist = 150 + Math.random() * 200; // Jump 150-350px away
+                        
+                        let testX = m.x + Math.cos(angle) * jumpDist;
+                        let testY = m.y + Math.sin(angle) * jumpDist;
+                        
+                        // 1. Check if the landing spot is inside a wall
+                        let hitsWall = isMonsterColliding(instId, testX, testY, m.width, m.height);
+                        // 2. Check if he has to phase through a wall to get there
+                        let pathClear = hasLineOfSight(instId, m.x + m.width/2, m.y + m.height/2, testX + m.width/2, testY + m.height/2);
+                        
+                        if (!hitsWall && pathClear) {
+                            nx = testX;
+                            ny = testY;
+                            foundSpot = true;
+                            break; // We found a valid spot, stop searching!
+                        }
+                    }
                     
-                    // Only teleport if it doesn't put them inside a wall
-                    if (!isMonsterColliding(instId, nx, m.y, m.width, m.height)) m.x = nx;
-                    if (!isMonsterColliding(instId, m.x, ny, m.width, m.height)) m.y = ny;
+                    // Only move the boss if a safe spot was found
+                    if (foundSpot) {
+                        m.x = nx;
+                        m.y = ny;
+                    }
 
                     io.to(instId).emit('systemMessage', `<span style="color:#9c27b0;">👻 The ${m.name} vanishes into the shadows and drops all aggro!</span>`);
                     io.to(instId).emit('monsterSkill', { monsterId: m.id, skillName: 'Vanish', x: m.x, y: m.y, radius: 0 });
