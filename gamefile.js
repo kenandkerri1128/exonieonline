@@ -21,7 +21,7 @@ const isExternal = !window.location.hostname.includes('onrender.com') &&
                    !window.location.hostname.includes('localhost') && 
                    !window.location.hostname.includes('127.0.0.1');
 
-const socket = isExternal ? io('https://exonieonline.onrender.com') : io();
+const socket = isExternal ? io('https://testexonie.onrender.com') : io();
 let currentShopItem = null; // 🛡️ GLOBAL TRACKER FOR THE SHOP
 window.isProcessingShop = false; // Anti-Spam Lock
 let isMailboxOpen = false, isChatting = false, isInventoryOpen = false, isSkillOpen = false, isShopping = false, localBossTimer = null, isEnhancing = false, isApplyingAura = false;
