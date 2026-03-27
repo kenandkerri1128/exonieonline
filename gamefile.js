@@ -1077,30 +1077,6 @@ function gameLoop(ts) {
         // 🛡️ THE FIX: Translate MUST come before ScaleX in CSS, otherwise the -50% shifts it into your head!
         petEl.style.transform = owner.facingRight ? 'translate(-50%, -50%) scaleX(-1)' : 'translate(-50%, -50%) scaleX(1)';
     });
-        let offsetX = owner.facingRight ? -30 : 30; // Float behind player
-        let targetX = owner.targetX + 24 + offsetX; 
-        
-        // Fox stays on ground. Owl and Wisp fly at shoulder height!
-        let targetY = owner.targetY + (owner.type === 'fox' ? 80 : 30); 
-        
-        let dx = targetX - pData.x;
-        let dy = targetY - pData.y;
-        let dist = Math.hypot(dx, dy);
-        
-        // Physics Rubber-Banding
-        if (dist > 2) {
-            pData.x += dx * 0.15;
-            pData.y += dy * 0.15;
-            if (owner.type === 'fox') petEl.classList.add('walking'); 
-        } else {
-            if (owner.type === 'fox') petEl.classList.remove('walking'); 
-        }
-        
-        petEl.style.left = pData.x + 'px';
-        petEl.style.top = pData.y + 'px';
-        // 🛡️ THE FIX: Translate MUST come before Scale in CSS, or else the flip reverses the centering math!
-        petEl.style.transform = owner.facingRight ? 'translate(-50%, -50%) scaleX(-1)' : 'translate(-50%, -50%) scaleX(1)';
-    });
 
     // Cleanup unequipped pets
     document.querySelectorAll('.pet-fox, .pet-owl, .pet-wisp, .pet-egg').forEach(pet => {
