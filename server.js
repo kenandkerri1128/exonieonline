@@ -1547,21 +1547,9 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
         }
     }
 }, 100);
-// 🛡️ SOCKET BOUNCER: Reject illegal websocket connections
+// 🛡️ SOCKET BOUNCER (Currently DISABLED so PC Browsers can connect directly to Render)
 io.use((socket, next) => {
-    const userAgent = socket.request.headers['user-agent'] || '';
-    const origin = socket.request.headers.origin || socket.request.headers.referer || '';
-
-    const isMobile = /Mobile|Android|iP(hone|od|ad)|IEMobile|BlackBerry/i.test(userAgent);
-    const isItch = origin.includes('itch.io') || origin.includes('itch.zone');
-    const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
-
-    if (isMobile || isItch || isLocal) {
-        return next();
-    }
-    
-    // Force disconnect if they slipped through
-    return next(new Error('PC web browsers must use the official Itch.io app.'));
+    return next(); 
 });
 io.on('connection', (socket) => {
     let currentUser = null; 
