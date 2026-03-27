@@ -253,17 +253,15 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY; 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// 🛡️ THE IMPROVED BOUNCER: Recognizing Itch.io's Secret Domains
+// 🛡️ THE IMPROVED TEST BOUNCER
 app.use((req, res, next) => {
     const userAgent = req.headers['user-agent'] || '';
     const referer = req.headers['referer'] || '';
     const origin = req.headers['origin'] || '';
     const host = req.hostname || '';
 
-    // 📱 Check for Mobile
     const isMobile = /Mobile|Android|iP(hone|od|ad)|IEMobile|BlackBerry|Kindle/i.test(userAgent);
     
-    // 🕹️ Check for Itch.io (Itch uses multiple domains like itch.zone and hwcdn)
     const isItch = referer.includes('itch.io') || 
                    referer.includes('itch.zone') || 
                    origin.includes('itch.io') || 
@@ -271,11 +269,10 @@ app.use((req, res, next) => {
                    referer.includes('hwcdn.net') ||
                    host.includes('hwcdn.net');
 
-    // 💻 Check for your local testing or webhooks
     const isLocal = host.includes('localhost') || host.includes('127.0.0.1');
     const isWebhook = req.path.includes('webhook') || req.path.includes('paypal');
 
-    // 🔓 SPECIAL RULE: Always allow the socket library and manifest to load
+    // 🔓 Always allow the socket library and manifest
     if (req.path.includes('socket.io') || req.path.includes('manifest.json')) {
         return next();
     }
@@ -284,10 +281,9 @@ app.use((req, res, next) => {
         next(); 
     } else {
         res.status(403).send(`
-            <div style="font-family: sans-serif; text-align: center; margin-top: 50px; background: #111; color: #fff; padding: 50px;">
-                <h1 style="color: #E040FB;">Exonie Online</h1>
-                <p>PC Web Browser access is disabled for security.</p>
-                <p>Please play via our official <a href="https://itch.io" style="color: #2196F3;">Itch.io Page</a> or Mobile!</p>
+            <div style="background: #111; color: #fff; padding: 50px; text-align: center;">
+                <h1 style="color: #E040FB;">Exonie Test Server</h1>
+                <p>Access restricted to Itch.io or Mobile only.</p>
             </div>
         `);
     }
