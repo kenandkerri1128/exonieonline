@@ -2755,18 +2755,26 @@ socket.on('syncPet', (data) => {
             // 🛡️ THE FIX: Check if we are at the pet limit. But if it's an existing pet moving, let it sync!
             if (myPetCount >= 3 && !world.pets[data.id]) return; 
             
-            // 👇 THE FIX: Preserve the existing flags so the movement sync doesn't downgrade the Boss!
-            let existingPet = world.pets[data.id];
-            let petIsClone = existingPet ? existingPet.isClone : !!data.isClone;
-            let petIsBoss = existingPet ? existingPet.isBigBoss : !!data.isBigBoss;
-            
-            world.pets[data.id] = { id: data.id, ownerId: p.id, x: data.x, y: data.y, isClone: petIsClone, isBigBoss: petIsBoss }; 
+            // 🛡️ THE REAL FIX: Don't overwrite the pet if it already exists! Just update X and Y.
+            // This ensures the `enhancedUntil` buff and attack cooldowns are never deleted!
+            if (!world.pets[data.id]) {
+                world.pets[data.id] = { 
+                    id: data.id, 
+                    ownerId: p.id, 
+                    x: data.x, 
+                    y: data.y, 
+                    isClone: !!data.isClone, 
+                    isBigBoss: !!data.isBigBoss 
+                }; 
+            } else {
+                world.pets[data.id].x = data.x;
+                world.pets[data.id].y = data.y;
+            }
         } 
         else { delete world.pets[data.id]; }
         
         socket.to(p.instanceId).emit('remotePetSync', { ownerId: p.id, petData: data });
     });
-
     socket.on('setParryStance', () => { 
         const p = onlinePlayers[socket.id];
         if (p && p.mapId !== 'town' && p.baseStats?.playerClass === 'Blademaster') { 
