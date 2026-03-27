@@ -1271,9 +1271,47 @@ function updateMonsterAI(instId, m, now) {
             if (Math.random() < 0.15) {
                 m.lastSpecialSkill = now;
 
-                const isWraith = m.originalKey && m.originalKey.includes('wraith');
+               // 👻 WRAITH MECHANIC: VANISH & REPOSITION
+                    m.threatTable = {}; // Instantly drop all aggro!
+                    m.targetId = null;
+                    m.forcedTargetId = null; // Break Berserker taunts!
+                    
+                    // 🛡️ THE FIX: Smart Teleport using Line-of-Sight!
+                    let foundSpot = false;
+                    let nx = m.x;
+                    let ny = m.y;
+                    
+                    // Try up to 10 times to find a safe spot in the same room
+                    for (let tries = 0; tries < 10; tries++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const jumpDist = 150 + Math.random() * 200; // Jump 150-350px away
+                        
+                        let testX = m.x + Math.cos(angle) * jumpDist;
+                        let testY = m.y + Math.sin(angle) * jumpDist;
+                        
+                        // 1. Check if the landing spot is inside a wall
+                        let hitsWall = isMonsterColliding(instId, testX, testY, m.width, m.height);
+                        // 2. Check if he has to phase through a wall to get there
+                        let pathClear = hasLineOfSight(instId, m.x + m.width/2, m.y + m.height/2, testX + m.width/2, testY + m.height/2);
+                        
+                        if (!hitsWall && pathClear) {
+                            nx = testX;
+                            ny = testY;
+                            foundSpot = true;
+                            break; // We found a valid spot, stop searching!
+                        }
+                    }
+                    
+                    // Only move the boss if a safe spot was found
+                    if (foundSpot) {
+                        m.x = nx;
+                        m.y = ny;
+                    }
 
-                if (isWraith) {
+                    io.to(instId).emit('systemMessage', `<span style="color:#9c27b0;">👻 The ${m.name} vanishes into the shadows and drops all aggro!</span>`);
+                    io.to(instId).emit('monsterSkill', { monsterId: m.id, skillName: 'Vanish', x: m.x, y: m.y, radius: 0 });
+
+                } else {
                    // 👻 WRAITH MECHANIC: VANISH & REPOSITION
                     m.threatTable = {}; // Instantly drop all aggro!
                     m.targetId = null;
@@ -2750,7 +2788,7 @@ socket.on('saveData', async (playerData) => {
             
             // 👇 THE FIX: Save the 'isClone' and 'isBigBoss' flags into the server's memory!
             world.pets[data.id] = { id: data.id, ownerId: p.id, x: data.x, y: data.y, isClone: !!data.isClone, isBigBoss: !!data.isBigBoss }; 
-        } 
+        }
         else { delete world.pets[data.id]; }
         
         socket.to(p.instanceId).emit('remotePetSync', { ownerId: p.id, petData: data });
@@ -2940,7 +2978,7 @@ socket.on('saveData', async (playerData) => {
              pet.lastAttackTs = now;
              
              if (pet.isBigBoss) {
-                 // 👑 BIG BOSS: Fixed Damage
+                 // 👑 BIG BOSS PvP/PvE: Fixed Damage
                  let bossAtk = 450; // Base Floor Boss 1
                  if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) {
                      bossAtk = 1800; // x4 Multiplier
@@ -2968,13 +3006,13 @@ socket.on('saveData', async (playerData) => {
                 targets = Object.values(world.monsters).filter(mob => mob.alive && Math.hypot(mob.x - m.x, mob.y - m.y) <= 500);
             }
         }
-      if (payload.skillId === 'pet' && payload.isBigBoss) {
+        if (payload.skillId === 'pet' && payload.isBigBoss) {
             const pet = world.pets[payload.petId];
+            // 🛡️ THE FIX: Earthquake drops on the BOSS's location, not the enemy's location!
             if (pet && (!pet.lastEqTs || now - pet.lastEqTs > 4000)) {
                 pet.lastEqTs = now;
-                targets = Object.values(world.monsters).filter(mob => mob.alive && Math.hypot(mob.x - m.x, mob.y - m.y) <= 400);
-                // 🛡️ THE FIX: Big Boss Earthquake is BLUE!
-                io.to(p.instanceId).emit('monsterSkill', { monsterId: payload.petId, skillName: 'Earthquake', x: m.x, y: m.y, radius: 400, color: 'blue' });
+                targets = Object.values(world.monsters).filter(mob => mob.alive && Math.hypot(mob.x - pet.x, mob.y - pet.y) <= 400);
+                io.to(p.instanceId).emit('monsterSkill', { monsterId: payload.petId, skillName: 'Earthquake', x: pet.x, y: pet.y, radius: 400, color: 'blue' });
             }
         }
 
@@ -6379,7 +6417,7 @@ socket.on('startDungeon', async (data) => {
              trueDmg = Math.floor(serverAtkPwr * 6); 
              p.skillCooldowns['ice3'] = now + getReducedCd(p, 98000); 
              
-      } else if (payload.skillId === 'pet') {
+     } else if (payload.skillId === 'pet') {
              const world = worlds[p.instanceId];
              const pet = world.pets[payload.petId]; 
              
@@ -6388,7 +6426,7 @@ socket.on('startDungeon', async (data) => {
              pet.lastAttackTs = now;
              
              if (pet.isBigBoss) {
-                 // 👑 BIG BOSS PvP: Fixed Damage
+                 // 👑 BIG BOSS PvP/PvE: Fixed Damage
                  let bossAtk = 450;
                  if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) {
                      bossAtk = 1800; 
@@ -6424,17 +6462,17 @@ socket.on('startDungeon', async (data) => {
                 );
             }
         }
-if (payload.skillId === 'pet' && payload.isBigBoss) {
+        if (payload.skillId === 'pet' && payload.isBigBoss) {
             const pet = world.pets[payload.petId];
+            // 🛡️ THE FIX: Earthquake drops on the BOSS's location, not the enemy's location!
             if (pet && (!pet.lastEqTs || now - pet.lastEqTs > 4000)) {
                 pet.lastEqTs = now;
                 targetPlayers = Object.values(onlinePlayers).filter(rp => 
                     rp.mapId === 'neutralzone' && !rp.isGhost && !rp.isHiddenAdmin && 
                     rp.id !== p.id && !(playerParty[p.id] && playerParty[p.id] === playerParty[rp.id]) &&
-                    Math.hypot(rp.x - target.x, rp.y - target.y) <= 400
+                    Math.hypot(rp.x - pet.x, rp.y - pet.y) <= 400
                 );
-                // 🛡️ THE FIX: Big Boss Earthquake is BLUE!
-                io.to(p.instanceId).emit('monsterSkill', { monsterId: payload.petId, skillName: 'Earthquake', x: target.x, y: target.y, radius: 400, color: 'blue' });
+                io.to(p.instanceId).emit('monsterSkill', { monsterId: payload.petId, skillName: 'Earthquake', x: pet.x, y: pet.y, radius: 400, color: 'blue' });
             }
         }
         // 🛡️ APPLY DAMAGE LOOP FOR PVP (Supports AoE & Double Hits!)
