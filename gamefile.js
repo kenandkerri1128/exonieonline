@@ -4381,6 +4381,12 @@ window.requestMazeTrial = function(floorNum) {
     document.getElementById('maze-guide-modal').style.display = 'none';
     if (socket) socket.emit('requestMazeTrial', { targetFloor: floorNum });
 };
+
+// 🛡️ THE FIX: Added the missing Fast Travel client-side function!
+window.requestMazeTeleport = function(floorNum) {
+    document.getElementById('maze-guide-modal').style.display = 'none';
+    if (socket) socket.emit('requestMazeTeleport', { targetFloor: floorNum });
+};
 // ==========================================
 // ⚔️ TAVERN & LEADERBOARD LOGIC
 // ==========================================
@@ -5117,7 +5123,7 @@ setTimeout(() => {
                 // 🛡️ UI FIX: Expanded width, block display, and added pointer cursor!
                 btn.style.cssText = 'background: linear-gradient(45deg, #ff9800, #ffea00); color: black; font-weight: bold; width: 100%; margin-bottom: 10px; box-shadow: 0 0 10px #ff9800; border: none; padding: 10px; cursor: pointer; border-radius: 4px; box-sizing: border-box; display: block;';
                 
-               // 👇 INJECT CONSUMABLES BUTTON RIGHT AFTER IT
+              // 👇 INJECT CONSUMABLES BUTTON RIGHT AFTER IT
                 if (!document.getElementById('btn-consumables-craft')) {
                     let consBtn = document.createElement('button');
                     consBtn.id = 'btn-consumables-craft';
@@ -5127,15 +5133,15 @@ setTimeout(() => {
                     consBtn.onclick = window.openConsumablesCrafting;
                     btn.parentNode.insertBefore(consBtn, btn.nextSibling);
                     
-                    // 👇 INJECT COSMETICS BUTTON RIGHT AFTER FORGER
+                    // 👇 INJECT COSMETICS BUTTON RIGHT AFTER CONSUMABLES
                     if (!document.getElementById('btn-cosmetics-craft')) {
                         let cosBtn = document.createElement('button');
                         cosBtn.id = 'btn-cosmetics-craft';
                         cosBtn.className = 'btn';
                         cosBtn.innerText = 'Cosmetics Crafting (Pets)';
-                        cosBtn.style.cssText = 'background: linear-gradient(45deg, #311B92, #E040FB); color: white; font-weight: bold; width: 100%; margin-bottom: 10px; box-shadow: 0 0 10px #E040FB; border: none; padding: 10px; cursor: pointer; border-radius: 4px;';
+                        cosBtn.style.cssText = 'background: linear-gradient(45deg, #311B92, #E040FB); color: white; font-weight: bold; width: 100%; margin-bottom: 10px; box-shadow: 0 0 10px #E040FB; border: none; padding: 10px; cursor: pointer; border-radius: 4px; display: block; box-sizing: border-box;';
                         cosBtn.onclick = window.openCosmeticsCrafting;
-                        forgerBtn.parentNode.insertBefore(cosBtn, forgerBtn.nextSibling);
+                        consBtn.parentNode.insertBefore(cosBtn, consBtn.nextSibling); // 🛡️ THE FIX: Attach it to consBtn instead of the deleted forgerBtn!
                     }
                 }
                 break;
