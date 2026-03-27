@@ -2691,27 +2691,29 @@ socket.on('saveData', async (playerData) => {
     }
 });
 
-  socket.on('syncPet', (data) => {
-        const p = onlinePlayers[socket.id]; if(!p) return;
-        if (p.mapId === 'town') return; 
-        const world = worlds[p.instanceId]; if(!world) return;
-        if (!world.pets) world.pets = {};
-        
-        // 🛡️ 25s COOLDOWN (23s leniency) ON NEW SUMMONS
-        if (data.alive) { 
-            const now = Date.now();
-            if (p.skillCooldowns['summonPet'] && now < p.skillCooldowns['summonPet']) return;
+ socket.on('syncPet', (data) => {
+        const p = onlinePlayers[socket.id]; if(!p) return;
+        if (p.mapId === 'town') return; 
+        const world = worlds[p.instanceId]; if(!world) return;
+        if (!world.pets) world.pets = {};
+        
+        // 🛡️ 25s COOLDOWN (23s leniency) ON NEW SUMMONS
+        if (data.alive) { 
+            const now = Date.now();
+            if (p.skillCooldowns['summonPet'] && now < p.skillCooldowns['summonPet']) return;
             p.skillCooldowns['summonPet'] = now + getReducedCd(p, 23000);
 
-            let myPetCount = Object.values(world.pets).filter(pet => pet.ownerId === p.id).length;
-            if (myPetCount >= 2 && !world.pets[data.id]) return; 
-            // 👇 THE FIX: Save the 'isClone' flag into the server's memory so it knows to deal 100% damage!
-            world.pets[data.id] = { id: data.id, ownerId: p.id, x: data.x, y: data.y, isClone: !!data.isClone }; 
-        } 
-        else { delete world.pets[data.id]; }
-        
-        socket.to(p.instanceId).emit('remotePetSync', { ownerId: p.id, petData: data });
-    });
+            let myPetCount = Object.values(world.pets).filter(pet => pet.ownerId === p.id).length;
+            // 🛡️ THE FIX: Allow up to 3 pets so the Summoner can have 2 Normal + 1 Big Boss
+            if (myPetCount >= 3 && !world.pets[data.id]) return; 
+            
+            // 👇 THE FIX: Save the 'isClone' and 'isBigBoss' flags into the server's memory!
+            world.pets[data.id] = { id: data.id, ownerId: p.id, x: data.x, y: data.y, isClone: !!data.isClone, isBigBoss: !!data.isBigBoss }; 
+        } 
+        else { delete world.pets[data.id]; }
+        
+        socket.to(p.instanceId).emit('remotePetSync', { ownerId: p.id, petData: data });
+    });
 
     socket.on('setParryStance', () => { 
         const p = onlinePlayers[socket.id];
@@ -2879,21 +2881,31 @@ socket.on('saveData', async (playerData) => {
              p.skillCooldowns['ice3'] = now + getReducedCd(p, 98000); 
              
          } else if (payload.skillId === 'pet') {
-            const world = worlds[p.instanceId];
-            const pet = world.pets[payload.petId]; 
-            if (!pet) return;
-            if (pet.lastAttackTs && now - pet.lastAttackTs < 900) return; 
-            pet.lastAttackTs = now;
-            
-            let multiplier = 0.25; 
-            if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0; 
-            if (pet.isClone) multiplier = 1.0; 
-            if (payload.isBigBoss) multiplier = 0.0; // Handled dynamically below
-            
-            let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
-            trueDmg = Math.floor(sourceAtk * multiplier);
-            hitCount = 1; 
-        }
+             const world = worlds[p.instanceId];
+             const pet = world.pets[payload.petId]; 
+             
+             if (!pet) return;
+             if (pet.lastAttackTs && now - pet.lastAttackTs < 900) return; 
+             pet.lastAttackTs = now;
+             
+             // 🌟 BIG BOSS OVERRIDE (Fixed Stats & Enhancement)
+             if (pet.isBigBoss) {
+                 let bossAtk = 450; // Base Level 1 Floor Boss ATK
+                 if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) {
+                     bossAtk = 900; // Level 2 Floor Boss ATK (Doubled)
+                 }
+                 trueDmg = bossAtk;
+                 hitCount = 1;
+             } else {
+                 let multiplier = 0.25; 
+                 if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0; 
+                 if (pet.isClone) multiplier = 1.0; // 🥷 Shadow Clones have 100% ATK!
+                 
+                 let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
+                 trueDmg = Math.floor(sourceAtk * multiplier);
+                 hitCount = 1; // Pets don't double hit
+             }
+         }
 
         // 🌟 LEVEL 75 AoE LOGIC & BIG BOSS
         let targets = [m];
@@ -2905,10 +2917,9 @@ socket.on('saveData', async (playerData) => {
                 targets = Object.values(world.monsters).filter(mob => mob.alive && Math.hypot(mob.x - m.x, mob.y - m.y) <= 500);
             }
         }
-        if (payload.skillId === 'pet' && payload.isBigBoss) {
-            trueDmg = 550; // 👑 Level 1 Floor Boss ATK
+      if (payload.skillId === 'pet' && payload.isBigBoss) {
             targets = Object.values(world.monsters).filter(mob => mob.alive && Math.hypot(mob.x - m.x, mob.y - m.y) <= 400);
-            io.to(p.instanceId).emit('monsterSkill', { monsterId: p.id, skillName: 'Earthquake', x: m.x, y: m.y, radius: 400 });
+            io.to(p.instanceId).emit('monsterSkill', { monsterId: payload.petId, skillName: 'Earthquake', x: m.x, y: m.y, radius: 400 });
         }
 
         // 🛡️ APPLY DAMAGE LOOP 
@@ -6306,21 +6317,30 @@ socket.on('startDungeon', async (data) => {
              trueDmg = Math.floor(serverAtkPwr * 6); 
              p.skillCooldowns['ice3'] = now + getReducedCd(p, 98000); 
              
-         } else if (payload.skillId === 'pet') {
+      } else if (payload.skillId === 'pet') {
              const world = worlds[p.instanceId];
              const pet = world.pets[payload.petId]; 
              
              if (!pet) return;
              if (pet.lastAttackTs && now - pet.lastAttackTs < 900) return; 
              pet.lastAttackTs = now;
-             
-             let multiplier = 0.25; 
-             if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0; 
-             if (pet.isClone) multiplier = 1.0; // 🥷 Shadow Clones have 100% ATK!
-             
-             let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
-             trueDmg = Math.floor(sourceAtk * multiplier);
-             hitCount = 1; // Pets don't double hit
+             // 🌟 BIG BOSS OVERRIDE (Fixed Stats & Enhancement)
+             if (pet.isBigBoss) {
+                 let bossAtk = 450; // Base Level 1 Floor Boss ATK
+                 if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) {
+                     bossAtk = 1800; // 💥 x4 Damage Multiplier!
+                 }
+                 trueDmg = bossAtk;
+                 hitCount = 1;
+             } else {
+                 let multiplier = 0.25; 
+                 if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0; 
+                 if (pet.isClone) multiplier = 1.0; // 🥷 Shadow Clones have 100% ATK!
+                 
+                 let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
+                 trueDmg = Math.floor(sourceAtk * multiplier);
+                 hitCount = 1; // Pets don't double hit
+             }
          }
 
         // 🌟 LEVEL 75 AoE LOGIC FOR PVP (Ice Splash & Big Explosion)
@@ -6341,7 +6361,14 @@ socket.on('startDungeon', async (data) => {
                 );
             }
         }
-
+if (payload.skillId === 'pet' && payload.isBigBoss) {
+            targetPlayers = Object.values(onlinePlayers).filter(rp => 
+                rp.mapId === 'neutralzone' && !rp.isGhost && !rp.isHiddenAdmin && 
+                rp.id !== p.id && !(playerParty[p.id] && playerParty[p.id] === playerParty[rp.id]) &&
+                Math.hypot(rp.x - target.x, rp.y - target.y) <= 400
+            );
+            io.to(p.instanceId).emit('monsterSkill', { monsterId: payload.petId, skillName: 'Earthquake', x: target.x, y: target.y, radius: 400 });
+        }
         // 🛡️ APPLY DAMAGE LOOP FOR PVP (Supports AoE & Double Hits!)
         for (let hc = 0; hc < hitCount; hc++) {
             setTimeout(() => {
