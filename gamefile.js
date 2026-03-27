@@ -2646,7 +2646,7 @@ window.addEventListener('mousedown', (e) => {
     if (!e.target.closest('#inv-context-menu')) document.getElementById('inv-context-menu').style.display = 'none'; 
     if (!e.target.closest('#player-context-menu') && !e.target.closest('.entity')) document.getElementById('player-context-menu').style.display = 'none'; 
     if (isEnhancing && !e.target.closest('#inventory-screen') && !e.target.closest('#inv-context-menu')) { isEnhancing = false; dom.log.innerText = "Enhancement mode cancelled."; window.renderInventory(); } 
-    if (window.isApplyingForger && !e.target.closest('#inventory-screen') && !e.target.closest('#inv-context-menu') && !e.target.closest('#forger-modal') && !e.target.closest('#forger-craft-modal')) { window.isApplyingForger = false; dom.log.innerText = "Forger cancelled."; window.renderInventory(); }
+    if (window.isApplyingForger && !e.target.closest('#inventory-screen') && !e.target.closest('#inv-context-menu') && !e.target.closest('#forger-modal') && !e.target.closest('#consumables-craft-modal')) { window.isApplyingForger = false; dom.log.innerText = "Forger cancelled."; window.renderInventory(); }
 });
 document.addEventListener('wheel', function(e) { if (e.ctrlKey && !window.adminMode) { e.preventDefault(); } }, { passive: false });
 window.addEventListener('pointerup', () => { attackHeld = false; });
@@ -4298,11 +4298,8 @@ window.addEventListener('resize', function() {
 // ==========================================
 // 🛡️ SYSTEM UTILITIES & MAILBOX ENGINE
 // ==========================================
-// ==========================================
-// 🗺️ MAZE GUIDE SYSTEM
-// ==========================================
+// 🗺️ MAZE GUIDE & FAST TRAVEL ENGINE
 window.openMazeGuide = function() {
-    // 🛡️ Party Logic: Only leader can use it
     if (game.party && game.party.members && game.party.members.length > 1) {
         if (game.party.leaderId !== game.player.id) {
             dom.log.innerText = "❌ Only the Party Leader can use the Maze Guide.";
@@ -4310,28 +4307,6 @@ window.openMazeGuide = function() {
         }
     }
 
-   let maxFloor = 0;
-    
-    // 🛡️ THE FIX: Check every possible location the title could be stored in memory!
-    let title1 = game.player.title || "";
-    let title2 = game.player.spriteData?.title || "";
-    let title3 = game.cachedUserData?.title || ""; // The raw Supabase row
-    let domTitle = document.getElementById('player-title-tag') ? document.getElementById('player-title-tag').innerText : "";
-    
-    // Combine all sources so if it exists ANYWHERE, we find it
-    let combinedTitle = `${title1} ${title2} ${title3} ${domTitle}`.toUpperCase();
-
-    const match = combinedTitle.match(/FLOOR CONQUEROR (\d+)/);
-    if (match) {
-        maxFloor = parseInt(match[1]);
-    }
-
-    if (maxFloor === 0) {
-        dom.log.innerText = "❌ You haven't conquered any floors yet!";
-        return;
-    }
-
-    // Dynamically create the UI window so you don't have to touch index.html
     let modal = document.getElementById('maze-guide-modal');
     if (!modal) {
         modal = document.createElement('div');
@@ -4342,6 +4317,36 @@ window.openMazeGuide = function() {
     }
 
     let html = '<h2 style="margin-top:0; color:#2196F3;">🗺️ Maze Guide</h2>';
+    html += '<p style="font-size:12px; color:#aaa; margin-bottom:20px;">Choose your destination.</p>';
+    
+    html += '<button class="btn" style="width:100%; margin-bottom:10px; padding:12px; font-weight:bold; font-size:16px; background:#4CAF50;" onclick="window.openFastTravelUI()">🚀 Fast Travel</button>';
+    html += '<button class="btn" style="width:100%; margin-bottom:15px; padding:12px; font-weight:bold; font-size:16px; background:#9c27b0; box-shadow: 0 0 10px #9c27b0;" onclick="window.openMazeTrialsUI()">⚔️ Maze Trials</button>';
+    
+    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('maze-guide-modal').style.display='none'">Close</button>`;
+    
+    modal.innerHTML = html;
+    modal.style.display = 'block';
+};
+
+window.openFastTravelUI = function() {
+   let maxFloor = 0;
+    let title1 = game.player.title || "";
+    let title2 = game.player.spriteData?.title || "";
+    let title3 = game.cachedUserData?.title || "";
+    let domTitle = document.getElementById('player-title-tag') ? document.getElementById('player-title-tag').innerText : "";
+    let combinedTitle = `${title1} ${title2} ${title3} ${domTitle}`.toUpperCase();
+    const match = combinedTitle.match(/FLOOR CONQUEROR (\d+)/);
+    if (match) {
+        maxFloor = parseInt(match[1]);
+    }
+
+    if (maxFloor === 0) {
+        dom.log.innerText = "❌ You haven't conquered any floors yet!";
+        return;
+    }
+
+    let modal = document.getElementById('maze-guide-modal');
+    let html = '<h2 style="margin-top:0; color:#4CAF50;">🚀 Fast Travel</h2>';
     html += '<p style="font-size:12px; color:#aaa;">Select a conquered floor to fast-travel.</p>';
     html += '<div style="max-height:300px; overflow-y:auto; margin-bottom:15px; padding-right:5px;">';
     
@@ -4350,15 +4355,31 @@ window.openMazeGuide = function() {
     }
     
     html += '</div>';
-    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('maze-guide-modal').style.display='none'">Close</button>`;
+    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="window.openMazeGuide()">Back</button>`;
     
     modal.innerHTML = html;
-    modal.style.display = 'block';
 };
 
-window.requestMazeTeleport = function(floorNum) {
+window.openMazeTrialsUI = function() {
+    let modal = document.getElementById('maze-guide-modal');
+    let html = '<h2 style="margin-top:0; color:#E040FB;">⚔️ Maze Trials</h2>';
+    html += '<p style="font-size:12px; color:#aaa;">Challenge a Floor Boss in a private instance. 1 Entry per day.</p>';
+    html += '<div style="max-height:300px; overflow-y:auto; margin-bottom:15px; padding-right:5px;">';
+    
+    // Shows floors 1 to 7
+    for (let i = 1; i <= 7; i++) { 
+        html += `<button class="btn" style="width:100%; margin-bottom:5px; background:#9c27b0;" onclick="window.requestMazeTrial(${i})">Trial: Floor ${i}</button>`;
+    }
+    
+    html += '</div>';
+    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="window.openMazeGuide()">Back</button>`;
+    
+    modal.innerHTML = html;
+};
+
+window.requestMazeTrial = function(floorNum) {
     document.getElementById('maze-guide-modal').style.display = 'none';
-    if (socket) socket.emit('requestMazeTeleport', { targetFloor: floorNum });
+    if (socket) socket.emit('requestMazeTrial', { targetFloor: floorNum });
 };
 // ==========================================
 // ⚔️ TAVERN & LEADERBOARD LOGIC
@@ -5003,17 +5024,17 @@ window.confirmForgerReroll = function(targetIndex, statKey) {
     document.getElementById('forger-modal').innerHTML = '<h2 style="color:#E040FB; margin-top: 20px;">Rerolling...</h2>';
 };
 
-window.openForgerCrafting = function() {
+window.openConsumablesCrafting = function() {
     document.getElementById('merchant-modal').style.display = 'none';
-    let modal = document.getElementById('forger-craft-modal');
+    let modal = document.getElementById('consumables-craft-modal');
     if (!modal) {
         modal = document.createElement('div');
-        modal.id = 'forger-craft-modal';
+        modal.id = 'consumables-craft-modal';
         modal.className = 'movable-window';
-        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #E040FB; padding:20px; z-index:9000; width:350px; border-radius:8px; box-shadow:0 0 30px #E040FB; color:white; text-align:center;';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #E040FB; padding:20px; z-index:9000; width:350px; border-radius:8px; box-shadow:0 0 30px #E040FB; color:white; text-align:center; max-height: 80vh; overflow-y: auto;';
         document.body.appendChild(modal);
     }
-    window.renderForgerCrafting();
+    window.renderConsumablesCrafting();
     modal.style.display = 'block';
 };
 
@@ -5021,33 +5042,36 @@ window.forgerSelectedRarity = window.forgerSelectedRarity || 'Godly';
 
 window.updateForgerRarity = function(val) {
     window.forgerSelectedRarity = val;
-    window.renderForgerCrafting();
+    window.renderConsumablesCrafting();
 };
 
-window.renderForgerCrafting = function() {
-    let modal = document.getElementById('forger-craft-modal');
-    let selRarity = window.forgerSelectedRarity;
-    
-    let reqExo=3, reqGold=300000, reqStones=3;
-    const inv = game.player.inventory || [];
-   // 🛡️ UI FIX: Use fuzzy matching for metals and lower the stone requirement to Level 50
-        let cR=0, cG=0, cB=0, cStones=0;
-        inv.forEach(x => {
-            if (!x || !x.name) return;
-            const n = String(x.name).trim();
-            if (n.includes('Red Exo Metal')) cR += x.quantity || 1;
-            if (n.includes('Green Exo Metal')) cG += x.quantity || 1;
-            if (n.includes('Blue Exo Metal')) cB += x.quantity || 1;
-            if (n.includes('Refinement Stone') && x.level >= 50 && x.rarity === selRarity) cStones += x.quantity || 1;
-        });
+window.renderConsumablesCrafting = function() {
+    let modal = document.getElementById('consumables-craft-modal');
+    let selRarity = window.forgerSelectedRarity;
+    
+    let reqExo=3, reqGold=300000, reqStones=3;
+    const inv = game.player.inventory || [];
+    let cR=0, cG=0, cB=0, cStones=0;
+    inv.forEach(x => {
+        if (!x || !x.name) return;
+        const n = String(x.name).trim();
+        if (n.includes('Red Exo Metal')) cR += x.quantity || 1;
+        if (n.includes('Green Exo Metal')) cG += x.quantity || 1;
+        if (n.includes('Blue Exo Metal')) cB += x.quantity || 1;
+        if (n.includes('Refinement Stone') && x.level >= 50 && x.rarity === selRarity) cStones += x.quantity || 1;
+    });
     
     const col = (have, need) => have >= need ? '#4CAF50' : '#f44336';
     const gCol = (game.player.gold >= reqGold) ? '#4CAF50' : '#f44336';
-    let canCraft = (cR>=reqExo && cG>=reqExo && cB>=reqExo && cStones>=reqStones && game.player.gold >= reqGold);
+    let canCraftForger = (cR>=reqExo && cG>=reqExo && cB>=reqExo && cStones>=reqStones && game.player.gold >= reqGold);
 
-    let html = '<h2 style="margin-top:0; color:#E040FB; text-shadow: 0 0 10px #E040FB;">✨ Stat Forger</h2>';
-    html += '<p style="font-size:12px; color:#aaa;">Craft a magical Forger to reroll a random sub-stat. Select the target rarity below.</p>';
+    let html = '<h2 style="margin-top:0; color:#E040FB; text-shadow: 0 0 10px #E040FB;">🧪 Consumables</h2>';
+    html += '<p style="font-size:12px; color:#aaa;">Craft powerful consumable items.</p>';
     
+    // --- ITEM 1: STAT FORGER ---
+    html += '<div style="background:#222; padding:10px; border-radius:5px; margin-bottom:15px; font-size:13px; text-align:left; border: 1px solid #444;">';
+    html += `<div style="color:#E040FB; font-weight:bold; font-size:16px; margin-bottom:5px; text-align:center;">✨ Stat Forger</div>`;
+    html += '<p style="font-size:11px; color:#aaa; margin-top:0; text-align:center;">Rerolls a random sub-stat. Select rarity:</p>';
     html += `<select onchange="window.updateForgerRarity(this.value)" style="width:100%; padding:8px; margin-bottom:10px; background:#333; color:white; border:1px solid #E040FB; border-radius:4px; outline:none;">
         <option value="Basic" ${selRarity === 'Basic' ? 'selected' : ''}>Basic</option>
         <option value="Rare" ${selRarity === 'Rare' ? 'selected' : ''}>Rare</option>
@@ -5056,24 +5080,21 @@ window.renderForgerCrafting = function() {
         <option value="Godly" ${selRarity === 'Godly' ? 'selected' : ''}>Godly</option>
         <option value="Divine" ${selRarity === 'Divine' ? 'selected' : ''}>Divine</option>
     </select>`;
-
-    html += '<div style="background:#222; padding:10px; border-radius:5px; margin-bottom:15px; font-size:13px; text-align:left;">';
-    html += `<div style="text-align:center; font-weight:bold; margin-bottom:5px; color:#fff;">Requirements</div>`;
     html += `<div><span style="color:${col(cR,reqExo)}">${cR}/${reqExo} Red Exo Metal</span></div>`;
     html += `<div><span style="color:${col(cG,reqExo)}">${cG}/${reqExo} Green Exo Metal</span></div>`;
     html += `<div><span style="color:${col(cB,reqExo)}">${cB}/${reqExo} Blue Exo Metal</span></div>`;
     html += `<div><span style="color:${col(cStones,reqStones)}">${cStones}/${reqStones} ${selRarity} Ref. Stone Lv.100</span></div>`;
     html += `<div style="margin-top:5px; font-weight:bold; color:${gCol}">${(game.player.gold || 0).toLocaleString()} / ${reqGold.toLocaleString()} Gold</div>`;
+    html += `<button class="btn" style="background:${canCraftForger ? '#E040FB' : '#555'}; color:white; width:100%; margin-top:10px; font-weight:bold;" ${canCraftForger ? '' : 'disabled'} onclick="if(socket) socket.emit('requestCraftForger', { rarity: '${selRarity}' })">Craft ${selRarity} Forger</button>`;
     html += '</div>';
 
-    html += `<button class="btn" style="background:${canCraft ? '#E040FB' : '#555'}; color:white; width:100%; margin-bottom:5px; font-weight:bold;" ${canCraft ? '' : 'disabled'} onclick="if(socket) socket.emit('requestCraftForger', { rarity: '${selRarity}' })">Craft ${selRarity} Forger</button>`;
-    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('forger-craft-modal').style.display='none'; document.getElementById('merchant-modal').style.display='block';">Back</button>`;
+    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('consumables-craft-modal').style.display='none'; document.getElementById('merchant-modal').style.display='block';">Back</button>`;
     modal.innerHTML = html;
 };
 
 if (socket) {
     socket.on('craftForgerSuccess', () => {
-        setTimeout(() => { if (document.getElementById('forger-craft-modal') && document.getElementById('forger-craft-modal').style.display === 'block') window.renderForgerCrafting(); }, 100);
+        setTimeout(() => { if (document.getElementById('consumables-craft-modal') && document.getElementById('consumables-craft-modal').style.display === 'block') window.renderConsumablesCrafting(); }, 100);
     });
     socket.on('rerollSuccess', () => {
         let modal = document.getElementById('forger-modal');
@@ -5091,29 +5112,27 @@ setTimeout(() => {
         let buttons = merchantModal.getElementsByTagName('button');
         for (let btn of buttons) {
             if (btn.innerText.toLowerCase().includes('blacksmith')) {
-                btn.innerText = '🔨 Blacksmith (Divine Forge)';
+               btn.innerText = 'Blacksmith (Divine Forge)';
                 btn.onclick = window.openDivineForge;
-                btn.style.background = 'linear-gradient(45deg, #ff9800, #ffea00)';
-                btn.style.color = 'black';
-                btn.style.fontWeight = 'bold';
-                btn.style.boxShadow = '0 0 10px #ff9800';
+                // 🛡️ UI FIX: Expanded width, block display, and added pointer cursor!
+                btn.style.cssText = 'background: linear-gradient(45deg, #ff9800, #ffea00); color: black; font-weight: bold; width: 100%; margin-bottom: 10px; box-shadow: 0 0 10px #ff9800; border: none; padding: 10px; cursor: pointer; border-radius: 4px; box-sizing: border-box; display: block;';
                 
-               // 👇 INJECT FORGER BUTTON RIGHT AFTER IT
-                if (!document.getElementById('btn-forger-craft')) {
-                    let forgerBtn = document.createElement('button');
-                    forgerBtn.id = 'btn-forger-craft';
-                    forgerBtn.className = 'btn';
-                    forgerBtn.innerText = '✨ Stat Forger (Reroll)';
-                    forgerBtn.style.cssText = 'background: linear-gradient(45deg, #9c27b0, #E040FB); color: white; font-weight: bold; width: 100%; margin-bottom: 10px; box-shadow: 0 0 10px #E040FB; border: none; padding: 10px; cursor: pointer; border-radius: 4px;';
-                    forgerBtn.onclick = window.openForgerCrafting;
-                    btn.parentNode.insertBefore(forgerBtn, btn.nextSibling);
+               // 👇 INJECT CONSUMABLES BUTTON RIGHT AFTER IT
+                if (!document.getElementById('btn-consumables-craft')) {
+                    let consBtn = document.createElement('button');
+                    consBtn.id = 'btn-consumables-craft';
+                    consBtn.className = 'btn';
+                    consBtn.innerText = 'Consumables Crafting';
+                    consBtn.style.cssText = 'background: linear-gradient(45deg, #9c27b0, #E040FB); color: white; font-weight: bold; width: 100%; margin-bottom: 10px; box-shadow: 0 0 10px #E040FB; border: none; padding: 10px; cursor: pointer; border-radius: 4px; display: block; box-sizing: border-box;';
+                    consBtn.onclick = window.openConsumablesCrafting;
+                    btn.parentNode.insertBefore(consBtn, btn.nextSibling);
                     
                     // 👇 INJECT COSMETICS BUTTON RIGHT AFTER FORGER
                     if (!document.getElementById('btn-cosmetics-craft')) {
                         let cosBtn = document.createElement('button');
                         cosBtn.id = 'btn-cosmetics-craft';
                         cosBtn.className = 'btn';
-                        cosBtn.innerText = '👻 Cosmetics Crafting (Pets)';
+                        cosBtn.innerText = 'Cosmetics Crafting (Pets)';
                         cosBtn.style.cssText = 'background: linear-gradient(45deg, #311B92, #E040FB); color: white; font-weight: bold; width: 100%; margin-bottom: 10px; box-shadow: 0 0 10px #E040FB; border: none; padding: 10px; cursor: pointer; border-radius: 4px;';
                         cosBtn.onclick = window.openCosmeticsCrafting;
                         forgerBtn.parentNode.insertBefore(cosBtn, forgerBtn.nextSibling);
