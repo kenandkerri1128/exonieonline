@@ -236,7 +236,12 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
     res.status(200).send('Patreon Webhook Received');
 });
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+    cors: {
+        origin: ["https://exonieonline.onrender.com", "https://*.itch.io", "http://localhost:3000"],
+        methods: ["GET", "POST"]
+    }
+});
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY; 
