@@ -601,7 +601,7 @@ window.executeSkill = function(skillId, className) {
         return;
     }
 
-    if (skillId === 'sum1') {
+  if (skillId === 'sum1') {
         if (game.player.activePets && game.player.activePets.length > 0) return;
         window.showAura(CLASSES[className].aura); 
         if (!game.player.activePets) game.player.activePets = [];
@@ -622,8 +622,15 @@ window.executeSkill = function(skillId, className) {
             let bEl = document.createElement('div'); bEl.className = 'pet-slime';
             bEl.innerHTML = '<div class="pet-hp-bar" style="top:-15px;"><div class="pet-hp-fill" id="pet-hp"></div></div>';
             bEl.style.left = game.player.x + 'px'; bEl.style.top = game.player.y + 'px';
-            bEl.style.transform = 'scale(2.5)';
-            bEl.style.filter = 'hue-rotate(90deg) brightness(1.5)';
+            
+            // 🌟 BIG BOSS STYLING: White, 100x100 (Dragon Slime Size)
+            bEl.style.width = '100px';
+            bEl.style.height = '100px';
+            bEl.style.backgroundColor = '#ffffff';
+            bEl.style.border = '3px solid #ccc';
+            bEl.style.borderRadius = '50% 50% 40% 40%';
+            bEl.style.boxShadow = '0 0 20px #ffffff';
+            
             dom.world.appendChild(bEl);
             let bossHp = 35000;
             let bossPet = { id: bossId, dom: bEl, x: game.player.x, y: game.player.y, hp: bossHp, maxHp: bossHp, skillRef: game.player.activeSkills.find(s=>s.id==='sum1'), isBigBoss: true };
@@ -3565,7 +3572,34 @@ socket.on('tradeDone', (data) => {
         window.updateSkillMenu();
     });
     socket.on('partyMemberVitals', (data) => { if (game.party && game.party.members) { let m = game.party.members.find(x => x.id === data.id); if (m) { m.currentHp = data.currentHp; m.maxHp = data.maxHp; m.level = data.level; window.renderPartyUI(); } } });
-    socket.on('remotePetSync', (data) => { let petId = `pet_${data.ownerId}_${data.petData.id}`; let petEl = document.getElementById(petId); if (data.petData.alive) { if (!petEl) { petEl = document.createElement('div'); petEl.id = petId; petEl.className = 'pet-slime'; petEl.innerHTML = '<div class="pet-hp-bar"><div class="pet-hp-fill" style="width:100%"></div></div>'; dom.world.appendChild(petEl); } petEl.style.left = data.petData.x + 'px'; petEl.style.top = data.petData.y + 'px'; } else if (petEl) { petEl.remove(); } });
+    socket.on('remotePetSync', (data) => { 
+        let petId = `pet_${data.ownerId}_${data.petData.id}`; 
+        let petEl = document.getElementById(petId); 
+        if (data.petData.alive) { 
+            if (!petEl) { 
+                petEl = document.createElement('div'); 
+                petEl.id = petId; 
+                petEl.className = 'pet-slime'; 
+                petEl.innerHTML = '<div class="pet-hp-bar"><div class="pet-hp-fill" style="width:100%"></div></div>'; 
+                
+                // 🌟 BIG BOSS SYNC STYLING
+                if (data.petData.isBigBoss) {
+                    petEl.style.width = '100px';
+                    petEl.style.height = '100px';
+                    petEl.style.backgroundColor = '#ffffff';
+                    petEl.style.border = '3px solid #ccc';
+                    petEl.style.borderRadius = '50% 50% 40% 40%';
+                    petEl.style.boxShadow = '0 0 20px #ffffff';
+                }
+                
+                dom.world.appendChild(petEl); 
+            } 
+            petEl.style.left = data.petData.x + 'px'; 
+            petEl.style.top = data.petData.y + 'px'; 
+        } else if (petEl) { 
+            petEl.remove(); 
+        } 
+    });
 socket.on('playerRevived', (data) => {
     if (!data) return;
 
