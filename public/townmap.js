@@ -901,6 +901,18 @@ var townMapData = {
             "y": 241,
             "w": 87,
             "h": 20
+        },
+        {
+            "x": 1710,
+            "y": 639,
+            "w": 42,
+            "h": 36
+        },
+        {
+            "x": 1801,
+            "y": 626,
+            "w": 97,
+            "h": 55
         }
     ],
     "teleports": [
@@ -969,6 +981,16 @@ var townMapData = {
             "h": 17,
             "portalId": "J",
             "targetMapId": "hauntedhouse",
+            "targetX": 960,
+            "targetY": 1000
+        },
+        {
+            "x": 1757,
+            "y": 662,
+            "w": 37,
+            "h": 30,
+            "portalId": "K",
+            "targetMapId": "guildbase",
             "targetX": 960,
             "targetY": 1000
         }
