@@ -1187,6 +1187,14 @@ function gameLoop(ts) {
                 window.openHauntedHouseUI();
                 return;
             }
+           // 🏰 GUILD BASE INTERCEPT: Portal K
+            if (onPortal.portalId === 'K') {
+                game.player.currentPortal = null;
+                game.player.y += 15; 
+                game.player.teleportCooldown = 2000;
+                window.openGuildUI();
+                return;
+            }
           // ⚔️ TAVERN INTERCEPT: Portal A
             if (onPortal.portalId === 'A') {
                 game.player.currentPortal = null;
@@ -1242,7 +1250,7 @@ function gameLoop(ts) {
     const fow = document.getElementById('fow-canvas');
     if (fow && window.fowFrameCount % 3 === 0) {
         const ctx = fow.getContext('2d', { alpha: true });
-        if (safeMapData.id !== 'town' && !String(safeMapData.id).includes('home') && !game.isGhost && !document.body.classList.contains('low-perf')) {
+        if (safeMapData.id !== 'town' && !String(safeMapData.id).includes('home') && !String(safeMapData.id).includes('guildbase') && !game.isGhost && !document.body.classList.contains('low-perf')) {
             fow.classList.add('active');
             ctx.clearRect(0, 0, 2000, 1333);
             ctx.globalCompositeOperation = 'source-over';
@@ -2679,6 +2687,7 @@ function setKeyState(e, isDown) {
         if (key === 'k' && typeof window.toggleSkillScreen === 'function') window.toggleSkillScreen(); 
         if (key === 'j' && typeof window.openShop === 'function') window.openShop(); 
         if (key === 'm' && typeof window.toggleMailbox === 'function') window.toggleMailbox(); 
+        if (key === 'g' && typeof window.openGuildUI === 'function') window.openGuildUI();
         if (key === 'c' && typeof window.openRealMoneyShop === 'function') window.openRealMoneyShop();
         if (key === 'o') {
             if (window.isAdmin(game.player.name)) { 
@@ -2792,6 +2801,12 @@ window.addRemotePlayer = function(pData) {
     const titleTag = document.createElement('div'); titleTag.className = 'title-tag'; 
     if (pData.spriteData && pData.spriteData.title) titleTag.innerText = `<${pData.spriteData.title}>`;
     container.appendChild(titleTag);
+    
+    // 🛡️ THE FIX: Render the Green Guild Tag below the Title!
+    const guildTag = document.createElement('div'); guildTag.className = 'guild-tag';
+    guildTag.style.color = '#4CAF50'; guildTag.style.fontSize = '12px'; guildTag.style.fontWeight = 'bold';
+    if (pData.spriteData && pData.spriteData.guildName) guildTag.innerText = `[${pData.spriteData.guildName}]`;
+    container.appendChild(guildTag);
     const rig = document.createElement('div'); rig.className = 'player-avatar-container avatar-rig';
     const hair = new Image(); hair.className = 'avatar-layer layer-hair';
     const head = new Image(); head.className = 'avatar-layer layer-head'; head.src = 'animation/avatar_head.png';
@@ -4396,6 +4411,128 @@ window.addEventListener('resize', function() {
 // ==========================================
 // 🛡️ SYSTEM UTILITIES & MAILBOX ENGINE
 // ==========================================
+// ==========================================
+// 🏰 GUILD SYSTEM UI ENGINE
+// ==========================================
+window.openGuildUI = function() {
+    let modal = document.getElementById('guild-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'guild-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #4CAF50; padding:20px; z-index:9000; width:380px; border-radius:8px; box-shadow:0 0 30px #4CAF50; color:white; font-family:sans-serif; text-align:center;';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = '<h2 style="color:#4CAF50;">Loading Guild Data...</h2>';
+    modal.style.display = 'block';
+    
+    if (window.isMobileUI()) {
+        window.enableMobileWindowControls(modal);
+        window.bringWindowToFront(modal);
+        window.clampWindowToViewport(modal);
+    }
+    
+    if (socket) socket.emit('requestGuildData');
+};
+
+if (socket) {
+    socket.on('requestGuildUI_Refresh', () => {
+        if (document.getElementById('guild-modal')?.style.display === 'block') {
+            socket.emit('requestGuildData');
+        }
+    });
+
+    socket.on('guildDataResponse', (data) => {
+        const modal = document.getElementById('guild-modal');
+        if (!modal) return;
+
+        if (data.hasGuild) {
+            // --- IN A GUILD VIEW ---
+            let d = data.details;
+            let html = `
+                <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #4CAF50;">
+                    <h2 style="margin:0; color:#4CAF50; pointer-events:none;">🏰 ${d.name}</h2>
+                </div>
+                <div style="display:flex; justify-content:space-between; color:#aaa; font-size:14px; margin-bottom:15px;">
+                    <span>Role: <strong style="color:#fff;">${d.role}</strong></span>
+                    <span>Guild Funds: <strong style="color:#FFD700;">${(data.guildGold || 0).toLocaleString()} G</strong></span>
+                </div>
+            `;
+            
+            // Roster List
+            html += `<div style="background:#111; padding:10px; border:1px solid #333; border-radius:5px; height:150px; overflow-y:auto; margin-bottom:15px; text-align:left;">`;
+            if (data.members) {
+                data.members.forEach(m => {
+                    let dot = m.online ? '<span style="color:#4CAF50;">●</span>' : '<span style="color:#f44336;">●</span>';
+                    html += `<div style="padding:4px 0; border-bottom:1px solid #222;">${dot} ${m.name}</div>`;
+                });
+            }
+            html += `</div>`;
+            
+            // Actions
+            html += `<button class="btn" style="background:#2196F3; width:100%; margin-bottom:10px; font-weight:bold;" onclick="window.donateGuild()">💰 Donate Gold</button>`;
+            html += `<button class="btn" style="background:#4CAF50; width:100%; margin-bottom:10px; font-weight:bold;" onclick="window.enterGuildBase()">🚪 Enter Guild Base</button>`;
+            html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('guild-modal').style.display='none'">Close</button>`;
+            
+            modal.innerHTML = html;
+        } else {
+            // --- NO GUILD VIEW ---
+            let html = `
+                <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #4CAF50;">
+                    <h2 style="margin:0; color:#4CAF50; pointer-events:none;">🏰 Guild Registry</h2>
+                </div>
+                <button class="btn" style="background:#FF9800; width:100%; margin-bottom:15px; font-weight:bold; padding:12px;" onclick="window.createGuild()">👑 Establish Guild (10M Gold)</button>
+                <h3 style="color:#aaa; font-size:14px; border-bottom:1px solid #333; padding-bottom:5px;">Open Guilds</h3>
+                <div style="background:#111; padding:10px; border:1px solid #333; border-radius:5px; height:120px; overflow-y:auto; margin-bottom:15px; text-align:left;">`;
+            
+            if (data.openGuilds && data.openGuilds.length > 0) {
+                data.openGuilds.forEach(g => {
+                    html += `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #222;">
+                                <span>${g.name} <span style="color:#aaa; font-size:11px;">(${g.members} members)</span></span>
+                                <button class="btn" style="background:#4CAF50; padding:2px 8px; font-size:11px;" onclick="window.joinGuild('${g.name}')">Join</button>
+                             </div>`;
+                });
+            } else {
+                html += `<div style="color:#555; text-align:center; margin-top:30px;">No open guilds found.</div>`;
+            }
+            
+            html += `</div>
+                <button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('guild-modal').style.display='none'">Close</button>`;
+            
+            modal.innerHTML = html;
+        }
+    });
+}
+
+window.createGuild = function() {
+    let name = prompt("Enter a name for your new Guild:");
+    if (name && name.trim().length > 2 && name.trim().length <= 15) {
+        socket.emit('createGuild', name.trim());
+    } else if (name) {
+        alert("Guild name must be between 3 and 15 characters.");
+    }
+};
+
+window.joinGuild = function(name) {
+    if (confirm(`Join ${name}?`)) {
+        socket.emit('joinGuild', name);
+    }
+};
+
+window.donateGuild = function() {
+    let amt = prompt("How much Gold would you like to donate to the Guild Funds?");
+    let parsed = parseInt(amt);
+    if (!isNaN(parsed) && parsed > 0) {
+        socket.emit('donateGuildGold', parsed);
+    }
+};
+
+window.enterGuildBase = function() {
+    document.getElementById('guild-modal').style.display = 'none';
+    // Send a secure map ID that the server knows how to instance privately!
+    socket.emit('forceTeleport', { mapId: 'guildbase', x: 960, y: 1000 });
+};
 // 🗺️ MAZE GUIDE & FAST TRAVEL ENGINE
 window.openMazeGuide = function() {
     if (game.party && game.party.members && game.party.members.length > 1) {
