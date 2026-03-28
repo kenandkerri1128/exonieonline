@@ -4006,15 +4006,30 @@ socket.on('requestConfirmTrade', () => {
 
         socket.emit('systemMessage', 'That item cannot be used this way.');
     });
-// ==========================================
+// // ==========================================
     // 💾 SUPABASE GUILD SAVER & LOADER
     // ==========================================
     async function saveGuildsToDB() {
         try {
             for (let gName in global.guilds) {
                 let g = global.guilds[gName];
-                let payload = { name: g.name, gold: g.gold, members: Array.from(g.members), roles: g.roles, applicants: g.applicants, hasBase: g.hasBase };
-                await supabase.from('guilds').upsert({ name: gName, data: payload }, { onConflict: 'name' });
+                let payload = { 
+                    name: g.name, 
+                    gold: g.gold, 
+                    members: Array.from(g.members), 
+                    roles: g.roles, 
+                    applicants: g.applicants, 
+                    hasBase: g.hasBase 
+                };
+                
+                // 🛡️ THE FIX: Manually check if the guild exists to bypass strict Supabase Primary Key rules
+                const { data: existingGuild } = await supabase.from('guilds').select('name').eq('name', gName).single();
+                
+                if (existingGuild) {
+                    await supabase.from('guilds').update({ data: payload }).eq('name', gName);
+                } else {
+                    await supabase.from('guilds').insert([{ name: gName, data: payload }]);
+                }
             }
         } catch (e) { console.error("[GUILD SAVE ERROR]", e.message); }
     }
