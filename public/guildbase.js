@@ -527,28 +527,6 @@ var guildbaseMapData = {
             "w": 111,
             "h": 90
         }
-    ],
-    "teleports": [
-        {
-            "x": 884,
-            "y": 1268,
-            "w": 263,
-            "h": 27,
-            "portalId": 20,
-            "targetMapId": "floor8",
-            "targetX": 960,
-            "targetY": 1000
-        }
-    ],
-    "normalSpawns": [],
-    "miniBossSpawns": [],
-    "floorBossSpawns": [
-        {
-            "x": 1064,
-            "y": 789,
-            "monsterKey": "floor_boss_wraith",
-            "level": 400
-        }
     ]
 };
 if(typeof window !== 'undefined') window['guildbaseMapData'] = guildbaseMapData;
