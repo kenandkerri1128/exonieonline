@@ -3113,7 +3113,19 @@ socket.on('mailList', (mails) => {
         if (typeof window.updatePotionHotbar === 'function') window.updatePotionHotbar();
     });
     socket.on('needsCharacterCreation', (username) => { document.getElementById('loading-screen').style.display = 'none'; document.getElementById('char-name-input').value = username; document.getElementById('creation-screen').classList.add('active'); });
-    socket.on('rareLootBroadcast', (data) => { let container = document.getElementById('loot-broadcast'); if (!container) { container = document.createElement('div'); container.id = 'loot-broadcast'; container.style.position = 'fixed'; container.style.top = '25%'; container.style.left = '50%'; container.style.transform = 'translateX(-50%)'; container.style.zIndex = '2147483647'; container.style.display = 'flex'; container.style.flexDirection = 'column'; container.style.alignItems = 'center'; container.style.pointerEvents = 'none'; container.style.width = '100%'; document.body.appendChild(container); } const ann = document.createElement('div'); ann.className = 'loot-announcement'; ann.style.borderColor = data.color || '#fff'; ann.style.boxShadow = `0 0 20px ${data.color}`; let glowClass = data.rarity === 'Godly' ? 'rarity-godly' : ''; ann.innerHTML = `<div style="color: #e0e0e0; font-size: 16px; margin-bottom: 5px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 2px 2px 4px #000;">${data.playerName} just got</div><div style="color: ${data.color}; font-size: 28px; font-weight: bold; -webkit-text-stroke: 1px black; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 15px ${data.color};" class="${glowClass}">${data.itemName} Lv. ${data.level}</div>`; container.appendChild(ann); if (dom && dom.log) { dom.log.innerText = `[SERVER] ${data.playerName} obtained ${data.itemName}!`; } setTimeout(() => { if (ann && ann.parentNode) { ann.parentNode.removeChild(ann); } }, 3000); });
+    socket.on('rareLootBroadcast', (data) => { let container = document.getElementById('loot-broadcast'); if (!container) { container = document.createElement('div'); container.id = 'loot-broadcast'; container.style.position = 'fixed'; container.style.top = '25%'; container.style.left = '50%'; container.style.transform = 'translateX(-50%)'; container.style.zIndex = '2147483647'; container.style.display = 'flex'; container.style.flexDirection = 'column'; container.style.alignItems = 'center'; container.style.pointerEvents = 'none'; container.style.width = '100%'; document.body.appendChild(container); } const ann = document.createElement('div'); ann.className = 'loot-announcement'; ann.style.borderColor = data.color || '#fff'; ann.style.boxShadow = `0 0 20px ${data.color}`; // 🛡️ THE FIX: Apply Divine Sparkle to the text AND the announcement box!
+    let glowClass = data.rarity === 'Divine' ? 'rarity-divine-text' : (data.rarity === 'Godly' ? 'rarity-godly' : '');
+    
+    if (data.rarity === 'Divine') {
+        ann.style.borderColor = '#ffea00';
+        ann.style.boxShadow = '0 0 30px #ffea00, inset 0 0 20px rgba(255, 152, 0, 0.8)';
+    }
+
+    // Also perfectly hides the "Lv." text if it's a material like Divine Essence
+    let lvlText = data.level ? `Lv. ${data.level}` : '';
+    
+    ann.innerHTML = `<div style="color: #e0e0e0; font-size: 16px; margin-bottom: 5px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 2px 2px 4px #000;">${data.playerName} just got</div><div style="color: ${data.color}; font-size: 28px; font-weight: bold; -webkit-text-stroke: 1px black; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 15px ${data.color};" class="${glowClass}">${data.itemName} ${lvlText}</div>`; 
+    container.appendChild(ann);
    // ==========================================
     // 📧 EMAIL UI HANDLING
     // ==========================================
