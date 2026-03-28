@@ -4023,7 +4023,7 @@ socket.on('requestConfirmTrade', () => {
             for (let mName of global.guilds[gName].members) {
                 memberList.push({ name: mName, online: activeLogins.has(mName) });
             }
-            socket.emit('guildDataResponse', { hasGuild: true, details: p.guild_details, guildGold: global.guilds[gName].gold, members: memberList });
+         socket.emit('guildDataResponse', { hasGuild: true, details: p.guild_details, guildGold: global.guilds[gName].gold, members: memberList, hasBase: global.guilds[gName].hasBase });
         } else {
             // Send open guilds list
             let openGuilds = Object.values(global.guilds).map(g => ({ name: g.name, members: g.members.size }));
@@ -4070,7 +4070,62 @@ socket.on('requestConfirmTrade', () => {
         socket.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
         socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
     });
+socket.on('requestBuyGuildBase', async () => {
+        try {
+            const username = Array.from(loggedInUsers.entries()).find(([u, s]) => s === socket.id)?.[0];
+            if (!username) return;
 
+            // 1. Get the player's guild ID
+            const { data: user, error: userErr } = await supabase.from('users').select('guild_id').eq('character_name', username).single();
+            if (userErr || !user || !user.guild_id) {
+                socket.emit('systemMessage', "You are not in a guild.");
+                socket.emit('requestGuildUI_Refresh');
+                return;
+            }
+
+            // 2. Fetch the guild data
+            const { data: guild, error: guildErr } = await supabase.from('guilds').select('*').eq('id', user.guild_id).single();
+            if (guildErr || !guild) return;
+
+            // 3. Security Checks
+            if (guild.leader !== username) {
+                socket.emit('systemMessage', "❌ Only the Guild Leader can purchase the Guild Base.");
+                
+                return;
+            }
+
+            if (guild.has_base) {
+                socket.emit('systemMessage', "❌ Your guild already owns a base.");
+                
+                return;
+            }
+
+            if ((guild.guild_gold || 0) < 1000000) {
+                socket.emit('systemMessage', "❌ Not enough Guild Funds! You need 1,000,000 G.");
+                
+                return;
+            }
+
+            // 4. Deduct gold and unlock the base
+            const { error: updateErr } = await supabase.from('guilds')
+                .update({ 
+                    guild_gold: guild.guild_gold - 1000000, 
+                    has_base: true 
+                })
+                .eq('id', guild.id);
+
+            if (updateErr) throw updateErr;
+
+            // 5. Success! Tell the player and refresh their UI
+            socket.emit('systemMessage', "🎉 Successfully purchased the Guild Base!");
+            socket.emit('requestGuildUI_Refresh');
+
+        } catch (err) {
+            console.error("Error buying guild base:", err);
+            socket.emit('systemMessage', "Error processing purchase.");
+            socket.emit('requestGuildUI_Refresh');
+        }
+    });
     socket.on('donateGuildGold', async (amount) => {
         const p = onlinePlayers[socket.id]; if (!p || !p.guild_details) return;
         let donateAmt = parseInt(amount);
@@ -4088,6 +4143,50 @@ socket.on('requestConfirmTrade', () => {
         socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
         socket.emit('systemMessage', `💰 You donated ${donateAmt.toLocaleString()} Gold to the guild!`);
         socket.emit('requestGuildUI_Refresh');
+    });
+    socket.on('requestBuyGuildBase', () => {
+        let p = game.remotePlayers[socket.id];
+        if (!p || !p.guild_details || !p.guild_details.name) return;
+
+        let gName = p.guild_details.name;
+        let guild = global.guilds[gName];
+
+        if (!guild) return;
+
+        if (p.guild_details.role !== 'Leader') {
+            socket.emit('systemMessage', "❌ Only the Guild Leader can purchase the Guild Base.");
+            socket.emit('requestGuildUI_Refresh');
+            return;
+        }
+
+        if (guild.hasBase) {
+            socket.emit('systemMessage', "❌ Your guild already owns a base.");
+            socket.emit('requestGuildUI_Refresh');
+            return;
+        }
+
+        if ((guild.gold || 0) < 1000000) {
+            socket.emit('systemMessage', "❌ Not enough Guild Funds! You need 1,000,000 G.");
+            socket.emit('requestGuildUI_Refresh');
+            return;
+        }
+
+        // Deduct gold and unlock base
+        guild.gold -= 1000000;
+        guild.hasBase = true;
+
+        // Save to Database (assuming you have a function to save the guild data)
+        if (typeof saveGuildsToDB === 'function') saveGuildsToDB();
+
+        socket.emit('systemMessage', "🎉 Successfully purchased the Guild Base!");
+        
+        // Tell everyone in the guild to refresh their UI
+        guild.members.forEach(memberId => {
+            let memberSocketId = Object.keys(game.remotePlayers).find(key => game.remotePlayers[key].id === memberId);
+            if (memberSocketId && io.sockets.sockets.get(memberSocketId)) {
+                io.to(memberSocketId).emit('requestGuildUI_Refresh');
+            }
+        });
     });
 
     socket.on('chatMessage', (data) => { 
