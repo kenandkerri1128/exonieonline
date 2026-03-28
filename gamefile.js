@@ -4652,7 +4652,40 @@ window.buyGuildBase = function() {
         document.getElementById('guild-modal').innerHTML = '<h2 style="color:#FF9800; margin-top: 20px;">Purchasing Base...</h2>';
     }
 };
+if (!document.getElementById('guild-invite-dialog')) {
+    let gModal = document.createElement('div');
+    gModal.id = 'guild-invite-dialog';
+    gModal.className = 'movable-window';
+    gModal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #311B92; padding:20px; z-index:9500; width:300px; border-radius:8px; box-shadow:0 0 20px #311B92; color:white; text-align:center;';
+    gModal.innerHTML = `
+        <h3 style="color:#E040FB; margin-top:0;">Guild Invitation</h3>
+        <p id="guild-invite-text" style="font-size:14px; margin-bottom:20px;"></p>
+        <div style="display:flex; gap:10px;">
+            <button class="btn" style="background:#4CAF50; flex:1;" onclick="window.respondGuildInvite(true)">Accept</button>
+            <button class="btn" style="background:#f44336; flex:1;" onclick="window.respondGuildInvite(false)">Decline</button>
+        </div>
+    `;
+    document.body.appendChild(gModal);
+}
 
+let pendingGuildInvite = null;
+
+socket.on('guildInviteReceived', (data) => {
+    pendingGuildInvite = data.guildName;
+    document.getElementById('guild-invite-text').innerText = `${data.from} invited you to join [${data.guildName}].`;
+    document.getElementById('guild-invite-dialog').style.display = 'block';
+});
+
+window.respondGuildInvite = function(accept) {
+    document.getElementById('guild-invite-dialog').style.display = 'none';
+    if (accept && pendingGuildInvite) socket.emit('joinGuild', pendingGuildInvite);
+    pendingGuildInvite = null;
+};
+
+window.applyToGuild = function(gName) {
+    socket.emit('guildApply', gName);
+    if(dom.log) dom.log.innerText = `Application sent to ${gName}...`;
+};
 window.enterGuildBase = function() {
     document.getElementById('guild-modal').style.display = 'none';
     // Send a secure map ID that the server knows how to instance privately!
