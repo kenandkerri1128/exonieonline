@@ -113,7 +113,7 @@ window.charData = { skinColor: 'flesh', hairColor: 'black', hairStyle: '1' };
 window.adminMode = false; let CAMERA_ZOOM = window.innerWidth <= 950 ? 1.2 : 1.8; 
 const STAT_TYPES = ['attack', 'magic', 'defense', 'speed', 'int', 'str', 'hp'];
 
-// 🏆 TAVERN LEADERBOARD SHINES
+// TAVERN LEADERBOARD SHINES
 window.topTavernPlayers = [];
 const rankStyle = document.createElement('style');
 rankStyle.innerHTML = `
@@ -4417,8 +4417,8 @@ window.openMazeGuide = function() {
     let html = '<h2 style="margin-top:0; color:#2196F3;">🗺️ Maze Guide</h2>';
     html += '<p style="font-size:12px; color:#aaa; margin-bottom:20px;">Choose your destination.</p>';
     
-    html += '<button class="btn" style="width:100%; margin-bottom:10px; padding:12px; font-weight:bold; font-size:16px; background:#4CAF50;" onclick="window.openFastTravelUI()">🚀 Fast Travel</button>';
-    html += '<button class="btn" style="width:100%; margin-bottom:15px; padding:12px; font-weight:bold; font-size:16px; background:#9c27b0; box-shadow: 0 0 10px #9c27b0;" onclick="window.openMazeTrialsUI()">⚔️ Maze Trials</button>';
+    html += '<button class="btn" style="width:100%; margin-bottom:10px; padding:12px; font-weight:bold; font-size:16px; background:#4CAF50;" onclick="window.openFastTravelUI()"> Fast Travel</button>';
+    html += '<button class="btn" style="width:100%; margin-bottom:15px; padding:12px; font-weight:bold; font-size:16px; background:#9c27b0; box-shadow: 0 0 10px #9c27b0;" onclick="window.openMazeTrialsUI()">Maze Trials</button>';
     
     html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('maze-guide-modal').style.display='none'">Close</button>`;
     
@@ -5549,7 +5549,7 @@ window.openHauntedHouseUI = function() {
     }
     
     modal.innerHTML = `
-        <h2 style="color:#E040FB; margin-top:0; text-shadow: 0 0 10px #9c27b0;">👻 Haunted House</h2>
+        <h2 style="color:#E040FB; margin-top:0; text-shadow: 0 0 10px #9c27b0;">Haunted House</h2>
         <p style="color:#ccc; font-size:13px; margin-bottom:20px;">Unlimited entries. No timers. Face the Wraith King.<br>The monster's level will be randomly rolled based on the difficulty.</p>
         
         <button class="btn" style="background:#4CAF50; width:100%; margin-bottom:10px; font-size:15px; font-weight:bold; padding:10px;" onclick="window.startHauntedHouse('Easy')">Easy (Lv 1-15) - 1,000 G</button>
