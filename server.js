@@ -263,7 +263,8 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 const onlinePlayers = {}; 
-const parties = {}; 
+const parties = {}; 
+global.guilds = {}; // 🛡️ GLOBAL GUILD MEMORY
 // 🛡️ GLOBAL ADMIN LIST
 // Add any usernames here that should have full GM powers!
 const ADMINS = ['Kei', 'Jubs4DaWin', 'TesterName'];
@@ -466,6 +467,7 @@ function sanitizePlayerRecordFromDb(row) {
     safe.inventory = sanitizeInventory(row.inventory);
     safe.equips = sanitizeEquips(row.equips);
     safe.base_stats = sanitizeBaseStats(row.base_stats);
+    safe.guild_details = row.guild_details || null; // 🛡️ Load Guild JSONB
     return safe;
 }
 
@@ -941,6 +943,14 @@ function getInstanceId(playerId, mapId) {
     if (mapId === 'town' || mapId === 'neutralzone') return mapId; 
     const p = getPlayerById(playerId);
     const partyId = playerParty[playerId];
+    
+    // 🏰 GUILD BASE ROUTING (Private to the Guild!)
+    if (mapId === 'guildbase') {
+        if (p && p.guild_details && p.guild_details.name) {
+            return `guildbase_${p.guild_details.name}`;
+        }
+        return 'town'; // Fallback if they try to glitch in without a guild
+    }
     
     // ⚔️ Route to a private Maze Trial instance if the flag is active
     if (p && p.isMazeTrial) {
@@ -2510,6 +2520,7 @@ socket.on('login', async (data) => {
         baseStats: safeUser.base_stats,
         gold: safeUser.gold || 0,
         title: safeUser.title || null,
+        guild_details: safeUser.guild_details || null, // 🛡️ Attach Guild to Player Object
       spriteData: {
             skin: safeUser.skin_color,
             hair: safeUser.hair_color,
@@ -2518,7 +2529,8 @@ socket.on('login', async (data) => {
             aura: safeUser.equips.armor?.aura || null,
             pet: safeUser.equips.leggings?.aura || null,
             title: safeUser.title || null,
-            isAdmin: isAdmin(safeUser.character_name) // 👑 THE FIX: Tells the client to render the GM tag!
+            isAdmin: isAdmin(safeUser.character_name), // 👑 THE FIX: Tells the client to render the GM tag!
+            guildName: safeUser.guild_details ? safeUser.guild_details.name : null // 🛡️ Adds the Guild tag!
         },
         lootFilter: {
             Starter: true,
@@ -2638,8 +2650,9 @@ socket.on('saveData', async (playerData) => {
         pos_x: p.x,
         pos_y: p.y,
         map_id: p.mapId,
-        inventory: p.inventory,
-        equips: p.equips       
+    inventory: p.inventory,
+        equips: p.equips,
+        guild_details: p.guild_details // 🛡️ Save Guild state!
     }).eq('character_name', currentUser);
 
     const pid = playerParty[p.id];
@@ -3993,21 +4006,113 @@ socket.on('requestConfirmTrade', () => {
 
         socket.emit('systemMessage', 'That item cannot be used this way.');
     });
-   socket.on('chatMessage', (data) => { 
+  // ==========================================
+    // 🛡️ GUILD SYSTEM ENGINE
+    // ==========================================
+    socket.on('requestGuildData', () => {
+        const p = onlinePlayers[socket.id]; if (!p) return;
+        
+        // Reconstruct RAM if server rebooted but player has DB guild
+        if (p.guild_details && p.guild_details.name) {
+            let gName = p.guild_details.name;
+            if (!global.guilds[gName]) global.guilds[gName] = { name: gName, gold: p.guild_details.guildGold || 0, members: new Set() };
+            global.guilds[gName].members.add(p.id);
+            
+            // Build member list for UI
+            let memberList = [];
+            for (let mName of global.guilds[gName].members) {
+                memberList.push({ name: mName, online: activeLogins.has(mName) });
+            }
+            socket.emit('guildDataResponse', { hasGuild: true, details: p.guild_details, guildGold: global.guilds[gName].gold, members: memberList });
+        } else {
+            // Send open guilds list
+            let openGuilds = Object.values(global.guilds).map(g => ({ name: g.name, members: g.members.size }));
+            socket.emit('guildDataResponse', { hasGuild: false, openGuilds: openGuilds });
+        }
+    });
+
+    socket.on('createGuild', async (guildName) => {
+        const p = onlinePlayers[socket.id]; if (!p || !guildName) return;
+        if (p.guild_details) return socket.emit('systemMessage', "❌ You are already in a guild!");
+        if (p.gold < 10000000) return socket.emit('systemMessage', "❌ You need 10,000,000 Gold to create a guild.");
+        if (global.guilds[guildName]) return socket.emit('systemMessage', "❌ A guild with that name already exists.");
+        
+        p.gold -= 10000000;
+        p.guild_details = { name: guildName, role: 'Master', guildGold: 0 };
+        global.guilds[guildName] = { name: guildName, gold: 0, members: new Set([p.id]) };
+        
+        p.spriteData.guildName = guildName; // Update visual tag
+
+        await supabase.from('Exonians').update({ gold: p.gold, guild_details: p.guild_details }).eq('character_name', p.id);
+        socket.emit('systemMessage', `🎉 You established the guild: ${guildName}!`);
+        socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory }); // Sync gold
+        socket.emit('requestGuildUI_Refresh'); // Tell client to reload UI
+        
+        // Refresh local player visuals
+        socket.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
+        socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
+    });
+
+    socket.on('joinGuild', async (guildName) => {
+        const p = onlinePlayers[socket.id]; if (!p || !guildName) return;
+        if (p.guild_details) return socket.emit('systemMessage', "❌ You are already in a guild!");
+        if (!global.guilds[guildName]) return socket.emit('systemMessage', "❌ That guild does not exist or is offline.");
+        
+        p.guild_details = { name: guildName, role: 'Member', guildGold: global.guilds[guildName].gold };
+        global.guilds[guildName].members.add(p.id);
+        p.spriteData.guildName = guildName; // Update visual tag
+
+        await supabase.from('Exonians').update({ guild_details: p.guild_details }).eq('character_name', p.id);
+        socket.emit('systemMessage', `🎉 You joined ${guildName}!`);
+        socket.emit('requestGuildUI_Refresh');
+
+        // Refresh local player visuals
+        socket.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
+        socket.to(p.instanceId).emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
+    });
+
+    socket.on('donateGuildGold', async (amount) => {
+        const p = onlinePlayers[socket.id]; if (!p || !p.guild_details) return;
+        let donateAmt = parseInt(amount);
+        if (isNaN(donateAmt) || donateAmt <= 0) return;
+        if (p.gold < donateAmt) return socket.emit('systemMessage', "❌ Not enough gold to donate.");
+        
+        let gName = p.guild_details.name;
+        if (!global.guilds[gName]) return;
+
+        p.gold -= donateAmt;
+        global.guilds[gName].gold += donateAmt;
+        p.guild_details.guildGold = global.guilds[gName].gold; // Sync personal cache
+        
+        await supabase.from('Exonians').update({ gold: p.gold, guild_details: p.guild_details }).eq('character_name', p.id);
+        socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
+        socket.emit('systemMessage', `💰 You donated ${donateAmt.toLocaleString()} Gold to the guild!`);
+        socket.emit('requestGuildUI_Refresh');
+    });
+
+    socket.on('chatMessage', (data) => { 
         const p = onlinePlayers[socket.id]; 
         if (!p || !data.text) return; 
         
-        // 🛡️ ANTI-CHEAT: CHAT SPAM & BOMB PROTECTION
         const now = Date.now();
         if (p.lastChatTime && now - p.lastChatTime < 500) return; 
         p.lastChatTime = now;
 
         let safeText = String(data.text).slice(0, 120); 
         
-        // 👑 THE FIX: Inject the Red [GM] tag for Admins
         let displayName = p.id;
         if (isAdmin(p.id)) {
             displayName = `<span style="color:#ff4444; font-weight:bold;">[GM]</span> ${p.id}`;
+        }
+        
+        // 🏰 GUILD BASE GREEN CHAT ROUTING
+        if (p.mapId === 'guildbase' && p.guild_details) {
+            const gName = p.guild_details.name;
+            const guildMsg = `<span style="color:#4CAF50; font-weight:bold;">[Guild] ${displayName}: ${safeText}</span>`;
+            
+            // Send to everyone in the guild base instance
+            io.to(p.instanceId).emit('systemMessage', guildMsg);
+            return; // Stop here so it doesn't do normal chat!
         }
         
         // 1. Emit the local text bubble to everyone in the room
