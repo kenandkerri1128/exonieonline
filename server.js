@@ -704,7 +704,7 @@ function generateLoot(monster) {
             };
         } 
        // 4% Chance: Divine Essence (0.15 to 0.18)
-        else if (roll < 0.19) {
+        else if (roll < 0.18) {
             return {
                 id: 'mat_' + Math.random().toString(36).substr(2, 9),
                 name: 'Divine Essence',
@@ -717,7 +717,7 @@ function generateLoot(monster) {
             };
         }
         // 10% Chance: Divine Enhancement Stone (0.18 to 0.28)
-        else if (roll < 0.28) {
+        else if (roll < 0.29) {
             return {
                 id: Date.now() + Math.random(),
                 name: "Divine Enhancement Stone",
