@@ -5484,7 +5484,8 @@ window.renderStorageGrid = function(storage) {
     let modal = document.getElementById('storage-modal');
     if (!modal) return;
 
-    let html = '<h2 style="color:#E040FB; margin-top:0;">🧰 Home Storage</h2>';
+    // 🛡️ THE FIX: Wrapped the title in a drag handle so the window can be grabbed and moved!
+    let html = '<div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-15px -15px 15px -15px; border-radius:8px 8px 0 0; border-bottom:1px solid #E040FB;"><h2 style="color:#E040FB; margin:0; pointer-events:none;">🧰 Home Storage</h2></div>';
     html += '<p style="font-size:12px; color:#aaa;">Click items in your Inventory to store them. Click items here to retrieve them.</p>';
     html += '<div style="display:flex; flex-wrap:wrap; gap:5px; justify-content:center; margin-bottom:15px; background:#111; padding:10px; border-radius:5px;">';
     
@@ -5520,10 +5521,9 @@ if (socket) {
         modal.style.display = 'block';
         window.renderStorageGrid(storage);
         
-        if (window.isMobileUI()) {
-            window.enableMobileWindowControls(modal);
-            window.bringWindowToFront(modal);
-        }
+        // 🛡️ THE FIX: Removed the mobile-only check so it is draggable for EVERYONE!
+        window.enableMobileWindowControls(modal);
+        window.bringWindowToFront(modal);
     });
 
     socket.on('syncStorage', (storage) => {
