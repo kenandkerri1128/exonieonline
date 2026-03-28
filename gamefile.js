@@ -4496,11 +4496,17 @@ if (socket) {
                 });
             }
             html += `</div>`;
-            
             // Actions
-            html += `<button class="btn" style="background:#2196F3; width:100%; margin-bottom:10px; font-weight:bold;" onclick="window.donateGuild()">💰 Donate Gold</button>`;
-            html += `<button class="btn" style="background:#4CAF50; width:100%; margin-bottom:10px; font-weight:bold;" onclick="window.enterGuildBase()">🚪 Enter Guild Base</button>`;
-            html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('guild-modal').style.display='none'">Close</button>`;
+            html += `<button class="btn" style="background:#2196F3; width:100%; margin-bottom:10px; font-weight:bold;" onclick="window.donateGuild()">Donate Gold</button>`;
+            
+            // 🛡️ GUILD BASE CHECK: Conditionally show Buy or Enter
+            if (data.hasBase) {
+                html += `<button class="btn" style="background:#4CAF50; width:100%; margin-bottom:10px; font-weight:bold;" onclick="window.enterGuildBase()">Enter Guild Base</button>`;
+            } else {
+                html += `<button class="btn" style="background:#FF9800; width:100%; margin-bottom:10px; font-weight:bold;" onclick="window.buyGuildBase()">Buy Guild Base (1,000,000 G)</button>`;
+            }
+            
+            html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('guild-modal').style.display='none'">Close</button>`;
             
             modal.innerHTML = html;
         } else {
@@ -4548,10 +4554,17 @@ window.joinGuild = function(name) {
 };
 
 window.donateGuild = function() {
-    let amt = prompt("How much Gold would you like to donate to the Guild Funds?");
-    let parsed = parseInt(amt);
-    if (!isNaN(parsed) && parsed > 0) {
-        socket.emit('donateGuildGold', parsed);
+    let amt = prompt("How much Gold would you like to donate to the Guild Funds?");
+    let parsed = parseInt(amt);
+    if (!isNaN(parsed) && parsed > 0) {
+        socket.emit('donateGuildGold', parsed);
+    }
+};
+
+window.buyGuildBase = function() {
+    if (confirm("Spend 1,000,000 Guild Funds to purchase a Guild Base? Only the Guild Leader can do this.")) {
+        if (socket) socket.emit('requestBuyGuildBase');
+        document.getElementById('guild-modal').innerHTML = '<h2 style="color:#FF9800; margin-top: 20px;">Purchasing Base...</h2>';
     }
 };
 
