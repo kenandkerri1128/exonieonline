@@ -1187,14 +1187,22 @@ function gameLoop(ts) {
                 window.openHauntedHouseUI();
                 return;
             }
-           // 🏰 GUILD BASE INTERCEPT: Portal K
-            if (onPortal.portalId === 'K') {
-                game.player.currentPortal = null;
-                game.player.y += 15; 
-                game.player.teleportCooldown = 2000;
-                window.openGuildUI();
-                return;
-            }
+          // 🏰 GUILD BASE INTERCEPT: Portal K
+            if (onPortal.portalId === 'K') {
+                game.player.currentPortal = null;
+                game.player.y += 15; 
+                game.player.teleportCooldown = 2000;
+                window.openGuildUI();
+                return;
+            }
+           // 📜 DAILY MISSIONS INTERCEPT: Portal M
+            if (onPortal.portalId === 'M') {
+                game.player.currentPortal = null;
+                game.player.y += 15; // Bounce back safely
+                game.player.teleportCooldown = 2000;
+                window.openDailyMissionsUI();
+                return;
+            }
           // ⚔️ TAVERN INTERCEPT: Portal A
             if (onPortal.portalId === 'A') {
                 game.player.currentPortal = null;
@@ -5251,6 +5259,99 @@ let shopInjectInterval = setInterval(() => {
     shopRetryCount++;
     if (shopRetryCount > 30) clearInterval(shopInjectInterval); // Stop after 30s
 }, 1000);
+// ==========================================
+// 📜 DAILY MISSIONS ENGINE
+// ==========================================
+window.openDailyMissionsUI = function() {
+    let modal = document.getElementById('daily-missions-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'daily-missions-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #FF9800; padding:20px; z-index:9000; width:350px; border-radius:8px; box-shadow:0 0 30px #FF9800; color:white; text-align:center; font-family:sans-serif;';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = '<h2 style="color:#FF9800; margin-top:0;">Loading Missions...</h2>';
+    modal.style.display = 'block';
+    
+    if (window.isMobileUI()) {
+        window.enableMobileWindowControls(modal);
+        window.bringWindowToFront(modal);
+        window.clampWindowToViewport(modal);
+    }
+    
+    if (socket) socket.emit('requestDailyMission');
+};
+
+if (socket) {
+    socket.on('dailyMissionData', (data) => {
+        const modal = document.getElementById('daily-missions-modal');
+        if (!modal) return;
+
+        let html = `
+            <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #FF9800;">
+                <h2 style="margin:0; color:#FF9800; pointer-events:none;">📜 Daily Mission</h2>
+            </div>
+        `;
+
+        if (data.active) {
+            // Already accepted a mission
+            let progressPct = Math.min(100, (data.currentKills / data.requiredKills) * 100);
+            let barColor = data.completed ? '#4CAF50' : '#2196F3';
+            
+            html += `<p style="color:#ccc; font-size:14px; margin-bottom:10px;">Difficulty: <strong style="color:#E040FB;">${data.difficulty}</strong></p>`;
+            
+            if (data.completed) {
+                html += `<div style="background:#111; padding:15px; border:1px solid #4CAF50; border-radius:8px; margin-bottom:15px;">
+                            <h3 style="color:#4CAF50; margin:0 0 10px 0;"> Mission Completed!</h3>
+                            <p style="color:#FFD700; margin:0; font-weight:bold;">Reward: ${data.reward.toLocaleString()} G</p>
+                         </div>`;
+                html += `<p style="color:#888; font-size:12px;">Come back tomorrow for a new mission.</p>`;
+            } else {
+                let mobDisplay = data.type === 'common' ? 'Common Monsters' : 'Mini Bosses';
+                let floorDisplay = data.difficulty === 'Beginner' ? '1' : (data.difficulty === 'Novice' ? '2' : '3');
+                
+                html += `<div style="background:#111; padding:15px; border:1px dashed #FF9800; border-radius:8px; margin-bottom:15px; text-align:left;">
+                            <div style="font-weight:bold; color:#fff; margin-bottom:8px;">Defeat ${data.requiredKills} ${mobDisplay} in Floor ${floorDisplay}</div>
+                            <div style="display:flex; justify-content:space-between; font-size:12px; color:#aaa; margin-bottom:5px;">
+                                <span>Progress</span>
+                                <span>${data.currentKills} / ${data.requiredKills}</span>
+                            </div>
+                            <div style="background:#222; border-radius:4px; height:10px; width:100%; overflow:hidden;">
+                                <div style="background:${barColor}; width:${progressPct}%; height:100%; transition:width 0.3s;"></div>
+                            </div>
+                            <div style="margin-top:10px; color:#FFD700; font-size:13px; font-weight:bold; text-align:right;">Reward: ${data.reward.toLocaleString()} G</div>
+                         </div>`;
+            }
+        } else {
+            // Need to accept a mission
+            html += `<p style="color:#ccc; font-size:13px; margin-bottom:15px;">Accept a daily mission to earn large amounts of Gold! You can only complete one mission per day.</p>`;
+            html += `<div style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
+                        <button class="btn" style="background:#4CAF50; padding:10px; font-weight:bold;" onclick="window.acceptDailyMission('Beginner')">Beginner (Floor 1) - 25,000 G</button>
+                        <button class="btn" style="background:#2196F3; padding:10px; font-weight:bold;" onclick="window.acceptDailyMission('Novice')">Novice (Floor 2) - 100,000 G</button>
+                        <button class="btn" style="background:#f44336; padding:10px; font-weight:bold;" onclick="window.acceptDailyMission('Expert')">Expert (Floor 3) - 250,000 G</button>
+                     </div>`;
+        }
+
+        html += `<button class="btn" style="background:#555; width:100%;" onclick="document.getElementById('daily-missions-modal').style.display='none'">Close</button>`;
+        modal.innerHTML = html;
+    });
+
+    socket.on('dailyMissionUpdate', (missionData) => {
+        if (game.player.baseStats) game.player.baseStats.dailyMission = missionData;
+        if (document.getElementById('daily-missions-modal')?.style.display === 'block') {
+            socket.emit('requestDailyMission'); // Refresh UI live
+        }
+    });
+}
+
+window.acceptDailyMission = function(difficulty) {
+    if (confirm(`Accept the ${difficulty} Daily Mission? You cannot change this later today.`)) {
+        if (socket) socket.emit('acceptDailyMission', difficulty);
+        document.getElementById('daily-missions-modal').innerHTML = '<h2 style="color:#FF9800; margin-top: 20px;">Processing...</h2>';
+    }
+};
 // ==========================================
 // ⚖️ AUCTION HOUSE UI LOGIC
 // ==========================================
