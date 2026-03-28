@@ -4144,49 +4144,65 @@ socket.on('requestBuyGuildBase', async () => {
         socket.emit('systemMessage', `💰 You donated ${donateAmt.toLocaleString()} Gold to the guild!`);
         socket.emit('requestGuildUI_Refresh');
     });
-    socket.on('requestBuyGuildBase', () => {
-        let p = game.remotePlayers[socket.id];
-        if (!p || !p.guild_details || !p.guild_details.name) return;
-
-        let gName = p.guild_details.name;
-        let guild = global.guilds[gName];
-
-        if (!guild) return;
-
-        if (p.guild_details.role !== 'Leader') {
-            socket.emit('systemMessage', "❌ Only the Guild Leader can purchase the Guild Base.");
-            socket.emit('requestGuildUI_Refresh');
-            return;
-        }
-
-        if (guild.hasBase) {
-            socket.emit('systemMessage', "❌ Your guild already owns a base.");
-            socket.emit('requestGuildUI_Refresh');
-            return;
-        }
-
-        if ((guild.gold || 0) < 1000000) {
-            socket.emit('systemMessage', "❌ Not enough Guild Funds! You need 1,000,000 G.");
-            socket.emit('requestGuildUI_Refresh');
-            return;
-        }
-
-        // Deduct gold and unlock base
-        guild.gold -= 1000000;
-        guild.hasBase = true;
-
-        // Save to Database (assuming you have a function to save the guild data)
-        if (typeof saveGuildsToDB === 'function') saveGuildsToDB();
-
-        socket.emit('systemMessage', "🎉 Successfully purchased the Guild Base!");
-        
-        // Tell everyone in the guild to refresh their UI
-        guild.members.forEach(memberId => {
-            let memberSocketId = Object.keys(game.remotePlayers).find(key => game.remotePlayers[key].id === memberId);
-            if (memberSocketId && io.sockets.sockets.get(memberSocketId)) {
-                io.to(memberSocketId).emit('requestGuildUI_Refresh');
+   socket.on('requestBuyGuildBase', () => {
+        // 1. Get the player - Use a try/catch just in case the socket is in a weird state
+        try {
+            let p = game.remotePlayers[socket.id];
+            if (!p || !p.guild_details || !p.guild_details.name) {
+                socket.emit('systemMessage', "❌ Error: Player or Guild data not found.");
+                return;
             }
-        });
+
+            let gName = p.guild_details.name;
+            let guild = global.guilds[gName];
+
+            if (!guild) {
+                socket.emit('systemMessage', "❌ Guild database error.");
+                return;
+            }
+
+            // 2. Permission check (THE CRASH FIX: Added strict return)
+            if (p.guild_details.role !== 'Leader') {
+                socket.emit('systemMessage', "❌ Access Denied: Only the Guild Leader can purchase the Base.");
+                socket.emit('requestGuildUI_Refresh');
+                return; // 🛡️ CRITICAL: Stops the code here so it doesn't crash below!
+            }
+
+            // 3. Ownership check
+            if (guild.hasBase) {
+                socket.emit('systemMessage', "❌ Your guild already owns a base.");
+                socket.emit('requestGuildUI_Refresh');
+                return;
+            }
+
+            // 4. Funds check
+            if ((guild.gold || 0) < 1000000) {
+                socket.emit('systemMessage', `❌ Insufficient Funds! Guild needs ${ (1000000 - guild.gold).toLocaleString() } G more.`);
+                socket.emit('requestGuildUI_Refresh');
+                return;
+            }
+
+            // 5. SUCCESS LOGIC
+            guild.gold -= 1000000;
+            guild.hasBase = true;
+
+            if (typeof saveGuildsToDB === 'function') saveGuildsToDB();
+
+            socket.emit('systemMessage', "🎉 SUCCESS! Your Guild Base is now open!");
+
+            // Update every online guild member's UI
+            guild.members.forEach(memberId => {
+                // Safely find the socket ID by iterating remotePlayers
+                let memberSocketId = Object.keys(game.remotePlayers).find(sid => game.remotePlayers[sid].id === memberId);
+                if (memberSocketId && io.sockets.sockets.get(memberSocketId)) {
+                    io.to(memberSocketId).emit('requestGuildUI_Refresh');
+                }
+            });
+
+        } catch (err) {
+            console.error("Fatal error in requestBuyGuildBase:", err);
+            socket.emit('systemMessage', "❌ A server error occurred during purchase.");
+        }
     });
 
     socket.on('chatMessage', (data) => { 
