@@ -2896,20 +2896,22 @@ socket.on('syncPet', (data) => {
         let pClass = p.baseStats?.playerClass;
         let hitCount = 1;
 
-        // 🌀 PHANTOM STRIKER: Craftiness (Lv 75) - CD Reset
+       // 🌀 PHANTOM STRIKER: Craftiness (Lv 75) - CD Reset
         if (pClass === 'Phantom Striker' && p.level >= 75 && payload.skillId === 'basic') {
             if (Math.random() < 0.25) {
                 for (let key in p.skillCooldowns) p.skillCooldowns[key] = 0;
-                io.to(p.instanceId).emit('systemMessage', `<span style="color:#00E5FF; font-weight:bold;">🌀 ${p.name}'s Craftiness reset their skill cooldowns!</span>`);
+                // 🛡️ THE FIX: Only you see this reset now
+                socket.emit('systemMessage', `<span style="color:#00E5FF; font-weight:bold;">🌀 Your Craftiness reset your skill cooldowns!</span>`);
                 const msid = findSocketIdByPlayerId(p.id);
                 if (msid) io.to(msid).emit('cdReset'); 
             }
         }
 
-// ⚔️ PHANTOM STRIKER: Sleight of Hand (Lv 25) - Double Hit
+        // ⚔️ PHANTOM STRIKER: Sleight of Hand (Lv 25) - Double Hit
         if (pClass === 'Phantom Striker' && p.level >= 25 && payload.skillId !== 'pet' && Math.random() < 0.50) {
             hitCount = 2;
-            io.to(p.instanceId).emit('systemMessage', `<span style="color:#ffffff; font-weight:bold;">🗡️ Sleight of Hand triggered a double attack!</span>`);
+            // 🛡️ THE FIX: Only you see this trigger now
+            socket.emit('systemMessage', `<span style="color:#ffffff; font-weight:bold;">🗡️ Sleight of Hand triggered a double attack!</span>`);
         }
 
         // 🎯 SNIPER: Dual Bullet (Lv 75)
@@ -6807,20 +6809,20 @@ socket.on('startDungeon', async (data) => {
         let pClass = p.baseStats?.playerClass;
         let hitCount = 1;
 
-        // 🌀 PHANTOM STRIKER: Craftiness (Lv 75) - CD Reset
+      // 🌀 PHANTOM STRIKER: Craftiness Reset PvP
         if (pClass === 'Phantom Striker' && p.level >= 75 && payload.skillId === 'basic') {
             if (Math.random() < 0.25) {
                 for (let key in p.skillCooldowns) p.skillCooldowns[key] = 0;
-                io.to(p.instanceId).emit('systemMessage', `<span style="color:#00E5FF; font-weight:bold;">🌀 ${p.name}'s Craftiness reset their skill cooldowns!</span>`);
+                socket.emit('systemMessage', `<span style="color:#00E5FF; font-weight:bold;">🌀 Your Craftiness reset your skill cooldowns!</span>`);
                 const msid = findSocketIdByPlayerId(p.id);
                 if (msid) io.to(msid).emit('cdReset'); 
             }
         }
 
-       // ⚔️ PHANTOM STRIKER: Sleight of Hand (Lv 25) - Double Hit
+        // ⚔️ PHANTOM STRIKER: Sleight of Hand PvP
         if (pClass === 'Phantom Striker' && p.level >= 25 && payload.skillId !== 'pet' && Math.random() < 0.50) {
             hitCount = 2;
-            io.to(p.instanceId).emit('systemMessage', `<span style="color:#ffffff; font-weight:bold;">🗡️ Sleight of Hand triggered a double attack!</span>`);
+            socket.emit('systemMessage', `<span style="color:#ffffff; font-weight:bold;">🗡️ Sleight of Hand triggered a double attack!</span>`);
         }
 
         // 🔫 SKILL DAMAGE LOGIC FOR PVP
