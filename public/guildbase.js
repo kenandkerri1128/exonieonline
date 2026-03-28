@@ -348,12 +348,6 @@ var guildbaseMapData = {
             "h": 529
         },
         {
-            "x": 889,
-            "y": 1300,
-            "w": 268,
-            "h": 42
-        },
-        {
             "x": 7,
             "y": 4,
             "w": 1030,
@@ -526,6 +520,24 @@ var guildbaseMapData = {
             "y": 292,
             "w": 99,
             "h": 60
+        },
+        {
+            "x": 892,
+            "y": 1321,
+            "w": 264,
+            "h": 26
+        }
+    ],
+    "teleports": [
+        {
+            "x": 887,
+            "y": 1239,
+            "w": 256,
+            "h": 80,
+            "portalId": "L",
+            "targetMapId": "town",
+            "targetX": 960,
+            "targetY": 1000
         }
     ]
 };
