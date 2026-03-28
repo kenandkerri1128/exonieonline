@@ -2862,9 +2862,18 @@ if(socket) {
     };
 
     socket.on('titleUnlocked', (title) => {
+        if(document.getElementById('player-title-tag')) {
+            let gName = game.player.spriteData ? game.player.spriteData.guildName : null;
+            document.getElementById('player-title-tag').innerHTML = window.formatTitleAndGuild(title, gName);
+        }
+    });
+
+    // 🛡️ THE FIX: Instantly redraws your own nameplate when joining/leaving a guild!
+    socket.on('updateLocalGuildTag', (gName) => {
+        if (!game.player.spriteData) game.player.spriteData = {};
+        game.player.spriteData.guildName = gName;
         if(document.getElementById('player-title-tag')) {
-            let gName = game.player.spriteData ? game.player.spriteData.guildName : null;
-            document.getElementById('player-title-tag').innerHTML = window.formatTitleAndGuild(title, gName);
+            document.getElementById('player-title-tag').innerHTML = window.formatTitleAndGuild(game.player.spriteData.title, gName);
         }
     });
     socket.off('authSuccess'); // Kill old listeners
