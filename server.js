@@ -4972,7 +4972,8 @@ socket.on('playerDied', () => {
             if (n.includes('Red Exo Metal')) countRed += i.quantity || 1;
             else if (n.includes('Green Exo Metal')) countGreen += i.quantity || 1;
             else if (n.includes('Blue Exo Metal')) countBlue += i.quantity || 1;
-            else if (n.includes('Refinement Stone') && i.level >= 50 && i.rarity === targetRarity) {
+            // 🛡️ THE FIX: Divine rarity bypasses the Level 50 requirement for counting!
+            else if (n.includes('Refinement Stone') && (targetRarity === 'Divine' || i.level >= 100) && i.rarity === targetRarity) {
                 countStones += i.quantity || 1;
             }
         });
@@ -4993,7 +4994,8 @@ socket.on('playerDied', () => {
                 let isMatch = false;
 
                 if (isStone) {
-                    isMatch = n.includes('Refinement Stone') && item.level >= 50 && item.rarity === reqRarity;
+                    // 🛡️ THE FIX: Divine rarity bypasses the Level 50 requirement for deduction!
+                    isMatch = n.includes('Refinement Stone') && (reqRarity === 'Divine' || item.level >= 100) && item.rarity === reqRarity;
                 } else {
                     isMatch = n.includes(namePart);
                 }
