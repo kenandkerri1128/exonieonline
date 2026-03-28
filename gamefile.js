@@ -3126,6 +3126,7 @@ socket.on('mailList', (mails) => {
     
     ann.innerHTML = `<div style="color: #e0e0e0; font-size: 16px; margin-bottom: 5px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 2px 2px 4px #000;">${data.playerName} just got</div><div style="color: ${data.color}; font-size: 28px; font-weight: bold; -webkit-text-stroke: 1px black; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 15px ${data.color};" class="${glowClass}">${data.itemName} ${lvlText}</div>`; 
     container.appendChild(ann);
+});
    // ==========================================
     // 📧 EMAIL UI HANDLING
     // ==========================================
@@ -4053,19 +4054,19 @@ let localBossTimer = null;
             }
         }, 1000);
     });
-
     socket.on('monsterSpawned', (m) => { if (!m || safeMapData.id === 'town') return; game.monsters[m.id] = m; const mEl = document.getElementById('mob_' + m.id); if(mEl) mEl.style.display = 'flex'; });
     socket.on('lootDropped', (item) => { 
         if (!item) return;
         // 🛡️ THE FIX: Only update the text! The item is already safely handled by syncInventory.
         let qtyStr = item.quantity > 1 ? ` (x${item.quantity})` : '';
         if (dom && dom.log) dom.log.innerText = `Looted: ${item.name}${qtyStr}!`; 
-    });
+    });                  
+}
 // ==========================================
 // 9. PERFORMANCE, FPS & PWA
 // ==========================================
-let lastLoopTime = performance.now(); let frameCount = 0; let fpsDisplay = document.getElementById('fps-counter');
-let lowEndMode = localStorage.getItem('exonie_low_end') === 'true'; let lowFpsTimer = 0;
+var lastLoopTime = performance.now(); var frameCount = 0; var fpsDisplay = document.getElementById('fps-counter');
+var lowEndMode = localStorage.getItem('exonie_low_end') === 'true'; var lowFpsTimer = 0;
 
 function updateFPS() {
     let now = performance.now(); frameCount++;
