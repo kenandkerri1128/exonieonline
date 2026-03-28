@@ -913,6 +913,12 @@ var townMapData = {
             "y": 626,
             "w": 97,
             "h": 55
+        },
+        {
+            "x": 1662,
+            "y": 642,
+            "w": 38,
+            "h": 29
         }
     ],
     "teleports": [
@@ -991,6 +997,16 @@ var townMapData = {
             "h": 30,
             "portalId": "K",
             "targetMapId": "guildbase",
+            "targetX": 960,
+            "targetY": 1000
+        },
+        {
+            "x": 1662,
+            "y": 674,
+            "w": 36,
+            "h": 21,
+            "portalId": "M",
+            "targetMapId": "town",
             "targetX": 960,
             "targetY": 1000
         }
