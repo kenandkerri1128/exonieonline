@@ -4105,14 +4105,22 @@ socket.on('requestConfirmTrade', () => {
             displayName = `<span style="color:#ff4444; font-weight:bold;">[GM]</span> ${p.id}`;
         }
         
-        // 🏰 GUILD BASE GREEN CHAT ROUTING
+     // 🏰 GUILD BASE GREEN CHAT ROUTING
+        // Only players physically in the guild base can SEND these messages
         if (p.mapId === 'guildbase' && p.guild_details) {
             const gName = p.guild_details.name;
             const guildMsg = `<span style="color:#4CAF50; font-weight:bold;">[Guild] ${displayName}: ${safeText}</span>`;
             
-            // Send to everyone in the guild base instance
-            io.to(p.instanceId).emit('systemMessage', guildMsg);
-            return; // Stop here so it doesn't do normal chat!
+            // 🛡️ THE FIX: Broadcast to ALL online guild members, no matter what map they are on!
+            if (global.guilds[gName] && global.guilds[gName].members) {
+                for (const memberId of global.guilds[gName].members) {
+                    const memberSid = findSocketIdByPlayerId(memberId);
+                    if (memberSid) {
+                        io.to(memberSid).emit('systemMessage', guildMsg);
+                    }
+                }
+            }
+            return; // Stop here so it doesn't do normal Local/Party chat!
         }
         
         // 1. Emit the local text bubble to everyone in the room
