@@ -485,11 +485,47 @@ function getBaseStat(lvl) {
 }
 // 🛡️ NEW: BOSS COUNTDOWN HELPER
 function getBossCountdown(lastDeathTime) {
-    const now = Date.now();
-    const oneDay = 24 * 60 * 60 * 1000;
-    const respawnTime = parseInt(lastDeathTime) + oneDay;
-    return respawnTime - now; // Returns remaining milliseconds
+    const now = Date.now();
+    const oneDay = 24 * 60 * 60 * 1000;
+    const respawnTime = parseInt(lastDeathTime) + oneDay;
+    return respawnTime - now; // Returns remaining milliseconds
 }
+
+// 📜 DAILY MISSION KILL HELPER
+function processMissionKill(p, monsterKey, targetSid) {
+    if (!p || !p.baseStats || !p.baseStats.dailyMission || !p.baseStats.dailyMission.active || p.baseStats.dailyMission.completed) return;
+    
+    let todayMidnight = new Date();
+    todayMidnight.setUTCHours(0, 0, 0, 0);
+    const resetTs = todayMidnight.getTime();
+    
+    // Check if the mission expired overnight
+    if (p.baseStats.dailyMission.lastReset < resetTs) {
+        p.baseStats.dailyMission.active = false;
+        return;
+    }
+
+    // Check if the killed mob matches the required target (Handles generic prefixes well!)
+    if (monsterKey && monsterKey.includes(p.baseStats.dailyMission.targetMob)) {
+        p.baseStats.dailyMission.currentKills++;
+        
+        if (p.baseStats.dailyMission.currentKills >= p.baseStats.dailyMission.requiredKills) {
+            p.baseStats.dailyMission.currentKills = p.baseStats.dailyMission.requiredKills;
+            p.baseStats.dailyMission.completed = true;
+            p.gold += p.baseStats.dailyMission.reward;
+            
+            if (targetSid) {
+                io.to(targetSid).emit('systemMessage', `🎉 Daily Mission Complete! You earned ${p.baseStats.dailyMission.reward.toLocaleString()} Gold!`);
+                io.to(targetSid).emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory }); // Instantly syncs the UI Gold
+            }
+        }
+        
+        // Save silently
+        supabase.from('Exonians').update({ base_stats: p.baseStats, gold: p.gold }).eq('character_name', p.id).then(()=>{});
+        if (targetSid) io.to(targetSid).emit('dailyMissionUpdate', p.baseStats.dailyMission);
+    }
+}
+
 function generatePowerGem(level, rarity) {
     const stats = [...STAT_TYPES];
     const rStat = stats[Math.floor(Math.random() * stats.length)];
@@ -3269,12 +3305,16 @@ socket.on('syncPet', (data) => {
                     };
 
                     if (pid && parties[pid]) {
-                        for (const memberId of parties[pid].members) {
-                            processRewards(getPlayerById(memberId), findSocketIdByPlayerId(memberId));
-                        }
-                    } else {
-                        processRewards(p, socket.id);
-                    }
+                        for (const memberId of parties[pid].members) {
+                            const mp = getPlayerById(memberId);
+                            const msid = findSocketIdByPlayerId(memberId);
+                            processRewards(mp, msid);
+                            if (mp && msid) processMissionKill(mp, m.originalKey || m.monsterKey, msid);
+                        }
+                    } else {
+                        processRewards(p, socket.id);
+                        processMissionKill(p, m.originalKey || m.monsterKey, socket.id);
+                    }
 
                     // ⚔️ TAVERN WIN CONDITION & LOOT (Strict Map Check)
                     if (p.mapId === 'trainingtavern' && m.id === p.tavernTargetId) {
@@ -5464,6 +5504,84 @@ socket.on('requestRerollStat', async (data) => {
 
         await supabase.from('Exonians').update({ gold: p.gold, inventory: p.inventory }).eq('character_name', p.id);
         socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
+    });
+    // ==========================================
+    // 📜 DAILY MISSIONS ENGINE
+    // ==========================================
+    socket.on('requestDailyMission', () => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+        
+        let todayMidnight = new Date();
+        todayMidnight.setUTCHours(0, 0, 0, 0);
+        const resetTs = todayMidnight.getTime();
+
+        if (!p.baseStats.dailyMission) {
+            p.baseStats.dailyMission = { active: false, lastReset: 0 };
+        }
+
+        // Automatic midnight wipe
+        if (p.baseStats.dailyMission.lastReset < resetTs) {
+            p.baseStats.dailyMission = { active: false, lastReset: resetTs };
+            supabase.from('Exonians').update({ base_stats: p.baseStats }).eq('character_name', p.id).then(()=>{});
+        }
+
+        socket.emit('dailyMissionData', p.baseStats.dailyMission);
+    });
+
+    socket.on('acceptDailyMission', (difficulty) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+
+        let todayMidnight = new Date();
+        todayMidnight.setUTCHours(0, 0, 0, 0);
+        const resetTs = todayMidnight.getTime();
+
+        // Prevent taking 2 missions
+        if (p.baseStats.dailyMission && p.baseStats.dailyMission.active && p.baseStats.dailyMission.lastReset >= resetTs) {
+            return socket.emit('systemMessage', "❌ You already have an active mission today.");
+        }
+
+        // 50/50 Coin Flip!
+        const types = ['common', 'boss'];
+        const chosenType = types[Math.floor(Math.random() * types.length)];
+        
+        let targetMob = '';
+        let requiredKills = 0;
+        let reward = 0;
+
+        if (difficulty === 'Beginner') {
+            targetMob = chosenType === 'common' ? 'common_mobs1' : 'mini_boss1';
+            requiredKills = chosenType === 'common' ? 25 : 5;
+            reward = 25000;
+        } else if (difficulty === 'Novice') {
+            targetMob = chosenType === 'common' ? 'common_mobs2' : 'mini_boss2';
+            requiredKills = chosenType === 'common' ? 25 : 5;
+            reward = 100000;
+        } else if (difficulty === 'Expert') {
+            targetMob = chosenType === 'common' ? 'common_mobs3' : 'mini_boss3';
+            requiredKills = chosenType === 'common' ? 25 : 5;
+            reward = 250000;
+        } else {
+            return;
+        }
+
+        p.baseStats.dailyMission = {
+            active: true,
+            difficulty: difficulty,
+            type: chosenType,
+            targetMob: targetMob,
+            currentKills: 0,
+            requiredKills: requiredKills,
+            reward: reward,
+            completed: false,
+            lastReset: resetTs
+        };
+
+        supabase.from('Exonians').update({ base_stats: p.baseStats }).eq('character_name', p.id).then(()=>{});
+        
+        socket.emit('dailyMissionData', p.baseStats.dailyMission);
+        socket.emit('systemMessage', `📜 Daily Mission Accepted: ${difficulty}!`);
     });
     // 🏡 REAL ESTATE ENGINE: Buy a Home
     socket.on('requestBuyHome', async () => {
