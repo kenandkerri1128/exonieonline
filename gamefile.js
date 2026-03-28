@@ -4471,71 +4471,78 @@ if (socket) {
     });
 
     socket.on('guildDataResponse', (data) => {
-        const modal = document.getElementById('guild-modal');
-        if (!modal) return;
+    const modal = document.getElementById('guild-modal');
+    if (!modal) return;
 
-        if (data.hasGuild) {
-            // --- IN A GUILD VIEW ---
-            let d = data.details;
-            let html = `
-                <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #4CAF50;">
-                    <h2 style="margin:0; color:#4CAF50; pointer-events:none;">🏰 ${d.name}</h2>
-                </div>
-                <div style="display:flex; justify-content:space-between; color:#aaa; font-size:14px; margin-bottom:15px;">
-                    <span>Role: <strong style="color:#fff;">${d.role}</strong></span>
-                    <span>Guild Funds: <strong style="color:#FFD700;">${(data.guildGold || 0).toLocaleString()} G</strong></span>
-                </div>
-            `;
-            
-            // Roster List
-            html += `<div style="background:#111; padding:10px; border:1px solid #333; border-radius:5px; height:150px; overflow-y:auto; margin-bottom:15px; text-align:left;">`;
-            if (data.members) {
-                data.members.forEach(m => {
-                    let dot = m.online ? '<span style="color:#4CAF50;">●</span>' : '<span style="color:#f44336;">●</span>';
-                    html += `<div style="padding:4px 0; border-bottom:1px solid #222;">${dot} ${m.name}</div>`;
-                });
+    if (data.hasGuild) {
+        let d = data.details;
+        let myRole = data.myRole;
+        
+        let html = `
+            <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #4CAF50;">
+                <h2 style="margin:0; color:#4CAF50;">🏰 ${d.name} (${data.members.length}/20)</h2>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin:10px 0; font-size:13px; color:#aaa;">
+                <span>Your Role: <strong style="color:#fff;">${myRole}</strong></span>
+                <span>Funds: <strong style="color:#FFD700;">${data.guildGold.toLocaleString()} G</strong></span>
+            </div>
+        `;
+
+        // 📝 MEMBER LIST + MASTER ROLE PICKER
+        html += `<div style="background:#111; padding:10px; border:1px solid #333; border-radius:5px; height:120px; overflow-y:auto; margin-bottom:10px; text-align:left;">`;
+        data.members.forEach(m => {
+            let roleDisplay = `<span>${m.role}</span>`;
+            if (myRole === 'Master' && m.name !== game.player.name) {
+                roleDisplay = `<select onchange="socket.emit('guildUpdateRole', {targetName:'${m.name}', newRole:this.value})" style="background:#222; color:#fff; font-size:11px; border:1px solid #444;">
+                    <option value="Member" ${m.role==='Member'?'selected':''}>Member</option>
+                    <option value="Captain" ${m.role==='Captain'?'selected':''}>Captain</option>
+                    <option value="Vice Master" ${m.role==='Vice Master'?'selected':''}>Vice Master</option>
+                </select>`;
             }
-            html += `</div>`;
-            // Actions
-            html += `<button class="btn" style="background:#2196F3; width:100%; margin-bottom:10px; font-weight:bold;" onclick="window.donateGuild()">Donate Gold</button>`;
-            
-            // 🛡️ GUILD BASE CHECK: Conditionally show Buy or Enter
-            if (data.hasBase) {
-                html += `<button class="btn" style="background:#4CAF50; width:100%; margin-bottom:10px; font-weight:bold;" onclick="window.enterGuildBase()">Enter Guild Base</button>`;
-            } else {
-                html += `<button class="btn" style="background:#FF9800; width:100%; margin-bottom:10px; font-weight:bold;" onclick="window.buyGuildBase()">Buy Guild Base (1,000,000 G)</button>`;
-            }
-            
-            html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('guild-modal').style.display='none'">Close</button>`;
-            
-            modal.innerHTML = html;
-        } else {
-            // --- NO GUILD VIEW ---
-            let html = `
-                <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #4CAF50;">
-                    <h2 style="margin:0; color:#4CAF50; pointer-events:none;">🏰 Guild Registry</h2>
-                </div>
-                <button class="btn" style="background:#FF9800; width:100%; margin-bottom:15px; font-weight:bold; padding:12px;" onclick="window.createGuild()">👑 Establish Guild (10M Gold)</button>
-                <h3 style="color:#aaa; font-size:14px; border-bottom:1px solid #333; padding-bottom:5px;">Open Guilds</h3>
-                <div style="background:#111; padding:10px; border:1px solid #333; border-radius:5px; height:120px; overflow-y:auto; margin-bottom:15px; text-align:left;">`;
-            
-            if (data.openGuilds && data.openGuilds.length > 0) {
-                data.openGuilds.forEach(g => {
-                    html += `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #222;">
-                                <span>${g.name} <span style="color:#aaa; font-size:11px;">(${g.members} members)</span></span>
-                                <button class="btn" style="background:#4CAF50; padding:2px 8px; font-size:11px;" onclick="window.joinGuild('${g.name}')">Join</button>
+            html += `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #222;">
+                        <span style="font-size:12px;">${m.online ? '🟢' : '⚪'} ${m.name}</span>
+                        ${roleDisplay}
+                     </div>`;
+        });
+        html += `</div>`;
+
+        // 📩 APPLICANTS (Master/Vice Master only)
+        if (myRole === 'Master' || myRole === 'Vice Master') {
+            html += `<h4 style="margin:5px 0; font-size:12px; color:#aaa; text-align:left;">Pending Applicants</h4>
+                     <div style="background:#111; padding:5px; border:1px solid #333; height:60px; overflow-y:auto; margin-bottom:10px;">`;
+            if (data.applicants && data.applicants.length > 0) {
+                data.applicants.forEach(name => {
+                    html += `<div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:3px;">
+                                <span>${name}</span>
+                                <div>
+                                    <button onclick="socket.emit('guildHandleApplicant', {applicantName:'${name}', accept:true})" style="background:#4CAF50; color:white; border:none; padding:2px 6px; cursor:pointer;">✔</button>
+                                    <button onclick="socket.emit('guildHandleApplicant', {applicantName:'${name}', accept:false})" style="background:#f44336; color:white; border:none; padding:2px 6px; cursor:pointer;">✖</button>
+                                </div>
                              </div>`;
                 });
             } else {
-                html += `<div style="color:#555; text-align:center; margin-top:30px;">No open guilds found.</div>`;
+                html += `<div style="color:#444; font-size:11px; margin-top:15px;">No applications</div>`;
             }
-            
-            html += `</div>
-                <button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('guild-modal').style.display='none'">Close</button>`;
-            
-            modal.innerHTML = html;
+            html += `</div>`;
         }
-    });
+
+        // 🔘 ACTION BUTTONS
+        html += `<button class="btn" style="background:#2196F3; width:100%; margin-bottom:5px;" onclick="window.donateGuild()">💰 Donate Gold</button>`;
+        
+        if (['Master', 'Vice Master', 'Captain'].includes(myRole)) {
+            html += `<button class="btn" style="background:#311B92; width:100%; margin-bottom:5px;" onclick="let n=prompt('Enter character name to invite:'); if(n) socket.emit('guildInvitePlayer', n.trim())">📩 Invite Player</button>`;
+        }
+
+        if (data.hasBase) {
+            html += `<button class="btn" style="background:#4CAF50; width:100%; margin-bottom:5px;" onclick="window.enterGuildBase()">🚪 Enter Guild Base</button>`;
+        } else if (myRole === 'Master') {
+            html += `<button class="btn" style="background:#FF9800; width:100%; margin-bottom:5px;" onclick="window.buyGuildBase()">🏠 Buy Guild Base (1,000,000 G)</button>`;
+        }
+
+        html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('guild-modal').style.display='none'">Close</button>`;
+        modal.innerHTML = html;
+    }
+});
 }
 
 window.createGuild = function() {
