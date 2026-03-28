@@ -2801,7 +2801,11 @@ window.addRemotePlayer = function(pData) {
     }
     container.appendChild(nameTag);
    const titleTag = document.createElement('div'); titleTag.className = 'title-tag'; 
-    titleTag.innerHTML = window.formatTitleAndGuild(pData.spriteData?.title, pData.spriteData?.guildName);
+    let tHtml = (pData.spriteData && pData.spriteData.title) ? `&lt;${pData.spriteData.title}&gt;` : '';
+    if (pData.spriteData && pData.spriteData.guildName) {
+        tHtml += (tHtml ? '<br>' : '') + `<span style="color:#4CAF50; font-size:13px; font-weight:900; letter-spacing:1px; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 2px 4px rgba(0,0,0,0.6);">[${pData.spriteData.guildName}]</span>`;
+    }
+    titleTag.innerHTML = tHtml;
     container.appendChild(titleTag);
     const rig = document.createElement('div'); rig.className = 'player-avatar-container avatar-rig';
     const hair = new Image(); hair.className = 'avatar-layer layer-hair';
@@ -3432,9 +3436,13 @@ socket.on('forceTeleport', (tp) => {
             p.weapon.style.display = 'none'; p.currentWeaponSrc = ''; 
             if (p.spriteData) p.spriteData.weapon = null; 
             p.weapon.classList.remove('weapon-aura-legendary', 'weapon-aura-godly');
-        } const cAuraEl = p.rig.querySelector('.cosmetic-aura'); if (cAuraEl) cAuraEl.className = data.spriteData?.aura ? `cosmetic-aura aura-${data.spriteData.aura}` : 'cosmetic-aura'; const titleEl = p.dom.querySelector('.title-tag');
+       } const cAuraEl = p.rig.querySelector('.cosmetic-aura'); if (cAuraEl) cAuraEl.className = data.spriteData?.aura ? `cosmetic-aura aura-${data.spriteData.aura}` : 'cosmetic-aura'; const titleEl = p.dom.querySelector('.title-tag');
         if (titleEl) {
-            titleEl.innerText = data.spriteData?.title ? `<${data.spriteData.title}>` : '';
+            let tHtml = data.spriteData?.title ? `&lt;${data.spriteData.title}&gt;` : '';
+            if (data.spriteData?.guildName) {
+                tHtml += (tHtml ? '<br>' : '') + `<span style="color:#4CAF50; font-size:13px; font-weight:900; letter-spacing:1px; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 2px 4px rgba(0,0,0,0.6);">[${data.spriteData.guildName}]</span>`;
+            }
+            titleEl.innerHTML = tHtml;
         }
         });
     socket.on('inspectData', (data) => { 
