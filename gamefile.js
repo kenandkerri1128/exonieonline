@@ -4061,7 +4061,6 @@ let localBossTimer = null;
         let qtyStr = item.quantity > 1 ? ` (x${item.quantity})` : '';
         if (dom && dom.log) dom.log.innerText = `Looted: ${item.name}${qtyStr}!`; 
     });
-}
 // ==========================================
 // 9. PERFORMANCE, FPS & PWA
 // ==========================================
