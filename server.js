@@ -4090,6 +4090,12 @@ socket.on('requestConfirmTrade', () => {
         
         global.guilds[guildName].applicants.push(p.id);
         socket.emit('systemMessage', `📩 Application sent to ${guildName}!`);
+        
+        // 🛡️ THE FIX: Instantly refresh UI for online guild members to see the new applicant!
+        global.guilds[guildName].members.forEach(memberId => {
+            const targetSid = Object.keys(onlinePlayers).find(sid => onlinePlayers[sid].id === memberId);
+            if (targetSid) io.to(targetSid).emit('requestGuildUI_Refresh');
+        });
     });
 
     socket.on('guildInvitePlayer', (targetName) => {
@@ -4130,14 +4136,74 @@ socket.on('requestConfirmTrade', () => {
         socket.emit('requestGuildUI_Refresh');
     });
 
-    socket.on('guildUpdateRole', ({ targetName, newRole }) => {
+   socket.on('guildUpdateRole', ({ targetName, newRole }) => {
         const p = onlinePlayers[socket.id]; if (!p || !p.guild_details) return;
         const guild = global.guilds[p.guild_details.name];
         if (guild.roles[p.id] !== 'Master') return;
         if (targetName === p.id) return;
 
         guild.roles[targetName] = newRole;
+        
+        global.guilds[p.guild_details.name].members.forEach(memberId => {
+            const memSid = Object.keys(onlinePlayers).find(sid => onlinePlayers[sid].id === memberId);
+            if (memSid) io.to(memSid).emit('requestGuildUI_Refresh');
+        });
+    });
+
+    socket.on('guildKick', async (targetName) => {
+        const p = onlinePlayers[socket.id]; if (!p || !p.guild_details) return;
+        const guild = global.guilds[p.guild_details.name];
+        const myRole = guild.roles[p.id];
+        const targetRole = guild.roles[targetName];
+        
+        const roleLevel = { 'Master': 4, 'Vice Master': 3, 'Captain': 2, 'Member': 1 };
+
+        if (myRole !== 'Master' && (myRole !== 'Vice Master' || roleLevel[targetRole] >= 3)) {
+            return socket.emit('systemMessage', "❌ No permission to kick this player.");
+        }
+
+        guild.members.delete(targetName);
+        delete guild.roles[targetName];
+
+        await supabase.from('Exonians').update({ guild_details: null }).eq('character_name', targetName);
+        
+        const targetSid = Object.keys(onlinePlayers).find(sid => onlinePlayers[sid].id === targetName);
+        if (targetSid) {
+            onlinePlayers[targetSid].guild_details = null;
+            onlinePlayers[targetSid].spriteData.guildName = null;
+            io.to(targetSid).emit('systemMessage', `⚠️ You were kicked from the guild.`);
+            io.to(targetSid).emit('requestGuildUI_Refresh');
+            io.emit('remotePlayerMoved', { id: targetName, x: onlinePlayers[targetSid].x, y: onlinePlayers[targetSid].y, state: 'idle', facingRight: false, weaponSprite: onlinePlayers[targetSid].spriteData.weapon, spriteData: onlinePlayers[targetSid].spriteData });
+        }
+        
+        socket.emit('systemMessage', `👢 Kicked ${targetName} from the guild.`);
+        
+        guild.members.forEach(memberId => {
+            const memSid = Object.keys(onlinePlayers).find(sid => onlinePlayers[sid].id === memberId);
+            if (memSid) io.to(memSid).emit('requestGuildUI_Refresh');
+        });
+    });
+
+    socket.on('guildLeave', async () => {
+        const p = onlinePlayers[socket.id]; if (!p || !p.guild_details) return;
+        const guild = global.guilds[p.guild_details.name];
+        
+        if (guild.roles[p.id] === 'Master') return socket.emit('systemMessage', "❌ Masters cannot leave. Hand over leadership to another member first!");
+
+        guild.members.delete(p.id);
+        delete guild.roles[p.id];
+        p.guild_details = null;
+        p.spriteData.guildName = null;
+
+        await supabase.from('Exonians').update({ guild_details: null }).eq('character_name', p.id);
+        socket.emit('systemMessage', "🚪 You have left the guild.");
         socket.emit('requestGuildUI_Refresh');
+        io.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
+        
+        guild.members.forEach(memberId => {
+            const targetSid = Object.keys(onlinePlayers).find(sid => onlinePlayers[sid].id === memberId);
+            if (targetSid) io.to(targetSid).emit('requestGuildUI_Refresh');
+        });
     });
 
     socket.on('requestBuyGuildBase', () => {
