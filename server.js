@@ -4006,8 +4006,42 @@ socket.on('requestConfirmTrade', () => {
 
         socket.emit('systemMessage', 'That item cannot be used this way.');
     });
- // ==========================================
-    // 🛡️ GUILD SYSTEM ENGINE
+// ==========================================
+    // 💾 SUPABASE GUILD SAVER & LOADER
+    // ==========================================
+    async function saveGuildsToDB() {
+        try {
+            for (let gName in global.guilds) {
+                let g = global.guilds[gName];
+                let payload = { name: g.name, gold: g.gold, members: Array.from(g.members), roles: g.roles, applicants: g.applicants, hasBase: g.hasBase };
+                await supabase.from('guilds').upsert({ name: gName, data: payload }, { onConflict: 'name' });
+            }
+        } catch (e) { console.error("[GUILD SAVE ERROR]", e.message); }
+    }
+
+    // 🔄 Automatically load all Guilds (and offline players) into RAM on server boot
+    setTimeout(async () => {
+        try {
+            const { data } = await supabase.from('guilds').select('*');
+            if (data) {
+                data.forEach(row => {
+                    let g = row.data;
+                    global.guilds[g.name] = {
+                        name: g.name,
+                        gold: g.gold || 0,
+                        members: new Set(g.members || []),
+                        roles: g.roles || {},
+                        applicants: g.applicants || [],
+                        hasBase: g.hasBase || false
+                    };
+                });
+                console.log(`[GUILDS] Successfully loaded ${data.length} guilds from database.`);
+            }
+        } catch(e) { console.error("[GUILD LOAD ERROR]", e.message); }
+    }, 3000);
+
+    // ==========================================
+    // 🛡️ GUILD SYSTEM ENGINE (PRO VERSION)
     // ==========================================
     const hasGuildPerm = (role, action, targetRole = null) => {
         const roleLvl = { 'Master': 4, 'Vice Master': 3, 'Captain': 2, 'Member': 1 };
@@ -4025,7 +4059,6 @@ socket.on('requestConfirmTrade', () => {
         
         if (p.guild_details && p.guild_details.name) {
             let gName = p.guild_details.name;
-            // 🛡️ Reconstruct RAM if missing
             if (!global.guilds[gName]) {
                 global.guilds[gName] = { name: gName, gold: p.guild_details.guildGold || 0, members: new Set([p.id]), roles: {}, applicants: [], hasBase: false };
             }
@@ -4034,26 +4067,15 @@ socket.on('requestConfirmTrade', () => {
             guild.members.add(p.id);
             if (!guild.roles) guild.roles = {};
             if (!guild.roles[p.id]) guild.roles[p.id] = p.guild_details.role || 'Member';
-            if (!guild.applicants) guild.applicants = [];
 
-            // 🛡️ Build member list with Offline tracking
             let memberList = Array.from(guild.members).map(mName => {
                 const isOnline = Object.values(onlinePlayers).some(op => op.id === mName);
-                return {
-                    name: mName,
-                    role: guild.roles[mName] || 'Member',
-                    online: isOnline
-                };
+                return { name: mName, role: guild.roles[mName] || 'Member', online: isOnline };
             });
 
             socket.emit('guildDataResponse', { 
-                hasGuild: true, 
-                details: p.guild_details, 
-                guildGold: guild.gold, 
-                members: memberList, 
-                applicants: guild.applicants,
-                hasBase: !!guild.hasBase,
-                myRole: guild.roles[p.id]
+                hasGuild: true, details: p.guild_details, guildGold: guild.gold, members: memberList, 
+                applicants: guild.applicants || [], hasBase: !!guild.hasBase, myRole: guild.roles[p.id]
             });
         } else {
             let openGuilds = Object.values(global.guilds).map(g => ({ name: g.name, members: g.members.size }));
@@ -4069,34 +4091,58 @@ socket.on('requestConfirmTrade', () => {
         
         p.gold -= 10000000;
         p.guild_details = { name: guildName, role: 'Master', guildGold: 0 };
-        global.guilds[guildName] = { 
-            name: guildName, 
-            gold: 0, 
-            members: new Set([p.id]), 
-            roles: { [p.id]: 'Master' }, 
-            applicants: [], 
-            hasBase: false 
-        };
-        
+        global.guilds[guildName] = { name: guildName, gold: 0, members: new Set([p.id]), roles: { [p.id]: 'Master' }, applicants: [], hasBase: false };
         p.spriteData.guildName = guildName;
+
         await supabase.from('Exonians').update({ gold: p.gold, guild_details: p.guild_details }).eq('character_name', p.id);
+        
         socket.emit('systemMessage', `🎉 Guild Established: ${guildName}!`);
         socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
+        socket.emit('updateLocalGuildTag', guildName); 
+        io.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
+        
+        saveGuildsToDB(); 
         socket.emit('requestGuildUI_Refresh');
+    });
+
+    socket.on('joinGuild', async (guildName) => {
+        const p = onlinePlayers[socket.id]; if (!p || !guildName) return;
+        if (p.guild_details) return socket.emit('systemMessage', "❌ You are already in a guild!");
+        
+        const guild = global.guilds[guildName];
+        if (!guild) return socket.emit('systemMessage', "❌ That guild does not exist.");
+        if (guild.members.size >= 20) return socket.emit('systemMessage', "❌ Guild is full (20/20).");
+
+        guild.members.add(p.id);
+        if (!guild.roles) guild.roles = {};
+        guild.roles[p.id] = 'Member';
+        
+        p.guild_details = { name: guildName, role: 'Member', guildGold: guild.gold };
+        p.spriteData.guildName = guildName;
+
+        await supabase.from('Exonians').update({ guild_details: p.guild_details }).eq('character_name', p.id);
+        
+        socket.emit('systemMessage', `🎉 You joined ${guildName}!`);
+        socket.emit('updateLocalGuildTag', guildName); 
+        io.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
+        
+        saveGuildsToDB(); 
+        io.emit('requestGuildUI_Refresh');
     });
 
     socket.on('guildApply', (guildName) => {
         const p = onlinePlayers[socket.id];
         if (!p || p.guild_details || !global.guilds[guildName]) return;
         
-        if (!global.guilds[guildName].applicants) global.guilds[guildName].applicants = [];
-        if (global.guilds[guildName].applicants.includes(p.id)) return socket.emit('systemMessage', "Already applied.");
+        const guild = global.guilds[guildName];
+        if (!guild.applicants) guild.applicants = [];
+        if (guild.applicants.includes(p.id)) return socket.emit('systemMessage', "Already applied.");
         
-        global.guilds[guildName].applicants.push(p.id);
+        guild.applicants.push(p.id);
         socket.emit('systemMessage', `📩 Application sent to ${guildName}!`);
+        saveGuildsToDB(); 
         
-        // 🛡️ Instantly refresh UI for online guild members
-        global.guilds[guildName].members.forEach(memberId => {
+        guild.members.forEach(memberId => {
             const targetSid = Object.keys(onlinePlayers).find(sid => onlinePlayers[sid].id === memberId);
             if (targetSid) io.to(targetSid).emit('requestGuildUI_Refresh');
         });
@@ -4136,14 +4182,17 @@ socket.on('requestConfirmTrade', () => {
                 tp.guild_details = { name: guild.name, role: 'Member', guildGold: guild.gold };
                 tp.spriteData.guildName = guild.name;
                 await supabase.from('Exonians').update({ guild_details: tp.guild_details }).eq('character_name', applicantName);
+                
                 io.to(targetSocketId).emit('systemMessage', `🎉 You were accepted into ${guild.name}!`);
+                io.to(targetSocketId).emit('updateLocalGuildTag', guild.name); 
+                io.emit('remotePlayerMoved', { id: tp.id, x: tp.x, y: tp.y, state: 'idle', facingRight: false, weaponSprite: tp.spriteData.weapon, spriteData: tp.spriteData });
             } else {
                 await supabase.from('Exonians').update({ guild_details: { name: guild.name, role: 'Member', guildGold: guild.gold } }).eq('character_name', applicantName);
             }
             socket.emit('systemMessage', `✅ ${applicantName} joined the guild.`);
         }
         
-        // Refresh UI for everyone in guild
+        saveGuildsToDB(); 
         guild.members.forEach(memberId => {
             const targetSid = Object.keys(onlinePlayers).find(sid => onlinePlayers[sid].id === memberId);
             if (targetSid) io.to(targetSid).emit('requestGuildUI_Refresh');
@@ -4153,10 +4202,12 @@ socket.on('requestConfirmTrade', () => {
     socket.on('guildUpdateRole', ({ targetName, newRole }) => {
         const p = onlinePlayers[socket.id]; if (!p || !p.guild_details) return;
         const guild = global.guilds[p.guild_details.name];
+        
         if (guild.roles[p.id] !== 'Master') return;
-        if (targetName === p.id) return socket.emit('systemMessage', "❌ Cannot change your own role.");
+        if (targetName === p.id) return socket.emit('systemMessage', "❌ Cannot change your own role here.");
 
         guild.roles[targetName] = newRole;
+        saveGuildsToDB(); 
         
         guild.members.forEach(memberId => {
             const targetSid = Object.keys(onlinePlayers).find(sid => onlinePlayers[sid].id === memberId);
@@ -4183,11 +4234,13 @@ socket.on('requestConfirmTrade', () => {
             tp.guild_details = null;
             tp.spriteData.guildName = null;
             io.to(targetSid).emit('systemMessage', `⚠️ You were kicked from the guild.`);
+            io.to(targetSid).emit('updateLocalGuildTag', null); 
             io.to(targetSid).emit('requestGuildUI_Refresh');
             io.emit('remotePlayerMoved', { id: tp.id, x: tp.x, y: tp.y, state: 'idle', facingRight: false, weaponSprite: tp.spriteData.weapon, spriteData: tp.spriteData });
         }
         
         socket.emit('systemMessage', `👢 Kicked ${targetName} from the guild.`);
+        saveGuildsToDB(); 
         
         guild.members.forEach(memberId => {
             const targetSid2 = Object.keys(onlinePlayers).find(sid => onlinePlayers[sid].id === memberId);
@@ -4207,9 +4260,13 @@ socket.on('requestConfirmTrade', () => {
         p.spriteData.guildName = null;
 
         await supabase.from('Exonians').update({ guild_details: null }).eq('character_name', p.id);
+        
         socket.emit('systemMessage', "🚪 You have left the guild.");
+        socket.emit('updateLocalGuildTag', null); 
         socket.emit('requestGuildUI_Refresh');
         io.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
+        
+        saveGuildsToDB(); 
         
         guild.members.forEach(memberId => {
             const targetSid = Object.keys(onlinePlayers).find(sid => onlinePlayers[sid].id === memberId);
@@ -4218,23 +4275,39 @@ socket.on('requestConfirmTrade', () => {
     });
 
     socket.on('requestBuyGuildBase', () => {
-        const p = onlinePlayers[socket.id]; if (!p || !p.guild_details) return;
-        const guild = global.guilds[p.guild_details.name];
-        
-        if (!guild) return socket.emit('systemMessage', "❌ Guild database error.");
-        if (guild.roles[p.id] !== 'Master') return socket.emit('systemMessage', "❌ Only the Guild Master can purchase the Base.");
-        if (guild.hasBase) return socket.emit('systemMessage', "❌ Your guild already owns a base.");
-        if ((guild.gold || 0) < 1000000) return socket.emit('systemMessage', "❌ Need 1,000,000 G in Guild Funds.");
+        try {
+            const p = onlinePlayers[socket.id];
+            if (!p || !p.guild_details) return;
 
-        guild.gold -= 1000000;
-        guild.hasBase = true;
-        
-        socket.emit('systemMessage', "🎉 Successfully purchased the Guild Base!");
-        
-        guild.members.forEach(memberId => {
-            const targetSid = Object.keys(onlinePlayers).find(sid => onlinePlayers[sid].id === memberId);
-            if (targetSid) io.to(targetSid).emit('requestGuildUI_Refresh');
-        });
+            const guild = global.guilds[p.guild_details.name];
+            if (!guild) return;
+
+            if (guild.roles[p.id] !== 'Master') {
+                return socket.emit('systemMessage', "❌ Only the Guild Master can purchase the Base.");
+            }
+
+            if (guild.hasBase) {
+                return socket.emit('systemMessage', "❌ Your guild already owns a base.");
+            }
+
+            if ((guild.gold || 0) < 1000000) {
+                return socket.emit('systemMessage', `❌ Insufficient Funds! Guild needs ${ (1000000 - guild.gold).toLocaleString() } G more.`);
+            }
+
+            guild.gold -= 1000000;
+            guild.hasBase = true;
+
+            saveGuildsToDB(); 
+
+            socket.emit('systemMessage', "🎉 SUCCESS! Your Guild Base is now open!");
+
+            guild.members.forEach(memberId => {
+                let memberSocketId = Object.keys(onlinePlayers).find(sid => onlinePlayers[sid].id === memberId);
+                if (memberSocketId) io.to(memberSocketId).emit('requestGuildUI_Refresh');
+            });
+        } catch (err) {
+            socket.emit('systemMessage', "❌ A server error occurred during purchase.");
+        }
     });
 
     socket.on('donateGuildGold', async (amount) => {
@@ -4254,6 +4327,7 @@ socket.on('requestConfirmTrade', () => {
         socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
         socket.emit('systemMessage', `💰 You donated ${donateAmt.toLocaleString()} Gold to the guild!`);
         
+        saveGuildsToDB();
         global.guilds[gName].members.forEach(memberId => {
             const targetSid = Object.keys(onlinePlayers).find(sid => onlinePlayers[sid].id === memberId);
             if (targetSid) io.to(targetSid).emit('requestGuildUI_Refresh');
