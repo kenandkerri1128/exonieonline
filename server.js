@@ -491,37 +491,44 @@ function getBossCountdown(lastDeathTime) {
     return respawnTime - now; // Returns remaining milliseconds
 }
 
-// 📜 DAILY MISSION KILL HELPER
 function processMissionKill(p, monsterKey, targetSid) {
+    // 1. If no mission, or already completed, STOP.
     if (!p || !p.baseStats || !p.baseStats.dailyMission || !p.baseStats.dailyMission.active || p.baseStats.dailyMission.completed) return;
     
     let todayMidnight = new Date();
     todayMidnight.setUTCHours(0, 0, 0, 0);
     const resetTs = todayMidnight.getTime();
     
-    // Check if the mission expired overnight
+    // 2. Midnight expiry check
     if (p.baseStats.dailyMission.lastReset < resetTs) {
         p.baseStats.dailyMission.active = false;
+        supabase.from('Exonians').update({ base_stats: p.baseStats }).eq('character_name', p.id).then(()=>{});
         return;
     }
 
-    // Check if the killed mob matches the required target (Handles generic prefixes well!)
-    if (monsterKey && monsterKey.includes(p.baseStats.dailyMission.targetMob)) {
+    // 3. Match the monster key
+    if (monsterKey && monsterKey === p.baseStats.dailyMission.targetMob) {
         p.baseStats.dailyMission.currentKills++;
         
+        // 4. Completion check
         if (p.baseStats.dailyMission.currentKills >= p.baseStats.dailyMission.requiredKills) {
             p.baseStats.dailyMission.currentKills = p.baseStats.dailyMission.requiredKills;
             p.baseStats.dailyMission.completed = true;
+            
+            // Pay the player
             p.gold += p.baseStats.dailyMission.reward;
             
             if (targetSid) {
-                io.to(targetSid).emit('systemMessage', `🎉 Daily Mission Complete! You earned ${p.baseStats.dailyMission.reward.toLocaleString()} Gold!`);
-                io.to(targetSid).emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory }); // Instantly syncs the UI Gold
+                io.to(targetSid).emit('systemMessage', `🎉 MISSION COMPLETE: You defeated all targets and earned ${p.baseStats.dailyMission.reward.toLocaleString()} Gold!`);
+                // Sync Gold UI
+                io.to(targetSid).emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
             }
         }
         
-        // Save silently
+        // 5. Save progress to Supabase
         supabase.from('Exonians').update({ base_stats: p.baseStats, gold: p.gold }).eq('character_name', p.id).then(()=>{});
+        
+        // 6. Push update to Client (Updates the progress bar live!)
         if (targetSid) io.to(targetSid).emit('dailyMissionUpdate', p.baseStats.dailyMission);
     }
 }
@@ -5529,7 +5536,7 @@ socket.on('requestRerollStat', async (data) => {
         socket.emit('dailyMissionData', p.baseStats.dailyMission);
     });
 
-    socket.on('acceptDailyMission', (difficulty) => {
+   socket.on('acceptDailyMission', (difficulty) => {
         const p = onlinePlayers[socket.id];
         if (!p) return;
 
@@ -5537,33 +5544,37 @@ socket.on('requestRerollStat', async (data) => {
         todayMidnight.setUTCHours(0, 0, 0, 0);
         const resetTs = todayMidnight.getTime();
 
-        // Prevent taking 2 missions
+        // Check if player already has an active mission for today
         if (p.baseStats.dailyMission && p.baseStats.dailyMission.active && p.baseStats.dailyMission.lastReset >= resetTs) {
             return socket.emit('systemMessage', "❌ You already have an active mission today.");
         }
 
-        // 50/50 Coin Flip!
-        const types = ['common', 'boss'];
-        const chosenType = types[Math.floor(Math.random() * types.length)];
+        // 50/50 Coin Flip for type
+        const chosenType = Math.random() < 0.5 ? 'common' : 'boss';
         
         let targetMob = '';
+        let targetName = '';
         let requiredKills = 0;
         let reward = 0;
 
+        // ⚖️ Difficulty Logic with Exact Names from MonsterDatabase
         if (difficulty === 'Beginner') {
             targetMob = chosenType === 'common' ? 'common_mobs1' : 'mini_boss1';
+            targetName = chosenType === 'common' ? 'Slime' : 'Orc Slime';
             requiredKills = chosenType === 'common' ? 25 : 5;
             reward = 25000;
         } else if (difficulty === 'Novice') {
             targetMob = chosenType === 'common' ? 'common_mobs2' : 'mini_boss2';
+            targetName = chosenType === 'common' ? 'Shadow Bat' : 'Vampire Bat';
             requiredKills = chosenType === 'common' ? 25 : 5;
             reward = 100000;
         } else if (difficulty === 'Expert') {
             targetMob = chosenType === 'common' ? 'common_mobs3' : 'mini_boss3';
+            targetName = chosenType === 'common' ? 'Fire Sprite' : 'Inferno Core';
             requiredKills = chosenType === 'common' ? 25 : 5;
             reward = 250000;
         } else {
-            return;
+            return; // Invalid difficulty
         }
 
         p.baseStats.dailyMission = {
@@ -5571,6 +5582,7 @@ socket.on('requestRerollStat', async (data) => {
             difficulty: difficulty,
             type: chosenType,
             targetMob: targetMob,
+            targetName: targetName, // 🛡️ This is what game.js displays
             currentKills: 0,
             requiredKills: requiredKills,
             reward: reward,
@@ -5578,10 +5590,12 @@ socket.on('requestRerollStat', async (data) => {
             lastReset: resetTs
         };
 
+        // Save to Database
         supabase.from('Exonians').update({ base_stats: p.baseStats }).eq('character_name', p.id).then(()=>{});
         
+        // Sync to Client
         socket.emit('dailyMissionData', p.baseStats.dailyMission);
-        socket.emit('systemMessage', `📜 Daily Mission Accepted: ${difficulty}!`);
+        socket.emit('systemMessage', `📜 Mission Accepted: Defeat ${requiredKills} ${targetName}s!`);
     });
     // 🏡 REAL ESTATE ENGINE: Buy a Home
     socket.on('requestBuyHome', async () => {
