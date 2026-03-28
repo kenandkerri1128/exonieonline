@@ -4471,118 +4471,120 @@ if (socket) {
     });
 
     socket.on('guildDataResponse', (data) => {
-        const modal = document.getElementById('guild-modal');
-        if (!modal) return;
+    const modal = document.getElementById('guild-modal');
+    if (!modal) return;
 
-        if (data.hasGuild) {
-            let d = data.details;
-            let myRole = data.myRole;
-            const roleLevel = { 'Master': 4, 'Vice Master': 3, 'Captain': 2, 'Member': 1 };
+    if (data.hasGuild) {
+        let d = data.details;
+        let myRole = data.myRole;
+        const roleLevel = { 'Master': 4, 'Vice Master': 3, 'Captain': 2, 'Member': 1 };
+        
+        let html = `
+            <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #4CAF50;">
+                <h2 style="margin:0; color:#4CAF50;">🏰 ${d.name} (${data.members.length}/20)</h2>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin:10px 0; font-size:13px; color:#aaa;">
+                <span>Your Role: <strong style="color:#fff;">${myRole}</strong></span>
+                <span>Funds: <strong style="color:#FFD700;">${(data.guildGold || 0).toLocaleString()} G</strong></span>
+            </div>
+        `;
+
+        // 📋 MEMBER LIST + KICK BUTTONS
+        html += `<div style="background:#111; padding:10px; border:1px solid #333; height:120px; overflow-y:auto; margin-bottom:10px; text-align:left;">`;
+        data.members.forEach(m => {
+            let actionHtml = `<span>${m.role}</span>`;
             
-            let html = `
-                <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #4CAF50;">
-                    <h2 style="margin:0; color:#4CAF50;">🏰 ${d.name} (${data.members.length}/20)</h2>
-                </div>
-                <div style="display:flex; justify-content:space-between; margin:10px 0; font-size:13px; color:#aaa;">
-                    <span>Your Role: <strong style="color:#fff;">${myRole}</strong></span>
-                    <span>Funds: <strong style="color:#FFD700;">${(data.guildGold || 0).toLocaleString()} G</strong></span>
-                </div>
-            `;
-
-            // 📋 MEMBER LIST + KICK BUTTONS
-            html += `<div style="background:#111; padding:10px; border:1px solid #333; height:120px; overflow-y:auto; margin-bottom:10px; text-align:left;">`;
-            data.members.forEach(m => {
-                let actionHtml = `<span>${m.role}</span>`;
-                
-                // Master can change roles
-                if (myRole === 'Master' && m.name !== game.player.name) {
-                    actionHtml = `<select onchange="socket.emit('guildUpdateRole', {targetName:'${m.name}', newRole:this.value})" style="background:#222; color:#fff; font-size:10px; padding:2px; border:1px solid #444;">
-                        <option value="Member" ${m.role==='Member'?'selected':''}>Member</option>
-                        <option value="Captain" ${m.role==='Captain'?'selected':''}>Captain</option>
-                        <option value="Vice Master" ${m.role==='Vice Master'?'selected':''}>Vice Master</option>
-                    </select>`;
-                }
-
-                // Master/Vice Master can Kick (Vice cannot kick Master or Vice)
-                let canKick = (myRole === 'Master' && m.name !== game.player.name) || 
-                              (myRole === 'Vice Master' && roleLevel[m.role] < 3);
-
-                html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid #222;">
-                            <span style="font-size:12px;">${m.online ? '🟢' : '⚪'} ${m.name}</span>
-                            <div style="display:flex; gap:5px; align-items:center;">
-                                ${actionHtml}
-                                ${canKick ? `<button onclick="if(confirm('Kick ${m.name}?')) socket.emit('guildKick', '${m.name}')" style="background:#f44336; color:white; border:none; padding:2px 5px; font-size:9px; cursor:pointer; border-radius:3px;">KICK</button>` : ''}
-                            </div>
-                         </div>`;
-            });
-            html += `</div>`;
-
-            // 📩 APPLICANTS (Master/Vice Master only)
-            if (roleLevel[myRole] >= 3) {
-                html += `<h4 style="margin:5px 0; font-size:12px; color:#aaa; text-align:left;">Pending Applicants</h4>
-                         <div style="background:#111; padding:5px; border:1px solid #333; height:60px; overflow-y:auto; margin-bottom:10px;">`;
-                if (data.applicants && data.applicants.length > 0) {
-                    data.applicants.forEach(name => {
-                        html += `<div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:3px;">
-                                    <span>${name}</span>
-                                    <div>
-                                        <button onclick="socket.emit('guildHandleApplicant', {applicantName:'${name}', accept:true})" style="background:#4CAF50; color:white; border:none; padding:2px 6px; cursor:pointer;">✔</button>
-                                        <button onclick="socket.emit('guildHandleApplicant', {applicantName:'${name}', accept:false})" style="background:#f44336; color:white; border:none; padding:2px 6px; cursor:pointer;">✖</button>
-                                    </div>
-                                 </div>`;
-                    });
-                } else {
-                    html += `<div style="color:#444; font-size:11px; margin-top:15px;">No applications</div>`;
-                }
-                html += `</div>`;
+            if (myRole === 'Master' && m.name !== game.player.name) {
+                actionHtml = `<select onchange="socket.emit('guildUpdateRole', {targetName:'${m.name}', newRole:this.value})" style="background:#222; color:#fff; font-size:10px; padding:2px; border:1px solid #444;">
+                    <option value="Member" ${m.role==='Member'?'selected':''}>Member</option>
+                    <option value="Captain" ${m.role==='Captain'?'selected':''}>Captain</option>
+                    <option value="Vice Master" ${m.role==='Vice Master'?'selected':''}>Vice Master</option>
+                </select>`;
             }
 
-            // 🔘 ACTIONS
-            html += `<div style="display:flex; gap:5px; margin-bottom:5px;">
-                        <button class="btn" style="background:#2196F3; flex:1; font-size:13px;" onclick="window.donateGuild()">💰 Donate Gold</button>
-                        <button class="btn" style="background:#f44336; flex:1; font-size:13px;" onclick="if(confirm('Are you sure you want to leave this guild?')) socket.emit('guildLeave')">🚪 Leave Guild</button>
+            let canKick = (myRole === 'Master' && m.name !== game.player.name) || 
+                          (myRole === 'Vice Master' && roleLevel[m.role] < 3);
+
+            html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid #222;">
+                        <span style="font-size:12px;">${m.online ? '🟢' : '⚪'} ${m.name}</span>
+                        <div style="display:flex; gap:5px; align-items:center;">
+                            ${actionHtml}
+                            ${canKick ? `<button onclick="if(confirm('Kick ${m.name}?')) socket.emit('guildKick', '${m.name}')" style="background:#f44336; color:white; border:none; padding:2px 5px; font-size:9px; cursor:pointer; border-radius:3px;">KICK</button>` : ''}
+                        </div>
                      </div>`;
-            
-            if (roleLevel[myRole] >= 2) {
-                html += `<button class="btn" style="background:#311B92; width:100%; margin-bottom:5px;" onclick="let n=prompt('Enter character name to invite:'); if(n) socket.emit('guildInvitePlayer', n.trim())">📩 Invite Player</button>`;
-            }
+        });
+        html += `</div>`;
 
-            if (data.hasBase) {
-                html += `<button class="btn" style="background:#4CAF50; width:100%; margin-bottom:5px;" onclick="window.enterGuildBase()">🚪 Enter Guild Base</button>`;
-            } else if (myRole === 'Master') {
-                html += `<button class="btn" style="background:#FF9800; width:100%; margin-bottom:5px;" onclick="window.buyGuildBase()">🏠 Buy Guild Base (1,000,000 G)</button>`;
-            }
-
-            html += `<button class="btn" style="background:#555; width:100%; margin-top:5px;" onclick="document.getElementById('guild-modal').style.display='none'">Close</button>`;
-            modal.innerHTML = html;
-        } else {
-            // --- NO GUILD VIEW ---
-            let html = `
-                <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #4CAF50;">
-                    <h2 style="margin:0; color:#4CAF50; pointer-events:none;">🏰 Guild Registry</h2>
-                </div>
-                <button class="btn" style="background:#FF9800; width:100%; margin-bottom:15px; font-weight:bold; padding:12px;" onclick="window.createGuild()">👑 Establish Guild (10M Gold)</button>
-                <h3 style="color:#aaa; font-size:14px; border-bottom:1px solid #333; padding-bottom:5px;">Open Guilds</h3>
-                <div style="background:#111; padding:10px; border:1px solid #333; border-radius:5px; height:120px; overflow-y:auto; margin-bottom:15px; text-align:left;">`;
-            
-            if (data.openGuilds && data.openGuilds.length > 0) {
-                data.openGuilds.forEach(g => {
-                    html += `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #222;">
-                                <span>${g.name} <span style="color:#aaa; font-size:11px;">(${g.members} members)</span></span>
-                                <button class="btn" style="background:#4CAF50; padding:2px 8px; font-size:11px;" onclick="window.applyToGuild('${g.name}')">Apply</button>
+        // 📩 APPLICANTS (Master/Vice Master only)
+        if (roleLevel[myRole] >= 3) {
+            html += `<h4 style="margin:5px 0; font-size:12px; color:#aaa; text-align:left;">Pending Applicants</h4>
+                     <div style="background:#111; padding:5px; border:1px solid #333; height:60px; overflow-y:auto; margin-bottom:10px;">`;
+            if (data.applicants && data.applicants.length > 0) {
+                data.applicants.forEach(name => {
+                    html += `<div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:3px;">
+                                <span>${name}</span>
+                                <div>
+                                    <button onclick="socket.emit('guildHandleApplicant', {applicantName:'${name}', accept:true})" style="background:#4CAF50; color:white; border:none; padding:2px 6px; cursor:pointer;">✔</button>
+                                    <button onclick="socket.emit('guildHandleApplicant', {applicantName:'${name}', accept:false})" style="background:#f44336; color:white; border:none; padding:2px 6px; cursor:pointer;">✖</button>
+                                </div>
                              </div>`;
                 });
             } else {
-                html += `<div style="color:#555; text-align:center; margin-top:30px;">No open guilds found.</div>`;
+                html += `<div style="color:#444; font-size:11px; margin-top:15px; text-align:center;">No applications</div>`;
             }
-            
-            html += `</div>
-                <button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('guild-modal').style.display='none'">Close</button>`;
-            
-            modal.innerHTML = html;
+            html += `</div>`;
         }
-    });
-    // 🌟 GUILD INVITE UI INJECTION
+
+        // 🔘 ACTIONS
+        html += `<div style="display:flex; gap:5px; margin-bottom:5px;">
+                    <button class="btn" style="background:#2196F3; flex:1; font-size:13px;" onclick="window.donateGuild()">💰 Donate Gold</button>
+                    <button class="btn" style="background:#f44336; flex:1; font-size:13px;" onclick="if(confirm('Are you sure you want to leave this guild?')) socket.emit('guildLeave')">🚪 Leave Guild</button>
+                 </div>`;
+        
+        if (roleLevel[myRole] >= 2) {
+            html += `<button class="btn" style="background:#311B92; width:100%; margin-bottom:5px;" onclick="let n=prompt('Enter character name to invite:'); if(n) socket.emit('guildInvitePlayer', n.trim())">📩 Invite Player</button>`;
+        }
+
+        if (data.hasBase) {
+            html += `<button class="btn" style="background:#4CAF50; width:100%; margin-bottom:5px;" onclick="window.enterGuildBase()">🚪 Enter Guild Base</button>`;
+        } else if (myRole === 'Master') {
+            html += `<button class="btn" style="background:#FF9800; width:100%; margin-bottom:5px;" onclick="window.buyGuildBase()">🏠 Buy Guild Base (1,000,000 G)</button>`;
+        }
+
+        html += `<button class="btn" style="background:#555; width:100%; margin-top:5px;" onclick="document.getElementById('guild-modal').style.display='none'">Close</button>`;
+        modal.innerHTML = html;
+    } else {
+        let html = `
+            <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #4CAF50;">
+                <h2 style="margin:0; color:#4CAF50; pointer-events:none;">🏰 Guild Registry</h2>
+            </div>
+            <button class="btn" style="background:#FF9800; width:100%; margin-bottom:15px; font-weight:bold; padding:12px;" onclick="window.createGuild()">👑 Establish Guild (10M Gold)</button>
+            <h3 style="color:#aaa; font-size:14px; border-bottom:1px solid #333; padding-bottom:5px;">Open Guilds</h3>
+            <div style="background:#111; padding:10px; border:1px solid #333; border-radius:5px; height:120px; overflow-y:auto; margin-bottom:15px; text-align:left;">`;
+        
+        if (data.openGuilds && data.openGuilds.length > 0) {
+            data.openGuilds.forEach(g => {
+                html += `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #222;">
+                            <span>${g.name} <span style="color:#aaa; font-size:11px;">(${g.members} members)</span></span>
+                            <button class="btn" style="background:#4CAF50; padding:2px 8px; font-size:11px;" onclick="window.applyToGuild('${g.name}')">Apply</button>
+                         </div>`;
+            });
+        } else {
+            html += `<div style="color:#555; text-align:center; margin-top:30px;">No open guilds found.</div>`;
+        }
+        
+        html += `</div>
+            <button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('guild-modal').style.display='none'">Close</button>`;
+        
+        modal.innerHTML = html;
+    }
+});
+
+window.applyToGuild = function(gName) {
+    socket.emit('guildApply', gName);
+};
+
+// 🌟 GUILD INVITE UI INJECTION
 if (!document.getElementById('guild-invite-dialog')) {
     let gModal = document.createElement('div');
     gModal.id = 'guild-invite-dialog';
@@ -4600,28 +4602,17 @@ if (!document.getElementById('guild-invite-dialog')) {
 }
 
 let pendingGuildInvite = null;
-
 socket.on('guildInviteReceived', (data) => {
     pendingGuildInvite = data.guildName;
-    document.getElementById('guild-invite-text').innerText = `${data.from} has invited you to join [${data.guildName}].`;
+    document.getElementById('guild-invite-text').innerText = \`\${data.from} invited you to join [\${data.guildName}].\`;
     document.getElementById('guild-invite-dialog').style.display = 'block';
 });
 
 window.respondGuildInvite = function(accept) {
     document.getElementById('guild-invite-dialog').style.display = 'none';
-    if (accept && pendingGuildInvite) {
-        socket.emit('joinGuild', pendingGuildInvite);
-    } else if (!accept) {
-        if(dom.log) dom.log.innerText = "Guild invite declined.";
-    }
+    if (accept && pendingGuildInvite) socket.emit('joinGuild', pendingGuildInvite);
     pendingGuildInvite = null;
 };
-
-window.applyToGuild = function(gName) {
-    socket.emit('guildApply', gName);
-    if(dom.log) dom.log.innerText = `Application sent to ${gName}...`;
-};
-}
 
 window.createGuild = function() {
     let name = prompt("Enter a name for your new Guild:");
