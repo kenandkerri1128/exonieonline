@@ -5337,7 +5337,7 @@ window.renderConsumablesCrafting = function() {
         if (n.includes('Red Exo Metal')) cR += x.quantity || 1;
         if (n.includes('Green Exo Metal')) cG += x.quantity || 1;
         if (n.includes('Blue Exo Metal')) cB += x.quantity || 1;
-        if (n.includes('Refinement Stone') && x.level >= 50 && x.rarity === selRarity) cStones += x.quantity || 1;
+        if (n.includes('Refinement Stone') && (selRarity === 'Divine' || x.level >= 100) && x.rarity === selRarity) cStones += x.quantity || 1;
     });
     
     const col = (have, need) => have >= need ? '#4CAF50' : '#f44336';
