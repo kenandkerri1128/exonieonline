@@ -955,6 +955,16 @@ function ensureWorldFromMapData(instanceId, mapData) {
     if (!mapData) return null;
 
     if (!worlds[instanceId]) {
+        // 🛡️ THE ANTI-LAG FIX: Do not initialize a world using an empty fallback map!
+        // Prevents mobile users with bad connections from permanently creating "dead" empty rooms.
+        const isFallback = (!mapData.collisions || mapData.collisions.length === 0) && 
+                           (!mapData.normalSpawns || mapData.normalSpawns.length === 0);
+        
+        if (isFallback && instanceId !== 'town' && !instanceId.includes('home')) {
+            console.log(`[ANTI-LAG] Rejected empty map payload for ${instanceId}`);
+            return null; // Force the server to wait for a healthy connection to build the room!
+        }
+
         worlds[instanceId] = {
             collisions: mapData.collisions || [],
             teleports: mapData.teleports || [],
@@ -1565,18 +1575,17 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
                 const mx = m.x + (m.width / 2); // Center of monster
                 const my = m.y + (m.height / 2);
 
-                // OPTIMIZATION: Don't calculate walls for monsters that are miles away
-                const dist = Math.hypot(px - mx, py - my);
-                if (dist > 1200) continue; // 1200px is roughly the edge of a widescreen
+               // 🛡️ THE FIX: Removed the strict server-side Line-Of-Sight raycast! 
+                        // If a monster spawns slightly inside a wall, the strict raycast was making them completely vanish from the network.
+                        // Now, the server sends everything within a generous 1500px, and the client's Fog of War hides it naturally!
+                        const dist = Math.hypot(px - mx, py - my);
+                        if (dist <= 1500) {
+                            visibleMonsters.push(serializeMonster(m));
+                        }
+                    }
 
-                // RAYCAST: Check if a wall is blocking the view
-                if (hasLineOfSight(instId, px, py, mx, my)) {
-                    visibleMonsters.push(serializeMonster(m));
-                }
-            }
-
-            // 4. Send this highly customized list ONLY to this specific player's socket
-            io.to(p.socketId).emit('monsterState', visibleMonsters);
+                    // 4. Send this highly customized list ONLY to this specific player's socket
+                    io.to(p.socketId).emit('monsterState', visibleMonsters);
         }
     }
 }, 100);
