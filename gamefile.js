@@ -1631,8 +1631,10 @@ window.playBGM = function(trackName) {
         if (safeMapData.id === 'neutralzone') {
             trackName = 'neutralzone';
         } else if (safeMapData.id.includes('home')) {
-            trackName = 'home'; // 🏡 Triggers home.mp3
-        }
+                        trackName = 'home'; // 🏡 Triggers home.mp3
+                    } else if (safeMapData.id === 'guildbase') {
+                        trackName = 'guildbase'; // 🏰 Triggers guildbase.mp3
+                    }
     }
 
     if (currentTrackName === trackName) return; 
@@ -2799,10 +2801,10 @@ window.addRemotePlayer = function(pData) {
     }
     container.appendChild(nameTag);
     const titleTag = document.createElement('div'); titleTag.className = 'title-tag'; 
-    if (pData.spriteData && pData.spriteData.title) titleTag.innerText = `<${pData.spriteData.title}>`;
+   if (pData.spriteData && pData.spriteData.title) titleTag.innerText = `<${pData.spriteData.title}>`;
     container.appendChild(titleTag);
     
-    // 🛡️ THE FIX: Render the Green Guild Tag below the Title!
+    // 🏰 THE FIX: Render the Green Guild Tag below the Title!
     const guildTag = document.createElement('div'); guildTag.className = 'guild-tag';
     guildTag.style.color = '#4CAF50'; guildTag.style.fontSize = '12px'; guildTag.style.fontWeight = 'bold';
     if (pData.spriteData && pData.spriteData.guildName) guildTag.innerText = `[${pData.spriteData.guildName}]`;
@@ -2853,9 +2855,23 @@ if(socket) {
     });
 
     socket.on('titleUnlocked', (title) => {
-        if(document.getElementById('player-title-tag')) {
-            document.getElementById('player-title-tag').innerText = `<${title}>`;
-        }
+        // 🛡️ APPLY TITLE ON LOGIN
+            let titleEl = document.getElementById('player-title-tag');
+            if (titleEl) {
+                titleEl.innerText = userData.title ? `<${userData.title}>` : '';
+                
+                // 🏰 THE FIX: Render Local Player Guild Tag
+                let guildEl = document.getElementById('local-guild-tag');
+                if (!guildEl) {
+                    guildEl = document.createElement('div');
+                    guildEl.id = 'local-guild-tag';
+                    guildEl.style.color = '#4CAF50';
+                    guildEl.style.fontSize = '12px';
+                    guildEl.style.fontWeight = 'bold';
+                    titleEl.parentNode.insertBefore(guildEl, titleEl.nextSibling);
+                }
+                guildEl.innerText = userData.guild_details ? `[${userData.guild_details.name}]` : '';
+            }
     });
     socket.off('authSuccess'); // Kill old listeners
     socket.on('authSuccess', (userData) => {
