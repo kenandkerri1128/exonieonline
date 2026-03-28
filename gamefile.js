@@ -2800,15 +2800,9 @@ window.addRemotePlayer = function(pData) {
         nameTag.innerText = pData.name || pData.id;
     }
     container.appendChild(nameTag);
-    const titleTag = document.createElement('div'); titleTag.className = 'title-tag'; 
-   if (pData.spriteData && pData.spriteData.title) titleTag.innerText = `<${pData.spriteData.title}>`;
+   const titleTag = document.createElement('div'); titleTag.className = 'title-tag'; 
+    titleTag.innerHTML = window.formatTitleAndGuild(pData.spriteData?.title, pData.spriteData?.guildName);
     container.appendChild(titleTag);
-    
-    // 🏰 THE FIX: Render the Green Guild Tag below the Title!
-    const guildTag = document.createElement('div'); guildTag.className = 'guild-tag';
-    guildTag.style.color = '#4CAF50'; guildTag.style.fontSize = '12px'; guildTag.style.fontWeight = 'bold';
-    if (pData.spriteData && pData.spriteData.guildName) guildTag.innerText = `[${pData.spriteData.guildName}]`;
-    container.appendChild(guildTag);
     const rig = document.createElement('div'); rig.className = 'player-avatar-container avatar-rig';
     const hair = new Image(); hair.className = 'avatar-layer layer-hair';
     const head = new Image(); head.className = 'avatar-layer layer-head'; head.src = 'animation/avatar_head.png';
@@ -2854,24 +2848,20 @@ if(socket) {
         window.updateNameplateRanks();
     });
 
+    // 🛡️ THE FIX: Global Formatter for Titles & Guilds (with White Border!)
+    window.formatTitleAndGuild = function(title, guildName) {
+        let tHtml = title ? `&lt;${title}&gt;` : '';
+        if (guildName) {
+            tHtml += (tHtml ? '<br>' : '') + `<span style="color:#4CAF50; font-size:13px; font-weight:900; letter-spacing:1px; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 2px 4px rgba(0,0,0,0.6);">[${guildName}]</span>`;
+        }
+        return tHtml;
+    };
+
     socket.on('titleUnlocked', (title) => {
-        // 🛡️ APPLY TITLE ON LOGIN
-            let titleEl = document.getElementById('player-title-tag');
-            if (titleEl) {
-                titleEl.innerText = userData.title ? `<${userData.title}>` : '';
-                
-                // 🏰 THE FIX: Render Local Player Guild Tag
-                let guildEl = document.getElementById('local-guild-tag');
-                if (!guildEl) {
-                    guildEl = document.createElement('div');
-                    guildEl.id = 'local-guild-tag';
-                    guildEl.style.color = '#4CAF50';
-                    guildEl.style.fontSize = '12px';
-                    guildEl.style.fontWeight = 'bold';
-                    titleEl.parentNode.insertBefore(guildEl, titleEl.nextSibling);
-                }
-                guildEl.innerText = userData.guild_details ? `[${userData.guild_details.name}]` : '';
-            }
+        if(document.getElementById('player-title-tag')) {
+            let gName = game.player.spriteData ? game.player.spriteData.guildName : null;
+            document.getElementById('player-title-tag').innerHTML = window.formatTitleAndGuild(title, gName);
+        }
     });
     socket.off('authSuccess'); // Kill old listeners
     socket.on('authSuccess', (userData) => {
@@ -2884,15 +2874,16 @@ if(socket) {
             if(document.getElementById('player-name-tag')) document.getElementById('player-name-tag').innerHTML = myNameHtml; 
             if(document.getElementById('ui-name-display')) document.getElementById('ui-name-display').innerHTML = myNameHtml;
             
-            // 🛡️ APPLY TITLE ON LOGIN (Now reads from the new Supabase column)
-            if(document.getElementById('player-title-tag')) {
-                document.getElementById('player-title-tag').innerText = userData.title ? `<${userData.title}>` : '';
-            }
-         
-            // 🛡️ THE FIX: Tell the client to actually remember the title sent from the database!
+          // 🛡️ THE FIX: Tell the client to remember the title AND Guild sent from the database!
             game.player.title = userData.title || null;
             if (!game.player.spriteData) game.player.spriteData = {};
             game.player.spriteData.title = userData.title || null;
+            game.player.spriteData.guildName = userData.guild_details ? userData.guild_details.name : null;
+
+            // 🛡️ APPLY TITLE & GUILD ON LOGIN
+            if(document.getElementById('player-title-tag')) {
+                document.getElementById('player-title-tag').innerHTML = window.formatTitleAndGuild(game.player.spriteData.title, game.player.spriteData.guildName);
+            }
 
             game.player.level = userData.level || 1; 
             game.player.exp = userData.exp || 0; 
