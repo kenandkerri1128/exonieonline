@@ -1808,37 +1808,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// 3. The Upgraded Play Function
+// 3. The Bulletproof Play Function
 window.playBGM = function(trackUrl) {
-    // 🛡️ THE FIX: Only stop and change if it's a DIFFERENT track
-    if (window.currentBGM && currentTrackName === trackUrl) {
-        window.currentBGM.volume = window.gameVolume; // Just sync volume
+    if (!trackUrl) {
+        if (window.currentBGM) window.currentBGM.pause();
+        currentTrackName = "";
         return;
     }
 
+    // 🛡️ THE FIX: Only skip if it's the SAME song. 
+    // If we were in 'town' and we are playing 'town', stay playing.
+    if (window.currentBGM && currentTrackName === trackUrl && !window.currentBGM.paused) {
+        window.currentBGM.volume = window.gameVolume; 
+        return;
+    }
+
+    // Stop and Reset old track
     if (window.currentBGM) {
         window.currentBGM.pause();
         window.currentBGM.currentTime = 0;
     }
 
-    if (!trackUrl) {
-        currentTrackName = "";
-        return;
-    }
-
-    // Convert shorthand names to file paths if needed (e.g., 'town' -> 'music/town.mp3')
+    // Convert shorthand to path
     let finalUrl = trackUrl;
     if (!trackUrl.includes('/') && !trackUrl.includes('.mp3')) {
         finalUrl = `music/${trackUrl}.mp3`;
     }
 
+    console.log(`[AUDIO] Switching to: ${finalUrl} (Vol: ${window.gameVolume})`);
+
     window.currentBGM = new Audio(finalUrl);
     window.currentBGM.loop = true;
-    window.currentBGM.volume = window.gameVolume; // 🛡️ Load the current slider value
+    window.currentBGM.volume = window.gameVolume; 
     currentTrackName = trackUrl;
     
     window.currentBGM.play().catch(e => {
-        console.warn("BGM block: Player needs to interact with the page first.");
+        console.warn("BGM Auto-play blocked by browser.");
     });
 };
 
@@ -3548,8 +3553,21 @@ socket.on('forceTeleport', (tp) => {
             window.cleanupMap();
             dom.world.style.backgroundImage = `url('${safeMapData.image}')`;
             window.buildCollisionLayers();
-            // 🎵 THE FIX: Both Tavern and Dungeons will now trigger the Boss BGM!
-            window.playBGM((tp.mapId === 'trainingtavern' || tp.mapId === 'hauntedhouse' || String(tp.mapId).includes('dungeon')) ? 'bossfight' : (String(tp.mapId).includes('floor') ? 'floors' : 'town'));
+// 🎵 DYNAMIC MUSIC SELECTOR: Routes music based on map type
+let nextTrack = 'town'; // Default
+let mId = String(tp.mapId || tp.targetMapId || 'town').toLowerCase();
+
+if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon')) {
+    nextTrack = 'bossfight';
+} else if (mId.includes('floor')) {
+    nextTrack = 'floors';
+} else if (mId.includes('home')) {
+    nextTrack = 'home'; // 🏠 Plays music/home.mp3
+} else if (mId === 'guildbase') {
+    nextTrack = 'guild'; // 🏰 Plays music/guild.mp3
+}
+
+window.playBGM(nextTrack);
             window.showMapAnnouncement(tp.mapId);
 
             if (tp.spectateTarget) {
