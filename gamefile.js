@@ -3757,14 +3757,14 @@ socket.on('revivalJuiceUsed', (data) => {
     const portalUI = document.getElementById('portal-timer-ui');
     if (portalUI) portalUI.style.display = 'none';
 
-    window.spawnDamageText(game.player.x + 24, game.player.y, "REVIVED", "#ffeb3b");
-    dom.log.innerText = "You drank the Revival Juice and came back to life!";
+   window.spawnDamageText(game.player.x + 24, game.player.y, "REVIVED", "#ffeb3b");
+        dom.log.innerText = "You drank the Revival Juice and came back to life!";
 
-    window.updateUI();
-    window.renderInventory();
-    window.emitVitalsIfNeeded(true);
+        window.updateUI();
+        window.renderInventory();
+        // 🛡️ THE CRASH FIX: Removed the undefined emitVitalsIfNeeded function!
 
-    if (socket) {
+        if (socket) {
         socket.emit('playerMoved', {
             x: game.player.x,
             y: game.player.y,
