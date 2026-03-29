@@ -1807,18 +1807,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+// 🧭 MASTER MUSIC ROUTER: Decides which song to play based on Map ID
+window.routeMapMusic = function(mapId) {
+    if (!mapId) return 'town';
+    let mId = String(mapId).toLowerCase();
 
-// 3. The Bulletproof Play Function
-window.playBGM = function(trackUrl) {
-    if (!trackUrl) {
+    // 1. Boss / Combat Areas
+    if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon')) {
+        return 'bossfight';
+    } 
+    // 2. The Labyrinth Floors
+    else if (mId.includes('floor')) {
+        return 'floors';
+    } 
+    // 3. Player Housing (Handles IDs like 'home_Kei')
+    else if (mId.includes('home')) {
+        return 'home'; // 🏠 Needs music/home.mp3
+    } 
+    // 4. Guild Base (Handles IDs like 'guildbase_Exonians')
+    else if (mId.includes('guildbase')) {
+        return 'guildbase'; // 🏰 Needs music/guildbase.mp3
+    } 
+    
+    // 5. Default (Town / Neutral Zone)
+    return 'town';
+};
+window.playBGM = function(trackName) {
+    if (!trackName) {
         if (window.currentBGM) window.currentBGM.pause();
         currentTrackName = "";
         return;
     }
 
-    // 🛡️ THE FIX: Only skip if it's the SAME song. 
-    // If we were in 'town' and we are playing 'town', stay playing.
-    if (window.currentBGM && currentTrackName === trackUrl && !window.currentBGM.paused) {
+    // 🛡️ THE FIX: Only skip if it is actually the same song already playing
+    if (window.currentBGM && currentTrackName === trackName && !window.currentBGM.paused) {
         window.currentBGM.volume = window.gameVolume; 
         return;
     }
@@ -1830,20 +1852,17 @@ window.playBGM = function(trackUrl) {
     }
 
     // Convert shorthand to path
-    let finalUrl = trackUrl;
-    if (!trackUrl.includes('/') && !trackUrl.includes('.mp3')) {
-        finalUrl = `music/${trackUrl}.mp3`;
-    }
+    let finalUrl = `music/${trackName}.mp3`;
 
     console.log(`[AUDIO] Switching to: ${finalUrl} (Vol: ${window.gameVolume})`);
 
     window.currentBGM = new Audio(finalUrl);
     window.currentBGM.loop = true;
     window.currentBGM.volume = window.gameVolume; 
-    currentTrackName = trackUrl;
+    currentTrackName = trackName;
     
     window.currentBGM.play().catch(e => {
-        console.warn("BGM Auto-play blocked by browser.");
+        console.warn("BGM Auto-play blocked by browser. Interaction required.");
     });
 };
 
@@ -3567,7 +3586,8 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
     nextTrack = 'guild'; // 🏰 Plays music/guild.mp3
 }
 
-window.playBGM(nextTrack);
+// 🎵 Update Music using the new Router
+            window.playBGM(window.routeMapMusic(tp.mapId));
             window.showMapAnnouncement(tp.mapId);
 
             if (tp.spectateTarget) {
