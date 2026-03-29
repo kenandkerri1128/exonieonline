@@ -283,44 +283,38 @@ monsterStyle.innerHTML = `
     .minotaur-base.floor_boss .m-eye-l, .minotaur-base.floor_boss .m-eye-r { background:#ff9800; box-shadow:0 0 10px #ff9800; }
     .minotaur-base.floor_boss .m-axe::before { background: #111; border-color: #ff9800; }
 
-    /* --- 🐉 CUSTOM DRAGON CSS (SCALABLE GEOMETRY) --- */
-    .dragon-base {
-        position: relative; width: 100%; height: 100%;
-        display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-    }
-
-    /* 🎨 TIER COLORS: Maps to Common (Green), Mini (Image Orange), Boss (Void Purple) */
-    .dragon-base.common_mobs { --d-main: #4caf50; --d-dark: #1b5e20; --d-wing: #2e7d32; --d-chest: #c8e6c9; --d-eye: #fff; }
-    .dragon-base.mini_boss { --d-main: #F97100; --d-dark: #530800; --d-wing: #E23401; --d-chest: #DBD5C5; --d-eye: #FBC614; }
-    .dragon-base.floor_boss { --d-main: #aa00ff; --d-dark: #000000; --d-wing: #6200ea; --d-chest: #00e5ff; --d-eye: #fff; filter: drop-shadow(0 0 15px #aa00ff); }
-
-    /* 🦇 WINGS (Sharp polygonal shapes) */
-    .d-wings { position: absolute; top: 15%; width: 150%; height: 50%; display: flex; justify-content: space-between; z-index: 1; }
-    .d-wing { width: 45%; height: 100%; background: var(--d-wing); border: 2px solid var(--d-dark); }
-    .d-wing.left { clip-path: polygon(0 0, 100% 20%, 100% 100%, 50% 80%, 0 100%); }
-    .d-wing.right { clip-path: polygon(0 20%, 100% 0, 100% 100%, 50% 80%, 0 100%); }
-
-    /* 🪨 BODY & DIAMOND CHEST */
-    .d-body { position: absolute; bottom: 15%; width: 50%; height: 40%; background: var(--d-main); border-bottom: 4px solid var(--d-dark); z-index: 2; display: flex; justify-content: center; align-items: flex-start; clip-path: polygon(0 0, 100% 0, 80% 100%, 20% 100%); }
-    .d-chest-diamond { width: 70%; height: 80%; background: var(--d-chest); clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); margin-top: -10%; z-index: 3; }
-
-    /* 🐉 HEAD & HORNS */
-    .d-head-container { position: absolute; top: 5%; width: 60%; height: 40%; display: flex; flex-direction: column; align-items: center; z-index: 4; }
-    .d-horns { width: 120%; height: 40%; display: flex; justify-content: space-between; position: absolute; top: -15%; z-index: -1; }
-    .d-horn { width: 20%; height: 100%; background: var(--d-dark); clip-path: polygon(50% 0%, 100% 100%, 0% 100%); }
-    .d-horn.left { transform: rotate(-30deg); }
-    .d-horn.right { transform: rotate(30deg); }
+    /* --- 🐉 BULLETPROOF DRAGON CSS (Geometric / Golem-Style) --- */
+    .dragon-base { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: flex-end; }
     
-    .d-head { width: 70%; height: 70%; background: var(--d-main); clip-path: polygon(20% 0%, 80% 0%, 100% 40%, 50% 100%, 0% 40%); display: flex; flex-direction: column; align-items: center; justify-content: center; border-top: 3px solid var(--d-dark); }
-    .d-eyes { width: 70%; display: flex; justify-content: space-between; margin-top: -15%; }
-    .d-eye { width: 30%; height: 8px; background: var(--d-eye); clip-path: polygon(0 0, 100% 50%, 0 100%); }
-    .d-eye.left { transform: rotate(15deg); }
-    .d-eye.right { transform: rotate(-15deg) scaleX(-1); }
-    .d-snout { width: 30%; height: 15%; background: var(--d-dark); position: absolute; bottom: 10%; clip-path: polygon(50% 100%, 0 0, 100% 0); }
+    /* Tier Colors */
+    .dragon-base.common_mobs { --d-col: #4caf50; --d-bor: #1b5e20; --d-wing: #2e7d32; --d-chest: #a5d6a7; --d-eye: #ffeb3b; }
+    .dragon-base.mini_boss { --d-col: #F97100; --d-bor: #530800; --d-wing: #E23401; --d-chest: #DBD5C5; --d-eye: #FBC614; }
+    .dragon-base.floor_boss { --d-col: #aa00ff; --d-bor: #000000; --d-wing: #6200ea; --d-chest: #00e5ff; --d-eye: #00e5ff; filter: drop-shadow(0 0 15px #aa00ff); }
 
-    /* 🐾 FEET */
-    .d-feet { position: absolute; bottom: 5%; width: 60%; height: 10%; display: flex; justify-content: space-between; z-index: 1; }
-    .d-foot { width: 35%; height: 100%; background: var(--d-dark); clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%); }
+    /* Body & Rotated Chest Diamond */
+    .dragon-base .d-body { position: absolute; bottom: 15%; width: 50%; height: 45%; background: var(--d-col); border: 3px solid var(--d-bor); z-index: 2; border-radius: 5px 5px 15px 15px; overflow: hidden; }
+    .dragon-base .d-chest { position: absolute; top: -10%; left: 15%; width: 70%; height: 70%; background: var(--d-chest); transform: rotate(45deg); border: 2px solid var(--d-bor); }
+
+    /* Head & Face */
+    .dragon-base .d-head { position: absolute; top: 5%; width: 45%; height: 35%; background: var(--d-col); border: 3px solid var(--d-bor); z-index: 3; border-radius: 5px 5px 40% 40%; box-shadow: 0 4px 6px rgba(0,0,0,0.5); }
+    .dragon-base .d-eye-l, .dragon-base .d-eye-r { position: absolute; top: 30%; width: 25%; height: 20%; background: var(--d-eye); border-radius: 50%; box-shadow: 0 0 5px var(--d-eye); }
+    .dragon-base .d-eye-l { left: 15%; transform: rotate(15deg); }
+    .dragon-base .d-eye-r { right: 15%; transform: rotate(-15deg); }
+    
+    /* Horns */
+    .dragon-base .d-horn-l, .dragon-base .d-horn-r { position: absolute; top: -40%; width: 20%; height: 60%; background: var(--d-bor); z-index: -1; }
+    .dragon-base .d-horn-l { left: -5%; border-radius: 100% 0 0 0; transform: rotate(-30deg); }
+    .dragon-base .d-horn-r { right: -5%; border-radius: 0 100% 0 0; transform: rotate(30deg); }
+
+    /* Wings */
+    .dragon-base .d-wing-l, .dragon-base .d-wing-r { position: absolute; top: 10%; width: 60%; height: 60%; background: var(--d-wing); border: 3px solid var(--d-bor); z-index: 1; }
+    .dragon-base .d-wing-l { left: -35%; border-radius: 100% 0 50% 0; transform: rotate(-15deg); }
+    .dragon-base .d-wing-r { right: -35%; border-radius: 0 100% 0 50%; transform: rotate(15deg); }
+
+    /* Feet */
+    .dragon-base .d-foot-l, .dragon-base .d-foot-r { position: absolute; bottom: 5%; width: 15%; height: 15%; background: var(--d-bor); z-index: 1; border-radius: 50% 50% 0 0; }
+    .dragon-base .d-foot-l { left: 25%; }
+    .dragon-base .d-foot-r { right: 25%; }
 `;
 document.head.appendChild(monsterStyle);
 // ==========================================
@@ -623,7 +617,9 @@ window.updatePotionHotbar();
 }
 
 window.executeSkill = function(skillId, className) {
-    if (safeMapData.id === 'town') { if(dom.log) dom.log.innerText = "You cannot use skills in Town!"; return; }
+    // 🛡️ STUN FIX: Block Skill Usage
+    if (game.player.frozenUntil && Date.now() < game.player.frozenUntil) { if(dom.log) dom.log.innerText = "You are stunned!"; return; }
+    if (safeMapData.id === 'town') { if(dom.log) dom.log.innerText = "You cannot use skills in Town!"; return; }
     
     let skillObj = game.player.activeSkills.find(s => s.id === skillId);
     if (!skillObj) return; 
@@ -900,8 +896,10 @@ if (skillId === 'sum1') {
 };
 
 window.attemptAttack = function(silent) {
-    if (safeMapData.id === 'town') { if (!silent && dom.log) dom.log.innerText = "You cannot attack in Town!"; return; }
-    if (game.player.currentHp <= 0 || isInventoryOpen || window.adminMode || game.isGhost || window.isLoading) return;
+    // 🛡️ STUN FIX: Block Basic Attacks
+    if (game.player.frozenUntil && Date.now() < game.player.frozenUntil) return;
+    if (safeMapData.id === 'town') { if (!silent && dom.log) dom.log.innerText = "You cannot attack in Town!"; return; }
+    if (game.player.currentHp <= 0 || isInventoryOpen || window.adminMode || game.isGhost || window.isLoading) return;
     if (attackCooldownActive) return; 
     
     let closestMob = null; let closestPlayer = null; let minD = Infinity; 
@@ -3923,25 +3921,16 @@ socket.on('revivalJuiceUsed', (data) => {
                         <div class="m-arm-r"></div>
                         <div class="m-leg-l"></div><div class="m-leg-r"></div>
                     </div>`;
-                } else if (m.monsterKey.includes('dragon')) {
-                    // 🐉 DRAGON: Custom Scalable Geometry (Inspired by user image)
+               } else if (m.monsterKey.includes('dragon')) {
+                    // 🐉 DRAGON: Bulletproof Box Geometry (It CANNOT turn invisible)
                     spriteHtml = `<div class="monster-sprite-layer dragon-base">
-                        <div class="d-wings">
-                            <div class="d-wing left"></div><div class="d-wing right"></div>
+                        <div class="d-wing-l"></div><div class="d-wing-r"></div>
+                        <div class="d-body"><div class="d-chest"></div></div>
+                        <div class="d-head">
+                            <div class="d-horn-l"></div><div class="d-horn-r"></div>
+                            <div class="d-eye-l"></div><div class="d-eye-r"></div>
                         </div>
-                        <div class="d-head-container">
-                            <div class="d-horns"><div class="d-horn left"></div><div class="d-horn right"></div></div>
-                            <div class="d-head">
-                                <div class="d-eyes"><div class="d-eye left"></div><div class="d-eye right"></div></div>
-                                <div class="d-snout"></div>
-                            </div>
-                        </div>
-                        <div class="d-body">
-                            <div class="d-chest-diamond"></div>
-                        </div>
-                        <div class="d-feet">
-                            <div class="d-foot left"></div><div class="d-foot right"></div>
-                        </div>
+                        <div class="d-foot-l"></div><div class="d-foot-r"></div>
                     </div>`;
                 } else {
                     spriteHtml = `<div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div>`;
@@ -3986,7 +3975,15 @@ socket.on('revivalJuiceUsed', (data) => {
         Object.keys(game.monsters).forEach(id => { if (!currentIds.has(id)) { let staleEl = document.getElementById('mob_' + id); if (staleEl) staleEl.remove(); delete game.monsters[id]; } });
     });
 
-socket.on('monsterAttack', (data) => {
+// 🛡️ STUN FIX: Receive the stun from the server
+    socket.on('playerStunned', (data) => {
+        if (data.targetId === game.player.id) {
+            game.player.frozenUntil = Date.now() + data.duration;
+            window.spawnDamageText(game.player.x + 24, game.player.y - 20, "STUNNED!", "#ffeb3b");
+        }
+    });
+
+    socket.on('monsterAttack', (data) => {
     if (!data) return;
     const targetId = data.targetId;
 
