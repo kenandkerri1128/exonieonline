@@ -238,93 +238,171 @@ rankStyle.innerHTML = `
 `;
 document.head.appendChild(rankStyle);
 // ==========================================
-// 🐉 NEW MONSTER CSS (RE-SKINNED MINOTAUR & DRAGON)
+// 🐉 NEW MONSTER CSS (TRIBAL MINOTAUR & WYVERN)
 // ==========================================
 const monsterStyle = document.createElement('style');
 monsterStyle.innerHTML = `
-    /* --- 🐂 MINOTAUR CSS (Body added like Golem) --- */
+    /* --- 🐂 MINOTAUR CSS (Tribal Avatar) --- */
     .minotaur-base {
         width: 100%; height: 100%; position: relative;
     }
     .m-torso {
-        width: 70%; height: 50%; background: var(--mob-color);
-        position: absolute; bottom: 20%; left: 15%; border-radius: 8px;
-        box-shadow: inset 0 -10px rgba(0,0,0,0.3); z-index: 2;
-        border: 2px solid var(--mob-border);
+        width: 65%; height: 45%; background: #b87b62; /* Matched to image */
+        position: absolute; bottom: 25%; left: 17.5%; border-radius: 20px;
+        box-shadow: inset 0 -10px rgba(0,0,0,0.2); z-index: 2;
+        border: 3px solid #000;
+    }
+    /* The Loincloth */
+    .m-torso::after {
+        content: ''; position: absolute; bottom: -5px; left: 20%;
+        width: 60%; height: 70%; background: #d87050; border: 3px solid #000;
+        border-radius: 5px; box-shadow: inset 0 -5px rgba(0,0,0,0.3); z-index: 3;
+    }
+    /* The Loincloth Belt */
+    .m-torso::before {
+        content: ''; position: absolute; bottom: 30%; left: -5%;
+        width: 110%; height: 20px; background: #d87050; border: 3px solid #000;
+        border-radius: 5px; z-index: 2;
     }
     .m-head-holder {
-        width: 100%; height: 60%; position: absolute; top: -15%; left: 0;
+        width: 100%; height: 60%; position: absolute; top: -10%; left: 0;
         display: flex; flex-direction: column; align-items: center; z-index: 3;
     }
     .m-head {
-        width: 55%; height: 75%; background: var(--mob-color);
-        border: 2px solid var(--mob-border); border-radius: 40% 40% 20% 20%;
+        width: 45%; height: 70%; background: #8c5a45; /* Darker head */
+        border: 3px solid #000; border-radius: 30% 30% 40% 40%;
         position: relative; box-shadow: inset 0 -5px rgba(0,0,0,0.4);
     }
-    .m-horns { position: absolute; top: -10px; width: 100%; display: flex; justify-content: space-between; z-index: 1; }
-    .m-horn { width: 15px; height: 25px; background: #e0e0e0; border: 2px solid #757575; }
-    .m-horn.left { border-radius: 100% 0 0 0; transform: rotate(-25deg); }
-    .m-horn.right { border-radius: 0 100% 0 0; transform: rotate(25deg); }
-    .m-eye { width: 6px; height: 6px; background: #ff1744; border-radius: 50%; position: absolute; top: 25%; }
-    .m-eye.left { left: 15%; } .m-eye.right { right: 15%; }
-    .m-snout { width: 70%; height: 40%; background: rgba(0,0,0,0.2); position: absolute; bottom: 5%; left: 15%; border-radius: 50%; display:flex; justify-content:center; align-items:flex-end; }
-    .m-ring { width: 10px; height: 10px; border: 2px solid #FFD700; border-radius: 50%; margin-bottom: -5px; }
+    .m-horns { position: absolute; top: 0; width: 110%; display: flex; justify-content: space-between; z-index: -1; }
+    .m-horn { width: 25px; height: 35px; background: #fff; border: 3px solid #000; }
+    .m-horn.left { border-radius: 100% 0 0 0; transform: rotate(-35deg) translateX(-10px); }
+    .m-horn.right { border-radius: 0 100% 0 0; transform: rotate(35deg) translateX(10px); }
+    .m-eye { width: 6px; height: 6px; background: #000; border-radius: 50%; position: absolute; top: 35%; }
+    .m-eye.left { left: 25%; } .m-eye.right { right: 25%; }
+    .m-snout { width: 60%; height: 35%; background: rgba(0,0,0,0.3); position: absolute; bottom: 10%; left: 20%; border-radius: 40%; display:flex; justify-content:center; align-items:flex-end; }
+    .m-ring { width: 14px; height: 14px; border: 3px solid #FFD700; border-radius: 50%; margin-bottom: -8px; }
 
-    /* Reuse Golem limb animations and basic styles */
+    /* Minotaur Limbs */
     .minotaur-base .g-arm-l, .minotaur-base .g-arm-r, 
     .minotaur-base .g-leg-l, .minotaur-base .g-leg-r {
-        background: var(--mob-color); border: 2px solid var(--mob-border); border-radius: 4px; z-index: 1;
+        background: #b87b62; border: 3px solid #000; border-radius: 10px; z-index: 1;
     }
-    .minotaur-base.boss { transform: scale(1.1); filter: drop-shadow(0 0 10px var(--mob-border)); }
+    /* The Battleaxe (Attached to left arm) */
+    .minotaur-base .g-arm-l::after {
+        content: ''; position: absolute; top: 50%; left: -40px;
+        width: 100px; height: 6px; background: #111; z-index: 0;
+    }
+    .minotaur-base .g-arm-l::before {
+        content: ''; position: absolute; top: 20%; left: -45px;
+        width: 30px; height: 40px; background: #90a4ae; border: 2px solid #000;
+        border-radius: 20% 0 0 50%; z-index: -1;
+    }
+    .minotaur-base.boss { transform: scale(1.1); filter: drop-shadow(0 0 10px #b71c1c); }
 
-    /* --- 🐉 DRAGON CSS (Snake shape + 2 feet + Wings) --- */
+   /* --- 🐉 DRAGON CSS (The CodePen Front-Facing Port) --- */
     .dragon-base {
         width: 100%; height: 100%; position: relative;
-        display: flex; flex-direction: column; align-items: center; justify-content: space-between;
     }
-    .d-snake-body {
-        width: 40%; height: 70%; background: var(--mob-color);
-        border: 3px solid var(--mob-border); border-radius: 40px;
-        position: absolute; bottom: 10%; left: 30%; z-index: 2;
-        /* Scale effect using gradient */
-        background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 4px);
-        box-shadow: inset 0 -10px rgba(0,0,0,0.3);
+    .dragon-scaler {
+        position: absolute; bottom: 35px; left: 50%; width: 1px;
+        transform: scale(0.20); transform-origin: bottom center;
+        display: flex; justify-content: center; z-index: 2;
     }
-    .d-tail {
-        width: 20%; height: 50%; background: var(--mob-color);
-        position: absolute; bottom: -20px; left: 40%; border-radius: 50% 50% 0 0;
-        border: 3px solid var(--mob-border); border-top: none; transform: rotate(20deg);
+    .dragon-base.boss .dragon-scaler { 
+        transform: scale(0.55); bottom: 85px; 
+        filter: drop-shadow(0 0 20px rgba(249, 113, 0, 0.6)); 
     }
-    .d-head {
-        width: 60%; height: 40%; background: var(--mob-color);
-        border: 3px solid var(--mob-border); border-radius: 40% 40% 10% 10%;
-        position: absolute; top: -5%; left: 20%; z-index: 4;
-        box-shadow: inset 0 -5px rgba(0,0,0,0.3);
-    }
-    .d-eye { width: 10px; height: 5px; background: #ffeb3b; border-radius: 50%; position: absolute; top: 35%; box-shadow: 0 0 5px #ffeb3b; }
-    .d-eye.left { left: 20%; transform: rotate(-20deg); } .d-eye.right { right: 20%; transform: rotate(20deg); }
-    .d-fangs { 
-        position: absolute; bottom: -5px; width: 100%; height: 10px;
-        background: radial-gradient(circle at 35% 0%, #fff 25%, transparent 26%), 
-                    radial-gradient(circle at 65% 0%, #fff 25%, transparent 26%);
-    }
-    .d-feet { position: absolute; bottom: 5%; width: 100%; display: flex; justify-content: center; gap: 10px; z-index: 3; }
-    .d-foot { width: 15px; height: 20px; background: var(--mob-border); border-radius: 5px; }
-    .d-foot.left { transform: rotate(-10deg); border-radius: 0 0 5px 15px; }
-    .d-foot.right { transform: rotate(10deg); border-radius: 0 0 15px 5px; }
 
-    /* Wings attached to back (behind snake body) */
-    .d-wings { position: absolute; top: 15%; width: 100%; height: 60%; z-index: 1; display: flex; justify-content: center; }
-    .d-wing {
-        width: 60px; height: 80px; background: var(--mob-border);
-        border-radius: 100% 10% 50% 10%; box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
-    }
-    .d-wing.left { transform-origin: top right; animation: dragonFlapLeft 0.3s infinite alternate ease-in-out; }
-    .d-wing.right { transform-origin: top left; border-radius: 10% 100% 10% 50%; animation: dragonFlapRight 0.3s infinite alternate ease-in-out; }
-    
-    @keyframes dragonFlapLeft { 0% { transform: rotate(10deg); } 100% { transform: rotate(-30deg); } }
-    @keyframes dragonFlapRight { 0% { transform: rotate(-10deg); } 100% { transform: rotate(30deg); } }
-    .dragon-base.boss { transform: scale(1.15); filter: drop-shadow(0 0 15px var(--mob-border)); }
+    /* Wing Animations */
+    .dragon-scaler .insideBarUpLeft { transform-origin: bottom right; animation: cPenFlapL 0.4s infinite alternate ease-in-out; }
+    .dragon-scaler .insideBarUpRight { transform-origin: bottom left; animation: cPenFlapR 0.4s infinite alternate ease-in-out; }
+    @keyframes cPenFlapL { 0% { transform: rotate(0deg); } 100% { transform: rotate(-15deg); } }
+    @keyframes cPenFlapR { 0% { transform: rotate(0deg); } 100% { transform: rotate(15deg); } }
+
+    /* --- THE EXACT PASTED CODEPEN CSS --- */
+    .dragon-scaler .bellyStart { width: 0px; height: 0px; border: 25px solid transparent; border-top: 70px solid #ac9d86; border-left: 7px solid #ac9d86; margin-top: 185px; transform: scaleX(1.6); }
+    .dragon-scaler .bellyStart:before { content: ' '; position: absolute; width: 0px; height: 0px; margin-top: -70px; margin-left: -39px; border: 25px solid transparent; border-top: 70px solid #bbaf9c; border-right: 7px solid #bbaf9c; }
+    .dragon-scaler .BStop { width: 0px; height: 0px; border: 25px solid transparent; border-bottom: 70px solid #CCC2B6; border-left: 7px solid #CCC2B6; margin-top: -165px; margin-left: -7px; }
+    .dragon-scaler .BStop:before { content: ' '; position: absolute; width: 0px; height: 0px; margin-top: -25px; margin-left: -39px; border: 25px solid transparent; border-bottom: 70px solid #DBD5C5; border-right: 7px solid #DBD5C5; }
+    .dragon-scaler .BSround { position: absolute; width: 64px; height: 13px; background-color: #DBD5C5; border-radius: 0px 0px 50px 50px; margin-top: -70px; margin-left: -39px; }
+    .dragon-scaler .BSRright { position: absolute; width: 32px; height: 13px; background-color: #CCC2B6; border-radius: 0px 0px 50px 0px; margin-top: 0px; margin-left: 32px; }
+    .dragon-scaler .headStart { position: absolute; z-index: 1; width: 0px; height: 0px; border: 20px solid transparent; border-top: 20px solid #F97100; border-right: 20px solid #F97100; margin-top: -110px; margin-left: -51px; transform: scale(1.1); }
+    .dragon-scaler .HSotherSideStart { position: absolute; z-index: 1; width: 0px; height: 0px; border: 20px solid transparent; border-top: 20px solid #F97100; border-right: 20px solid #F97100; margin-top: -20px; margin-left: -20px; }
+    .dragon-scaler .HSotherSide { position: absolute; width: 0px; height: 0px; border: 20px solid transparent; border-top: 20px solid #E03300; border-left: 20px solid #E03300; margin-top: -20px; margin-left: 20px; z-index: 1; }
+    .dragon-scaler .horn { width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 50px solid #530800; transform: skew(19deg); position: absolute; margin-top: -77px; margin-left: -29px; }
+    .dragon-scaler .horn:after { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 50px solid #530800; transform: skew(-38deg); position: absolute; margin-top: -6px; margin-left: 79px; }
+    .dragon-scaler .pokeSpike { width: 0px; height: 0px; border: 10px solid transparent; border-bottom: 10px solid #F97100; position: absolute; margin-top: -40px; margin-left: 10px; }
+    .dragon-scaler .pokeSpike:before { content: ' '; width: 0px; height: 0px; border: 5px solid transparent; border-bottom: 8px solid #F97100; position: absolute; margin-top: -3px; margin-left: -25px; }
+    .dragon-scaler .pokeSpike:after { content: ' '; width: 0px; height: 0px; border: 5px solid transparent; border-bottom: 8px solid #DF3400; position: absolute; margin-top: -3px; margin-left: 15px; }
+    .dragon-scaler .PSright { width: 0px; height: 0px; border: 5px solid transparent; border-bottom: 5px solid #DF3400; border-left: 5px solid #DF3400; position: absolute; margin-top: 1px; margin-left: 0px; }
+    .dragon-scaler .leftSideFace { width: 0px; height: 0px; border-top: 10px solid transparent; border-left: 50px solid transparent; border-bottom: 50px solid #E13300; border-right: 10px solid #E13300; position: absolute; margin-top: -22px; margin-left: -49px; transform: rotate(-65deg) scaleX(0.8) scaleY(1.3); z-index: -1; }
+    .dragon-scaler .rightSideFace { width: 0px; height: 0px; border-top: 10px solid transparent; border-right: 50px solid transparent; border-bottom: 50px solid #940000; border-left: 10px solid #940000; position: absolute; margin-top: -23px; margin-left: 30px; transform: rotate(65deg) scaleX(0.8) scaleY(1.3); z-index: -10; }
+    .dragon-scaler .LSFeye { width: 20px; height: 20px; background-color: #FBC614; border-radius: 100%; position: absolute; margin-top: 20px; margin-left: -17px; transform: rotate(60deg) scaleX(0.8); border: 3px solid #980100; }
+    .dragon-scaler .RSFeye { width: 20px; height: 20px; background-color: #FBC614; border-radius: 100%; position: absolute; margin-top: 20px; margin-left: -10px; transform: rotate(-60deg) scaleX(0.8); border: 3px solid #510700; }
+    .dragon-scaler .snout { width: 6px; height: 0px; border: 9px solid transparent; border-bottom: 18px solid #FA7300; position: absolute; margin-top: 8px; margin-left: 8px; z-index: 2; }
+    .dragon-scaler .snout:before { content: ' '; width: 33px; height: 25px; background-color: #E23401; border-radius: 50px; position: absolute; margin-top: 17px; margin-left: -17px; z-index: 3; overflow: hidden; }
+    .dragon-scaler .snout:after { content: ' '; width: 16px; height: 25px; background-color: rgba(0, 0, 0, 0.15); border-radius: 0px 50px 50px 0px; position: absolute; margin-top: 17px; margin-left: 0px; z-index: 100; }
+    .dragon-scaler .SNwrap { width: 33px; height: 25px; background-color: #E23401; border-radius: 50px; position: absolute; margin-top: 17px; margin-left: -14px; z-index: 3; overflow: hidden; }
+    .dragon-scaler .nost { width: 15px; height: 15px; background-color: #540700; position: absolute; margin-top: 13px; margin-left: -2px; z-index: 4; border-top-right-radius: 4px; }
+    .dragon-scaler .nost:before { content: ' '; width: 11px; height: 11px; background-color: #E23401; position: absolute; margin-top: -7px; margin-left: 6px; z-index: 4; border-radius: 4px; box-shadow: 0px 5px 0px #540700, 0px 10px 0px #540700; }
+    .dragon-scaler .nost:after { content: ' '; width: 15px; height: 15px; background-color: #540700; position: absolute; margin-top: 0px; margin-left: 16px; z-index: 4; border-top-left-radius: 4px; }
+    .dragon-scaler .BSstripe { position: absolute; width: 50px; height: 0px; border: 5px solid transparent; border-bottom: 15px solid #CCC2B6; margin-top: -95px; margin-left: -37px; z-index: 5; }
+    .dragon-scaler .BSstripe:after { content: ' '; position: absolute; width: 25px; height: 0px; border-right: 5px solid transparent; border-bottom: 15px solid #BBB09D; margin-top: 0px; margin-left: 0px; z-index: 5; }
+    .dragon-scaler .BSstripeTwo { position: absolute; width: 28px; height: 0px; border: 5px solid transparent; border-bottom: 15px solid #CCC2B6; margin-top: -125px; margin-left: -26px; z-index: 5; }
+    .dragon-scaler .BSstripeTwo:after { content: ' '; position: absolute; width: 14px; height: 0px; border-right: 5px solid transparent; border-bottom: 15px solid #BBB09D; margin-top: 0px; margin-left: 0px; z-index: 5; }
+    .dragon-scaler .belt { width: 160px; height: 60px; position: absolute; background-color: #F97200; margin-top: -115px; margin-left: -90px; z-index: -1; border-radius: 10px; }
+    .dragon-scaler .belt:after { content: ' '; width: 80px; height: 60px; position: absolute; background-color: #E23401; border-radius: 0px 10px 10px 0px; }
+    .dragon-scaler .wingsStart { width: 154px; height: 15px; background-color: #960001; position: absolute; margin-top: -35px; margin-left: -86px; z-index: -3; }
+    .dragon-scaler .WSleftBall { width: 22px; height: 22px; background-color: #DF3200; border-radius: 100%; position: absolute; z-index: -3; margin-top: -10px; margin-left: -25px; border: 10px solid #960001; }
+    .dragon-scaler .WSleftBall:after { content: ' '; width: 0px; height: 0px; border: 9px solid transparent; border-bottom: 15px solid #960001; position: absolute; margin-top: -3px; margin-left: -10px; transform: rotate(-35deg); }
+    .dragon-scaler .WSleftBallTwo { width: 22px; height: 22px; background-color: #DF3200; border-radius: 100%; position: absolute; z-index: -3; margin-top: -10px; margin-left: 134px; border: 10px solid #960001; }
+    .dragon-scaler .WSleftBallTwo:after { content: ' '; width: 0px; height: 0px; border: 9px solid transparent; border-bottom: 15px solid #960001; position: absolute; margin-top: -3px; margin-left: -7px; transform: rotate(35deg); }
+    .dragon-scaler .insideBarUpLeft { position: absolute; width: 14px; height: 140px; background-color: #960001; margin-top: -145px; margin-left: 4px; }
+    .dragon-scaler .insideBarUpLeft > .ball { width: 14px; height: 14px; background-color: #DF3200; border-radius: 100%; position: absolute; z-index: -3; margin-top: -23px; margin-left: -8px; border: 8px solid #960001; }
+    .dragon-scaler .insideBarUpLeft .skewBarOut { width: 17px; height: 140px; background-color: #960001; position: absolute; z-index: -500; margin-top: -30px; margin-left: -48px; transform: skew(-45deg); z-index: -500; }
+    .dragon-scaler .insideBarUpLeft .webHold { width: 14px; height: 132px; background-color: #960001; position: absolute; margin-top: 46px; margin-left: -54px; }
+    .dragon-scaler .insideBarUpLeft .webHold:before { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid white; border-right: 7px solid white; position: absolute; margin-top: 118px; margin-left: -7px; }
+    .dragon-scaler .insideBarUpLeft .conect { width: 33px; height: 14px; background-color: #960001; position: absolute; margin-top: 104px; margin-left: 10px; }
+    .dragon-scaler .insideBarUpLeft .lastBall { width: 12px; height: 12px; background-color: #DF3200; border-radius: 100%; position: absolute; z-index: 1; margin-top: 95px; margin-left: -120px; border: 6px solid #960001; }
+    .dragon-scaler .insideBarUpLeft .lastConect { width: 14px; height: 150px; background-color: #960001; position: absolute; margin-top: 13px; margin-left: -1px; }
+    .dragon-scaler .insideBarUpLeft .lastConect:after { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid white; border-left: 7px solid white; border-right: 7px solid white; position: absolute; margin-top: 136px; margin-left: -7px; }
+    .dragon-scaler .insideBarUpLeft .web { width: 41px; height: 102px; background-color: #FB5700; position: absolute; margin-top: 48px; margin-left: -40px; }
+    .dragon-scaler .insideBarUpLeft .web:before { content: ' '; width: 0px; height: 0px; border: 20px solid transparent; border-bottom: 21px solid #FB5700; border-right: 21px solid #FB5700; position: absolute; margin-top: -40px; margin-left: -21px; }
+    .dragon-scaler .insideBarUpLeft .web:after { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid #960001; border-right: 7px solid #960001; position: absolute; margin-top: 88px; margin-left: 7px; }
+    .dragon-scaler .insideBarUpLeft .webTwo { width: 47px; height: 116px; background-color: #FB5700; position: absolute; margin-top: 86px; margin-left: -101px; transform: skewY(-45deg); }
+    .dragon-scaler .insideBarUpRight { position: absolute; width: 14px; height: 140px; background-color: #960001; margin-top: -145px; margin-left: 6px; }
+    .dragon-scaler .insideBarUpRight > .ball { width: 14px; height: 14px; background-color: #DF3200; border-radius: 100%; position: absolute; z-index: -3; margin-top: -23px; margin-left: -8px; border: 8px solid #960001; }
+    .dragon-scaler .insideBarUpRight .skewBarOut { width: 17px; height: 140px; background-color: #960001; position: absolute; z-index: -500; margin-top: -30px; margin-left: 47px; transform: skew(45deg); z-index: -500; }
+    .dragon-scaler .insideBarUpRight .webHold { width: 14px; height: 132px; background-color: #960001; position: absolute; margin-top: 45px; margin-left: 55px; }
+    .dragon-scaler .insideBarUpRight .webHold:before { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid white; border-left: 7px solid white; position: absolute; margin-top: 118px; margin-left: -7px; }
+    .dragon-scaler .insideBarUpRight .conect { width: 33px; height: 14px; background-color: #960001; position: absolute; margin-top: 104px; margin-left: -33px; }
+    .dragon-scaler .insideBarUpRight .lastBall { width: 12px; height: 12px; background-color: #DF3200; border-radius: 100%; position: absolute; z-index: 1; margin-top: 95px; margin-left: 111px; border: 6px solid #960001; }
+    .dragon-scaler .insideBarUpRight .lastConect { width: 14px; height: 150px; background-color: #960001; position: absolute; margin-top: 13px; margin-left: -1px; }
+    .dragon-scaler .insideBarUpRight .lastConect:after { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid white; border-left: 7px solid white; border-right: 7px solid white; position: absolute; margin-top: 136px; margin-left: -7px; }
+    .dragon-scaler .insideBarUpRight .web { width: 41px; height: 102px; background-color: #FB5700; position: absolute; margin-top: 47px; margin-left: 14px; }
+    .dragon-scaler .insideBarUpRight .web:before { content: ' '; width: 0px; height: 0px; border: 20px solid transparent; border-bottom: 20px solid #FB5700; border-left: 20px solid #FB5700; position: absolute; margin-top: -40px; margin-left: -21px; }
+    .dragon-scaler .insideBarUpRight .web:after { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid #960001; border-left: 7px solid #960001; position: absolute; margin-top: 88px; margin-left: -22px; }
+    .dragon-scaler .insideBarUpRight .webTwo { width: 47px; height: 115px; background-color: #FB5700; position: absolute; margin-top: 85px; margin-left: 69px; transform: skewY(45deg); }
+    .dragon-scaler .legsStart { width: 100px; height: 100px; background-color: #530700; position: absolute; margin-top: -55px; margin-left: -39px; z-index: -5; }
+    .dragon-scaler .legsStart:before { content: ' '; width: 30px; height: 65px; background-color: #960001; position: absolute; margin-top: 0px; margin-left: -71px; z-index: -1; border-radius: 0px 0px 11px 11px; }
+    .dragon-scaler .legsStart:after { content: ' '; width: 30px; height: 65px; background-color: #960001; position: absolute; margin-top: 0px; margin-left: 41px; z-index: -1; border-radius: 0px 0px 11px 11px; }
+    .dragon-scaler .footStart { width: 14px; height: 25px; background-color: #E23301; position: absolute; margin-top: 65px; margin-left: -13px; }
+    .dragon-scaler .footStart:before { content: ' '; width: 0px; height: 0px; border: 28px solid transparent; border-top: 28px solid #E33302; border-right: 28px solid #E33302; position: absolute; margin-top: -65px; margin-left: -71px; z-index: -2; }
+    .dragon-scaler .footStart:after { content: ' '; width: 52px; height: 38px; background-color: #960001; position: absolute; margin-top: -29px; margin-left: -59px; z-index: -2; transform: skewY(45deg); }
+    .dragon-scaler .footStartTwo { width: 14px; height: 25px; background-color: #E23301; position: absolute; margin-top: 65px; margin-left: 99px; }
+    .dragon-scaler .footStartTwo:before { content: ' '; width: 0px; height: 0px; border: 28px solid transparent; border-top: 28px solid #E33302; border-left: 28px solid #E33302; position: absolute; margin-top: -65px; margin-left: 15px; z-index: -2; }
+    .dragon-scaler .footStartTwo:after { content: ' '; width: 52px; height: 36px; background-color: #960001; position: absolute; margin-top: -27px; margin-left: 7px; z-index: -2; transform: skewY(-45deg); }
+    .dragon-scaler .LShelper { width: 27px; height: 12px; background-color: #960001; position: absolute; margin-top: 13px; margin-left: -48px; transform: skewY(45deg); }
+    .dragon-scaler .LShelper:before { content: ' '; width: 0px; height: 0px; border: 6px solid transparent; border-top: 6px solid #960001; border-right: 6px solid #960001; position: absolute; margin-top: 6px; margin-left: -26px; transform: skewY(-45deg); }
+    .dragon-scaler .LShelper:after { content: ' '; width: 14px; height: 11px; background-color: #52323A; position: absolute; margin-top: 48px; margin-left: 21px; transform: skewY(-45deg); }
+    .dragon-scaler .LShelperTwo { width: 27px; height: 12px; background-color: #960001; position: absolute; margin-top: 13px; margin-left: 121px; transform: skewY(-45deg); }
+    .dragon-scaler .LShelperTwo:before { content: ' '; width: 0px; height: 0px; border: 6px solid transparent; border-top: 6px solid #960001; border-left: 6px solid #960001; position: absolute; margin-top: 6px; margin-left: 13px; transform: skewY(45deg); }
+    .dragon-scaler .LShelperTwo:after { content: ' '; width: 14px; height: 11px; background-color: #52323A; position: absolute; margin-top: 48px; margin-left: -36px; transform: skewY(45deg); }
+    .dragon-scaler .foot { width: 200px; height: 17px; background-color: #7c6369; border-radius: 50px 50px 0px 0px; margin-left: -50px; margin-top: 100px; position: absolute; }
+    .dragon-scaler .toe { width: 61px; height: 9px; background-color: #60434b; border-radius: 11px 11px 0px 0px; margin-top: 8px; margin-left: 19px; position: absolute; }
+    .dragon-scaler .Ctoe { width: 22px; height: 17px; border-radius: 17px 17px 0px 0px; background-color: #60434b; margin-left: 33px; position: absolute; z-index: 1; }
+    .dragon-scaler .toeTwo { width: 61px; height: 9px; background-color: #60434b; border-radius: 11px 11px 0px 0px; margin-top: 8px; margin-left: 117px; position: absolute; }
+    .dragon-scaler .CtoeTwo { width: 22px; height: 17px; border-radius: 17px 17px 0px 0px; background-color: #60434b; margin-left: 143px; position: absolute; z-index: 1; }
 `;
 document.head.appendChild(monsterStyle);
 // ==========================================
@@ -3914,8 +3992,8 @@ socket.on('revivalJuiceUsed', (data) => {
                     spriteHtml = `<div class="monster-sprite-layer golem-base"><div class="g-head"><div class="g-eye"></div><div class="g-eye"></div></div><div class="g-arm-l"></div><div class="g-arm-r"></div><div class="g-leg-l"></div><div class="g-leg-r"></div></div>`;
                 } else if (m.monsterKey.includes('wraith')) {
                     spriteHtml = `<div class="monster-sprite-layer wraith-base"><div class="w-eye left"></div><div class="w-eye right"></div><div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div></div>`;
-                } else if (m.monsterKey.includes('minotaur')) {
-                    // Minotaur now has Golem structure + unique head
+               } else if (m.monsterKey.includes('minotaur')) {
+                    // Minotaur (Tribal Golem Structure)
                     spriteHtml = `<div class="monster-sprite-layer minotaur-base">
                         <div class="g-arm-l"></div><div class="g-arm-r"></div><div class="g-leg-l"></div><div class="g-leg-r"></div>
                         <div class="m-torso"></div>
@@ -3925,12 +4003,23 @@ socket.on('revivalJuiceUsed', (data) => {
                         </div>
                     </div>`;
                 } else if (m.monsterKey.includes('dragon')) {
-                    // Dragon now has snake body + 2 feet + wings
                     spriteHtml = `<div class="monster-sprite-layer dragon-base">
-                        <div class="d-wings"><div class="d-wing left"></div><div class="d-wing right"></div></div>
-                        <div class="d-feet"><div class="d-foot left"></div><div class="d-foot right"></div></div>
-                        <div class="d-snake-body"><div class="d-tail"></div></div>
-                        <div class="d-head"><div class="d-eye left"></div><div class="d-eye right"></div><div class="d-fangs"></div></div>
+                        <div class="dragon-scaler">
+                            <div class="wingsStart"></div><div class="WSleftBall"></div><div class="WSleftBallTwo"></div>
+                            <div class="insideBarUpLeft"><div class="ball"></div><div class="skewBarOut"></div><div class="webHold"></div><div class="conect"></div><div class="lastBall"></div><div class="lastConect"></div><div class="web"></div><div class="webTwo"></div></div>
+                            <div class="insideBarUpRight"><div class="ball"></div><div class="skewBarOut"></div><div class="webHold"></div><div class="conect"></div><div class="lastBall"></div><div class="lastConect"></div><div class="web"></div><div class="webTwo"></div></div>
+                            <div class="legsStart"></div><div class="footStart"></div><div class="footStartTwo"></div>
+                            <div class="LShelper"></div><div class="LShelperTwo"></div>
+                            <div class="foot"><div class="toe"></div><div class="Ctoe"></div><div class="toeTwo"></div><div class="CtoeTwo"></div></div>
+                            <div class="belt"></div>
+                            <div class="bellyStart"></div><div class="BStop"></div><div class="BSround"></div><div class="BSRright"></div>
+                            <div class="BSstripe"></div><div class="BSstripeTwo"></div>
+                            <div class="headStart"></div><div class="HSotherSideStart"></div><div class="HSotherSide"></div>
+                            <div class="horn"></div><div class="pokeSpike"></div><div class="PSright"></div>
+                            <div class="leftSideFace"></div><div class="rightSideFace"></div>
+                            <div class="LSFeye"></div><div class="RSFeye"></div>
+                            <div class="snout"></div><div class="SNwrap"></div><div class="nost"></div>
+                        </div>
                     </div>`;
                 } else {
                     spriteHtml = `<div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div>`;
