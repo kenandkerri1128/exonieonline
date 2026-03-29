@@ -1752,27 +1752,21 @@ window.getTotalStat = function(statName) {
 window.getAttackPower = function() { return window.getTotalStat('attack') + Math.floor(window.getTotalStat('str') / 2); }; 
 window.getMagicAttack = function() { return window.getTotalStat('magic') + Math.floor(window.getTotalStat('int') / 2); }; 
 window.getMaxHp = function() { return window.getTotalStat('hp'); }; 
-// 🛡️ RESTORED & SECURED: Throttled Vitals Updater for Party UI
+// 🛡️ RESTORED & SECURED: Visual Sync Poke for Party UI
 window.emitVitalsIfNeeded = function(force = false) {
     if (!game.player || !socket) return;
     
     const now = Date.now();
-    const currentHp = game.player.currentHp;
-    const maxHp = window.getMaxHp();
     const level = game.player.level;
 
-    // Only send to server if something changed, OR if forced (like after using an item/teleporting)
-    if (force || 
-        currentHp !== lastVitalsSent.hp || 
-        maxHp !== lastVitalsSent.maxHp || 
-        level !== lastVitalsSent.level || 
-        now - lastVitalsTs > 5000) { // Or force sync every 5 seconds just to be safe
+    // Only "poke" the server if the level changed, or if forced (Juice/Teleport), or every 5s
+    if (force || level !== lastVitalsSent.level || now - lastVitalsTs > 5000) {
         
-        lastVitalsSent = { hp: currentHp, maxHp: maxHp, level: level };
+        lastVitalsSent = { level: level };
         lastVitalsTs = now;
         
-        // Tells the server to update your party members' screens!
-        socket.emit('playerVitals', { currentHp: currentHp, maxHp: maxHp, level: level });
+        // We don't even send HP anymore. The server already knows it!
+        socket.emit('playerVitals', { level: level });
     }
 };
 window.getDefense = function() { let def = window.getTotalStat('defense'); if (game.player.tauntBuffUntil && Date.now() < game.player.tauntBuffUntil) { def *= 3; } return def; };
