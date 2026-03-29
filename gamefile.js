@@ -1788,18 +1788,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const volDisplay = document.getElementById('vol-display');
     
     if (volSlider) {
+        // Initial setup
         volSlider.value = window.gameVolume;
         if (volDisplay) volDisplay.innerText = Math.round(window.gameVolume * 100) + '%';
         
+        // Use 'input' event for real-time dragging updates
         volSlider.addEventListener('input', (e) => {
-            window.gameVolume = parseFloat(e.target.value);
-            localStorage.setItem('exonie_bgm_vol', window.gameVolume); // Save it!
+            const newVol = parseFloat(e.target.value);
+            window.gameVolume = newVol;
+            localStorage.setItem('exonie_bgm_vol', newVol); 
             
-            if (volDisplay) volDisplay.innerText = Math.round(window.gameVolume * 100) + '%';
+            if (volDisplay) volDisplay.innerText = Math.round(newVol * 100) + '%';
             
-            // Instantly change volume if music is currently playing
+            // 🔊 THE FIX: Instantly apply volume to the active track
             if (window.currentBGM) {
-                window.currentBGM.volume = window.gameVolume;
+                window.currentBGM.volume = newVol;
             }
         });
     }
@@ -1807,22 +1810,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 3. The Upgraded Play Function
 window.playBGM = function(trackUrl) {
-    // Stop old track
+    // 🛡️ THE FIX: Only stop and change if it's a DIFFERENT track
+    if (window.currentBGM && currentTrackName === trackUrl) {
+        window.currentBGM.volume = window.gameVolume; // Just sync volume
+        return;
+    }
+
     if (window.currentBGM) {
         window.currentBGM.pause();
         window.currentBGM.currentTime = 0;
     }
 
-    if (!trackUrl) return; // Allow passing null to just stop music
+    if (!trackUrl) {
+        currentTrackName = "";
+        return;
+    }
 
-    // Play new track
-    window.currentBGM = new Audio(trackUrl);
+    // Convert shorthand names to file paths if needed (e.g., 'town' -> 'music/town.mp3')
+    let finalUrl = trackUrl;
+    if (!trackUrl.includes('/') && !trackUrl.includes('.mp3')) {
+        finalUrl = `music/${trackUrl}.mp3`;
+    }
+
+    window.currentBGM = new Audio(finalUrl);
     window.currentBGM.loop = true;
-    window.currentBGM.volume = window.gameVolume; // 🛡️ THE FIX: Forces the new track to respect the slider!
+    window.currentBGM.volume = window.gameVolume; // 🛡️ Load the current slider value
+    currentTrackName = trackUrl;
     
-    // Catch browser autoplay blocks safely
     window.currentBGM.play().catch(e => {
-        console.warn("Browser blocked BGM autoplay. Waiting for player interaction.", e);
+        console.warn("BGM block: Player needs to interact with the page first.");
     });
 };
 
