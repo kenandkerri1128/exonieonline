@@ -5502,8 +5502,8 @@ if (socket) {
 
         if (data.state === 'shop_open') {
             const items = [
-                { id: 'aura_easter', name: 'Easter Aura Stone', priceGems: 15, desc: 'Seasonal Cosmetic: A beautiful pastel aura that shifts colors.', isSeasonal: true },
-                { id: 'pet_egg', name: 'Easter Egg Pet', priceGems: 15, desc: 'Seasonal Cosmetic: A cute floating Easter Egg that follows you.', isSeasonal: true },
+                { id: 'aura_easter', name: 'Easter Aura Stone', priceGems: 15, desc: 'Tradeable Seasonal Cosmetic: A beautiful pastel aura that shifts colors.', isSeasonal: true },
+                { id: 'pet_egg', name: 'Easter Egg Pet', priceGems: 15, desc: 'Tradeable Seasonal Cosmetic: A cute floating Easter Egg that follows you.', isSeasonal: true },
                 { id: 'name_change', name: 'Name Change Ticket', priceGems: 15, desc: 'Permanently changes your character name. (Cannot be undone)' },
                 { id: 'edit_char', name: 'Appearance Reroll Ticket', priceGems: 15, desc: 'Re-open the character creator to change your hair, skin color, and style.' },
                 { id: 'pet_fox', name: 'Spirit Fox Pet', priceGems: 10, desc: 'A loyal fire-fox companion that follows you and attacks enemies.' },
