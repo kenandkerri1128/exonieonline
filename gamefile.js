@@ -238,6 +238,77 @@ rankStyle.innerHTML = `
 `;
 document.head.appendChild(rankStyle);
 // ==========================================
+// 🐉 NEW MONSTER CSS (MINOTAUR & DRAGON)
+// ==========================================
+const monsterStyle = document.createElement('style');
+monsterStyle.innerHTML = `
+    /* --- 🐂 MINOTAUR CSS --- */
+    .minotaur-base {
+        width: 100%; height: 100%; position: relative;
+        display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    }
+    .m-head {
+        width: 85%; height: 75%; background: var(--mob-color);
+        border: 3px solid var(--mob-border); border-radius: 40% 40% 20% 20%;
+        position: relative; box-shadow: inset 0 -10px rgba(0,0,0,0.4);
+        z-index: 2;
+    }
+    .m-horns {
+        position: absolute; top: -20px; width: 120%; display: flex; justify-content: space-between; z-index: 1;
+    }
+    .m-horn {
+        width: 30px; height: 45px; background: #e0e0e0; border: 3px solid #757575;
+    }
+    .m-horn.left { border-radius: 100% 0 0 0; transform: rotate(-25deg); box-shadow: inset -3px 0 rgba(0,0,0,0.2); }
+    .m-horn.right { border-radius: 0 100% 0 0; transform: rotate(25deg); box-shadow: inset 3px 0 rgba(0,0,0,0.2); }
+    .m-eye { width: 12px; height: 12px; background: #ff1744; border-radius: 50%; position: absolute; top: 25%; box-shadow: 0 0 8px #ff1744; }
+    .m-eye.left { left: 15%; }
+    .m-eye.right { right: 15%; }
+    .m-snout { 
+        width: 70%; height: 40%; background: rgba(0,0,0,0.25); 
+        position: absolute; bottom: 5%; left: 15%; border-radius: 50%; 
+        display:flex; justify-content:center; align-items:flex-end;
+    }
+    .m-ring { width: 20px; height: 20px; border: 4px solid #FFD700; border-radius: 50%; margin-bottom: -10px; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    .minotaur-base.boss { transform: scale(1.15); filter: drop-shadow(0 0 15px var(--mob-border)); }
+
+    /* --- 🐉 DRAGON CSS --- */
+    .dragon-base {
+        width: 100%; height: 100%; position: relative;
+        display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    }
+    .d-body {
+        width: 75%; height: 85%; background: var(--mob-color);
+        border: 3px solid var(--mob-border); border-radius: 50% 50% 15% 15%;
+        position: relative; box-shadow: inset 0 -15px rgba(0,0,0,0.4);
+        z-index: 2;
+    }
+    .d-eye { 
+        width: 14px; height: 8px; background: #ffeb3b; border-radius: 50%; 
+        position: absolute; top: 30%; box-shadow: 0 0 10px #ffeb3b; 
+    }
+    .d-eye.left { left: 15%; transform: rotate(-20deg); }
+    .d-eye.right { right: 15%; transform: rotate(20deg); }
+    .d-horns { 
+        position:absolute; top:-12px; width:100%; height:25px; 
+        background: radial-gradient(circle at 30% 100%, var(--mob-border) 45%, transparent 46%), 
+                    radial-gradient(circle at 70% 100%, var(--mob-border) 45%, transparent 46%);
+    }
+    .d-wing {
+        position: absolute; top: 10%; width: 70%; height: 80%;
+        background: var(--mob-border); border-radius: 100% 0 50% 0;
+        z-index: 1; transform-origin: bottom right;
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    }
+    .d-wing.left { left: -40%; animation: dragonFlapLeft 0.3s infinite alternate ease-in-out; }
+    .d-wing.right { right: -40%; transform-origin: bottom left; border-radius: 0 100% 0 50%; animation: dragonFlapRight 0.3s infinite alternate ease-in-out; }
+    
+    @keyframes dragonFlapLeft { 0% { transform: rotate(5deg); } 100% { transform: rotate(-40deg); } }
+    @keyframes dragonFlapRight { 0% { transform: rotate(-5deg); } 100% { transform: rotate(40deg); } }
+    .dragon-base.boss { transform: scale(1.2); filter: drop-shadow(0 0 20px var(--mob-border)); }
+`;
+document.head.appendChild(monsterStyle);
+// ==========================================
 // 🚀 LOW-END MODE CSS OPTIMIZATIONS
 // ==========================================
 const perfStyle = document.createElement('style');
@@ -3824,6 +3895,10 @@ socket.on('revivalJuiceUsed', (data) => {
                     spriteHtml = `<div class="monster-sprite-layer golem-base"><div class="g-head"><div class="g-eye"></div><div class="g-eye"></div></div><div class="g-arm-l"></div><div class="g-arm-r"></div><div class="g-leg-l"></div><div class="g-leg-r"></div></div>`;
                 } else if (m.monsterKey.includes('wraith')) {
                     spriteHtml = `<div class="monster-sprite-layer wraith-base"><div class="w-eye left"></div><div class="w-eye right"></div><div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div></div>`;
+                } else if (m.monsterKey.includes('minotaur')) {
+                    spriteHtml = `<div class="monster-sprite-layer minotaur-base"><div class="m-horns"><div class="m-horn left"></div><div class="m-horn right"></div></div><div class="m-head"><div class="m-eye left"></div><div class="m-eye right"></div><div class="m-snout"><div class="m-ring"></div></div></div></div>`;
+                } else if (m.monsterKey.includes('dragon')) {
+                    spriteHtml = `<div class="monster-sprite-layer dragon-base"><div class="d-wing left"></div><div class="d-wing right"></div><div class="d-body"><div class="d-eye left"></div><div class="d-eye right"></div><div class="d-horns"></div></div></div>`;
                 } else {
                     spriteHtml = `<div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div>`;
                 }
@@ -3840,11 +3915,15 @@ socket.on('revivalJuiceUsed', (data) => {
                 mEl.style.setProperty('--mob-color', m.cssColor || '#9c27b0'); 
                 mEl.style.setProperty('--mob-border', m.cssBorder || '#4E342E');
                 
-                if (m.monsterKey.includes('golem')) {
+               if (m.monsterKey.includes('golem')) {
                     spriteLayer.className = m.category === 'floor_boss' ? 'monster-sprite-layer golem-base boss' : 'monster-sprite-layer golem-base';
                 } else if (m.monsterKey.includes('wraith')) {
                     spriteLayer.className = 'monster-sprite-layer wraith-base';
-                } else if (m.monsterKey.includes('2')) { 
+                } else if (m.monsterKey.includes('minotaur')) {
+                    spriteLayer.className = m.category === 'floor_boss' ? 'monster-sprite-layer minotaur-base boss' : 'monster-sprite-layer minotaur-base';
+                } else if (m.monsterKey.includes('dragon')) {
+                    spriteLayer.className = m.category === 'floor_boss' ? 'monster-sprite-layer dragon-base boss' : 'monster-sprite-layer dragon-base';
+                } else if (m.monsterKey.includes('2')) {
                     spriteLayer.className = 'monster-sprite-layer bat-sprite'; spriteLayer.style.background = m.cssColor; spriteLayer.style.border = 'none'; spriteLayer.style.animation = 'none'; 
                 } else if (m.monsterKey.includes('3')) { 
                     spriteLayer.className = 'monster-sprite-layer fire-sprite'; spriteLayer.style.background = m.cssColor; spriteLayer.style.border = 'none'; spriteLayer.style.animation = 'none'; 
