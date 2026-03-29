@@ -1726,27 +1726,55 @@ window.triggerBossBGM = function(monster) {
     window.bossBgmTimeout = setTimeout(window.revertBGM, 10000); 
 };
 
-window.playBGM = function(trackName) { 
-    // 🎵 THE FIX: Reroute music for special zones
-    if (safeMapData) {
-        if (safeMapData.id === 'neutralzone') {
-            trackName = 'neutralzone';
-        } else if (safeMapData.id.includes('home')) {
-                        trackName = 'home'; // 🏡 Triggers home.mp3
-                    } else if (safeMapData.id === 'guildbase') {
-                        trackName = 'guildbase'; // 🏰 Triggers guildbase.mp3
-                    }
+// ==========================================
+// 🎵 GLOBAL AUDIO & VOLUME ENGINE
+// ==========================================
+// 1. Load saved volume from their browser, default to 50%
+window.gameVolume = localStorage.getItem('exonie_bgm_vol') !== null ? parseFloat(localStorage.getItem('exonie_bgm_vol')) : 0.5;
+
+// 2. Listen for the slider being dragged
+document.addEventListener('DOMContentLoaded', () => {
+    const volSlider = document.getElementById('bgm-volume-slider');
+    const volDisplay = document.getElementById('vol-display');
+    
+    if (volSlider) {
+        volSlider.value = window.gameVolume;
+        if (volDisplay) volDisplay.innerText = Math.round(window.gameVolume * 100) + '%';
+        
+        volSlider.addEventListener('input', (e) => {
+            window.gameVolume = parseFloat(e.target.value);
+            localStorage.setItem('exonie_bgm_vol', window.gameVolume); // Save it!
+            
+            if (volDisplay) volDisplay.innerText = Math.round(window.gameVolume * 100) + '%';
+            
+            // Instantly change volume if music is currently playing
+            if (window.currentBGM) {
+                window.currentBGM.volume = window.gameVolume;
+            }
+        });
+    }
+});
+
+// 3. The Upgraded Play Function
+window.playBGM = function(trackUrl) {
+    // Stop old track
+    if (window.currentBGM) {
+        window.currentBGM.pause();
+        window.currentBGM.currentTime = 0;
     }
 
-    if (currentTrackName === trackName) return; 
-    if (trackName !== 'bossfight') clearTimeout(window.bossBgmTimeout); // Clean up if teleporting
-    if (currentBGM) { currentBGM.pause(); currentBGM.currentTime = 0; } 
-    currentTrackName = trackName; 
-    currentBGM = new Audio(`music/${trackName}.mp3`); 
-    currentBGM.loop = true; 
-    currentBGM.volume = 0.4; 
-    currentBGM.play().catch(e => {}); 
-}
+    if (!trackUrl) return; // Allow passing null to just stop music
+
+    // Play new track
+    window.currentBGM = new Audio(trackUrl);
+    window.currentBGM.loop = true;
+    window.currentBGM.volume = window.gameVolume; // 🛡️ THE FIX: Forces the new track to respect the slider!
+    
+    // Catch browser autoplay blocks safely
+    window.currentBGM.play().catch(e => {
+        console.warn("Browser blocked BGM autoplay. Waiting for player interaction.", e);
+    });
+};
 
 window.lastSFXTime = 0;
 window.playSFX = function(weaponSprite) { 
