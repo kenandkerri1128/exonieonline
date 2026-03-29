@@ -238,16 +238,20 @@ rankStyle.innerHTML = `
 `;
 document.head.appendChild(rankStyle);
 // ==========================================
-// 🐉 NEW MONSTER CSS (TRIBAL MINOTAUR & WYVERN)
+// 🐉 DYNAMIC MONSTER CSS (CATEGORIZED MINOTAUR & DRAGON)
 // ==========================================
 const monsterStyle = document.createElement('style');
 monsterStyle.innerHTML = `
-    /* --- 🐂 MINOTAUR CSS (Tribal Avatar) --- */
+    /* Category Specific Visual Effects */
+    .mini-boss, .mini_boss { filter: drop-shadow(0 0 8px rgba(255, 152, 0, 0.5)); }
+    .floor-boss, .floor_boss { filter: drop-shadow(0 0 15px rgba(220, 20, 60, 0.7)); }
+
+    /* --- 🐂 MINOTAUR CSS (Tribal Golem Structure + Head) --- */
     .minotaur-base {
         width: 100%; height: 100%; position: relative;
     }
     .m-torso {
-        width: 65%; height: 45%; background: #b87b62; /* Matched to image */
+        width: 65%; height: 45%; background: var(--mob-color);
         position: absolute; bottom: 25%; left: 17.5%; border-radius: 20px;
         box-shadow: inset 0 -10px rgba(0,0,0,0.2); z-index: 2;
         border: 3px solid #000;
@@ -269,7 +273,7 @@ monsterStyle.innerHTML = `
         display: flex; flex-direction: column; align-items: center; z-index: 3;
     }
     .m-head {
-        width: 45%; height: 70%; background: #8c5a45; /* Darker head */
+        width: 45%; height: 70%; background: var(--mob-color);
         border: 3px solid #000; border-radius: 30% 30% 40% 40%;
         position: relative; box-shadow: inset 0 -5px rgba(0,0,0,0.4);
     }
@@ -282,10 +286,10 @@ monsterStyle.innerHTML = `
     .m-snout { width: 60%; height: 35%; background: rgba(0,0,0,0.3); position: absolute; bottom: 10%; left: 20%; border-radius: 40%; display:flex; justify-content:center; align-items:flex-end; }
     .m-ring { width: 14px; height: 14px; border: 3px solid #FFD700; border-radius: 50%; margin-bottom: -8px; }
 
-    /* Minotaur Limbs */
+    /* Minotaur Limbs (Golem Reuse) */
     .minotaur-base .g-arm-l, .minotaur-base .g-arm-r, 
     .minotaur-base .g-leg-l, .minotaur-base .g-leg-r {
-        background: #b87b62; border: 3px solid #000; border-radius: 10px; z-index: 1;
+        background: var(--mob-color); border: 3px solid #000; border-radius: 10px; z-index: 1;
     }
     /* The Battleaxe (Attached to left arm) */
     .minotaur-base .g-arm-l::after {
@@ -297,9 +301,8 @@ monsterStyle.innerHTML = `
         width: 30px; height: 40px; background: #90a4ae; border: 2px solid #000;
         border-radius: 20% 0 0 50%; z-index: -1;
     }
-    .minotaur-base.boss { transform: scale(1.1); filter: drop-shadow(0 0 10px #b71c1c); }
 
-   /* --- 🐉 DRAGON CSS (The CodePen Front-Facing Port) --- */
+    /* --- 🐉 DRAGON CSS (The CodePen Front-Facing Port) --- */
     .dragon-base {
         width: 100%; height: 100%; position: relative;
     }
@@ -308,10 +311,7 @@ monsterStyle.innerHTML = `
         transform: scale(0.20); transform-origin: bottom center;
         display: flex; justify-content: center; z-index: 2;
     }
-    .dragon-base.boss .dragon-scaler { 
-        transform: scale(0.55); bottom: 85px; 
-        filter: drop-shadow(0 0 20px rgba(249, 113, 0, 0.6)); 
-    }
+    .dragon-base.boss .dragon-scaler { transform: scale(0.55); bottom: 85px; filter: drop-shadow(0 0 20px rgba(249, 113, 0, 0.6)); }
 
     /* Wing Animations */
     .dragon-scaler .insideBarUpLeft { transform-origin: bottom right; animation: cPenFlapL 0.4s infinite alternate ease-in-out; }
@@ -395,7 +395,7 @@ monsterStyle.innerHTML = `
     .dragon-scaler .LShelper { width: 27px; height: 12px; background-color: #960001; position: absolute; margin-top: 13px; margin-left: -48px; transform: skewY(45deg); }
     .dragon-scaler .LShelper:before { content: ' '; width: 0px; height: 0px; border: 6px solid transparent; border-top: 6px solid #960001; border-right: 6px solid #960001; position: absolute; margin-top: 6px; margin-left: -26px; transform: skewY(-45deg); }
     .dragon-scaler .LShelper:after { content: ' '; width: 14px; height: 11px; background-color: #52323A; position: absolute; margin-top: 48px; margin-left: 21px; transform: skewY(-45deg); }
-    .dragon-scaler .LShelperTwo { width: 27px; height: 12px; background-color: #960001; position: absolute; margin-top: 13px; margin-left: 121px; transform: skewY(-45deg); }
+    .dragon-scaler .LShelperTwo { width: 27px; height: 12px; background-color: #960001; position: absolute; margin-top: 13px; margin-left: 121px; transform: skewY(45deg); }
     .dragon-scaler .LShelperTwo:before { content: ' '; width: 0px; height: 0px; border: 6px solid transparent; border-top: 6px solid #960001; border-left: 6px solid #960001; position: absolute; margin-top: 6px; margin-left: 13px; transform: skewY(45deg); }
     .dragon-scaler .LShelperTwo:after { content: ' '; width: 14px; height: 11px; background-color: #52323A; position: absolute; margin-top: 48px; margin-left: -36px; transform: skewY(45deg); }
     .dragon-scaler .foot { width: 200px; height: 17px; background-color: #7c6369; border-radius: 50px 50px 0px 0px; margin-left: -50px; margin-top: 100px; position: absolute; }
@@ -3986,13 +3986,13 @@ socket.on('revivalJuiceUsed', (data) => {
             if (!mEl) {
                 mEl = document.createElement('div'); mEl.id = 'mob_' + m.id; mEl.className = 'entity monster-container'; mEl.style.position = 'absolute'; mEl.style.cursor = 'crosshair'; mEl.style.zIndex = '50'; mEl.style.display = 'flex'; mEl.style.justifyContent = 'center'; mEl.style.alignItems = 'flex-end';
                 
-                // 🎨 BUILD THE HTML FOR OUR CUSTOM CSS MONSTERS (RE-SKINNED)
+             // 🎨 BUILD THE HTML FOR OUR CUSTOM CSS MONSTERS (REBUILT MINOTAUR & SCALED CODEPEN DRAGON)
                 let spriteHtml = '';
                 if (m.monsterKey.includes('golem')) {
                     spriteHtml = `<div class="monster-sprite-layer golem-base"><div class="g-head"><div class="g-eye"></div><div class="g-eye"></div></div><div class="g-arm-l"></div><div class="g-arm-r"></div><div class="g-leg-l"></div><div class="g-leg-r"></div></div>`;
                 } else if (m.monsterKey.includes('wraith')) {
                     spriteHtml = `<div class="monster-sprite-layer wraith-base"><div class="w-eye left"></div><div class="w-eye right"></div><div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div></div>`;
-               } else if (m.monsterKey.includes('minotaur')) {
+                } else if (m.monsterKey.includes('minotaur')) {
                     // Minotaur (Tribal Golem Structure)
                     spriteHtml = `<div class="monster-sprite-layer minotaur-base">
                         <div class="g-arm-l"></div><div class="g-arm-r"></div><div class="g-leg-l"></div><div class="g-leg-r"></div>
@@ -4003,6 +4003,7 @@ socket.on('revivalJuiceUsed', (data) => {
                         </div>
                     </div>`;
                 } else if (m.monsterKey.includes('dragon')) {
+                    // 🐉 DRAGON: The massive CodePen HTML skeleton injection!
                     spriteHtml = `<div class="monster-sprite-layer dragon-base">
                         <div class="dragon-scaler">
                             <div class="wingsStart"></div><div class="WSleftBall"></div><div class="WSleftBallTwo"></div>
