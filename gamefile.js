@@ -2738,7 +2738,12 @@ window.addTradeItem = function(invIndex) {
     if (!inTradeMode) return; 
     const item = game.player.inventory[invIndex]; 
     if (!item) return; 
-    if (item.type === 'aura') { dom.log.innerText = "Cosmetics and pets cannot be traded!"; return; }
+    
+    // 🐰 THE FIX: Allow Seasonal cosmetics/pets to bypass the trade lock!
+    if (item.type === 'aura' && !item.isSeasonal && !String(item.name).includes('Easter')) { 
+        dom.log.innerText = "Normal cosmetics and pets cannot be traded!"; 
+        return; 
+    }
     
     // 🛡️ THE FIX: Prevent adding bound gear to trade window
     if ((item.rarity === 'Godly' || item.rarity === 'Divine') && item.enhanceLevel > 0) {
@@ -5349,8 +5354,8 @@ if (socket) {
        if (data.state === 'shop_open') {
             const items = [
                 // 🐰 SEASONAL ITEMS (Top of the list)
-                { id: 'aura_easter', name: 'Easter Aura Stone', priceGems: 15, desc: 'Seasonal Cosmetic: A beautiful pastel aura that shifts colors.', isSeasonal: true },
-                { id: 'pet_egg', name: 'Easter Egg Pet', priceGems: 15, desc: 'Seasonal Cosmetic: A cute floating Easter Egg that follows you.', isSeasonal: true },
+                { id: 'aura_easter', name: 'Easter Aura Stone', priceGems: 15, desc: 'Seasonal Cosmetic: A beautiful pastel aura that shifts colors. TRADEABLE', isSeasonal: true },
+                { id: 'pet_egg', name: 'Easter Egg Pet', priceGems: 15, desc: 'Seasonal Cosmetic: A cute floating Easter Egg that follows you.TRADEABLE', isSeasonal: true },
                 
                 // NORMAL ITEMS
                 { id: 'name_change', name: 'Name Change Ticket', priceGems: 15, desc: 'Permanently changes your character name. (Cannot be undone)' },
@@ -5922,7 +5927,11 @@ window.renderAhSellGrid = function() {
 window.ahList = function() {
     if (ahSelectedInvIndex === -1) return dom.log.innerText = "Select an item to sell first.";
     const item = game.player.inventory[ahSelectedInvIndex];
-    if (item && item.type === 'aura') return dom.log.innerText = "Cosmetics and pets cannot be auctioned!";
+    
+    // 🐰 THE FIX: Allow Seasonal cosmetics/pets to bypass the auction lock!
+    if (item && item.type === 'aura' && !item.isSeasonal && !String(item.name).includes('Easter')) {
+        return dom.log.innerText = "Normal cosmetics and pets cannot be auctioned!";
+    }
     
     // 🛡️ THE FIX: Prevent listing bound gear
     if (item && (item.rarity === 'Godly' || item.rarity === 'Divine') && item.enhanceLevel > 0) {
