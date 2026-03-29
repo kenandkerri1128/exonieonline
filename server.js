@@ -3267,6 +3267,8 @@ socket.on('syncPet', (data) => {
                                     if (!hasCustomTitle && killedFloorNum > currentHighestFloor) {
                                         const newTitle = `FLOOR CONQUEROR ${killedFloorNum}`;
                                         targetPlayer.title = newTitle; 
+                                        if (!targetPlayer.baseStats) targetPlayer.baseStats = {};
+                                        targetPlayer.baseStats.title = newTitle; // 🛡️ THE FIX: Syncs to RAM so it doesn't rollback on disconnect!
                                         if (!targetPlayer.spriteData) targetPlayer.spriteData = {};
                                         targetPlayer.spriteData.title = newTitle;
                                         if (targetSid) io.to(targetSid).emit('titleUnlocked', newTitle);
@@ -7392,7 +7394,8 @@ socket.on('startDungeon', async (data) => {
                 equips: p.equips,
                 base_stats: p.baseStats,
                 gold: p.gold,
-                current_hp: p.currentHp
+                current_hp: p.currentHp,
+                title: p.title // 🛡️ THE FIX: Ensure the top-level title column is hard-saved too!
             }).eq('character_name', p.id).then(()=>{});
             delete onlinePlayers[socket.id];
             
