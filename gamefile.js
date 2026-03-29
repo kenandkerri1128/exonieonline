@@ -5337,7 +5337,7 @@ window.openRealMoneyShop = function() {
 };
 
 if (socket) {
-   socket.on('shopAuthState', (data) => {
+  socket.on('shopAuthState', (data) => {
         let modal = document.getElementById('rm-shop-modal');
         if (!modal) return;
 
@@ -5351,13 +5351,10 @@ if (socket) {
             </div>
         `;
 
-       if (data.state === 'shop_open') {
+        if (data.state === 'shop_open') {
             const items = [
-                // 🐰 SEASONAL ITEMS (Top of the list)
-                { id: 'aura_easter', name: 'Easter Aura Stone', priceGems: 15, desc: 'Seasonal Cosmetic: A beautiful pastel aura that shifts colors. TRADEABLE', isSeasonal: true },
-                { id: 'pet_egg', name: 'Easter Egg Pet', priceGems: 15, desc: 'Seasonal Cosmetic: A cute floating Easter Egg that follows you.TRADEABLE', isSeasonal: true },
-                
-                // NORMAL ITEMS
+                { id: 'aura_easter', name: 'Easter Aura Stone', priceGems: 15, desc: 'Seasonal Cosmetic: A beautiful pastel aura that shifts colors.', isSeasonal: true },
+                { id: 'pet_egg', name: 'Easter Egg Pet', priceGems: 15, desc: 'Seasonal Cosmetic: A cute floating Easter Egg that follows you.', isSeasonal: true },
                 { id: 'name_change', name: 'Name Change Ticket', priceGems: 15, desc: 'Permanently changes your character name. (Cannot be undone)' },
                 { id: 'edit_char', name: 'Appearance Reroll Ticket', priceGems: 15, desc: 'Re-open the character creator to change your hair, skin color, and style.' },
                 { id: 'pet_fox', name: 'Spirit Fox Pet', priceGems: 10, desc: 'A loyal fire-fox companion that follows you and attacks enemies.' },
@@ -5369,9 +5366,8 @@ if (socket) {
                 { id: 'revival_pack', name: 'Revival Juice Bundle (x10)', priceGems: 5, desc: 'Contains 10 Revival Juices. Revive instantly on the spot.' }
             ];
 
-            html += `<div style="max-height:300px; overflow-y:auto; padding-right:5px;">`;
+            html += `<div style="max-height:250px; overflow-y:auto; padding-right:5px;">`;
             items.forEach(i => {
-                // 🌟 DYNAMIC STYLING: Make Seasonal Items Glow Gold!
                 let nameColor = i.isSeasonal ? '#FFD700' : '#E040FB';
                 let shadow = i.isSeasonal ? 'text-shadow: 0 0 10px #FFD700;' : '';
                 let border = i.isSeasonal ? 'border: 2px solid #FFD700; box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.15);' : 'border: 1px solid #444;';
@@ -5388,30 +5384,17 @@ if (socket) {
             html += `</div>`;
         }
 
+        // 💳 UNIFIED STORE BUTTONS (Replaces Patreon)
         html += `
-            <div style="margin-top:15px; display:flex; gap:10px;">
-                <button class="btn" style="background:#ff424d; flex:1; font-weight:bold;" onclick="window.open('https://www.patreon.com/c/xeniegaming/membership', '_blank')">➕ Get More Gems (SUBSCRIBE TO PATREON)</button>
-                <button class="btn" style="background:#555; width:80px;" onclick="document.getElementById('rm-shop-modal').style.display='none'">Close</button>
+            <div style="margin-top:15px; display:flex; flex-direction:column; gap:8px;">
+                <h3 style="color:#aaa; font-size:14px; margin: 0 0 5px 0; border-bottom:1px solid #333; padding-bottom:5px;">Get More Exo Gems</h3>
+                <div style="display:flex; gap:5px;">
+                    <button class="btn" style="background:#2196F3; flex:1; font-weight:bold; padding:10px;" onclick="window.purchaseExoGems('gem_pack_50', 50)">💎 50 Gems</button>
+                    <button class="btn" style="background:#9c27b0; flex:1; font-weight:bold; padding:10px;" onclick="window.purchaseExoGems('gem_pack_120', 120)">💎 120 Gems</button>
+                </div>
+                <button class="btn" style="background:#555; width:100%; margin-top:5px; padding:10px;" onclick="document.getElementById('rm-shop-modal').style.display='none'">Close</button>
             </div>
         `;
-        modal.innerHTML = html;
-    });
-
-    socket.on('checkoutState', (data) => {
-        let modal = document.getElementById('rm-shop-modal');
-        if (!modal) return;
-
-        let html = '<h2 style="margin-top:0; color:#4CAF50;">🛒 Checkout Verification</h2>';
-
-        if (data.state === 'approved') {
-            html += `<p style="color:#4CAF50; font-weight:bold;">Secure Link Generated!</p>
-                     <p style="color:#ccc; font-size:13px; margin-bottom:20px;">Click below to complete your payment.</p>
-                     <a href="${data.url}" target="_blank" style="text-decoration:none;">
-                         <button class="btn" style="width:100%; background:#003087; font-size:16px; padding:15px; font-weight:bold; letter-spacing:1px; color:#ffffff;">💳 Pay with PayPal</button>
-                     </a>`;
-        }
-
-        html += `<button class="btn" style="background:#f44336; width:100%; margin-top:10px;" onclick="window.openRealMoneyShop()">Cancel</button>`;
         modal.innerHTML = html;
     });
 
@@ -5419,19 +5402,54 @@ if (socket) {
         let balEl = document.getElementById('ui-gem-balance');
         if (balEl) balEl.innerText = data.newGems;
     });
-}
-window.isProcessingShop = false; 
 
-window.initiateCheckout = function(itemId, name, price) {
-    currentShopItem = itemId; 
-    socket.emit('requestCheckoutCode', { itemId, itemName: name, price });
+    socket.on('receiptVerified', (data) => {
+        let balEl = document.getElementById('ui-gem-balance');
+        if (balEl) balEl.innerText = data.newGems;
+        if (dom.log) dom.log.innerText = `Purchase Verified! Added ${data.gemsAdded} Exo Gems.`;
+    });
+
+    socket.on('receiptFailed', (errorMsg) => {
+        alert("Purchase verification failed: " + errorMsg);
+        window.openRealMoneyShop();
+    });
+}
+
+// ==========================================
+// 💳 UNIFIED CASH SHOP LOGIC
+// ==========================================
+window.currentPlatform = 'web';
+if (typeof process !== 'undefined' && process.versions && process.versions.electron) {
+    window.currentPlatform = 'steam'; 
+} else if (window.Capacitor || (window.cordova && window.cordova.plugins)) {
+    window.currentPlatform = 'android'; 
+}
+
+window.purchaseExoGems = function(packageId, gemAmount) {
+    document.getElementById('rm-shop-modal').innerHTML = '<h2 style="color:#E040FB; margin-top: 20px;">Connecting to Store...</h2>';
+
+    if (window.currentPlatform === 'steam') {
+        if (window.electronAPI) window.electronAPI.initiateSteamPurchase(packageId);
+    } 
+    else if (window.currentPlatform === 'android') {
+        if (window.CdvPurchase) window.CdvPurchase.store.order(packageId);
+    } 
+    else {
+        // DEV OVERRIDE: If testing on web, simulate a successful store response
+        let simConfirm = confirm(`[DEV MODE] Simulate buying ${gemAmount} gems?`);
+        if (simConfirm && socket) {
+            document.getElementById('rm-shop-modal').innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Simulating Verification...</h2>';
+            socket.emit('verifyStoreReceipt', { platform: 'dev_web', receipt: 'DEV_TOKEN_123', packageId: packageId });
+        } else {
+            window.openRealMoneyShop();
+        }
+    }
 };
 
 window.buyWithGems = function(itemId, name, price) {
     if (!confirm(`Spend ${price} Exo Gems to purchase ${name}?`)) return;
     socket.emit('requestGemPurchase', { itemId: itemId });
 };
-
 // ==========================================
 // 💎 ULTIMATE MOBILE SHOP BUTTON INJECTION
 // ==========================================
