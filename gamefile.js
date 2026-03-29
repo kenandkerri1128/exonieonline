@@ -2025,9 +2025,11 @@ window.getItemTooltip = function(item) {
     let nameClass = item.rarity === "Godly" ? "rarity-godly" : (item.rarity === "Divine" ? "rarity-divine-text" : "");
     let html = `<strong class="${nameClass}" style="color:${item.color}; font-size: 13px;">${item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name}</strong><br><span style="color:#888;">Lv. ${item.level || 1} ${item.rarity || 'Normal'}</span><br>`; 
     
-    // 🛡️ THE FIX: Display Untradeable tag for enhanced Godly/Divine gear
+    // 🛡️ THE FIX: Display Trade/Untradeable tags for specific gear
     if ((item.rarity === 'Godly' || item.rarity === 'Divine') && item.enhanceLevel > 0) {
         html += `<span style="color:#f44336; font-size:11px; font-weight:bold; letter-spacing:1px;">[UNTRADEABLE]</span><br>`;
+    } else if (item.type === 'aura' && (item.isSeasonal || String(item.name).includes('Easter'))) {
+        html += `<span style="color:#4CAF50; font-size:11px; font-weight:bold; letter-spacing:1px; text-shadow: 0 0 5px #4CAF50;">[TRADEABLE COSMETIC]</span><br>`;
     }
     html += `<br>`;
     if(item.type === 'material') return html + `<span style="color:#aaa;"><em>${item.description}</em></span>`; 
