@@ -283,41 +283,45 @@ monsterStyle.innerHTML = `
     .minotaur-base.floor_boss .m-eye-l, .minotaur-base.floor_boss .m-eye-r { background:#ff9800; box-shadow:0 0 10px #ff9800; }
     .minotaur-base.floor_boss .m-axe::before { background: #111; border-color: #ff9800; }
 
-    /* --- 🐉 NATIVE DRAGON CSS (BULLETPROOF GEOMETRY) --- */
-    .dragon-base { position:relative; width:100%; height:100%; display:flex; justify-content:center; align-items:center; }
+   /* --- 🐉 NATIVE DRAGON CSS (COLOR-FORCED GEOMETRY) --- */
+    .dragon-base { 
+        position:relative; width:100%; height:100%; display:flex; justify-content:center; align-items:center; 
+        /* 🛡️ FALLBACK COLORS: Guarantees it can never be transparent! */
+        --d-col: #F97100; --d-bor: #530800; --d-wing: #E23401; --d-chest: #DBD5C5; --d-eye: #FBC614; --d-horn: #530800;
+    }
 
-    /* 🎨 Tier Colors (Maps perfectly to Common, Mini, and Floor Boss) */
-    .dragon-base.common_mobs { --d-col: #4caf50; --d-wing: #2e7d32; --d-chest: #c8e6c9; --d-eye: #ffeb3b; --d-horn: #1b5e20; }
-    .dragon-base.mini_boss { --d-col: #F97100; --d-wing: #E23401; --d-chest: #DBD5C5; --d-eye: #FBC614; --d-horn: #530800; }
-    .dragon-base.floor_boss { --d-col: #aa00ff; --d-wing: #6200ea; --d-chest: #00e5ff; --d-eye: #00e5ff; --d-horn: #311b92; filter: drop-shadow(0 0 15px #aa00ff); }
+    /* 🎨 Tier Colors (Overrides the fallbacks based on category) */
+    .dragon-base.common_mobs { --d-col: #4caf50; --d-bor: #1b5e20; --d-wing: #2e7d32; --d-chest: #c8e6c9; --d-eye: #ffeb3b; --d-horn: #1b5e20; }
+    .dragon-base.mini_boss { --d-col: #F97100; --d-bor: #530800; --d-wing: #E23401; --d-chest: #DBD5C5; --d-eye: #FBC614; --d-horn: #530800; }
+    .dragon-base.floor_boss { --d-col: #aa00ff; --d-bor: #000000; --d-wing: #6200ea; --d-chest: #00e5ff; --d-eye: #00e5ff; --d-horn: #311b92; filter: drop-shadow(0 0 15px #aa00ff); }
 
     /* 🪨 Body */
-    .dragon-base .d-body { position: absolute; bottom: 20%; width: 50%; height: 45%; background: var(--d-col); border: 3px solid #000; z-index: 2; border-radius: 10px 10px 20px 20px; box-shadow: inset 0 -10px rgba(0,0,0,0.3); }
+    .dragon-base .d-body { position: absolute; bottom: 20%; width: 50%; height: 45%; background-color: var(--d-col) !important; border: 3px solid #000; z-index: 2; border-radius: 10px 10px 20px 20px; box-shadow: inset 0 -10px rgba(0,0,0,0.3); }
 
     /* 💎 The Signature Diamond Chest */
-    .dragon-base .d-chest { position: absolute; top: 35%; width: 35%; height: 35%; background: var(--d-chest); transform: rotate(45deg); border: 3px solid #000; z-index: 4; box-shadow: inset 0 -5px rgba(0,0,0,0.2); }
+    .dragon-base .d-chest { position: absolute; top: 35%; width: 35%; height: 35%; background-color: var(--d-chest) !important; transform: rotate(45deg); border: 3px solid #000; z-index: 4; box-shadow: inset 0 -5px rgba(0,0,0,0.2); }
 
     /* 🐉 Head & Snout */
-    .dragon-base .d-head { position: absolute; top: 10%; width: 45%; height: 35%; background: var(--d-col); border: 3px solid #000; z-index: 5; border-radius: 10px 10px 30px 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.5); display:flex; justify-content:center; }
-    .dragon-base .d-snout { position: absolute; bottom: -5px; width: 40%; height: 30%; background: var(--d-horn); border: 2px solid #000; border-radius: 50%; }
+    .dragon-base .d-head { position: absolute; top: 10%; width: 45%; height: 35%; background-color: var(--d-col) !important; border: 3px solid #000; z-index: 5; border-radius: 10px 10px 30px 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.5); display:flex; justify-content:center; }
+    .dragon-base .d-snout { position: absolute; bottom: -5px; width: 40%; height: 30%; background-color: var(--d-horn) !important; border: 2px solid #000; border-radius: 50%; }
 
     /* 😠 Angry Eyes */
-    .dragon-base .d-eye-l, .dragon-base .d-eye-r { position: absolute; top: 30%; width: 25%; height: 15%; background: var(--d-eye); border-radius: 50%; box-shadow: 0 0 5px var(--d-eye); border:1px solid #000; }
+    .dragon-base .d-eye-l, .dragon-base .d-eye-r { position: absolute; top: 30%; width: 25%; height: 15%; background-color: var(--d-eye) !important; border-radius: 50%; box-shadow: 0 0 5px var(--d-eye); border:1px solid #000; }
     .dragon-base .d-eye-l { left: 10%; transform: rotate(20deg); }
     .dragon-base .d-eye-r { right: 10%; transform: rotate(-20deg); }
     
     /* 🗡️ Pointy Horns */
-    .dragon-base .d-horn-l, .dragon-base .d-horn-r { position: absolute; top: -30%; width: 20%; height: 50%; background: var(--d-horn); z-index: -1; border: 2px solid #000; }
+    .dragon-base .d-horn-l, .dragon-base .d-horn-r { position: absolute; top: -30%; width: 20%; height: 50%; background-color: var(--d-horn) !important; z-index: -1; border: 2px solid #000; }
     .dragon-base .d-horn-l { left: -5%; border-radius: 100% 0 0 0; transform: rotate(-30deg); }
     .dragon-base .d-horn-r { right: -5%; border-radius: 0 100% 0 0; transform: rotate(30deg); }
 
     /* 🦇 Segmented Wings */
-    .dragon-base .d-wing-l, .dragon-base .d-wing-r { position: absolute; top: 5%; width: 70%; height: 60%; background: var(--d-wing); border: 3px solid #000; z-index: 1; box-shadow: inset 0 -10px rgba(0,0,0,0.3); }
+    .dragon-base .d-wing-l, .dragon-base .d-wing-r { position: absolute; top: 5%; width: 70%; height: 60%; background-color: var(--d-wing) !important; border: 3px solid #000; z-index: 1; box-shadow: inset 0 -10px rgba(0,0,0,0.3); }
     .dragon-base .d-wing-l { left: -40%; border-radius: 100% 0 50% 0; transform: rotate(-15deg); }
     .dragon-base .d-wing-r { right: -40%; border-radius: 0 100% 0 50%; transform: rotate(15deg); }
 
     /* 🐾 Claws/Feet */
-    .dragon-base .d-foot-l, .dragon-base .d-foot-r { position: absolute; bottom: 10%; width: 20%; height: 15%; background: var(--d-horn); border: 3px solid #000; z-index: 1; border-radius: 50% 50% 10px 10px; }
+    .dragon-base .d-foot-l, .dragon-base .d-foot-r { position: absolute; bottom: 10%; width: 20%; height: 15%; background-color: var(--d-horn) !important; border: 3px solid #000; z-index: 1; border-radius: 50% 50% 10px 10px; }
     .dragon-base .d-foot-l { left: 15%; transform: rotate(10deg); }
     .dragon-base .d-foot-r { right: 15%; transform: rotate(-10deg); }
 `;
