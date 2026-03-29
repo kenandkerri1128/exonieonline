@@ -1725,7 +1725,57 @@ window.triggerBossBGM = function(monster) {
     clearTimeout(window.bossBgmTimeout);
     window.bossBgmTimeout = setTimeout(window.revertBGM, 10000); 
 };
+// ==========================================
+// 🎨 UNIVERSAL CUSTOM PROMPT ENGINE
+// ==========================================
+window.customPrompt = function(message, callback) {
+    const modal = document.getElementById('custom-prompt-modal');
+    const msgEl = document.getElementById('custom-prompt-msg');
+    const inputEl = document.getElementById('custom-prompt-input');
+    const btnOk = document.getElementById('custom-prompt-ok');
+    const btnCancel = document.getElementById('custom-prompt-cancel');
 
+    if (!modal) return; // Failsafe if HTML is missing
+
+    // Set up the UI
+    msgEl.innerText = message;
+    inputEl.value = '';
+    modal.style.display = 'flex';
+    inputEl.focus();
+
+    // Clean up function to prevent double-firing
+    const cleanup = () => {
+        modal.style.display = 'none';
+        btnOk.onclick = null;
+        btnCancel.onclick = null;
+        inputEl.onkeydown = null;
+    };
+
+    // OK Button Logic
+    btnOk.onclick = () => {
+        const val = inputEl.value.trim();
+        cleanup();
+        if (val) callback(val);
+    };
+
+    // Cancel Button Logic
+    btnCancel.onclick = () => {
+        cleanup();
+    };
+
+    // Pressing 'Enter' triggers OK
+    inputEl.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            btnOk.click();
+        }
+        // Pressing 'Escape' triggers Cancel
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            btnCancel.click();
+        }
+    };
+};
 // ==========================================
 // 🎵 GLOBAL AUDIO & VOLUME ENGINE
 // ==========================================
@@ -2120,10 +2170,13 @@ window.actionSplit = function(e) {
     let item = game.player.inventory[activeInvIndex];
     if (!item || !item.quantity || item.quantity <= 1) return;
     
-    let amt = parseInt(prompt(`How many to split off? (Max: ${item.quantity - 1})`, 1));
-    if (!isNaN(amt) && amt > 0 && amt < item.quantity) {
-        if (socket) socket.emit('splitInventoryItem', { index: activeInvIndex, amount: amt });
-    }
+    window.customPrompt(`How many to split off? (Max: ${item.quantity - 1})`, function(val) {
+        let amt = parseInt(val);
+        if (!isNaN(amt) && amt > 0 && amt < item.quantity) {
+            if (socket) socket.emit('splitInventoryItem', { index: activeInvIndex, amount: amt });
+        }
+    });
+    
     document.getElementById('inv-context-menu').style.display = 'none';
     activeInvIndex = -1;
 }
@@ -2313,13 +2366,14 @@ window.useItem = function(index) {
     if (['potion', 'consumable', 'weapon', 'armor', 'leggings', 'necklace', 'ring', 'earrings'].includes(item.type)) {
         if (item.name === "Revival Juice") {
             window.useRevivalJuice(index);
-        } else if (item.name === 'Name Change Ticket') {
-            let newName = prompt("Enter your new character name (Max 16 chars):");
-            if (newName && newName.trim().length >= 3 && newName.trim().length <= 16) {
-                if (socket) socket.emit('requestNameChange', { index: index, newName: newName.trim() });
-            } else if (newName) {
-                if (dom.log) dom.log.innerText = "Name must be between 3 and 16 characters.";
-            }
+       } else if (item.name === 'Name Change Ticket') {
+            window.customPrompt("Enter your new character name (Max 16 chars):", function(newName) {
+                if (newName && newName.trim().length >= 3 && newName.trim().length <= 16) {
+                    if (socket) socket.emit('requestNameChange', { index: index, newName: newName.trim() });
+                } else if (newName) {
+                    if (dom.log) dom.log.innerText = "Name must be between 3 and 16 characters.";
+                }
+            });
         } else if (item.name === 'Appearance Reroll Ticket') {
             document.getElementById('char-name-input').style.display = 'none'; // Hide name input
             document.getElementById('creation-screen').classList.add('active'); // Show character editor
@@ -2592,25 +2646,31 @@ window.addEventListener('mouseup', (e) => {
             let boxData = { x: finalX, y: finalY, w: finalW, h: finalH };
             
             if (isDrawingPortal) { 
-                const rawId = prompt("Enter Portal ID (Number for Floors [1->2], Letter for Rooms [A->B]):", "1");
-                if (!rawId) return; // Cancelled
-                
-                const tMap = prompt("Enter Target Map ID (e.g., floor1 or house1):", "floor1"); 
-                if (!tMap) return; // Cancelled
-                
-                // Prompt for exact coordinates where the player should spawn on the next map
-                const spawnX = prompt("Enter spawn X coordinate:", "960") || "960";
-                const spawnY = prompt("Enter spawn Y coordinate:", "1000") || "1000";
-
-                let pId = isNaN(parseInt(rawId)) ? String(rawId).toUpperCase().charAt(0) : parseInt(rawId);
-                boxData.portalId = pId; 
-                boxData.targetMapId = tMap; 
-                boxData.targetX = Number(spawnX);
-                boxData.targetY = Number(spawnY);
-                
-                if (!safeMapData.teleports) safeMapData.teleports = []; 
-                safeMapData.teleports.push(boxData); 
-                dom.log.innerText = `Teleport ${pId} added to ${tMap}`; 
+              window.customPrompt("Enter Portal ID (Number for Floors, Letter for Rooms):", (rawId) => {
+                    if (!rawId) return;
+                    window.customPrompt("Enter Target Map ID (e.g., floor1 or house1):", (tMap) => {
+                        if (!tMap) return;
+                        window.customPrompt("Enter spawn X coordinate (Default 960):", (spawnX) => {
+                            let fX = spawnX || "960";
+                            window.customPrompt("Enter spawn Y coordinate (Default 1000):", (spawnY) => {
+                                let fY = spawnY || "1000";
+                                
+                                let pId = isNaN(parseInt(rawId)) ? String(rawId).toUpperCase().charAt(0) : parseInt(rawId);
+                                boxData.portalId = pId; 
+                                boxData.targetMapId = tMap; 
+                                boxData.targetX = Number(fX);
+                                boxData.targetY = Number(fY);
+                                
+                                if (!safeMapData.teleports) safeMapData.teleports = []; 
+                                safeMapData.teleports.push(boxData); 
+                                dom.log.innerText = `Teleport ${pId} added to ${tMap}`; 
+                                window.buildCollisionLayers(); 
+                                window.copyAdminData(); 
+                            });
+                        });
+                    });
+                });
+                return; // Stop the synchronous execution since customPrompt is asynchronous
             } else { 
                 if (!safeMapData.collisions) safeMapData.collisions = []; 
                 safeMapData.collisions.push(boxData); 
@@ -2737,7 +2797,11 @@ window.toggleFriends = function() {
     }
 };
 window.requestAddFriend = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('addFriend', { targetId: activeTargetPlayerId }); };
-window.promptDM = function(targetName) { let msg = prompt(`Send Direct Message to ${targetName}:`); if (msg && msg.trim() !== '') { if(socket) socket.emit('sendDM', { targetId: targetName, message: msg.trim() }); } };
+window.promptDM = function(targetName) { 
+    window.customPrompt(`Send Direct Message to ${targetName}:`, function(msg) {
+        if (msg && msg.trim() !== '') { if(socket) socket.emit('sendDM', { targetId: targetName, message: msg.trim() }); } 
+    });
+};
 window.playDMSound = function() { try { const AudioContext = window.AudioContext || window.webkitAudioContext; const audioCtx = new AudioContext(); if (audioCtx.state === 'suspended') { audioCtx.resume(); } const oscillator = audioCtx.createOscillator(); const gainNode = audioCtx.createGain(); oscillator.type = 'triangle'; oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); oscillator.frequency.exponentialRampToValueAtTime(1174.66, audioCtx.currentTime + 0.1); gainNode.gain.setValueAtTime(0.7, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); oscillator.connect(gainNode); gainNode.connect(audioCtx.destination); oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.5); const chatLog = document.getElementById('chat-log'); if (chatLog) { chatLog.style.backgroundColor = 'rgba(156, 39, 176, 0.4)'; chatLog.style.transition = 'background-color 0s'; setTimeout(() => { chatLog.style.transition = 'background-color 0.5s ease'; chatLog.style.backgroundColor = 'transparent'; }, 150); } } catch (e) {} };
 window.startSpectate = function(targetId) {
     if (!targetId || !socket) return;
@@ -4763,18 +4827,18 @@ if (socket) {
 
             // 🔘 ACTIONS
             html += `<div style="display:flex; gap:5px; margin-bottom:5px;">
-                        <button class="btn" style="background:#2196F3; flex:1; font-size:13px; padding:8px;" onclick="window.donateGuild()">💰 Donate Gold</button>
-                        <button class="btn" style="background:#f44336; flex:1; font-size:13px; padding:8px;" onclick="if(confirm('Are you sure you want to leave this guild?')) socket.emit('guildLeave')">🚪 Leave Guild</button>
+                        <button class="btn" style="background:#2196F3; flex:1; font-size:13px; padding:8px;" onclick="window.donateGuild()">Donate Gold</button>
+                        <button class="btn" style="background:#f44336; flex:1; font-size:13px; padding:8px;" onclick="if(confirm('Are you sure you want to leave this guild?')) socket.emit('guildLeave')">Leave Guild</button>
                      </div>`;
             
             if (roleLevel[myRole] >= 2) {
-                html += `<button class="btn" style="background:#311B92; width:100%; margin-bottom:5px; padding:8px;" onclick="let n=prompt('Enter character name to invite:'); if(n && n.trim() !== '') socket.emit('guildInvitePlayer', n.trim())">📩 Invite Player</button>`;
+                html += `<button class="btn" style="background:#311B92; width:100%; margin-bottom:5px; padding:8px;" onclick="window.customPrompt('Enter character name to invite:', function(n) { if(n && n.trim() !== '') socket.emit('guildInvitePlayer', n.trim()); })">Invite Player</button>`;
             }
 
             if (data.hasBase) {
-                html += `<button class="btn" style="background:#4CAF50; width:100%; margin-bottom:5px; padding:8px;" onclick="window.enterGuildBase()">🚪 Enter Guild Base</button>`;
+                html += `<button class="btn" style="background:#4CAF50; width:100%; margin-bottom:5px; padding:8px;" onclick="window.enterGuildBase()">Enter Guild Base</button>`;
             } else if (myRole === 'Master') {
-                html += `<button class="btn" style="background:#FF9800; width:100%; margin-bottom:5px; padding:8px;" onclick="window.buyGuildBase()">🏠 Buy Guild Base (1,000,000 G)</button>`;
+                html += `<button class="btn" style="background:#FF9800; width:100%; margin-bottom:5px; padding:8px;" onclick="window.buyGuildBase()">Buy Guild Base (1,000,000 G)</button>`;
             }
 
             html += `<button class="btn" style="background:#555; width:100%; margin-top:5px; padding:8px;" onclick="document.getElementById('guild-modal').style.display='none'">Close</button>`;
@@ -4784,7 +4848,7 @@ if (socket) {
                 <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #4CAF50;">
                     <h2 style="margin:0; color:#4CAF50; pointer-events:none;">🏰 Guild Registry</h2>
                 </div>
-                <button class="btn" style="background:#FF9800; width:100%; margin-bottom:15px; font-weight:bold; padding:12px;" onclick="window.createGuild()">👑 Establish Guild (10M Gold)</button>
+                <button class="btn" style="background:#FF9800; width:100%; margin-bottom:15px; font-weight:bold; padding:12px;" onclick="window.createGuild()">Establish Guild (10M Gold)</button>
                 <h3 style="color:#aaa; font-size:14px; border-bottom:1px solid #333; padding-bottom:5px;">Open Guilds</h3>
                 <div style="background:#111; padding:10px; border:1px solid #333; border-radius:5px; height:120px; overflow-y:auto; margin-bottom:15px; text-align:left;">`;
             
@@ -4843,12 +4907,13 @@ window.respondGuildInvite = function(accept) {
 };
 
 window.createGuild = function() {
-    let name = prompt("Enter a name for your new Guild:");
-    if (name && name.trim().length > 2 && name.trim().length <= 15) {
-        socket.emit('createGuild', name.trim());
-    } else if (name) {
-        alert("Guild name must be between 3 and 15 characters.");
-    }
+    window.customPrompt("Enter a name for your new Guild:", function(name) {
+        if (name && name.trim().length > 2 && name.trim().length <= 15) {
+            socket.emit('createGuild', name.trim());
+        } else if (name) {
+            alert("Guild name must be between 3 and 15 characters.");
+        }
+    });
 };
 
 window.joinGuild = function(name) {
@@ -4863,11 +4928,12 @@ window.applyToGuild = function(gName) {
 };
 
 window.donateGuild = function() {
-    let amt = prompt("How much Gold would you like to donate to the Guild Funds?");
-    let parsed = parseInt(amt);
-    if (!isNaN(parsed) && parsed > 0) {
-        socket.emit('donateGuildGold', parsed);
-    }
+    window.customPrompt("How much Gold would you like to donate to the Guild Funds?", function(amt) {
+        let parsed = parseInt(amt);
+        if (!isNaN(parsed) && parsed > 0) {
+            socket.emit('donateGuildGold', parsed);
+        }
+    });
 };
 
 window.buyGuildBase = function() {
