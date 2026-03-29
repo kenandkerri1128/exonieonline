@@ -5384,7 +5384,7 @@ if (socket) {
             html += `</div>`;
         }
 
-        // 💳 UNIFIED STORE BUTTONS (Replaces Patreon)
+        // 💳 NATIVE PLATFORM STORE BUTTONS
         html += `
             <div style="margin-top:15px; display:flex; flex-direction:column; gap:8px;">
                 <h3 style="color:#aaa; font-size:14px; margin: 0 0 5px 0; border-bottom:1px solid #333; padding-bottom:5px;">Get More Exo Gems</h3>
@@ -5406,6 +5406,12 @@ if (socket) {
     socket.on('receiptVerified', (data) => {
         let balEl = document.getElementById('ui-gem-balance');
         if (balEl) balEl.innerText = data.newGems;
+        
+        document.getElementById('rm-shop-modal').innerHTML = `
+            <h2 style="color:#4CAF50; margin-top: 20px;">Purchase Successful!</h2>
+            <p style="color:#fff;">Added ${data.gemsAdded} Exo Gems to your account.</p>
+            <button class="btn" style="background:#555; width:100%; margin-top:15px;" onclick="window.openRealMoneyShop()">Back to Shop</button>
+        `;
         if (dom.log) dom.log.innerText = `Purchase Verified! Added ${data.gemsAdded} Exo Gems.`;
     });
 
@@ -5416,7 +5422,7 @@ if (socket) {
 }
 
 // ==========================================
-// 💳 UNIFIED CASH SHOP LOGIC
+// 💳 PLATFORM IAP ROUTER (STEAM / GOOGLE PLAY)
 // ==========================================
 window.currentPlatform = 'web';
 if (typeof process !== 'undefined' && process.versions && process.versions.electron) {
@@ -5435,16 +5441,26 @@ window.purchaseExoGems = function(packageId, gemAmount) {
         if (window.CdvPurchase) window.CdvPurchase.store.order(packageId);
     } 
     else {
-        // DEV OVERRIDE: If testing on web, simulate a successful store response
-        let simConfirm = confirm(`[DEV MODE] Simulate buying ${gemAmount} gems?`);
-        if (simConfirm && socket) {
-            document.getElementById('rm-shop-modal').innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Simulating Verification...</h2>';
-            socket.emit('verifyStoreReceipt', { platform: 'dev_web', receipt: 'DEV_TOKEN_123', packageId: packageId });
-        } else {
-            window.openRealMoneyShop();
-        }
+        // ⚠️ FALLBACK: If a player clicks this in a regular web browser
+        alert("In-App Purchases are only available via the Steam or Android versions of Exonie!");
+        window.openRealMoneyShop(); 
     }
 };
+
+// 📥 LISTENS FOR THE RECEIPT FROM THE WRAPPERS
+window.addEventListener('StorePurchaseSuccess', (event) => {
+    const receiptData = event.detail;
+    document.getElementById('rm-shop-modal').innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Verifying Purchase...</h2>';
+    
+    // Sends the receipt securely to server.js
+    if (socket) {
+        socket.emit('verifyStoreReceipt', {
+            platform: window.currentPlatform,
+            receipt: receiptData.receiptToken,
+            packageId: receiptData.packageId
+        });
+    }
+});
 
 window.buyWithGems = function(itemId, name, price) {
     if (!confirm(`Spend ${price} Exo Gems to purchase ${name}?`)) return;
