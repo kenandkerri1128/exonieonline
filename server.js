@@ -3655,11 +3655,13 @@ socket.on('syncPet', (data) => {
     const targetSid = findSocketIdByPlayerId(me.tradeTarget);
     if (!them || !targetSid) return;
 
-    // Save THIS player's latest offer on the server (🛡️ Stripping out any injected auras/pets/bound gear)
+   // Save THIS player's latest offer on the server (🛡️ Stripping out any injected auras/pets/bound gear)
     me.currentTradeOffer = {
         gold: Math.max(0, parseInt(data.gold) || 0),
         items: Array.isArray(data.items) ? data.items.filter(Boolean).filter(i => {
-            if (i.type === 'aura') return false;
+            // 🐰 ALLOW SEASONAL/EASTER COSMETICS TO BE TRADED
+            if (i.type === 'aura' && !i.isSeasonal && !String(i.name).includes('Easter')) return false;
+            
             // 🛡️ THE FIX: Server strips bound items out of the trade array instantly
             if ((i.rarity === 'Godly' || i.rarity === 'Divine') && i.enhanceLevel > 0) return false;
             return true;
@@ -6130,10 +6132,10 @@ const AURA_DATA = {
             let originalItem = inv[data.invIndex];
             if (!originalItem) { p.isListingAH = false; return socket.emit('systemMessage', "Item not found."); }
 
-           // 🛡️ ANTI-CHEAT: Block server from auctioning cosmetics/pets
-            if (originalItem.type === 'aura' || originalItem.aura) {
+          // 🛡️ ANTI-CHEAT: Block server from auctioning NORMAL cosmetics/pets
+            if ((originalItem.type === 'aura' || originalItem.aura) && !originalItem.isSeasonal && !String(originalItem.name).includes('Easter')) {
                 p.isListingAH = false;
-                return socket.emit('systemMessage', "❌ Cosmetics, Pets, and enchanted gear cannot be auctioned. Extract it first!");
+                return socket.emit('systemMessage', "❌ Normal cosmetics, pets, and enchanted gear cannot be auctioned. Extract it first!");
             }
 
             // 🛡️ THE FIX: Block server from auctioning bound high-tier gear
