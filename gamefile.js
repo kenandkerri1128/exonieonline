@@ -1812,24 +1812,21 @@ window.routeMapMusic = function(mapId) {
     if (!mapId) return 'town';
     let mId = String(mapId).toLowerCase();
 
-    // 1. Boss / Combat Areas
+    // 🏠 CHECK FOR HOME FIRST (Important!)
+    if (mId.includes('home')) return 'home'; 
+
+    // 🏰 Guild Base
+    if (mId.includes('guildbase')) return 'guildbase';
+
+    // ⚔️ Combat Areas
     if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon')) {
         return 'bossfight';
     } 
-    // 2. The Labyrinth Floors
-    else if (mId.includes('floor')) {
-        return 'floors';
-    } 
-    // 3. Player Housing (Handles IDs like 'home_Kei')
-    else if (mId.includes('home')) {
-        return 'home'; // 🏠 Needs music/home.mp3
-    } 
-    // 4. Guild Base (Handles IDs like 'guildbase_Exonians')
-    else if (mId.includes('guildbase')) {
-        return 'guildbase'; // 🏰 Needs music/guildbase.mp3
-    } 
     
-    // 5. Default (Town / Neutral Zone)
+    // 🦇 Floors
+    if (mId.includes('floor')) return 'floors';
+    
+    // 🌳 Default
     return 'town';
 };
 window.playBGM = function(trackName) {
@@ -3235,7 +3232,8 @@ let targetMapId = 'town';
                     } else {
                         // Make sure the game screen is already visible before showing Town UI + BGM
                         setTimeout(() => {
-                            window.playBGM(safeMapData.id === 'town' ? 'town' : (safeMapData.id.includes('floor') ? 'floors' : 'town'));
+                            // 🎵 Fix: Use the router so login music is correct for Home/Guild
+                    window.playBGM(window.routeMapMusic(safeMapData.id));
                             try { window.showMapAnnouncement(safeMapData.id || 'town'); } catch(e) {}
                         }, 120);
                     }
