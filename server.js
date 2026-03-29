@@ -937,7 +937,21 @@ const MonsterDatabase = {
     // ==================
     "common_wraith": { name: "Spectral Wraith", category: "common_mobs", level: 10, maxHp: 150, atk: 75, def: 0, speed: 4.8, expYield: 65, goldYield: 1, aggroRadius: 400, chaseRadius: 600, attackRange: 250, width: 40, height: 40, respawnDelay: 10000, cssColor: 'rgba(156, 39, 176, 0.7)', cssBorder: '#7B1FA2' },
     "mini_boss_wraith": { name: "Soul Reaper", category: "mini_boss", level: 15, maxHp: 11000, atk: 480, def: 10, speed: 5.5, expYield: 1300, goldYield: 3, aggroRadius: 500, chaseRadius: 700, attackRange: 300, width: 60, height: 60, respawnDelay: 120000, cssColor: 'rgba(103, 58, 183, 0.8)', cssBorder: '#512DA8' },
-    "floor_boss_wraith": { name: "The Void King", category: "floor_boss", level: 25, maxHp: 45000, atk: 800, def: 100, speed: 6.5, expYield: 6500, goldYield: 5, aggroRadius: 700, chaseRadius: 1000, attackRange: 350, width: 100, height: 100, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #4A148C, #000000)', cssBorder: '#311B92' }
+    "floor_boss_wraith": { name: "The Void King", category: "floor_boss", level: 25, maxHp: 45000, atk: 800, def: 100, speed: 6.5, expYield: 6500, goldYield: 5, aggroRadius: 700, chaseRadius: 1000, attackRange: 350, width: 100, height: 100, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #4A148C, #000000)', cssBorder: '#311B92' },
+
+    // ==================
+    // TYPE 6: MINOTAURS (Brute Force, Charging Tanks)
+    // ==================
+    "common_minotaur": { name: "Minotaur Grunt", category: "common_mobs", level: 10, maxHp: 600, atk: 65, def: 15, speed: 2.0, expYield: 80, goldYield: 2, aggroRadius: 300, chaseRadius: 450, attackRange: 60, width: 60, height: 60, respawnDelay: 12000, cssColor: '#795548', cssBorder: '#3E2723' },
+    "mini_boss_minotaur": { name: "Gorehorn", category: "mini_boss", level: 20, maxHp: 30000, atk: 450, def: 60, speed: 2.5, expYield: 1800, goldYield: 4, aggroRadius: 400, chaseRadius: 550, attackRange: 90, width: 90, height: 90, respawnDelay: 120000, cssColor: '#5D4037', cssBorder: '#212121' },
+    "floor_boss_minotaur": { name: "Asterion The Labyrinth King", category: "floor_boss", level: 30, maxHp: 150000, atk: 550, def: 200, speed: 3.0, expYield: 8500, goldYield: 6, aggroRadius: 500, chaseRadius: 700, attackRange: 140, width: 140, height: 140, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #4E342E, #b71c1c)', cssBorder: '#b71c1c' },
+
+    // ==================
+    // TYPE 7: DRAGONS (Armor Piercing, Fire Breathing)
+    // ==================
+    "common_dragon": { name: "Dragon Whelp", category: "common_mobs", level: 12, maxHp: 400, atk: 85, def: 10, speed: 3.5, expYield: 90, goldYield: 3, aggroRadius: 400, chaseRadius: 600, attackRange: 200, width: 50, height: 50, respawnDelay: 12000, cssColor: '#f44336', cssBorder: '#FF9800' },
+    "mini_boss_dragon": { name: "Drake of Embers", category: "mini_boss", level: 20, maxHp: 28000, atk: 500, def: 30, speed: 4.0, expYield: 2000, goldYield: 4, aggroRadius: 500, chaseRadius: 700, attackRange: 250, width: 80, height: 80, respawnDelay: 120000, cssColor: '#d32f2f', cssBorder: '#FFeb3b' },
+    "floor_boss_dragon": { name: "Ignis The Ancient", category: "floor_boss", level: 35, maxHp: 180000, atk: 750, def: 150, speed: 4.5, expYield: 9500, goldYield: 8, aggroRadius: 700, chaseRadius: 900, attackRange: 300, width: 160, height: 160, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #b71c1c, #FF9800)', cssBorder: '#FFD700' }
 };
 
 function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
@@ -1469,7 +1483,64 @@ if ((m.category === "mini_boss" || m.category === "floor_boss") && m.alive) {
     }
 }
 
-   const dist = Math.hypot(target.x - mcx, target.y - mcy);
+   // 🐂 MINOTAUR CHARGE CHECK
+    const isMinotaur = m.originalKey && m.originalKey.includes('minotaur');
+    if (isMinotaur && m.alive && target) {
+        if (!m.lastChargeTs || now - m.lastChargeTs > 8000) {
+            if (Math.random() < 0.10) {
+                m.lastChargeTs = now;
+                
+                // Dash aggressively in the closest axis
+                let dx = target.x - mcx;
+                let dy = target.y - mcy;
+                let chargeDist = 350; 
+                let endX = m.x; let endY = m.y;
+                
+                if (Math.abs(dx) > Math.abs(dy)) { endX += Math.sign(dx) * chargeDist; } 
+                else { endY += Math.sign(dy) * chargeDist; }
+
+                // Prevent charging through solid walls
+                if (!isMonsterColliding(instId, endX, endY, m.width, m.height)) {
+                    const minX = Math.min(m.x, endX) - 20; const maxX = Math.max(m.x, endX) + m.width + 20;
+                    const minY = Math.min(m.y, endY) - 20; const maxY = Math.max(m.y, endY) + m.height + 20;
+
+                    m.x = endX; m.y = endY;
+
+                    io.to(instId).emit('monsterSkill', { monsterId: m.id, skillName: 'Charge', endX: endX, endY: endY, duration: 300 });
+
+                    // Check if any players got run over by the charge!
+                    const players = playersInInstance(instId);
+                    players.forEach(p => {
+                        if (p.isGhost || p.isHiddenAdmin || p.mapId === 'town' || p.untargetableUntil > now) return;
+                        const px = p.x + 24; const py = p.y + 48;
+                        
+                        if (px >= minX && px <= maxX && py >= minY && py <= maxY) {
+                            const damage = Math.max(1, Math.floor(m.atk * 1.5) - getServerDefense(p)); // 1.5x Multiplier
+                            p.currentHp = Math.max(0, p.currentHp - damage);
+                            p.frozenUntil = now + 2000; // Stunned for 2 seconds!
+                            
+                            io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: p.id, targetX: px, targetY: py, atk: m.atk, damage: damage, newHp: p.currentHp });
+                            io.to(instId).emit('systemMessage', `<span style="color:#ffeb3b;">⚡ ${p.name} was STUNNED by a Minotaur Charge!</span>`);
+                            
+                            // Death Check
+                            if (p.currentHp <= 0 && !p.isGhost) {
+                                p.isGhost = true; p.currentHp = 0; p.currentPortal = null;
+                                io.to(instId).emit('remotePlayerGhosted', p.id);
+                                const victimSid = findSocketIdByPlayerId(p.id);
+                                if (victimSid) io.to(victimSid).emit('showDeathScreen');
+                            } else {
+                                const victimSid = findSocketIdByPlayerId(p.id);
+                                if (victimSid) io.to(victimSid).emit('playerVitals', { currentHp: p.currentHp, maxHp: p.maxHp, level: p.level });
+                            }
+                        }
+                    });
+                    return; // Skip normal attack sequence since it charged
+                }
+            }
+        }
+    }
+
+    const dist = Math.hypot(target.x - mcx, target.y - mcy);
 if (dist > m.chaseRadius) {
     if (!target.isPet && m.threatTable[target.id]) m.threatTable[target.id] *= 0.9;
     if (!target.isPet && m.threatTable[target.id] < 1) delete m.threatTable[target.id];
@@ -1524,7 +1595,15 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
             }
         }
 
-        let damage = Math.max(1, m.atk - getServerDefense(victim));
+      const isDragon = m.originalKey && m.originalKey.includes('dragon');
+        let baseDamage = m.atk - getServerDefense(victim);
+        let damage = Math.max(1, baseDamage);
+
+        // 🐉 DRAGON PASSIVE: Armor Piercing (Adds Level Difference directly to Damage)
+        if (isDragon && m.level > victim.level) {
+            let levelGap = Math.max(0, m.level - victim.level);
+            damage += levelGap; 
+        }
 
         // 🩸 BERSERKER: I Love PAIN (Lv 75)
         if (victim.baseStats?.playerClass === 'Berserker' && victim.level >= 75 && Math.random() < 0.15) {
