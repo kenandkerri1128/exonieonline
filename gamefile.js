@@ -1752,6 +1752,29 @@ window.getTotalStat = function(statName) {
 window.getAttackPower = function() { return window.getTotalStat('attack') + Math.floor(window.getTotalStat('str') / 2); }; 
 window.getMagicAttack = function() { return window.getTotalStat('magic') + Math.floor(window.getTotalStat('int') / 2); }; 
 window.getMaxHp = function() { return window.getTotalStat('hp'); }; 
+// 🛡️ RESTORED & SECURED: Throttled Vitals Updater for Party UI
+window.emitVitalsIfNeeded = function(force = false) {
+    if (!game.player || !socket) return;
+    
+    const now = Date.now();
+    const currentHp = game.player.currentHp;
+    const maxHp = window.getMaxHp();
+    const level = game.player.level;
+
+    // Only send to server if something changed, OR if forced (like after using an item/teleporting)
+    if (force || 
+        currentHp !== lastVitalsSent.hp || 
+        maxHp !== lastVitalsSent.maxHp || 
+        level !== lastVitalsSent.level || 
+        now - lastVitalsTs > 5000) { // Or force sync every 5 seconds just to be safe
+        
+        lastVitalsSent = { hp: currentHp, maxHp: maxHp, level: level };
+        lastVitalsTs = now;
+        
+        // Tells the server to update your party members' screens!
+        socket.emit('playerVitals', { currentHp: currentHp, maxHp: maxHp, level: level });
+    }
+};
 window.getDefense = function() { let def = window.getTotalStat('defense'); if (game.player.tauntBuffUntil && Date.now() < game.player.tauntBuffUntil) { def *= 3; } return def; };
 window.getSpeed = function() { return window.getTotalStat('speed'); }; 
 window.getBaseStat = function(lvl) { if (lvl >= 50) { let extraTicks = Math.floor((lvl - 50) / 5); return 100 + (extraTicks * 3); } if (lvl >= 45) return 45; if (lvl >= 40) return 40; if (lvl >= 35) return 30; if (lvl >= 30) return 27; if (lvl >= 25) return 22; if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; if (lvl >= 5) return 8; return 5; }
@@ -3757,12 +3780,12 @@ socket.on('revivalJuiceUsed', (data) => {
     const portalUI = document.getElementById('portal-timer-ui');
     if (portalUI) portalUI.style.display = 'none';
 
-   window.spawnDamageText(game.player.x + 24, game.player.y, "REVIVED", "#ffeb3b");
+ window.spawnDamageText(game.player.x + 24, game.player.y, "REVIVED", "#ffeb3b");
         dom.log.innerText = "You drank the Revival Juice and came back to life!";
 
         window.updateUI();
         window.renderInventory();
-        // 🛡️ THE CRASH FIX: Removed the undefined emitVitalsIfNeeded function!
+        window.emitVitalsIfNeeded(true);
 
         if (socket) {
         socket.emit('playerMoved', {
