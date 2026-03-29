@@ -1,4 +1,18 @@
 require('dotenv').config();
+const { google } = require('googleapis');
+
+// ==========================================
+// 💳 STORE CREDENTIALS (TO BE FILLED LATER)
+// ==========================================
+const GOOGLE_PACKAGE_NAME = 'com.xeniegaming.exonie'; // Android App ID
+const googleAuth = new google.auth.GoogleAuth({
+    keyFile: './google-service-account.json', 
+    scopes: ['https://www.googleapis.com/auth/androidpublisher']
+});
+const playDeveloper = google.androidpublisher({ version: 'v3', auth: googleAuth });
+
+const STEAM_WEB_API_KEY = 'YOUR_STEAM_WEB_API_KEY_HERE'; 
+const STEAM_APP_ID = 'YOUR_STEAM_APP_ID_HERE';
 const express = require('express');
 const activeLogins = new Set(); // Tracks currently logged-in usernames
 const activeEmailSessions = {}; // 🛡️ Tracks which emails are currently online
@@ -7335,6 +7349,89 @@ socket.on('startDungeon', async (data) => {
             socket.emit('systemMessage', `💎 Successfully purchased ${deliveryItem.name}!`);
         } catch (e) {
             socket.emit('systemMessage', "❌ Transaction failed. Server error.");
+        }
+    });
+    // ==========================================
+    // 💳 SECURE STORE RECEIPT VERIFICATION
+    // ==========================================
+    socket.on('verifyStoreReceipt', async (data) => {
+        if (!socket.username) return;
+
+        const { platform, receipt, packageId } = data;
+        let isValid = false;
+        let gemsToAward = 0;
+
+        // Map your Store Package IDs to exactly how many gems they grant
+        if (packageId === 'gem_pack_50') gemsToAward = 50;
+        else if (packageId === 'gem_pack_120') gemsToAward = 120;
+        else return socket.emit('receiptFailed', "Invalid package ID.");
+
+        try {
+            if (platform === 'android') {
+                // 🟢 GOOGLE PLAY VERIFICATION API
+                const response = await playDeveloper.purchases.products.get({
+                    packageName: GOOGLE_PACKAGE_NAME,
+                    productId: packageId,
+                    token: receipt
+                });
+
+                if (response.data.purchaseState === 0) isValid = true;
+                else throw new Error("Google Play returned purchase as unverified or canceled.");
+            } 
+            else if (platform === 'steam') {
+                // 🔵 STEAMWORKS VERIFICATION API
+                const steamUrl = `https://partner.steam-api.com/ISteamMicroTxn/GetReport/v3/?key=${STEAM_WEB_API_KEY}&appid=${STEAM_APP_ID}&orderid=${receipt}`;
+                
+                const response = await fetch(steamUrl);
+                const steamData = await response.json();
+
+                if (steamData.response && steamData.response.result === 'OK') {
+                    const order = steamData.response.orders.find(o => o.orderid === receipt);
+                    if (order && order.status === 'Approved') isValid = true;
+                    else throw new Error("Steam order is pending or rejected.");
+                } else {
+                    throw new Error("Failed to communicate with Steam API.");
+                }
+            }
+
+            // 💎 IF THE STORE SAYS IT'S REAL, GRANT THE GEMS
+            if (isValid) {
+                // 1. Fetch current user stats from Exonians table
+                const { data: user, error } = await supabase
+                    .from('Exonians')
+                    .select('base_stats')
+                    .eq('character_name', socket.username)
+                    .single();
+
+                if (error || !user) throw new Error("Could not find user in database.");
+
+                let safeStats = user.base_stats || {};
+                let currentGems = parseInt(safeStats.exoGems) || 0;
+                let newGems = currentGems + gemsToAward;
+                
+                // Update RAM if player is currently online
+                if (onlinePlayers[socket.id] && onlinePlayers[socket.id].baseStats) {
+                    onlinePlayers[socket.id].baseStats.exoGems = newGems;
+                }
+
+                // 2. Update Supabase
+                safeStats.exoGems = newGems;
+                const { error: updateError } = await supabase
+                    .from('Exonians')
+                    .update({ base_stats: safeStats })
+                    .eq('character_name', socket.username);
+
+                if (updateError) throw new Error("Database update failed.");
+
+                // 3. Notify the client to update their UI
+                socket.emit('receiptVerified', { newGems: newGems, gemsAdded: gemsToAward });
+                
+                console.log(`[STORE] Awarded ${gemsToAward} gems to ${socket.username}. New Balance: ${newGems}`);
+            }
+
+        } catch (err) {
+            console.error('[STORE ERROR]', err.message);
+            socket.emit('receiptFailed', "Transaction flagged or invalid. Contact support if you were charged.");
         }
     });
     // ==========================================
