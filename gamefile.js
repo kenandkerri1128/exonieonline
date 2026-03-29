@@ -238,80 +238,45 @@ rankStyle.innerHTML = `
 `;
 document.head.appendChild(rankStyle);
 // ==========================================
-// 🐉 DYNAMIC MONSTER CSS (CATEGORIZED MINOTAUR & DRAGON)
+// 🐉 MONSTER CSS (MINOTAUR + CODEPEN DRAGON)
 // ==========================================
 const monsterStyle = document.createElement('style');
 monsterStyle.innerHTML = `
-    /* Category Specific Visual Effects */
-    .mini-boss, .mini_boss { filter: drop-shadow(0 0 8px rgba(255, 152, 0, 0.5)); }
-    .floor-boss, .floor_boss { filter: drop-shadow(0 0 15px rgba(220, 20, 60, 0.7)); }
+    /* --- 🐂 MINOTAUR (Golem Style + Axe) --- */
+    .minotaur-base { position:relative; width:100%; height:100%; display:flex; justify-content:center; align-items:center; }
+    .m-body { width: 60%; height: 60%; background:#795548; border-radius:15px; border:3px solid #3E2723; position:relative; z-index:2; display:flex; justify-content:center;}
+    .m-eye-l, .m-eye-r { width:20%; height:20%; background:#ff1744; border-radius:50%; position:absolute; top:25%; box-shadow:0 0 5px #ff1744; }
+    .m-eye-l { left: 15%; } .m-eye-r { right: 15%; }
+    .m-snout { width:50%; height:25%; background:rgba(0,0,0,0.3); position:absolute; bottom:10%; border-radius:20px; border:2px solid #FFD700; }
+    .m-horn-l, .m-horn-r { width:35%; height:35%; background:#e0e0e0; border:2px solid #000; position:absolute; top:-20%; z-index:-1;}
+    .m-horn-l { left:-15%; border-radius:100% 0 0 0; transform:rotate(-30deg); }
+    .m-horn-r { right:-15%; border-radius:0 100% 0 0; transform:rotate(30deg); }
+    
+    .minotaur-base .m-arm-l, .minotaur-base .m-arm-r { width:15%; height:40%; background:#795548; border:3px solid #3E2723; border-radius:8px; position:absolute; top:25%; }
+    .m-arm-l { left: 0%; } .m-arm-r { right: 0%; }
+    .minotaur-base .m-leg-l, .minotaur-base .m-leg-r { width:20%; height:20%; background:#795548; border:3px solid #3E2723; border-radius:8px; position:absolute; bottom: 5%; }
+    .m-leg-l { left: 20%; } .m-leg-r { right: 20%; }
+    
+    .m-axe { position:absolute; top:50%; left:-50px; width:80px; height:8px; background:#3E2723; transform:rotate(-20deg); z-index:0; }
+    .m-axe::before { content:''; position:absolute; top:-15px; left:-10px; width:35px; height:40px; background:#90a4ae; border-radius:30% 0 0 50%; border:2px solid #000; }
 
-    /* --- 🐂 MINOTAUR CSS (Tribal Golem Structure + Head) --- */
-    .minotaur-base {
-        width: 100%; height: 100%; position: relative;
-    }
-    .m-torso {
-        width: 65%; height: 45%; background: var(--mob-color);
-        position: absolute; bottom: 25%; left: 17.5%; border-radius: 20px;
-        box-shadow: inset 0 -10px rgba(0,0,0,0.2); z-index: 2;
-        border: 3px solid #000;
-    }
-    /* The Loincloth */
-    .m-torso::after {
-        content: ''; position: absolute; bottom: -5px; left: 20%;
-        width: 60%; height: 70%; background: #d87050; border: 3px solid #000;
-        border-radius: 5px; box-shadow: inset 0 -5px rgba(0,0,0,0.3); z-index: 3;
-    }
-    /* The Loincloth Belt */
-    .m-torso::before {
-        content: ''; position: absolute; bottom: 30%; left: -5%;
-        width: 110%; height: 20px; background: #d87050; border: 3px solid #000;
-        border-radius: 5px; z-index: 2;
-    }
-    .m-head-holder {
-        width: 100%; height: 60%; position: absolute; top: -10%; left: 0;
-        display: flex; flex-direction: column; align-items: center; z-index: 3;
-    }
-    .m-head {
-        width: 45%; height: 70%; background: var(--mob-color);
-        border: 3px solid #000; border-radius: 30% 30% 40% 40%;
-        position: relative; box-shadow: inset 0 -5px rgba(0,0,0,0.4);
-    }
-    .m-horns { position: absolute; top: 0; width: 110%; display: flex; justify-content: space-between; z-index: -1; }
-    .m-horn { width: 25px; height: 35px; background: #fff; border: 3px solid #000; }
-    .m-horn.left { border-radius: 100% 0 0 0; transform: rotate(-35deg) translateX(-10px); }
-    .m-horn.right { border-radius: 0 100% 0 0; transform: rotate(35deg) translateX(10px); }
-    .m-eye { width: 6px; height: 6px; background: #000; border-radius: 50%; position: absolute; top: 35%; }
-    .m-eye.left { left: 25%; } .m-eye.right { right: 25%; }
-    .m-snout { width: 60%; height: 35%; background: rgba(0,0,0,0.3); position: absolute; bottom: 10%; left: 20%; border-radius: 40%; display:flex; justify-content:center; align-items:flex-end; }
-    .m-ring { width: 14px; height: 14px; border: 3px solid #FFD700; border-radius: 50%; margin-bottom: -8px; }
-
-    /* Minotaur Limbs (Golem Reuse) */
-    .minotaur-base .g-arm-l, .minotaur-base .g-arm-r, 
-    .minotaur-base .g-leg-l, .minotaur-base .g-leg-r {
-        background: var(--mob-color); border: 3px solid #000; border-radius: 10px; z-index: 1;
-    }
-    /* The Battleaxe (Attached to left arm) */
-    .minotaur-base .g-arm-l::after {
-        content: ''; position: absolute; top: 50%; left: -40px;
-        width: 100px; height: 6px; background: #111; z-index: 0;
-    }
-    .minotaur-base .g-arm-l::before {
-        content: ''; position: absolute; top: 20%; left: -45px;
-        width: 30px; height: 40px; background: #90a4ae; border: 2px solid #000;
-        border-radius: 20% 0 0 50%; z-index: -1;
-    }
+    /* Minotaur Tiers */
+    .minotaur-base.common_mobs .m-body, .minotaur-base.common_mobs [class^="m-arm"], .minotaur-base.common_mobs [class^="m-leg"] { background: #795548; border-color: #3E2723; }
+    .minotaur-base.mini_boss .m-body, .minotaur-base.mini_boss [class^="m-arm"], .minotaur-base.mini_boss [class^="m-leg"] { background: #b71c1c; border-color: #4a0404; }
+    .minotaur-base.floor_boss .m-body, .minotaur-base.floor_boss [class^="m-arm"], .minotaur-base.floor_boss [class^="m-leg"] { background: #212121; border-color: #ff9800; box-shadow: 0 0 15px #ff9800;}
+    .minotaur-base.floor_boss .m-eye-l, .minotaur-base.floor_boss .m-eye-r { background:#ff9800; box-shadow:0 0 10px #ff9800; }
 
     /* --- 🐉 DRAGON CSS (The CodePen Front-Facing Port) --- */
-    .dragon-base {
-        width: 100%; height: 100%; position: relative;
-    }
+    .dragon-base { width: 100%; height: 100%; position: relative; }
     .dragon-scaler {
-        position: absolute; bottom: 35px; left: 50%; width: 1px;
-        transform: scale(0.20); transform-origin: bottom center;
-        display: flex; justify-content: center; z-index: 2;
+        position: absolute; bottom: 50%; left: 50%; width: 1px; height: 1px;
+        transform: scale(0.20); transform-origin: center center;
+        display: flex; justify-content: center; align-items: center; z-index: 2;
     }
-    .dragon-base.boss .dragon-scaler { transform: scale(0.55); bottom: 85px; filter: drop-shadow(0 0 20px rgba(249, 113, 0, 0.6)); }
+    /* 🛡️ THE FIX: This stops your global game CSS from "crumpling" the art! */
+    .dragon-scaler div { box-sizing: content-box !important; } 
+    
+    .dragon-base.boss .dragon-scaler { transform: scale(0.60); filter: drop-shadow(0 0 20px rgba(249, 113, 0, 0.6)); }
 
     /* Wing Animations */
     .dragon-scaler .insideBarUpLeft { transform-origin: bottom right; animation: cPenFlapL 0.4s infinite alternate ease-in-out; }
@@ -3992,15 +3957,17 @@ socket.on('revivalJuiceUsed', (data) => {
                     spriteHtml = `<div class="monster-sprite-layer golem-base"><div class="g-head"><div class="g-eye"></div><div class="g-eye"></div></div><div class="g-arm-l"></div><div class="g-arm-r"></div><div class="g-leg-l"></div><div class="g-leg-r"></div></div>`;
                 } else if (m.monsterKey.includes('wraith')) {
                     spriteHtml = `<div class="monster-sprite-layer wraith-base"><div class="w-eye left"></div><div class="w-eye right"></div><div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div></div>`;
-                } else if (m.monsterKey.includes('minotaur')) {
-                    // Minotaur (Tribal Golem Structure)
+               } else if (m.monsterKey.includes('minotaur')) {
+                    // 🐂 MINOTAUR: Exact Golem body, but with horns and an axe
                     spriteHtml = `<div class="monster-sprite-layer minotaur-base">
-                        <div class="g-arm-l"></div><div class="g-arm-r"></div><div class="g-leg-l"></div><div class="g-leg-r"></div>
-                        <div class="m-torso"></div>
-                        <div class="m-head-holder">
-                            <div class="m-horns"><div class="m-horn left"></div><div class="m-horn right"></div></div>
-                            <div class="m-head"><div class="m-eye left"></div><div class="m-eye right"></div><div class="m-snout"><div class="m-ring"></div></div></div>
+                        <div class="m-body">
+                            <div class="m-horn-l"></div><div class="m-horn-r"></div>
+                            <div class="m-eye-l"></div><div class="m-eye-r"></div>
+                            <div class="m-snout"></div>
                         </div>
+                        <div class="m-arm-l"><div class="m-axe"></div></div>
+                        <div class="m-arm-r"></div>
+                        <div class="m-leg-l"></div><div class="m-leg-r"></div>
                     </div>`;
                 } else if (m.monsterKey.includes('dragon')) {
                     // 🐉 DRAGON: The massive CodePen HTML skeleton injection!
@@ -4043,9 +4010,11 @@ socket.on('revivalJuiceUsed', (data) => {
                 } else if (m.monsterKey.includes('wraith')) {
                     spriteLayer.className = 'monster-sprite-layer wraith-base';
                 } else if (m.monsterKey.includes('minotaur')) {
-                    spriteLayer.className = m.category === 'floor_boss' ? 'monster-sprite-layer minotaur-base boss' : 'monster-sprite-layer minotaur-base';
+                    // Passes the category directly into the class for color changing
+                    spriteLayer.className = `monster-sprite-layer minotaur-base ${m.category}`;
                 } else if (m.monsterKey.includes('dragon')) {
-                    spriteLayer.className = m.category === 'floor_boss' ? 'monster-sprite-layer dragon-base boss' : 'monster-sprite-layer dragon-base';
+                    // Passes the category directly into the class for color changing
+                    spriteLayer.className = `monster-sprite-layer dragon-base ${m.category}`;
                 } else if (m.monsterKey.includes('2')) {
                     spriteLayer.className = 'monster-sprite-layer bat-sprite'; spriteLayer.style.background = m.cssColor; spriteLayer.style.border = 'none'; spriteLayer.style.animation = 'none'; 
                 } else if (m.monsterKey.includes('3')) { 
