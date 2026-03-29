@@ -943,15 +943,15 @@ const MonsterDatabase = {
     // TYPE 6: MINOTAURS (Brute Force, Charging Tanks)
     // ==================
     "common_minotaur": { name: "Minotaur Grunt", category: "common_mobs", level: 10, maxHp: 600, atk: 65, def: 15, speed: 2.0, expYield: 80, goldYield: 2, aggroRadius: 300, chaseRadius: 450, attackRange: 60, width: 60, height: 60, respawnDelay: 12000, cssColor: '#795548', cssBorder: '#3E2723' },
-    "mini_boss_minotaur": { name: "Gorehorn", category: "mini_boss", level: 20, maxHp: 30000, atk: 450, def: 60, speed: 2.5, expYield: 1800, goldYield: 4, aggroRadius: 400, chaseRadius: 550, attackRange: 90, width: 90, height: 90, respawnDelay: 120000, cssColor: '#5D4037', cssBorder: '#212121' },
-    "floor_boss_minotaur": { name: "Asterion The Labyrinth King", category: "floor_boss", level: 30, maxHp: 150000, atk: 550, def: 200, speed: 3.0, expYield: 8500, goldYield: 6, aggroRadius: 500, chaseRadius: 700, attackRange: 140, width: 140, height: 140, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #4E342E, #b71c1c)', cssBorder: '#b71c1c' },
+    "mini_boss_minotaur": { name: "Gorehorn", category: "mini_boss", level: 15, maxHp: 30000, atk: 450, def: 60, speed: 2.5, expYield: 1800, goldYield: 4, aggroRadius: 400, chaseRadius: 550, attackRange: 90, width: 90, height: 90, respawnDelay: 120000, cssColor: '#5D4037', cssBorder: '#212121' },
+    "floor_boss_minotaur": { name: "Asterion The Labyrinth King", category: "floor_boss", level: 25, maxHp: 150000, atk: 550, def: 400, speed: 3.0, expYield: 8500, goldYield: 6, aggroRadius: 500, chaseRadius: 700, attackRange: 140, width: 140, height: 140, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #4E342E, #b71c1c)', cssBorder: '#b71c1c' },
 
     // ==================
     // TYPE 7: DRAGONS (Armor Piercing, Fire Breathing)
     // ==================
     "common_dragon": { name: "Dragon Whelp", category: "common_mobs", level: 12, maxHp: 400, atk: 85, def: 10, speed: 3.5, expYield: 90, goldYield: 3, aggroRadius: 400, chaseRadius: 600, attackRange: 200, width: 50, height: 50, respawnDelay: 12000, cssColor: '#f44336', cssBorder: '#FF9800' },
-    "mini_boss_dragon": { name: "Drake of Embers", category: "mini_boss", level: 20, maxHp: 28000, atk: 500, def: 30, speed: 4.0, expYield: 2000, goldYield: 4, aggroRadius: 500, chaseRadius: 700, attackRange: 250, width: 80, height: 80, respawnDelay: 120000, cssColor: '#d32f2f', cssBorder: '#FFeb3b' },
-    "floor_boss_dragon": { name: "Ignis The Ancient", category: "floor_boss", level: 35, maxHp: 180000, atk: 750, def: 150, speed: 4.5, expYield: 9500, goldYield: 8, aggroRadius: 700, chaseRadius: 900, attackRange: 300, width: 160, height: 160, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #b71c1c, #FF9800)', cssBorder: '#FFD700' }
+    "mini_boss_dragon": { name: "Drake of Embers", category: "mini_boss", level: 15, maxHp: 28000, atk: 500, def: 30, speed: 4.0, expYield: 2000, goldYield: 4, aggroRadius: 500, chaseRadius: 700, attackRange: 250, width: 80, height: 80, respawnDelay: 120000, cssColor: '#d32f2f', cssBorder: '#FFeb3b' },
+    "floor_boss_dragon": { name: "Ignis The Ancient", category: "floor_boss", level: 25, maxHp: 180000, atk: 800, def: 500, speed: 4.5, expYield: 9500, goldYield: 8, aggroRadius: 700, chaseRadius: 900, attackRange: 300, width: 160, height: 160, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #b71c1c, #FF9800)', cssBorder: '#FFD700' }
 };
 
 function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
