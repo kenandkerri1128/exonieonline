@@ -1711,7 +1711,7 @@ window.revertBGM = function() {
     // 🛡️ THE FIX: Keep playing boss music if we are in the Training Tavern or a Dungeon!
     let isBossMap = safeMapData.id === 'trainingtavern' || String(safeMapData.id).includes('dungeon');
     if (currentTrackName === 'bossfight' && !isBossMap) {
-        window.playBGM(safeMapData.id === 'town' ? 'town' : (String(safeMapData.id).includes('floor') ? 'floors' : 'town'));
+        window.playBGM(window.routeMapMusic(safeMapData.id)); ? 'town' : (String(safeMapData.id).includes('floor') ? 'floors' : 'town'));
     }
 };
 
@@ -1779,8 +1779,9 @@ window.customPrompt = function(message, callback) {
 // ==========================================
 // 🎵 GLOBAL AUDIO & VOLUME ENGINE
 // ==========================================
-// 1. Load saved volume from their browser, default to 50%
+// 1. Load saved volume, safeguard against old "50" values instead of "0.5"
 window.gameVolume = localStorage.getItem('exonie_bgm_vol') !== null ? parseFloat(localStorage.getItem('exonie_bgm_vol')) : 0.5;
+if (window.gameVolume > 1) window.gameVolume = window.gameVolume / 100;
 
 // 2. Listen for the slider being dragged
 document.addEventListener('DOMContentLoaded', () => {
@@ -1788,47 +1789,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const volDisplay = document.getElementById('vol-display');
     
     if (volSlider) {
-        // Initial setup
         volSlider.value = window.gameVolume;
         if (volDisplay) volDisplay.innerText = Math.round(window.gameVolume * 100) + '%';
         
-        // Use 'input' event for real-time dragging updates
         volSlider.addEventListener('input', (e) => {
-            const newVol = parseFloat(e.target.value);
+            let rawVal = parseFloat(e.target.value);
+            let newVol = rawVal > 1 ? rawVal / 100 : rawVal; // Safeguard
+            
             window.gameVolume = newVol;
             localStorage.setItem('exonie_bgm_vol', newVol); 
             
             if (volDisplay) volDisplay.innerText = Math.round(newVol * 100) + '%';
             
-            // 🔊 THE FIX: Instantly apply volume to the active track
             if (window.currentBGM) {
                 window.currentBGM.volume = newVol;
             }
         });
     }
 });
+
 // 🧭 MASTER MUSIC ROUTER: Decides which song to play based on Map ID
 window.routeMapMusic = function(mapId) {
     if (!mapId) return 'town';
     let mId = String(mapId).toLowerCase();
 
-    // 🏠 CHECK FOR HOME FIRST (Important!)
+    // 1. Hardcoded Exceptions
+    if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon')) return 'bossfight';
+    if (mId.includes('floor')) return 'floors';
     if (mId.includes('home')) return 'home'; 
-
-    // 🏰 Guild Base
     if (mId.includes('guildbase')) return 'guildbase';
 
-    // ⚔️ Combat Areas
-    if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon')) {
-        return 'bossfight';
-    } 
-    
-    // 🦇 Floors
-    if (mId.includes('floor')) return 'floors';
-    
-    // 🌳 Default
-    return 'town';
+    // 2. Dynamic Fallback! 
+    // It returns the raw Map ID (like 'test1'). The playBGM function will try to play 'test1.mp3', 
+    // and if it doesn't exist, it will safely revert to 'town.mp3'!
+    return mId;
 };
+
+// 3. The Bulletproof Play Function
 window.playBGM = function(trackName) {
     if (!trackName) {
         if (window.currentBGM) window.currentBGM.pause();
@@ -1836,33 +1833,38 @@ window.playBGM = function(trackName) {
         return;
     }
 
-    // 🛡️ THE FIX: Only skip if it is actually the same song already playing
     if (window.currentBGM && currentTrackName === trackName && !window.currentBGM.paused) {
         window.currentBGM.volume = window.gameVolume; 
         return;
     }
 
-    // Stop and Reset old track
     if (window.currentBGM) {
         window.currentBGM.pause();
         window.currentBGM.currentTime = 0;
     }
 
-    // Convert shorthand to path
     let finalUrl = `music/${trackName}.mp3`;
+    console.log(`[AUDIO] Attempting to play: ${finalUrl}`);
 
-    console.log(`[AUDIO] Switching to: ${finalUrl} (Vol: ${window.gameVolume})`);
+    let newAudio = new Audio(finalUrl);
+    newAudio.loop = true;
+    newAudio.volume = window.gameVolume; 
+    
+    // 🚨 THE DYNAMIC FALLBACK: If the map's custom .mp3 is missing, default to Town!
+    newAudio.onerror = function() {
+        if (trackName !== 'town') {
+            console.warn(`[AUDIO] Missing file ${finalUrl}. Falling back to town.mp3!`);
+            window.playBGM('town'); 
+        }
+    };
 
-    window.currentBGM = new Audio(finalUrl);
-    window.currentBGM.loop = true;
-    window.currentBGM.volume = window.gameVolume; 
+    window.currentBGM = newAudio;
     currentTrackName = trackName;
     
-    window.currentBGM.play().catch(e => {
+    newAudio.play().catch(e => {
         console.warn("BGM Auto-play blocked by browser. Interaction required.");
     });
 };
-
 window.lastSFXTime = 0;
 window.playSFX = function(weaponSprite) { 
     // 🛡️ STRICT AUDIO FIX: Prevent sound overlap without touching combat logic
@@ -3700,7 +3702,7 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
                     window.cleanupMap(); 
                     
                     if(socket) socket.emit('playerTeleported', { mapId: nextMapId, x: game.player.x, y: game.player.y, mapData: safeMapData }); 
-                    window.playBGM((nextMapId === 'trainingtavern' || String(nextMapId).includes('dungeon')) ? 'bossfight' : (String(nextMapId).includes('floor') ? 'floors' : 'town'));
+                    window.playBGM(window.routeMapMusic(nextMapId)); || String(nextMapId).includes('dungeon')) ? 'bossfight' : (String(nextMapId).includes('floor') ? 'floors' : 'town'));
                     window.showMapAnnouncement(nextMapId); 
                     
                     transScreen.style.opacity = '0'; 
@@ -5427,7 +5429,7 @@ window.playTutorialVideo = function() {
                     setTimeout(() => {
                         // 🛡️ FIX 3: Bulletproof string checking for the Map ID
                         let mapIdStr = (typeof safeMapData !== 'undefined' && safeMapData.id) ? String(safeMapData.id) : 'town';
-                        let nextTrack = (mapIdStr === 'trainingtavern' || mapIdStr.includes('dungeon')) ? 'bossfight' : (mapIdStr.includes('floor') ? 'floors' : 'town');
+                        let nextTrack = window.routeMapMusic(mapIdStr); || mapIdStr.includes('dungeon')) ? 'bossfight' : (mapIdStr.includes('floor') ? 'floors' : 'town');
                         
                         window.playBGM(nextTrack);
                         try { window.showMapAnnouncement(mapIdStr); } catch(e) {}
