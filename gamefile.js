@@ -4963,8 +4963,54 @@ socket.on('cdReset', () => {
         }
     });
 
+// ==========================================
+// 💤 AFK SCREEN LOCKER
+// ==========================================
+if (!document.getElementById('afk-lock-screen')) {
+    let afkOverlay = document.createElement('div');
+    afkOverlay.id = 'afk-lock-screen';
+    afkOverlay.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999999; flex-direction:column; justify-content:center; align-items:center; font-family:sans-serif; cursor:pointer; user-select:none; backdrop-filter: blur(5px);';
+    afkOverlay.innerHTML = `
+        <h1 style="color:#FF9800; font-size:50px; margin:0 0 10px 0; text-shadow: 0 0 30px #FF9800; letter-spacing:3px;">GAME PAUSED</h1>
+        <h2 style="color:#fff; margin:0; animation: pulseText 1.5s infinite alternate;">Click the screen to resume playing</h2>
+    `;
+    document.body.appendChild(afkOverlay);
+
+    let afkTimer = null;
+    const AFK_TIME_LIMIT = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+    window.resetAfkTimer = function(e) {
+        // If the screen is locked, wake it up and prevent the click from registering in the game
+        if (afkOverlay.style.display === 'flex') {
+            afkOverlay.style.display = 'none';
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }
+        
+        clearTimeout(afkTimer);
+        
+        afkTimer = setTimeout(() => {
+            // Only trigger the AFK screen if they are actually logged in and playing
+            if (game.isRunning && !window.isLoading && document.getElementById('loading-screen')?.style.display === 'none') {
+                afkOverlay.style.display = 'flex';
+                // Reset movement keys so they don't auto-run into a wall while AFK
+                for (const k in game.keys) game.keys[k] = false;
+            }
+        }, AFK_TIME_LIMIT);
+    };
+
+    // Listen for literally ANY interaction to keep the game awake
+    ['mousemove', 'mousedown', 'keydown', 'touchstart', 'pointerdown', 'wheel'].forEach(evt => {
+        window.addEventListener(evt, window.resetAfkTimer, { capture: true, passive: false });
+    });
+
+    window.resetAfkTimer();
+}
+
 window.onload = () => {
-    window.loadLootFilter();
+    window.loadLootFilter();
     window.initAllMobileWindows();
 
     // Force Auto-Login
