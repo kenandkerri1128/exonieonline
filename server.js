@@ -1517,10 +1517,11 @@ if ((m.category === "mini_boss" || m.category === "floor_boss") && m.alive) {
                         if (px >= minX && px <= maxX && py >= minY && py <= maxY) {
                             const damage = Math.max(1, Math.floor(m.atk * 1.5) - getServerDefense(p)); // 1.5x Multiplier
                             p.currentHp = Math.max(0, p.currentHp - damage);
-                            p.frozenUntil = now + 2000; // Stunned for 2 seconds!
+                            p.frozenUntil = now + 3000; // 🛡️ THE FIX: 3 Second Stun!
                             
                             io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: p.id, targetX: px, targetY: py, atk: m.atk, damage: damage, newHp: p.currentHp });
                             io.to(instId).emit('systemMessage', `<span style="color:#ffeb3b;">⚡ ${p.name} was STUNNED by a Minotaur Charge!</span>`);
+                            io.to(instId).emit('playerStunned', { targetId: p.id, duration: 3000 }); // 🛡️ THE FIX: Send the freeze command to the client!
                             
                             // Death Check
                             if (p.currentHp <= 0 && !p.isGhost) {
