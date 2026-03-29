@@ -3910,13 +3910,14 @@ if (hitPet) {
         ty = hitPet.y + 15;
     }
 
-    const isElemental = m.monsterKey && String(m.monsterKey).includes('3');
-    const mcx = m.x + (m.width / 2);
-    const mcy = m.y + (m.height / 2);
+    // 🐉 The Fix: Both Fire Elementals and Dragons use the Fireball animation
+    const isElemental = m.monsterKey && (String(m.monsterKey).includes('3') || String(m.monsterKey).includes('dragon'));
+    const mcx = m.x + (m.width / 2);
+    const mcy = m.y + (m.height / 2);
 
-    if (isElemental) window.shootMonsterFireball(mcx, mcy, tx, ty);
+    if (isElemental) window.shootMonsterFireball(mcx, mcy, tx, ty);
 
-    let dx = tx - mcx;
+    let dx = tx - mcx;
     let dy = ty - mcy;
     let dist = Math.hypot(dx, dy) || 1;
     let moveX = (dx / dist) * 20;
@@ -3935,16 +3936,35 @@ if (hitPet) {
     }
 
     let sfxFile = 'bump';
-    if (m.monsterKey.includes('2')) sfxFile = 'lightning';
-    else if (m.monsterKey.includes('3')) sfxFile = 'splash';
+    if (m.monsterKey.includes('2')) sfxFile = 'lightning';
+    else if (m.monsterKey.includes('3') || m.monsterKey.includes('dragon')) sfxFile = 'splash';
 
-    let hitSound = new Audio(`music/${sfxFile}.mp3`);
+    let hitSound = new Audio(`music/${sfxFile}.mp3`);
     hitSound.volume = 0.4;
     hitSound.play().catch(e => {});
 });
 
-    socket.on('monsterSkill', (data) => { 
-        if (data.skillName === 'Earthquake') { 
+    socket.on('monsterSkill', (data) => { 
+        // 🐂 MINOTAUR CHARGE ANIMATION
+        if (data.skillName === 'Charge') {
+            let hitSound = new Audio('music/charge.mp3');
+            hitSound.volume = 0.6;
+            hitSound.play().catch(e => {});
+
+            const mEl = document.getElementById('mob_' + data.monsterId);
+            if (mEl) {
+                // Smooth CSS translation for the duration of the dash
+                mEl.style.transition = `left ${data.duration}ms linear, top ${data.duration}ms linear`;
+                mEl.style.left = data.endX + 'px';
+                mEl.style.top = data.endY + 'px';
+                
+                // Remove the transition immediately after so standard server movement isn't laggy
+                setTimeout(() => {
+                    if (mEl) mEl.style.transition = 'none';
+                }, data.duration);
+            }
+        } 
+        else if (data.skillName === 'Earthquake') {
             const gameContainer = document.getElementById('game-container'); 
             gameContainer.classList.add('screen-shake'); 
             setTimeout(() => gameContainer.classList.remove('screen-shake'), 500); 
