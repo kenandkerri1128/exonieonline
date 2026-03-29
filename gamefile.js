@@ -238,45 +238,70 @@ rankStyle.innerHTML = `
 `;
 document.head.appendChild(rankStyle);
 // ==========================================
-// 🐉 MONSTER CSS (MINOTAUR + CODEPEN DRAGON)
+// 🐉 MONSTER CSS (FINALIZED MINOTAUR & SCALED DRAGON)
 // ==========================================
 const monsterStyle = document.createElement('style');
 monsterStyle.innerHTML = `
-    /* --- 🐂 MINOTAUR (Golem Style + Axe) --- */
-    .minotaur-base { position:relative; width:100%; height:100%; display:flex; justify-content:center; align-items:center; }
-    .m-body { width: 60%; height: 60%; background:#795548; border-radius:15px; border:3px solid #3E2723; position:relative; z-index:2; display:flex; justify-content:center;}
-    .m-eye-l, .m-eye-r { width:20%; height:20%; background:#ff1744; border-radius:50%; position:absolute; top:25%; box-shadow:0 0 5px #ff1744; }
+    /* --- 🐂 MINOTAUR (Exact Golem structure with separate head) --- */
+    .minotaur-base { position:relative; width:100%; height:100%; display:flex; justify-content:center; }
+    
+    /* Head is distinct and on top of body */
+    .m-head {
+        width: 40%; height: 30%; background: #795548; border-radius:15px 15px 10px 10px; border:3px solid #000;
+        position:absolute; top:5%; left:50%; transform:translateX(-50%); z-index: 3; display:flex; justify-content:center;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    }
+    .m-eye-l, .m-eye-r { width:20%; height:20%; background:#ff1744; border-radius:50%; position:absolute; top:30%; box-shadow:0 0 5px #ff1744; }
     .m-eye-l { left: 15%; } .m-eye-r { right: 15%; }
-    .m-snout { width:50%; height:25%; background:rgba(0,0,0,0.3); position:absolute; bottom:10%; border-radius:20px; border:2px solid #FFD700; }
-    .m-horn-l, .m-horn-r { width:35%; height:35%; background:#e0e0e0; border:2px solid #000; position:absolute; top:-20%; z-index:-1;}
-    .m-horn-l { left:-15%; border-radius:100% 0 0 0; transform:rotate(-30deg); }
-    .m-horn-r { right:-15%; border-radius:0 100% 0 0; transform:rotate(30deg); }
+    .m-snout { width:60%; height:40%; background:rgba(0,0,0,0.3); position:absolute; bottom:10%; border-radius:15px; display:flex; justify-content:center; }
+    .m-ring { width:12px; height:12px; border:3px solid #FFD700; border-radius:50%; position:absolute; bottom:-8px;}
+    .m-horn-l, .m-horn-r { width:35%; height:45%; background:#e0e0e0; border:2px solid #000; position:absolute; top:-30%; z-index:-1;}
+    .m-horn-l { left:-10%; border-radius:100% 0 0 0; transform:rotate(-35deg); }
+    .m-horn-r { right:-10%; border-radius:0 100% 0 0; transform:rotate(35deg); }
     
-    .minotaur-base .m-arm-l, .minotaur-base .m-arm-r { width:15%; height:40%; background:#795548; border:3px solid #3E2723; border-radius:8px; position:absolute; top:25%; }
-    .m-arm-l { left: 0%; } .m-arm-r { right: 0%; }
-    .minotaur-base .m-leg-l, .minotaur-base .m-leg-r { width:20%; height:20%; background:#795548; border:3px solid #3E2723; border-radius:8px; position:absolute; bottom: 5%; }
-    .m-leg-l { left: 20%; } .m-leg-r { right: 20%; }
+    /* Golem Style Torso */
+    .m-body { width: 60%; height: 50%; background:#795548; border-radius:15px; border:3px solid #3E2723; position:absolute; bottom:20%; z-index:2; box-shadow:inset 0 -10px rgba(0,0,0,0.3); }
     
-    .m-axe { position:absolute; top:50%; left:-50px; width:80px; height:8px; background:#3E2723; transform:rotate(-20deg); z-index:0; }
+    /* Golem style floating limbs */
+    .minotaur-base [class^="m-arm"], .minotaur-base [class^="m-leg"] { background:#795548; border:3px solid #3E2723; border-radius:8px; z-index:1; position:absolute; }
+    .m-arm-l, .m-arm-r { width:15%; height:35%; top:30%; }
+    .m-arm-l { left: -5%; } .m-arm-r { right: -5%; }
+    .m-leg-l, .m-leg-r { width:20%; height:15%; bottom:5%; }
+    .m-leg-l { left: 18%; } .m-leg-r { right: 18%; }
+    
+    /* The Battleaxe */
+    .m-axe { position:absolute; top:50%; left:-45px; width:90px; height:8px; background:#3E2723; transform:rotate(-20deg); z-index:0; }
     .m-axe::before { content:''; position:absolute; top:-15px; left:-10px; width:35px; height:40px; background:#90a4ae; border-radius:30% 0 0 50%; border:2px solid #000; }
 
-    /* Minotaur Tiers */
-    .minotaur-base.common_mobs .m-body, .minotaur-base.common_mobs [class^="m-arm"], .minotaur-base.common_mobs [class^="m-leg"] { background: #795548; border-color: #3E2723; }
-    .minotaur-base.mini_boss .m-body, .minotaur-base.mini_boss [class^="m-arm"], .minotaur-base.mini_boss [class^="m-leg"] { background: #b71c1c; border-color: #4a0404; }
-    .minotaur-base.floor_boss .m-body, .minotaur-base.floor_boss [class^="m-arm"], .minotaur-base.floor_boss [class^="m-leg"] { background: #212121; border-color: #ff9800; box-shadow: 0 0 15px #ff9800;}
-    .minotaur-base.floor_boss .m-eye-l, .minotaur-base.floor_boss .m-eye-r { background:#ff9800; box-shadow:0 0 10px #ff9800; }
-
-    /* --- 🐉 DRAGON CSS (The CodePen Front-Facing Port) --- */
-    .dragon-base { width: 100%; height: 100%; position: relative; }
-    .dragon-scaler {
-        position: absolute; bottom: 50%; left: 50%; width: 1px; height: 1px;
-        transform: scale(0.20); transform-origin: center center;
-        display: flex; justify-content: center; align-items: center; z-index: 2;
-    }
-    /* 🛡️ THE FIX: This stops your global game CSS from "crumpling" the art! */
-    .dragon-scaler div { box-sizing: content-box !important; } 
+    /* Minotaur Tiers (RE-SKINNED BASED ON TYPE) */
+    .minotaur-base.common_mobs .m-body, .minotaur-base.common_mobs .m-head, .minotaur-base.common_mobs [class*="m-arm"], .minotaur-base.common_mobs [class*="m-leg"] { background: #795548; border-color: #3E2723; }
     
-    .dragon-base.boss .dragon-scaler { transform: scale(0.60); filter: drop-shadow(0 0 20px rgba(249, 113, 0, 0.6)); }
+    .minotaur-base.mini_boss .m-body, .minotaur-base.mini_boss .m-head, .minotaur-base.mini_boss [class*="m-arm"], .minotaur-base.mini_boss [class*="m-leg"] { background: #b71c1c; border-color: #4a0404; }
+    .minotaur-base.mini_boss .m-axe::before { background: #e0e0e0; }
+    
+    .minotaur-base.floor_boss .m-body, .minotaur-base.floor_boss .m-head, .minotaur-base.floor_boss [class*="m-arm"], .minotaur-base.floor_boss [class*="m-leg"] { background: #212121; border-color: #ff9800; box-shadow: 0 0 15px #ff9800;}
+    .minotaur-base.floor_boss .m-eye-l, .minotaur-base.floor_boss .m-eye-r { background:#ff9800; box-shadow:0 0 10px #ff9800; }
+    .minotaur-base.floor_boss .m-axe::before { background: #111; border-color: #ff9800; }
+
+    /* --- 🐉 DRAGON CSS (Ported CodePenArt + Tier Specific Variables) --- */
+    .dragon-base { width: 100%; height: 100%; position: relative; display:flex; justify-content:center; align-items:center; }
+    
+    /* Category Specific Visual Effects */
+    .dragon-base.mini_boss { filter: drop-shadow(0 0 10px rgba(249, 113, 0, 0.5)); }
+    .dragon-base.floor_boss { filter: drop-shadow(0 0 20px rgba(170, 0, 255, 0.7)); }
+
+    /* Container to hold the art */
+    .dragon-scaler {
+        position: absolute; bottom: 35px; left: 50%; width: 1px; height: 1px;
+        transform: scale(0.20); transform-origin: bottom center;
+        display: flex; justify-content: center; z-index: 2;
+    }
+    .dragon-base.boss .dragon-scaler { transform: scale(0.55); bottom: 85px; }
+
+    /* 🛡️ UN-CRUMPLE FIX: Prevents global CSS border-box logic from crushing the precision shapes */
+    .dragon-scaler div, .dragon-scaler div::before, .dragon-scaler div::after {
+        box-sizing: content-box !important;
+    } 
 
     /* Wing Animations */
     .dragon-scaler .insideBarUpLeft { transform-origin: bottom right; animation: cPenFlapL 0.4s infinite alternate ease-in-out; }
@@ -284,90 +309,100 @@ monsterStyle.innerHTML = `
     @keyframes cPenFlapL { 0% { transform: rotate(0deg); } 100% { transform: rotate(-15deg); } }
     @keyframes cPenFlapR { 0% { transform: rotate(0deg); } 100% { transform: rotate(15deg); } }
 
-    /* --- THE EXACT PASTED CODEPEN CSS --- */
-    .dragon-scaler .bellyStart { width: 0px; height: 0px; border: 25px solid transparent; border-top: 70px solid #ac9d86; border-left: 7px solid #ac9d86; margin-top: 185px; transform: scaleX(1.6); }
-    .dragon-scaler .bellyStart:before { content: ' '; position: absolute; width: 0px; height: 0px; margin-top: -70px; margin-left: -39px; border: 25px solid transparent; border-top: 70px solid #bbaf9c; border-right: 7px solid #bbaf9c; }
-    .dragon-scaler .BStop { width: 0px; height: 0px; border: 25px solid transparent; border-bottom: 70px solid #CCC2B6; border-left: 7px solid #CCC2B6; margin-top: -165px; margin-left: -7px; }
-    .dragon-scaler .BStop:before { content: ' '; position: absolute; width: 0px; height: 0px; margin-top: -25px; margin-left: -39px; border: 25px solid transparent; border-bottom: 70px solid #DBD5C5; border-right: 7px solid #DBD5C5; }
-    .dragon-scaler .BSround { position: absolute; width: 64px; height: 13px; background-color: #DBD5C5; border-radius: 0px 0px 50px 50px; margin-top: -70px; margin-left: -39px; }
-    .dragon-scaler .BSRright { position: absolute; width: 32px; height: 13px; background-color: #CCC2B6; border-radius: 0px 0px 50px 0px; margin-top: 0px; margin-left: 32px; }
-    .dragon-scaler .headStart { position: absolute; z-index: 1; width: 0px; height: 0px; border: 20px solid transparent; border-top: 20px solid #F97100; border-right: 20px solid #F97100; margin-top: -110px; margin-left: -51px; transform: scale(1.1); }
-    .dragon-scaler .HSotherSideStart { position: absolute; z-index: 1; width: 0px; height: 0px; border: 20px solid transparent; border-top: 20px solid #F97100; border-right: 20px solid #F97100; margin-top: -20px; margin-left: -20px; }
-    .dragon-scaler .HSotherSide { position: absolute; width: 0px; height: 0px; border: 20px solid transparent; border-top: 20px solid #E03300; border-left: 20px solid #E03300; margin-top: -20px; margin-left: 20px; z-index: 1; }
-    .dragon-scaler .horn { width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 50px solid #530800; transform: skew(19deg); position: absolute; margin-top: -77px; margin-left: -29px; }
-    .dragon-scaler .horn:after { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 50px solid #530800; transform: skew(-38deg); position: absolute; margin-top: -6px; margin-left: 79px; }
-    .dragon-scaler .pokeSpike { width: 0px; height: 0px; border: 10px solid transparent; border-bottom: 10px solid #F97100; position: absolute; margin-top: -40px; margin-left: 10px; }
-    .dragon-scaler .pokeSpike:before { content: ' '; width: 0px; height: 0px; border: 5px solid transparent; border-bottom: 8px solid #F97100; position: absolute; margin-top: -3px; margin-left: -25px; }
-    .dragon-scaler .pokeSpike:after { content: ' '; width: 0px; height: 0px; border: 5px solid transparent; border-bottom: 8px solid #DF3400; position: absolute; margin-top: -3px; margin-left: 15px; }
-    .dragon-scaler .PSright { width: 0px; height: 0px; border: 5px solid transparent; border-bottom: 5px solid #DF3400; border-left: 5px solid #DF3400; position: absolute; margin-top: 1px; margin-left: 0px; }
-    .dragon-scaler .leftSideFace { width: 0px; height: 0px; border-top: 10px solid transparent; border-left: 50px solid transparent; border-bottom: 50px solid #E13300; border-right: 10px solid #E13300; position: absolute; margin-top: -22px; margin-left: -49px; transform: rotate(-65deg) scaleX(0.8) scaleY(1.3); z-index: -1; }
-    .dragon-scaler .rightSideFace { width: 0px; height: 0px; border-top: 10px solid transparent; border-right: 50px solid transparent; border-bottom: 50px solid #940000; border-left: 10px solid #940000; position: absolute; margin-top: -23px; margin-left: 30px; transform: rotate(65deg) scaleX(0.8) scaleY(1.3); z-index: -10; }
-    .dragon-scaler .LSFeye { width: 20px; height: 20px; background-color: #FBC614; border-radius: 100%; position: absolute; margin-top: 20px; margin-left: -17px; transform: rotate(60deg) scaleX(0.8); border: 3px solid #980100; }
-    .dragon-scaler .RSFeye { width: 20px; height: 20px; background-color: #FBC614; border-radius: 100%; position: absolute; margin-top: 20px; margin-left: -10px; transform: rotate(-60deg) scaleX(0.8); border: 3px solid #510700; }
-    .dragon-scaler .snout { width: 6px; height: 0px; border: 9px solid transparent; border-bottom: 18px solid #FA7300; position: absolute; margin-top: 8px; margin-left: 8px; z-index: 2; }
-    .dragon-scaler .snout:before { content: ' '; width: 33px; height: 25px; background-color: #E23401; border-radius: 50px; position: absolute; margin-top: 17px; margin-left: -17px; z-index: 3; overflow: hidden; }
+    /* Tier Specific Color Variables for the Dragon Art */
+    /* Common: GREEN Variant */
+    .dragon-base.common_mobs { --d-primary: #4caf50; --d-secondary: #2e7d32; --d-tertiary: #1b5e20; --d-belly: #ffeb3b; --d-belly-light: #fff9c4; --d-eye: #fff; --d-fang: #fff; }
+    
+    /* Mini-Boss: Original FIRE Palette */
+    .dragon-base.mini_boss { --d-primary: #F97100; --d-secondary: #E23401; --d-tertiary: #960001; --d-belly: #ac9d86; --d-belly-light: #DBD5C5; --d-eye: #FBC614; --d-fang: #fff; }
+    
+    /* Floor-Boss (Ignis): VOID Palette */
+    .dragon-base.floor_boss { --d-primary: #aa00ff; --d-secondary: #6200ea; --d-tertiary: #000000; --d-belly: #00e5ff; --d-belly-light: #e0f7fa; --d-eye: #fff; --d-fang: #aa00ff; }
+    
+    /* --- Ported CodePen Art (Hardcoded colors replaced with dynamic variables) --- */
+    .dragon-scaler .bellyStart { width: 0px; height: 0px; border: 25px solid transparent; border-top: 70px solid var(--d-belly); border-left: 7px solid var(--d-belly); margin-top: 185px; transform: scaleX(1.6); }
+    .dragon-scaler .bellyStart:before { content: ' '; position: absolute; width: 0px; height: 0px; margin-top: -70px; margin-left: -39px; border: 25px solid transparent; border-top: 70px solid #bbaf9c; border-right: 7px solid #bbaf9c; opacity:0.6; }
+    .dragon-scaler .BStop { width: 0px; height: 0px; border: 25px solid transparent; border-bottom: 70px solid var(--d-belly); border-left: 7px solid var(--d-belly); margin-top: -165px; margin-left: -7px; }
+    .dragon-scaler .BStop:before { content: ' '; position: absolute; width: 0px; height: 0px; margin-top: -25px; margin-left: -39px; border: 25px solid transparent; border-bottom: 70px solid var(--d-belly-light); border-right: 7px solid var(--d-belly-light); }
+    .dragon-scaler .BSround { position: absolute; width: 64px; height: 13px; background-color: var(--d-belly-light); border-radius: 0px 0px 50px 50px; margin-top: -70px; margin-left: -39px; }
+    .dragon-scaler .BSRright { position: absolute; width: 32px; height: 13px; background-color: var(--d-belly); border-radius: 0px 0px 50px 0px; margin-top: 0px; margin-left: 32px; }
+    .dragon-scaler .headStart { position: absolute; z-index: 1; width: 0px; height: 0px; border: 20px solid transparent; border-top: 20px solid var(--d-primary); border-right: 20px solid var(--d-primary); margin-top: -110px; margin-left: -51px; transform: scale(1.1); }
+    .dragon-scaler .HSotherSideStart { position: absolute; z-index: 1; width: 0px; height: 0px; border: 20px solid transparent; border-top: 20px solid var(--d-primary); border-right: 20px solid var(--d-primary); margin-top: -20px; margin-left: -20px; }
+    .dragon-scaler .HSotherSide { position: absolute; width: 0px; height: 0px; border: 20px solid transparent; border-top: 20px solid var(--d-secondary); border-left: 20px solid var(--d-secondary); margin-top: -20px; margin-left: 20px; z-index: 1; }
+    .dragon-scaler .horn { width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 50px solid var(--d-tertiary); transform: skew(19deg); position: absolute; margin-top: -77px; margin-left: -29px; }
+    .dragon-scaler .horn:after { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 50px solid var(--d-tertiary); transform: skew(-38deg); position: absolute; margin-top: -6px; margin-left: 79px; }
+    .dragon-scaler .pokeSpike { width: 0px; height: 0px; border: 10px solid transparent; border-bottom: 10px solid var(--d-primary); position: absolute; margin-top: -40px; margin-left: 10px; }
+    .dragon-scaler .pokeSpike:before { content: ' '; width: 0px; height: 0px; border: 5px solid transparent; border-bottom: 8px solid var(--d-primary); position: absolute; margin-top: -3px; margin-left: -25px; }
+    .dragon-scaler .pokeSpike:after { content: ' '; width: 0px; height: 0px; border: 5px solid transparent; border-bottom: 8px solid var(--d-secondary); position: absolute; margin-top: -3px; margin-left: 15px; }
+    .dragon-scaler .PSright { width: 0px; height: 0px; border: 5px solid transparent; border-bottom: 5px solid var(--d-secondary); border-left: 5px solid var(--d-secondary); position: absolute; margin-top: 1px; margin-left: 0px; }
+    .dragon-scaler .leftSideFace { width: 0px; height: 0px; border-top: 10px solid transparent; border-left: 50px solid transparent; border-bottom: 50px solid var(--d-secondary); border-right: 10px solid var(--d-secondary); position: absolute; margin-top: -22px; margin-left: -49px; transform: rotate(-65deg) scaleX(0.8) scaleY(1.3); z-index: -1; }
+    .dragon-scaler .rightSideFace { width: 0px; height: 0px; border-top: 10px solid transparent; border-right: 50px solid transparent; border-bottom: 50px solid var(--d-tertiary); border-left: 10px solid var(--d-tertiary); position: absolute; margin-top: -23px; margin-left: 30px; transform: rotate(65deg) scaleX(0.8) scaleY(1.3); z-index: -10; }
+    .dragon-scaler .LSFeye { width: 20px; height: 20px; background-color: var(--d-eye); border-radius: 100%; position: absolute; margin-top: 20px; margin-left: -17px; transform: rotate(60deg) scaleX(0.8); border: 3px solid #980100; }
+    .dragon-scaler .RSFeye { width: 20px; height: 20px; background-color: var(--d-eye); border-radius: 100%; position: absolute; margin-top: 20px; margin-left: -10px; transform: rotate(-60deg) scaleX(0.8); border: 3px solid #510700; }
+    .dragon-scaler .snout { width: 6px; height: 0px; border: 9px solid transparent; border-bottom: 18px solid var(--d-primary); position: absolute; margin-top: 8px; margin-left: 8px; z-index: 2; }
+    .dragon-scaler .snout:before { content: ' '; width: 33px; height: 25px; background-color: var(--d-secondary); border-radius: 50px; position: absolute; margin-top: 17px; margin-left: -17px; z-index: 3; overflow: hidden; }
     .dragon-scaler .snout:after { content: ' '; width: 16px; height: 25px; background-color: rgba(0, 0, 0, 0.15); border-radius: 0px 50px 50px 0px; position: absolute; margin-top: 17px; margin-left: 0px; z-index: 100; }
-    .dragon-scaler .SNwrap { width: 33px; height: 25px; background-color: #E23401; border-radius: 50px; position: absolute; margin-top: 17px; margin-left: -14px; z-index: 3; overflow: hidden; }
+    .dragon-scaler .SNwrap { width: 33px; height: 25px; background-color: var(--d-secondary); border-radius: 50px; position: absolute; margin-top: 17px; margin-left: -14px; z-index: 3; overflow: hidden; }
     .dragon-scaler .nost { width: 15px; height: 15px; background-color: #540700; position: absolute; margin-top: 13px; margin-left: -2px; z-index: 4; border-top-right-radius: 4px; }
-    .dragon-scaler .nost:before { content: ' '; width: 11px; height: 11px; background-color: #E23401; position: absolute; margin-top: -7px; margin-left: 6px; z-index: 4; border-radius: 4px; box-shadow: 0px 5px 0px #540700, 0px 10px 0px #540700; }
+    .dragon-scaler .nost:before { content: ' '; width: 11px; height: 11px; background-color: var(--d-secondary); position: absolute; margin-top: -7px; margin-left: 6px; z-index: 4; border-radius: 4px; box-shadow: 0px 5px 0px #540700, 0px 10px 0px #540700; }
     .dragon-scaler .nost:after { content: ' '; width: 15px; height: 15px; background-color: #540700; position: absolute; margin-top: 0px; margin-left: 16px; z-index: 4; border-top-left-radius: 4px; }
-    .dragon-scaler .BSstripe { position: absolute; width: 50px; height: 0px; border: 5px solid transparent; border-bottom: 15px solid #CCC2B6; margin-top: -95px; margin-left: -37px; z-index: 5; }
-    .dragon-scaler .BSstripe:after { content: ' '; position: absolute; width: 25px; height: 0px; border-right: 5px solid transparent; border-bottom: 15px solid #BBB09D; margin-top: 0px; margin-left: 0px; z-index: 5; }
-    .dragon-scaler .BSstripeTwo { position: absolute; width: 28px; height: 0px; border: 5px solid transparent; border-bottom: 15px solid #CCC2B6; margin-top: -125px; margin-left: -26px; z-index: 5; }
-    .dragon-scaler .BSstripeTwo:after { content: ' '; position: absolute; width: 14px; height: 0px; border-right: 5px solid transparent; border-bottom: 15px solid #BBB09D; margin-top: 0px; margin-left: 0px; z-index: 5; }
-    .dragon-scaler .belt { width: 160px; height: 60px; position: absolute; background-color: #F97200; margin-top: -115px; margin-left: -90px; z-index: -1; border-radius: 10px; }
-    .dragon-scaler .belt:after { content: ' '; width: 80px; height: 60px; position: absolute; background-color: #E23401; border-radius: 0px 10px 10px 0px; }
-    .dragon-scaler .wingsStart { width: 154px; height: 15px; background-color: #960001; position: absolute; margin-top: -35px; margin-left: -86px; z-index: -3; }
-    .dragon-scaler .WSleftBall { width: 22px; height: 22px; background-color: #DF3200; border-radius: 100%; position: absolute; z-index: -3; margin-top: -10px; margin-left: -25px; border: 10px solid #960001; }
-    .dragon-scaler .WSleftBall:after { content: ' '; width: 0px; height: 0px; border: 9px solid transparent; border-bottom: 15px solid #960001; position: absolute; margin-top: -3px; margin-left: -10px; transform: rotate(-35deg); }
-    .dragon-scaler .WSleftBallTwo { width: 22px; height: 22px; background-color: #DF3200; border-radius: 100%; position: absolute; z-index: -3; margin-top: -10px; margin-left: 134px; border: 10px solid #960001; }
-    .dragon-scaler .WSleftBallTwo:after { content: ' '; width: 0px; height: 0px; border: 9px solid transparent; border-bottom: 15px solid #960001; position: absolute; margin-top: -3px; margin-left: -7px; transform: rotate(35deg); }
-    .dragon-scaler .insideBarUpLeft { position: absolute; width: 14px; height: 140px; background-color: #960001; margin-top: -145px; margin-left: 4px; }
-    .dragon-scaler .insideBarUpLeft > .ball { width: 14px; height: 14px; background-color: #DF3200; border-radius: 100%; position: absolute; z-index: -3; margin-top: -23px; margin-left: -8px; border: 8px solid #960001; }
-    .dragon-scaler .insideBarUpLeft .skewBarOut { width: 17px; height: 140px; background-color: #960001; position: absolute; z-index: -500; margin-top: -30px; margin-left: -48px; transform: skew(-45deg); z-index: -500; }
-    .dragon-scaler .insideBarUpLeft .webHold { width: 14px; height: 132px; background-color: #960001; position: absolute; margin-top: 46px; margin-left: -54px; }
-    .dragon-scaler .insideBarUpLeft .webHold:before { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid white; border-right: 7px solid white; position: absolute; margin-top: 118px; margin-left: -7px; }
-    .dragon-scaler .insideBarUpLeft .conect { width: 33px; height: 14px; background-color: #960001; position: absolute; margin-top: 104px; margin-left: 10px; }
-    .dragon-scaler .insideBarUpLeft .lastBall { width: 12px; height: 12px; background-color: #DF3200; border-radius: 100%; position: absolute; z-index: 1; margin-top: 95px; margin-left: -120px; border: 6px solid #960001; }
-    .dragon-scaler .insideBarUpLeft .lastConect { width: 14px; height: 150px; background-color: #960001; position: absolute; margin-top: 13px; margin-left: -1px; }
-    .dragon-scaler .insideBarUpLeft .lastConect:after { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid white; border-left: 7px solid white; border-right: 7px solid white; position: absolute; margin-top: 136px; margin-left: -7px; }
-    .dragon-scaler .insideBarUpLeft .web { width: 41px; height: 102px; background-color: #FB5700; position: absolute; margin-top: 48px; margin-left: -40px; }
-    .dragon-scaler .insideBarUpLeft .web:before { content: ' '; width: 0px; height: 0px; border: 20px solid transparent; border-bottom: 21px solid #FB5700; border-right: 21px solid #FB5700; position: absolute; margin-top: -40px; margin-left: -21px; }
-    .dragon-scaler .insideBarUpLeft .web:after { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid #960001; border-right: 7px solid #960001; position: absolute; margin-top: 88px; margin-left: 7px; }
-    .dragon-scaler .insideBarUpLeft .webTwo { width: 47px; height: 116px; background-color: #FB5700; position: absolute; margin-top: 86px; margin-left: -101px; transform: skewY(-45deg); }
-    .dragon-scaler .insideBarUpRight { position: absolute; width: 14px; height: 140px; background-color: #960001; margin-top: -145px; margin-left: 6px; }
-    .dragon-scaler .insideBarUpRight > .ball { width: 14px; height: 14px; background-color: #DF3200; border-radius: 100%; position: absolute; z-index: -3; margin-top: -23px; margin-left: -8px; border: 8px solid #960001; }
-    .dragon-scaler .insideBarUpRight .skewBarOut { width: 17px; height: 140px; background-color: #960001; position: absolute; z-index: -500; margin-top: -30px; margin-left: 47px; transform: skew(45deg); z-index: -500; }
-    .dragon-scaler .insideBarUpRight .webHold { width: 14px; height: 132px; background-color: #960001; position: absolute; margin-top: 45px; margin-left: 55px; }
-    .dragon-scaler .insideBarUpRight .webHold:before { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid white; border-left: 7px solid white; position: absolute; margin-top: 118px; margin-left: -7px; }
-    .dragon-scaler .insideBarUpRight .conect { width: 33px; height: 14px; background-color: #960001; position: absolute; margin-top: 104px; margin-left: -33px; }
-    .dragon-scaler .insideBarUpRight .lastBall { width: 12px; height: 12px; background-color: #DF3200; border-radius: 100%; position: absolute; z-index: 1; margin-top: 95px; margin-left: 111px; border: 6px solid #960001; }
-    .dragon-scaler .insideBarUpRight .lastConect { width: 14px; height: 150px; background-color: #960001; position: absolute; margin-top: 13px; margin-left: -1px; }
-    .dragon-scaler .insideBarUpRight .lastConect:after { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid white; border-left: 7px solid white; border-right: 7px solid white; position: absolute; margin-top: 136px; margin-left: -7px; }
-    .dragon-scaler .insideBarUpRight .web { width: 41px; height: 102px; background-color: #FB5700; position: absolute; margin-top: 47px; margin-left: 14px; }
-    .dragon-scaler .insideBarUpRight .web:before { content: ' '; width: 0px; height: 0px; border: 20px solid transparent; border-bottom: 20px solid #FB5700; border-left: 20px solid #FB5700; position: absolute; margin-top: -40px; margin-left: -21px; }
-    .dragon-scaler .insideBarUpRight .web:after { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid #960001; border-left: 7px solid #960001; position: absolute; margin-top: 88px; margin-left: -22px; }
-    .dragon-scaler .insideBarUpRight .webTwo { width: 47px; height: 115px; background-color: #FB5700; position: absolute; margin-top: 85px; margin-left: 69px; transform: skewY(45deg); }
-    .dragon-scaler .legsStart { width: 100px; height: 100px; background-color: #530700; position: absolute; margin-top: -55px; margin-left: -39px; z-index: -5; }
-    .dragon-scaler .legsStart:before { content: ' '; width: 30px; height: 65px; background-color: #960001; position: absolute; margin-top: 0px; margin-left: -71px; z-index: -1; border-radius: 0px 0px 11px 11px; }
-    .dragon-scaler .legsStart:after { content: ' '; width: 30px; height: 65px; background-color: #960001; position: absolute; margin-top: 0px; margin-left: 41px; z-index: -1; border-radius: 0px 0px 11px 11px; }
-    .dragon-scaler .footStart { width: 14px; height: 25px; background-color: #E23301; position: absolute; margin-top: 65px; margin-left: -13px; }
-    .dragon-scaler .footStart:before { content: ' '; width: 0px; height: 0px; border: 28px solid transparent; border-top: 28px solid #E33302; border-right: 28px solid #E33302; position: absolute; margin-top: -65px; margin-left: -71px; z-index: -2; }
-    .dragon-scaler .footStart:after { content: ' '; width: 52px; height: 38px; background-color: #960001; position: absolute; margin-top: -29px; margin-left: -59px; z-index: -2; transform: skewY(45deg); }
-    .dragon-scaler .footStartTwo { width: 14px; height: 25px; background-color: #E23301; position: absolute; margin-top: 65px; margin-left: 99px; }
-    .dragon-scaler .footStartTwo:before { content: ' '; width: 0px; height: 0px; border: 28px solid transparent; border-top: 28px solid #E33302; border-left: 28px solid #E33302; position: absolute; margin-top: -65px; margin-left: 15px; z-index: -2; }
-    .dragon-scaler .footStartTwo:after { content: ' '; width: 52px; height: 36px; background-color: #960001; position: absolute; margin-top: -27px; margin-left: 7px; z-index: -2; transform: skewY(-45deg); }
-    .dragon-scaler .LShelper { width: 27px; height: 12px; background-color: #960001; position: absolute; margin-top: 13px; margin-left: -48px; transform: skewY(45deg); }
-    .dragon-scaler .LShelper:before { content: ' '; width: 0px; height: 0px; border: 6px solid transparent; border-top: 6px solid #960001; border-right: 6px solid #960001; position: absolute; margin-top: 6px; margin-left: -26px; transform: skewY(-45deg); }
-    .dragon-scaler .LShelper:after { content: ' '; width: 14px; height: 11px; background-color: #52323A; position: absolute; margin-top: 48px; margin-left: 21px; transform: skewY(-45deg); }
-    .dragon-scaler .LShelperTwo { width: 27px; height: 12px; background-color: #960001; position: absolute; margin-top: 13px; margin-left: 121px; transform: skewY(45deg); }
-    .dragon-scaler .LShelperTwo:before { content: ' '; width: 0px; height: 0px; border: 6px solid transparent; border-top: 6px solid #960001; border-left: 6px solid #960001; position: absolute; margin-top: 6px; margin-left: 13px; transform: skewY(45deg); }
-    .dragon-scaler .LShelperTwo:after { content: ' '; width: 14px; height: 11px; background-color: #52323A; position: absolute; margin-top: 48px; margin-left: -36px; transform: skewY(45deg); }
-    .dragon-scaler .foot { width: 200px; height: 17px; background-color: #7c6369; border-radius: 50px 50px 0px 0px; margin-left: -50px; margin-top: 100px; position: absolute; }
-    .dragon-scaler .toe { width: 61px; height: 9px; background-color: #60434b; border-radius: 11px 11px 0px 0px; margin-top: 8px; margin-left: 19px; position: absolute; }
-    .dragon-scaler .Ctoe { width: 22px; height: 17px; border-radius: 17px 17px 0px 0px; background-color: #60434b; margin-left: 33px; position: absolute; z-index: 1; }
-    .dragon-scaler .toeTwo { width: 61px; height: 9px; background-color: #60434b; border-radius: 11px 11px 0px 0px; margin-top: 8px; margin-left: 117px; position: absolute; }
-    .dragon-scaler .CtoeTwo { width: 22px; height: 17px; border-radius: 17px 17px 0px 0px; background-color: #60434b; margin-left: 143px; position: absolute; z-index: 1; }
+    .dragon-scaler .BSstripe { position: absolute; width: 50px; height: 0px; border: 5px solid transparent; border-bottom: 15px solid var(--d-belly); margin-top: -95px; margin-left: -37px; z-index: 5; }
+    .dragon-scaler .BSstripe:after { content: ' '; position: absolute; width: 25px; height: 0px; border-right: 5px solid transparent; border-bottom: 15px solid var(--d-belly); opacity:0.7; margin-top: 0px; margin-left: 0px; z-index: 5; }
+    .dragon-scaler .BSstripeTwo { position: absolute; width: 28px; height: 0px; border: 5px solid transparent; border-bottom: 15px solid var(--d-belly); margin-top: -125px; margin-left: -26px; z-index: 5; }
+    .dragon-scaler .BSstripeTwo:after { content: ' '; position: absolute; width: 14px; height: 0px; border-right: 5px solid transparent; border-bottom: 15px solid var(--d-belly); opacity:0.7; margin-top: 0px; margin-left: 0px; z-index: 5; }
+    .dragon-scaler .belt { width: 160px; height: 60px; position: absolute; background-color: var(--d-primary); margin-top: -115px; margin-left: -90px; z-index: -1; border-radius: 10px; }
+    .dragon-scaler .belt:after { content: ' '; width: 80px; height: 60px; position: absolute; background-color: var(--d-secondary); border-radius: 0px 10px 10px 0px; }
+    .dragon-scaler .wingsStart { width: 154px; height: 15px; background-color: var(--d-tertiary); position: absolute; margin-top: -35px; margin-left: -86px; z-index: -3; }
+    .dragon-scaler .WSleftBall { width: 22px; height: 22px; background-color: var(--d-secondary); border-radius: 100%; position: absolute; z-index: -3; margin-top: -10px; margin-left: -25px; border: 10px solid var(--d-tertiary); }
+    .dragon-scaler .WSleftBall:after { content: ' '; width: 0px; height: 0px; border: 9px solid transparent; border-bottom: 15px solid var(--d-tertiary); position: absolute; margin-top: -3px; margin-left: -10px; transform: rotate(-35deg); }
+    .dragon-scaler .WSleftBallTwo { width: 22px; height: 22px; background-color: var(--d-secondary); border-radius: 100%; position: absolute; z-index: -3; margin-top: -10px; margin-left: 134px; border: 10px solid var(--d-tertiary); }
+    .dragon-scaler .WSleftBallTwo:after { content: ' '; width: 0px; height: 0px; border: 9px solid transparent; border-bottom: 15px solid var(--d-tertiary); position: absolute; margin-top: -3px; margin-left: -7px; transform: rotate(35deg); }
+    .dragon-scaler .insideBarUpLeft { position: absolute; width: 14px; height: 140px; background-color: var(--d-tertiary); margin-top: -145px; margin-left: 4px; }
+    .dragon-scaler .insideBarUpLeft > .ball { width: 14px; height: 14px; background-color: var(--d-secondary); border-radius: 100%; position: absolute; z-index: -3; margin-top: -23px; margin-left: -8px; border: 8px solid var(--d-tertiary); }
+    .dragon-scaler .insideBarUpLeft .skewBarOut { width: 17px; height: 140px; background-color: var(--d-tertiary); position: absolute; z-index: -500; margin-top: -30px; margin-left: -48px; transform: skew(-45deg); z-index: -500; }
+    .dragon-scaler .insideBarUpLeft .webHold { width: 14px; height: 132px; background-color: var(--d-tertiary); position: absolute; margin-top: 46px; margin-left: -54px; }
+    .dragon-scaler .insideBarUpLeft .webHold:before { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid #aaa; border-right: 7px solid #aaa; opacity:0.1; position: absolute; margin-top: 118px; margin-left: -7px; }
+    .dragon-scaler .insideBarUpLeft .conect { width: 33px; height: 14px; background-color: var(--d-tertiary); position: absolute; margin-top: 104px; margin-left: 10px; }
+    .dragon-scaler .insideBarUpLeft .lastBall { width: 12px; height: 12px; background-color: var(--d-secondary); border-radius: 100%; position: absolute; z-index: 1; margin-top: 95px; margin-left: -120px; border: 6px solid var(--d-tertiary); }
+    .dragon-scaler .insideBarUpLeft .lastConect { width: 14px; height: 150px; background-color: var(--d-tertiary); position: absolute; margin-top: 13px; margin-left: -1px; }
+    .dragon-scaler .insideBarUpLeft .lastConect:after { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid #aaa; border-left: 7px solid #aaa; border-right: 7px solid #aaa; opacity:0.1; position: absolute; margin-top: 136px; margin-left: -7px; }
+    .dragon-scaler .insideBarUpLeft .web { width: 41px; height: 102px; background-color: var(--d-primary); opacity:0.8; position: absolute; margin-top: 48px; margin-left: -40px; }
+    .dragon-scaler .insideBarUpLeft .web:before { content: ' '; width: 0px; height: 0px; border: 20px solid transparent; border-bottom: 21px solid var(--d-primary); border-right: 21px solid var(--d-primary); position: absolute; margin-top: -40px; margin-left: -21px; }
+    .dragon-scaler .insideBarUpLeft .web:after { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid var(--d-tertiary); border-right: 7px solid var(--d-tertiary); position: absolute; margin-top: 88px; margin-left: 7px; }
+    .dragon-scaler .insideBarUpLeft .webTwo { width: 47px; height: 116px; background-color: var(--d-primary); opacity:0.8; position: absolute; margin-top: 86px; margin-left: -101px; transform: skewY(-45deg); }
+    .dragon-scaler .insideBarUpRight { position: absolute; width: 14px; height: 140px; background-color: var(--d-tertiary); margin-top: -145px; margin-left: 6px; }
+    .dragon-scaler .insideBarUpRight > .ball { width: 14px; height: 14px; background-color: var(--d-secondary); border-radius: 100%; position: absolute; z-index: -3; margin-top: -23px; margin-left: -8px; border: 8px solid var(--d-tertiary); }
+    .dragon-scaler .insideBarUpRight .skewBarOut { width: 17px; height: 140px; background-color: var(--d-tertiary); position: absolute; z-index: -500; margin-top: -30px; margin-left: 47px; transform: skew(45deg); z-index: -500; }
+    .dragon-scaler .insideBarUpRight .webHold { width: 14px; height: 132px; background-color: var(--d-tertiary); position: absolute; margin-top: 45px; margin-left: 55px; }
+    .dragon-scaler .insideBarUpRight .webHold:before { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid #aaa; border-left: 7px solid #aaa; opacity:0.1; position: absolute; margin-top: 118px; margin-left: -7px; }
+    .dragon-scaler .insideBarUpRight .conect { width: 33px; height: 14px; background-color: var(--d-tertiary); position: absolute; margin-top: 104px; margin-left: -33px; }
+    .dragon-scaler .insideBarUpRight .lastBall { width: 12px; height: 12px; background-color: var(--d-secondary); border-radius: 100%; position: absolute; z-index: 1; margin-top: 95px; margin-left: 111px; border: 6px solid var(--d-tertiary); }
+    .dragon-scaler .insideBarUpRight .lastConect { width: 14px; height: 150px; background-color: var(--d-tertiary); position: absolute; margin-top: 13px; margin-left: -1px; }
+    .dragon-scaler .insideBarUpRight .lastConect:after { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid #aaa; border-left: 7px solid #aaa; border-right: 7px solid #aaa; opacity:0.1; position: absolute; margin-top: 136px; margin-left: -7px; }
+    .dragon-scaler .insideBarUpRight .web { width: 41px; height: 102px; background-color: var(--d-primary); opacity:0.8; position: absolute; margin-top: 47px; margin-left: 14px; }
+    .dragon-scaler .insideBarUpRight .web:before { content: ' '; width: 0px; height: 0px; border: 20px solid transparent; border-bottom: 20px solid var(--d-primary); border-left: 20px solid var(--d-primary); position: absolute; margin-top: -40px; margin-left: -21px; }
+    .dragon-scaler .insideBarUpRight .web:after { content: ' '; width: 0px; height: 0px; border: 7px solid transparent; border-bottom: 7px solid var(--d-tertiary); border-left: 7px solid var(--d-tertiary); position: absolute; margin-top: 88px; margin-left: -22px; }
+    .dragon-scaler .insideBarUpRight .webTwo { width: 47px; height: 115px; background-color: var(--d-primary); opacity:0.8; position: absolute; margin-top: 85px; margin-left: 69px; transform: skewY(45deg); }
+    .dragon-scaler .legsStart { width: 100px; height: 100px; background-color: var(--d-tertiary); position: absolute; margin-top: -55px; margin-left: -39px; z-index: -5; }
+    .dragon-scaler .legsStart:before { content: ' '; width: 30px; height: 65px; background-color: var(--d-secondary); border-radius: 0px 0px 11px 11px; }
+    .dragon-scaler .legsStart:after { content: ' '; width: 30px; height: 65px; background-color: var(--d-secondary); border-radius: 0px 0px 11px 11px; }
+    .dragon-scaler .footStart { width: 14px; height: 25px; background-color: var(--d-secondary); position: absolute; margin-top: 65px; margin-left: -13px; }
+    .dragon-scaler .footStart:before { content: ' '; width: 0px; height: 0px; border: 28px solid transparent; border-top: 28px solid var(--d-secondary); border-right: 28px solid var(--d-secondary); margin-top: -65px; margin-left: -71px; }
+    .dragon-scaler .footStart:after { content: ' '; width: 52px; height: 38px; background-color: var(--d-tertiary); margin-top: -29px; margin-left: -59px; transform: skewY(45deg); }
+    .dragon-scaler .footStartTwo { width: 14px; height: 25px; background-color: var(--d-secondary); position: absolute; margin-top: 65px; margin-left: 99px; }
+    .dragon-scaler .footStartTwo:before { content: ' '; width: 0px; height: 0px; border: 28px solid transparent; border-top: 28px solid var(--d-secondary); border-left: 28px solid var(--d-secondary); margin-top: -65px; margin-left: 15px; }
+    .dragon-scaler .footStartTwo:after { content: ' '; width: 52px; height: 36px; background-color: var(--d-tertiary); margin-top: -27px; margin-left: 7px; transform: skewY(-45deg); }
+    .dragon-scaler .LShelper { width: 27px; height: 12px; background-color: var(--d-tertiary); transform: skewY(45deg); }
+    .dragon-scaler .LShelper:before { content: ' '; width: 0px; height: 0px; border: 6px solid transparent; border-top: 6px solid var(--d-tertiary); border-right: 6px solid var(--d-tertiary); transform: skewY(-45deg); }
+    .dragon-scaler .LShelper:after { content: ' '; width: 14px; height: 11px; background-color: #aaa; opacity:0.05; transform: skewY(-45deg); }
+    .dragon-scaler .LShelperTwo { width: 27px; height: 12px; background-color: var(--d-tertiary); transform: skewY(-45deg); }
+    .dragon-scaler .LShelperTwo:before { content: ' '; width: 0px; height: 0px; border: 6px solid transparent; border-top: 6px solid var(--d-tertiary); border-left: 6px solid var(--d-tertiary); transform: skewY(45deg); }
+    .dragon-scaler .LShelperTwo:after { content: ' '; width: 14px; height: 11px; background-color: #aaa; opacity:0.05; transform: skewY(45deg); }
+    .dragon-scaler .foot { width: 200px; height: 17px; background-color: #aaa; opacity:0.05; border-radius: 50px 50px 0px 0px; margin-left: -50px; margin-top: 100px; }
+    .dragon-scaler .toe, .dragon-scaler .toeTwo { width: 61px; height: 9px; background-color: #aaa; border-radius: 11px 11px 0px 0px; opacity:0.05;}
+    .dragon-scaler .toe { margin-left: 19px; } .dragon-scaler .toeTwo { margin-left: 117px; }
+    .dragon-scaler .Ctoe, .dragon-scaler .CtoeTwo { width: 22px; height: 17px; border-radius: 17px 17px 0px 0px; background-color: #aaa; opacity:0.05;}
+    .dragon-scaler .Ctoe { margin-left: 33px; } .dragon-scaler .CtoeTwo { margin-left: 143px; }
 `;
 document.head.appendChild(monsterStyle);
 // ==========================================
@@ -3958,19 +3993,20 @@ socket.on('revivalJuiceUsed', (data) => {
                 } else if (m.monsterKey.includes('wraith')) {
                     spriteHtml = `<div class="monster-sprite-layer wraith-base"><div class="w-eye left"></div><div class="w-eye right"></div><div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div></div>`;
                } else if (m.monsterKey.includes('minotaur')) {
-                    // 🐂 MINOTAUR: Exact Golem body, but with horns and an axe
+                    // 🐂 MINOTAUR: Rebuilt Golem base with separate head on top
                     spriteHtml = `<div class="monster-sprite-layer minotaur-base">
-                        <div class="m-body">
+                        <div class="m-head">
                             <div class="m-horn-l"></div><div class="m-horn-r"></div>
                             <div class="m-eye-l"></div><div class="m-eye-r"></div>
-                            <div class="m-snout"></div>
+                            <div class="m-snout"><div class="m-ring"></div></div>
                         </div>
+                        <div class="m-body"></div>
                         <div class="m-arm-l"><div class="m-axe"></div></div>
                         <div class="m-arm-r"></div>
                         <div class="m-leg-l"></div><div class="m-leg-r"></div>
                     </div>`;
                 } else if (m.monsterKey.includes('dragon')) {
-                    // 🐉 DRAGON: The massive CodePen HTML skeleton injection!
+                    // 🐉 DRAGON: CodePen Front-Facing Skeleton
                     spriteHtml = `<div class="monster-sprite-layer dragon-base">
                         <div class="dragon-scaler">
                             <div class="wingsStart"></div><div class="WSleftBall"></div><div class="WSleftBallTwo"></div>
@@ -4009,8 +4045,8 @@ socket.on('revivalJuiceUsed', (data) => {
                     spriteLayer.className = m.category === 'floor_boss' ? 'monster-sprite-layer golem-base boss' : 'monster-sprite-layer golem-base';
                 } else if (m.monsterKey.includes('wraith')) {
                     spriteLayer.className = 'monster-sprite-layer wraith-base';
-                } else if (m.monsterKey.includes('minotaur')) {
-                    // Passes the category directly into the class for color changing
+               } else if (m.monsterKey.includes('minotaur')) {
+                    // Passes the category (e.g., mini_boss) directly into the class for color changing
                     spriteLayer.className = `monster-sprite-layer minotaur-base ${m.category}`;
                 } else if (m.monsterKey.includes('dragon')) {
                     // Passes the category directly into the class for color changing
