@@ -238,74 +238,93 @@ rankStyle.innerHTML = `
 `;
 document.head.appendChild(rankStyle);
 // ==========================================
-// 🐉 NEW MONSTER CSS (MINOTAUR & DRAGON)
+// 🐉 NEW MONSTER CSS (RE-SKINNED MINOTAUR & DRAGON)
 // ==========================================
 const monsterStyle = document.createElement('style');
 monsterStyle.innerHTML = `
-    /* --- 🐂 MINOTAUR CSS --- */
+    /* --- 🐂 MINOTAUR CSS (Body added like Golem) --- */
     .minotaur-base {
         width: 100%; height: 100%; position: relative;
-        display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    }
+    .m-torso {
+        width: 70%; height: 50%; background: var(--mob-color);
+        position: absolute; bottom: 20%; left: 15%; border-radius: 8px;
+        box-shadow: inset 0 -10px rgba(0,0,0,0.3); z-index: 2;
+        border: 2px solid var(--mob-border);
+    }
+    .m-head-holder {
+        width: 100%; height: 60%; position: absolute; top: -15%; left: 0;
+        display: flex; flex-direction: column; align-items: center; z-index: 3;
     }
     .m-head {
-        width: 85%; height: 75%; background: var(--mob-color);
-        border: 3px solid var(--mob-border); border-radius: 40% 40% 20% 20%;
-        position: relative; box-shadow: inset 0 -10px rgba(0,0,0,0.4);
-        z-index: 2;
+        width: 55%; height: 75%; background: var(--mob-color);
+        border: 2px solid var(--mob-border); border-radius: 40% 40% 20% 20%;
+        position: relative; box-shadow: inset 0 -5px rgba(0,0,0,0.4);
     }
-    .m-horns {
-        position: absolute; top: -20px; width: 120%; display: flex; justify-content: space-between; z-index: 1;
-    }
-    .m-horn {
-        width: 30px; height: 45px; background: #e0e0e0; border: 3px solid #757575;
-    }
-    .m-horn.left { border-radius: 100% 0 0 0; transform: rotate(-25deg); box-shadow: inset -3px 0 rgba(0,0,0,0.2); }
-    .m-horn.right { border-radius: 0 100% 0 0; transform: rotate(25deg); box-shadow: inset 3px 0 rgba(0,0,0,0.2); }
-    .m-eye { width: 12px; height: 12px; background: #ff1744; border-radius: 50%; position: absolute; top: 25%; box-shadow: 0 0 8px #ff1744; }
-    .m-eye.left { left: 15%; }
-    .m-eye.right { right: 15%; }
-    .m-snout { 
-        width: 70%; height: 40%; background: rgba(0,0,0,0.25); 
-        position: absolute; bottom: 5%; left: 15%; border-radius: 50%; 
-        display:flex; justify-content:center; align-items:flex-end;
-    }
-    .m-ring { width: 20px; height: 20px; border: 4px solid #FFD700; border-radius: 50%; margin-bottom: -10px; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-    .minotaur-base.boss { transform: scale(1.15); filter: drop-shadow(0 0 15px var(--mob-border)); }
+    .m-horns { position: absolute; top: -10px; width: 100%; display: flex; justify-content: space-between; z-index: 1; }
+    .m-horn { width: 15px; height: 25px; background: #e0e0e0; border: 2px solid #757575; }
+    .m-horn.left { border-radius: 100% 0 0 0; transform: rotate(-25deg); }
+    .m-horn.right { border-radius: 0 100% 0 0; transform: rotate(25deg); }
+    .m-eye { width: 6px; height: 6px; background: #ff1744; border-radius: 50%; position: absolute; top: 25%; }
+    .m-eye.left { left: 15%; } .m-eye.right { right: 15%; }
+    .m-snout { width: 70%; height: 40%; background: rgba(0,0,0,0.2); position: absolute; bottom: 5%; left: 15%; border-radius: 50%; display:flex; justify-content:center; align-items:flex-end; }
+    .m-ring { width: 10px; height: 10px; border: 2px solid #FFD700; border-radius: 50%; margin-bottom: -5px; }
 
-    /* --- 🐉 DRAGON CSS --- */
+    /* Reuse Golem limb animations and basic styles */
+    .minotaur-base .g-arm-l, .minotaur-base .g-arm-r, 
+    .minotaur-base .g-leg-l, .minotaur-base .g-leg-r {
+        background: var(--mob-color); border: 2px solid var(--mob-border); border-radius: 4px; z-index: 1;
+    }
+    .minotaur-base.boss { transform: scale(1.1); filter: drop-shadow(0 0 10px var(--mob-border)); }
+
+    /* --- 🐉 DRAGON CSS (Snake shape + 2 feet + Wings) --- */
     .dragon-base {
         width: 100%; height: 100%; position: relative;
-        display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+        display: flex; flex-direction: column; align-items: center; justify-content: space-between;
     }
-    .d-body {
-        width: 75%; height: 85%; background: var(--mob-color);
-        border: 3px solid var(--mob-border); border-radius: 50% 50% 15% 15%;
-        position: relative; box-shadow: inset 0 -15px rgba(0,0,0,0.4);
-        z-index: 2;
+    .d-snake-body {
+        width: 40%; height: 70%; background: var(--mob-color);
+        border: 3px solid var(--mob-border); border-radius: 40px;
+        position: absolute; bottom: 10%; left: 30%; z-index: 2;
+        /* Scale effect using gradient */
+        background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 4px);
+        box-shadow: inset 0 -10px rgba(0,0,0,0.3);
     }
-    .d-eye { 
-        width: 14px; height: 8px; background: #ffeb3b; border-radius: 50%; 
-        position: absolute; top: 30%; box-shadow: 0 0 10px #ffeb3b; 
+    .d-tail {
+        width: 20%; height: 50%; background: var(--mob-color);
+        position: absolute; bottom: -20px; left: 40%; border-radius: 50% 50% 0 0;
+        border: 3px solid var(--mob-border); border-top: none; transform: rotate(20deg);
     }
-    .d-eye.left { left: 15%; transform: rotate(-20deg); }
-    .d-eye.right { right: 15%; transform: rotate(20deg); }
-    .d-horns { 
-        position:absolute; top:-12px; width:100%; height:25px; 
-        background: radial-gradient(circle at 30% 100%, var(--mob-border) 45%, transparent 46%), 
-                    radial-gradient(circle at 70% 100%, var(--mob-border) 45%, transparent 46%);
+    .d-head {
+        width: 60%; height: 40%; background: var(--mob-color);
+        border: 3px solid var(--mob-border); border-radius: 40% 40% 10% 10%;
+        position: absolute; top: -5%; left: 20%; z-index: 4;
+        box-shadow: inset 0 -5px rgba(0,0,0,0.3);
     }
+    .d-eye { width: 10px; height: 5px; background: #ffeb3b; border-radius: 50%; position: absolute; top: 35%; box-shadow: 0 0 5px #ffeb3b; }
+    .d-eye.left { left: 20%; transform: rotate(-20deg); } .d-eye.right { right: 20%; transform: rotate(20deg); }
+    .d-fangs { 
+        position: absolute; bottom: -5px; width: 100%; height: 10px;
+        background: radial-gradient(circle at 35% 0%, #fff 25%, transparent 26%), 
+                    radial-gradient(circle at 65% 0%, #fff 25%, transparent 26%);
+    }
+    .d-feet { position: absolute; bottom: 5%; width: 100%; display: flex; justify-content: center; gap: 10px; z-index: 3; }
+    .d-foot { width: 15px; height: 20px; background: var(--mob-border); border-radius: 5px; }
+    .d-foot.left { transform: rotate(-10deg); border-radius: 0 0 5px 15px; }
+    .d-foot.right { transform: rotate(10deg); border-radius: 0 0 15px 5px; }
+
+    /* Wings attached to back (behind snake body) */
+    .d-wings { position: absolute; top: 15%; width: 100%; height: 60%; z-index: 1; display: flex; justify-content: center; }
     .d-wing {
-        position: absolute; top: 10%; width: 70%; height: 80%;
-        background: var(--mob-border); border-radius: 100% 0 50% 0;
-        z-index: 1; transform-origin: bottom right;
-        box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        width: 60px; height: 80px; background: var(--mob-border);
+        border-radius: 100% 10% 50% 10%; box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
     }
-    .d-wing.left { left: -40%; animation: dragonFlapLeft 0.3s infinite alternate ease-in-out; }
-    .d-wing.right { right: -40%; transform-origin: bottom left; border-radius: 0 100% 0 50%; animation: dragonFlapRight 0.3s infinite alternate ease-in-out; }
+    .d-wing.left { transform-origin: top right; animation: dragonFlapLeft 0.3s infinite alternate ease-in-out; }
+    .d-wing.right { transform-origin: top left; border-radius: 10% 100% 10% 50%; animation: dragonFlapRight 0.3s infinite alternate ease-in-out; }
     
-    @keyframes dragonFlapLeft { 0% { transform: rotate(5deg); } 100% { transform: rotate(-40deg); } }
-    @keyframes dragonFlapRight { 0% { transform: rotate(-5deg); } 100% { transform: rotate(40deg); } }
-    .dragon-base.boss { transform: scale(1.2); filter: drop-shadow(0 0 20px var(--mob-border)); }
+    @keyframes dragonFlapLeft { 0% { transform: rotate(10deg); } 100% { transform: rotate(-30deg); } }
+    @keyframes dragonFlapRight { 0% { transform: rotate(-10deg); } 100% { transform: rotate(30deg); } }
+    .dragon-base.boss { transform: scale(1.15); filter: drop-shadow(0 0 15px var(--mob-border)); }
 `;
 document.head.appendChild(monsterStyle);
 // ==========================================
@@ -3889,16 +3908,30 @@ socket.on('revivalJuiceUsed', (data) => {
             if (!mEl) {
                 mEl = document.createElement('div'); mEl.id = 'mob_' + m.id; mEl.className = 'entity monster-container'; mEl.style.position = 'absolute'; mEl.style.cursor = 'crosshair'; mEl.style.zIndex = '50'; mEl.style.display = 'flex'; mEl.style.justifyContent = 'center'; mEl.style.alignItems = 'flex-end';
                 
-                // 🎨 BUILD THE HTML FOR OUR CUSTOM CSS MONSTERS
+                // 🎨 BUILD THE HTML FOR OUR CUSTOM CSS MONSTERS (RE-SKINNED)
                 let spriteHtml = '';
                 if (m.monsterKey.includes('golem')) {
                     spriteHtml = `<div class="monster-sprite-layer golem-base"><div class="g-head"><div class="g-eye"></div><div class="g-eye"></div></div><div class="g-arm-l"></div><div class="g-arm-r"></div><div class="g-leg-l"></div><div class="g-leg-r"></div></div>`;
                 } else if (m.monsterKey.includes('wraith')) {
                     spriteHtml = `<div class="monster-sprite-layer wraith-base"><div class="w-eye left"></div><div class="w-eye right"></div><div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div></div>`;
                 } else if (m.monsterKey.includes('minotaur')) {
-                    spriteHtml = `<div class="monster-sprite-layer minotaur-base"><div class="m-horns"><div class="m-horn left"></div><div class="m-horn right"></div></div><div class="m-head"><div class="m-eye left"></div><div class="m-eye right"></div><div class="m-snout"><div class="m-ring"></div></div></div></div>`;
+                    // Minotaur now has Golem structure + unique head
+                    spriteHtml = `<div class="monster-sprite-layer minotaur-base">
+                        <div class="g-arm-l"></div><div class="g-arm-r"></div><div class="g-leg-l"></div><div class="g-leg-r"></div>
+                        <div class="m-torso"></div>
+                        <div class="m-head-holder">
+                            <div class="m-horns"><div class="m-horn left"></div><div class="m-horn right"></div></div>
+                            <div class="m-head"><div class="m-eye left"></div><div class="m-eye right"></div><div class="m-snout"><div class="m-ring"></div></div></div>
+                        </div>
+                    </div>`;
                 } else if (m.monsterKey.includes('dragon')) {
-                    spriteHtml = `<div class="monster-sprite-layer dragon-base"><div class="d-wing left"></div><div class="d-wing right"></div><div class="d-body"><div class="d-eye left"></div><div class="d-eye right"></div><div class="d-horns"></div></div></div>`;
+                    // Dragon now has snake body + 2 feet + wings
+                    spriteHtml = `<div class="monster-sprite-layer dragon-base">
+                        <div class="d-wings"><div class="d-wing left"></div><div class="d-wing right"></div></div>
+                        <div class="d-feet"><div class="d-foot left"></div><div class="d-foot right"></div></div>
+                        <div class="d-snake-body"><div class="d-tail"></div></div>
+                        <div class="d-head"><div class="d-eye left"></div><div class="d-eye right"></div><div class="d-fangs"></div></div>
+                    </div>`;
                 } else {
                     spriteHtml = `<div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div>`;
                 }
