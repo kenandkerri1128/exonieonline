@@ -1708,10 +1708,9 @@ window.playVoice = function(className) {
 // 🎵 THE FIX: BOSS MUSIC ENGINE
 window.bossBgmTimeout = null;
 window.revertBGM = function() {
-    // 🛡️ THE FIX: Keep playing boss music if we are in the Training Tavern or a Dungeon!
-    let isBossMap = safeMapData.id === 'trainingtavern' || String(safeMapData.id).includes('dungeon');
+    let isBossMap = safeMapData.id === 'trainingtavern' || safeMapData.id === 'hauntedhouse' || String(safeMapData.id).includes('dungeon');
     if (currentTrackName === 'bossfight' && !isBossMap) {
-        window.playBGM(window.routeMapMusic(safeMapData.id)); ? 'town' : (String(safeMapData.id).includes('floor') ? 'floors' : 'town'));
+        window.playBGM(window.routeMapMusic(safeMapData.id));
     }
 };
 
@@ -1825,7 +1824,7 @@ window.routeMapMusic = function(mapId) {
     return mId;
 };
 
-// 3. The Bulletproof Play Function
+// 3. The Bulletproof Play Function with Auto-Fallback
 window.playBGM = function(trackName) {
     if (!trackName) {
         if (window.currentBGM) window.currentBGM.pause();
@@ -1844,7 +1843,7 @@ window.playBGM = function(trackName) {
     }
 
     let finalUrl = `music/${trackName}.mp3`;
-    console.log(`[AUDIO] Attempting to play: ${finalUrl}`);
+    console.log(`[AUDIO] Attempting to play: ${finalUrl} (Vol: ${window.gameVolume})`);
 
     let newAudio = new Audio(finalUrl);
     newAudio.loop = true;
@@ -3702,8 +3701,8 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
                     window.cleanupMap(); 
                     
                     if(socket) socket.emit('playerTeleported', { mapId: nextMapId, x: game.player.x, y: game.player.y, mapData: safeMapData }); 
-                    window.playBGM(window.routeMapMusic(nextMapId)); || String(nextMapId).includes('dungeon')) ? 'bossfight' : (String(nextMapId).includes('floor') ? 'floors' : 'town'));
-                    window.showMapAnnouncement(nextMapId); 
+                    window.playBGM(window.routeMapMusic(nextMapId));
+                    window.showMapAnnouncement(nextMapId);
                     
                     transScreen.style.opacity = '0'; 
                     setTimeout(() => { transScreen.style.display = 'none'; }, 1000); 
@@ -5429,7 +5428,7 @@ window.playTutorialVideo = function() {
                     setTimeout(() => {
                         // 🛡️ FIX 3: Bulletproof string checking for the Map ID
                         let mapIdStr = (typeof safeMapData !== 'undefined' && safeMapData.id) ? String(safeMapData.id) : 'town';
-                        let nextTrack = window.routeMapMusic(mapIdStr); || mapIdStr.includes('dungeon')) ? 'bossfight' : (mapIdStr.includes('floor') ? 'floors' : 'town');
+                        let nextTrack = window.routeMapMusic(mapIdStr);
                         
                         window.playBGM(nextTrack);
                         try { window.showMapAnnouncement(mapIdStr); } catch(e) {}
