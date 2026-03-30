@@ -24,32 +24,41 @@
 .ah-row:hover { background:#222; border-color:#2196F3; }
 .ah-item-info { display:flex; align-items:center; gap:15px; flex:1; }
 .ah-price { color:gold; font-weight:bold; font-size:16px; width:100px; text-align:right; margin-right:15px; }
-  /* ========================================== */
+ /* ========================================== */
         /* 📱 MOBILE FIX: Character Selection Contents */
         /* ========================================== */
         @media (max-width: 850px), (max-height: 750px) {
-            /* 1. Shrink the Name and Level Text */
+            /* 1. Fix the black box background cutting off */
+            #select-screen > div {
+                height: auto !important; 
+                min-height: 60vh !important;
+                padding: 20px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+            
+            /* 2. Shrink the Avatar exactly as requested */
+            #select-screen .player-avatar-container {
+                transform: scale(0.55) !important;
+                transform-origin: center center !important;
+                margin: -40px 0 !important; /* Eats the empty space around the smaller avatar */
+            }
+            
+            /* 3. Shrink the text and button proportionally */
             #select-name-display {
-                font-size: 24px !important;
-                margin: 5px 0 !important;
+                font-size: 22px !important;
+                margin: 0 !important;
             }
             #select-level-display {
                 font-size: 14px !important;
-                margin: 0 0 10px 0 !important;
+                margin-bottom: 5px !important;
             }
-            
-            /* 2. Shrink the Avatar and reclaim the empty vertical space */
-            #select-screen .player-avatar-container {
-                transform: scale(0.65) !important;
-                transform-origin: top center !important;
-                height: 75px !important; /* Pulls the button up into the visible area */
-                margin-bottom: 0 !important;
-            }
-            
-            /* 3. Shrink the Enter World button slightly */
             #select-screen button {
-                padding: 10px !important;
+                width: 90% !important;
                 font-size: 16px !important;
+                padding: 12px !important;
                 margin-top: 5px !important;
             }
         }
