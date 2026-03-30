@@ -2323,19 +2323,8 @@ socket.on('broadcastSkill', (data) => {
         const clientIp = socket.handshake.headers['x-forwarded-for']?.split(',')[0] || socket.handshake.address;
         const safeDeviceId = deviceId || 'unknown_device';
 
-        // 🛡️ THE FIX: Admins completely bypass the character creation limits!
-        if (!isAdmin(username)) {
-            // 🛡️ ANTI-SPAM 1: Check IP Limit (Max 1)
-           // 🔓 MOBILE FIX: Removed IP limit so siblings/roommates on the same Wi-Fi can play.
-            // Device ID limits are still enforced right below this!
-
-            // 🛡️ ANTI-VPN 2: Check Device ID Limit (Max 1)
-            const { count: devCount } = await supabase.from('Exonians').select('*', { count: 'exact', head: true }).eq('device_id', safeDeviceId);
-            if (devCount >= 1) {
-                console.log(`[SECURITY] Blocked VPN Registration - Device ${safeDeviceId} reached the limit.`);
-                return socket.emit('authError', 'Registration Limit: You can only create 1 character per device.');
-            }
-        }
+      // 🔓 MOBILE FIX: Removed IP and Device limits for character creation.
+        // Players can create accounts freely, but Login and Party connection limits will still prevent multi-boxing abuse.
 
         const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', username).single();
         if (existingUser) return socket.emit('authError', 'Username is already taken!');
