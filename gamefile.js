@@ -5585,8 +5585,8 @@ if (socket) {
             <div style="margin-top:15px; display:flex; flex-direction:column; gap:8px;">
                 <h3 style="color:#aaa; font-size:14px; margin: 0 0 5px 0; border-bottom:1px solid #333; padding-bottom:5px;">Get More Exo Gems</h3>
                 <div style="display:flex; gap:5px;">
-                    <button class="btn" style="background:#2196F3; flex:1; font-weight:bold; padding:10px;" onclick="window.purchaseExoGems('gem_pack_50', 50)">💎 50 Gems</button>
-                    <button class="btn" style="background:#9c27b0; flex:1; font-weight:bold; padding:10px;" onclick="window.purchaseExoGems('gem_pack_120', 120)">💎 120 Gems</button>
+                    <button class="btn" style="background:#2196F3; flex:1; font-weight:bold; padding:10px;" onclick="window.purchaseExoGems('gem-pack-50', 50)">💎 50 Gems</button>
+                    <button class="btn" style="background:#9c27b0; flex:1; font-weight:bold; padding:10px;" onclick="window.purchaseExoGems('gem-pack-15', 15)">💎 15 Gems</button>
                 </div>
                 <button class="btn" style="background:#555; width:100%; margin-top:5px; padding:10px;" onclick="document.getElementById('rm-shop-modal').style.display='none'">Close</button>
             </div>
@@ -6664,7 +6664,7 @@ document.addEventListener('deviceready', () => {
     type: ProductType.CONSUMABLE,
     platform: Platform.GOOGLE_PLAY,
 }, {
-    id: 'gem-pack-120', // 👈 Changed _ to -
+    id: 'gem-pack-15', // 👈 Changed _ to -
     type: ProductType.CONSUMABLE,
     platform: Platform.GOOGLE_PLAY,
 }]);
