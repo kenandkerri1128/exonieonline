@@ -16,7 +16,8 @@ exonieChannel.onmessage = (event) => {
 // 1. CORE VARIABLES & SETUP
 // ==========================================
 // 🌐 AUTO-DETECTS TEST OR LIVE SERVER + MOBILE RECONNECTS
-const serverUrl = window.location.origin; 
+// 📱 MOBILE FIX: Hardcode the live server URL because apps don't have a web origin!
+const serverUrl = 'https://exonieonline.onrender.com';
 const socket = io(serverUrl, {
     reconnection: true,            // 🔄 Try to reconnect automatically if data drops
     reconnectionAttempts: 10,      // Try 10 times before giving up completely
