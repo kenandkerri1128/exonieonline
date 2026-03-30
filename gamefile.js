@@ -2217,16 +2217,33 @@ window.actionSplit = function(e) {
     if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; 
 
     let item = game.player.inventory[activeInvIndex]; 
-    if (!item.quantity || item.quantity <= 1) return; 
+    let currentQty = Number(item.quantity) || 1;
     
-    // 🛡️ THE AMNESIA FIX: Capture the exact index securely before we open the prompt!
+    if (currentQty <= 1) {
+        if (dom.log) dom.log.innerText = "❌ Cannot split a single item.";
+        return; 
+    }
+    
     let capturedIndex = activeInvIndex;
+    let maxSplit = currentQty - 1;
 
-    window.customPrompt(`How many to split off? (Max: ${item.quantity - 1})`, function(val) { 
+    window.customPrompt(`How many to split off? (Max: ${maxSplit})`, function(val) { 
         let amt = parseInt(val); 
-        if (!isNaN(amt) && amt > 0 && amt < item.quantity) { 
-            if (socket) socket.emit('splitInventoryItem', { index: capturedIndex, amount: amt }); 
-        } 
+        
+        if (isNaN(amt) || amt <= 0) {
+            if (dom.log) dom.log.innerText = "❌ Invalid split amount!";
+            return;
+        }
+        
+        if (amt > maxSplit) {
+            if (dom.log) dom.log.innerText = `❌ You can only split up to ${maxSplit} items!`;
+            return;
+        }
+
+        if (socket) {
+            socket.emit('splitInventoryItem', { index: capturedIndex, amount: amt }); 
+            if (dom.log) dom.log.innerText = "⏳ Splitting stack...";
+        }
     }); 
     
     document.getElementById('inv-context-menu').style.display = 'none'; 
