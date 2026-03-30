@@ -2326,11 +2326,8 @@ socket.on('broadcastSkill', (data) => {
         // 🛡️ THE FIX: Admins completely bypass the character creation limits!
         if (!isAdmin(username)) {
             // 🛡️ ANTI-SPAM 1: Check IP Limit (Max 1)
-            const { count: ipCount } = await supabase.from('Exonians').select('*', { count: 'exact', head: true }).eq('ip_address', clientIp);
-            if (ipCount >= 1) {
-                console.log(`[SECURITY] Blocked Registration - IP ${clientIp} reached the limit.`);
-                return socket.emit('authError', 'Registration Limit: You can only create 1 character per network.');
-            }
+           // 🔓 MOBILE FIX: Removed IP limit so siblings/roommates on the same Wi-Fi can play.
+            // Device ID limits are still enforced right below this!
 
             // 🛡️ ANTI-VPN 2: Check Device ID Limit (Max 1)
             const { count: devCount } = await supabase.from('Exonians').select('*', { count: 'exact', head: true }).eq('device_id', safeDeviceId);
@@ -4579,8 +4576,11 @@ socket.on('requestConfirmTrade', () => {
             return; // Stops them from being added
         }
 
-        // 🛡️ ANTI-MULTI-BOXING: Block teaming up with same IP, Email, or Device
+       // 🛡️ ANTI-MULTI-BOXING: Max 2 per IP, Max 1 per Email, Max 1 per Device
         let isSpamAlt = false;
+        let failReason = "";
+        let ipMatchCount = 1; // Start at 1 (the joining player)
+        
         let membersToCheck = pid && parties[pid] ? Array.from(parties[pid].members) : [fromId];
 
         if (!isAdmin(me.id)) {
@@ -4591,13 +4591,26 @@ socket.on('requestConfirmTrade', () => {
                 if (mSid) {
                     const mSocket = io.sockets.sockets.get(mSid);
                     if (mSocket) {
-                        if (
-                            (mSocket.clientIp && mSocket.clientIp === socket.clientIp) ||
-                            (mSocket.email && mSocket.email === socket.email) ||
-                            (mSocket.deviceId && mSocket.deviceId === socket.deviceId && socket.deviceId !== 'unknown_device')
-                        ) {
+                        // 1. Device check (Strict Max 1)
+                        if (mSocket.deviceId && mSocket.deviceId === socket.deviceId && socket.deviceId !== 'unknown_device') {
                             isSpamAlt = true;
+                            failReason = "Max 1 account per device allowed in a party";
                             break;
+                        }
+                        // 2. Email check (Strict Max 1)
+                        if (mSocket.email && mSocket.email === socket.email) {
+                            isSpamAlt = true;
+                            failReason = "Max 1 account per email allowed in a party";
+                            break;
+                        }
+                        // 3. IP check (Max 2 allowed, so block if this makes 3)
+                        if (mSocket.clientIp && mSocket.clientIp === socket.clientIp) {
+                            ipMatchCount++;
+                            if (ipMatchCount > 2) {
+                                isSpamAlt = true;
+                                failReason = "Max 2 players per Wi-Fi/IP allowed in a party";
+                                break;
+                            }
                         }
                     }
                 }
@@ -4605,8 +4618,8 @@ socket.on('requestConfirmTrade', () => {
         }
 
         if (isSpamAlt) {
-            socket.emit('systemMessage', '❌ You cannot party with accounts on the same Network, Email, or Device.');
-            io.to(fromSid).emit('systemMessage', `❌ ${me.id} cannot join due to multi-boxing restrictions.`);
+            socket.emit('systemMessage', `❌ You cannot join party: ${failReason}.`);
+            io.to(fromSid).emit('systemMessage', `❌ ${me.id} cannot join due to multi-boxing limits (${failReason}).`);
             return;
         }
 
@@ -4831,7 +4844,10 @@ socket.on('requestConfirmTrade', () => {
                 // Wipe any accidental admin spawns so it's a strict 1v1
                 worlds[p.instanceId].monsters = {}; 
                 
-                const mKey = p.pendingTavernBoss.mobType === 'floor_boss' ? 'floor_boss1' : (p.pendingTavernBoss.mobType === 'mini_boss' ? 'mini_boss1' : 'common_mobs1');
+                // 🛡️ MOBILE/SERVER STABILITY FIX: Make sure the boss still exists before reading it!
+        if (!p || !p.pendingTavernBoss) return;
+        
+        const mKey = p.pendingTavernBoss.mobType === 'floor_boss' ? 'floor_boss1' : (p.pendingTavernBoss.mobType === 'mini_boss' ? 'mini_boss1' : 'common_mobs1');
                 const newMob = spawnMonster(p.instanceId, 't_mob_1', mKey, { spawnArea: { minX: 989, minY: 394 }, level: p.pendingTavernBoss.level });
                 
                 worlds[p.instanceId].monsters['t_mob_1'] = newMob;
