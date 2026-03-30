@@ -1,0 +1,9 @@
+{
+  "appId": "com.xeniegaming.exonie",
+  "appName": "Exonie",
+  "webDir": "www",
+  "server": {
+    "url": "https://exonieonline.onrender.com",
+    "cleartext": true
+  }
+}
