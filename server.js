@@ -1799,29 +1799,30 @@ io.on('connection', (socket) => {
         });
         io.to(sid).emit('friendsListUpdate', friendData);
     }
-    // ==========================================
+  // ==========================================
     // 🎟️ AUTOMATIC CLOSED BETA CODE DISTRIBUTOR
     // ==========================================
     socket.on('requestBetaCode', async () => {
         try {
             const clientIp = socket.handshake.headers['x-forwarded-for']?.split(',')[0] || socket.handshake.address;
 
-            // 1. Check if this player (IP) already claimed a code before.
+            // 1. Check if this player already successfully claimed a code.
             // If yes, give them the EXACT SAME CODE so they don't waste a new one!
             const { data: existingClaim } = await supabase
                 .from('Promo_Codes')
-                .select('code')
+                .select('id, code')
                 .eq('claimed_by_ip', clientIp)
                 .single();
 
             if (existingClaim) {
                 return socket.emit('betaCodeResult', { 
                     success: true, 
+                    codeId: existingClaim.id,
                     url: `https://play.google.com/redeem?code=${existingClaim.code}` 
                 });
             }
 
-            // 2. Find the first available unused code
+            // 2. Find the first available UNUSED code
             const { data: availableCode, error } = await supabase
                 .from('Promo_Codes')
                 .select('*')
@@ -1833,21 +1834,34 @@ io.on('connection', (socket) => {
                 return socket.emit('systemMessage', '❌ Closed Beta is currently full! No codes available.');
             }
 
-            // 3. Mark the code as USED and lock it to their IP immediately
-            await supabase
-                .from('Promo_Codes')
-                .update({ is_used: true, claimed_by_ip: clientIp })
-                .eq('id', availableCode.id);
-
-            // 4. Send the personalized Google Play link to the player
+            // 3. Send the code to the client, but DO NOT mark it as used yet!
             socket.emit('betaCodeResult', { 
                 success: true, 
+                codeId: availableCode.id,
                 url: `https://play.google.com/redeem?code=${availableCode.code}` 
             });
 
         } catch (e) {
             console.error("[BETA CODE ERROR]", e);
             socket.emit('systemMessage', 'Server error while fetching beta code.');
+        }
+    });
+
+    // 4. THIS FIRES ONLY AFTER THE PLAYER SUCCESSFULLY OPENS THE NEW TAB
+    socket.on('confirmCodeOpened', async (data) => {
+        if (!data || !data.codeId) return;
+        const clientIp = socket.handshake.headers['x-forwarded-for']?.split(',')[0] || socket.handshake.address;
+        
+        try {
+            // Officially burn the code and lock it to their IP
+            await supabase
+                .from('Promo_Codes')
+                .update({ is_used: true, claimed_by_ip: clientIp })
+                .eq('id', data.codeId);
+                
+            console.log(`[BETA] Code ID ${data.codeId} permanently claimed by IP: ${clientIp}`);
+        } catch (e) {
+            console.error("[BETA CLAIM ERROR]", e);
         }
     });
    // 🛡️ SYSTEM MAILBOX: Fetch messages for the specific player
