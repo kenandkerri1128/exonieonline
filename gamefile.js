@@ -4451,11 +4451,11 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('click', (e) => { 
     if (e.target.id === 'install-btn') { 
         e.target.innerText = "Fetching Code...";
-        if (socket) socket.emit('requestBetaCode');
+        if (typeof socket !== 'undefined' && socket) socket.emit('requestBetaCode');
     } 
 });
 
-if (socket) {
+if (typeof socket !== 'undefined' && socket) {
     socket.on('betaCodeResult', (data) => {
         const btn = document.getElementById('install-btn');
         if (btn) btn.innerText = "Download Closed Beta";
