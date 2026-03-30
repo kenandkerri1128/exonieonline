@@ -3388,12 +3388,19 @@ socket.on('mailList', (mails) => {
         ann.style.boxShadow = '0 0 30px #ffea00, inset 0 0 20px rgba(255, 152, 0, 0.8)';
     }
 
-    // Also perfectly hides the "Lv." text if it's a material like Divine Essence
-    let lvlText = data.level ? `Lv. ${data.level}` : '';
-    
-    ann.innerHTML = `<div style="color: #e0e0e0; font-size: 16px; margin-bottom: 5px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 2px 2px 4px #000;">${data.playerName} just got</div><div style="color: ${data.color}; font-size: 28px; font-weight: bold; -webkit-text-stroke: 1px black; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 15px ${data.color};" class="${glowClass}">${data.itemName} ${lvlText}</div>`; 
-    container.appendChild(ann);
-});
+   // Also perfectly hides the "Lv." text if it's a material like Divine Essence
+        let lvlText = data.level ? `Lv. ${data.level}` : '';
+        
+        ann.innerHTML = `<div style="color: #e0e0e0; font-size: 16px; margin-bottom: 5px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 2px 2px 4px #000;">${data.playerName} just got</div><div style="color: ${data.color}; font-size: 28px; font-weight: bold; -webkit-text-stroke: 1px black; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 15px ${data.color};" class="${glowClass}">${data.itemName} ${lvlText}</div>`; 
+        
+        // 🌟 THE FIX: 'prepend' puts the newest drop at the very top instead of the bottom
+        container.prepend(ann);
+
+        // 🗑️ THE FIX: Delete the element from the game after the 3-second animation finishes!
+        setTimeout(() => {
+            if (ann) ann.remove();
+        }, 3000);
+    });
    // ==========================================
     // 📧 EMAIL UI HANDLING
     // ==========================================
