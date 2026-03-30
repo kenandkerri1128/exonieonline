@@ -19,11 +19,12 @@ exonieChannel.onmessage = (event) => {
 // 📱 MOBILE FIX: Hardcode the live server URL because apps don't have a web origin!
 const serverUrl = 'https://exonieonline.onrender.com';
 const socket = io(serverUrl, {
-    reconnection: true,            // 🔄 Try to reconnect automatically if data drops
-    reconnectionAttempts: 10,      // Try 10 times before giving up completely
-    reconnectionDelay: 2000,       // Wait 2 seconds between attempts
-    reconnectionDelayMax: 5000,    // Never wait more than 5 seconds
-    timeout: 20000,                // Give the connection 20 seconds to establish
+    transports: ['websocket', 'polling'], // 🚀 THE MOBILE FIX: Forces high-speed connection
+    reconnection: true,            
+    reconnectionAttempts: 10,      
+    reconnectionDelay: 2000,       
+    reconnectionDelayMax: 5000,    
+    timeout: 20000,                
 });
 
 // 🔔 OPTIONAL: Log to console if the internet flickers
