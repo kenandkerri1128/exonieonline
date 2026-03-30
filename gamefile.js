@@ -6704,12 +6704,12 @@ document.addEventListener('deviceready', () => {
     if (window.CdvPurchase) {
         const { store, ProductType, Platform } = window.CdvPurchase;
 
-       store.register([{
-    id: 'gem-pack-50', // 👈 Changed _ to -
+     store.register([{
+    id: 'gem_pack_50', 
     type: ProductType.CONSUMABLE,
     platform: Platform.GOOGLE_PLAY,
 }, {
-    id: 'gem-pack-15', // 👈 Changed _ to -
+    id: 'gem_pack_15', 
     type: ProductType.CONSUMABLE,
     platform: Platform.GOOGLE_PLAY,
 }]);
