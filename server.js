@@ -7435,7 +7435,7 @@ socket.on('startDungeon', async (data) => {
 
         // Map your Store Package IDs to exactly how many gems they grant
         if (packageId === 'gem-pack-50') gemsToAward = 50;
-        else if (packageId === 'gem-pack-120') gemsToAward = 120;
+        else if (packageId === 'gem-pack-15') gemsToAward = 15;
         else return socket.emit('receiptFailed', "Invalid package ID.");
 
         try {
