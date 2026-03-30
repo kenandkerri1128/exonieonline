@@ -5645,19 +5645,44 @@ window.purchaseExoGems = function(packageId, gemAmount) {
     } 
     else if (window.currentPlatform === 'android') {
         if (window.CdvPurchase) {
-            // 🛑 THE FIX: Check if Google actually loaded the product before trying to buy it!
-            const product = window.CdvPurchase.store.get(packageId, window.CdvPurchase.Platform.GOOGLE_PLAY);
-            
-            if (product && product.canPurchase) {
-                window.CdvPurchase.store.order(packageId);
-            } else {
-                alert("Google Play is blocking this. Make sure your testing account is in the 'License Testers' list in the Play Console!");
-                window.openRealMoneyShop(); // Un-freeze the UI
+            try {
+                const store = window.CdvPurchase.store;
+                const product = store.get(packageId);
+                
+                if (!product) {
+                    alert("Error: The app could not find this product ID: " + packageId);
+                    window.openRealMoneyShop();
+                    return;
+                }
+
+                if (product.canPurchase) {
+                    // 🛡️ V13 Preferred Order Method
+                    const offer = product.getOffer ? product.getOffer() : null;
+                    if (offer) {
+                        offer.order().catch(err => {
+                            alert("Order failed to open: " + err);
+                            window.openRealMoneyShop();
+                        });
+                    } else {
+                        store.order(product.id).catch(err => {
+                            alert("Order fallback failed: " + err);
+                            window.openRealMoneyShop();
+                        });
+                    }
+                } else {
+                    alert("Google Play found the item, but says you cannot purchase it right now. Ensure your app is fully updated from the testing link!");
+                    window.openRealMoneyShop();
+                }
+            } catch (e) {
+                alert("Plugin error: " + e.message);
+                window.openRealMoneyShop();
             }
+        } else {
+            alert("Store plugin not loaded!");
+            window.openRealMoneyShop();
         }
     } 
     else {
-        // ⚠️ FALLBACK: If a player clicks this in a regular web browser
         alert("In-App Purchases are only available via the Steam or Android versions of Exonie!");
         window.openRealMoneyShop(); 
     }
@@ -6703,12 +6728,14 @@ document.addEventListener('deviceready', () => {
             transaction.finish();
         });
 
-        // 🛑 THE FIX: Catch Google Play errors so the game doesn't freeze!
         store.error((err) => {
             alert("Google Play Error: " + err.message);
             window.openRealMoneyShop(); // Un-freeze the UI
         });
 
         store.initialize([Platform.GOOGLE_PLAY]);
+        
+        // 🛑 THE FIX: Force the app to fetch the products from Google Play!
+        store.update(); 
     }
 }, false);
