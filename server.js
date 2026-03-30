@@ -251,10 +251,10 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
 });
 const server = http.createServer(app);
 const io = new Server(server, {
-    cors: {
-        origin: ["https://testexonie.onrender.com", "https://exonieonline.onrender.com", /\.itch\.io$/, /\.itch\.zone$/, "http://localhost:3000"],
-        methods: ["GET", "POST"],
-        credentials: true
+   cors: {
+        origin: "*", // 🔓 Allows ALL platforms (Web, Android, Steam) to connect
+        methods: ["GET", "POST"]
+        // Note: Removed 'credentials: true' as it conflicts with origin: "*"
     },
     // 📱 MOBILE STABILITY SETTINGS
     pingTimeout: 60000,  // Wait 60 seconds (instead of 20) before giving up on a player
