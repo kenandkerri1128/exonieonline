@@ -4433,9 +4433,47 @@ window.toggleLowEndMode = function(isAuto = false) {
 
 if (lowEndMode) { document.body.classList.add('low-perf'); setTimeout(() => { const btn = document.getElementById('low-perf-btn'); if (btn) { btn.innerText = "Low-End Mode: ON"; btn.style.background = "#4CAF50"; } }, 1000); }
 
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.querySelectorAll('#install-btn').forEach(btn => btn.style.display = 'block'); });
-window.addEventListener('click', (e) => { if (e.target.id === 'install-btn') { deferredPrompt.prompt(); deferredPrompt.userChoice.then((choiceResult) => { deferredPrompt = null; }); } });
+// ==========================================
+// 🎟️ CLOSED BETA DOWNLOAD LOGIC
+// ==========================================
+// Force the download button to always show up on the login screen
+document.addEventListener('DOMContentLoaded', () => {
+    const installBtn = document.getElementById('install-btn');
+    if (installBtn) {
+        installBtn.style.display = 'block';
+        installBtn.innerText = 'Download Closed Beta';
+        installBtn.style.background = '#E040FB'; 
+        installBtn.style.borderColor = '#9c27b0';
+        installBtn.style.boxShadow = '0 0 15px #E040FB';
+    }
+});
+
+window.addEventListener('click', (e) => { 
+    if (e.target.id === 'install-btn') { 
+        e.target.innerText = "Fetching Code...";
+        if (socket) socket.emit('requestBetaCode');
+    } 
+});
+
+if (socket) {
+    socket.on('betaCodeResult', (data) => {
+        const btn = document.getElementById('install-btn');
+        if (btn) btn.innerText = "Download Closed Beta";
+
+        if (data.success && data.url) {
+            // 1. Attempt to physically open the Play Store link
+            let openedWindow = window.open(data.url, '_blank');
+            
+            // 2. CHECK: Did the browser actually open the tab? (Checks for popup blockers)
+            if (openedWindow || (typeof window.cordova !== 'undefined')) {
+                // IT OPENED! Tell the server to officially tag the code as TRUE
+                socket.emit('confirmCodeOpened', { codeId: data.codeId });
+            } else {
+                alert("❌ Popup blocker prevented the Play Store from opening. Please allow popups and click again!");
+            }
+        }
+    });
+}
 
 window.newsQueue = [];
 socket.on('latestNews', (newsArray) => { if (!Array.isArray(newsArray) || newsArray.length === 0) return; window.newsQueue = newsArray; window.showNextNews(); });
