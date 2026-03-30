@@ -1799,6 +1799,57 @@ io.on('connection', (socket) => {
         });
         io.to(sid).emit('friendsListUpdate', friendData);
     }
+    // ==========================================
+    // 🎟️ AUTOMATIC CLOSED BETA CODE DISTRIBUTOR
+    // ==========================================
+    socket.on('requestBetaCode', async () => {
+        try {
+            const clientIp = socket.handshake.headers['x-forwarded-for']?.split(',')[0] || socket.handshake.address;
+
+            // 1. Check if this player (IP) already claimed a code before.
+            // If yes, give them the EXACT SAME CODE so they don't waste a new one!
+            const { data: existingClaim } = await supabase
+                .from('Promo_Codes')
+                .select('code')
+                .eq('claimed_by_ip', clientIp)
+                .single();
+
+            if (existingClaim) {
+                return socket.emit('betaCodeResult', { 
+                    success: true, 
+                    url: `https://play.google.com/redeem?code=${existingClaim.code}` 
+                });
+            }
+
+            // 2. Find the first available unused code
+            const { data: availableCode, error } = await supabase
+                .from('Promo_Codes')
+                .select('*')
+                .eq('is_used', false)
+                .limit(1)
+                .single();
+
+            if (error || !availableCode) {
+                return socket.emit('systemMessage', '❌ Closed Beta is currently full! No codes available.');
+            }
+
+            // 3. Mark the code as USED and lock it to their IP immediately
+            await supabase
+                .from('Promo_Codes')
+                .update({ is_used: true, claimed_by_ip: clientIp })
+                .eq('id', availableCode.id);
+
+            // 4. Send the personalized Google Play link to the player
+            socket.emit('betaCodeResult', { 
+                success: true, 
+                url: `https://play.google.com/redeem?code=${availableCode.code}` 
+            });
+
+        } catch (e) {
+            console.error("[BETA CODE ERROR]", e);
+            socket.emit('systemMessage', 'Server error while fetching beta code.');
+        }
+    });
    // 🛡️ SYSTEM MAILBOX: Fetch messages for the specific player
 // 🛡️ SYSTEM MAILBOX: Handles Personal and "Everyone" mail
     socket.on('getMail', async () => {
