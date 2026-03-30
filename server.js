@@ -3587,13 +3587,13 @@ socket.on('syncPet', (data) => {
                         return; 
                     }
 
-                 // ==========================================
+                // ==========================================
                     // NORMAL OPEN WORLD BOSS SAVES & RESPAWNS
                     // ==========================================
 
-                    // 🛡️ HARD-SAVE TO SUPABASE
-                    // THE FIX: Added && !p.isMazeTrial to isolate private instances!
-                    if (m.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !p.isMazeTrial) {
+                    // 🛡️ THE BULLETPROOF FIX: Check the actual room instanceId string instead of the volatile boolean flag!
+                    // Also use targetMob instead of m to prevent AoE bugs from cloning deaths.
+                    if (targetMob.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !String(p.instanceId).startsWith('mazetrial_')) {
                         const floorId = p.mapId;
                         const deathTime = Date.now();
 
@@ -3605,7 +3605,7 @@ socket.on('syncPet', (data) => {
                             if (error) console.error("CRITICAL: Boss timer failed", error.message);
                         });
 
-                        m.respawnDelayMs = -1;
+                        targetMob.respawnDelayMs = -1;
                         io.emit('systemMessage', `🏆 [WORLD] ${floorId.toUpperCase()} Boss Defeated!`);
                         
                         // 🌟 AUTOMATIC CLEANUP & SPAWN SCHEDULE 🌟
@@ -3618,28 +3618,30 @@ socket.on('syncPet', (data) => {
                             // If players are waiting in the room, spawn it instantly!
                             if (worlds[p.instanceId]) {
                                 const cfg = {
-                                    spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY },
-                                    level: m.level
+                                    spawnArea: { minX: targetMob.homeX, maxX: targetMob.homeX, minY: targetMob.homeY, maxY: targetMob.homeY },
+                                    level: targetMob.level
                                 };
-                                const nm = spawnMonster(p.instanceId, m.id, m.originalKey || m.monsterKey, cfg);
-                                worlds[p.instanceId].monsters[m.id] = nm;
+                                const nm = spawnMonster(p.instanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
+                                worlds[p.instanceId].monsters[targetMob.id] = nm;
                                 io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
                                 io.emit('systemMessage', `⚠️ The ${floorId.toUpperCase()} Boss has respawned!`);
                             }
                         }, fullCooldown);
                     }
 
-                    // Normal Respawn Logic (🛡️ THE FIX: Strictly block Dungeons, Tavern, Haunted House, and Maze Trials from respawning!)
-                    if (m.respawnDelayMs !== -1 && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !p.isMazeTrial) {
+                    // Normal Respawn Logic (🛡️ THE BULLETPROOF FIX: Strictly block Maze Trials using instanceId!)
+                    if (targetMob.respawnDelayMs !== -1 && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !String(p.instanceId).startsWith('mazetrial_')) {
                         setTimeout(() => {
                             const cfg = {
-                                spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY },
-                                level: m.level
+                                spawnArea: { minX: targetMob.homeX, maxX: targetMob.homeX, minY: targetMob.homeY, maxY: targetMob.homeY },
+                                level: targetMob.level
                             };
-                            const nm = spawnMonster(p.instanceId, m.id, m.originalKey || m.monsterKey, cfg);
-                            world.monsters[m.id] = nm;
-                            io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
-                        }, m.respawnDelayMs || 10000);
+                            const nm = spawnMonster(p.instanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
+                            if (worlds[p.instanceId]) {
+                                worlds[p.instanceId].monsters[targetMob.id] = nm;
+                                io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
+                            }
+                        }, targetMob.respawnDelayMs || 10000);
                     }
                 }
                     });
