@@ -3587,12 +3587,13 @@ socket.on('syncPet', (data) => {
                         return; 
                     }
 
-                    // ==========================================
+                 // ==========================================
                     // NORMAL OPEN WORLD BOSS SAVES & RESPAWNS
                     // ==========================================
 
                     // 🛡️ HARD-SAVE TO SUPABASE
-                    if (m.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse') {
+                    // THE FIX: Added && !p.isMazeTrial to isolate private instances!
+                    if (m.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !p.isMazeTrial) {
                         const floorId = p.mapId;
                         const deathTime = Date.now();
 
@@ -3628,8 +3629,8 @@ socket.on('syncPet', (data) => {
                         }, fullCooldown);
                     }
 
-                    // Normal Respawn Logic (🛡️ THE FIX: Strictly block Dungeons, Tavern, and Haunted House from respawning!)
-                    if (m.respawnDelayMs !== -1 && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse') {
+                    // Normal Respawn Logic (🛡️ THE FIX: Strictly block Dungeons, Tavern, Haunted House, and Maze Trials from respawning!)
+                    if (m.respawnDelayMs !== -1 && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !p.isMazeTrial) {
                         setTimeout(() => {
                             const cfg = {
                                 spawnArea: { minX: m.homeX, maxX: m.homeX, minY: m.homeY, maxY: m.homeY },
