@@ -506,13 +506,6 @@ var hauntedhouseMapData = {
     ],
     "normalSpawns": [],
     "miniBossSpawns": [],
-    "floorBossSpawns": [
-        {
-            "x": 1064,
-            "y": 789,
-            "monsterKey": "floor_boss_wraith",
-            "level": 400
-        }
-    ]
+    "floorBossSpawns": []
 };
 if(typeof window !== 'undefined') window['hauntedhouseMapData'] = hauntedhouseMapData;
