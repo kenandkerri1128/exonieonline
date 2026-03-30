@@ -1744,6 +1744,11 @@ window.customPrompt = function(message, callback) {
     modal.style.display = 'flex';
     inputEl.focus();
 
+    // 🛡️ THE UI LAYER FIX: Force the prompt to the absolute front so movable windows don't cover it!
+    if (typeof window.bringWindowToFront === 'function') {
+        window.bringWindowToFront(modal);
+    }
+
     // Clean up function to prevent double-firing
     const cleanup = () => {
         modal.style.display = 'none';
@@ -2207,20 +2212,25 @@ window.openItemAction = function(index, e) {
     menu.style.display = 'flex'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
 }
 
-window.actionSplit = function(e) {
-    if (e) e.stopPropagation();
-    let item = game.player.inventory[activeInvIndex];
-    if (!item || !item.quantity || item.quantity <= 1) return;
+window.actionSplit = function(e) { 
+    if (e) e.stopPropagation(); 
+    if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; 
+
+    let item = game.player.inventory[activeInvIndex]; 
+    if (!item.quantity || item.quantity <= 1) return; 
     
-    window.customPrompt(`How many to split off? (Max: ${item.quantity - 1})`, function(val) {
-        let amt = parseInt(val);
-        if (!isNaN(amt) && amt > 0 && amt < item.quantity) {
-            if (socket) socket.emit('splitInventoryItem', { index: activeInvIndex, amount: amt });
-        }
-    });
+    // 🛡️ THE AMNESIA FIX: Capture the exact index securely before we open the prompt!
+    let capturedIndex = activeInvIndex;
+
+    window.customPrompt(`How many to split off? (Max: ${item.quantity - 1})`, function(val) { 
+        let amt = parseInt(val); 
+        if (!isNaN(amt) && amt > 0 && amt < item.quantity) { 
+            if (socket) socket.emit('splitInventoryItem', { index: capturedIndex, amount: amt }); 
+        } 
+    }); 
     
-    document.getElementById('inv-context-menu').style.display = 'none';
-    activeInvIndex = -1;
+    document.getElementById('inv-context-menu').style.display = 'none'; 
+    activeInvIndex = -1; 
 }
 
 window.linkItemToChat = function(index) {
@@ -5634,7 +5644,17 @@ window.purchaseExoGems = function(packageId, gemAmount) {
         if (window.electronAPI) window.electronAPI.initiateSteamPurchase(packageId);
     } 
     else if (window.currentPlatform === 'android') {
-        if (window.CdvPurchase) window.CdvPurchase.store.order(packageId);
+        if (window.CdvPurchase) {
+            // 🛑 THE FIX: Check if Google actually loaded the product before trying to buy it!
+            const product = window.CdvPurchase.store.get(packageId, window.CdvPurchase.Platform.GOOGLE_PLAY);
+            
+            if (product && product.canPurchase) {
+                window.CdvPurchase.store.order(packageId);
+            } else {
+                alert("Google Play is blocking this. Make sure your testing account is in the 'License Testers' list in the Play Console!");
+                window.openRealMoneyShop(); // Un-freeze the UI
+            }
+        }
     } 
     else {
         // ⚠️ FALLBACK: If a player clicks this in a regular web browser
@@ -6673,7 +6693,6 @@ document.addEventListener('deviceready', () => {
         store.when().approved((transaction) => {
             console.log("Purchase Approved! Verifying with server...");
             
-            // Dispatch the event that your game.js is already listening for
             window.dispatchEvent(new CustomEvent('StorePurchaseSuccess', {
                 detail: {
                     receiptToken: transaction.purchaseToken,
@@ -6682,6 +6701,12 @@ document.addEventListener('deviceready', () => {
             }));
 
             transaction.finish();
+        });
+
+        // 🛑 THE FIX: Catch Google Play errors so the game doesn't freeze!
+        store.error((err) => {
+            alert("Google Play Error: " + err.message);
+            window.openRealMoneyShop(); // Un-freeze the UI
         });
 
         store.initialize([Platform.GOOGLE_PLAY]);
