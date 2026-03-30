@@ -6659,16 +6659,15 @@ document.addEventListener('deviceready', () => {
     if (window.CdvPurchase) {
         const { store, ProductType, Platform } = window.CdvPurchase;
 
-        // Register your items (Must match IDs in Play Console)
-        store.register([{
-            id: 'gem_pack_50',
-            type: ProductType.CONSUMABLE,
-            platform: Platform.GOOGLE_PLAY,
-        }, {
-            id: 'gem_pack_120',
-            type: ProductType.CONSUMABLE,
-            platform: Platform.GOOGLE_PLAY,
-        }]);
+       store.register([{
+    id: 'gem-pack-50', // 👈 Changed _ to -
+    type: ProductType.CONSUMABLE,
+    platform: Platform.GOOGLE_PLAY,
+}, {
+    id: 'gem-pack-120', // 👈 Changed _ to -
+    type: ProductType.CONSUMABLE,
+    platform: Platform.GOOGLE_PLAY,
+}]);
 
         // When a purchase is successful, trigger the "Handshake" to the server
         store.when().approved((transaction) => {
