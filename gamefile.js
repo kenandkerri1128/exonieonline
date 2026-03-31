@@ -1112,19 +1112,28 @@ function gameLoop(ts) {
             }
             
            let finalTarget = targetMob || targetPlayer;
+           
+           // ⚙️ THE FIX: Drone ALWAYS follows the player! It never stops to chase or hold position.
+           if (p.isDrone) {
+                let targetX = game.player.x + (window.facingRight ? -40 : 40);
+                let targetY = game.player.y - 40;
+                p.x += (targetX - p.x) * 0.15;
+                p.y += (targetY - p.y) * 0.15;
+           }
+
             if (finalTarget) {
     let dist = Math.hypot(finalTarget.x - p.x, finalTarget.y - p.y);
-    let stopDist = p.isBigBoss ? 100 : (p.isGolemBuster ? 80 : (p.isDrone ? 300 : 40));
+    let stopDist = p.isBigBoss ? 100 : (p.isGolemBuster ? 80 : 40); // 🛡️ Drone removed from stop distance
 
-    if (dist > stopDist) {
-        if (p.isBigBoss) {
+    if (dist > stopDist && !p.isDrone) {
+        if (p.isBigBoss || p.isGolemBuster) {
             p.x += (finalTarget.x - p.x) * 0.05;
             p.y += (finalTarget.y - p.y) * 0.05;
         } else {
             p.x += (finalTarget.x - p.x) * 0.15;
             p.y += (finalTarget.y - p.y) * 0.15;
         }
-  } else {
+    } else {
         let atkCooldown = p.isBigBoss ? 1500 : (p.isGolemBuster ? 1500 : (p.isDrone ? 1000 : 1000));
         if (!p.lastAttack || Date.now() - p.lastAttack > atkCooldown) {
             p.lastAttack = Date.now();
