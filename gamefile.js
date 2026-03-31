@@ -1516,8 +1516,23 @@ window.preloadMapAssets = function(mapData, callback) {
         if (mapData?.normalSpawns && Array.isArray(mapData.normalSpawns)) mapData.normalSpawns.forEach(s => mKeys.add(String(s.monsterKey || 'common_mobs1')));
         if (mapData?.miniBossSpawns && Array.isArray(mapData.miniBossSpawns)) mapData.miniBossSpawns.forEach(s => mKeys.add(String(s.monsterKey || 'mini_boss1')));
         if (mapData?.floorBossSpawns && Array.isArray(mapData.floorBossSpawns)) mapData.floorBossSpawns.forEach(s => mKeys.add(String(s.monsterKey || 'floor_boss1')));
-        mKeys.forEach(k => { let sk = String(k); if(!sk.includes('common_mobs') && !sk.includes('mini_boss') && !sk.includes('floor_boss')) assets.push(`monsters/${sk}.png`); });
-        if(game.player.equips?.weapon?.sprite) { let wpn = String(game.player.equips.weapon.sprite).replace('starter', 'basic'); assets.push(`weapon/${wpn}.png`); if(!wpn.includes('pendant')) assets.push(`weapon/${wpn}_attack.png`); }
+       mKeys.forEach(k => { let sk = String(k); if(!sk.includes('common_mobs') && !sk.includes('mini_boss') && !sk.includes('floor_boss')) assets.push(`monsters/${sk}.png`); });
+        if(game.player.equips?.weapon?.sprite) { 
+            // 🛡️ DYNAMIC PRELOADER FIX
+            let baseType = 'sword';
+            let rawLower = String(game.player.equips.weapon.sprite).toLowerCase();
+            if (rawLower.includes('staff')) baseType = 'staff';
+            else if (rawLower.includes('pendant')) baseType = 'pendant';
+            else if (rawLower.includes('gun')) baseType = 'gun';
+            else if (rawLower.includes('dagger')) baseType = 'dagger';
+            
+            let rarityStr = String(game.player.equips.weapon.rarity || 'basic').toLowerCase();
+            if (rarityStr === 'starter') rarityStr = 'basic';
+            let wpn = `${baseType}_${rarityStr}`;
+            
+            assets.push(`weapon/${wpn}.png`); 
+            if(!wpn.includes('pendant')) assets.push(`weapon/${wpn}_attack.png`); 
+        }
         if (game.player.baseStats?.playerClass) { let hairPrefix = window.charData?.hairStyle === 'none' ? 'none' : `hair${window.charData?.hairStyle || '1'}`; let formattedClass = String(game.player.baseStats.playerClass).replace(/\s+/g, '').toLowerCase(); assets.push(`skills/${hairPrefix}_${formattedClass}.mp3`); }
         assets = assets.filter(src => typeof src === 'string' && src.trim() !== '');
         let loaded = 0; let toLoad = assets.length;
@@ -1679,20 +1694,17 @@ window.updateAnimationFrames = function(state) {
         let wpnSrc = `weapon/${wpn}${(state === 'attack' && isAtk && !wpn.includes('pendant')) ? '_attack' : ''}.png`; 
         if (game.player.currentWeaponSrc !== wpnSrc) { dom.playerWeapon.src = wpnSrc; game.player.currentWeaponSrc = wpnSrc; } 
         
-        // 🛡️ THE FIX: Apply Weapon Auras based on rarity
-        dom.playerWeapon.classList.remove('weapon-aura-legendary', 'weapon-aura-godly', 'weapon-aura-divine');
-        if (game.player.equips?.weapon?.rarity === 'Legendary') {
-            dom.playerWeapon.classList.add('weapon-aura-legendary');
-        } else if (game.player.equips?.weapon?.rarity === 'Godly') {
-            dom.playerWeapon.classList.add('weapon-aura-godly');
-        } else if (game.player.equips?.weapon?.rarity === 'Divine') {
-            dom.playerWeapon.classList.add('weapon-aura-divine');
+    // 🛡️ DYNAMIC AURA FIX: Automatically supports ANY new rarity you invent!
+        dom.playerWeapon.className = 'avatar-layer layer-weapon'; // Wipes old classes clean
+        let wRarity = game.player.equips?.weapon?.rarity;
+        if (wRarity && !['Starter', 'Basic', 'Rare', 'Unique'].includes(wRarity)) {
+            dom.playerWeapon.classList.add(`weapon-aura-${wRarity.toLowerCase()}`);
         }
 
     } else if (dom.playerWeapon) { 
         dom.playerWeapon.style.display = 'none'; 
         game.player.currentWeaponSrc = ''; 
-        dom.playerWeapon.classList.remove('weapon-aura-legendary', 'weapon-aura-godly', 'weapon-aura-divine'); // 🛡️ THE FIX: Remove divine on unequip
+        dom.playerWeapon.className = 'avatar-layer layer-weapon'; // Wipes classes clean
     }
 }
 window.showAura = function(color) { const aura = document.getElementById('player-aura'); aura.className = `aura aura-${color}`; aura.style.animation = 'none'; void aura.offsetWidth; aura.style.animation = 'aura-burst 0.6s ease-out forwards'; }
@@ -2513,7 +2525,23 @@ window.attemptEnhance = function(targetIndex, e) {
 }
 window.updateEquipmentDisplay = function() { 
     try { 
-        const buildDisplayStr = (item) => item ? (item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name) : 'None'; 
+        // 🛡️ DYNAMIC SPRITE FIX: Force weapon sprite to match rarity perfectly!
+        if (game.player.equips?.weapon?.sprite && game.player.equips?.weapon?.rarity) {
+            let w = game.player.equips.weapon;
+            let baseType = 'sword';
+            let rawLower = String(w.sprite).toLowerCase();
+            if (rawLower.includes('staff')) baseType = 'staff';
+            else if (rawLower.includes('pendant')) baseType = 'pendant';
+            else if (rawLower.includes('gun')) baseType = 'gun';
+            else if (rawLower.includes('dagger')) baseType = 'dagger';
+            
+            let rarityStr = String(w.rarity).toLowerCase();
+            if (rarityStr === 'starter') rarityStr = 'basic';
+            
+            w.sprite = `${baseType}_${rarityStr}`; // Forces 'sword_divine', 'gun_mythic', etc.
+        }
+
+        const buildDisplayStr = (item) => item ? (item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name) : 'None';
         let w = game.player.equips.weapon; let a = game.player.equips.armor; let l = game.player.equips.leggings;
         let nk = game.player.equips.necklace; let rg = game.player.equips.ring; let er = game.player.equips.earrings;
         
@@ -3119,10 +3147,15 @@ window.addRemotePlayer = function(pData) {
         weapon.src = `weapon/${fixedWpn}.png`; 
         game.remotePlayers[pData.id].currentWeaponSrc = weapon.src; 
         
-       // 🛡️ THE FIX: Add Aura for remote players when they first load in
-        if (fixedWpn.includes('legendary')) weapon.classList.add('weapon-aura-legendary');
-        if (fixedWpn.includes('godly')) weapon.classList.add('weapon-aura-godly');
-        if (fixedWpn.includes('divine')) weapon.classList.add('weapon-aura-divine');
+      // 🛡️ DYNAMIC AURA FIX: Automatically supports ANY new rarity for other players!
+       weapon.className = 'avatar-layer layer-weapon';
+       let parts = fixedWpn.split('_');
+       if (parts.length > 1) {
+           let remoteRarity = parts[1]; // extracts 'divine', 'mythic', etc.
+           if (!['basic', 'rare', 'unique'].includes(remoteRarity)) {
+               weapon.classList.add(`weapon-aura-${remoteRarity}`);
+           }
+       }
     }
     
     // 🌟 Refresh shines when someone new walks into the room!
@@ -3790,17 +3823,21 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
             let wpnSrc = `weapon/${fixedWpn}${(data.state === 'attack' && isAtk && !fixedWpn.includes('pendant')) ? '_attack' : ''}.png`; 
             if (p.currentWeaponSrc !== wpnSrc) { p.weapon.src = wpnSrc; p.currentWeaponSrc = wpnSrc; } 
             if (!p.spriteData) p.spriteData = {}; p.spriteData.weapon = fixedWpn; 
-// 🛡️ THE FIX: Update Aura dynamically when remote players swap weapons
-            p.weapon.classList.remove('weapon-aura-legendary', 'weapon-aura-godly', 'weapon-aura-divine');
-            if (fixedWpn.includes('legendary')) p.weapon.classList.add('weapon-aura-legendary');
-            if (fixedWpn.includes('godly')) p.weapon.classList.add('weapon-aura-godly');
-            if (fixedWpn.includes('divine')) p.weapon.classList.add('weapon-aura-divine');
+// 🛡️ DYNAMIC AURA FIX: Live updating for new rarities!
+           p.weapon.className = 'avatar-layer layer-weapon';
+           let parts = fixedWpn.split('_');
+           if (parts.length > 1) {
+               let remoteRarity = parts[1];
+               if (!['basic', 'rare', 'unique'].includes(remoteRarity)) {
+                   p.weapon.classList.add(`weapon-aura-${remoteRarity}`);
+               }
+           }
 
         } else { 
             p.weapon.style.display = 'none'; p.currentWeaponSrc = ''; 
             if (p.spriteData) p.spriteData.weapon = null; 
-            p.weapon.classList.remove('weapon-aura-legendary', 'weapon-aura-godly');
-      } 
+            p.weapon.className = 'avatar-layer layer-weapon';
+      }
    const cAuraEl = p.rig.querySelector('.cosmetic-aura'); 
        if (cAuraEl) {
            // 🛡️ REVERT: Restore the normal cosmetic aura logic
