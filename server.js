@@ -5393,8 +5393,8 @@ socket.on('playerDied', () => {
             else if (rawLower.includes('armor')) baseType = 'armor';
             else if (rawLower.includes('leggings')) baseType = 'leggings';
             
-            // This forces it to become 'sword_divine', 'gun_divine', etc.!
-            baseItem.sprite = `${baseType}_${baseItem.rarity.toLowerCase()}`;
+            // 🛡️ FIX: Forces it to become 'divinesword', 'godlygun', etc.
+            baseItem.sprite = `${baseItem.rarity.toLowerCase()}${baseType}`;
         }
 
         if (baseItem.gemCount) baseItem.gemCount = 0; // Wipe sockets
