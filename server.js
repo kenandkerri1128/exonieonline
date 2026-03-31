@@ -1693,6 +1693,10 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
             victim.isGhost = true;
             victim.currentHp = 0;
             victim.currentPortal = null;
+            
+            // 🛡️ FIX: Wipe shield on death
+            victim.gammaShield = null;
+            io.to(instId).emit('breakGammaShield', { targetId: victim.id });
 
             io.to(instId).emit('remotePlayerGhosted', victim.id);
 
@@ -4893,6 +4897,11 @@ socket.on('requestConfirmTrade', () => {
         if (data.mapId === 'town') {
             p.isGhost = false;
             p.currentHp = getServerTotalStat(p, 'hp') || 100;
+            
+            // 🛡️ FIX: Wipe shield when returning to town
+            p.gammaShield = null;
+            io.to(p.instanceId).emit('breakGammaShield', { targetId: p.id });
+            socket.emit('breakGammaShield', { targetId: p.id }); // Ensure local player gets it too
         }
 
         if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
@@ -5171,6 +5180,10 @@ socket.on('playerDied', () => {
     p.isGhost = true;
     p.currentHp = 0;
     p.currentPortal = null;
+    
+    // 🛡️ FIX: Wipe shield on death
+    p.gammaShield = null;
+    io.to(p.instanceId).emit('breakGammaShield', { targetId: p.id });
 
     io.to(p.instanceId).emit('remotePlayerGhosted', p.id);
     
@@ -7326,6 +7339,10 @@ socket.on('startDungeon', async (data) => {
                         tp.currentHp = 0;
                         tp.isGhost = true;
                         tp.currentPortal = null;
+                        
+                        // 🛡️ FIX: Wipe shield on death
+                        tp.gammaShield = null;
+                        io.to('neutralzone').emit('breakGammaShield', { targetId: tp.id });
                         
                         io.to('neutralzone').emit('remotePlayerGhosted', tp.id);
                         io.emit('systemMessage', `⚔️ [PvP] <span style="color:#f44336;">${p.name} has slain ${tp.name} in the Neutral Zone!</span>`);
