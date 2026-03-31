@@ -1643,7 +1643,7 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
         // 🛡️ GAMMA SHIELD ABSORPTION
         if (victim.gammaShield && victim.gammaShield.hp > 0) {
             if (damage >= victim.gammaShield.hp) {
-                damage -= victim.gammaShield.hp;
+                damage = 0; // 🛡️ STURDY FIX: The shield absorbs the ENTIRE hit before breaking!
                 victim.gammaShield.hp = 0;
                 io.to(instId).emit('breakGammaShield', { targetId: victim.id });
             } else {
@@ -3050,14 +3050,16 @@ socket.on('syncPet', (data) => {
             
             // 🛡️ THE REAL FIX: Don't overwrite the pet if it already exists! Just update X and Y.
             // This ensures the `enhancedUntil` buff and attack cooldowns are never deleted!
-            if (!world.pets[data.id]) {
+           if (!world.pets[data.id]) {
                 world.pets[data.id] = { 
                     id: data.id, 
                     ownerId: p.id, 
                     x: data.x, 
                     y: data.y, 
                     isClone: !!data.isClone, 
-                    isBigBoss: !!data.isBigBoss 
+                    isBigBoss: !!data.isBigBoss,
+                    isDrone: !!data.isDrone, // ⚙️ FIX: Tell the server this is an untargetable drone!
+                    isGolemBuster: !!data.isGolemBuster
                 }; 
             } else {
                 world.pets[data.id].x = data.x;
@@ -7257,7 +7259,7 @@ socket.on('startDungeon', async (data) => {
                     // 🛡️ GAMMA SHIELD ABSORPTION (PvP)
                     if (tp.gammaShield && tp.gammaShield.hp > 0) {
                         if (dmg >= tp.gammaShield.hp) {
-                            dmg -= tp.gammaShield.hp;
+                            dmg = 0; // 🛡️ STURDY FIX: The shield absorbs the ENTIRE hit!
                             tp.gammaShield.hp = 0;
                             io.to('neutralzone').emit('breakGammaShield', { targetId: tp.id });
                         } else {
