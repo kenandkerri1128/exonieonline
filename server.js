@@ -5917,11 +5917,11 @@ socket.on('adminSpawnItem', async (data) => {
             const auraType = type.split('_')[1];
             const AURA_DATA = {
                 'lightning': { name: 'Lightning', color: '#00ffff' },
-                'divine': { name: 'Divine', color: '#ffea00' }, // 👑 NEW: Royal Premium Aura
+                'divine': { name: 'Divine', color: '#ffea00' }, 
                 'blaze': { name: 'Blaze', color: '#ff4444' },
                 'liquid': { name: 'Liquid', color: '#44aaff' },
                  'nature': { name: 'Nature', color: '#4CAF50' },
-                'easter': { name: 'Easter', color: '#FFB7B2' }, // 🐰 ADDED EASTER AURA
+                'easter': { name: 'Easter', color: '#FFB7B2' }, 
                 'void': { name: 'Void Pet', color: '#E040FB' },
                 'fox': { name: 'Spirit Fox Pet', color: '#ff7e00' },
                 'owl': { name: 'Night Owl Pet', color: '#a0a0a0' },
@@ -5930,11 +5930,9 @@ socket.on('adminSpawnItem', async (data) => {
             };
             let aData = AURA_DATA[auraType] || AURA_DATA['lightning'];
             
-            // 🛡️ THE FIX: Removes "Aura Stone" from the name if it is a pet
             let isPetItem = ['fox', 'owl', 'wisp', 'egg', 'void'].includes(auraType);
         let finalName = isPetItem ? aData.name : `${aData.name} Aura Stone`;
 
-        // 🛡️ THE FIX: Set rarity to the dynamic variable from the admin panel!
         item = { id: Date.now() + Math.random(), name: finalName, type: 'aura', auraId: auraType, sprite: 'aurastone', level: 1, rarity: rarity, color: aData.color, description: isPetItem ? "Click to apply to Leggings." : "Click to apply to an Armor. Purely cosmetic.", quantity: 1 };
     } else {
             const EXTENDED_TEMPLATES = {
@@ -5946,32 +5944,33 @@ socket.on('adminSpawnItem', async (data) => {
             const tmpl = EXTENDED_TEMPLATES[type];
             if (!tmpl) return;
             const rPfx = rarity === "Starter" ? "basic" : rarity.toLowerCase();
-            item = { id: Date.now() + Math.random(), name: `${rarity} Admin ${tmpl.baseName}`, type: tmpl.slot, sprite: rPfx + tmpl.spriteName, level: level, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: enhanceLevel, quantity: 1 };
             
-          // Inside socket.on('adminSpawnItem')
-let statVal = getBaseStat(level) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12, "Divine": 12 }[rarity] || 0);
+            // 🛡️ DYNAMIC SPRITE AND COLOR FIX FOR ADMIN MODE
+            let finalColor = RARITY_COLORS[rarity] || (rarity === 'Divine' ? '#ffea00' : '#ffffff');
+            
+            item = { id: Date.now() + Math.random(), name: `${rarity} Admin ${tmpl.baseName}`, type: tmpl.slot, sprite: rPfx + tmpl.spriteName, level: level, rarity: rarity, color: finalColor, fixedStat: {}, enhanceLevel: enhanceLevel, quantity: 1 };
+            
+            let statVal = getBaseStat(level) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12, "Divine": 12 }[rarity] || 0);
 
-// DOUBLE stats if Divine
-if (rarity === "Divine") {
-    statVal = (getBaseStat(level) + 12) * 2;
-}
+            if (rarity === "Divine") {
+                statVal = (getBaseStat(level) + 12) * 2;
+            }
 
-item.fixedStat[tmpl.statKey] = statVal;
-item.randomStat = {};
+            item.fixedStat[tmpl.statKey] = statVal;
+            item.randomStat = {};
 
-if (rarity !== "Starter") {
-    // Exactly 4 random stats for Divine
-    let numStats = rarity === "Divine" ? 4 : (rarity === "Godly" ? 3 : (rarity === "Legendary" ? 2 : 1));
-    let availableStats = [...STAT_TYPES];
-    for (let i = 0; i < numStats; i++) {
-        let rIdx = Math.floor(Math.random() * availableStats.length);
-        let sKey = availableStats.splice(rIdx, 1)[0];
-        item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(level)) + 1;
-    }
-}
+            if (rarity !== "Starter") {
+                let numStats = rarity === "Divine" ? 4 : (rarity === "Godly" ? 3 : (rarity === "Legendary" ? 2 : 1));
+                let availableStats = [...STAT_TYPES];
+                for (let i = 0; i < numStats; i++) {
+                    let rIdx = Math.floor(Math.random() * availableStats.length);
+                    let sKey = availableStats.splice(rIdx, 1)[0];
+                    item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(level)) + 1;
+                }
+            }
 
             if (enhanceLevel > 0) {
-                const bonusPerLevel = { "Starter": 1, "Basic": 1, "Rare": 3, "Unique": 5, "Legendary": 8, "Godly": 15 }[rarity] || 1;
+                const bonusPerLevel = { "Starter": 1, "Basic": 1, "Rare": 3, "Unique": 5, "Legendary": 8, "Godly": 15, "Divine": 25 }[rarity] || 1;
                 const totalBonus = bonusPerLevel * enhanceLevel;
                 for (const k in item.fixedStat) { if (typeof item.fixedStat[k] === 'number') item.fixedStat[k] += totalBonus; }
                 for (const k in item.randomStat) { if (typeof item.randomStat[k] === 'number') item.randomStat[k] += totalBonus; }
@@ -5983,7 +5982,6 @@ if (rarity !== "Starter") {
         if (emptySlot !== -1) {
             inv[emptySlot] = item;
             p.inventory = inv;
-            // 🛡️ Force it into the database immediately
             await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
             socket.emit('syncInventory', p.inventory);
             socket.emit('systemMessage', `[Admin] Spawned ${item.name}!`);
