@@ -1649,14 +1649,8 @@ window.shootFoxFire = function(startX, startY, endX, endY, petType) {
 }
 
 window.updateAnimationFrames = function(state) {
+    // 🛡️ REVERT: ONLY read the actual cosmetic aura applied to the armor!
     let currentAura = game.player.equips?.armor?.aura || null;
-    
-    // 🛡️ THE FIX: Force Divine/Godly Avatar Animations based on Rarity (Overrides base armor auras!)
-    if (game.player.equips?.armor?.rarity === 'Divine' || game.player.equips?.weapon?.rarity === 'Divine') {
-        currentAura = 'divine';
-    } else if ((game.player.equips?.armor?.rarity === 'Godly' || game.player.equips?.weapon?.rarity === 'Godly') && currentAura !== 'divine') {
-        currentAura = 'godly';
-    }
 
     let cAuraEl = document.getElementById('player-cosmetic-aura');
     
@@ -3110,12 +3104,9 @@ window.addRemotePlayer = function(pData) {
     if (hairStyle === 'none') hair.style.display = 'none'; else { hair.style.display = 'block'; hair.src = `animation/avatar_hair${hairStyle}.png`; }
     head.style.filter = skinFilters[skin] || skinFilters['flesh']; body.style.filter = skinFilters[skin] || skinFilters['flesh']; hair.style.filter = hairFilters[hairColor] || hairFilters['black'];
     weapon.style.display = 'none';
-    const cAura = document.createElement('div'); cAura.className = 'cosmetic-aura';
-    let rAura = pData.spriteData?.aura || null;
-    let fw = (pData.spriteData?.weapon || pData.weaponSprite || '').toLowerCase();
-    if (fw.includes('divine')) rAura = 'divine';
-    else if (fw.includes('godly') && rAura !== 'divine') rAura = 'godly';
-    if (rAura) cAura.classList.add(`aura-${rAura}`);
+  const cAura = document.createElement('div'); cAura.className = 'cosmetic-aura';
+    // 🛡️ REVERT: Only read the actual cosmetic aura, don't let weapons hijack it!
+    if (pData.spriteData && pData.spriteData.aura) cAura.classList.add(`aura-${pData.spriteData.aura}`);
     rig.appendChild(cAura);
     hair.style.opacity = '1'; head.style.opacity = '1'; body.style.opacity = '1'; weapon.style.opacity = '1';
     rig.appendChild(hair); rig.appendChild(head); rig.appendChild(body); rig.appendChild(weapon); container.appendChild(rig); dom.world.appendChild(container);
@@ -3810,13 +3801,10 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
             if (p.spriteData) p.spriteData.weapon = null; 
             p.weapon.classList.remove('weapon-aura-legendary', 'weapon-aura-godly');
       } 
-       const cAuraEl = p.rig.querySelector('.cosmetic-aura'); 
+   const cAuraEl = p.rig.querySelector('.cosmetic-aura'); 
        if (cAuraEl) {
-           let rAura = data.spriteData?.aura || null;
-           let rWpn = data.weaponSprite ? data.weaponSprite.toLowerCase() : '';
-           if (rWpn.includes('divine')) rAura = 'divine';
-           else if (rWpn.includes('godly') && rAura !== 'divine') rAura = 'godly';
-           cAuraEl.className = rAura ? `cosmetic-aura aura-${rAura}` : 'cosmetic-aura'; 
+           // 🛡️ REVERT: Restore the normal cosmetic aura logic
+           cAuraEl.className = data.spriteData?.aura ? `cosmetic-aura aura-${data.spriteData.aura}` : 'cosmetic-aura';
        }
        const titleEl = p.dom.querySelector('.title-tag');
         if (titleEl) {
