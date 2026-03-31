@@ -7035,14 +7035,18 @@ document.addEventListener('deviceready', () => {
     platform: Platform.GOOGLE_PLAY,
 }]);
 
-        // When a purchase is successful, trigger the "Handshake" to the server
+      // When a purchase is successful, trigger the "Handshake" to the server
         store.when().approved((transaction) => {
             console.log("Purchase Approved! Verifying with server...");
             
+            // 🛡️ CORDOVA V13 FIX: The product ID is stored inside an array now, and the token name varies!
+            let correctPackageId = transaction.productId || (transaction.products && transaction.products.length > 0 ? transaction.products[0].id : null);
+            let correctToken = transaction.purchaseToken || (transaction.nativePurchase ? transaction.nativePurchase.purchaseToken : transaction.id);
+
             window.dispatchEvent(new CustomEvent('StorePurchaseSuccess', {
                 detail: {
-                    receiptToken: transaction.purchaseToken,
-                    packageId: transaction.productId
+                    receiptToken: correctToken,
+                    packageId: correctPackageId
                 }
             }));
 
