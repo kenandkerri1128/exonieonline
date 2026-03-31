@@ -1309,17 +1309,18 @@ function pickTarget(m, instId, now) {
 
     const mcx = m.x + (m.width / 2); const mcy = m.y + (m.height / 2);
 
-    const world = worlds[instId];
-    if (world && world.pets) {
-        let closestPet = null; let petDist = Infinity;
-        for (const petId in world.pets) {
-            const pet = world.pets[petId];
-            const dist = Math.hypot(pet.x - mcx, pet.y - mcy);
-            // 🛡️ THE FIX: Added hasLineOfSight check so monsters ignore pets behind walls
-            if (dist <= m.chaseRadius && dist < petDist && hasLineOfSight(instId, mcx, mcy, pet.x, pet.y)) { 
-                closestPet = pet; petDist = dist; 
-            }
-        }
+   const world = worlds[instId];
+    if (world && world.pets) {
+        let closestPet = null; let petDist = Infinity;
+        for (const petId in world.pets) {
+            const pet = world.pets[petId];
+            if (pet.isDrone) continue; // ⚙️ THE FIX: AI completely ignores the drone!
+            const dist = Math.hypot(pet.x - mcx, pet.y - mcy);
+            // 🛡️ THE FIX: Added hasLineOfSight check so monsters ignore pets behind walls
+            if (dist <= m.chaseRadius && dist < petDist && hasLineOfSight(instId, mcx, mcy, pet.x, pet.y)) { 
+                closestPet = pet; petDist = dist; 
+            }
+        }
         if (closestPet) return { id: closestPet.id, isPet: true, x: closestPet.x, y: closestPet.y };
     }
 
