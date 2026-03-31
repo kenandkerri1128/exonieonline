@@ -1450,7 +1450,20 @@ if ((m.category === "mini_boss" || m.category === "floor_boss") && m.alive) {
 
                     const pDist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
                     if (pDist <= aoeRadius) {
-                        const damage = Math.max(1, m.atk - getServerDefense(p));
+                        let damage = Math.max(1, m.atk - getServerDefense(p)); // 🛡️ Changed to 'let' so we can absorb it
+                        
+                        // 🛡️ GAMMA SHIELD ABSORPTION (Earthquake)
+                        if (p.gammaShield && p.gammaShield.hp > 0) {
+                            if (damage >= p.gammaShield.hp) {
+                                damage = 0; // 🛡️ STURDY FIX: Shield absorbs the whole blast!
+                                p.gammaShield.hp = 0;
+                                io.to(instId).emit('breakGammaShield', { targetId: p.id });
+                            } else {
+                                p.gammaShield.hp -= damage;
+                                damage = 0;
+                            }
+                        }
+
                         p.currentHp = Math.max(0, p.currentHp - damage);
 
                         if (p.currentHp <= 0 && p.immortalUntil && now < p.immortalUntil) {
@@ -1549,7 +1562,20 @@ if ((m.category === "mini_boss" || m.category === "floor_boss") && m.alive) {
                         const px = p.x + 24; const py = p.y + 48;
                         
                         if (px >= minX && px <= maxX && py >= minY && py <= maxY) {
-                            const damage = Math.max(1, Math.floor(m.atk * 1.5) - getServerDefense(p)); // 1.5x Multiplier
+                            let damage = Math.max(1, Math.floor(m.atk * 1.5) - getServerDefense(p)); // 1.5x Multiplier
+                            
+                            // 🛡️ GAMMA SHIELD ABSORPTION (Charge)
+                            if (p.gammaShield && p.gammaShield.hp > 0) {
+                                if (damage >= p.gammaShield.hp) {
+                                    damage = 0; // 🛡️ STURDY FIX: Shield absorbs the whole hit!
+                                    p.gammaShield.hp = 0;
+                                    io.to(instId).emit('breakGammaShield', { targetId: p.id });
+                                } else {
+                                    p.gammaShield.hp -= damage;
+                                    damage = 0;
+                                }
+                            }
+
                             p.currentHp = Math.max(0, p.currentHp - damage);
                             p.frozenUntil = now + 3000; // 🛡️ THE FIX: 3 Second Stun!
                             
