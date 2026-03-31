@@ -1603,12 +1603,13 @@ window.preloadMapAssets = function(mapData, callback) {
        mKeys.forEach(k => { let sk = String(k); if(!sk.includes('common_mobs') && !sk.includes('mini_boss') && !sk.includes('floor_boss')) assets.push(`monsters/${sk}.png`); });
         if(game.player.equips?.weapon?.sprite) { 
             // 🛡️ DYNAMIC PRELOADER FIX
-            let baseType = 'sword';
+          let baseType = 'sword';
             let rawLower = String(game.player.equips.weapon.sprite).toLowerCase();
             if (rawLower.includes('staff')) baseType = 'staff';
             else if (rawLower.includes('pendant')) baseType = 'pendant';
             else if (rawLower.includes('gun')) baseType = 'gun';
             else if (rawLower.includes('dagger')) baseType = 'dagger';
+            else if (rawLower.includes('touchpad')) baseType = 'touchpad'; // 💻 ADDED TOUCHPAD
             
             let rarityStr = String(game.player.equips.weapon.rarity || 'basic').toLowerCase();
             if (rarityStr === 'starter') rarityStr = 'basic';
@@ -2631,6 +2632,7 @@ window.updateEquipmentDisplay = function() {
             else if (rawLower.includes('pendant')) baseType = 'pendant';
             else if (rawLower.includes('gun')) baseType = 'gun';
             else if (rawLower.includes('dagger')) baseType = 'dagger';
+            else if (rawLower.includes('touchpad')) baseType = 'touchpad'; // 💻 ADDED TOUCHPAD
             
             let rarityStr = String(w.rarity).toLowerCase();
             if (rarityStr === 'starter') rarityStr = 'basic';
@@ -3247,7 +3249,7 @@ window.addRemotePlayer = function(pData) {
     // 🛡️ DYNAMIC AURA FIX: Automatically supports ANY new rarity for other players!
        weapon.className = 'avatar-layer layer-weapon';
        let rWpn = fixedWpn.toLowerCase();
-       ['sword', 'staff', 'pendant', 'gun', 'dagger'].forEach(bt => {
+       ['sword', 'staff', 'pendant', 'gun', 'dagger', 'touchpad'].forEach(bt => {
            if (rWpn.includes(bt)) {
                let extRarity = rWpn.replace(bt, '');
                if (extRarity && !['starter', 'basic', 'rare', 'unique'].includes(extRarity)) {
