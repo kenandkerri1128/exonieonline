@@ -4300,10 +4300,10 @@ socket.on('requestConfirmTrade', () => {
     socket.on('createGuild', async (guildName) => {
         const p = onlinePlayers[socket.id]; if (!p || !guildName) return;
         if (p.guild_details) return socket.emit('systemMessage', "❌ You are already in a guild!");
-        if (p.gold < 10000000) return socket.emit('systemMessage', "❌ You need 10,000,000 Gold to create a guild.");
+        if (p.gold < 1000000) return socket.emit('systemMessage', "❌ You need 1,000,000 Gold to create a guild.");
         if (global.guilds[guildName]) return socket.emit('systemMessage', "❌ A guild name already exists.");
         
-        p.gold -= 10000000;
+        p.gold -= 1000000;
         p.guild_details = { name: guildName, role: 'Master', guildGold: 0 };
         global.guilds[guildName] = { name: guildName, gold: 0, members: new Set([p.id]), roles: { [p.id]: 'Master' }, applicants: [], hasBase: false };
         p.spriteData.guildName = guildName;
