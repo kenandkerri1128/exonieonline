@@ -428,7 +428,7 @@ window.updateNameplateRanks = function() {
     }
 };
 window.RARITY_COLORS = { "Starter": "#aaaaaa", "Basic": "#8B4513", "Rare": "#2196F3", "Unique": "#9c27b0", "Legendary": "#f44336", "Godly": "#e0ffff" };
-window.ITEM_TEMPLATES = { sword: { slot: 'weapon', statKey: 'attack', baseName: 'Sword', spriteName: 'sword' }, staff: { slot: 'weapon', statKey: 'magic', baseName: 'Staff', spriteName: 'staff' }, pendant: { slot: 'weapon', statKey: 'magic', baseName: 'Pendant', spriteName: 'pendant' }, gun: { slot: 'weapon', statKey: 'attack', baseName: 'Gun', spriteName: 'gun' }, dagger: { slot: 'weapon', statKey: 'attack', baseName: 'Dagger', spriteName: 'dagger' }, armor: { slot: 'armor', statKey: 'defense', baseName: 'Armor', spriteName: 'armor' }, leggings: { slot: 'leggings', statKey: 'hp', baseName: 'Leggings', spriteName: 'leggings' } };
+window.ITEM_TEMPLATES = { sword: { slot: 'weapon', statKey: 'attack', baseName: 'Sword', spriteName: 'sword' }, staff: { slot: 'weapon', statKey: 'magic', baseName: 'Staff', spriteName: 'staff' }, pendant: { slot: 'weapon', statKey: 'magic', baseName: 'Pendant', spriteName: 'pendant' }, gun: { slot: 'weapon', statKey: 'attack', baseName: 'Gun', spriteName: 'gun' }, dagger: { slot: 'weapon', statKey: 'attack', baseName: 'Dagger', spriteName: 'dagger' }, touchpad: { slot: 'weapon', statKey: 'magic', baseName: 'Touchpad', spriteName: 'touchpad' }, armor: { slot: 'armor', statKey: 'defense', baseName: 'Armor', spriteName: 'armor' }, leggings: { slot: 'leggings', statKey: 'hp', baseName: 'Leggings', spriteName: 'leggings' } };
 window.MapDatabase = window.MapDatabase || {}; 
 let safeMapData = { id: "town", name: "Town of Exonie", image: "town_map.png", spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
 
@@ -489,6 +489,12 @@ const CLASSES = {
         { id: 'nin2', name: "Agility", unlock: 25, type: 'passive', desc: "25% chance to dodge any incoming attack." },
         { id: 'nin3', name: "Shadow Copy", unlock: 50, cd: 50000, type: 'active', desc: "Summons a 100% stat clone for 10 seconds." },
         { id: 'nin4', name: "More Agility", unlock: 75, type: 'passive', desc: "Increases your dodge chance to 35%." }
+    ]},
+    "Tech Genius": { weapon: "touchpad", aura: "blue", skills: [
+        { id: 'tech1', name: "Gadget Drone", unlock: 1, type: 'passive', desc: "Summons an untargetable Ball Drone that attacks for 100% of your INT." },
+        { id: 'tech2', name: "Gamma Shield", unlock: 25, cd: 100000, type: 'active', desc: "Shields party and summons for 100% INT." },
+        { id: 'tech3', name: "Golem Buster", unlock: 50, cd: 100000, type: 'active', desc: "Summons a Golem Bot that taunts enemies. HP: 10x INT, DMG: 100% MATK." },
+        { id: 'tech4', name: "Advance Medicine", unlock: 75, type: 'passive', desc: "Heals shielded allies for 10% INT continuously." }
     ]}
 };
 
@@ -514,7 +520,8 @@ window.renderSkillScreen = function() {
         else if (spriteStr.includes('staff')) wpnType = 'staff';
         else if (spriteStr.includes('pendant')) wpnType = 'pendant';
         else if (spriteStr.includes('gun')) wpnType = 'gun'; // 🔫 ADDED GUN
-       else if (spriteStr.includes('dagger')) wpnType = 'dagger';
+        else if (spriteStr.includes('dagger')) wpnType = 'dagger'; // 🗡️ ADDED DAGGER
+        else if (spriteStr.includes('touchpad')) wpnType = 'touchpad'; // 💻 ADDED TOUCHPAD
     }
 
     if (!pClass || !CLASSES[pClass]) {
@@ -593,6 +600,24 @@ window.updateSkillMenu = function() {
         else if (spriteStr.includes('pendant')) wpnType = 'pendant';
         else if (spriteStr.includes('gun')) wpnType = 'gun'; // 🔫 ADDED GUN
         else if (spriteStr.includes('dagger')) wpnType = 'dagger'; // 🗡️ ADDED DAGGER
+    }
+
+    // ⚙️ TECH GENIUS: Auto-spawn or despawn the Gadget Drone based on class!
+    if (game.player.activePets) {
+        let oldDroneIdx = game.player.activePets.findIndex(p => p.isDrone);
+        if (oldDroneIdx !== -1 && pClass !== 'Tech Genius') {
+            game.player.activePets[oldDroneIdx].dom.remove();
+            if (socket) socket.emit('syncPet', { id: game.player.activePets[oldDroneIdx].id, alive: false });
+            game.player.activePets.splice(oldDroneIdx, 1);
+        }
+        if (pClass === 'Tech Genius' && oldDroneIdx === -1) {
+            let petId = 'drone_' + game.player.id;
+            let dEl = document.createElement('div'); dEl.className = 'tech-drone';
+            dom.world.appendChild(dEl);
+            let pet = { id: petId, dom: dEl, x: game.player.x, y: game.player.y, hp: 999999, maxHp: 999999, isDrone: true };
+            game.player.activePets.push(pet);
+            if (socket) socket.emit('syncPet', { id: petId, x: pet.x, y: pet.y, alive: true, isDrone: true });
+        }
     }
 
     if (!pClass || !CLASSES[pClass] || CLASSES[pClass].weapon !== wpnType) { 
@@ -687,6 +712,26 @@ window.executeSkill = function(skillId, className) {
         window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMUNE", '#00E5FF');
         if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'walk', facingRight: window.facingRight, weaponSprite: wpnSprite });
         return; 
+    }
+
+    if (skillId === 'tech3') {
+        if (!game.player.activePets) game.player.activePets = [];
+        let bossId = 'buster_' + Date.now();
+        let bEl = document.createElement('div'); bEl.className = 'pet-slime golem-buster';
+        bEl.innerHTML = `<div class="pet-hp-bar" style="top:-15px;"><div class="pet-hp-fill" id="pet-hp"></div></div>
+        <div class="monster-sprite-layer golem-base">
+            <div class="g-head"><div class="g-eye"></div><div class="g-eye"></div></div>
+            <div class="g-arm-l"></div><div class="g-arm-r"></div>
+            <div class="g-leg-l"></div><div class="g-leg-r"></div>
+        </div>`;
+        bEl.style.left = game.player.x + 'px'; bEl.style.top = game.player.y + 'px';
+        dom.world.appendChild(bEl);
+
+        let bossHp = (window.getTotalStat('int') || 10) * 10;
+        let busterPet = { id: bossId, dom: bEl, x: game.player.x, y: game.player.y, homeX: game.player.x, homeY: game.player.y, hp: bossHp, maxHp: bossHp, isGolemBuster: true, skillRef: skillObj };
+        game.player.activePets.push(busterPet);
+        if (socket) socket.emit('syncPet', { id: bossId, x: busterPet.x, y: busterPet.y, alive: true, isGolemBuster: true, maxHp: bossHp });
+        return;
     }
 
     if (skillId === 'nin3') {
@@ -925,7 +970,14 @@ window.attemptAttack = function(silent) {
     let closestMob = null; let closestPlayer = null; let minD = Infinity; 
     const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; 
     let weaponSprite = game.player.equips && game.player.equips.weapon ? game.player.equips.weapon.sprite : ''; 
-    const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant') || weaponSprite.includes('gun'); 
+    
+    // ⚙️ TECH GENIUS: Disable Normal Attack
+    if (weaponSprite.includes('touchpad')) {
+        if (!silent && dom.log) dom.log.innerText = "Tech Geniuses use their Drones to attack! You cannot perform basic attacks.";
+        return;
+    }
+
+    const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant') || weaponSprite.includes('gun');
     
     let attackRadius = isRanged ? 250 : 80;
     if (game.player.baseStats?.playerClass === 'Sniper') {
@@ -1054,7 +1106,7 @@ function gameLoop(ts) {
            let finalTarget = targetMob || targetPlayer;
             if (finalTarget) {
     let dist = Math.hypot(finalTarget.x - p.x, finalTarget.y - p.y);
-    let stopDist = p.isBigBoss ? 100 : 40;
+    let stopDist = p.isBigBoss ? 100 : (p.isGolemBuster ? 80 : (p.isDrone ? 300 : 40));
 
     if (dist > stopDist) {
         if (p.isBigBoss) {
@@ -1064,32 +1116,55 @@ function gameLoop(ts) {
             p.x += (finalTarget.x - p.x) * 0.15;
             p.y += (finalTarget.y - p.y) * 0.15;
         }
-    } else {
-        let atkCooldown = p.isBigBoss ? 1500 : 1000;
+  } else {
+        let atkCooldown = p.isBigBoss ? 1500 : (p.isGolemBuster ? 1500 : (p.isDrone ? 1000 : 1000));
         if (!p.lastAttack || Date.now() - p.lastAttack > atkCooldown) {
             p.lastAttack = Date.now();
 
-            let baseScale = p.isBigBoss ? 2.5 : 1;
-            let atkScale = p.isBigBoss ? 3.0 : 1.5;
-
-            p.dom.style.transform = `scale(${atkScale}) translateY(-20px)`;
-            setTimeout(() => {
-                if (p.dom) p.dom.style.transform = `scale(${baseScale})`;
+            // ⚙️ DRONE: Shoot laser instead of bouncing
+            if (p.isDrone) {
+                window.shootLaser(p.x, p.y, finalTarget.x + (finalTarget.width||48)/2, finalTarget.y + (finalTarget.height||96)/2);
                 if (socket) {
-                    if (targetMob) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss });
-                    else socket.emit('attackPlayer', { targetId: targetPlayer.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss });
+                    if (targetMob) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'tech1' });
+                    else socket.emit('attackPlayer', { targetId: targetPlayer.id, skillId: 'tech1' });
                 }
-            }, 200);
+            } else {
+                let baseScale = p.isBigBoss ? 2.5 : 1;
+                let atkScale = p.isBigBoss ? 3.0 : 1.5;
+
+                p.dom.style.transform = `scale(${atkScale}) translateY(-20px)`;
+                setTimeout(() => {
+                    if (p.dom) p.dom.style.transform = `scale(${baseScale})`;
+                    if (socket) {
+                        if (targetMob) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss, isGolemBuster: p.isGolemBuster });
+                        else socket.emit('attackPlayer', { targetId: targetPlayer.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss, isGolemBuster: p.isGolemBuster });
+                    }
+                }, 200);
+            }
+        }
+        
+        // 🛡️ GOLEM BUSTER TAUNT
+        if (p.isGolemBuster) {
+            if (!p.lastTaunt || Date.now() - p.lastTaunt > 5000) {
+                p.lastTaunt = Date.now();
+                window.spawnDamageText(p.x, p.y - 40, "TAUNT!", "#ffeb3b");
+                if (socket) socket.emit('petTaunt', { petId: p.id, radius: 300 });
+            }
         }
     }
 } else {
     let targetX, targetY;
 
-    if (p.isBigBoss) {
+    if (p.isBigBoss || p.isGolemBuster) {
         targetX = p.homeX || p.x;
         targetY = p.homeY || p.y;
         p.x += (targetX - p.x) * 0.05;
         p.y += (targetY - p.y) * 0.05;
+    } else if (p.isDrone) {
+        targetX = game.player.x + (window.facingRight ? -40 : 40);
+        targetY = game.player.y - 40;
+        p.x += (targetX - p.x) * 0.15;
+        p.y += (targetY - p.y) * 0.15;
     } else {
         targetX = game.player.x + (idx === 0 ? -40 : 40);
         targetY = game.player.y - 20;
@@ -1609,6 +1684,19 @@ window.spawnSkillText = function(x, y, text, color) {
 };
 window.spawnSpark = function(x, y) { const spark = document.createElement('div'); spark.className = 'spark'; spark.style.left = (x + (Math.random() * 20 - 10)) + 'px'; spark.style.top = (y + (Math.random() * 20 - 10)) + 'px'; dom.world.appendChild(spark); setTimeout(() => spark.remove(), 300); }
 window.spawnWhiteSplash = function(x, y) { const splash = document.createElement('div'); splash.className = 'white-splash'; splash.style.left = x + 'px'; splash.style.top = y + 'px'; dom.world.appendChild(splash); setTimeout(() => splash.remove(), 300); }
+window.shootLaser = function(startX, startY, endX, endY) {
+    const laser = document.createElement('div');
+    const length = Math.hypot(endX - startX, endY - startY);
+    const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+    laser.style.cssText = `position:absolute; background:#00E5FF; height:4px; width:${length}px; left:${startX}px; top:${startY}px; transform-origin:0 50%; transform:rotate(${angle}deg); box-shadow:0 0 10px #00E5FF, 0 0 20px #00E5FF; z-index:100; pointer-events:none; opacity:1; transition:opacity 0.2s;`;
+    dom.world.appendChild(laser);
+    let sfx = new Audio('music/lightning.mp3');
+    sfx.volume = 0.3; sfx.play().catch(()=>{});
+    setTimeout(() => laser.style.opacity = '0', 50);
+    setTimeout(() => laser.remove(), 250);
+    window.spawnSpark(endX, endY);
+};
+
 window.shootMonsterFireball = function(startX, startY, endX, endY) {
     const ball = document.createElement('div');
     ball.className = 'monster-fireball';
@@ -4071,9 +4159,22 @@ socket.on('tradeDone', (data) => {
             if (!petEl) { 
                 petEl = document.createElement('div'); 
                 petEl.id = petId; 
-                petEl.className = 'pet-slime'; 
-                petEl.innerHTML = '<div class="pet-hp-bar"><div class="pet-hp-fill" style="width:100%"></div></div>'; 
                 
+                if (data.petData.isDrone) {
+                    petEl.className = 'tech-drone';
+                } else if (data.petData.isGolemBuster) {
+                    petEl.className = 'pet-slime golem-buster';
+                    petEl.innerHTML = `<div class="pet-hp-bar" style="top:-15px;"><div class="pet-hp-fill" style="width:100%"></div></div>
+                    <div class="monster-sprite-layer golem-base">
+                        <div class="g-head"><div class="g-eye"></div><div class="g-eye"></div></div>
+                        <div class="g-arm-l"></div><div class="g-arm-r"></div>
+                        <div class="g-leg-l"></div><div class="g-leg-r"></div>
+                    </div>`;
+                } else {
+                    petEl.className = 'pet-slime'; 
+                    petEl.innerHTML = '<div class="pet-hp-bar"><div class="pet-hp-fill" style="width:100%"></div></div>'; 
+                }
+
                 // 🌟 BIG BOSS REMOTE SYNC STYLING
                 if (data.petData.isBigBoss) {
                     petEl.style.width = '100px';
@@ -4285,9 +4386,22 @@ socket.on('revivalJuiceUsed', (data) => {
 
 if (hitPet) {
         const serverAtk = Number(data.atk || 25);
-        // 🛡️ THE FIX: Big Boss gets 100% Player Defense, Normal Slimes get 25%
-        const petDef = hitPet.isBigBoss ? window.getDefense() : Math.floor(window.getDefense() * 0.25);
-        const actualDmg = Math.max(1, serverAtk - petDef);
+        const petDef = hitPet.isBigBoss || hitPet.isGolemBuster ? window.getDefense() : Math.floor(window.getDefense() * 0.25);
+        let actualDmg = Math.max(1, serverAtk - petDef);
+        
+        // 🛡️ ABSORB SHIELD FOR PET
+        if (hitPet.gammaShieldHp && hitPet.gammaShieldHp > 0) {
+            if (actualDmg >= hitPet.gammaShieldHp) {
+                actualDmg -= hitPet.gammaShieldHp;
+                hitPet.gammaShieldHp = 0;
+                let s = hitPet.dom.querySelector('.gamma-shield');
+                if (s) { s.style.animation = 'shatter 0.3s forwards'; setTimeout(()=>s.remove(), 300); }
+            } else {
+                hitPet.gammaShieldHp -= actualDmg;
+                actualDmg = 0;
+            }
+        }
+        
         hitPet.hp -= actualDmg;
         window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, actualDmg, '#ff0000');
     } else if (targetId === game.player.id) {
@@ -5416,7 +5530,49 @@ window.toggleLeaderboard = function() {
     }
 };
 
-socket.on('cdReset', () => {
+socket.on('applyGammaShield', (data) => {
+        let targetDom = null;
+        if (data.targetId === game.player.id) targetDom = dom.playerAvatarContainer;
+        else if (game.remotePlayers[data.targetId]) targetDom = game.remotePlayers[data.targetId].rig;
+        else if (data.isPet) {
+            const petEl = document.getElementById(data.targetId) || document.getElementById('pet_' + game.player.id + '_' + data.targetId);
+            if (petEl) targetDom = petEl;
+            else {
+                const localPet = game.player.activePets?.find(p => p.id === data.targetId);
+                if (localPet) targetDom = localPet.dom;
+            }
+        }
+        if (targetDom && !targetDom.querySelector('.gamma-shield')) {
+            let s = document.createElement('div'); s.className = 'gamma-shield';
+            targetDom.appendChild(s);
+        }
+        
+        // Save the shield HP for the local pet damage calculation
+        if (data.isPet) {
+            const localPet = game.player.activePets?.find(p => p.id === data.targetId);
+            if (localPet) localPet.gammaShieldHp = data.hp;
+        }
+    });
+
+    socket.on('breakGammaShield', (data) => {
+        let targetDom = null;
+        if (data.targetId === game.player.id) targetDom = dom.playerAvatarContainer;
+        else if (game.remotePlayers[data.targetId]) targetDom = game.remotePlayers[data.targetId].rig;
+        else {
+            const petEl = document.getElementById(data.targetId) || document.getElementById('pet_' + game.player.id + '_' + data.targetId);
+            if (petEl) targetDom = petEl;
+            else {
+                const localPet = game.player.activePets?.find(p => p.id === data.targetId);
+                if (localPet) targetDom = localPet.dom;
+            }
+        }
+        if (targetDom) {
+            let s = targetDom.querySelector('.gamma-shield');
+            if (s) { s.style.animation = 'shatter 0.3s forwards'; setTimeout(()=>s.remove(), 300); }
+        }
+    });
+
+    socket.on('cdReset', () => {
         if (game.player.activeSkills) {
             game.player.activeSkills.forEach(s => s.cooldownReadyAt = 0);
             if (typeof window.updateHotbarCooldowns === 'function') window.updateHotbarCooldowns();
@@ -6700,6 +6856,31 @@ eggStyle.innerHTML = `
     }
 `;
 document.head.appendChild(eggStyle);
+
+// ==========================================
+// ⚙️ TECH GENIUS CSS
+// ==========================================
+const techStyle = document.createElement('style');
+techStyle.innerHTML = `
+    .tech-drone {
+        position: absolute; width: 16px; height: 16px; background: #222; border: 2px solid #00E5FF;
+        border-radius: 50%; box-shadow: 0 0 10px #00E5FF; z-index: 105;
+        animation: pulseDrone 1s infinite alternate; pointer-events: none;
+        transform: translate(-50%, -50%);
+    }
+    @keyframes pulseDrone { 0% { box-shadow: 0 0 5px #00E5FF; } 100% { box-shadow: 0 0 20px #00E5FF; } }
+    .gamma-shield {
+        position: absolute; width: 60px; height: 100px; bottom: -5px; left: 50%; transform: translateX(-50%);
+        border: 2px solid rgba(0, 229, 255, 0.8); background: linear-gradient(to top, rgba(0,229,255,0.4), transparent);
+        border-radius: 50% / 10px; box-shadow: 0 0 15px rgba(0,229,255,0.5), inset 0 0 15px rgba(0,229,255,0.5);
+        pointer-events: none; z-index: 10;
+    }
+    @keyframes shatter { 0% { opacity: 1; transform: translateX(-50%) scale(1); } 100% { opacity: 0; transform: translateX(-50%) scale(1.5); } }
+    .golem-buster .m-body, .golem-buster .m-head, .golem-buster [class*="m-arm"], .golem-buster [class*="m-leg"] {
+        background: #ffffff !important; border-color: #bbbbbb !important; box-shadow: 0 0 15px #00E5FF !important;
+    }
+`;
+document.head.appendChild(techStyle);
 
 // ==========================================
 // 👻 COSMETICS CRAFTING UI
