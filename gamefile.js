@@ -3419,7 +3419,40 @@ socket.on('mailList', (mails) => {
         if (typeof window.updatePotionHotbar === 'function') window.updatePotionHotbar();
     });
     socket.on('needsCharacterCreation', (username) => { document.getElementById('loading-screen').style.display = 'none'; document.getElementById('char-name-input').value = username; document.getElementById('creation-screen').classList.add('active'); });
-    socket.on('rareLootBroadcast', (data) => { let container = document.getElementById('loot-broadcast'); if (!container) { container = document.createElement('div'); container.id = 'loot-broadcast'; container.style.position = 'fixed'; container.style.top = '25%'; container.style.left = '50%'; container.style.transform = 'translateX(-50%)'; container.style.zIndex = '2147483647'; container.style.display = 'flex'; container.style.flexDirection = 'column'; container.style.alignItems = 'center'; container.style.pointerEvents = 'none'; container.style.width = '100%'; document.body.appendChild(container); } const ann = document.createElement('div'); ann.className = 'loot-announcement'; ann.style.borderColor = data.color || '#fff'; ann.style.boxShadow = `0 0 20px ${data.color}`; // 🛡️ THE FIX: Apply Divine Sparkle to the text AND the announcement box!
+    socket.on('rareLootBroadcast', (data) => { 
+        // 🛡️ THE FIX: Restrict Announcements
+        let isMe = (data.playerName === game.player.name);
+        let isInMyParty = game.party && game.party.members && game.party.members.some(m => m.name === data.playerName);
+        let isDivine = (data.rarity === 'Divine');
+        let isExoMetal = String(data.itemName).includes('Exo Metal');
+
+        // 1. Block Exo Metals from massive screen announcements
+        if (isExoMetal) return;
+
+        // 2. Block Global Legendary/Godly (Only show if it is Me or My Party)
+        if (!isDivine && !isMe && !isInMyParty) return;
+
+        let container = document.getElementById('loot-broadcast'); 
+        if (!container) { 
+            container = document.createElement('div'); 
+            container.id = 'loot-broadcast'; 
+            container.style.position = 'fixed'; 
+            container.style.top = '25%'; 
+            container.style.left = '50%'; 
+            container.style.transform = 'translateX(-50%)'; 
+            container.style.zIndex = '2147483647'; 
+            container.style.display = 'flex'; 
+            container.style.flexDirection = 'column'; 
+            container.style.alignItems = 'center'; 
+            container.style.pointerEvents = 'none'; 
+            container.style.width = '100%'; 
+            document.body.appendChild(container); 
+        } 
+        const ann = document.createElement('div'); 
+        ann.className = 'loot-announcement'; 
+        ann.style.borderColor = data.color || '#fff'; 
+        ann.style.boxShadow = `0 0 20px ${data.color}`; 
+        // 🛡️ THE FIX: Apply Divine Sparkle to the text AND the announcement box!
     let glowClass = data.rarity === 'Divine' ? 'rarity-divine-text' : (data.rarity === 'Godly' ? 'rarity-godly' : '');
     
     if (data.rarity === 'Divine') {
@@ -4998,7 +5031,7 @@ if (socket) {
                 <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #4CAF50;">
                     <h2 style="margin:0; color:#4CAF50; pointer-events:none;">🏰 Guild Registry</h2>
                 </div>
-                <button class="btn" style="background:#FF9800; width:100%; margin-bottom:15px; font-weight:bold; padding:12px;" onclick="window.createGuild()">Establish Guild (10M Gold)</button>
+                <button class="btn" style="background:#FF9800; width:100%; margin-bottom:15px; font-weight:bold; padding:12px;" onclick="window.createGuild()">Establish Guild (1M Gold)</button>
                 <h3 style="color:#aaa; font-size:14px; border-bottom:1px solid #333; padding-bottom:5px;">Open Guilds</h3>
                 <div style="background:#111; padding:10px; border:1px solid #333; border-radius:5px; height:120px; overflow-y:auto; margin-bottom:15px; text-align:left;">`;
             
