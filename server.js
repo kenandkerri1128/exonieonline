@@ -1300,6 +1300,9 @@ function pickTarget(m, instId, now) {
         // 🌟 ADDED !p.isHiddenAdmin
         if (p && p.instanceId === instId && !p.isGhost && !p.isHiddenAdmin && p.untargetableUntil <= now && p.mapId !== 'town' && (p.currentHp ?? 1) > 0) {
             return { id: p.id, isPet: false, x: p.x + 24, y: p.y + 48 };
+        } else if (worlds[instId] && worlds[instId].pets && worlds[instId].pets[m.forcedTargetId]) {
+            const pet = worlds[instId].pets[m.forcedTargetId];
+            return { id: pet.id, isPet: true, x: pet.x, y: pet.y };
         } else { m.forcedTargetId = null; }
     }
 
@@ -1629,10 +1632,22 @@ if (dist > m.attackRange || (isRangedMonster && !canSeeTarget)) {
         let baseDamage = m.atk - getServerDefense(victim);
         let damage = Math.max(1, baseDamage);
 
-        // 🐉 DRAGON PASSIVE: Armor Piercing (Adds Level Difference directly to Damage)
+     // 🐉 DRAGON PASSIVE: Armor Piercing (Adds Level Difference directly to Damage)
         if (isDragon && m.level > victim.level) {
             let levelGap = Math.max(0, m.level - victim.level);
             damage += levelGap; 
+        }
+
+        // 🛡️ GAMMA SHIELD ABSORPTION
+        if (victim.gammaShield && victim.gammaShield.hp > 0) {
+            if (damage >= victim.gammaShield.hp) {
+                damage -= victim.gammaShield.hp;
+                victim.gammaShield.hp = 0;
+                io.to(instId).emit('breakGammaShield', { targetId: victim.id });
+            } else {
+                victim.gammaShield.hp -= damage;
+                damage = 0;
+            }
         }
 
         // 🩸 BERSERKER: I Love PAIN (Lv 75)
@@ -2195,7 +2210,9 @@ socket.on('broadcastSkill', (data) => {
         phs1:  { className: 'Phantom Striker', name: 'Shadow Step', unlock: 1, cd: 5000, auraColor: 'liquid' },
         phs3:  { className: 'Phantom Striker', name: 'Blink Stab', unlock: 50, cd: 30000, auraColor: 'liquid' },
         nin1:  { className: 'Ninja Assassin', name: 'Smoke Bomb', unlock: 1, cd: 10000, auraColor: 'lightning' },
-        nin3:  { className: 'Ninja Assassin', name: 'Shadow Copy', unlock: 50, cd: 50000, auraColor: 'lightning' }
+        nin3:  { className: 'Ninja Assassin', name: 'Shadow Copy', unlock: 50, cd: 50000, auraColor: 'lightning' },
+        tech2: { className: 'Tech Genius', name: 'Gamma Shield', unlock: 25, cd: 100000, auraColor: 'blue' },
+        tech3: { className: 'Tech Genius', name: 'Golem Buster', unlock: 50, cd: 100000, auraColor: 'blue' }
     };
 
     const rule = SKILL_RULES[skillId];
@@ -2210,7 +2227,39 @@ socket.on('broadcastSkill', (data) => {
     if (p.skillCooldowns[cdKey] && now < p.skillCooldowns[cdKey]) return;
     p.skillCooldowns[cdKey] = now + getReducedCd(p, rule.cd);
 
-   if (skillId === 'ber3') {
+   if (skillId === 'tech2') {
+        const myInt = getServerTotalStat(p, 'int') || 10;
+        const shieldHp = myInt;
+        const tickHeal = p.level >= 75 ? Math.max(1, Math.floor(myInt * 0.1)) : 0;
+
+        p.gammaShield = { hp: shieldHp, heal: tickHeal };
+        io.to(p.instanceId).emit('applyGammaShield', { targetId: p.id, hp: shieldHp });
+
+        const pid = playerParty[p.id];
+        if (pid && parties[pid]) {
+            for (const memberId of parties[pid].members) {
+                if (memberId === p.id) continue;
+                const mp = getPlayerById(memberId);
+                if (mp && !mp.isGhost && mp.instanceId === p.instanceId) {
+                    mp.gammaShield = { hp: shieldHp, heal: tickHeal };
+                    io.to(p.instanceId).emit('applyGammaShield', { targetId: mp.id, hp: shieldHp });
+                }
+            }
+        }
+        
+        const world = worlds[p.instanceId];
+        if (world && world.pets) {
+            for (let petId in world.pets) {
+                let pet = world.pets[petId];
+                if (pet.ownerId === p.id || (pid && parties[pid] && parties[pid].members.has(pet.ownerId))) {
+                    pet.gammaShield = { hp: shieldHp, heal: tickHeal };
+                    io.to(p.instanceId).emit('applyGammaShield', { targetId: petId, isPet: true, hp: shieldHp });
+                }
+            }
+        }
+    }
+
+    if (skillId === 'ber3') {
         p.immortalUntil = now + 10000;
     }
 
@@ -2936,6 +2985,24 @@ socket.on('saveData', async (playerData) => {
             }
         }
     });
+    socket.on('petTaunt', (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+        const world = worlds[p.instanceId];
+        if (!world || !world.pets || !world.pets[data.petId]) return;
+        const pet = world.pets[data.petId];
+        const now = Date.now();
+
+        for (let mId in world.monsters) {
+            let m = world.monsters[mId];
+            if (!m.alive) continue;
+            let dist = Math.hypot(pet.x - (m.x + m.width/2), pet.y - (m.y + m.height/2));
+            if (dist <= data.radius) {
+                m.forcedTargetId = pet.id;
+                m.forcedUntil = now + 3000;
+            }
+        }
+    });
   socket.on('tauntMonsters', () => { // 🛡️ Ignored client data
     const p = onlinePlayers[socket.id];
     if (!p || p.isGhost) return;
@@ -3045,12 +3112,18 @@ socket.on('syncPet', (data) => {
         if (dist > finalMax) return;
         
         // 🛡️ 100% SERVER-SIDE MATH: The client's opinions are ignored entirely.
-        let isMagicClass = ['Healer', 'Summoner', 'Ice Master'].includes(p.baseStats?.playerClass);
-        let serverAtkPwr = isMagicClass ? getServerMagicAttack(p) : getServerAttackPower(p);
-        let isPendant = p.equips?.weapon?.sprite?.includes('pendant') || false;
-        
-       // Base Swing (90% to 110%)
+        let isMagicClass = ['Healer', 'Summoner', 'Ice Master', 'Tech Genius'].includes(p.baseStats?.playerClass);
+        let serverAtkPwr = isMagicClass ? getServerMagicAttack(p) : getServerAttackPower(p);
+        let isPendant = p.equips?.weapon?.sprite?.includes('pendant') || false;
+        
+       // Base Swing (90% to 110%)
         let trueDmg = Math.floor(serverAtkPwr * (0.9 + Math.random() * 0.2));
+        
+        if (payload.skillId === 'tech1') {
+            trueDmg = Math.floor(getServerTotalStat(p, 'int') * 1.0);
+        } else if (payload.skillId === 'pet' && payload.isGolemBuster) {
+            trueDmg = Math.floor(getServerMagicAttack(p) * 1.0);
+        }
         let pClass = p.baseStats?.playerClass;
         let hitCount = 1;
 
@@ -7177,6 +7250,18 @@ socket.on('startDungeon', async (data) => {
                     
                     let dmg = payload.skillId === 'fox_bite' ? 1 : Math.max(1, trueDmg - getServerDefense(tp));
                     
+                    // 🛡️ GAMMA SHIELD ABSORPTION (PvP)
+                    if (tp.gammaShield && tp.gammaShield.hp > 0) {
+                        if (dmg >= tp.gammaShield.hp) {
+                            dmg -= tp.gammaShield.hp;
+                            tp.gammaShield.hp = 0;
+                            io.to('neutralzone').emit('breakGammaShield', { targetId: tp.id });
+                        } else {
+                            tp.gammaShield.hp -= dmg;
+                            dmg = 0;
+                        }
+                    }
+
                     // ❄️ ICE MASTER: Freeze Passive (Lv 25)
                     let didFreeze = false;
                     if (pClass === 'Ice Master' && p.level >= 25 && (payload.skillId === 'basic' || payload.skillId === 'ice1' || payload.skillId === 'ice3')) {
@@ -7789,7 +7874,22 @@ runDatabaseCleanup();
 
 // 2. Set it to run automatically every 12 hours while the server is alive
 setInterval(runDatabaseCleanup, 12 * 60 * 60 * 1000);
-
+// ==========================================
+// 🩹 ADVANCE MEDICINE (HEAL OVER TIME ENGINE)
+// ==========================================
+setInterval(() => {
+    for (const sid in onlinePlayers) {
+        const p = onlinePlayers[sid];
+        if (!p || p.isGhost || p.mapId === 'town') continue;
+        if (p.gammaShield && p.gammaShield.hp > 0 && p.gammaShield.heal > 0) {
+            let trueMax = getServerTotalStat(p, 'hp') || 100;
+            if (p.currentHp < trueMax) {
+                p.currentHp = Math.min(trueMax, p.currentHp + p.gammaShield.heal);
+                io.to(p.instanceId).emit('playerHealed', { id: p.id, amount: p.gammaShield.heal, currentHp: p.currentHp });
+            }
+        }
+    }
+}, 1000);
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, "0.0.0.0", () => console.log(`Exonie server running on port ${PORT} (0.0.0.0)`));
 
