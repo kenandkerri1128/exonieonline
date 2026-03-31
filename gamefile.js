@@ -1528,7 +1528,7 @@ window.preloadMapAssets = function(mapData, callback) {
             
             let rarityStr = String(game.player.equips.weapon.rarity || 'basic').toLowerCase();
             if (rarityStr === 'starter') rarityStr = 'basic';
-            let wpn = `${baseType}_${rarityStr}`;
+            let wpn = `${rarityStr}${baseType}`; // 🛡️ FIX: Removed underscore
             
             assets.push(`weapon/${wpn}.png`); 
             if(!wpn.includes('pendant')) assets.push(`weapon/${wpn}_attack.png`); 
@@ -2538,7 +2538,7 @@ window.updateEquipmentDisplay = function() {
             let rarityStr = String(w.rarity).toLowerCase();
             if (rarityStr === 'starter') rarityStr = 'basic';
             
-            w.sprite = `${baseType}_${rarityStr}`; // Forces 'sword_divine', 'gun_mythic', etc.
+            w.sprite = `${rarityStr}${baseType}`; // 🛡️ FIX: Forces 'divinesword', 'godlygun', etc.
         }
 
         const buildDisplayStr = (item) => item ? (item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name) : 'None';
@@ -3147,15 +3147,17 @@ window.addRemotePlayer = function(pData) {
         weapon.src = `weapon/${fixedWpn}.png`; 
         game.remotePlayers[pData.id].currentWeaponSrc = weapon.src; 
         
-      // 🛡️ DYNAMIC AURA FIX: Automatically supports ANY new rarity for other players!
+    // 🛡️ DYNAMIC AURA FIX: Automatically supports ANY new rarity for other players!
        weapon.className = 'avatar-layer layer-weapon';
-       let parts = fixedWpn.split('_');
-       if (parts.length > 1) {
-           let remoteRarity = parts[1]; // extracts 'divine', 'mythic', etc.
-           if (!['basic', 'rare', 'unique'].includes(remoteRarity)) {
-               weapon.classList.add(`weapon-aura-${remoteRarity}`);
+       let rWpn = fixedWpn.toLowerCase();
+       ['sword', 'staff', 'pendant', 'gun', 'dagger'].forEach(bt => {
+           if (rWpn.includes(bt)) {
+               let extRarity = rWpn.replace(bt, '');
+               if (extRarity && !['starter', 'basic', 'rare', 'unique'].includes(extRarity)) {
+                   weapon.classList.add(`weapon-aura-${extRarity}`);
+               }
            }
-       }
+       });
     }
     
     // 🌟 Refresh shines when someone new walks into the room!
@@ -3825,13 +3827,15 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
             if (!p.spriteData) p.spriteData = {}; p.spriteData.weapon = fixedWpn; 
 // 🛡️ DYNAMIC AURA FIX: Live updating for new rarities!
            p.weapon.className = 'avatar-layer layer-weapon';
-           let parts = fixedWpn.split('_');
-           if (parts.length > 1) {
-               let remoteRarity = parts[1];
-               if (!['basic', 'rare', 'unique'].includes(remoteRarity)) {
-                   p.weapon.classList.add(`weapon-aura-${remoteRarity}`);
+           let rWpn = fixedWpn.toLowerCase();
+           ['sword', 'staff', 'pendant', 'gun', 'dagger'].forEach(bt => {
+               if (rWpn.includes(bt)) {
+                   let extRarity = rWpn.replace(bt, '');
+                   if (extRarity && !['starter', 'basic', 'rare', 'unique'].includes(extRarity)) {
+                       p.weapon.classList.add(`weapon-aura-${extRarity}`);
+                   }
                }
-           }
+           });
 
         } else { 
             p.weapon.style.display = 'none'; p.currentWeaponSrc = ''; 
