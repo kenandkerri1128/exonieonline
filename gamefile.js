@@ -3243,10 +3243,12 @@ window.addRemotePlayer = function(pData) {
     }
     container.appendChild(nameTag);
    const titleTag = document.createElement('div'); titleTag.className = 'title-tag'; 
-    let tHtml = (pData.spriteData && pData.spriteData.title) ? `&lt;${pData.spriteData.title}&gt;` : '';
+    let tHtml = `<div style="text-align: center; width: 100%;">`;
+    tHtml += (pData.spriteData && pData.spriteData.title) ? `&lt;${pData.spriteData.title}&gt;` : '';
     if (pData.spriteData && pData.spriteData.guildName) {
-        tHtml += (tHtml ? '<br>' : '') + `<span style="color:#4CAF50; font-size:13px; font-weight:900; letter-spacing:1px; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 2px 4px rgba(0,0,0,0.6);">[${pData.spriteData.guildName}]</span>`;
+        tHtml += ((pData.spriteData && pData.spriteData.title) ? '<br>' : '') + `<span style="color:#4CAF50; font-size:13px; font-weight:900; letter-spacing:1px; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 2px 4px rgba(0,0,0,0.6);">[${pData.spriteData.guildName}]</span>`;
     }
+    tHtml += `</div>`;
     titleTag.innerHTML = tHtml;
     container.appendChild(titleTag);
     const rig = document.createElement('div'); rig.className = 'player-avatar-container avatar-rig';
@@ -3304,10 +3306,12 @@ if(socket) {
 
     // 🛡️ THE FIX: Global Formatter for Titles & Guilds (with White Border!)
     window.formatTitleAndGuild = function(title, guildName) {
-        let tHtml = title ? `&lt;${title}&gt;` : '';
+        let tHtml = `<div style="text-align: center; width: 100%;">`;
+        tHtml += title ? `&lt;${title}&gt;` : '';
         if (guildName) {
-            tHtml += (tHtml ? '<br>' : '') + `<span style="color:#4CAF50; font-size:13px; font-weight:900; letter-spacing:1px; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 2px 4px rgba(0,0,0,0.6);">[${guildName}]</span>`;
+            tHtml += (title ? '<br>' : '') + `<span style="color:#4CAF50; font-size:13px; font-weight:900; letter-spacing:1px; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 2px 4px rgba(0,0,0,0.6);">[${guildName}]</span>`;
         }
+        tHtml += `</div>`;
         return tHtml;
     };
 
@@ -3976,13 +3980,15 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
            cAuraEl.className = data.spriteData?.aura ? `cosmetic-aura aura-${data.spriteData.aura}` : 'cosmetic-aura';
        }
        const titleEl = p.dom.querySelector('.title-tag');
-        if (titleEl) {
-            let tHtml = data.spriteData?.title ? `&lt;${data.spriteData.title}&gt;` : '';
-            if (data.spriteData?.guildName) {
-                tHtml += (tHtml ? '<br>' : '') + `<span style="color:#4CAF50; font-size:13px; font-weight:900; letter-spacing:1px; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 2px 4px rgba(0,0,0,0.6);">[${data.spriteData.guildName}]</span>`;
-            }
-            titleEl.innerHTML = tHtml;
-        }
+       if (titleEl) {
+           let tHtml = `<div style="text-align: center; width: 100%;">`;
+           tHtml += data.spriteData?.title ? `&lt;${data.spriteData.title}&gt;` : '';
+           if (data.spriteData?.guildName) {
+               tHtml += (data.spriteData?.title ? '<br>' : '') + `<span style="color:#4CAF50; font-size:13px; font-weight:900; letter-spacing:1px; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 2px 4px rgba(0,0,0,0.6);">[${data.spriteData.guildName}]</span>`;
+           }
+           tHtml += `</div>`;
+           titleEl.innerHTML = tHtml;
+       }
         });
     socket.on('inspectData', (data) => { 
         if (!data) return; 
