@@ -618,6 +618,19 @@ function generateHauntedLoot(mLevel) {
         return generatePowerGem(mLevel, gearRarity);
     }
     else if (typeRoll < 0.90) { // 15% Refinement Stone
+        // 🛡️ DYNAMIC DIVINE FIX: If it rolled Divine, it MUST be the universal enhancement stone!
+        if (stoneRarity === 'Divine') {
+            return {
+                id: Date.now() + Math.random(),
+                name: "Divine Enhancement Stone",
+                type: "material",
+                rarity: "Divine",
+                level: mLevel,
+                color: "#ffea00",
+                description: "Enhances Divine equipment.",
+                quantity: 1
+            };
+        }
         return {
             id: Date.now() + Math.random(), name: `Refinement Stone Lv.${mLevel}`,
             type: "material", rarity: stoneRarity, level: mLevel, color: RARITY_COLORS[stoneRarity],
