@@ -487,7 +487,7 @@ const CLASSES = {
     "Ninja Assassin": { weapon: "dagger", aura: "lightning", skills: [
         { id: 'nin1', name: "Smoke Bomb", unlock: 1, cd: 10000, type: 'active', desc: "Throws a smoke bomb. Enemies miss 75% of attacks for 10s." },
         { id: 'nin2', name: "Agility", unlock: 25, type: 'passive', desc: "25% chance to dodge any incoming attack." },
-        { id: 'nin3', name: "Shadow Copy", unlock: 50, cd: 50000, type: 'active', desc: "Summons a 100% stat clone for 10 seconds." },
+        { id: 'nin3', name: "Shadow Copy", unlock: 50, cd: 50000, type: 'active', desc: "Summons a 200% stat clone for 10 seconds." },
         { id: 'nin4', name: "More Agility", unlock: 75, type: 'passive', desc: "Increases your dodge chance to 35%." }
     ]},
     "Tech Genius": { weapon: "touchpad", aura: "blue", skills: [
