@@ -16,8 +16,17 @@ exonieChannel.onmessage = (event) => {
 // 1. CORE VARIABLES & SETUP
 // ==========================================
 // 🌐 AUTO-DETECTS TEST OR LIVE SERVER + MOBILE RECONNECTS
-// 📱 MOBILE FIX: Hardcode the live server URL because apps don't have a web origin!
-const serverUrl = 'https://exonieonline.onrender.com';
+let serverUrl = 'https://exonieonline.onrender.com'; // 📱 Default to Live (for Mobile Apps without a web origin)
+
+// 🛡️ THE ROUTER FIX: Check if we are running on the Test Server or Local Computer
+if (typeof window !== 'undefined' && window.location) {
+    const host = window.location.hostname;
+    if (host.includes('testexonie')) {
+        serverUrl = 'https://testexonie.onrender.com'; // Route to the Render test backend
+    } else if (host === 'localhost' || host === '127.0.0.1') {
+        serverUrl = 'http://localhost:3000'; // Route to your local PC backend if testing locally
+    }
+}
 const socket = io(serverUrl, {
     transports: ['websocket', 'polling'], // 🚀 THE MOBILE FIX: Forces high-speed connection
     reconnection: true,            
