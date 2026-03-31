@@ -1078,18 +1078,25 @@ function gameLoop(ts) {
     }
 
     if (isMoving) {
-        let canMoveX = true; let canMoveY = true;
-        if(typeof window.isColliding === 'function') {
-            canMoveX = !window.isColliding(nextX, game.player.y) || window.adminMode; 
-            canMoveY = !window.isColliding(game.player.x, nextY) || window.adminMode;
-            if (window.isColliding(game.player.x, game.player.y)) { canMoveX = true; canMoveY = true; } 
-        }
-        if (canMoveX) game.player.x = nextX; 
-        if (canMoveY) game.player.y = nextY;
-    }
+                let canMoveX = true; let canMoveY = true;
+                if(typeof window.isColliding === 'function') {
+                    canMoveX = !window.isColliding(nextX, game.player.y) || window.adminMode; 
+                    canMoveY = !window.isColliding(game.player.x, nextY) || window.adminMode;
+                    if (window.isColliding(game.player.x, game.player.y)) { canMoveX = true; canMoveY = true; } 
+                }
+                if (canMoveX) game.player.x = nextX; 
+                if (canMoveY) game.player.y = nextY;
+            }
 
-    // Active Pets logic
-    if (game.player.activePets && game.player.activePets.length > 0) {
+            // ⚙️ TECH GENIUS: Auto-Respawn Drone on Map Change!
+            if (game.player.baseStats?.playerClass === 'Tech Genius' && !game.isGhost && !window.isLoading) {
+                if (!game.player.activePets || !game.player.activePets.some(p => p.isDrone)) {
+                    if (typeof window.updateSkillMenu === 'function') window.updateSkillMenu();
+                }
+            }
+
+            // Active Pets logic
+            if (game.player.activePets && game.player.activePets.length > 0) {
         game.player.activePets.forEach((p, idx) => {
             let targetMob = Object.values(game.monsters).find(m => m.alive && Math.hypot(m.x-p.x, m.y-p.y) < 300);
             let targetPlayer = null;
