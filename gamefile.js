@@ -512,17 +512,17 @@ window.toggleSkillScreen = function() {
 }
 
 window.renderSkillScreen = function() {
-    let pClass = game.player.baseStats?.playerClass || null; 
-    let wpnType = null;
-   if (game.player.equips?.weapon?.sprite) {
-        let spriteStr = String(game.player.equips.weapon.sprite).toLowerCase();
-        if (spriteStr.includes('sword')) wpnType = 'sword';
-        else if (spriteStr.includes('staff')) wpnType = 'staff';
-        else if (spriteStr.includes('pendant')) wpnType = 'pendant';
-        else if (spriteStr.includes('gun')) wpnType = 'gun'; // 🔫 ADDED GUN
-        else if (spriteStr.includes('dagger')) wpnType = 'dagger'; // 🗡️ ADDED DAGGER
+    let pClass = game.player.baseStats?.playerClass || null; 
+    let wpnType = null;
+   if (game.player.equips?.weapon?.sprite) {
+        let spriteStr = String(game.player.equips.weapon.sprite).toLowerCase();
+        if (spriteStr.includes('sword')) wpnType = 'sword';
+        else if (spriteStr.includes('staff')) wpnType = 'staff';
+        else if (spriteStr.includes('pendant')) wpnType = 'pendant';
+        else if (spriteStr.includes('gun')) wpnType = 'gun';
+        else if (spriteStr.includes('dagger')) wpnType = 'dagger';
         else if (spriteStr.includes('touchpad')) wpnType = 'touchpad'; // 💻 ADDED TOUCHPAD
-    }
+    }
 
     if (!pClass || !CLASSES[pClass]) {
         document.getElementById('active-class-area').style.display = 'none'; let selArea = document.getElementById('class-selection-area'); let classList = document.getElementById('available-classes');
@@ -592,15 +592,16 @@ window.updateHotbarCooldowns = function() {
 }
 
 window.updateSkillMenu = function() {
-    let pClass = game.player.baseStats?.playerClass || null; let wpnType = null;
-    if (game.player.equips?.weapon?.sprite) {
-        let spriteStr = String(game.player.equips.weapon.sprite).toLowerCase();
-        if (spriteStr.includes('sword')) wpnType = 'sword';
-        else if (spriteStr.includes('staff')) wpnType = 'staff';
-        else if (spriteStr.includes('pendant')) wpnType = 'pendant';
-        else if (spriteStr.includes('gun')) wpnType = 'gun'; // 🔫 ADDED GUN
-        else if (spriteStr.includes('dagger')) wpnType = 'dagger'; // 🗡️ ADDED DAGGER
-    }
+    let pClass = game.player.baseStats?.playerClass || null; let wpnType = null;
+    if (game.player.equips?.weapon?.sprite) {
+        let spriteStr = String(game.player.equips.weapon.sprite).toLowerCase();
+        if (spriteStr.includes('sword')) wpnType = 'sword';
+        else if (spriteStr.includes('staff')) wpnType = 'staff';
+        else if (spriteStr.includes('pendant')) wpnType = 'pendant';
+        else if (spriteStr.includes('gun')) wpnType = 'gun';
+        else if (spriteStr.includes('dagger')) wpnType = 'dagger';
+        else if (spriteStr.includes('touchpad')) wpnType = 'touchpad'; // 💻 ADDED TOUCHPAD
+    }
 
     // ⚙️ TECH GENIUS: Auto-spawn or despawn the Gadget Drone based on class!
     if (game.player.activePets) {
