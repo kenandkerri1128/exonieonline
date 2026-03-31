@@ -4399,10 +4399,10 @@ if (hitPet) {
         const petDef = hitPet.isBigBoss || hitPet.isGolemBuster ? window.getDefense() : Math.floor(window.getDefense() * 0.25);
         let actualDmg = Math.max(1, serverAtk - petDef);
         
-        // 🛡️ ABSORB SHIELD FOR PET
+       // 🛡️ ABSORB SHIELD FOR PET
         if (hitPet.gammaShieldHp && hitPet.gammaShieldHp > 0) {
             if (actualDmg >= hitPet.gammaShieldHp) {
-                actualDmg -= hitPet.gammaShieldHp;
+                actualDmg = 0; // 🛡️ STURDY FIX: The shield absorbs the ENTIRE hit!
                 hitPet.gammaShieldHp = 0;
                 let s = hitPet.dom.querySelector('.gamma-shield');
                 if (s) { s.style.animation = 'shatter 0.3s forwards'; setTimeout(()=>s.remove(), 300); }
