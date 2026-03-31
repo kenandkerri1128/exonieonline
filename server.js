@@ -3302,7 +3302,7 @@ socket.on('syncPet', (data) => {
                  // 🟢 NORMAL SLIMES & 🥷 SHADOW CLONES: % Scaling
                  let multiplier = 0.25; 
                  if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0; 
-                 if (pet.isClone) multiplier = 1.0; // Clones always have 100% ATK!
+                 if (pet.isClone) multiplier = 2.0; // 🛡️ BUFF: Clones now deal 200% ATK!
                  
                  let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
                  trueDmg = Math.floor(sourceAtk * multiplier);
@@ -7248,7 +7248,7 @@ socket.on('startDungeon', async (data) => {
                  // 🟢 NORMAL SLIMES & 🥷 SHADOW CLONES PvP: % Scaling
                  let multiplier = 0.25; 
                  if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0; 
-                 if (pet.isClone) multiplier = 1.0; // Clones always have 100% ATK!
+                 if (pet.isClone) multiplier = 2.0; // 🛡️ BUFF: Clones now deal 200% ATK!
                  
                  let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
                  trueDmg = Math.floor(sourceAtk * multiplier);
