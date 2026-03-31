@@ -1111,85 +1111,82 @@ function gameLoop(ts) {
                 });
             }
             
-           let finalTarget = targetMob || targetPlayer;
-           
-           // ⚙️ THE FIX: Drone ALWAYS follows the player! It never stops to chase or hold position.
-           if (p.isDrone) {
-                let targetX = game.player.x + (window.facingRight ? -40 : 40);
-                let targetY = game.player.y - 40;
-                p.x += (targetX - p.x) * 0.15;
-                p.y += (targetY - p.y) * 0.15;
-           }
+         let finalTarget = targetMob || targetPlayer;
+
+        // ⚙️ THE FIX: Drone logic is completely detached from the other pets so it never stops!
+        if (p.isDrone) {
+            let targetX = game.player.x + (window.facingRight ? -40 : 40);
+            let targetY = game.player.y - 40;
+            p.x += (targetX - p.x) * 0.15;
+            p.y += (targetY - p.y) * 0.15;
 
             if (finalTarget) {
-    let dist = Math.hypot(finalTarget.x - p.x, finalTarget.y - p.y);
-    let stopDist = p.isBigBoss ? 100 : (p.isGolemBuster ? 80 : 40); // 🛡️ Drone removed from stop distance
+                if (!p.lastAttack || Date.now() - p.lastAttack > 1000) {
+                    p.lastAttack = Date.now();
+                    window.shootLaser(p.x, p.y, finalTarget.x + (finalTarget.width||48)/2, finalTarget.y + (finalTarget.height||96)/2);
+                    if (socket) {
+                        if (targetMob) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'tech1' });
+                        else socket.emit('attackPlayer', { targetId: targetPlayer.id, skillId: 'tech1' });
+                    }
+                }
+            }
+        } 
+        else {
+            // Normal Slimes, Golem Buster, and Big Boss logic
+            if (finalTarget) {
+                let dist = Math.hypot(finalTarget.x - p.x, finalTarget.y - p.y);
+                let stopDist = p.isBigBoss ? 100 : (p.isGolemBuster ? 80 : 40);
 
-    if (dist > stopDist && !p.isDrone) {
-        if (p.isBigBoss || p.isGolemBuster) {
-            p.x += (finalTarget.x - p.x) * 0.05;
-            p.y += (finalTarget.y - p.y) * 0.05;
-        } else {
-            p.x += (finalTarget.x - p.x) * 0.15;
-            p.y += (finalTarget.y - p.y) * 0.15;
-        }
-    } else {
-        let atkCooldown = p.isBigBoss ? 1500 : (p.isGolemBuster ? 1500 : (p.isDrone ? 1000 : 1000));
-        if (!p.lastAttack || Date.now() - p.lastAttack > atkCooldown) {
-            p.lastAttack = Date.now();
+                if (dist > stopDist) {
+                    if (p.isBigBoss || p.isGolemBuster) {
+                        p.x += (finalTarget.x - p.x) * 0.05;
+                        p.y += (finalTarget.y - p.y) * 0.05;
+                    } else {
+                        p.x += (finalTarget.x - p.x) * 0.15;
+                        p.y += (finalTarget.y - p.y) * 0.15;
+                    }
+                } else {
+                    let atkCooldown = p.isBigBoss ? 1500 : (p.isGolemBuster ? 1500 : 1000);
+                    if (!p.lastAttack || Date.now() - p.lastAttack > atkCooldown) {
+                        p.lastAttack = Date.now();
+                        let baseScale = p.isBigBoss ? 2.5 : 1;
+                        let atkScale = p.isBigBoss ? 3.0 : 1.5;
 
-            // ⚙️ DRONE: Shoot laser instead of bouncing
-            if (p.isDrone) {
-                window.shootLaser(p.x, p.y, finalTarget.x + (finalTarget.width||48)/2, finalTarget.y + (finalTarget.height||96)/2);
-                if (socket) {
-                    if (targetMob) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'tech1' });
-                    else socket.emit('attackPlayer', { targetId: targetPlayer.id, skillId: 'tech1' });
+                        p.dom.style.transform = `scale(${atkScale}) translateY(-20px)`;
+                        setTimeout(() => {
+                            if (p.dom) p.dom.style.transform = `scale(${baseScale})`;
+                            if (socket) {
+                                if (targetMob) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss, isGolemBuster: p.isGolemBuster });
+                                else socket.emit('attackPlayer', { targetId: targetPlayer.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss, isGolemBuster: p.isGolemBuster });
+                            }
+                        }, 200);
+                    }
+                    
+                    if (p.isGolemBuster) {
+                        if (!p.lastTaunt || Date.now() - p.lastTaunt > 5000) {
+                            p.lastTaunt = Date.now();
+                            window.spawnDamageText(p.x, p.y - 40, "TAUNT!", "#ffeb3b");
+                            if (socket) socket.emit('petTaunt', { petId: p.id, radius: 300 });
+                        }
+                    }
                 }
             } else {
-                let baseScale = p.isBigBoss ? 2.5 : 1;
-                let atkScale = p.isBigBoss ? 3.0 : 1.5;
-
-                p.dom.style.transform = `scale(${atkScale}) translateY(-20px)`;
-                setTimeout(() => {
-                    if (p.dom) p.dom.style.transform = `scale(${baseScale})`;
-                    if (socket) {
-                        if (targetMob) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss, isGolemBuster: p.isGolemBuster });
-                        else socket.emit('attackPlayer', { targetId: targetPlayer.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss, isGolemBuster: p.isGolemBuster });
-                    }
-                }, 200);
+                let targetX, targetY;
+                if (p.isBigBoss || p.isGolemBuster) {
+                    targetX = p.homeX || p.x;
+                    targetY = p.homeY || p.y;
+                    p.x += (targetX - p.x) * 0.05;
+                    p.y += (targetY - p.y) * 0.05;
+                } else {
+                    targetX = game.player.x + (idx === 0 ? -40 : 40);
+                    targetY = game.player.y - 20;
+                    p.x += (targetX - p.x) * 0.15;
+                    p.y += (targetY - p.y) * 0.15;
+                }
             }
         }
         
-        // 🛡️ GOLEM BUSTER TAUNT
-        if (p.isGolemBuster) {
-            if (!p.lastTaunt || Date.now() - p.lastTaunt > 5000) {
-                p.lastTaunt = Date.now();
-                window.spawnDamageText(p.x, p.y - 40, "TAUNT!", "#ffeb3b");
-                if (socket) socket.emit('petTaunt', { petId: p.id, radius: 300 });
-            }
-        }
-    }
-} else {
-    let targetX, targetY;
-
-    if (p.isBigBoss || p.isGolemBuster) {
-        targetX = p.homeX || p.x;
-        targetY = p.homeY || p.y;
-        p.x += (targetX - p.x) * 0.05;
-        p.y += (targetY - p.y) * 0.05;
-    } else if (p.isDrone) {
-        targetX = game.player.x + (window.facingRight ? -40 : 40);
-        targetY = game.player.y - 40;
-        p.x += (targetX - p.x) * 0.15;
-        p.y += (targetY - p.y) * 0.15;
-    } else {
-        targetX = game.player.x + (idx === 0 ? -40 : 40);
-        targetY = game.player.y - 20;
-        p.x += (targetX - p.x) * 0.15;
-        p.y += (targetY - p.y) * 0.15;
-    }
-}
-            p.dom.style.left = p.x + 'px'; p.dom.style.top = p.y + 'px';
+        p.dom.style.left = p.x + 'px'; p.dom.style.top = p.y + 'px';
             let hpBar = p.dom.querySelector('#pet-hp');
             if (hpBar) hpBar.style.width = (p.hp / p.maxHp) * 100 + '%';
             
@@ -1449,12 +1446,13 @@ function gameLoop(ts) {
     dom.playerContainer.style.left = game.player.x + 'px'; 
     dom.playerContainer.style.top = game.player.y + 'px'; 
 
-    // 🌫️ OPTIMIZED FOG OF WAR (Runs every 3 frames to save CPU)
+   // 🌫️ OPTIMIZED FOG OF WAR (Runs every 3 frames to save CPU)
     window.fowFrameCount = (window.fowFrameCount || 0) + 1;
     const fow = document.getElementById('fow-canvas');
     if (fow && window.fowFrameCount % 3 === 0) {
         const ctx = fow.getContext('2d', { alpha: true });
-        if (safeMapData.id !== 'town' && !String(safeMapData.id).includes('home') && !String(safeMapData.id).includes('guildbase') && !game.isGhost && !document.body.classList.contains('low-perf')) {
+        // 🛡️ THE FIX: Removed the low-perf check so the math ALWAYS runs and hides enemies behind walls!
+        if (safeMapData.id !== 'town' && !String(safeMapData.id).includes('home') && !String(safeMapData.id).includes('guildbase') && !game.isGhost) {
             fow.classList.add('active');
             ctx.clearRect(0, 0, 2000, 1333);
             ctx.globalCompositeOperation = 'source-over';
@@ -1544,10 +1542,19 @@ function gameLoop(ts) {
                 
                 const isVisible = ctx.isPointInPath(visionPath, m.x + (m.width/2), m.y + (m.height/2));
                 const targetVis = isVisible ? 'visible' : 'hidden';
-                if (mEl.style.visibility !== targetVis) {
-                    mEl.style.visibility = targetVis;
+                if (mEl.style.visibility !== targetVis) mEl.style.visibility = targetVis;
+            }
+
+            // 5. Hide Remote Players behind walls too!
+            for (let rId in game.remotePlayers) {
+                const rp = game.remotePlayers[rId];
+                if (rp && rp.dom) {
+                    const isVisible = ctx.isPointInPath(visionPath, rp.x + 24, rp.y + 48);
+                    const targetVis = isVisible ? 'visible' : 'hidden';
+                    if (rp.dom.style.visibility !== targetVis) rp.dom.style.visibility = targetVis;
                 }
             }
+
         } else {
             fow.classList.remove('active'); 
             ctx.clearRect(0, 0, 2000, 1333); 
@@ -1555,6 +1562,11 @@ function gameLoop(ts) {
             for (let mId in game.monsters) {
                 const mEl = document.getElementById('mob_' + mId);
                 if (mEl && mEl.style.visibility !== 'visible') mEl.style.visibility = 'visible';
+            }
+            // Reveal all players if fog is off
+            for (let rId in game.remotePlayers) {
+                const rp = game.remotePlayers[rId];
+                if (rp && rp.dom && rp.dom.style.visibility !== 'visible') rp.dom.style.visibility = 'visible';
             }
         }
     }
