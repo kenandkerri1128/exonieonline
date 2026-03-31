@@ -331,6 +331,7 @@ const ITEM_TEMPLATES = {
     pendant: { slot: 'weapon', statKey: 'magic', baseName: 'Pendant', spriteName: 'pendant' }, 
     gun: { slot: 'weapon', statKey: 'attack', baseName: 'Gun', spriteName: 'gun' }, 
     dagger: { slot: 'weapon', statKey: 'attack', baseName: 'Dagger', spriteName: 'dagger' },
+    touchpad: { slot: 'weapon', statKey: 'magic', baseName: 'Touchpad', spriteName: 'touchpad' }, // 💻 ADDED TOUCHPAD
     armor: { slot: 'armor', statKey: 'defense', baseName: 'Armor', spriteName: 'armor' }, 
     leggings: { slot: 'leggings', statKey: 'hp', baseName: 'Leggings', spriteName: 'leggings' } 
 };
@@ -588,7 +589,7 @@ function generateHauntedLoot(mLevel) {
     if (sRoll > 0.99) stoneRarity = "Divine";
 
     if (typeRoll < 0.50) { // 50% Equipment
-        const equipKeys = ['sword', 'staff', 'pendant', 'gun', 'dagger', 'armor', 'leggings'];
+        const equipKeys = ['sword', 'staff', 'pendant', 'gun', 'dagger', 'touchpad', 'armor', 'leggings'];
         const typeKey = equipKeys[Math.floor(Math.random() * equipKeys.length)];
         const template = ITEM_TEMPLATES[typeKey];
         const rPfx = gearRarity.toLowerCase();
@@ -5479,6 +5480,7 @@ socket.on('playerDied', () => {
             else if (rawLower.includes('pendant')) baseType = 'pendant';
             else if (rawLower.includes('gun')) baseType = 'gun';
             else if (rawLower.includes('dagger')) baseType = 'dagger';
+            else if (rawLower.includes('touchpad')) baseType = 'touchpad'; // 💻 ADDED TOUCHPAD
             else if (rawLower.includes('armor')) baseType = 'armor';
             else if (rawLower.includes('leggings')) baseType = 'leggings';
             
