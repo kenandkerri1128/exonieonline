@@ -625,10 +625,12 @@ function generateHauntedLoot(mLevel) {
                 name: "Divine Enhancement Stone",
                 type: "material",
                 rarity: "Divine",
-                level: mLevel,
+                level: 1, // 🛡️ FIX: Force Level 1 to prevent scaling
                 color: "#ffea00",
                 description: "Enhances Divine equipment.",
-                quantity: 1
+                quantity: 1,
+                fixedStat: {}, // 🛡️ FIX: Explicitly wipe stats
+                randomStat: {} // 🛡️ FIX: Explicitly wipe stats
             };
         }
         return {
