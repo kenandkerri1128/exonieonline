@@ -2643,15 +2643,16 @@ socket.on('login', async (data) => {
                 starterInventory.push(null);
             }
             
-            // ✅ Pack ALL FOUR weapons into the first inventory slots
+            // ✅ Pack ALL SIX weapons into the first inventory slots
             starterInventory[0] = { id: Date.now() + Math.random(), name: "Starter Sword", type: "weapon", sprite: "startersword", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { attack: 3 } };
             starterInventory[1] = { id: Date.now() + Math.random(), name: "Starter Staff", type: "weapon", sprite: "starterstaff", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 3 } };
             starterInventory[2] = { id: Date.now() + Math.random(), name: "Starter Pendant", type: "weapon", sprite: "starterpendant", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 2 } };
             starterInventory[3] = { id: Date.now() + Math.random(), name: "Starter Gun", type: "weapon", sprite: "startergun", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { attack: 2 } };
             starterInventory[4] = { id: Date.now() + Math.random(), name: "Starter Dagger", type: "weapon", sprite: "starterdagger", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { attack: 3, speed: 2 } };
+            starterInventory[5] = { id: Date.now() + Math.random(), name: "Starter Touchpad", type: "weapon", sprite: "startertouchpad", level: 1, rarity: "Starter", color: "#aaaaaa", fixedStat: { magic: 3 } };
             
-            // 🎁 STARTER GIFT: 10 Health Potions! (Moved to slot 5)
-            starterInventory[5] = { id: Date.now() + Math.random(), name: "Health Potion", type: "potion", sprite: "potion1", level: 1, rarity: "Basic", color: "#8B4513", fixedStat: { hpHeal: 50 }, quantity: 10 };
+            // 🎁 STARTER GIFT: 10 Health Potions! (Moved to slot 6)
+            starterInventory[6] = { id: Date.now() + Math.random(), name: "Health Potion", type: "potion", sprite: "potion1", level: 1, rarity: "Basic", color: "#8B4513", fixedStat: { hpHeal: 50 }, quantity: 10 };
 
             const { data: user, error } = await supabase.from('Exonians')
                 .update({ 
