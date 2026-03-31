@@ -5375,13 +5375,28 @@ socket.on('playerDied', () => {
         deduct('Blue Exo Metal', reqBlue);
         p.gold -= reqGold;
 
-        // ✨ TRANSFORM ITEM TO DIVINE ✨
+       // ✨ TRANSFORM ITEM TO DIVINE ✨
         baseItem.rarity = 'Divine';
         baseItem.color = '#ffea00';
         baseItem.name = baseItem.name.replace('Godly', 'Divine');
         if (!baseItem.name.includes('Divine')) baseItem.name = `Divine ${baseItem.name}`;
         baseItem.enhanceLevel = 0; // Reset enhancement
         
+        // 🛡️ DYNAMIC SPRITE FIX: Auto-update the weapon/armor skin to match the new rarity!
+        if (baseItem.sprite) {
+            let baseType = 'sword';
+            let rawLower = String(baseItem.sprite).toLowerCase();
+            if (rawLower.includes('staff')) baseType = 'staff';
+            else if (rawLower.includes('pendant')) baseType = 'pendant';
+            else if (rawLower.includes('gun')) baseType = 'gun';
+            else if (rawLower.includes('dagger')) baseType = 'dagger';
+            else if (rawLower.includes('armor')) baseType = 'armor';
+            else if (rawLower.includes('leggings')) baseType = 'leggings';
+            
+            // This forces it to become 'sword_divine', 'gun_divine', etc.!
+            baseItem.sprite = `${baseType}_${baseItem.rarity.toLowerCase()}`;
+        }
+
         if (baseItem.gemCount) baseItem.gemCount = 0; // Wipe sockets
         baseItem.randomStat = {}; // Wipe old random stats
 
