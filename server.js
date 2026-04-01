@@ -141,7 +141,10 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
         if (!patronEmail) return res.status(200).send('No email');
 
         const amountCents = event?.data?.attributes?.currently_entitled_amount_cents || 0;
-        const isRoyalTier = amountCents >= 11500; 
+        const isTier10 = amountCents >= 1000; // $10.00
+        const isRoyalTier = amountCents >= 11500; // $115.00
+
+        // 👉 DYNAMIC GEMS: $1 = 1 Gem. If Royal Tier, hardcode to 50! 
 
         // 👉 DYNAMIC GEMS: $1 = 1 Gem. If Royal Tier, hardcode to 50!
         let gemsToGive = Math.floor(amountCents / 100); 
@@ -210,9 +213,17 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
                 { recipient_name: playerName, message_text: `💎 Thank you for subscribing! Here are your ${gemsToGive} Exo Gems.`, attached_item: JSON.stringify(exoGemsBundle), is_claimed: false }
             ]);
             
+           // 💰 $10 REWARD: 100k Gold Pouch
+            if (isTier10) {
+                const goldPouch = { id: Date.now() + Math.random(), name: "Supporter Gold Pouch", type: 'consumable', rarity: 'Unique', color: '#FFD700', description: "A pouch of Patreon gold. Use to receive 100,000 Gold instantly.", quantity: 1 };
+                await supabase.from('System_Mail').insert([
+                    { recipient_name: playerName, message_text: "🎁 Patreon Reward: Here is your monthly 100,000 Gold!", attached_item: JSON.stringify(goldPouch), is_claimed: false }
+                ]);
+            }
+            
             if (isRoyalTier) {
                 const divineAura = { id: Date.now() + Math.random(), name: "Divine Aura Stone", type: 'aura', auraId: 'divine', sprite: 'aurastone', level: 1, rarity: 'Divine', color: '#ffea00', description: "Click to apply to an Armor. Purely cosmetic. Royal Patron Exclusive.", quantity: 1 };
-                const royalGoldSack = { id: Date.now() + Math.random(), name: "Royal Gold Sack", type: 'consumable', rarity: 'Divine', color: '#FFD700', description: "A heavy sack of Royal Patreon Gold. Use to receive 1,000,000 Gold instantly.", quantity: 1 };
+                const royalGoldSack = { id: Date.from() + Math.random(), name: "Royal Gold Sack", type: 'consumable', rarity: 'Divine', color: '#FFD700', description: "A heavy sack of Royal Patreon Gold. Use to receive 1,000,000 Gold instantly.", quantity: 1 };
                 
                 await supabase.from('System_Mail').insert([
                     { recipient_name: playerName, message_text: "👑 Welcome to the Royal Tier! Here is your exclusive Divine Aura Stone.", attached_item: JSON.stringify(divineAura), is_claimed: false },
@@ -227,11 +238,17 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
             const chargeDate = event?.data?.attributes?.last_charge_date;
 
             // 🛡️ THE FIX: Only give gems if the charge date is NEW!
-            if (chargeStatus === 'Paid' && safeStats.lastChargeDate !== chargeDate) {
-                safeStats.lastChargeDate = chargeDate; // Save new charge date
+           if (chargeStatus === 'Paid' && safeStats.lastChargeDate !== chargeDate) {
+                safeStats.lastChargeDate = chargeDate; 
 
                 await supabase.from('System_Mail').insert([{ recipient_name: playerName, message_text: `💎 Your monthly Patreon renewal is here! Enjoy your ${gemsToGive} Exo Gems.`, attached_item: JSON.stringify(exoGemsBundle), is_claimed: false }]);
                 
+                // 💰 Monthly 100k Gold for $10+ Tiers
+                if (isTier10) {
+                    const goldPouch = { id: Date.now() + Math.random(), name: "Supporter Gold Pouch", type: 'consumable', rarity: 'Unique', color: '#FFD700', description: "A pouch of Patreon gold. Use to receive 100,000 Gold instantly.", quantity: 1 };
+                    await supabase.from('System_Mail').insert([{ recipient_name: playerName, message_text: "🎁 Patreon Monthly Reward: Here is your 100,000 Gold!", attached_item: JSON.stringify(goldPouch), is_claimed: false }]);
+                }
+
                 if (isRoyalTier) {
                     const royalGoldSack = { id: Date.now() + Math.random(), name: "Royal Gold Sack", type: 'consumable', rarity: 'Divine', color: '#FFD700', description: "A heavy sack of Royal Patreon Gold. Use to receive 1,000,000 Gold instantly.", quantity: 1 };
                     await supabase.from('System_Mail').insert([{ recipient_name: playerName, message_text: "💰 Royal Stipend: Here is your 1,000,000 Gold!", attached_item: JSON.stringify(royalGoldSack), is_claimed: false }]);
@@ -4447,11 +4464,24 @@ socket.on('requestConfirmTrade', () => {
             return;
         }
 
-       // 👑 PATREON: ROYAL GOLD SACK
-        if (item.type === 'consumable' && item.name === 'Royal Gold Sack') {
-            p.gold = (p.gold || 0) + 1000000; // Add 1 Million Gold!
+       // 💰 PATREON GOLD REWARDS
+        if (item.type === 'consumable' && (item.name === 'Royal Gold Sack' || item.name === 'Supporter Gold Pouch')) {
+            const goldToAdd = item.name === 'Royal Gold Sack' ? 1000000 : 100000;
+            p.gold = (p.gold || 0) + goldToAdd;
 
             item.quantity = (item.quantity || 1) - 1;
+            inv[index] = item.quantity > 0 ? item : null;
+            p.inventory = inv;
+
+            supabase.from('Exonians').update({
+                inventory: p.inventory,
+                gold: p.gold
+            }).eq('character_name', p.id).then(()=>{});
+
+            socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
+            socket.emit('systemMessage', `💰 You opened the ${item.name} and received ${goldToAdd.toLocaleString()} Gold!`);
+            return;
+        }
             inv[index] = item.quantity > 0 ? item : null;
             p.inventory = inv;
 
