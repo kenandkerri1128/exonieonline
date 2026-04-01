@@ -1650,10 +1650,27 @@ window.preloadMapAssets = function(mapData, callback) {
         if (game.player.baseStats?.playerClass) { let hairPrefix = window.charData?.hairStyle === 'none' ? 'none' : `hair${window.charData?.hairStyle || '1'}`; let formattedClass = String(game.player.baseStats.playerClass).replace(/\s+/g, '').toLowerCase(); assets.push(`skills/${hairPrefix}_${formattedClass}.mp3`); }
         assets = assets.filter(src => typeof src === 'string' && src.trim() !== '');
         let loaded = 0; let toLoad = assets.length;
-        let failSafe = setTimeout(() => { window.isLoading = false; callback(); }, 3000); 
-        if(toLoad === 0) { clearTimeout(failSafe); window.isLoading = false; return callback(); }
-        const checkDone = () => { if(loaderFill) loaderFill.style.width = (loaded / toLoad) * 100 + '%'; if(loaded === toLoad) { clearTimeout(failSafe); window.isLoading = false; callback(); } };
-        assets.forEach(src => { if (src.endsWith('.mp3')) { let a = new Audio(); a.oncanplaythrough = () => { loaded++; checkDone(); }; a.onerror = () => { loaded++; checkDone(); }; a.src = src; } else { let img = new Image(); img.onload = img.onerror = () => { loaded++; checkDone(); }; img.src = src; } });
+        
+        // 🛡️ THE FIX: No timers. The game waits patiently for 100% of assets to download.
+        if(toLoad === 0) { window.isLoading = false; return callback(); }
+        
+        const checkDone = () => { 
+            if(loaderFill) loaderFill.style.width = (loaded / toLoad) * 100 + '%'; 
+            if(loaded === toLoad) { window.isLoading = false; callback(); } 
+        };
+        
+        assets.forEach(src => { 
+            if (src.endsWith('.mp3')) { 
+                let a = new Audio(); 
+                a.oncanplaythrough = () => { loaded++; checkDone(); }; 
+                a.onerror = () => { loaded++; checkDone(); }; 
+                a.src = src; 
+            } else { 
+                let img = new Image(); 
+                img.onload = img.onerror = () => { loaded++; checkDone(); }; 
+                img.src = src; 
+            } 
+        });
     } catch(e) { console.error("Preloader Error:", e); window.isLoading = false; callback(); }
 };
 
