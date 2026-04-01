@@ -1692,11 +1692,9 @@ window.preloadMapAssets = function(mapData, callback) {
                 loaderFill.style.width = pct + '%';
             }
 
-            // 🚀 BOOM! Map and Sprites are done. Let the player in!
-            if (essentialsLoaded === essentialToLoad && !isEssentialsDone) {
+           if (essentialsLoaded === essentialToLoad && !isEssentialsDone) {
                 isEssentialsDone = true;
-                window.isLoading = false;
-                window.isTransitioning = false; // 🔓 NETWORK UNLOCK: We are safely in the new map
+                // 🛡️ SYNC FIX: Do NOT unlock movement or hide the screen here! Wait for the server!
                 callback(); 
                 startBackgroundAudio(); // 🎵 Let audio download silently in the background
             }
@@ -3129,7 +3127,9 @@ window.inspectTargetPlayer = function() { if (!activeTargetPlayerId) return; doc
 window.inviteTargetToParty = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('partyInvite', { targetId: activeTargetPlayerId }); dom.log.innerText = `Party invite sent to ${activeTargetPlayerId}.`; }; 
 window.requestTrade = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('tradeRequest', { targetId: activeTargetPlayerId }); dom.log.innerText = `Trade request sent to ${activeTargetPlayerId}.`; }; 
 window.closeInspect = function() { dom.inspect.style.display = 'none'; };
-window.leaveParty = function() { if(socket) socket.emit('leaveParty'); dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; game.party = null; dom.log.innerText = "You left the party."; if (safeMapData.id !== 'town') { const transScreen = document.getElementById('map-transition'); document.getElementById('transition-text').innerText = `Entering town...`; transScreen.style.display = 'flex'; setTimeout(() => { transScreen.style.opacity = '1'; }, 10); game.player.teleportCooldown = 4000; setTimeout(() => { window.loadMapScript('town', () => { safeMapData = window.MapDatabase['town']; game.player.x = safeMapData.spawnX || 960; game.player.y = safeMapData.spawnY || 1000; window.preloadMapAssets(safeMapData, () => { dom.world.style.backgroundImage = `url('${safeMapData.image}')`; window.buildCollisionLayers(); window.cleanupMap(); if(socket) socket.emit('playerTeleported', { mapId: 'town', x: game.player.x, y: game.player.y, mapData: safeMapData }); window.playBGM('town'); transScreen.style.opacity = '0'; setTimeout(() => { transScreen.style.display = 'none'; }, 1000); }); }); }, 500); } };
+window.leaveParty = function() { if(socket) socket.emit('leaveParty'); dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; game.party = null; dom.log.innerText = "You left the party."; if (safeMapData.id !== 'town') { const transScreen = document.getElementById('map-transition'); document.getElementById('transition-text').innerText = `Entering town...`; transScreen.style.display = 'flex'; setTimeout(() => { transScreen.style.opacity = '1'; }, 10); game.player.teleportCooldown = 4000; setTimeout(() => { window.loadMapScript('town', () => { safeMapData = window.MapDatabase['town']; game.player.x = safeMapData.spawnX || 960; game.player.y = safeMapData.spawnY || 1000; window.preloadMapAssets(safeMapData, () => { dom.world.style.backgroundImage = `url('${safeMapData.image}')`; window.buildCollisionLayers(); window.cleanupMap(); if(socket) socket.emit('playerTeleported', { mapId: 'town', x: game.player.x, y: game.player.y, mapData: safeMapData });
+                        document.getElementById('transition-text').innerText = "Waiting for team to load...";
+                    }); }); }, 500); } };
 window.respondInvite = function(accept) { document.getElementById('invite-dialog').style.display = 'none'; if (pendingPartyInvite) { if(socket) socket.emit('partyInviteResponse', { fromId: pendingPartyInvite, accept }); pendingPartyInvite = null; } }; 
 window.respondTrade = function(accept) { document.getElementById('trade-dialog').style.display = 'none'; if (pendingTradeInvite) { if(socket) socket.emit('tradeInviteResponse', { fromId: pendingTradeInvite, accept }); if (accept) { tradeTarget = pendingTradeInvite; inTradeMode = true; document.getElementById('trade-target-name').innerText = tradeTarget; document.getElementById('trade-screen').style.display = 'block'; window.renderTradeSlots(); window.renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.log.innerText = "Trade declined."; } pendingTradeInvite = null; } }; 
 window.closeTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade cancelled."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); if(socket) socket.emit('tradeCancel'); }; 
@@ -3495,10 +3495,11 @@ let targetMapId = 'town';
                     
                    // 🛡️ GUARANTEE THESE RUN EVEN IF THE UI CRASHES
                     if (document.getElementById('loading-screen')) {
-                        document.getElementById('loading-screen').style.display = 'none';
-                    }
-
-                    dom.game.classList.add('active');
+                            document.getElementById('loading-screen').style.display = 'none';
+                        }
+                        window.isLoading = false;
+                        window.isTransitioning = false;
+                        dom.game.classList.add('active');
                     game.isRunning = true;
                     
                     // 🛡️ THE FIX: Show the chat box ONLY when the game is fully loaded!
@@ -3913,7 +3914,6 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
             window.showMapAnnouncement(tp.mapId);
 
             if (tp.spectateTarget) {
-                // ✅ Enter spectate mode
                 window.isSpectating = true;
                 window.spectateTargetId = tp.spectateTarget;
                 game.isGhost = true; 
@@ -3921,7 +3921,6 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
                 document.getElementById('spectate-ui').style.display = 'block';
                 if(dom.log) dom.log.innerText = `[ADMIN] Now Spectating: ${tp.spectateTarget}`;
             } else {
-                // ✅ Standard Teleport
                 window.isSpectating = false;
                 window.spectateTargetId = null;
                 game.isGhost = false;
@@ -3929,27 +3928,32 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
                 document.getElementById('spectate-ui').style.display = 'none';
                 dom.playerContainer.style.opacity = '1';
 
-                socket.emit('playerMoved', {
-                    x: game.player.x,
-                    y: game.player.y,
-                    state: 'idle',
-                    facingRight: window.facingRight,
-                    weaponSprite: game.player.equips.weapon?.sprite || null
-                });
-
-                socket.emit('playerTeleported', {
-                    mapId: tp.mapId,
-                    x: game.player.x,
-                    y: game.player.y,
-                    mapData: safeMapData
-                });
+                socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'idle', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
+                socket.emit('playerTeleported', { mapId: tp.mapId, x: game.player.x, y: game.player.y, mapData: safeMapData });
             }
 
-            // 🛡️ CRITICAL FIX: Ensure the loading screen explicitly disappears once the map is ready!
-            const ls = document.getElementById('loading-screen');
-            if (ls) ls.style.display = 'none';
-            window.isLoading = false;
+            document.getElementById('loading-text').innerText = "Waiting for team to load...";
         });
+    });
+    
+    // 🛡️ SYNC FIX: Master Listener to drop the curtain when the server says everyone is ready!
+    socket.on('releaseLoadingScreen', () => {
+        window.isLoading = false;
+        window.isTransitioning = false;
+
+        const ls = document.getElementById('loading-screen');
+        if (ls) ls.style.display = 'none';
+
+        const transScreen = document.getElementById('map-transition');
+        if (transScreen) {
+            transScreen.style.opacity = '0';
+            setTimeout(() => { transScreen.style.display = 'none'; }, 1000);
+        }
+
+        if (typeof safeMapData !== 'undefined' && safeMapData.id) {
+            window.playBGM(window.routeMapMusic(safeMapData.id));
+            try { window.showMapAnnouncement(safeMapData.id); } catch(e) {}
+        }
     });
 });
     socket.on('teleportApproved', (tp) => { 
@@ -4024,14 +4028,10 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
                     window.buildCollisionLayers(); 
                     window.cleanupMap(); 
                     
-                    if(socket) socket.emit('playerTeleported', { mapId: nextMapId, x: game.player.x, y: game.player.y, mapData: safeMapData }); 
-                    window.playBGM(window.routeMapMusic(nextMapId));
-                    window.showMapAnnouncement(nextMapId);
-                    
-                    transScreen.style.opacity = '0'; 
-                    setTimeout(() => { transScreen.style.display = 'none'; }, 1000); 
-                }); 
-            }); 
+              if(socket) socket.emit('playerTeleported', { mapId: nextMapId, x: game.player.x, y: game.player.y, mapData: safeMapData }); 
+        document.getElementById('transition-text').innerText = "Waiting for team to load...";
+    }); 
+});
         }, 500); 
     });
     socket.on('remotePlayerMoved', (data) => { if (!game.remotePlayers[data.id]) window.addRemotePlayer({ id: data.id, name: data.id, x: data.x, y: data.y, spriteData: {} }); const p = game.remotePlayers[data.id]; if (!p) return; p.x = data.x; p.y = data.y; p.dom.style.left = p.x + 'px'; p.dom.style.top = p.y + 'px'; p.rig.style.transform = data.facingRight ? 'scaleX(-1)' : 'scaleX(1)'; let pulseActive = (Math.floor(Date.now() / 250) % 2 === 0); let bodySrc = 'animation/avatar_idlefront.png'; let isAtk = false; if (data.state === 'attack') { bodySrc = 'animation/avatar_attack.png'; isAtk = true; } else if (data.state === 'walk') { bodySrc = pulseActive ? 'animation/avatar_walk.png' : 'animation/avatar_idlefront.png'; } if (p.currentBodySrc !== bodySrc) { p.body.src = bodySrc; p.currentBodySrc = bodySrc; } if (data.weaponSprite) { 
