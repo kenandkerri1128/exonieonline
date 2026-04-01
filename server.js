@@ -1543,55 +1543,59 @@ if ((m.category === "mini_boss" || m.category === "floor_boss") && m.alive) {
 
             const isWraith = m.originalKey && m.originalKey.includes('wraith');
 
-            if (isWraith) {
-                // 👻 WRAITH MECHANIC: VANISH & REPOSITION
-                m.threatTable = {};
-                m.targetId = null;
-                m.forcedTargetId = null;
-
-                let foundSpot = false;
-                let nx = m.x;
-                let ny = m.y;
-
-                for (let tries = 0; tries < 10; tries++) {
-                    const angle = Math.random() * Math.PI * 2;
-                    const jumpDist = 150 + Math.random() * 200;
-
-                    let testX = m.x + Math.cos(angle) * jumpDist;
-                    let testY = m.y + Math.sin(angle) * jumpDist;
-
-                    let hitsWall = isMonsterColliding(instId, testX, testY, m.width, m.height);
-                    let pathClear = hasLineOfSight(
-                        instId,
-                        m.x + m.width / 2,
-                        m.y + m.height / 2,
-                        testX + m.width / 2,
-                        testY + m.height / 2
-                    );
-
-                    if (!hitsWall && pathClear) {
-                        nx = testX;
-                        ny = testY;
-                        foundSpot = true;
-                        break;
+           if (isWraith) {
+                    // 👻 WRAITH MECHANIC: TACTICAL REPOSITION (STALKER MODE)
+                    // Instead of wiping aggro to 0, we cut it in half.
+                    // This makes the boss "lose" the player for a second, but keeps it hunting.
+                    for (let pid in m.threatTable) {
+                        m.threatTable[pid] = Math.floor(m.threatTable[pid] * 0.5);
                     }
-                }
+                    
+                    m.targetId = null;
+                    m.forcedTargetId = null;
 
-                if (foundSpot) {
-                    m.x = nx;
-                    m.y = ny;
-                }
+                    let foundSpot = false;
+                    let nx = m.x;
+                    let ny = m.y;
 
-                io.to(instId).emit('systemMessage', `<span style="color:#9c27b0;">👻 The ${m.name} vanishes into the shadows and drops all aggro!</span>`);
-                io.to(instId).emit('monsterSkill', {
-                    monsterId: m.id,
-                    skillName: 'Vanish',
-                    x: m.x,
-                    y: m.y,
-                    radius: 0
-                });
+                    // Increased tries to 15 for better positioning success
+                    for (let tries = 0; tries < 15; tries++) { 
+                        const angle = Math.random() * Math.PI * 2;
+                        const jumpDist = 180 + Math.random() * 150; // Jumps slightly further
 
-            } else {
+                        let testX = m.x + Math.cos(angle) * jumpDist;
+                        let testY = m.y + Math.sin(angle) * jumpDist;
+
+                        // Ensure it stays within standard map bounds so it doesn't get lost
+                        testX = Math.max(100, Math.min(1900, testX));
+                        testY = Math.max(100, Math.min(1200, testY));
+
+                        let hitsWall = isMonsterColliding(instId, testX, testY, m.width, m.height);
+                        
+                        // 🛡️ THE FIX: Removed the Line of Sight requirement.
+                        // This allows the Wraith to jump behind walls or pillars to ambush the player.
+                        if (!hitsWall) {
+                            nx = testX; 
+                            ny = testY;
+                            foundSpot = true;
+                            break;
+                        }
+                    }
+
+                    if (foundSpot) { 
+                        m.x = nx; 
+                        m.y = ny; 
+                    }
+
+                    io.to(instId).emit('systemMessage', `<span style="color:#9c27b0;">👻 The ${m.name} flickers into the void... it is watching you.</span>`);
+                    io.to(instId).emit('monsterSkill', {
+                        monsterId: m.id,
+                        skillName: 'Vanish',
+                        x: m.x,
+                        y: m.y,
+                        radius: 0
+                    });
+                } else {
                 // 🗿 GOLEM & SLIME MECHANIC: EARTHQUAKE
                 const aoeRadius = m.category === "floor_boss" ? 400 : 200;
 
