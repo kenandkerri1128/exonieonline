@@ -247,8 +247,104 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
         }
 
     } catch (err) { console.error("Webhook Error:", err.message); }
-    res.status(200).send('Patreon Webhook Received');
+    res.status(200).send('Patreon Webhook Received');
 });
+
+// ==========================================
+// 🔵 STEAM MICROTRANSACTIONS (Exo Gems)
+// ==========================================
+app.post('/api/shop/init', express.json(), async (req, res) => {
+    const { steamId, itemId, amountCents, itemDescription } = req.body; 
+    const orderId = 'EXO-' + Date.now(); 
+
+    try {
+        const params = new URLSearchParams({
+            key: process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY, 
+            appid: process.env.STEAM_APP_ID || STEAM_APP_ID, 
+            orderid: orderId,
+            steamid: steamId,
+            itemcount: 1,
+            language: 'en',
+            currency: 'USD', 
+            'itemid[0]': itemId, 
+            'qty[0]': 1,
+            'amount[0]': amountCents, 
+            'description[0]': itemDescription 
+        });
+
+        const response = await axios.post('https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/', params);
+
+        if (response.data.response.result === 'OK') {
+            await supabase.from('Pending_Orders').insert([{
+                order_id: orderId,
+                steam_id: steamId,
+                item_id: itemId,
+                amount_cents: amountCents,
+                status: 'PENDING'
+            }]);
+            
+            res.json({ success: true, orderId: orderId });
+        } else {
+            console.error("Steam InitTxn Error:", response.data);
+            res.status(400).json({ success: false, error: response.data.response });
+        }
+    } catch (error) {
+        console.error("Server error during InitTxn:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+});
+
+app.post('/api/shop/finalize', express.json(), async (req, res) => {
+    const { orderId, username } = req.body; 
+
+    try {
+        const params = new URLSearchParams({
+            key: process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY,
+            appid: process.env.STEAM_APP_ID || STEAM_APP_ID,
+            orderid: orderId
+        });
+
+        const response = await axios.post('https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/', params);
+
+        if (response.data.response.result === 'OK') {
+            const { data: order } = await supabase.from('Pending_Orders').select('*').eq('order_id', orderId).single();
+            
+            if (!order || order.status !== 'PENDING') {
+                 return res.status(400).json({ success: false, message: "Order not found or already processed." });
+            }
+
+            let gemsToGive = 0;
+            if (order.item_id === 'gem_pack_15') gemsToGive = 15;
+            if (order.item_id === 'gem_pack_50') gemsToGive = 50;
+
+            const { data: user } = await supabase.from('Exonians').select('base_stats').eq('character_name', username).single();
+            
+            if (user) {
+                let safeStats = user.base_stats || {};
+                safeStats.exoGems = (safeStats.exoGems || 0) + gemsToGive;
+                
+                await supabase.from('Exonians').update({ base_stats: safeStats }).eq('character_name', username);
+                
+                const tsid = findSocketIdByPlayerId(username);
+                if (tsid && onlinePlayers[tsid]) {
+                    onlinePlayers[tsid].baseStats.exoGems = safeStats.exoGems;
+                    io.to(tsid).emit('gemPurchaseSuccess', { newGems: safeStats.exoGems });
+                    io.to(tsid).emit('systemMessage', `💎 Transaction Complete! Received ${gemsToGive} Exo Gems.`);
+                }
+            }
+
+            await supabase.from('Pending_Orders').update({ status: 'COMPLETED' }).eq('order_id', orderId);
+            res.json({ success: true, message: "Exo Gems added to account!" });
+        } else {
+            console.error("Steam FinalizeTxn Error:", response.data);
+            res.status(400).json({ success: false, error: response.data.response });
+        }
+    } catch (error) {
+        console.error("Server error during FinalizeTxn:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+});
+
 const server = http.createServer(app);
 const io = new Server(server, {
    cors: {
@@ -7630,21 +7726,12 @@ socket.on('startDungeon', async (data) => {
                 if (response.data.purchaseState === 0) isValid = true;
                 else throw new Error("Google Play returned purchase as unverified or canceled.");
             } 
-            else if (platform === 'steam') {
-                // 🔵 STEAMWORKS VERIFICATION API
-                const steamUrl = `https://partner.steam-api.com/ISteamMicroTxn/GetReport/v3/?key=${STEAM_WEB_API_KEY}&appid=${STEAM_APP_ID}&orderid=${receipt}`;
-                
-                const response = await fetch(steamUrl);
-                const steamData = await response.json();
-
-                if (steamData.response && steamData.response.result === 'OK') {
-                    const order = steamData.response.orders.find(o => o.orderid === receipt);
-                    if (order && order.status === 'Approved') isValid = true;
-                    else throw new Error("Steam order is pending or rejected.");
-                } else {
-                    throw new Error("Failed to communicate with Steam API.");
-                }
-            }
+          
+                // 🔵 STEAMWORKS VERIFICATION API (DEPRECATED)
+                // Steam purchases are now securely handled by the HTTP Webhooks:
+                // /api/shop/init and /api/shop/finalize
+                throw new Error("Steam transactions route through HTTP Webhooks, not Sockets.");
+            }
 
             // 💎 IF THE STORE SAYS IT'S REAL, GRANT THE GEMS
             if (isValid) {
