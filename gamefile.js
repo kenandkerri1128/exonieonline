@@ -1743,16 +1743,19 @@ window.preloadMapAssets = function(mapData, callback) {
 };
 
 window.cleanupMap = function() { 
-    Object.keys(game.remotePlayers).forEach(id => window.removeRemotePlayer(id)); 
-    document.querySelectorAll('.monster-container, .pet-slime').forEach(el => el.remove()); 
-    game.monsters = {}; 
-    if (game.player.activePets) { 
-        game.player.activePets.forEach(pet => { if(pet.dom) pet.dom.remove(); }); 
-        game.player.activePets = []; 
-    } 
-    if (localBossTimer) clearInterval(localBossTimer);
-    let t = document.getElementById('world-boss-timer'); 
-    if (t) t.remove();
+    Object.keys(game.remotePlayers).forEach(id => window.removeRemotePlayer(id)); 
+    document.querySelectorAll('.monster-container, .pet-slime').forEach(el => el.remove()); 
+    game.monsters = {}; 
+    if (game.player.activePets) { 
+        game.player.activePets.forEach(pet => { if(pet.dom) pet.dom.remove(); }); 
+        game.player.activePets = []; 
+    } 
+    if (localBossTimer) clearInterval(localBossTimer);
+    let t = document.getElementById('world-boss-timer'); 
+    if (t) t.remove();
+
+    // 🛡️ LATENCY SHIELD: Mark the exact millisecond we wiped the map
+    window.mapLoadTimestamp = Date.now();
 }
 window.forceUnstuck = function() { 
     if (safeMapData.id === 'trainingtavern') { if (dom.log) dom.log.innerText = "You cannot escape the Tavern!"; return; }
@@ -2015,37 +2018,23 @@ window.customPrompt = function(message, callback) {
 window.gameVolume = localStorage.getItem('exonie_bgm_vol') !== null ? parseFloat(localStorage.getItem('exonie_bgm_vol')) : 0.5;
 if (window.gameVolume > 1) window.gameVolume = window.gameVolume / 100;
 
-// 2. Listen for the slider being dragged (Bulletproof Initialization)
-function initVolumeSlider() {
-    const volSlider = document.getElementById('bgm-volume-slider');
-    const volDisplay = document.getElementById('vol-display');
-    
-    if (volSlider) {
-        volSlider.value = window.gameVolume;
-        if (volDisplay) volDisplay.innerText = Math.round(window.gameVolume * 100) + '%';
-        
-        volSlider.addEventListener('input', (e) => {
-            let rawVal = parseFloat(e.target.value);
-            let newVol = rawVal > 1 ? rawVal / 100 : rawVal; // Safeguard
-            
-            window.gameVolume = newVol;
-            localStorage.setItem('exonie_bgm_vol', newVol); 
-            
-            if (volDisplay) volDisplay.innerText = Math.round(newVol * 100) + '%';
-            
-            if (window.currentBGM) {
-                window.currentBGM.volume = newVol;
-            }
-        });
-    }
-}
-
-// 🛡️ THE FIX: Check if the page is already loaded. If yes, run immediately. If not, wait for it.
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initVolumeSlider);
-} else {
-    initVolumeSlider();
-}
+// 2. Listen for the slider being dragged (Indestructible Event Delegation)
+document.addEventListener('input', (e) => {
+    if (e.target && e.target.id === 'bgm-volume-slider') {
+        let rawVal = parseFloat(e.target.value);
+        let newVol = rawVal > 1 ? rawVal / 100 : rawVal; // Safeguard
+        
+        window.gameVolume = newVol;
+        localStorage.setItem('exonie_bgm_vol', newVol); 
+        
+        let volDisplay = document.getElementById('vol-display');
+        if (volDisplay) volDisplay.innerText = Math.round(newVol * 100) + '%';
+        
+        if (window.currentBGM) {
+            window.currentBGM.volume = newVol;
+        }
+    }
+});
 
 // 🧭 MASTER MUSIC ROUTER: Decides which song to play based on Map ID
 window.routeMapMusic = function(mapId) {
@@ -4770,7 +4759,16 @@ let localBossTimer = null;
             }
         }, 1000);
     });
-    socket.on('monsterSpawned', (m) => { if (window.isTransitioning || window.isLoading || !m || safeMapData.id === 'town') return; game.monsters[m.id] = m; const mEl = document.getElementById('mob_' + m.id); if(mEl) mEl.style.display = 'flex'; });
+    socket.on('monsterSpawned', (m) => { 
+        if (window.isTransitioning || window.isLoading || !m || safeMapData.id === 'town') return; 
+        
+        // 🛡️ THE BLEED FIX: Block delayed network packets from the old room!
+        if (Date.now() - (window.mapLoadTimestamp || 0) < 2000) return;
+
+        game.monsters[m.id] = m; 
+        const mEl = document.getElementById('mob_' + m.id); 
+        if(mEl) mEl.style.display = 'flex'; 
+    });
     socket.on('lootDropped', (item) => { 
         if (!item) return;
         // 🛡️ THE FIX: Only update the text! The item is already safely handled by syncInventory.
