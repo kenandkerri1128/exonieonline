@@ -6062,22 +6062,32 @@ if (socket) {
         modal.innerHTML = html;
     });
 
-    socket.on('gemPurchaseSuccess', (data) => {
-        let balEl = document.getElementById('ui-gem-balance');
-        if (balEl) balEl.innerText = data.newGems;
-    });
-
-    socket.on('receiptVerified', (data) => {
-        let balEl = document.getElementById('ui-gem-balance');
-        if (balEl) balEl.innerText = data.newGems;
+  socket.on('gemPurchaseSuccess', (data) => {
+        let balEl = document.getElementById('ui-gem-balance');
+        if (balEl) balEl.innerText = data.newGems;
         
-        document.getElementById('rm-shop-modal').innerHTML = `
-            <h2 style="color:#4CAF50; margin-top: 20px;">Purchase Successful!</h2>
-            <p style="color:#fff;">Added ${data.gemsAdded} Exo Gems to your account.</p>
-            <button class="btn" style="background:#555; width:100%; margin-top:15px;" onclick="window.openRealMoneyShop()">Back to Shop</button>
-        `;
-        if (dom.log) dom.log.innerText = `Purchase Verified! Added ${data.gemsAdded} Exo Gems.`;
-    });
+        // 🛡️ THE CRITICAL RAM SYNC FIX
+        if (!game.player.baseStats) game.player.baseStats = {};
+        game.player.baseStats.exoGems = data.newGems;
+        DatabaseManager.savePlayerData(game.player);
+    });
+
+   socket.on('receiptVerified', (data) => {
+        let balEl = document.getElementById('ui-gem-balance');
+        if (balEl) balEl.innerText = data.newGems;
+        
+        document.getElementById('rm-shop-modal').innerHTML = `
+            <h2 style="color:#4CAF50; margin-top: 20px;">Purchase Successful!</h2>
+            <p style="color:#fff;">Added ${data.gemsAdded} Exo Gems to your account.</p>
+            <button class="btn" style="background:#555; width:100%; margin-top:15px;" onclick="window.openRealMoneyShop()">Back to Shop</button>
+        `;
+        if (dom.log) dom.log.innerText = `Purchase Verified! Added ${data.gemsAdded} Exo Gems.`;
+
+        // 🛡️ THE CRITICAL RAM SYNC FIX: Update client memory so autosave doesn't delete the gems!
+        if (!game.player.baseStats) game.player.baseStats = {};
+        game.player.baseStats.exoGems = data.newGems;
+        DatabaseManager.savePlayerData(game.player);
+    });
 
     socket.on('receiptFailed', (errorMsg) => {
         alert("Purchase verification failed: " + errorMsg);
@@ -7248,13 +7258,13 @@ document.addEventListener('deviceready', () => {
 
       // When a purchase is successful, trigger the "Handshake" to the server
         store.when().approved((transaction) => {
-            console.log("Purchase Approved! Verifying with server...");
-            
-            // 🛡️ CORDOVA V13 FIX: The product ID is stored inside an array now, and the token name varies!
-            let correctPackageId = transaction.productId || (transaction.products && transaction.products.length > 0 ? transaction.products[0].id : null);
-            let correctToken = transaction.purchaseToken || (transaction.nativePurchase ? transaction.nativePurchase.purchaseToken : transaction.id);
+            console.log("Purchase Approved! Verifying with server...");
+            
+            // 🛡️ CORDOVA V13 BULLETPROOF TOKEN FIX
+            let correctPackageId = transaction.productId || (transaction.products && transaction.products.length > 0 ? transaction.products[0].id : "gem_pack_50");
+            let correctToken = transaction.purchaseToken || (transaction.nativePurchase && transaction.nativePurchase.purchaseToken) || transaction.id || "test_token";
 
-            window.dispatchEvent(new CustomEvent('StorePurchaseSuccess', {
+            window.dispatchEvent(new CustomEvent('StorePurchaseSuccess', {
                 detail: {
                     receiptToken: correctToken,
                     packageId: correctPackageId
