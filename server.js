@@ -4417,36 +4417,24 @@ socket.on('requestConfirmTrade', () => {
             return;
         }
 
-       // 💰 PATREON GOLD REWARDS
-        if (item.type === 'consumable' && (item.name === 'Royal Gold Sack' || item.name === 'Supporter Gold Pouch')) {
-            const goldToAdd = item.name === 'Royal Gold Sack' ? 1000000 : 100000;
-            p.gold = (p.gold || 0) + goldToAdd;
+      // 💰 PATREON GOLD REWARDS
+        if (item.type === 'consumable' && (item.name === 'Royal Gold Sack' || item.name === 'Supporter Gold Pouch')) {
+            const goldToAdd = item.name === 'Royal Gold Sack' ? 1000000 : 100000;
+            p.gold = (p.gold || 0) + goldToAdd;
 
-            item.quantity = (item.quantity || 1) - 1;
-            inv[index] = item.quantity > 0 ? item : null;
-            p.inventory = inv;
+            item.quantity = (item.quantity || 1) - 1;
+            inv[index] = item.quantity > 0 ? item : null;
+            p.inventory = inv;
 
-            supabase.from('Exonians').update({
-                inventory: p.inventory,
-                gold: p.gold
-            }).eq('character_name', p.id).then(()=>{});
+            supabase.from('Exonians').update({
+                inventory: p.inventory,
+                gold: p.gold
+            }).eq('character_name', p.id).then(()=>{});
 
-            socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
-            socket.emit('systemMessage', `💰 You opened the ${item.name} and received ${goldToAdd.toLocaleString()} Gold!`);
-            return;
-        }
-            inv[index] = item.quantity > 0 ? item : null;
-            p.inventory = inv;
-
-            supabase.from('Exonians').update({
-                inventory: p.inventory,
-                gold: p.gold
-            }).eq('character_name', p.id).then(()=>{});
-
-            // Reusing the purchaseSuccess event because it updates the UI gold counter perfectly!
-            socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
-            socket.emit('systemMessage', `💰 You opened the Royal Gold Sack and received 1,000,000 Gold!`);
-            return;
+            socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
+            socket.emit('systemMessage', `💰 You opened the ${item.name} and received ${goldToAdd.toLocaleString()} Gold!`);
+            return;
+        }
 
         // CLASS RESET BOOK
         if (item.type === 'consumable' && item.name === 'Class Reset Book') {
