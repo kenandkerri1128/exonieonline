@@ -3864,6 +3864,7 @@ socket.on('partyItemLink', (data) => {
         if (dom.log) dom.log.innerHTML = html;
     });
 socket.on('forceTeleport', (tp) => {
+    window.isTransitioning = true; // 🛡️ NETWORK LOCK: Ignore old map data
     game.player.teleportCooldown = 2000; 
     game.player.isTeleporting = false;
     // 🛡️ THE FIX: This string locks the portal under their feet until they walk away!
@@ -3953,6 +3954,7 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
     });
 });
     socket.on('teleportApproved', (tp) => { 
+    window.isTransitioning = true; // 🛡️ NETWORK LOCK: Ignore old map data
         let nextMapId = tp.targetMapId || 'town'; 
         
         // 🏰 NEW: Dungeon 1 Group Entry Logic
