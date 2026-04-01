@@ -5817,14 +5817,19 @@ if (!document.getElementById('afk-lock-screen')) {
         clearTimeout(afkTimer);
         
         afkTimer = setTimeout(() => {
-            // Only trigger the AFK screen if they are actually logged in and playing
-            if (game.isRunning && !window.isLoading && document.getElementById('loading-screen')?.style.display === 'none') {
-                afkOverlay.style.display = 'flex';
-                // Reset movement keys so they don't auto-run into a wall while AFK
-                for (const k in game.keys) game.keys[k] = false;
-            }
-        }, AFK_TIME_LIMIT);
-    };
+            // Only trigger the AFK screen if they are actually logged in and playing
+            if (game.isRunning && !window.isLoading && document.getElementById('loading-screen')?.style.display === 'none') {
+                afkOverlay.style.display = 'flex';
+                // Reset movement keys so they don't auto-run into a wall while AFK
+                for (const k in game.keys) game.keys[k] = false;
+                
+                // 🛑 THE FIX: Forcefully disable Auto-Attack and manual attack holds!
+                autoAttackMode = false;
+                attackHeld = false;
+                if(dom.log) dom.log.innerText = `Auto-Attack: OFF (AFK Mode)`;
+            }
+        }, AFK_TIME_LIMIT);
+    };
 
     // Listen for literally ANY interaction to keep the game awake
     ['mousemove', 'mousedown', 'keydown', 'touchstart', 'pointerdown', 'wheel'].forEach(evt => {
