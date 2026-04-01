@@ -1629,7 +1629,7 @@ window.preloadMapAssets = function(mapData, callback) {
         // 1. Categorize Assets
         const mapSrc = mapData?.image ? String(mapData.image) : 'town_map.png';
         
-        const visualAssets = [
+        let visualAssets = [
             'animation/avatar_idlefront.png', 
             'animation/avatar_walk.png', 
             'animation/avatar_attack.png', 
@@ -1665,7 +1665,7 @@ window.preloadMapAssets = function(mapData, callback) {
             if (!wpn.includes('pendant')) visualAssets.push(`weapon/${wpn}_attack.png`);
         }
 
-        const audioAssets = [
+        let audioAssets = [
             'music/slash.mp3', 'music/lightning.mp3', 'music/splash.mp3', 
             'music/bump.mp3', 'music/bossfight.mp3'
         ];
@@ -1676,65 +1676,68 @@ window.preloadMapAssets = function(mapData, callback) {
             audioAssets.push(`skills/${hairPrefix}_${formattedClass}.mp3`);
         }
 
-        // 2. Tracking logic
-        let totalToLoad = 1 + visualAssets.length + audioAssets.length;
-        let loadedCount = 0;
+        // Filter out any blank strings just in case
+        visualAssets = visualAssets.filter(src => typeof src === 'string' && src.trim() !== '');
+        audioAssets = audioAssets.filter(src => typeof src === 'string' && src.trim() !== '');
 
-        const updateProgress = () => {
-            loadedCount++;
-            if (loaderFill) {
-                let pct = (loadedCount / totalToLoad) * 100;
+        // 2. Tracking Logic - ONLY TRACK MAP AND VISUALS FOR THE UI LOADER
+        let essentialToLoad = 1 + visualAssets.length; 
+        let essentialsLoaded = 0;
+        let isEssentialsDone = false;
+
+        const checkEssentials = () => {
+            essentialsLoaded++;
+            if (loaderFill && !isEssentialsDone) {
+                let pct = (essentialsLoaded / essentialToLoad) * 100;
                 loaderFill.style.width = pct + '%';
             }
-            if (loadedCount === totalToLoad) {
+
+            // 🚀 BOOM! Map and Sprites are done. Let the player in!
+            if (essentialsLoaded === essentialToLoad && !isEssentialsDone) {
+                isEssentialsDone = true;
                 window.isLoading = false;
-                callback();
+                window.isTransitioning = false; // 🔓 NETWORK UNLOCK: We are safely in the new map
+                callback(); 
+                startBackgroundAudio(); // 🎵 Let audio download silently in the background
             }
         };
 
-        // 3. THE STAGE MANAGER (Waterfall Loading)
+        // 3. THE STAGE MANAGER (Speed Priority)
         
         // STAGE 1: Load Map Background First
         const mapImg = new Image();
         mapImg.onload = mapImg.onerror = () => {
-            updateProgress();
-            
-            // STAGE 2: Once Map is done, load all other visuals
-            let visualsLoaded = 0;
-            if (visualAssets.length === 0) startAudioStage();
-            
-            visualAssets.forEach(src => {
-                const img = new Image();
-                img.onload = img.onerror = () => {
-                    visualsLoaded++;
-                    updateProgress();
-                    if (visualsLoaded === visualAssets.length) startAudioStage();
-                };
-                img.src = src;
-            });
+            // STAGE 2: Map is done, load all other visuals
+            if (visualAssets.length === 0) {
+                checkEssentials(); 
+            } else {
+                essentialsLoaded++; // Manually tick the map as loaded
+                visualAssets.forEach(src => {
+                    const img = new Image();
+                    img.onload = img.onerror = () => {
+                        checkEssentials();
+                    };
+                    img.src = src;
+                });
+            }
         };
         mapImg.src = mapSrc;
 
-        function startAudioStage() {
-            // STAGE 3: Audio goes last
-            if (audioAssets.length === 0 && loadedCount === totalToLoad) return; 
-
+        // STAGE 3: Audio goes last (Does not block the player)
+        function startBackgroundAudio() {
+            if (audioAssets.length === 0) return; 
             audioAssets.forEach(src => {
                 const audio = new Audio();
-                audio.oncanplaythrough = audio.onerror = () => {
-                    // Prevent double-counting if events fire twice
-                    if (audio.dataset.loaded) return;
-                    audio.dataset.loaded = "1";
-                    updateProgress();
-                };
+                audio.preload = "auto";
                 audio.src = src;
-                audio.load(); // Force the browser to start downloading
+                audio.load(); 
             });
         }
 
     } catch (e) {
         console.error("Preloader Error:", e);
         window.isLoading = false;
+        window.isTransitioning = false; // 🔓 Failsafe unlock
         callback();
     }
 };
@@ -4405,8 +4408,8 @@ socket.on('revivalJuiceUsed', (data) => {
         } 
     });
     
-    socket.on('monsterState', (monsters) => {
-        if (!Array.isArray(monsters) || safeMapData.id === 'town') return; 
+  socket.on('monsterState', (monsters) => {
+        if (window.isTransitioning || window.isLoading || !Array.isArray(monsters) || safeMapData.id === 'town') return;
         const currentIds = new Set();
         monsters.forEach(m => {
             currentIds.add(m.id); let mEl = document.getElementById('mob_' + m.id);
@@ -4497,7 +4500,7 @@ socket.on('revivalJuiceUsed', (data) => {
     });
 
     socket.on('monsterAttack', (data) => {
-    if (!data) return;
+    if (window.isTransitioning || window.isLoading || !data) return;
     const targetId = data.targetId;
 
     let hitPet = null;
@@ -4595,7 +4598,8 @@ if (hitPet) {
     hitSound.play().catch(e => {});
 });
 
-    socket.on('monsterSkill', (data) => { 
+    socket.on('monsterSkill', (data) => { 
+        if (window.isTransitioning || window.isLoading) return;
         // 🐂 MINOTAUR CHARGE ANIMATION
         if (data.skillName === 'Charge') {
             let hitSound = new Audio('music/charge.mp3');
@@ -4671,7 +4675,7 @@ socket.on('playerHit', (data) => {
         }
     });
    socket.on('monsterHit', (data) => { 
-        if (!data || !game.monsters[data.monsterId]) return; 
+        if (window.isTransitioning || window.isLoading || !data || !game.monsters[data.monsterId]) return;
         const m = game.monsters[data.monsterId]; 
         window.triggerBossBGM(m); // 🎵 TRIGGER BOSS MUSIC
         m.currentHp = data.newHp; m.maxHp = data.maxHp || m.maxHp; 
@@ -4701,7 +4705,7 @@ socket.on('playerHit', (data) => {
         } 
         window.updateUI(); 
     });
-    socket.on('monsterDied', (data) => { if (!data || !game.monsters[data.monsterId]) return; game.monsters[data.monsterId].alive = false; const mEl = document.getElementById('mob_' + data.monsterId); if(mEl) mEl.style.display = 'none'; 
+    socket.on('monsterDied', (data) => { if (window.isTransitioning || window.isLoading || !data || !game.monsters[data.monsterId]) return; game.monsters[data.monsterId].alive = false; const mEl = document.getElementById('mob_' + data.monsterId); if(mEl) mEl.style.display = 'none'; 
 
 // 🎵 STOP BOSS MUSIC IF IT WAS A BOSS
         if (m.category === 'floor_boss' || m.category === 'mini_boss') {
@@ -4759,7 +4763,7 @@ let localBossTimer = null;
             }
         }, 1000);
     });
-    socket.on('monsterSpawned', (m) => { if (!m || safeMapData.id === 'town') return; game.monsters[m.id] = m; const mEl = document.getElementById('mob_' + m.id); if(mEl) mEl.style.display = 'flex'; });
+    socket.on('monsterSpawned', (m) => { if (window.isTransitioning || window.isLoading || !m || safeMapData.id === 'town') return; game.monsters[m.id] = m; const mEl = document.getElementById('mob_' + m.id); if(mEl) mEl.style.display = 'flex'; });
     socket.on('lootDropped', (item) => { 
         if (!item) return;
         // 🛡️ THE FIX: Only update the text! The item is already safely handled by syncInventory.
