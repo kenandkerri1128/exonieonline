@@ -221,9 +221,9 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
                 ]);
             }
             
-            if (isRoyalTier) {
-                const divineAura = { id: Date.now() + Math.random(), name: "Divine Aura Stone", type: 'aura', auraId: 'divine', sprite: 'aurastone', level: 1, rarity: 'Divine', color: '#ffea00', description: "Click to apply to an Armor. Purely cosmetic. Royal Patron Exclusive.", quantity: 1 };
-                const royalGoldSack = { id: Date.from() + Math.random(), name: "Royal Gold Sack", type: 'consumable', rarity: 'Divine', color: '#FFD700', description: "A heavy sack of Royal Patreon Gold. Use to receive 1,000,000 Gold instantly.", quantity: 1 };
+           if (isRoyalTier) {
+                const divineAura = { id: Date.now() + Math.random(), name: "Divine Aura Stone", type: 'aura', auraId: 'divine', sprite: 'aurastone', level: 1, rarity: 'Divine', color: '#ffea00', description: "Click to apply to an Armor. Purely cosmetic. Royal Patron Exclusive.", quantity: 1 };
+                const royalGoldSack = { id: Date.now() + Math.random(), name: "Royal Gold Sack", type: 'consumable', rarity: 'Divine', color: '#FFD700', description: "A heavy sack of Royal Patreon Gold. Use to receive 1,000,000 Gold instantly.", quantity: 1 };
                 
                 await supabase.from('System_Mail').insert([
                     { recipient_name: playerName, message_text: "👑 Welcome to the Royal Tier! Here is your exclusive Divine Aura Stone.", attached_item: JSON.stringify(divineAura), is_claimed: false },
@@ -307,57 +307,6 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         }
     } catch (error) {
         console.error("Server error during InitTxn:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
-    }
-});
-
-app.post('/api/shop/finalize', express.json(), async (req, res) => {
-    const { orderId, username } = req.body; 
-
-    try {
-        const params = new URLSearchParams({
-            key: process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY,
-            appid: process.env.STEAM_APP_ID || STEAM_APP_ID,
-            orderid: orderId
-        });
-
-        const response = await axios.post('https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/', params);
-
-        if (response.data.response.result === 'OK') {
-            const { data: order } = await supabase.from('Pending_Orders').select('*').eq('order_id', orderId).single();
-            
-            if (!order || order.status !== 'PENDING') {
-                 return res.status(400).json({ success: false, message: "Order not found or already processed." });
-            }
-
-            // 🌟 DYNAMIC DB FETCH: Ask the Store_Products table how many gems this item gives!
-            const { data: product } = await supabase.from('Store_Products').select('reward_gems').eq('item_id', order.item_id).single();
-            let gemsToGive = product ? product.reward_gems : 0;
-
-            const { data: user } = await supabase.from('Exonians').select('base_stats').eq('character_name', username).single();
-            
-            if (user && gemsToGive > 0) {
-                let safeStats = user.base_stats || {};
-                safeStats.exoGems = (safeStats.exoGems || 0) + gemsToGive;
-                
-                await supabase.from('Exonians').update({ base_stats: safeStats }).eq('character_name', username);
-                
-                const tsid = findSocketIdByPlayerId(username);
-                if (tsid && onlinePlayers[tsid]) {
-                    onlinePlayers[tsid].baseStats.exoGems = safeStats.exoGems;
-                    io.to(tsid).emit('gemPurchaseSuccess', { newGems: safeStats.exoGems });
-                    io.to(tsid).emit('systemMessage', `💎 Transaction Complete! Received ${gemsToGive} Exo Gems.`);
-                }
-            }
-
-            await supabase.from('Pending_Orders').update({ status: 'COMPLETED' }).eq('order_id', orderId);
-            res.json({ success: true, message: "Exo Gems added to account!" });
-        } else {
-            console.error("Steam FinalizeTxn Error:", response.data);
-            res.status(400).json({ success: false, error: response.data.response });
-        }
-    } catch (error) {
-        console.error("Server error during FinalizeTxn:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 });
