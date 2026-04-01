@@ -1136,9 +1136,26 @@ function ensureWorldFromMapData(instanceId, mapData) {
                 });
             }
         };
-        processSpawns(mapData.normalSpawns, 'common_mobs1');
-        processSpawns(mapData.miniBossSpawns, 'mini_boss1');
-        processSpawns(mapData.floorBossSpawns, 'floor_boss1');
+        
+        // 🛡️ THE FIX: Dungeons, Haunted Houses, and the Tavern spawn their monsters manually!
+        // By blocking them here, we completely destroy the race condition where a fast client 
+        // accidentally dumps Floor 3 monsters into a Dungeon room while it's still loading.
+        const isCustomInstance = instanceId.includes('dungeon') || instanceId.includes('hauntedhouse') || instanceId.includes('tavern');
+        
+        if (!isCustomInstance) {
+            processSpawns(mapData.normalSpawns, 'common_mobs1');
+            processSpawns(mapData.miniBossSpawns, 'mini_boss1');
+            processSpawns(mapData.floorBossSpawns, 'floor_boss1');
+        }
+    } else {
+        // 🛡️ WALL HACK FIX: If the server pre-created the room (like a Dungeon), 
+        // we still need to inject the walls and portals from the map data so players don't walk out of bounds!
+        if (mapData.collisions && worlds[instanceId].collisions.length === 0) {
+            worlds[instanceId].collisions = mapData.collisions;
+        }
+        if (mapData.teleports && worlds[instanceId].teleports.length === 0) {
+            worlds[instanceId].teleports = mapData.teleports;
+        }
     }
 
     return worlds[instanceId];
