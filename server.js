@@ -3157,10 +3157,17 @@ socket.on('saveData', async (playerData) => {
         });
     });
  socket.on('playerMoved', (data) => {
-        if (!onlinePlayers[socket.id]) return; 
-        const p = onlinePlayers[socket.id]; 
+        if (!onlinePlayers[socket.id]) return; 
+        const p = onlinePlayers[socket.id]; 
 
-        // 🛡️ SERVER-SIDE ANTI-WALLHACK
+        // 🛡️ THE ULTIMATE AI WAKE-UP FIX: If the player is moving, they are fully loaded!
+        // This permanently clears the "waiting" flag so monsters instantly aggro again.
+        if (p.isWaitingForTeam || p.isLoadingMap) {
+            p.isWaitingForTeam = false;
+            p.isLoadingMap = false;
+        }
+
+        // 🛡️ SERVER-SIDE ANTI-WALLHACK
         const world = worlds[p.instanceId];
         // 🌟 THE FIX: If they just teleported, ignore wallhacks for 4 seconds so they don't bounce!
         if (world && world.collisions && !p.isGhost && (!p.teleportGrace || Date.now() > p.teleportGrace)) {
