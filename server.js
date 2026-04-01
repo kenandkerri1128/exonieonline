@@ -1164,12 +1164,41 @@ function emitPartyUpdate(partyId) {
     for (const pid of party.members) { const sid = findSocketIdByPlayerId(pid); if (sid) io.to(sid).emit('partyUpdate', payload); }
 }
 
+function checkPartyLoadStatus(pid) {
+    if (!pid || !parties[pid]) return;
+    const party = parties[pid];
+    let everyoneLoaded = true;
+    
+    for (const memberId of party.members) {
+        const mp = getPlayerById(memberId);
+        if (mp && mp.isLoadingMap) {
+            everyoneLoaded = false;
+            break;
+        }
+    }
+    
+    if (everyoneLoaded) {
+        for (const memberId of party.members) {
+            const mp = getPlayerById(memberId);
+            if (mp) mp.isWaitingForTeam = false; // Drops the monster aggro invulnerability
+            const msid = findSocketIdByPlayerId(memberId);
+            if (msid) io.to(msid).emit('releaseLoadingScreen');
+        }
+    }
+}
+
 function removeFromParty(playerId) {
     const pid = playerParty[playerId]; if (!pid) return; const party = parties[pid]; if (!party) { delete playerParty[playerId]; return; }
     party.members.delete(playerId); delete playerParty[playerId];
     if (party.leaderId === playerId) { const next = party.members.values().next().value; party.leaderId = next || null; }
-    if (!party.leaderId || party.members.size <= 1) { for (const rem of party.members) { delete playerParty[rem]; const sid = findSocketIdByPlayerId(rem); if (sid) io.to(sid).emit('partyKickedOrLeft'); } delete parties[pid]; return; }
+    if (!party.leaderId || party.members.size <= 1) { 
+        checkPartyLoadStatus(pid); // Safety check for remaining solo player
+        for (const rem of party.members) { delete playerParty[rem]; const sid = findSocketIdByPlayerId(rem); if (sid) io.to(sid).emit('partyKickedOrLeft'); } 
+        delete parties[pid]; 
+        return; 
+    }
     emitPartyUpdate(pid);
+    checkPartyLoadStatus(pid); // Trigger the check in case the slow loader was the one who left
 }
 
 function getInstanceId(playerId, mapId) {
@@ -1463,7 +1492,7 @@ function pickTarget(m, instId, now) {
     if (m.forcedUntil > now && m.forcedTargetId) {
         const p = getPlayerById(m.forcedTargetId);
         // 🌟 ADDED !p.isHiddenAdmin
-        if (p && p.instanceId === instId && !p.isGhost && !p.isHiddenAdmin && p.untargetableUntil <= now && p.mapId !== 'town' && (p.currentHp ?? 1) > 0) {
+        if (p && p.instanceId === instId && !p.isGhost && !p.isHiddenAdmin && p.untargetableUntil <= now && p.mapId !== 'town' && !p.isWaitingForTeam && (p.currentHp ?? 1) > 0) {
             return { id: p.id, isPet: false, x: p.x + 24, y: p.y + 48 };
         } else if (worlds[instId] && worlds[instId].pets && worlds[instId].pets[m.forcedTargetId]) {
             const pet = worlds[instId].pets[m.forcedTargetId];
@@ -1492,7 +1521,7 @@ function pickTarget(m, instId, now) {
     for (const pid of Object.keys(m.threatTable)) {
         const threat = m.threatTable[pid] || 0; const p = getPlayerById(pid); 
         // 🌟 ADDED !p.isHiddenAdmin
-        if (!p || p.isGhost || p.isHiddenAdmin || p.untargetableUntil > now || p.mapId === 'town') continue;
+        if (!p || p.isGhost || p.isHiddenAdmin || p.untargetableUntil > now || p.mapId === 'town' || p.isWaitingForTeam) continue;
         const dist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
         if (dist > m.chaseRadius) continue;
         
@@ -1504,7 +1533,7 @@ function pickTarget(m, instId, now) {
     let nearest = null; let nearestDist = Infinity;
     for (const p of playersInInstance(instId)) {
         // 🌟 ADDED !p.isHiddenAdmin
-        if (p.isGhost || p.isHiddenAdmin || p.untargetableUntil > now || p.mapId === 'town' || (p.currentHp ?? 1) <= 0) continue; 
+        if (p.isGhost || p.isHiddenAdmin || p.untargetableUntil > now || p.mapId === 'town' || p.isWaitingForTeam || (p.currentHp ?? 1) <= 0) continue;
         
         const px = p.x + 24;
         const py = p.y + 48;
@@ -2536,6 +2565,8 @@ socket.on('broadcastSkill', (data) => {
         }
 
         if (!pid) {
+            p.isLoadingMap = true;
+            p.isWaitingForTeam = true;
             socket.emit('teleportApproved', data);
         } else {
             const party = parties[pid];
@@ -2546,10 +2577,15 @@ socket.on('broadcastSkill', (data) => {
                     allReady = false; break;
                 }
             }
-            if (allReady) {
+           if (allReady) {
                 for (const memberId of party.members) {
                     const msid = findSocketIdByPlayerId(memberId);
-                    if (msid) io.to(msid).emit('teleportApproved', data);
+                    const mp = getPlayerById(memberId);
+                    if (msid && mp) {
+                        mp.isLoadingMap = true;
+                        mp.isWaitingForTeam = true;
+                        io.to(msid).emit('teleportApproved', data);
+                    }
                 }
             } else {
                 socket.emit('partyError', 'Waiting for all alive party members to gather on the portal...');
@@ -5036,6 +5072,8 @@ socket.on('requestConfirmTrade', () => {
         
         checkAndResetInstance(oldInstId); // 🌟 RUN THE RESET CHECK
         
+        p.isLoadingMap = true;
+        p.isWaitingForTeam = true;
         socket.emit('forceTeleport', tp); 
         if (!p.isHiddenAdmin) {
             socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
@@ -6799,7 +6837,10 @@ socket.on('requestSell', async (data) => {
             // Everyone passed! Sync the teleport to the entire party
             for (const memberId of party.members) {
                 const msid = findSocketIdByPlayerId(memberId);
-                if (msid) {
+                const mp = getPlayerById(memberId);
+                if (msid && mp) {
+                    mp.isLoadingMap = true;
+                    mp.isWaitingForTeam = true;
                     io.to(msid).emit('teleportApproved', { portalId: targetPortalId, targetMapId: targetMapId, exactTarget: true });
                 }
             }
@@ -6809,6 +6850,8 @@ socket.on('requestSell', async (data) => {
                 return socket.emit('systemMessage', `❌ You have not conquered Floor ${targetFloor} yet.`);
             }
             // Authorized!
+            p.isLoadingMap = true;
+            p.isWaitingForTeam = true;
             socket.emit('teleportApproved', { portalId: targetPortalId, targetMapId: targetMapId, exactTarget: true });
         }
     });
@@ -6969,6 +7012,8 @@ socket.on('requestSell', async (data) => {
 
         // Teleport them. The injection happens when they arrive!
         p.expectedMapId = 'trainingtavern'; // 🎟️ THE FIX: Hand them a secure server ticket!
+        p.isLoadingMap = true;
+        p.isWaitingForTeam = true;
         socket.emit('forceTeleport', { mapId: 'trainingtavern', x: 960, y: 1000 });
         socket.emit('systemMessage', 'Entering the Training Tavern...');
     });
@@ -7006,6 +7051,8 @@ socket.on('requestSell', async (data) => {
         p.expectedMapId = targetMapId; 
         
         socket.emit('closeHauntedUI');
+        p.isLoadingMap = true;
+        p.isWaitingForTeam = true;
         socket.emit('forceTeleport', { mapId: targetMapId, x: 960, y: 1000 });
         socket.emit('systemMessage', `👻 Entering Haunted House (${data.difficulty})... Boss Level: ${randomLevel}`);
 
@@ -7139,11 +7186,13 @@ socket.on('startDungeon', async (data) => {
         const targetMapId = 'dungeon1';
         const newInstId = getInstanceId(p.id, targetMapId);
 
-        // 🌟 FORCE THE TELEPORT TO EVERYONE IN THE PARTY (Tavern Style)
+       // 🌟 FORCE THE TELEPORT TO EVERYONE IN THE PARTY (Tavern Style)
         playersToEnter.forEach(mp => {
             mp.dungeonReturnData = data.returnData; 
             mp.teleportGrace = Date.now() + 4000; 
             mp.expectedMapId = targetMapId; // 🎟️ THE FIX: Hand them a secure server ticket!
+            mp.isLoadingMap = true;
+            mp.isWaitingForTeam = true;
             const msid = findSocketIdByPlayerId(mp.id);
             if (msid) {
                 io.to(msid).emit('closeDungeonUI'); 
