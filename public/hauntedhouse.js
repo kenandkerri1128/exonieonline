@@ -490,6 +490,12 @@ var hauntedhouseMapData = {
             "y": 859,
             "w": 30,
             "h": 63
+        },
+        {
+            "x": 2,
+            "y": 1199,
+            "w": 215,
+            "h": 47
         }
     ],
     "teleports": [
