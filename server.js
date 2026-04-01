@@ -7765,7 +7765,7 @@ socket.on('startDungeon', async (data) => {
         else if (packageId === 'gem_pack_15') gemsToAward = 15;
         else return socket.emit('receiptFailed', "Invalid package ID.");
 
-        try {
+       try {
             if (platform === 'android') {
                 // 🟢 GOOGLE PLAY VERIFICATION API
                 const response = await playDeveloper.purchases.products.get({
@@ -7775,24 +7775,14 @@ socket.on('startDungeon', async (data) => {
                 });
 
                 if (response.data.purchaseState === 0) isValid = true;
-                else throw new Error("Google Play returned purchase as unverified or canceled.");
-            } 
-            else if (platform === 'steam') {
-                // 🔵 STEAMWORKS VERIFICATION API (DEPRECATED)
-                // Steam purchases are now securely handled by the HTTP Webhooks:
-                // /api/shop/init and /api/shop/finalize
-                throw new Error("Steam transactions route through HTTP Webhooks, not Sockets.");
-            }
-
-            // 💎 IF THE STORE SAYS IT'S REAL, GRANT THE GEMS
                 else throw new Error("Google Play returned purchase as unverified or canceled.");
             } 
-          
-                // 🔵 STEAMWORKS VERIFICATION API (DEPRECATED)
-                // Steam purchases are now securely handled by the HTTP Webhooks:
-                // /api/shop/init and /api/shop/finalize
-                throw new Error("Steam transactions route through HTTP Webhooks, not Sockets.");
-            }
+            else if (platform === 'steam') {
+                // 🔵 STEAMWORKS VERIFICATION API (DEPRECATED)
+                // Steam purchases are now securely handled by the HTTP Webhooks:
+                // /api/shop/init and /api/shop/finalize
+                throw new Error("Steam transactions route through HTTP Webhooks, not Sockets.");
+            }
 
             // 💎 IF THE STORE SAYS IT'S REAL, GRANT THE GEMS
             if (isValid) {
