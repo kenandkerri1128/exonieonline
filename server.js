@@ -7876,10 +7876,15 @@ socket.on('startDungeon', async (data) => {
             }
 
         } catch (err) {
-            console.error('[STORE ERROR]', err.message);
-            socket.emit('receiptFailed', "Transaction flagged or invalid. Contact support if you were charged.");
-        }
-    });
+            console.error('[STORE ERROR]', err.message);
+            // 🛡️ THE FIX: Send the exact server error so you know if Google Auth is failing!
+            let errorMsg = err.message || "Unknown error";
+            if (errorMsg.includes("ENOENT") || errorMsg.includes("keyFile")) {
+                errorMsg = "Server is missing the google-service-account.json file! Purchases cannot be verified.";
+            }
+            socket.emit('receiptFailed', "Verification Error: " + errorMsg);
+        }
+    });
     // ==========================================
     // 🧰 HOME STORAGE ENGINE
     // ==========================================
