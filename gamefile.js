@@ -1621,57 +1621,122 @@ window.loadMapScript = function(mapId, callback) {
 }
 
 window.preloadMapAssets = function(mapData, callback) {
-    window.isLoading = true; const loaderFill = document.getElementById('loader-fill'); if(loaderFill) loaderFill.style.width = '0%';
+    window.isLoading = true;
+    const loaderFill = document.getElementById('loader-fill');
+    if (loaderFill) loaderFill.style.width = '0%';
+
     try {
-        let safeImage = mapData?.image ? String(mapData.image) : 'town_map.png';
-        let assets = [ safeImage, 'animation/avatar_idlefront.png', 'animation/avatar_walk.png', 'animation/avatar_attack.png', 'animation/avatar_head.png', 'music/slash.mp3', 'music/lightning.mp3', 'music/splash.mp3', 'music/bump.mp3', 'music/bossfight.mp3' ];
+        // 1. Categorize Assets
+        const mapSrc = mapData?.image ? String(mapData.image) : 'town_map.png';
+        
+        const visualAssets = [
+            'animation/avatar_idlefront.png', 
+            'animation/avatar_walk.png', 
+            'animation/avatar_attack.png', 
+            'animation/avatar_head.png'
+        ];
+
+        // Gather Monster Sprites
         let mKeys = new Set();
-        if (mapData?.normalSpawns && Array.isArray(mapData.normalSpawns)) mapData.normalSpawns.forEach(s => mKeys.add(String(s.monsterKey || 'common_mobs1')));
-        if (mapData?.miniBossSpawns && Array.isArray(mapData.miniBossSpawns)) mapData.miniBossSpawns.forEach(s => mKeys.add(String(s.monsterKey || 'mini_boss1')));
-        if (mapData?.floorBossSpawns && Array.isArray(mapData.floorBossSpawns)) mapData.floorBossSpawns.forEach(s => mKeys.add(String(s.monsterKey || 'floor_boss1')));
-       mKeys.forEach(k => { let sk = String(k); if(!sk.includes('common_mobs') && !sk.includes('mini_boss') && !sk.includes('floor_boss')) assets.push(`monsters/${sk}.png`); });
-        if(game.player.equips?.weapon?.sprite) { 
-            // 🛡️ DYNAMIC PRELOADER FIX
-          let baseType = 'sword';
+        if (mapData?.normalSpawns) mapData.normalSpawns.forEach(s => mKeys.add(String(s.monsterKey || 'common_mobs1')));
+        if (mapData?.miniBossSpawns) mapData.miniBossSpawns.forEach(s => mKeys.add(String(s.monsterKey || 'mini_boss1')));
+        if (mapData?.floorBossSpawns) mapData.floorBossSpawns.forEach(s => mKeys.add(String(s.monsterKey || 'floor_boss1')));
+        
+        mKeys.forEach(k => {
+            if (!k.includes('common_mobs') && !k.includes('mini_boss') && !k.includes('floor_boss')) {
+                visualAssets.push(`monsters/${k}.png`);
+            }
+        });
+
+        // Add Equipped Weapon
+        if (game.player.equips?.weapon?.sprite) {
+            let baseType = 'sword';
             let rawLower = String(game.player.equips.weapon.sprite).toLowerCase();
             if (rawLower.includes('staff')) baseType = 'staff';
             else if (rawLower.includes('pendant')) baseType = 'pendant';
             else if (rawLower.includes('gun')) baseType = 'gun';
             else if (rawLower.includes('dagger')) baseType = 'dagger';
-            else if (rawLower.includes('touchpad')) baseType = 'touchpad'; // 💻 ADDED TOUCHPAD
+            else if (rawLower.includes('touchpad')) baseType = 'touchpad';
             
             let rarityStr = String(game.player.equips.weapon.rarity || 'basic').toLowerCase();
             if (rarityStr === 'starter') rarityStr = 'basic';
-            let wpn = `${rarityStr}${baseType}`; // 🛡️ FIX: Removed underscore
-            
-            assets.push(`weapon/${wpn}.png`); 
-            if(!wpn.includes('pendant')) assets.push(`weapon/${wpn}_attack.png`); 
+            let wpn = `${rarityStr}${baseType}`;
+            visualAssets.push(`weapon/${wpn}.png`);
+            if (!wpn.includes('pendant')) visualAssets.push(`weapon/${wpn}_attack.png`);
         }
-        if (game.player.baseStats?.playerClass) { let hairPrefix = window.charData?.hairStyle === 'none' ? 'none' : `hair${window.charData?.hairStyle || '1'}`; let formattedClass = String(game.player.baseStats.playerClass).replace(/\s+/g, '').toLowerCase(); assets.push(`skills/${hairPrefix}_${formattedClass}.mp3`); }
-        assets = assets.filter(src => typeof src === 'string' && src.trim() !== '');
-        let loaded = 0; let toLoad = assets.length;
+
+        const audioAssets = [
+            'music/slash.mp3', 'music/lightning.mp3', 'music/splash.mp3', 
+            'music/bump.mp3', 'music/bossfight.mp3'
+        ];
         
-        // 🛡️ THE FIX: No timers. The game waits patiently for 100% of assets to download.
-        if(toLoad === 0) { window.isLoading = false; return callback(); }
-        
-        const checkDone = () => { 
-            if(loaderFill) loaderFill.style.width = (loaded / toLoad) * 100 + '%'; 
-            if(loaded === toLoad) { window.isLoading = false; callback(); } 
+        if (game.player.baseStats?.playerClass) {
+            let hairPrefix = window.charData?.hairStyle === 'none' ? 'none' : `hair${window.charData?.hairStyle || '1'}`;
+            let formattedClass = String(game.player.baseStats.playerClass).replace(/\s+/g, '').toLowerCase();
+            audioAssets.push(`skills/${hairPrefix}_${formattedClass}.mp3`);
+        }
+
+        // 2. Tracking logic
+        let totalToLoad = 1 + visualAssets.length + audioAssets.length;
+        let loadedCount = 0;
+
+        const updateProgress = () => {
+            loadedCount++;
+            if (loaderFill) {
+                let pct = (loadedCount / totalToLoad) * 100;
+                loaderFill.style.width = pct + '%';
+            }
+            if (loadedCount === totalToLoad) {
+                window.isLoading = false;
+                callback();
+            }
         };
+
+        // 3. THE STAGE MANAGER (Waterfall Loading)
         
-        assets.forEach(src => { 
-            if (src.endsWith('.mp3')) { 
-                let a = new Audio(); 
-                a.oncanplaythrough = () => { loaded++; checkDone(); }; 
-                a.onerror = () => { loaded++; checkDone(); }; 
-                a.src = src; 
-            } else { 
-                let img = new Image(); 
-                img.onload = img.onerror = () => { loaded++; checkDone(); }; 
-                img.src = src; 
-            } 
-        });
-    } catch(e) { console.error("Preloader Error:", e); window.isLoading = false; callback(); }
+        // STAGE 1: Load Map Background First
+        const mapImg = new Image();
+        mapImg.onload = mapImg.onerror = () => {
+            updateProgress();
+            
+            // STAGE 2: Once Map is done, load all other visuals
+            let visualsLoaded = 0;
+            if (visualAssets.length === 0) startAudioStage();
+            
+            visualAssets.forEach(src => {
+                const img = new Image();
+                img.onload = img.onerror = () => {
+                    visualsLoaded++;
+                    updateProgress();
+                    if (visualsLoaded === visualAssets.length) startAudioStage();
+                };
+                img.src = src;
+            });
+        };
+        mapImg.src = mapSrc;
+
+        function startAudioStage() {
+            // STAGE 3: Audio goes last
+            if (audioAssets.length === 0 && loadedCount === totalToLoad) return; 
+
+            audioAssets.forEach(src => {
+                const audio = new Audio();
+                audio.oncanplaythrough = audio.onerror = () => {
+                    // Prevent double-counting if events fire twice
+                    if (audio.dataset.loaded) return;
+                    audio.dataset.loaded = "1";
+                    updateProgress();
+                };
+                audio.src = src;
+                audio.load(); // Force the browser to start downloading
+            });
+        }
+
+    } catch (e) {
+        console.error("Preloader Error:", e);
+        window.isLoading = false;
+        callback();
+    }
 };
 
 window.cleanupMap = function() { 
