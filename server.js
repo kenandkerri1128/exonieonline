@@ -4443,7 +4443,6 @@ socket.on('requestConfirmTrade', () => {
             socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
             socket.emit('systemMessage', `💰 You opened the Royal Gold Sack and received 1,000,000 Gold!`);
             return;
-        }
 
         // CLASS RESET BOOK
         if (item.type === 'consumable' && item.name === 'Class Reset Book') {
