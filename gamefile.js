@@ -1534,41 +1534,65 @@ function gameLoop(ts) {
             ctx.fill(visionPath);
 
             // 4. Check if Monsters are standing inside the light (OPTIMIZED DOM UPDATES)
-            for (let mId in game.monsters) {
-                const m = game.monsters[mId];
-                if (!m.alive) continue;
-                const mEl = document.getElementById('mob_' + mId);
-                if (!mEl) continue;
-                
-                const isVisible = ctx.isPointInPath(visionPath, m.x + (m.width/2), m.y + (m.height/2));
-                const targetVis = isVisible ? 'visible' : 'hidden';
-                if (mEl.style.visibility !== targetVis) mEl.style.visibility = targetVis;
-            }
-
-            // 5. Hide Remote Players behind walls too!
-            for (let rId in game.remotePlayers) {
-                const rp = game.remotePlayers[rId];
-                if (rp && rp.dom) {
-                    const isVisible = ctx.isPointInPath(visionPath, rp.x + 24, rp.y + 48);
-                    const targetVis = isVisible ? 'visible' : 'hidden';
-                    if (rp.dom.style.visibility !== targetVis) rp.dom.style.visibility = targetVis;
+            for (let mId in game.monsters) {
+                const m = game.monsters[mId];
+                if (!m.alive) continue;
+                const mEl = document.getElementById('mob_' + mId);
+                if (!mEl) continue;
+                
+                const isVisible = ctx.isPointInPath(visionPath, m.x + (m.width/2), m.y + (m.height/2));
+                if (isVisible) {
+                    if (mEl.style.opacity !== '1') {
+                        mEl.style.opacity = '1';
+                        mEl.style.pointerEvents = 'auto';
+                    }
+                } else {
+                    if (mEl.style.opacity !== '0') {
+                        mEl.style.opacity = '0';
+                        mEl.style.pointerEvents = 'none';
+                    }
                 }
-            }
+            }
 
-        } else {
-            fow.classList.remove('active'); 
-            ctx.clearRect(0, 0, 2000, 1333); 
-            // Reveal all monsters if fog is off
-            for (let mId in game.monsters) {
-                const mEl = document.getElementById('mob_' + mId);
-                if (mEl && mEl.style.visibility !== 'visible') mEl.style.visibility = 'visible';
-            }
-            // Reveal all players if fog is off
-            for (let rId in game.remotePlayers) {
-                const rp = game.remotePlayers[rId];
-                if (rp && rp.dom && rp.dom.style.visibility !== 'visible') rp.dom.style.visibility = 'visible';
-            }
-        }
+            // 5. Hide Remote Players behind walls too!
+            for (let rId in game.remotePlayers) {
+                const rp = game.remotePlayers[rId];
+                if (rp && rp.dom) {
+                    const isVisible = ctx.isPointInPath(visionPath, rp.x + 24, rp.y + 48);
+                    if (isVisible) {
+                        if (rp.dom.style.opacity !== '1') {
+                            rp.dom.style.opacity = '1';
+                            rp.dom.style.pointerEvents = 'auto';
+                        }
+                    } else {
+                        if (rp.dom.style.opacity !== '0') {
+                            rp.dom.style.opacity = '0';
+                            rp.dom.style.pointerEvents = 'none';
+                        }
+                    }
+                }
+            }
+
+        } else {
+            fow.classList.remove('active'); 
+            ctx.clearRect(0, 0, 2000, 1333); 
+            // Reveal all monsters if fog is off
+            for (let mId in game.monsters) {
+                const mEl = document.getElementById('mob_' + mId);
+                if (mEl && mEl.style.opacity !== '1') {
+                    mEl.style.opacity = '1';
+                    mEl.style.pointerEvents = 'auto';
+                }
+            }
+            // Reveal all players if fog is off
+            for (let rId in game.remotePlayers) {
+                const rp = game.remotePlayers[rId];
+                if (rp && rp.dom && rp.dom.style.opacity !== '1') {
+                    rp.dom.style.opacity = '1';
+                    rp.dom.style.pointerEvents = 'auto';
+                }
+            }
+        }
     }
 
     let camTargetX = game.player.x; let camTargetY = game.player.y;
