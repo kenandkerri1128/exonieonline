@@ -2015,30 +2015,37 @@ window.customPrompt = function(message, callback) {
 window.gameVolume = localStorage.getItem('exonie_bgm_vol') !== null ? parseFloat(localStorage.getItem('exonie_bgm_vol')) : 0.5;
 if (window.gameVolume > 1) window.gameVolume = window.gameVolume / 100;
 
-// 2. Listen for the slider being dragged
-document.addEventListener('DOMContentLoaded', () => {
-    const volSlider = document.getElementById('bgm-volume-slider');
-    const volDisplay = document.getElementById('vol-display');
-    
-    if (volSlider) {
-        volSlider.value = window.gameVolume;
-        if (volDisplay) volDisplay.innerText = Math.round(window.gameVolume * 100) + '%';
-        
-        volSlider.addEventListener('input', (e) => {
-            let rawVal = parseFloat(e.target.value);
-            let newVol = rawVal > 1 ? rawVal / 100 : rawVal; // Safeguard
-            
-            window.gameVolume = newVol;
-            localStorage.setItem('exonie_bgm_vol', newVol); 
-            
-            if (volDisplay) volDisplay.innerText = Math.round(newVol * 100) + '%';
-            
-            if (window.currentBGM) {
-                window.currentBGM.volume = newVol;
-            }
-        });
-    }
-});
+// 2. Listen for the slider being dragged (Bulletproof Initialization)
+function initVolumeSlider() {
+    const volSlider = document.getElementById('bgm-volume-slider');
+    const volDisplay = document.getElementById('vol-display');
+    
+    if (volSlider) {
+        volSlider.value = window.gameVolume;
+        if (volDisplay) volDisplay.innerText = Math.round(window.gameVolume * 100) + '%';
+        
+        volSlider.addEventListener('input', (e) => {
+            let rawVal = parseFloat(e.target.value);
+            let newVol = rawVal > 1 ? rawVal / 100 : rawVal; // Safeguard
+            
+            window.gameVolume = newVol;
+            localStorage.setItem('exonie_bgm_vol', newVol); 
+            
+            if (volDisplay) volDisplay.innerText = Math.round(newVol * 100) + '%';
+            
+            if (window.currentBGM) {
+                window.currentBGM.volume = newVol;
+            }
+        });
+    }
+}
+
+// 🛡️ THE FIX: Check if the page is already loaded. If yes, run immediately. If not, wait for it.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVolumeSlider);
+} else {
+    initVolumeSlider();
+}
 
 // 🧭 MASTER MUSIC ROUTER: Decides which song to play based on Map ID
 window.routeMapMusic = function(mapId) {
