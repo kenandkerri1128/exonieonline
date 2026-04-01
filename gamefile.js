@@ -5893,13 +5893,13 @@ if (socket) {
         }
 
         // 💳 NATIVE PLATFORM STORE BUTTONS
-        html += `
-            <div style="margin-top:15px; display:flex; flex-direction:column; gap:8px;">
-                <h3 style="color:#aaa; font-size:14px; margin: 0 0 5px 0; border-bottom:1px solid #333; padding-bottom:5px;">Get More Exo Gems</h3>
-                <div style="display:flex; gap:5px;">
-                    <button class="btn" style="background:#2196F3; flex:1; font-weight:bold; padding:10px;" onclick="window.purchaseExoGems('gem_pack_50', 50)">💎 50 Gems</button>
-                    <button class="btn" style="background:#9c27b0; flex:1; font-weight:bold; padding:10px;" onclick="window.purchaseExoGems('gem_pack_15', 15)">💎 15 Gems</button>
-                </div>
+        html += `
+            <div style="margin-top:15px; display:flex; flex-direction:column; gap:8px;">
+                <h3 style="color:#aaa; font-size:14px; margin: 0 0 5px 0; border-bottom:1px solid #333; padding-bottom:5px;">Get More Exo Gems</h3>
+                <div style="display:flex; gap:5px;">
+                    <button class="btn" style="background:#2196F3; flex:1; font-weight:bold; padding:10px;" onclick="window.purchaseExoGems('gem_pack_50', 5000, '50 Exo Gems')">💎 50 Gems</button>
+                    <button class="btn" style="background:#9c27b0; flex:1; font-weight:bold; padding:10px;" onclick="window.purchaseExoGems('gem_pack_15', 1500, '15 Exo Gems')">💎 15 Gems</button>
+                </div>
                 <button class="btn" style="background:#555; width:100%; margin-top:5px; padding:10px;" onclick="document.getElementById('rm-shop-modal').style.display='none'">Close</button>
             </div>
         `;
@@ -5939,13 +5939,41 @@ if (typeof process !== 'undefined' && process.versions && process.versions.elect
     window.currentPlatform = 'android'; 
 }
 
-window.purchaseExoGems = function(packageId, gemAmount) {
-    document.getElementById('rm-shop-modal').innerHTML = '<h2 style="color:#E040FB; margin-top: 20px;">Connecting to Store...</h2>';
+window.purchaseExoGems = async function(packageId, priceCents, description) {
+    document.getElementById('rm-shop-modal').innerHTML = '<h2 style="color:#E040FB; margin-top: 20px;">Connecting to Store...</h2>';
 
-    if (window.currentPlatform === 'steam') {
-        if (window.electronAPI) window.electronAPI.initiateSteamPurchase(packageId);
-    } 
-    else if (window.currentPlatform === 'android') {
+    if (window.currentPlatform === 'steam') {
+        try {
+            // 1. Get Steam ID from Electron (Using a dummy ID as fallback for testing)
+            let steamId = (window.electronAPI && window.electronAPI.getSteamId) ? await window.electronAPI.getSteamId() : "76561197960287930";
+
+            // 2. Call the Node.js InitTxn Route
+            const response = await fetch(serverUrl + '/api/shop/init', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    steamId: steamId,
+                    itemId: packageId,
+                    amountCents: priceCents,
+                    itemDescription: description || "Exo Gems"
+                })
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                // 3. Tell Electron to open the Steam Overlay with the generated order ID
+                if (window.electronAPI) window.electronAPI.initiateSteamPurchase(data.orderId);
+                else alert("Test Mode: Open Steam Overlay for Order " + data.orderId); 
+            } else {
+                alert("Store Init Failed: " + (data.error || "Unknown Error"));
+                window.openRealMoneyShop();
+            }
+        } catch (err) {
+            alert("Store Connection Error: " + err.message);
+            window.openRealMoneyShop();
+        }
+    } 
+    else if (window.currentPlatform === 'android') {
         if (window.CdvPurchase) {
             try {
                 const store = window.CdvPurchase.store;
@@ -5991,18 +6019,39 @@ window.purchaseExoGems = function(packageId, gemAmount) {
 };
 
 // 📥 LISTENS FOR THE RECEIPT FROM THE WRAPPERS
-window.addEventListener('StorePurchaseSuccess', (event) => {
-    const receiptData = event.detail;
-    document.getElementById('rm-shop-modal').innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Verifying Purchase...</h2>';
-    
-    // Sends the receipt securely to server.js
-    if (socket) {
-        socket.emit('verifyStoreReceipt', {
-            platform: window.currentPlatform,
-            receipt: receiptData.receiptToken,
-            packageId: receiptData.packageId
-        });
-    }
+window.addEventListener('StorePurchaseSuccess', async (event) => {
+    const receiptData = event.detail;
+    document.getElementById('rm-shop-modal').innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Verifying Purchase...</h2>';
+    
+    if (window.currentPlatform === 'steam') {
+        // Steam uses the new HTTP Finalize route
+        try {
+            const res = await fetch(serverUrl + '/api/shop/finalize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    orderId: receiptData.receiptToken, // Electron passes the order ID back here
+                    username: game.player.id // Tell the server who gets the gems!
+                })
+            });
+            const data = await res.json();
+            if (!data.success) {
+                alert("Transaction failed: " + data.message);
+                window.openRealMoneyShop();
+            }
+            // Success logic is handled by the socket 'gemPurchaseSuccess' auto-updating the UI
+        } catch (err) {
+            alert("Error verifying purchase: " + err.message);
+            window.openRealMoneyShop();
+        }
+    } else if (socket) {
+        // Android uses the original Socket verification safely!
+        socket.emit('verifyStoreReceipt', {
+            platform: window.currentPlatform,
+            receipt: receiptData.receiptToken,
+            packageId: receiptData.packageId
+        });
+    }
 });
 
 window.buyWithGems = function(itemId, name, price) {
