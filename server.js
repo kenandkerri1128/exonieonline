@@ -1305,35 +1305,37 @@ function spawnMonster(instId, entityId, originalKey, cfg) {
         lastAttack: 0, lastEarthquake: 0, alive: true, threatTable: {}, forcedTargetId: null, forcedUntil: 0, targetId: null, respawnDelayMs: stats.respawnDelay, frozenUntil: 0 
     };
 }
-function serializeMonster(m) { 
-    return { 
-        id: m.id, monsterKey: m.monsterKey, name: m.name, x: m.x, y: m.y, 
-        width: m.width, height: m.height, maxHp: m.maxHp, currentHp: m.currentHp, 
-        atk: m.atk, def: m.def, alive: m.alive, targetId: m.targetId || null, 
-        cssColor: m.cssColor, cssBorder: m.cssBorder, level: m.level 
-    }; 
+function serializeMonster(m) { 
+    return { 
+        id: m.id, monsterKey: m.monsterKey, name: m.name, x: m.x, y: m.y, 
+        width: m.width, height: m.height, maxHp: m.maxHp, currentHp: m.currentHp, 
+        atk: m.atk, def: m.def, alive: m.alive, targetId: m.targetId || null, 
+        cssColor: m.cssColor, cssBorder: m.cssBorder, level: m.level 
+    }; 
 }
 
-// Normal Respawn Logic (🛡️ THE BULLETPROOF FIX: Strictly block Maze Trials using instanceId!)
-                    if (targetMob.respawnDelayMs !== -1 && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !String(p.instanceId).startsWith('mazetrial_')) {
-                        let respawnTimerId = setTimeout(() => {
-                            const cfg = {
-                                spawnArea: { minX: targetMob.homeX, maxX: targetMob.homeX, minY: targetMob.homeY, maxY: targetMob.homeY },
-                                level: targetMob.level
-                            };
-                            const nm = spawnMonster(p.instanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
-                            if (worlds[p.instanceId]) {
-                                worlds[p.instanceId].monsters[targetMob.id] = nm;
-                                io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
-                            }
-                        }, targetMob.respawnDelayMs || 10000);
-                        
-                        // 🐛 THE FIX: Track the timer so we can kill it if the room empties!
-                        if (worlds[p.instanceId]) {
-                            if (!worlds[p.instanceId].respawnTimers) worlds[p.instanceId].respawnTimers = [];
-                            worlds[p.instanceId].respawnTimers.push(respawnTimerId);
-                        }
-                    }
+function checkAndResetInstance(instId) {
+    // 🛡️ THE FIX: Never delete Town or Neutral Zone from memory!
+    if (!worlds[instId] || instId === 'town' || instId === 'neutralzone') return;
+
+    // Check if there are any REAL players left (ignoring invisible admins)
+    const activePlayers = playersInInstance(instId).filter(p => !p.isHiddenAdmin);
+
+    if (activePlayers.length === 0) {
+        // ⏳ CRITICAL FIX: Kill any lingering Dungeon or Tavern fail timers before deleting the room!
+        if (worlds[instId].failTimer) {
+            clearTimeout(worlds[instId].failTimer);
+        }
+        
+        // 🐛 THE BUG FIX: Clear ALL pending monster respawn timers so they don't bleed into the next room!
+        if (worlds[instId].respawnTimers) {
+            worlds[instId].respawnTimers.forEach(t => clearTimeout(t));
+        }
+        
+        // Now safely delete the room so it spawns fresh next time
+        delete worlds[instId];
+    }
+}
 function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
     const cols = worlds[instId]?.collisions || [];
     for (let box of cols) { if (mx < box.x + box.w && mx + mWidth > box.x && my < box.y + box.h && my + mHeight > box.y) return true; }
@@ -3870,25 +3872,11 @@ socket.on('syncPet', (data) => {
                         }, fullCooldown);
                     }
 
-                    // Normal Respawn Logic (🛡️ THE BULLETPROOF FIX: Strictly block Maze Trials using instanceId!)
-                    if (targetMob.respawnDelayMs !== -1 && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !String(p.instanceId).startsWith('mazetrial_')) {
-                        setTimeout(() => {
-                            const cfg = {
-                                spawnArea: { minX: targetMob.homeX, maxX: targetMob.homeX, minY: targetMob.homeY, maxY: targetMob.homeY },
-                                level: targetMob.level
-                            };
-                            const nm = spawnMonster(p.instanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
-                            if (worlds[p.instanceId]) {
-                                worlds[p.instanceId].monsters[targetMob.id] = nm;
-                                io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
-                            }
-                        }, targetMob.respawnDelayMs || 10000);
-                    }
-                }
-                    });
-            }, hc * 150); // 150ms delay on the second hit
-        }
-    });
+                  // 🐛 THE FIX: Track the timer so we can kill it if the room empties!
+                        if (worlds[p.instanceId]) {
+                            if (!worlds[p.instanceId].respawnTimers) worlds[p.instanceId].respawnTimers = [];
+                            worlds[p.instanceId].respawnTimers.push(respawnTimerId);
+                        }
 
    socket.on('inspectRequest', (data) => {
         const targetId = data.targetId;
