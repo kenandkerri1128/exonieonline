@@ -3134,10 +3134,9 @@ socket.on('saveData', async (playerData) => {
         const p = onlinePlayers[socket.id];
         if (!p) return;
 
-        // 🛑 REMOVED ALL PARTY CHECKS - INSTANT DROP FOR EVERYONE
         p.isLoadingMap = false;
-        p.isWaitingForTeam = false; 
-        socket.emit('releaseLoadingScreen'); 
+        p.isWaitingForTeam = false; // 🛑 INSTANTLY RELEASES THE MOVEMENT LOCK
+        socket.emit('releaseLoadingScreen'); // 🛑 INSTANTLY DROPS THE LOADING SCREEN
     });
  socket.on('playerMoved', (data) => {
         if (!onlinePlayers[socket.id]) return; 
@@ -5162,11 +5161,11 @@ socket.on('requestConfirmTrade', () => {
         // 🛑 THE KILLSWITCH: Tell the client to visually destroy all old monsters!
         socket.emit('clearLocalMonsters');
 
-        // 🛑 WIPE THE SERVER ROOM (If Solo): Force it to rebuild from the fresh spawners!
-        if (!playerParty[p.id] && worlds[p.instanceId]) {
+       //🛑 WIPE THE SERVER ROOM (If Solo): Force it to rebuild from the fresh spawners!
+        // 🛡️ THE FIX: Exclude Town and Neutral Zone so they don't get wiped!
+        if (!playerParty[p.id] && worlds[p.instanceId] && p.instanceId !== 'town' && p.instanceId !== 'neutralzone') {
             delete worlds[p.instanceId];
         }
-
         // Request the fresh spawners ONLY after the new map is fully loaded
         socket.emit('requestMapSync', { mapId: data.mapId, instanceId: p.instanceId });
 
