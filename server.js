@@ -3128,6 +3128,25 @@ socket.on('saveData', async (playerData) => {
             console.log(`[EQUIP SYNC] Saved accessories for ${p.id}`);
         });
     });
+    // 🚀 THE FIX: The Official Loading Handshake for Parties
+    socket.on('clientFinishedLoadingMap', () => {
+        const p = onlinePlayers[socket.id];
+        if (!p) return;
+
+        p.isLoadingMap = false;
+
+        const pid = playerParty[p.id];
+        if (pid) {
+            // If in a party, check if the whole team is ready before dropping the curtain
+            if (typeof checkPartyLoadStatus === 'function') {
+                checkPartyLoadStatus(pid);
+            }
+        } else {
+            // If solo, instantly drop the screen!
+            p.isWaitingForTeam = false;
+            socket.emit('releaseLoadingScreen');
+        }
+    });
  socket.on('playerMoved', (data) => {
         if (!onlinePlayers[socket.id]) return; 
         const p = onlinePlayers[socket.id]; 
