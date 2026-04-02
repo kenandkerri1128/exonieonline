@@ -1257,9 +1257,13 @@ function ensureWorldFromMapData(instanceId, mapData) {
                                         level: sp.level
                                     });
                                     worlds[instanceId].monsters[newMobId] = newBoss;
-                                    io.to(instanceId).emit('monsterSpawned', serializeMonster(newBoss));
-                                    io.emit('systemMessage', `⚠️ The ${floorId.toUpperCase()} Boss has respawned!`);
-                                }
+                                   io.to(instanceId).emit('monsterSpawned', serializeMonster(newBoss));
+                                    
+                                    // 🛑 THE FIX: Add the announcement back, but ONLY for Floor Bosses!
+                                    if (bossCategory === 'floor_boss') {
+                                        io.emit('systemMessage', `⚠️ The ${rawMapId.toUpperCase()} Boss has respawned!`);
+                                    }
+                                    }
                             }, remaining);
                             
                             continue; // Skip the INSTANT spawn, the alarm will handle it.
@@ -3956,7 +3960,10 @@ socket.on('syncPet', (data) => {
                                 const nm = spawnMonster(p.instanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
                                 worlds[p.instanceId].monsters[targetMob.id] = nm;
                                 io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
-                                io.emit('systemMessage', `⚠️ The ${floorId.toUpperCase()} Boss has respawned!`);
+                                🛑 THE FIX: Restrict to Floor Boss and use the clean map name!
+                                if (targetMob.category === "floor_boss") {
+                                    io.emit('systemMessage', `⚠️ The ${p.mapId.toUpperCase()} Boss has respawned!`);
+                                }
                             }
                         }, fullCooldown);
                     }
