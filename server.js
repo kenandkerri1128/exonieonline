@@ -834,20 +834,16 @@ function generateLoot(monster) {
         let mLevel = monster.level || 1;
         let roll = Math.random();
 
-        // 14% Chance: Class Reset Book
         if (roll < 0.15) {
             return { id: Date.now() + Math.random(), name: "Class Reset Book", type: "consumable", rarity: "Godly", color: RARITY_COLORS["Godly"], description: "Resets your chosen class so you can pick a new one.", quantity: 1 };
         } 
-        // 4% Chance: Divine Essence
         else if (roll < 0.18) {
             return { id: 'mat_' + Math.random().toString(36).substr(2, 9), name: 'Divine Essence', type: 'material', rarity: 'Divine', level: 1, sellPrice: 100000, description: 'A blindingly bright golden essence. Required to craft Divine equipment.', quantity: 1 };
         }
-        // 10% Chance: Divine Enhancement Stone
         else if (roll < 0.29) {
             return { id: Date.now() + Math.random(), name: "Divine Enhancement Stone", type: "material", rarity: "Divine", level: mLevel, color: "#ffea00", description: "Enhances Divine equipment.", quantity: 1 };
         }
         
-        // 72% Chance Remaining: Legendary or Unique Gear
         let rarity = (roll < 0.63) ? "Legendary" : "Unique";
         const keys = Object.keys(ITEM_TEMPLATES);
         const typeKey = keys[Math.floor(Math.random() * keys.length)];
@@ -934,122 +930,8 @@ function generateLoot(monster) {
         let sKey = availableStats.splice(rIdx, 1)[0];
         item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(mLevel)) + 1;
     }
+    
     return item;
-}
-    
-    // ==========================================
-    // 1. CALCULATE ITEM DROP LEVEL (90% Same, 10% Lower)
-    // ==========================================
-    let baseLevel = monster.level || 5;
-    let mLevel = baseLevel;
-    
-    // 10% chance to drop a lower level tier (subtracts up to 5 levels, minimum 1)
-    if (Math.random() > 0.90) {
-        mLevel = Math.max(1, baseLevel - 5);
-    }
-
-  // ==========================================
-    // 2. COMMON MOB SPECIAL DROP: REVIVAL JUICE (1%)
-    // ==========================================
-    if (monster.category === "common_mobs" && Math.random() < 0.0009) {
-        return {
-            id: Date.now() + Math.random(),
-            name: "Revival Juice",
-            type: "consumable",
-            rarity: "Unique",
-            color: RARITY_COLORS["Unique"],
-            description: "Revives you instantly on the spot when used while dead.",
-            quantity: 1
-        };
-    }
-
-    // ==========================================
-    // 2.5 FLOOR BOSS SPECIAL DROP: DIVINE ENHANCEMENT STONE (5%)
-    // ==========================================
-    if (monster.category === "floor_boss" && Math.random() < 0.05) {
-        return {
-            id: Date.now() + Math.random(),
-            name: "Divine Enhancement Stone",
-            type: "material",
-            rarity: "Divine",
-            level: mLevel,
-            color: "#ffea00",
-            description: "Enhances Divine equipment.",
-            quantity: 1
-        };
-    }
-
-    // ==========================================
-    // 3. REFINEMENT STONE DROP (45% Chance)
-    // ==========================================
-    if (Math.random() < 0.15) {
-        let stoneRarity = "Basic";
-        let r = Math.random();
-        
-   if (monster.category === "mini_boss") {
-            stoneRarity = r < 0.35 ? "Unique" : "Rare";
-        } 
-   else if (monster.category === "floor_boss") {
-            stoneRarity = r < 0.10 ? "Godly" : "Legendary";
-        }else {
-            stoneRarity = r < 0.10 ? "Rare" : "Basic";
-        }
-
-        return {
-            id: Date.now() + Math.random(),
-            name: `Refinement Stone Lv.${mLevel}`,
-            type: "material", level: mLevel, rarity: stoneRarity, color: RARITY_COLORS[stoneRarity],
-            description: "Enhances equipment.", quantity: 1
-        };
-    }
-
-    // ==========================================
-    // 3. GEAR DROP (50% Chance)
-    // ==========================================
-    const keys = Object.keys(ITEM_TEMPLATES);
-    const typeKey = keys[Math.floor(Math.random() * keys.length)];
-    
-    let rarityRoll = Math.random();
-    let rarity = "Basic";
-    
-    if (monster.category === "floor_boss") {
-        // 👑 FLOOR BOSS DROP RATES FOR GEAR
-        if (rarityRoll <= 0.35) rarity = "Godly";          // 5% chance
-        else rarity = "Legendary";                             // 15% chance
-    } else if (monster.category === "mini_boss") {
-        rarity = rarityRoll < 0.35 ? "Unique" : "Rare";
-    } else {
-        rarity = rarityRoll < 0.15 ? "Rare" : "Basic";
-    }
-
-    const template = ITEM_TEMPLATES[typeKey];
-    const rarityPrefix = rarity === "Starter" ? "basic" : rarity.toLowerCase();
-    
-    let itemName = `${rarity === "Rare" ? "Slime" : "Basic"} ${template.baseName}`;
-    if (rarity !== "Rare" && rarity !== "Basic") itemName = `${rarity} ${template.baseName}`;
-
-    let item = { id: Date.now() + Math.random(), name: itemName, type: template.slot, sprite: rarityPrefix + template.spriteName, level: mLevel, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 };
-    
-    // ✅ STRICT PENDANT 50% PENALTY ENFORCED
-    let statVal = getBaseStat(mLevel) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0);
-    if (typeKey === 'pendant' || typeKey === 'gun') statVal = Math.floor(statVal / 2); 
-    item.fixedStat[template.statKey] = statVal;
-    
-    // ✅ MULTIPLE BONUS STATS FOR HIGH RARITY
-    item.randomStat = {};
-    let numStats = 1;
-    if (rarity === "Legendary") numStats = 2;
-    if (rarity === "Godly") numStats = 3;
-
-    // Clone the stat types so we can pick unique ones without repeating
-    let availableStats = [...STAT_TYPES]; 
-    for (let i = 0; i < numStats; i++) {
-        let rIdx = Math.floor(Math.random() * availableStats.length);
-        let sKey = availableStats.splice(rIdx, 1)[0]; // Pulls the stat out of the list
-        item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(mLevel)) + 1;
-    }
-    
-    return item;
 }
 function generateTavernLoot(level, rarity) {
     const types = ['necklace', 'ring', 'earrings'];
