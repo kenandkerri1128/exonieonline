@@ -829,85 +829,113 @@ function generateDungeonLoot(m) {
     }
 }
 function generateLoot(monster) {
-  // 🌟 GOLDEN SLIME CUSTOM LOOT TABLE
+    // 🌟 1. GOLDEN SLIME CUSTOM LOOT TABLE (KEEP ORIGINAL)
     if (monster.monsterKey === "common_mobs_golden") {
-      let mLevel = monster.level || 1;
+        let mLevel = monster.level || 1;
         let roll = Math.random();
 
-        // 14% Chance: Class Reset Book (0.00 to 0.15)
+        // 14% Chance: Class Reset Book
         if (roll < 0.15) {
-            return { 
-                id: Date.now() + Math.random(), 
-                name: "Class Reset Book", 
-                type: "consumable", 
-                rarity: "Godly", 
-                color: RARITY_COLORS["Godly"], 
-                description: "Resets your chosen class so you can pick a new one.", 
-                quantity: 1 
-            };
+            return { id: Date.now() + Math.random(), name: "Class Reset Book", type: "consumable", rarity: "Godly", color: RARITY_COLORS["Godly"], description: "Resets your chosen class so you can pick a new one.", quantity: 1 };
         } 
-       // 4% Chance: Divine Essence (0.15 to 0.18)
+        // 4% Chance: Divine Essence
         else if (roll < 0.18) {
-            return {
-                id: 'mat_' + Math.random().toString(36).substr(2, 9),
-                name: 'Divine Essence',
-                type: 'material',
-                rarity: 'Divine',
-                level: 1,
-                sellPrice: 100000,
-                description: 'A blindingly bright golden essence. Required to craft Divine equipment.',
-                quantity: 1
-            };
+            return { id: 'mat_' + Math.random().toString(36).substr(2, 9), name: 'Divine Essence', type: 'material', rarity: 'Divine', level: 1, sellPrice: 100000, description: 'A blindingly bright golden essence. Required to craft Divine equipment.', quantity: 1 };
         }
-        // 10% Chance: Divine Enhancement Stone (0.18 to 0.28)
+        // 10% Chance: Divine Enhancement Stone
         else if (roll < 0.29) {
-            return {
-                id: Date.now() + Math.random(),
-                name: "Divine Enhancement Stone",
-                type: "material",
-                rarity: "Divine",
-                level: mLevel,
-                color: "#ffea00",
-                description: "Enhances Divine equipment.",
-                quantity: 1
-            };
+            return { id: Date.now() + Math.random(), name: "Divine Enhancement Stone", type: "material", rarity: "Divine", level: mLevel, color: "#ffea00", description: "Enhances Divine equipment.", quantity: 1 };
         }
         
-        // 72% Chance Remaining: 35% Legendary (0.28 to 0.63) or 37% Unique (0.63 to 1.00)
+        // 72% Chance Remaining: Legendary or Unique Gear
         let rarity = (roll < 0.63) ? "Legendary" : "Unique";
-        
         const keys = Object.keys(ITEM_TEMPLATES);
         const typeKey = keys[Math.floor(Math.random() * keys.length)];
         const template = ITEM_TEMPLATES[typeKey];
         
-        let item = { 
-            id: Date.now() + Math.random(), 
-            name: `${rarity} ${template.baseName}`, 
-            type: template.slot, 
-            sprite: rarity.toLowerCase() + template.spriteName, 
-            level: mLevel, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0 
-        };
-        
-   let statVal = getBaseStat(mLevel) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12, "Divine": 12 }[rarity] || 0);
-    
-    // 👑 THE FIX: Divine base stats are strictly DOUBLE the Godly base stats!
-    if (rarity === "Divine") statVal = (getBaseStat(mLevel) + 12) * 2;
-    
-    if (typeKey === 'pendant' || typeKey === 'gun') statVal = Math.floor(statVal / 2); 
-    item.fixedStat[template.statKey] = statVal;
-    
-    item.randomStat = {};
-    // 👑 THE FIX: Divine gets exactly 4 random stats!
-    let numStats = rarity === "Divine" ? 4 : (rarity === "Godly" ? 3 : (rarity === "Legendary" ? 2 : 1));
+        let item = { id: Date.now() + Math.random(), name: `${rarity} ${template.baseName}`, type: template.slot, sprite: rarity.toLowerCase() + template.spriteName, level: mLevel, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, enhanceLevel: 0, quantity: 1 };
+        let statVal = getBaseStat(mLevel) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12, "Divine": 12 }[rarity] || 0);
+        if (rarity === "Divine") statVal = (getBaseStat(mLevel) + 12) * 2;
+        if (typeKey === 'pendant' || typeKey === 'gun') statVal = Math.floor(statVal / 2); 
+        item.fixedStat[template.statKey] = statVal;
+        item.randomStat = {};
+        let numStats = rarity === "Divine" ? 4 : (rarity === "Godly" ? 3 : (rarity === "Legendary" ? 2 : 1));
+        let availableStats = [...STAT_TYPES]; 
+        for (let i = 0; i < numStats; i++) {
+            let rIdx = Math.floor(Math.random() * availableStats.length);
+            let sKey = availableStats.splice(rIdx, 1)[0]; 
+            item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(mLevel)) + 1;
+        }
+        return item;
+    }
 
+    // ==========================================
+    // 💰 2. BOSS GOLD BAR INJECTION (NEW)
+    // ==========================================
+    if (monster.category === "floor_boss" && Math.random() < 0.10) {
+        return { id: Date.now() + Math.random(), name: "Big Gold Bar", type: "material", rarity: "Godly", color: "#e0ffff", sellPrice: 100000, description: "A heavy bar of pure gold. Sell for 100,000 Gold.", quantity: 1 };
+    }
+    if (monster.category === "mini_boss" && Math.random() < 0.05) {
+        return { id: Date.now() + Math.random(), name: "Normal Gold Bar", type: "material", rarity: "Legendary", color: "#f44336", sellPrice: 25000, description: "A standard bar of pure gold. Sell for 25,000 Gold.", quantity: 1 };
+    }
+
+    // ==========================================
+    // 3. STANDARD LOOT PROCESSING
+    // ==========================================
+    let baseLevel = monster.level || 5;
+    let mLevel = Math.random() > 0.90 ? Math.max(1, baseLevel - 5) : baseLevel;
+    let roll = Math.random();
+
+    // 🥤 COMMON MOB SPECIALS: REVIVAL JUICE & SMALL GOLD BAR (0.09% each)
+    if (monster.category === "common_mobs") {
+        if (roll < 0.0009) {
+            return { id: Date.now() + Math.random(), name: "Revival Juice", type: "consumable", rarity: "Unique", color: RARITY_COLORS["Unique"], description: "Revives you instantly.", quantity: 1 };
+        } else if (roll < 0.0018) {
+            return { id: Date.now() + Math.random(), name: "Small Gold Bar", type: "material", rarity: "Unique", color: "#9c27b0", sellPrice: 10000, description: "A small bar of pure gold. Sell for 10,000 Gold.", quantity: 1 };
+        }
+    }
+
+    // ✨ FLOOR BOSS DIVINE STONE (5%)
+    if (monster.category === "floor_boss" && Math.random() < 0.05) {
+        return { id: Date.now() + Math.random(), name: "Divine Enhancement Stone", type: "material", rarity: "Divine", level: mLevel, color: "#ffea00", description: "Enhances Divine equipment.", quantity: 1 };
+    }
+
+    // 💎 REFINEMENT STONES (15%)
+    if (Math.random() < 0.15) {
+        let stoneRarity = "Basic";
+        let r = Math.random();
+        if (monster.category === "mini_boss") stoneRarity = r < 0.35 ? "Unique" : "Rare";
+        else if (monster.category === "floor_boss") stoneRarity = r < 0.10 ? "Godly" : "Legendary";
+        else stoneRarity = r < 0.10 ? "Rare" : "Basic";
+        return { id: Date.now() + Math.random(), name: `Refinement Stone Lv.${mLevel}`, type: "material", level: mLevel, rarity: stoneRarity, color: RARITY_COLORS[stoneRarity], description: "Enhances equipment.", quantity: 1 };
+    }
+
+    // ⚔️ GEAR DROP (50%)
+    const keys = Object.keys(ITEM_TEMPLATES);
+    const typeKey = keys[Math.floor(Math.random() * keys.length)];
+    let rarityRoll = Math.random();
+    let rarity = "Basic";
+    if (monster.category === "floor_boss") rarity = rarityRoll <= 0.35 ? "Godly" : "Legendary";
+    else if (monster.category === "mini_boss") rarity = rarityRoll < 0.35 ? "Unique" : "Rare";
+    else rarity = rarityRoll < 0.15 ? "Rare" : "Basic";
+
+    const template = ITEM_TEMPLATES[typeKey];
+    let itemName = (rarity === "Rare" ? "Slime " : (rarity === "Basic" ? "Basic " : rarity + " ")) + template.baseName;
+
+    let item = { id: Date.now() + Math.random(), name: itemName, type: template.slot, sprite: rarity.toLowerCase() + template.spriteName, level: mLevel, rarity: rarity, color: RARITY_COLORS[rarity], fixedStat: {}, randomStat: {}, enhanceLevel: 0, quantity: 1 };
+    let statVal = getBaseStat(mLevel) + ({ "Starter": 0, "Basic": 0, "Rare": 2, "Unique": 5, "Legendary": 8, "Godly": 12 }[rarity] || 0);
+    if (typeKey === 'pendant' || typeKey === 'gun') statVal = Math.floor(statVal / 2);
+    item.fixedStat[template.statKey] = statVal;
+
+    let numStats = rarity === "Legendary" ? 2 : (rarity === "Godly" ? 3 : 1);
     let availableStats = [...STAT_TYPES]; 
     for (let i = 0; i < numStats; i++) {
         let rIdx = Math.floor(Math.random() * availableStats.length);
-        let sKey = availableStats.splice(rIdx, 1)[0]; 
+        let sKey = availableStats.splice(rIdx, 1)[0];
         item.randomStat[sKey] = Math.floor(Math.random() * getBaseStat(mLevel)) + 1;
     }
-        return item;
-    }
+    return item;
+}
     
     // ==========================================
     // 1. CALCULATE ITEM DROP LEVEL (90% Same, 10% Lower)
@@ -6759,11 +6787,16 @@ socket.on('requestSell', async (data) => {
         return socket.emit('systemMessage', '❌ Cosmetics, Pets, and enchanted gear cannot be sold. Extract it first!');
     }
 
-    // 🛡️ SECURITY: Force everything to be a clean number
-    let baseVal = (Number(serverItem.level) || 1) * 2;
-    let multiplier = { "Starter": 1, "Basic": 1, "Rare": 1, "Unique": 2, "Legendary": 3, "Godly": 5 }[serverItem.rarity] || 1;
-    
-    let sellPrice = Math.floor(baseVal * multiplier);
+    let sellPrice = 0;
+    if (serverItem.sellPrice) {
+        // Use the custom price we defined for Gold Bars
+        sellPrice = serverItem.sellPrice;
+    } else {
+        // Standard formula for regular equipment
+        let baseVal = (Number(serverItem.level) || 1) * 2;
+        let multiplier = { "Starter": 1, "Basic": 1, "Rare": 1, "Unique": 2, "Legendary": 3, "Godly": 5 }[serverItem.rarity] || 1;
+        sellPrice = Math.floor(baseVal * multiplier);
+    }
     
     // Ensure quantity is a real number and not negative
     let safeQty = Math.max(1, Math.min(999, Number(serverItem.quantity) || 1));
