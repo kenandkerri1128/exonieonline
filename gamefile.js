@@ -1064,7 +1064,8 @@ function gameLoop(ts) {
 
    let nextX = game.player.x; let nextY = game.player.y; let isMoving = false; const moveSpeed = 5; 
     let isFrozen = (game.player.frozenUntil && Date.now() < game.player.frozenUntil);
-    let canInputMove = (!isChatting && !window.isLoading && !window.isDungeonUIOpen && !isFrozen);
+    // 🛑 THE FIX: Added isTransitioning and isTeleporting so movement is completely paralyzed during map changes!
+    let canInputMove = (!isChatting && !window.isLoading && !window.isTransitioning && !game.player.isTeleporting && !window.isDungeonUIOpen && !isFrozen);
     
     if (game.isGhost) {
         if (!game.party || !Array.isArray(game.party.members)) { canInputMove = false; } 
