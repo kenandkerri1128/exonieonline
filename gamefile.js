@@ -4834,7 +4834,25 @@ socket.on('playerHit', (data) => {
         } 
         window.updateUI(); 
     });
-    socket.on('monsterDied', (data) => { if (window.isTransitioning || window.isLoading || !data || !game.monsters[data.monsterId]) return; game.monsters[data.monsterId].alive = false; const mEl = document.getElementById('mob_' + data.monsterId); if(mEl) mEl.style.display = 'none'; 
+    socket.on('monsterDied', (data) => { if (window.isTransitioning || window.isLoading || !data || !game.monsters[data.monsterId]) return; game.monsters[data.monsterId].alive = false; const mEl = document.getElementById('mob_' + data.monsterId); if(mEl) mEl.style.display = 'none'; 
+
+// 🎵 STOP BOSS MUSIC IF IT WAS A BOSS
+        if (m.category === 'floor_boss' || m.category === 'mini_boss') {
+            window.revertBGM();
+        }
+
+window.updateUI(); });
+
+    // 🛑 Wipes old monsters off the screen during map transitions so they don't bleed into new floors!
+    socket.on('clearLocalMonsters', () => {
+        if (typeof game !== 'undefined' && game.monsters) {
+            for (let id in game.monsters) {
+                let el = document.getElementById(id) || document.getElementById('mob_' + id);
+                if (el) el.remove();
+            }
+            game.monsters = {};
+        }
+    });
 
 // 🎵 STOP BOSS MUSIC IF IT WAS A BOSS
         if (m.category === 'floor_boss' || m.category === 'mini_boss') {
