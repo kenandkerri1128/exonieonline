@@ -965,7 +965,8 @@ window.attemptAttack = function(silent) {
     // 🛡️ STUN FIX: Block Basic Attacks
     if (game.player.frozenUntil && Date.now() < game.player.frozenUntil) return;
     if (safeMapData.id === 'town') { if (!silent && dom.log) dom.log.innerText = "You cannot attack in Town!"; return; }
-    if (game.player.currentHp <= 0 || isInventoryOpen || window.adminMode || game.isGhost || window.isLoading) return;
+    // 🛑 ATTACKS UNLOCKED: Fight instantly
+    if (game.player.currentHp <= 0 || isInventoryOpen || window.adminMode || game.isGhost) return;
     if (attackCooldownActive) return; 
     
     let closestMob = null; let closestPlayer = null; let minD = Infinity; 
@@ -1064,8 +1065,8 @@ function gameLoop(ts) {
 
    let nextX = game.player.x; let nextY = game.player.y; let isMoving = false; const moveSpeed = 5; 
     let isFrozen = (game.player.frozenUntil && Date.now() < game.player.frozenUntil);
-    // 🛑 THE FIX: Added isTransitioning and isTeleporting so movement is completely paralyzed during map changes!
-    let canInputMove = (!isChatting && !window.isLoading && !window.isTransitioning && !game.player.isTeleporting && !window.isDungeonUIOpen && !isFrozen);
+    // 🛑 MOVEMENT UNLOCKED: Players can walk freely during background caching!
+    let canInputMove = (!isChatting && !game.player.isTeleporting && !window.isDungeonUIOpen && !isFrozen);
     
     if (game.isGhost) {
         if (!game.party || !Array.isArray(game.party.members)) { canInputMove = false; } 
@@ -1613,7 +1614,7 @@ function gameLoop(ts) {
     if (window.isSpectating) { isMoving = false; canInputMove = false; }
 
     if (!game.isGhost) {
-        if (autoAttackMode && !window.adminMode && !isInventoryOpen && !window.isLoading && typeof window.attemptAttack === 'function') window.attemptAttack(true);
+        if (autoAttackMode && !window.adminMode && !isInventoryOpen && typeof window.attemptAttack === 'function') window.attemptAttack(true);
         if (typeof window.updateAnimationFrames === 'function') {
             if (isAttacking) window.updateAnimationFrames('attack');
             else if (isMoving) window.updateAnimationFrames('walk');
@@ -1621,7 +1622,7 @@ function gameLoop(ts) {
         }
     }
 
-    if (attackHeld && !isInventoryOpen && !window.adminMode && !isChatting && !autoAttackMode && !game.isGhost && !window.isLoading && typeof window.attemptAttack === 'function') { window.attemptAttack(false); }
+    if (attackHeld && !isInventoryOpen && !window.adminMode && !isChatting && !autoAttackMode && !game.isGhost && typeof window.attemptAttack === 'function') { window.attemptAttack(false); }
     
     const desiredState = isAttacking ? 'attack' : (isMoving ? 'walk' : 'idle'); 
     const netNow = Date.now();
@@ -1739,18 +1740,17 @@ window.preloadMapAssets = function(mapData, callback) {
         };
 
         // ==========================================
-        // ⏱️ 30-SECOND FALLBACK TIMEOUT
-        // ==========================================
-        setTimeout(() => {
-            if (!isEssentialsDone) {
-                console.warn("Map load timed out after 30s. Forcing entry while caching continues.");
-                isEssentialsDone = true;
-                callback();
-                startBackgroundAudio();
-            }
-        }, 30000); // 30,000 milliseconds = 30 seconds
+                    // ⏱️ STRICT 5-SECOND MAXIMUM LOAD TIME
+                    // ==========================================
+                    setTimeout(() => {
+                        if (!isEssentialsDone) {
+                            isEssentialsDone = true;
+                            callback(); // Drops the player into the map instantly!
+                            startBackgroundAudio(); 
+                        }
+                    }, 5000);
 
-        // 3. THE STAGE MANAGER (Speed Priority)
+                    // 3. THE STAGE MANAGER (Speed Priority)
         
         // STAGE 1: Load Map Background First
         const mapImg = new Image();
@@ -3311,7 +3311,7 @@ window.addEventListener('mousedown', (e) => {
 });
 document.addEventListener('wheel', function(e) { if (e.ctrlKey && !window.adminMode) { e.preventDefault(); } }, { passive: false });
 window.addEventListener('pointerup', () => { attackHeld = false; });
-dom.world.addEventListener('pointerdown', (e) => { if(!window.adminMode && e.target.id === 'world' && !window.isLoading) { attackHeld = true; window.attemptAttack(false); } });
+dom.world.addEventListener('pointerdown', (e) => { if(!window.adminMode && e.target.id === 'world') { attackHeld = true; window.attemptAttack(false); } });
 // ==========================================
 // RESTORED SHOP & MAILBOX FUNCTIONS
 // ==========================================
