@@ -1219,7 +1219,7 @@ function ensureWorldFromMapData(instanceId, mapData) {
                 const mKey = sp.monsterKey || fallbackKey;
 
               // 🛡️ SUPABASE-LIVE CHECK
-                if (mKey.includes('floor_boss')) {
+                if (mKey.includes('floor_boss') || mKey.includes('mini_boss')) {
                     // 🛡️ MAZE TRIAL BYPASS: Ignore DB cooldowns and spawn instantly in private rooms!
                     if (instanceId.startsWith('mazetrial_')) {
                         const mId = `${instanceId}_mob_${Date.now()}_${i}_${Math.random()}`;
@@ -1231,7 +1231,9 @@ function ensureWorldFromMapData(instanceId, mapData) {
                         continue; // Skip DB checks!
                     }
 
-                    const floorId = instanceId.split('_')[0]; 
+                    const rawMapId = instanceId.split('_')[0]; 
+                    const bossCategory = mKey.includes('floor_boss') ? 'floor_boss' : 'mini_boss';
+                    const floorId = rawMapId + "_" + bossCategory;
                     
                     const { data: timer } = await supabase.from('boss_timers')
                         .select('boss_id, last_death_time')
@@ -1239,7 +1241,7 @@ function ensureWorldFromMapData(instanceId, mapData) {
                         .single();
 
                     if (timer) {
-                        const remaining = getBossCountdown(timer.last_death_time);
+                        const remaining = (parseInt(timer.last_death_time) + (bossCategory === 'floor_boss' ? 86400000 : 120000)) - Date.now();
                         
                         if (remaining > 0) {
                             console.log(`[WORLD] ${floorId} boss on cooldown. Auto-spawning in ${Math.round(remaining/1000)}s.`);
@@ -3134,18 +3136,8 @@ socket.on('saveData', async (playerData) => {
         if (!p) return;
 
         p.isLoadingMap = false;
-
-        const pid = playerParty[p.id];
-        if (pid) {
-            // If in a party, check if the whole team is ready before dropping the curtain
-            if (typeof checkPartyLoadStatus === 'function') {
-                checkPartyLoadStatus(pid);
-            }
-        } else {
-            // If solo, instantly drop the screen!
-            p.isWaitingForTeam = false;
-            socket.emit('releaseLoadingScreen');
-        }
+        p.isWaitingForTeam = false; // 🛑 INSTANTLY UNFREEZES THIS SPECIFIC PLAYER
+        socket.emit('releaseLoadingScreen'); // 🛑 INSTANTLY DROPS THEIR LOADING SCREEN
     });
  socket.on('playerMoved', (data) => {
         if (!onlinePlayers[socket.id]) return; 
@@ -3932,8 +3924,8 @@ socket.on('syncPet', (data) => {
 
                     // 🛡️ THE BULLETPROOF FIX: Check the actual room instanceId string instead of the volatile boolean flag!
                     // Also use targetMob instead of m to prevent AoE bugs from cloning deaths.
-                    if (targetMob.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !String(p.instanceId).startsWith('mazetrial_')) {
-                        const floorId = p.mapId;
+                   if ((targetMob.category === "floor_boss" || targetMob.category === "mini_boss") && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !String(p.instanceId).startsWith('mazetrial_')) {
+                        const floorId = p.mapId + "_" + targetMob.category; // Differentiates floor boss from mini boss
                         const deathTime = Date.now();
 
                         // We use await to ensure it hits the DB before the code continues
@@ -5262,8 +5254,8 @@ socket.on('requestConfirmTrade', () => {
 
         // 👻 THE HAUNTED HOUSE INJECTION 👻
         if (p.mapId === 'hauntedhouse' && p.pendingHauntedBoss) {
+            // 🛑 THE FIX: Increased delay from 1000ms to 3500ms so the client finishes loading first!
             setTimeout(() => {
-                // 🛡️ THE PING FIX: Force create the room if lag prevented it!
                 if (!worlds[p.instanceId]) worlds[p.instanceId] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
                 worlds[p.instanceId].monsters = {}; 
                 
@@ -5276,7 +5268,7 @@ socket.on('requestConfirmTrade', () => {
                 io.to(p.instanceId).emit('monsterSpawned', serializeMonster(newMob));
                 
                 p.pendingHauntedBoss = null; 
-            }, 1000); 
+            }, 3500); 
         }
     });
 
