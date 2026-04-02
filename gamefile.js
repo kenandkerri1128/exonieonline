@@ -3162,7 +3162,7 @@ if(socket) socket.emit('playerTeleported', { mapId: 'town', x: game.player.x, y:
                         // 🛡️ INDESTRUCTIBLE FAIL-SAFE: Drops the screen automatically!
                         setTimeout(() => {
                             if (!isGrouped || window.isLoading) {
-                                window.isLoading = false; window.isTransitioning = false;
+                                window.isLoading = false; window.isTransitioning = false; game.player.isTeleporting = false;
                                 let ls = document.getElementById('loading-screen'); if (ls) ls.style.display = 'none';
                                 let ts = document.getElementById('map-transition'); if (ts) { ts.style.opacity = '0'; setTimeout(() => ts.style.display='none', 1000); }
                                 if (typeof safeMapData !== 'undefined' && safeMapData.id) { window.playBGM(window.routeMapMusic(safeMapData.id)); try { window.showMapAnnouncement(safeMapData.id); } catch(e){} }
@@ -3896,8 +3896,9 @@ socket.on('forcedLogout', (msg) => {
             game.player.currentHp = 0;
             dom.playerContainer.style.opacity = '0.5';
             
-            // Display the spectate screen! (Hides the return to town button for now)
-            window.renderDeathScreen(false);
+            // 🛡️ THE FIX: Check locally if we are solo so the Return to Town button shows up instantly!
+            let isGrouped = (game.party && game.party.members && game.party.members.length > 1);
+            window.renderDeathScreen(!isGrouped);
             window.updateUI();
         } else {
             const rp = document.getElementById('remote_' + pid); 
@@ -4047,7 +4048,7 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
             // 🛡️ INDESTRUCTIBLE FAIL-SAFE: Drops the screen automatically!
             setTimeout(() => {
                 if (!isGrouped || window.isLoading) {
-                    window.isLoading = false; window.isTransitioning = false;
+                    window.isLoading = false; window.isTransitioning = false; game.player.isTeleporting = false;
                     let ls = document.getElementById('loading-screen'); if (ls) ls.style.display = 'none';
                     let ts = document.getElementById('map-transition'); if (ts) { ts.style.opacity = '0'; setTimeout(() => ts.style.display='none', 1000); }
                     if (typeof safeMapData !== 'undefined' && safeMapData.id) { window.playBGM(window.routeMapMusic(safeMapData.id)); try { window.showMapAnnouncement(safeMapData.id); } catch(e){} }
@@ -4057,11 +4058,12 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
     });
     
     // 🛡️ SYNC FIX: Master Listener to drop the curtain when the server says everyone is ready!
-    socket.on('releaseLoadingScreen', () => {
-        window.isLoading = false;
-        window.isTransitioning = false;
+    socket.on('releaseLoadingScreen', () => {
+        window.isLoading = false;
+        window.isTransitioning = false;
+        game.player.isTeleporting = false; // 🛑 UNLOCKS MOVEMENT!
 
-        const ls = document.getElementById('loading-screen');
+        const ls = document.getElementById('loading-screen');
         if (ls) ls.style.display = 'none';
 
         const transScreen = document.getElementById('map-transition');
@@ -4157,7 +4159,7 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
         // 🛡️ INDESTRUCTIBLE FAIL-SAFE: Drops the screen automatically!
         setTimeout(() => {
             if (!isGrouped || window.isLoading) {
-                window.isLoading = false; window.isTransitioning = false;
+                window.isLoading = false; window.isTransitioning = false; game.player.isTeleporting = false;
                 let ls = document.getElementById('loading-screen'); if (ls) ls.style.display = 'none';
                 let ts = document.getElementById('map-transition'); if (ts) { ts.style.opacity = '0'; setTimeout(() => ts.style.display='none', 1000); }
                 if (typeof safeMapData !== 'undefined' && safeMapData.id) { window.playBGM(window.routeMapMusic(safeMapData.id)); try { window.showMapAnnouncement(safeMapData.id); } catch(e){} }
