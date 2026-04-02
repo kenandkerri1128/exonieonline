@@ -3847,29 +3847,69 @@ socket.on('forcedLogout', (msg) => {
     socket.on('mapPlayersList', (players) => { for (const id in game.remotePlayers) window.removeRemotePlayer(id); (players || []).forEach(p => window.addRemotePlayer(p)); });
     socket.on('remotePlayerJoined', (p) => window.addRemotePlayer(p));
     socket.on('remotePlayerLeft', (id) => window.removeRemotePlayer(id));
-    socket.on('remotePlayerGhosted', (pid) => { 
-        // 🛡️ THE FIX: If the server tells everyone we died, force the death locally just in case we lagged out!
-        if (pid === game.player.id) {
-            game.isGhost = true;
-            game.player.currentHp = 0;
-            dom.playerContainer.style.opacity = '0.5';
-            
-            const deathScreen = document.getElementById('death-screen');
-            if (deathScreen) {
-                const juiceBtn = document.getElementById('revive-juice-btn');
-                if (juiceBtn) {
-                    let hasJuice = game.player.inventory.some(i => i && i.name === "Revival Juice");
-                    juiceBtn.style.display = hasJuice ? 'block' : 'none';
-                }
-                deathScreen.style.display = 'flex';
-            }
-            window.updateUI();
-        } else {
-            const rp = document.getElementById('remote_' + pid); 
-            if(rp) rp.style.opacity = '0.5'; 
-            if(game.remotePlayers[pid]) game.remotePlayers[pid].isGhost = true; 
+    // 🛡️ DYNAMIC DEATH SCREEN LOGIC
+    window.renderDeathScreen = function(canRespawn) {
+        const ds = document.getElementById('death-screen');
+        if (!ds) return;
+
+        // 1. Remove the black screen so they can spectate the fight!
+        ds.style.background = 'rgba(20, 0, 0, 0.3)'; 
+        ds.style.alignItems = 'flex-end'; // Pushes the box to the bottom of the screen
+        ds.style.paddingBottom = '10%';
+
+        // 2. Make the inner box look like a clean popup
+        let container = ds.querySelector('div') || ds; 
+        if (ds.children.length > 0 && ds.children[0].tagName === 'DIV') {
+            container = ds.children[0];
+            container.style.background = 'rgba(0, 0, 0, 0.85)';
+            container.style.border = '2px solid #f44336';
+            container.style.borderRadius = '8px';
+            container.style.padding = '20px';
+            container.style.boxShadow = '0 0 20px #f44336';
+            container.style.textAlign = 'center';
         }
-        window.renderPartyUI(); 
+
+        // 3. Button Logic
+        const juiceBtn = document.getElementById('revive-juice-btn');
+        // Find the "Return to Town" button (any button inside that isn't the juice button)
+        const respawnBtn = Array.from(container.getElementsByTagName('button')).find(b => b.id !== 'revive-juice-btn');
+
+        let hasJuice = game.player.inventory.some(i => i && i.name === "Revival Juice");
+        let isTavern = safeMapData.id === 'trainingtavern';
+
+        // ONLY show the Juice button if they have it and they aren't in the Tavern
+        if (juiceBtn) {
+            juiceBtn.style.display = (hasJuice && !isTavern) ? 'inline-block' : 'none';
+        }
+
+        // ONLY show the Return to Town button if the server confirms a full party wipe (or solo death)
+        if (respawnBtn) {
+            respawnBtn.style.display = canRespawn ? 'inline-block' : 'none';
+        }
+
+        ds.style.display = 'flex';
+    };
+
+    socket.on('remotePlayerGhosted', (pid) => { 
+        if (pid === game.player.id) {
+            game.isGhost = true;
+            game.player.currentHp = 0;
+            dom.playerContainer.style.opacity = '0.5';
+            
+            // Display the spectate screen! (Hides the return to town button for now)
+            window.renderDeathScreen(false);
+            window.updateUI();
+        } else {
+            const rp = document.getElementById('remote_' + pid); 
+            if(rp) rp.style.opacity = '0.5'; 
+            if(game.remotePlayers[pid]) game.remotePlayers[pid].isGhost = true; 
+        }
+        window.renderPartyUI(); 
+    });
+
+    // 🛡️ When the server says the party wiped (or a solo player died), reveal the Return to Town button!
+    socket.on('showDeathScreen', () => {
+        window.renderDeathScreen(true);
     });
     socket.on('partyError', (msg) => { dom.log.innerText = msg; });
     socket.on('partyKickedOrLeft', () => { dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; game.party = null; dom.log.innerText = "You are no longer in a party."; });
