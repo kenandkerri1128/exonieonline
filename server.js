@@ -3130,14 +3130,14 @@ socket.on('saveData', async (playerData) => {
             console.log(`[EQUIP SYNC] Saved accessories for ${p.id}`);
         });
     });
-    // 🚀 THE FIX: The Official Loading Handshake for Parties
-    socket.on('clientFinishedLoadingMap', () => {
+  socket.on('clientFinishedLoadingMap', () => {
         const p = onlinePlayers[socket.id];
         if (!p) return;
 
+        // 🛑 REMOVED ALL PARTY CHECKS - INSTANT DROP FOR EVERYONE
         p.isLoadingMap = false;
-        p.isWaitingForTeam = false; // 🛑 INSTANTLY UNFREEZES THIS SPECIFIC PLAYER
-        socket.emit('releaseLoadingScreen'); // 🛑 INSTANTLY DROPS THEIR LOADING SCREEN
+        p.isWaitingForTeam = false; 
+        socket.emit('releaseLoadingScreen'); 
     });
  socket.on('playerMoved', (data) => {
         if (!onlinePlayers[socket.id]) return; 
