@@ -1658,16 +1658,26 @@ window.loadMapScript = function(mapId, callback) {
     script.onerror = () => { window.MapDatabase[mapId] = fallbackMap; callback(); };
     document.head.appendChild(script);
 }
+window.resolveAsset = function(path) {
+    const renderBase = "https://exonieonline.onrender.com/"; // Your server URL
+    
+    // If we are just on a normal browser, always use Render
+    if (window.currentPlatform === 'web') return renderBase + path;
 
+    // For Steam/Android, we try the local path first.
+    // Most wrappers (Capacitor/Electron) serve local files from the root.
+    return path; 
+};
 window.preloadMapAssets = function(mapData, callback) {
     window.isLoading = true;
     const loaderFill = document.getElementById('loader-fill');
     if (loaderFill) loaderFill.style.width = '10%';
 
-    const mapSrc = mapData?.image ? String(mapData.image) : 'town_map.png';
+    const mapPath = mapData?.image ? String(mapData.image) : 'town_map.png';
+    const renderBase = "https://exonieonline.onrender.com/";
 
     // ==========================================
-    // 🌐 WEB BROWSER MODE (Lightweight & Safe 5-Second Cap)
+    // 🌐 WEB BROWSER MODE (Always Render / 5s Cap)
     // ==========================================
     if (window.currentPlatform === 'web') {
         const mapImg = new Image();
@@ -1679,7 +1689,7 @@ window.preloadMapAssets = function(mapData, callback) {
                 if (loaderFill) loaderFill.style.width = '100%';
                 console.warn("Web load hit 5-second cap. Forcing entry!");
                 callback();
-                startBackgroundAudioWeb(); // Let audio load silently AFTER dropping player in
+                startBackgroundAudioWeb(); 
             }
         }, 5000);
 
@@ -1689,13 +1699,12 @@ window.preloadMapAssets = function(mapData, callback) {
                 clearTimeout(fallback);
                 if (loaderFill) loaderFill.style.width = '100%';
                 callback();
-                startBackgroundAudioWeb(); // Let audio load silently AFTER dropping player in
+                startBackgroundAudioWeb();
             }
         };
-        mapImg.src = mapSrc;
+        mapImg.src = renderBase + mapPath;
 
         function startBackgroundAudioWeb() {
-            // Audio loads silently in background so the browser doesn't freeze
             let bgmTrack = window.routeMapMusic(mapData?.id || 'town');
             let audioAssets = [
                 'music/slash.mp3', 'music/lightning.mp3', 'music/splash.mp3', 
@@ -1711,29 +1720,25 @@ window.preloadMapAssets = function(mapData, callback) {
             audioAssets.forEach(src => {
                 const audio = new Audio();
                 audio.preload = "auto";
-                audio.src = src;
+                audio.src = renderBase + src;
                 audio.load(); 
             });
         }
-        return; // Stop here for Web!
+        return; 
     }
 
     // ==========================================
-    // 🖥️📱 STEAM / ANDROID NATIVE MODE (Instant SSD Full Preload)
+    // 🖥️📱 NATIVE HYBRID MODE (Local SSD + Render Fallback)
     // ==========================================
     try {
-        // 1. Queue the Map and Player Avatars
         let assetsToLoad = [
-            mapSrc,
+            mapPath,
             'animation/avatar_idlefront.png', 
             'animation/avatar_walk.png', 
             'animation/avatar_attack.png', 
             'animation/avatar_head.png'
         ];
 
-        // 🛑 THE FIX: Removed Monster PNG preloading because they are purely CSS!
-
-        // 2. Queue Equipped Weapon
         if (game.player.equips?.weapon?.sprite) {
             let baseType = 'sword';
             let rawLower = String(game.player.equips.weapon.sprite).toLowerCase();
@@ -1750,7 +1755,6 @@ window.preloadMapAssets = function(mapData, callback) {
             if (!wpn.includes('pendant')) assetsToLoad.push(`weapon/${wpn}_attack.png`);
         }
 
-        // 3. Queue Heavy Audio Files (BGM and SFX)
         let bgmTrack = window.routeMapMusic(mapData?.id || 'town');
         assetsToLoad.push(
             'music/slash.mp3', 'music/lightning.mp3', 'music/splash.mp3', 
@@ -1763,32 +1767,45 @@ window.preloadMapAssets = function(mapData, callback) {
             assetsToLoad.push(`skills/${hairPrefix}_${formattedClass}.mp3`);
         }
 
-        // Fast Local Loading Loop
         let loadedCount = 0;
         let totalToLoad = assetsToLoad.length;
 
         const checkDone = () => {
             loadedCount++;
             if (loaderFill) loaderFill.style.width = (loadedCount / totalToLoad) * 100 + '%';
-            if (loadedCount >= totalToLoad) {
-                callback(); // Instantly drops them in once SSD reads are done (usually < 1 sec)
-            }
+            if (loadedCount >= totalToLoad) callback();
         };
 
         if (totalToLoad === 0) {
             callback();
         } else {
-            assetsToLoad.forEach(src => {
-                if (src.endsWith('.mp3')) {
+            assetsToLoad.forEach(originalSrc => {
+                if (originalSrc.endsWith('.mp3')) {
                     const audio = new Audio();
-                    // 🎵 THE FIX: Wait for audio to be playable before ticking the progress bar!
-                    audio.oncanplaythrough = audio.onerror = checkDone;
-                    audio.src = src;
+                    audio.oncanplaythrough = checkDone;
+                    audio.onerror = () => {
+                        // 🛡️ DISCREPANCY: If local missing, try Render!
+                        if (!audio.src.includes('onrender.com')) {
+                            audio.src = renderBase + originalSrc;
+                            audio.load();
+                        } else {
+                            checkDone(); // Final fallback to avoid hang
+                        }
+                    };
+                    audio.src = originalSrc; // Try local first
                     audio.load();
                 } else {
                     const img = new Image();
-                    img.onload = img.onerror = checkDone;
-                    img.src = src;
+                    img.onload = checkDone;
+                    img.onerror = () => {
+                        // 🛡️ DISCREPANCY: If local missing, try Render!
+                        if (!img.src.includes('onrender.com')) {
+                            img.src = renderBase + originalSrc;
+                        } else {
+                            checkDone(); // Final fallback
+                        }
+                    };
+                    img.src = originalSrc; // Try local first
                 }
             });
         }
@@ -1799,7 +1816,6 @@ window.preloadMapAssets = function(mapData, callback) {
         callback();
     }
 };
-
 window.cleanupMap = function() { 
     Object.keys(game.remotePlayers).forEach(id => window.removeRemotePlayer(id)); 
     document.querySelectorAll('.monster-container, .pet-slime').forEach(el => el.remove()); 
