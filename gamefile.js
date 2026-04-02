@@ -4854,13 +4854,6 @@ window.updateUI(); });
         }
     });
 
-// 🎵 STOP BOSS MUSIC IF IT WAS A BOSS
-        if (m.category === 'floor_boss' || m.category === 'mini_boss') {
-            window.revertBGM();
-        }
-
-window.updateUI(); });
-
 let localBossTimer = null;
 
     socket.on('bossCooldownActive', (data) => {
