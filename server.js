@@ -5239,30 +5239,44 @@ socket.on('requestConfirmTrade', () => {
                 }
             }
         });
-          // 🌟 THE TAVERN INJECTION 🌟
-        // If they teleported into the tavern, spawn the boss securely on top of them!
-        if (p.mapId === 'trainingtavern' && p.pendingTavernBoss) {
+       // 🌟 THE TAVERN INJECTION 🌟
+        if (p.mapId === 'trainingtavern' && p.pendingTavernBoss) {
+            setTimeout(() => {
+                // 🛡️ THE PING FIX: Force create the room if lag prevented it!
+                if (!worlds[p.instanceId]) worlds[p.instanceId] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
+                worlds[p.instanceId].monsters = {}; 
+                
+                if (!p || !p.pendingTavernBoss) return;
+                const mKey = p.pendingTavernBoss.mobType === 'floor_boss' ? 'floor_boss1' : (p.pendingTavernBoss.mobType === 'mini_boss' ? 'mini_boss1' : 'common_mobs1');
+                const newMob = spawnMonster(p.instanceId, 't_mob_1', mKey, { spawnArea: { minX: 989, minY: 394 }, level: p.pendingTavernBoss.level });
+                
+                worlds[p.instanceId].monsters['t_mob_1'] = newMob;
+                p.tavernTargetId = 't_mob_1';
+                p.tavernStartTime = Date.now();
+                
+                io.to(p.instanceId).emit('monsterSpawned', serializeMonster(newMob));
+                io.to(p.instanceId).emit('tavernTimerStart');
+                p.pendingTavernBoss = null;
+            }, 1000);
+        }
+
+        // 👻 THE HAUNTED HOUSE INJECTION 👻
+        if (p.mapId === 'hauntedhouse' && p.pendingHauntedBoss) {
             setTimeout(() => {
-                if (!worlds[p.instanceId]) return;
-                
-                // Wipe any accidental admin spawns so it's a strict 1v1
+                // 🛡️ THE PING FIX: Force create the room if lag prevented it!
+                if (!worlds[p.instanceId]) worlds[p.instanceId] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
                 worlds[p.instanceId].monsters = {}; 
                 
-                // 🛡️ MOBILE/SERVER STABILITY FIX: Make sure the boss still exists before reading it!
-        if (!p || !p.pendingTavernBoss) return;
-        
-        const mKey = p.pendingTavernBoss.mobType === 'floor_boss' ? 'floor_boss1' : (p.pendingTavernBoss.mobType === 'mini_boss' ? 'mini_boss1' : 'common_mobs1');
-                const newMob = spawnMonster(p.instanceId, 't_mob_1', mKey, { spawnArea: { minX: 989, minY: 394 }, level: p.pendingTavernBoss.level });
+                if (!p || !p.pendingHauntedBoss) return;
                 
-                worlds[p.instanceId].monsters['t_mob_1'] = newMob;
-                p.tavernTargetId = 't_mob_1';
-                p.tavernStartTime = Date.now();
+                const mobId = `hh_boss_${Date.now()}`;
+                const newMob = spawnMonster(p.instanceId, mobId, 'floor_boss_wraith', { spawnArea: { minX: 960, minY: 400 }, level: p.pendingHauntedBoss.level });
                 
-                socket.emit('monsterSpawned', serializeMonster(newMob));
-                socket.emit('tavernTimerStart');
+                worlds[p.instanceId].monsters[mobId] = newMob;
+                io.to(p.instanceId).emit('monsterSpawned', serializeMonster(newMob));
                 
-                p.pendingTavernBoss = null; // Clear the pending state
-            }, 1000); // 1-second dramatic pause before the boss appears
+                p.pendingHauntedBoss = null; 
+            }, 1000); 
         }
     });
 
@@ -7075,18 +7089,9 @@ socket.on('requestSell', async (data) => {
         socket.emit('forceTeleport', { mapId: targetMapId, x: 960, y: 1000 });
         socket.emit('systemMessage', `👻 Entering Haunted House (${data.difficulty})... Boss Level: ${randomLevel}`);
 
-        setTimeout(() => {
-            if (!worlds[newInstId]) worlds[newInstId] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
-            worlds[newInstId].monsters = {}; 
-
-            const mobId = `hh_boss_${Date.now()}`;
-            // 💀 Spawns the Void King from your database at the rolled level!
-            const newMob = spawnMonster(newInstId, mobId, 'floor_boss_wraith', { spawnArea: { minX: 960, minY: 400 }, level: randomLevel });
-            worlds[newInstId].monsters[mobId] = newMob;
-            
-            io.to(newInstId).emit('monsterSpawned', serializeMonster(newMob));
-        }, 1000);
-    });
+        // 🌟 THE FIX: Store the boss securely in memory, wait for teleport to finish!
+        p.pendingHauntedBoss = { level: randomLevel };
+    });
 socket.on('startDungeon', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || p.isGhost) return;
