@@ -1115,11 +1115,14 @@ function gameLoop(ts) {
          let finalTarget = targetMob || targetPlayer;
 
         // ⚙️ THE FIX: Drone logic is completely detached from the other pets so it never stops!
-        if (p.isDrone) {
+      if (p.isDrone) {
             let targetX = game.player.x + (window.facingRight ? -40 : 40);
             let targetY = game.player.y - 40;
             p.x += (targetX - p.x) * 0.15;
             p.y += (targetY - p.y) * 0.15;
+
+            // 🛑 THE FIX: Stop shooting if the player is a ghost!
+            if (game.isGhost) return;
 
             if (finalTarget) {
                 if (!p.lastAttack || Date.now() - p.lastAttack > 1000) {
