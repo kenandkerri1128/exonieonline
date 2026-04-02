@@ -1735,6 +1735,18 @@ window.preloadMapAssets = function(mapData, callback) {
             }
         };
 
+        // ==========================================
+        // ⏱️ 30-SECOND FALLBACK TIMEOUT
+        // ==========================================
+        setTimeout(() => {
+            if (!isEssentialsDone) {
+                console.warn("Map load timed out after 30s. Forcing entry while caching continues.");
+                isEssentialsDone = true;
+                callback();
+                startBackgroundAudio();
+            }
+        }, 30000); // 30,000 milliseconds = 30 seconds
+
         // 3. THE STAGE MANAGER (Speed Priority)
         
         // STAGE 1: Load Map Background First
