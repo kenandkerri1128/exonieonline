@@ -1232,16 +1232,22 @@ function ensureWorldFromMapData(instanceId, mapData) {
                     }
 
                     const rawMapId = instanceId.split('_')[0]; 
-                    const bossCategory = mKey.includes('floor_boss') ? 'floor_boss' : 'mini_boss';
-                    const floorId = rawMapId + "_" + bossCategory;
+                    if (mKey.includes('floor_boss')) {
+                    if (instanceId.startsWith('mazetrial_')) {
+                        const mId = `${instanceId}_mob_${Date.now()}_${i}`;
+                        worlds[instanceId].monsters[mId] = spawnMonster(instanceId, mId, mKey, {
+                            spawnArea: { minX: sp.x, maxX: sp.x, minY: sp.y, maxY: sp.y },
+                            level: sp.level
+                        });
+                        continue; 
+                    }
+
+                    const floorId = instanceId.split('_')[0]; 
                     
-                    const { data: timer } = await supabase.from('boss_timers')
-                        .select('boss_id, last_death_time')
-                        .eq('boss_id', floorId)
-                        .single();
+                    const { data: timer } = await supabase.from('boss_timers').select('*').eq('boss_id', floorId).single();
 
                     if (timer) {
-                        const remaining = (parseInt(timer.last_death_time) + (bossCategory === 'floor_boss' ? 86400000 : 120000)) - Date.now();
+                        const remaining = (parseInt(timer.last_death_time) + 86400000) - Date.now();
                         
                         if (remaining > 0) {
                             console.log(`[WORLD] ${floorId} boss on cooldown. Auto-spawning in ${Math.round(remaining/1000)}s.`);
@@ -3925,10 +3931,8 @@ socket.on('syncPet', (data) => {
                     // NORMAL OPEN WORLD BOSS SAVES & RESPAWNS
                     // ==========================================
 
-                    // 🛡️ THE BULLETPROOF FIX: Check the actual room instanceId string instead of the volatile boolean flag!
-                    // Also use targetMob instead of m to prevent AoE bugs from cloning deaths.
-                   if ((targetMob.category === "floor_boss" || targetMob.category === "mini_boss") && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !String(p.instanceId).startsWith('mazetrial_')) {
-                        const floorId = p.mapId + "_" + targetMob.category; // Differentiates floor boss from mini boss
+                   if (targetMob.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !String(p.instanceId).startsWith('mazetrial_')) {
+                        const floorId = p.mapId;
                         const deathTime = Date.now();
 
                         // We use await to ensure it hits the DB before the code continues
@@ -3940,9 +3944,7 @@ socket.on('syncPet', (data) => {
                         });
 
                         targetMob.respawnDelayMs = -1;
-                        if (targetMob.category === "floor_boss") {
                         io.emit('systemMessage', `🏆 [WORLD] ${p.mapId.toUpperCase()} Boss Defeated!`);
-                    }
                         
                         // 🌟 AUTOMATIC CLEANUP & SPAWN SCHEDULE 🌟
                         const fullCooldown = 24 * 60 * 60 * 1000; // 24 Hours in milliseconds
