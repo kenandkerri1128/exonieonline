@@ -7942,7 +7942,7 @@ socket.on('startDungeon', async (data) => {
             checkAndResetInstance(oldInstId); 
         }
     });
-};
+});
 // ==========================================
 // 🧹 AUTOMATIC DATABASE CLEANUP ENGINE
 // ==========================================
