@@ -3130,13 +3130,13 @@ socket.on('saveData', async (playerData) => {
             console.log(`[EQUIP SYNC] Saved accessories for ${p.id}`);
         });
     });
-  socket.on('clientFinishedLoadingMap', () => {
+ socket.on('clientFinishedLoadingMap', () => {
         const p = onlinePlayers[socket.id];
         if (!p) return;
 
         p.isLoadingMap = false;
-        p.isWaitingForTeam = false; // 🛑 INSTANTLY RELEASES THE MOVEMENT LOCK
-        socket.emit('releaseLoadingScreen'); // 🛑 INSTANTLY DROPS THE LOADING SCREEN
+        p.isWaitingForTeam = false; // 🛑 INSTANTLY UNLOCKS THIS PLAYER FOR MONSTER AGGRO
+        socket.emit('releaseLoadingScreen'); // 🛑 INSTANTLY DROPS THEIR SCREEN
     });
  socket.on('playerMoved', (data) => {
         if (!onlinePlayers[socket.id]) return; 
