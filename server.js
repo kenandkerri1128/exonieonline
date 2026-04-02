@@ -1119,6 +1119,7 @@ function ensureWorldFromMapData(instanceId, mapData) {
             teleports: mapData.teleports || [],
             monsters: {},
             pets: {},
+            respawnTimers: [], // 🐛 THE FIX: Array to track pending monster spawns
             spawnX: mapData.spawnX || 960,
             spawnY: mapData.spawnY || 1000
         };
@@ -1313,24 +1314,26 @@ function serializeMonster(m) { 
     }; 
 }
 
-function checkAndResetInstance(instId) {
-    // 🛡️ THE FIX: Never delete Town or Neutral Zone from memory!
-    if (!worlds[instId] || instId === 'town' || instId === 'neutralzone') return;
-
-    // Check if there are any REAL players left (ignoring invisible admins)
-    const activePlayers = playersInInstance(instId).filter(p => !p.isHiddenAdmin);
-
-    if (activePlayers.length === 0) {
-        // ⏳ CRITICAL FIX: Kill any lingering Dungeon or Tavern fail timers before deleting the room!
-        // If we don't do this, JavaScript keeps ticking the clock in the background and will ruin the player's next run.
-        if (worlds[instId].failTimer) {
-            clearTimeout(worlds[instId].failTimer);
-        }
-        
-        // Now safely delete the room so it spawns fresh next time
-        delete worlds[instId];
-    }
-}
+// Normal Respawn Logic (🛡️ THE BULLETPROOF FIX: Strictly block Maze Trials using instanceId!)
+                    if (targetMob.respawnDelayMs !== -1 && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !String(p.instanceId).startsWith('mazetrial_')) {
+                        let respawnTimerId = setTimeout(() => {
+                            const cfg = {
+                                spawnArea: { minX: targetMob.homeX, maxX: targetMob.homeX, minY: targetMob.homeY, maxY: targetMob.homeY },
+                                level: targetMob.level
+                            };
+                            const nm = spawnMonster(p.instanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
+                            if (worlds[p.instanceId]) {
+                                worlds[p.instanceId].monsters[targetMob.id] = nm;
+                                io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
+                            }
+                        }, targetMob.respawnDelayMs || 10000);
+                        
+                        // 🐛 THE FIX: Track the timer so we can kill it if the room empties!
+                        if (worlds[p.instanceId]) {
+                            if (!worlds[p.instanceId].respawnTimers) worlds[p.instanceId].respawnTimers = [];
+                            worlds[p.instanceId].respawnTimers.push(respawnTimerId);
+                        }
+                    }
 function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
     const cols = worlds[instId]?.collisions || [];
     for (let box of cols) { if (mx < box.x + box.w && mx + mWidth > box.x && my < box.y + box.h && my + mHeight > box.y) return true; }
