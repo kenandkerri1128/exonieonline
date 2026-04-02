@@ -1050,7 +1050,6 @@ function generateLoot(monster) {
     }
     
     return item;
-}
 function generateTavernLoot(level, rarity) {
     const types = ['necklace', 'ring', 'earrings'];
     const type = types[Math.floor(Math.random() * types.length)];
