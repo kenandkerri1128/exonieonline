@@ -1662,36 +1662,138 @@ window.loadMapScript = function(mapId, callback) {
 window.preloadMapAssets = function(mapData, callback) {
     window.isLoading = true;
     const loaderFill = document.getElementById('loader-fill');
-    if (loaderFill) loaderFill.style.width = '50%';
+    if (loaderFill) loaderFill.style.width = '10%';
 
-    try {
-        const mapSrc = mapData?.image ? String(mapData.image) : 'town_map.png';
+    const mapSrc = mapData?.image ? String(mapData.image) : 'town_map.png';
+
+    // ==========================================
+    // 🌐 WEB BROWSER MODE (Lightweight & Safe 5-Second Cap)
+    // ==========================================
+    if (window.currentPlatform === 'web') {
         const mapImg = new Image();
-        
-        // ⏱️ STRICT 5-SECOND FALLBACK
         let isDone = false;
+        
         let fallback = setTimeout(() => {
             if (!isDone) {
                 isDone = true;
                 if (loaderFill) loaderFill.style.width = '100%';
-                console.warn("Map load hit 5-second cap. Forcing entry!");
+                console.warn("Web load hit 5-second cap. Forcing entry!");
                 callback();
+                startBackgroundAudioWeb(); // Let audio load silently AFTER dropping player in
             }
         }, 5000);
 
-        // 🖼️ ONLY LOAD THE MAP BACKGROUND (No audio/sprite preloading to prevent crashes)
         mapImg.onload = mapImg.onerror = () => {
             if (!isDone) {
                 isDone = true;
                 clearTimeout(fallback);
                 if (loaderFill) loaderFill.style.width = '100%';
                 callback();
+                startBackgroundAudioWeb(); // Let audio load silently AFTER dropping player in
             }
         };
         mapImg.src = mapSrc;
 
+        function startBackgroundAudioWeb() {
+            // Audio loads silently in background so the browser doesn't freeze
+            let bgmTrack = window.routeMapMusic(mapData?.id || 'town');
+            let audioAssets = [
+                'music/slash.mp3', 'music/lightning.mp3', 'music/splash.mp3', 
+                'music/bump.mp3', `music/${bgmTrack}.mp3`
+            ];
+            
+            if (game.player.baseStats?.playerClass) {
+                let hairPrefix = window.charData?.hairStyle === 'none' ? 'none' : `hair${window.charData?.hairStyle || '1'}`;
+                let formattedClass = String(game.player.baseStats.playerClass).replace(/\s+/g, '').toLowerCase();
+                audioAssets.push(`skills/${hairPrefix}_${formattedClass}.mp3`);
+            }
+            
+            audioAssets.forEach(src => {
+                const audio = new Audio();
+                audio.preload = "auto";
+                audio.src = src;
+                audio.load(); 
+            });
+        }
+        return; // Stop here for Web!
+    }
+
+    // ==========================================
+    // 🖥️📱 STEAM / ANDROID NATIVE MODE (Instant SSD Full Preload)
+    // ==========================================
+    try {
+        // 1. Queue the Map and Player Avatars
+        let assetsToLoad = [
+            mapSrc,
+            'animation/avatar_idlefront.png', 
+            'animation/avatar_walk.png', 
+            'animation/avatar_attack.png', 
+            'animation/avatar_head.png'
+        ];
+
+        // 🛑 THE FIX: Removed Monster PNG preloading because they are purely CSS!
+
+        // 2. Queue Equipped Weapon
+        if (game.player.equips?.weapon?.sprite) {
+            let baseType = 'sword';
+            let rawLower = String(game.player.equips.weapon.sprite).toLowerCase();
+            if (rawLower.includes('staff')) baseType = 'staff';
+            else if (rawLower.includes('pendant')) baseType = 'pendant';
+            else if (rawLower.includes('gun')) baseType = 'gun';
+            else if (rawLower.includes('dagger')) baseType = 'dagger';
+            else if (rawLower.includes('touchpad')) baseType = 'touchpad';
+            
+            let rarityStr = String(game.player.equips.weapon.rarity || 'basic').toLowerCase();
+            if (rarityStr === 'starter') rarityStr = 'basic';
+            let wpn = `${rarityStr}${baseType}`;
+            assetsToLoad.push(`weapon/${wpn}.png`);
+            if (!wpn.includes('pendant')) assetsToLoad.push(`weapon/${wpn}_attack.png`);
+        }
+
+        // 3. Queue Heavy Audio Files (BGM and SFX)
+        let bgmTrack = window.routeMapMusic(mapData?.id || 'town');
+        assetsToLoad.push(
+            'music/slash.mp3', 'music/lightning.mp3', 'music/splash.mp3', 
+            'music/bump.mp3', `music/${bgmTrack}.mp3`
+        );
+        
+        if (game.player.baseStats?.playerClass) {
+            let hairPrefix = window.charData?.hairStyle === 'none' ? 'none' : `hair${window.charData?.hairStyle || '1'}`;
+            let formattedClass = String(game.player.baseStats.playerClass).replace(/\s+/g, '').toLowerCase();
+            assetsToLoad.push(`skills/${hairPrefix}_${formattedClass}.mp3`);
+        }
+
+        // Fast Local Loading Loop
+        let loadedCount = 0;
+        let totalToLoad = assetsToLoad.length;
+
+        const checkDone = () => {
+            loadedCount++;
+            if (loaderFill) loaderFill.style.width = (loadedCount / totalToLoad) * 100 + '%';
+            if (loadedCount >= totalToLoad) {
+                callback(); // Instantly drops them in once SSD reads are done (usually < 1 sec)
+            }
+        };
+
+        if (totalToLoad === 0) {
+            callback();
+        } else {
+            assetsToLoad.forEach(src => {
+                if (src.endsWith('.mp3')) {
+                    const audio = new Audio();
+                    // 🎵 THE FIX: Wait for audio to be playable before ticking the progress bar!
+                    audio.oncanplaythrough = audio.onerror = checkDone;
+                    audio.src = src;
+                    audio.load();
+                } else {
+                    const img = new Image();
+                    img.onload = img.onerror = checkDone;
+                    img.src = src;
+                }
+            });
+        }
     } catch (e) {
-        console.error("Preloader Error:", e);
+        console.error("Native Preloader Error:", e);
         window.isLoading = false;
         window.isTransitioning = false;
         callback();
