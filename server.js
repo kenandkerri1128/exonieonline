@@ -3960,7 +3960,7 @@ socket.on('syncPet', (data) => {
                                 const nm = spawnMonster(p.instanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
                                 worlds[p.instanceId].monsters[targetMob.id] = nm;
                                 io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
-                                🛑 THE FIX: Restrict to Floor Boss and use the clean map name!
+                                //🛑 THE FIX: Restrict to Floor Boss and use the clean map name!
                                 if (targetMob.category === "floor_boss") {
                                     io.emit('systemMessage', `⚠️ The ${p.mapId.toUpperCase()} Boss has respawned!`);
                                 }
