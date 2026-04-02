@@ -1632,15 +1632,25 @@ function gameLoop(ts) {
 // 4. MAP & SYSTEM UTILS
 // ==========================================
 window.loadMapScript = function(mapId, callback) {
-    let scriptName = (mapId === 'town' ? 'townmap.js' : mapId + '.js') + '?v=' + Date.now();
+    // 🚀 SMART CACHE LEVEL 1: If we already loaded this map during this session, load it instantly from memory!
+    if (window.MapDatabase[mapId] && window.MapDatabase[mapId].collisions) {
+        return callback();
+    }
+
+    // 🚀 SMART CACHE LEVEL 2: Removed the "?v=Date.now()" development cache-buster.
+    // Steam and Android's native engines will now permanently cache this file and ONLY download it again if you update the server!
+    let scriptName = (mapId === 'town' ? 'townmap.js' : mapId + '.js');
+    
     let script = document.createElement('script'); script.src = scriptName;
     const fallbackMap = { id: mapId, name: mapId, image: mapId === 'town' ? 'town_map.png' : mapId + '.png', spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
+    
     script.onload = () => { 
         let varName = mapId === 'town' ? 'townMapData' : mapId + 'MapData'; 
         if (typeof window[varName] !== 'undefined') window.MapDatabase[mapId] = JSON.parse(JSON.stringify(window[varName])); 
         else window.MapDatabase[mapId] = fallbackMap; 
         callback(); 
     };
+    
     script.onerror = () => { window.MapDatabase[mapId] = fallbackMap; callback(); };
     document.head.appendChild(script);
 }
