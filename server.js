@@ -5148,12 +5148,15 @@ socket.on('requestConfirmTrade', () => {
 
         checkAndResetInstance(oldInstId);
 
-        // Build the world immediately from the map data coming from the client
-        if (data.mapData) {
-            ensureWorldFromMapData(p.instanceId, data.mapData);
+        // 🛑 THE KILLSWITCH: Tell the client to visually destroy all old monsters!
+        socket.emit('clearLocalMonsters');
+
+        // 🛑 WIPE THE SERVER ROOM (If Solo): Force it to rebuild from the fresh spawners!
+        if (!playerParty[p.id] && worlds[p.instanceId]) {
+            delete worlds[p.instanceId];
         }
 
-        // Keep your existing sync flow too
+        // Request the fresh spawners ONLY after the new map is fully loaded
         socket.emit('requestMapSync', { mapId: data.mapId, instanceId: p.instanceId });
 
       if (!p.isHiddenAdmin) {
