@@ -3180,7 +3180,7 @@ window.closeInspect = function() { dom.inspect.style.display = 'none'; };
 window.leaveParty = function() { if(socket) socket.emit('leaveParty'); dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; game.party = null; dom.log.innerText = "You left the party."; if (safeMapData.id !== 'town') { const transScreen = document.getElementById('map-transition'); document.getElementById('transition-text').innerText = `Entering town...`; transScreen.style.display = 'flex'; setTimeout(() => { transScreen.style.opacity = '1'; }, 10); game.player.teleportCooldown = 4000; setTimeout(() => { window.loadMapScript('town', () => { safeMapData = window.MapDatabase['town']; game.player.x = safeMapData.spawnX || 960; game.player.y = safeMapData.spawnY || 1000; window.preloadMapAssets(safeMapData, () => { dom.world.style.backgroundImage = `url('${safeMapData.image}')`; window.buildCollisionLayers(); window.cleanupMap(); 
 if(socket) socket.emit('playerTeleported', { mapId: 'town', x: game.player.x, y: game.player.y, mapData: safeMapData });
                         
-                        let isGrouped = (game.party && game.party.members && game.party.members.length > 1);
+                        let isGrouped = false; // 🛑 DISABLED PARTY WAITING
                         document.getElementById('transition-text').innerText = isGrouped ? "Waiting for team to load..." : "Loading Map...";
                         if(socket) socket.emit('clientFinishedLoadingMap');
 
@@ -3922,7 +3922,7 @@ socket.on('forcedLogout', (msg) => {
             dom.playerContainer.style.opacity = '0.5';
             
             // 🛡️ THE FIX: Check locally if we are solo so the Return to Town button shows up instantly!
-            let isGrouped = (game.party && game.party.members && game.party.members.length > 1);
+            let isGrouped = false; // 🛑 DISABLED PARTY WAITING
             window.renderDeathScreen(!isGrouped);
             window.updateUI();
         } else {
@@ -4066,7 +4066,7 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
                socket.emit('playerTeleported', { mapId: tp.mapId, x: game.player.x, y: game.player.y, mapData: safeMapData });
             }
 
-            let isGrouped = (game.party && game.party.members && game.party.members.length > 1);
+            let isGrouped = false; // 🛑 DISABLED PARTY WAITING
             document.getElementById('loading-text').innerText = isGrouped ? "Waiting for team to load..." : "Loading Map...";
             if (socket) socket.emit('clientFinishedLoadingMap');
 
@@ -4177,7 +4177,7 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
                     
               if(socket) socket.emit('playerTeleported', { mapId: nextMapId, x: game.player.x, y: game.player.y, mapData: safeMapData }); 
         
-        let isGrouped = (game.party && game.party.members && game.party.members.length > 1);
+        let isGrouped = false; // 🛑 DISABLED PARTY WAITING
         document.getElementById('transition-text').innerText = isGrouped ? "Waiting for team to load..." : "Loading Map...";
         if (socket) socket.emit('clientFinishedLoadingMap');
 
