@@ -1205,21 +1205,21 @@ function ensureWorldFromMapData(instanceId, mapData) {
         }
 
         worlds[instanceId] = {
-            collisions: mapData.collisions || [],
-            teleports: mapData.teleports || [],
-            monsters: {},
-            pets: {},
+            collisions: mapData.collisions || [],
+            teleports: mapData.teleports || [],
+            monsters: {},
+            pets: {},
             spawnX: mapData.spawnX || 960,
             spawnY: mapData.spawnY || 1000
-        };
+        };
 
-       const processSpawns = async (spawnList, fallbackKey) => { 
+        const processSpawns = async (spawnList, fallbackKey) => { 
             for (let i = 0; i < (spawnList || []).length; i++) {
                 const sp = spawnList[i];
                 const mKey = sp.monsterKey || fallbackKey;
 
-              // 🛡️ SUPABASE-LIVE CHECK
-                if (mKey.includes('floor_boss') || mKey.includes('mini_boss')) {
+                // 🛡️ SUPABASE-LIVE CHECK (Floor Bosses ONLY! Mini Bosses spawn instantly)
+                if (mKey.includes('floor_boss')) {
                     // 🛡️ MAZE TRIAL BYPASS: Ignore DB cooldowns and spawn instantly in private rooms!
                     if (instanceId.startsWith('mazetrial_')) {
                         const mId = `${instanceId}_mob_${Date.now()}_${i}_${Math.random()}`;
@@ -1232,29 +1232,18 @@ function ensureWorldFromMapData(instanceId, mapData) {
                     }
 
                     const rawMapId = instanceId.split('_')[0]; 
-                    if (mKey.includes('floor_boss')) {
-                    if (instanceId.startsWith('mazetrial_')) {
-                        const mId = `${instanceId}_mob_${Date.now()}_${i}`;
-                        worlds[instanceId].monsters[mId] = spawnMonster(instanceId, mId, mKey, {
-                            spawnArea: { minX: sp.x, maxX: sp.x, minY: sp.y, maxY: sp.y },
-                            level: sp.level
-                        });
-                        continue; 
-                    }
-
-                    const floorId = instanceId.split('_')[0]; 
                     
-                    const { data: timer } = await supabase.from('boss_timers').select('*').eq('boss_id', floorId).single();
+                    const { data: timer } = await supabase.from('boss_timers').select('*').eq('boss_id', rawMapId).single();
 
                     if (timer) {
                         const remaining = (parseInt(timer.last_death_time) + 86400000) - Date.now();
                         
                         if (remaining > 0) {
-                            console.log(`[WORLD] ${floorId} boss on cooldown. Auto-spawning in ${Math.round(remaining/1000)}s.`);
+                            console.log(`[WORLD] ${rawMapId} boss on cooldown. Auto-spawning in ${Math.round(remaining/1000)}s.`);
                             
                             // 🌟 AUTOMATIC ALARM: Deletes the DB lock and spawns when timer hits 0!
                             setTimeout(async () => {
-                                await supabase.from('boss_timers').delete().eq('boss_id', floorId);
+                                await supabase.from('boss_timers').delete().eq('boss_id', rawMapId);
                                 
                                 if (worlds[instanceId]) {
                                     const newMobId = `${instanceId}_mob_${Date.now()}`;
@@ -1263,22 +1252,20 @@ function ensureWorldFromMapData(instanceId, mapData) {
                                         level: sp.level
                                     });
                                     worlds[instanceId].monsters[newMobId] = newBoss;
-                                   io.to(instanceId).emit('monsterSpawned', serializeMonster(newBoss));
+                                    io.to(instanceId).emit('monsterSpawned', serializeMonster(newBoss));
                                     
                                     // 🛑 THE FIX: Add the announcement back, but ONLY for Floor Bosses!
-                                    if (bossCategory === 'floor_boss') {
-                                        io.emit('systemMessage', `⚠️ The ${rawMapId.toUpperCase()} Boss has respawned!`);
-                                    }
-                                    }
+                                    io.emit('systemMessage', `⚠️ The ${rawMapId.toUpperCase()} Boss has respawned!`);
+                                }
                             }, remaining);
                             
                             continue; // Skip the INSTANT spawn, the alarm will handle it.
                         } else {
                             // Timer finished while the room was empty! Clean DB and spawn instantly.
-                            await supabase.from('boss_timers').delete().eq('boss_id', floorId);
+                            await supabase.from('boss_timers').delete().eq('boss_id', rawMapId);
                         }
                     }
-                }
+                } // <--- THIS is the bracket that was missing in your pasted code!
 
                 const mId = `${instanceId}_mob_${Date.now()}_${i}_${Math.random()}`;
                 
