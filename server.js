@@ -1306,36 +1306,37 @@ function spawnMonster(instId, entityId, originalKey, cfg) {
     };
 }
 function serializeMonster(m) { 
-    return { 
-        id: m.id, monsterKey: m.monsterKey, name: m.name, x: m.x, y: m.y, 
-        width: m.width, height: m.height, maxHp: m.maxHp, currentHp: m.currentHp, 
-        atk: m.atk, def: m.def, alive: m.alive, targetId: m.targetId || null, 
-        cssColor: m.cssColor, cssBorder: m.cssBorder, level: m.level 
-    }; 
+    return { 
+        id: m.id, monsterKey: m.monsterKey, name: m.name, x: m.x, y: m.y, 
+        width: m.width, height: m.height, maxHp: m.maxHp, currentHp: m.currentHp, 
+        atk: m.atk, def: m.def, alive: m.alive, targetId: m.targetId || null, 
+        cssColor: m.cssColor, cssBorder: m.cssBorder, level: m.level 
+    }; 
 }
 
 function checkAndResetInstance(instId) {
-    // 🛡️ THE FIX: Never delete Town or Neutral Zone from memory!
-    if (!worlds[instId] || instId === 'town' || instId === 'neutralzone') return;
+    // 🛡️ THE FIX: Never delete Town or Neutral Zone from memory!
+    if (!worlds[instId] || instId === 'town' || instId === 'neutralzone') return;
 
-    // Check if there are any REAL players left (ignoring invisible admins)
-    const activePlayers = playersInInstance(instId).filter(p => !p.isHiddenAdmin);
+    // Check if there are any REAL players left (ignoring invisible admins)
+    const activePlayers = playersInInstance(instId).filter(p => !p.isHiddenAdmin);
 
-    if (activePlayers.length === 0) {
-        // ⏳ CRITICAL FIX: Kill any lingering Dungeon or Tavern fail timers before deleting the room!
-        if (worlds[instId].failTimer) {
-            clearTimeout(worlds[instId].failTimer);
-        }
-        
-        // 🐛 THE BUG FIX: Clear ALL pending monster respawn timers so they don't bleed into the next room!
-        if (worlds[instId].respawnTimers) {
-            worlds[instId].respawnTimers.forEach(t => clearTimeout(t));
-        }
-        
-        // Now safely delete the room so it spawns fresh next time
-        delete worlds[instId];
-    }
+    if (activePlayers.length === 0) {
+        // ⏳ CRITICAL FIX: Kill any lingering Dungeon or Tavern fail timers before deleting the room!
+        if (worlds[instId].failTimer) {
+            clearTimeout(worlds[instId].failTimer);
+        }
+        
+        // 🐛 THE BUG FIX: Clear ALL pending monster respawn timers so they don't bleed into the next room!
+        if (worlds[instId].respawnTimers) {
+            worlds[instId].respawnTimers.forEach(t => clearTimeout(t));
+        }
+        
+        // Now safely delete the room so it spawns fresh next time
+        delete worlds[instId];
+    }
 }
+
 function isMonsterColliding(instId, mx, my, mWidth, mHeight) {
     const cols = worlds[instId]?.collisions || [];
     for (let box of cols) { if (mx < box.x + box.w && mx + mWidth > box.x && my < box.y + box.h && my + mHeight > box.y) return true; }
@@ -3829,56 +3830,76 @@ socket.on('syncPet', (data) => {
                         return; 
                     }
 
-                // ==========================================
-                    // NORMAL OPEN WORLD BOSS SAVES & RESPAWNS
-                    // ==========================================
+              // ==========================================
+                    // NORMAL OPEN WORLD BOSS SAVES & RESPAWNS
+                    // ==========================================
 
-                   if (targetMob.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !String(p.instanceId).startsWith('mazetrial_')) {
-                        const floorId = p.mapId;
-                        const deathTime = Date.now();
+                   if (targetMob.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !String(p.instanceId).startsWith('mazetrial_')) {
+                        const floorId = p.mapId;
+                        const deathTime = Date.now();
 
-                        // We use await to ensure it hits the DB before the code continues
-                        supabase.from('boss_timers').upsert({ 
-                            boss_id: floorId, 
-                            last_death_time: deathTime 
-                        }, { onConflict: 'boss_id' }).then(({error}) => {
-                            if (error) console.error("CRITICAL: Boss timer failed", error.message);
-                        });
+                        // We use await to ensure it hits the DB before the code continues
+                        supabase.from('boss_timers').upsert({ 
+                            boss_id: floorId, 
+                            last_death_time: deathTime 
+                        }, { onConflict: 'boss_id' }).then(({error}) => {
+                            if (error) console.error("CRITICAL: Boss timer failed", error.message);
+                        });
 
-                        targetMob.respawnDelayMs = -1;
-                        io.emit('systemMessage', `🏆 [WORLD] ${p.mapId.toUpperCase()} Boss Defeated!`);
-                        
-                        // 🌟 AUTOMATIC CLEANUP & SPAWN SCHEDULE 🌟
-                        const fullCooldown = 24 * 60 * 60 * 1000; // 24 Hours in milliseconds
-                        
-                        setTimeout(async () => {
-                            // Automatically delete from Supabase exactly 24h later
-                            await supabase.from('boss_timers').delete().eq('boss_id', floorId);
-                            
-                            // If players are waiting in the room, spawn it instantly!
-                            if (worlds[p.instanceId]) {
-                                const cfg = {
-                                    spawnArea: { minX: targetMob.homeX, maxX: targetMob.homeX, minY: targetMob.homeY, maxY: targetMob.homeY },
-                                    level: targetMob.level
-                                };
-                                const nm = spawnMonster(p.instanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
-                                worlds[p.instanceId].monsters[targetMob.id] = nm;
-                                io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
-                                //🛑 THE FIX: Restrict to Floor Boss and use the clean map name!
-                                if (targetMob.category === "floor_boss") {
-                                    io.emit('systemMessage', `⚠️ The ${p.mapId.toUpperCase()} Boss has respawned!`);
-                                }
-                            }
-                        }, fullCooldown);
-                    }
+                        targetMob.respawnDelayMs = -1;
+                        io.emit('systemMessage', `🏆 [WORLD] ${p.mapId.toUpperCase()} Boss Defeated!`);
+                        
+                        // 🌟 AUTOMATIC CLEANUP & SPAWN SCHEDULE 🌟
+                        const fullCooldown = 24 * 60 * 60 * 1000; // 24 Hours in milliseconds
+                        
+                        setTimeout(async () => {
+                            // Automatically delete from Supabase exactly 24h later
+                            await supabase.from('boss_timers').delete().eq('boss_id', floorId);
+                            
+                            // If players are waiting in the room, spawn it instantly!
+                            if (worlds[p.instanceId]) {
+                                const cfg = {
+                                    spawnArea: { minX: targetMob.homeX, maxX: targetMob.homeX, minY: targetMob.homeY, maxY: targetMob.homeY },
+                                    level: targetMob.level
+                                };
+                                const nm = spawnMonster(p.instanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
+                                worlds[p.instanceId].monsters[targetMob.id] = nm;
+                                io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
+                                //🛑 THE FIX: Restrict to Floor Boss and use the clean map name!
+                                if (targetMob.category === "floor_boss") {
+                                    io.emit('systemMessage', `⚠️ The ${p.mapId.toUpperCase()} Boss has respawned!`);
+                                }
+                            }
+                        }, fullCooldown);
+                    }
 
-                  // 🐛 THE FIX: Track the timer so we can kill it if the room empties!
-                        if (worlds[p.instanceId]) {
-                            if (!worlds[p.instanceId].respawnTimers) worlds[p.instanceId].respawnTimers = [];
-                            worlds[p.instanceId].respawnTimers.push(respawnTimerId);
-                        }
+                    // Normal Respawn Logic (🛡️ THE BULLETPROOF FIX: Strictly block Maze Trials using instanceId!)
+                    if (targetMob.respawnDelayMs !== -1 && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !String(p.instanceId).startsWith('mazetrial_')) {
+                        let respawnTimerId = setTimeout(() => {
+                            const cfg = {
+                                spawnArea: { minX: targetMob.homeX, maxX: targetMob.homeX, minY: targetMob.homeY, maxY: targetMob.homeY },
+                                level: targetMob.level
+                            };
+                            const nm = spawnMonster(p.instanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
+                            if (worlds[p.instanceId]) {
+                                worlds[p.instanceId].monsters[targetMob.id] = nm;
+                                io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
+                            }
+                        }, targetMob.respawnDelayMs || 10000);
+                        
+                        // 🐛 THE FIX: Track the timer so we can kill it if the room empties!
+                        if (worlds[p.instanceId]) {
+                            if (!worlds[p.instanceId].respawnTimers) worlds[p.instanceId].respawnTimers = [];
+                            worlds[p.instanceId].respawnTimers.push(respawnTimerId);
+                        }
+                    }
+                }
+            });
+        }, hc * 150); // 150ms delay on the second hit
+    }
+});
 
-   socket.on('inspectRequest', (data) => {
+socket.on('inspectRequest', (data) => {
         const targetId = data.targetId;
         const target = getPlayerById(targetId);
         if (target) {
