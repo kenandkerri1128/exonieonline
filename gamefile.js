@@ -3907,9 +3907,38 @@ socket.on('forcedLogout', (msg) => {
         window.renderPartyUI(); 
     });
 
-    // 🛡️ When the server says the party wiped (or a solo player died), reveal the Return to Town button!
-    socket.on('showDeathScreen', () => {
-        window.renderDeathScreen(true);
+   // 🌟 THE FIX: Wake the client up when the server says we revived!
+    socket.on('playerRevived', (data) => {
+        if (data.id === game.player.id) {
+            game.isGhost = false; // 🛑 THIS WAS THE CULPRIT!
+            game.player.currentHp = data.currentHp;
+            dom.playerContainer.style.opacity = '1';
+            
+            const ds = document.getElementById('death-screen');
+            if (ds) ds.style.display = 'none'; // Hide the death screen
+            
+            window.updateUI();
+        } else {
+            // Un-ghost party members visually
+            const rp = document.getElementById('remote_' + data.id);
+            if (rp) rp.style.opacity = '1';
+            if (game.remotePlayers[data.id]) game.remotePlayers[data.id].isGhost = false;
+        }
+        window.renderPartyUI();
+    });
+
+    socket.on('revivalJuiceUsed', (data) => {
+        game.player.inventory = data.inventory;
+        game.player.currentHp = data.currentHp;
+        
+        game.isGhost = false; // 🛑 Clear the local ghost lock!
+        dom.playerContainer.style.opacity = '1';
+        
+        const ds = document.getElementById('death-screen');
+        if (ds) ds.style.display = 'none'; // Clear the screen
+        
+        window.updateUI();
+        if (typeof window.renderInventory === 'function') window.renderInventory();
     });
     socket.on('partyError', (msg) => { dom.log.innerText = msg; });
     socket.on('partyKickedOrLeft', () => { dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; game.party = null; dom.log.innerText = "You are no longer in a party."; });
