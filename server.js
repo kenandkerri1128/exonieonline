@@ -3583,7 +3583,7 @@ socket.on('syncPet', (data) => {
                     if (m.isNeutralBoss) {
                         clearTimeout(global.neutralBossDespawnTimer);
                         supabase.from('boss_timers').upsert({ boss_id: 'neutralzone_boss', last_death_time: Date.now() }, { onConflict: 'boss_id' }).then(()=>{
-                            io.emit('systemMessage', `🏆 [WORLD] The Neutral Zone Boss was defeated by ${p.name}! Respawning in 5 hours.`);
+                            io.emit('systemMessage', `[WORLD] The Neutral Zone Boss was defeated by ${p.name}! Respawning in 5 hours.`);
                             checkNeutralBoss(); 
                         });
                     }
@@ -3936,7 +3936,9 @@ socket.on('syncPet', (data) => {
                         });
 
                         targetMob.respawnDelayMs = -1;
-                        io.emit('systemMessage', `🏆 [WORLD] ${floorId.toUpperCase()} Boss Defeated!`);
+                        if (targetMob.category === "floor_boss") {
+                        io.emit('systemMessage', `🏆 [WORLD] ${p.mapId.toUpperCase()} Boss Defeated!`);
+                    }
                         
                         // 🌟 AUTOMATIC CLEANUP & SPAWN SCHEDULE 🌟
                         const fullCooldown = 24 * 60 * 60 * 1000; // 24 Hours in milliseconds
