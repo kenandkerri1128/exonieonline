@@ -1662,130 +1662,38 @@ window.loadMapScript = function(mapId, callback) {
 window.preloadMapAssets = function(mapData, callback) {
     window.isLoading = true;
     const loaderFill = document.getElementById('loader-fill');
-    if (loaderFill) loaderFill.style.width = '0%';
+    if (loaderFill) loaderFill.style.width = '50%';
 
     try {
-        // 1. Categorize Assets
         const mapSrc = mapData?.image ? String(mapData.image) : 'town_map.png';
-        
-        let visualAssets = [
-            'animation/avatar_idlefront.png', 
-            'animation/avatar_walk.png', 
-            'animation/avatar_attack.png', 
-            'animation/avatar_head.png'
-        ];
-
-        // Gather Monster Sprites
-        let mKeys = new Set();
-        if (mapData?.normalSpawns) mapData.normalSpawns.forEach(s => mKeys.add(String(s.monsterKey || 'common_mobs1')));
-        if (mapData?.miniBossSpawns) mapData.miniBossSpawns.forEach(s => mKeys.add(String(s.monsterKey || 'mini_boss1')));
-        if (mapData?.floorBossSpawns) mapData.floorBossSpawns.forEach(s => mKeys.add(String(s.monsterKey || 'floor_boss1')));
-        
-        mKeys.forEach(k => {
-            if (!k.includes('common_mobs') && !k.includes('mini_boss') && !k.includes('floor_boss')) {
-                visualAssets.push(`monsters/${k}.png`);
-            }
-        });
-
-        // Add Equipped Weapon
-        if (game.player.equips?.weapon?.sprite) {
-            let baseType = 'sword';
-            let rawLower = String(game.player.equips.weapon.sprite).toLowerCase();
-            if (rawLower.includes('staff')) baseType = 'staff';
-            else if (rawLower.includes('pendant')) baseType = 'pendant';
-            else if (rawLower.includes('gun')) baseType = 'gun';
-            else if (rawLower.includes('dagger')) baseType = 'dagger';
-            else if (rawLower.includes('touchpad')) baseType = 'touchpad';
-            
-            let rarityStr = String(game.player.equips.weapon.rarity || 'basic').toLowerCase();
-            if (rarityStr === 'starter') rarityStr = 'basic';
-            let wpn = `${rarityStr}${baseType}`;
-            visualAssets.push(`weapon/${wpn}.png`);
-            if (!wpn.includes('pendant')) visualAssets.push(`weapon/${wpn}_attack.png`);
-        }
-
-        let audioAssets = [
-            'music/slash.mp3', 'music/lightning.mp3', 'music/splash.mp3', 
-            'music/bump.mp3', 'music/bossfight.mp3'
-        ];
-        
-        if (game.player.baseStats?.playerClass) {
-            let hairPrefix = window.charData?.hairStyle === 'none' ? 'none' : `hair${window.charData?.hairStyle || '1'}`;
-            let formattedClass = String(game.player.baseStats.playerClass).replace(/\s+/g, '').toLowerCase();
-            audioAssets.push(`skills/${hairPrefix}_${formattedClass}.mp3`);
-        }
-
-        // Filter out any blank strings just in case
-        visualAssets = visualAssets.filter(src => typeof src === 'string' && src.trim() !== '');
-        audioAssets = audioAssets.filter(src => typeof src === 'string' && src.trim() !== '');
-
-        // 2. Tracking Logic - ONLY TRACK MAP AND VISUALS FOR THE UI LOADER
-        let essentialToLoad = 1 + visualAssets.length; 
-        let essentialsLoaded = 0;
-        let isEssentialsDone = false;
-
-        const checkEssentials = () => {
-            essentialsLoaded++;
-            if (loaderFill && !isEssentialsDone) {
-                let pct = (essentialsLoaded / essentialToLoad) * 100;
-                loaderFill.style.width = pct + '%';
-            }
-
-           if (essentialsLoaded === essentialToLoad && !isEssentialsDone) {
-                isEssentialsDone = true;
-                // 🛡️ SYNC FIX: Do NOT unlock movement or hide the screen here! Wait for the server!
-                callback(); 
-                startBackgroundAudio(); // 🎵 Let audio download silently in the background
-            }
-        };
-
-        // ==========================================
-                    // ⏱️ STRICT 5-SECOND MAXIMUM LOAD TIME
-                    // ==========================================
-                    setTimeout(() => {
-                        if (!isEssentialsDone) {
-                            isEssentialsDone = true;
-                            callback(); // Drops the player into the map instantly!
-                            startBackgroundAudio(); 
-                        }
-                    }, 5000);
-
-                    // 3. THE STAGE MANAGER (Speed Priority)
-        
-        // STAGE 1: Load Map Background First
         const mapImg = new Image();
+        
+        // ⏱️ STRICT 5-SECOND FALLBACK
+        let isDone = false;
+        let fallback = setTimeout(() => {
+            if (!isDone) {
+                isDone = true;
+                if (loaderFill) loaderFill.style.width = '100%';
+                console.warn("Map load hit 5-second cap. Forcing entry!");
+                callback();
+            }
+        }, 5000);
+
+        // 🖼️ ONLY LOAD THE MAP BACKGROUND (No audio/sprite preloading to prevent crashes)
         mapImg.onload = mapImg.onerror = () => {
-            // STAGE 2: Map is done, load all other visuals
-            if (visualAssets.length === 0) {
-                checkEssentials(); 
-            } else {
-                essentialsLoaded++; // Manually tick the map as loaded
-                visualAssets.forEach(src => {
-                    const img = new Image();
-                    img.onload = img.onerror = () => {
-                        checkEssentials();
-                    };
-                    img.src = src;
-                });
+            if (!isDone) {
+                isDone = true;
+                clearTimeout(fallback);
+                if (loaderFill) loaderFill.style.width = '100%';
+                callback();
             }
         };
         mapImg.src = mapSrc;
 
-        // STAGE 3: Audio goes last (Does not block the player)
-        function startBackgroundAudio() {
-            if (audioAssets.length === 0) return; 
-            audioAssets.forEach(src => {
-                const audio = new Audio();
-                audio.preload = "auto";
-                audio.src = src;
-                audio.load(); 
-            });
-        }
-
     } catch (e) {
         console.error("Preloader Error:", e);
         window.isLoading = false;
-        window.isTransitioning = false; // 🔓 Failsafe unlock
+        window.isTransitioning = false;
         callback();
     }
 };
