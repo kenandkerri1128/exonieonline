@@ -1205,11 +1205,13 @@ function ensureWorldFromMapData(instanceId, mapData) {
         }
 
         worlds[instanceId] = {
-            collisions: mapData.collisions || [],
-            teleports: mapData.teleports || [],
-            monsters: {},
-            pets: {}
-        };
+            collisions: mapData.collisions || [],
+            teleports: mapData.teleports || [],
+            monsters: {},
+            pets: {},
+            spawnX: mapData.spawnX || 960,
+            spawnY: mapData.spawnY || 1000
+        };
 
        const processSpawns = async (spawnList, fallbackKey) => { 
             for (let i = 0; i < (spawnList || []).length; i++) {
@@ -3150,9 +3152,27 @@ socket.on('saveData', async (playerData) => {
                 }
             }
             if (isHacking && !isAdmin(p.id)) {
-                socket.emit('forceTeleport', { mapId: p.mapId, x: p.x, y: p.y });
-                return; 
-            }
+                let safeX = world.spawnX || 960;
+                let safeY = world.spawnY || 1000;
+
+                // 🛡️ FLOOR ENTRANCE LOGIC: Find the exact portal!
+                const floorMatch = p.mapId.match(/floor(\d+)/i);
+                if (floorMatch && world.teleports) {
+                    const floorNum = parseInt(floorMatch[1]);
+                    const entranceId = floorNum * 2; // Floor 1 = Portal 2, etc.
+                    const entrancePortal = world.teleports.find(t => t.portalId === entranceId);
+                    
+                    if (entrancePortal) {
+                        // Calculate exact drop point (center X, bottom Y)
+                        safeX = entrancePortal.x + (entrancePortal.w / 2) - 24; 
+                        safeY = entrancePortal.y + entrancePortal.h - 96 + 5;   
+                    }
+                }
+
+                socket.emit('systemMessage', '❌ Invalid Movement Detected. Returning to map entrance.');
+                socket.emit('forceTeleport', { mapId: p.mapId, x: safeX, y: safeY });
+                return; 
+            }
         }
 
         // 🛡️ THE ANIMATION FIX: Throttle 'attack' state broadcasts
