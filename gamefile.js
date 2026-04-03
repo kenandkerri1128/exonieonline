@@ -1063,10 +1063,10 @@ function gameLoop(ts) {
         if(typeof window.leaveParty === 'function') window.leaveParty();
     }
 
-   let nextX = game.player.x; let nextY = game.player.y; let isMoving = false; const moveSpeed = 5; 
-    let isFrozen = (game.player.frozenUntil && Date.now() < game.player.frozenUntil);
-    // 🛑 MOVEMENT UNLOCKED: Players can walk freely during background caching!
-    let canInputMove = (!isChatting && !game.player.isTeleporting && !window.isDungeonUIOpen && !isFrozen);
+   let nextX = game.player.x; let nextY = game.player.y; let isMoving = false; const moveSpeed = 5; 
+   let isFrozen = (game.player.frozenUntil && Date.now() < game.player.frozenUntil);
+   // 🛑 PARTY WAIT FIX: Allow movement while waiting on the portal! Only lock when the black loading screen drops.
+   let canInputMove = (!isChatting && !window.isTransitioning && !window.isLoading && !window.isDungeonUIOpen && !isFrozen);
     
     if (game.isGhost) {
         if (!game.party || !Array.isArray(game.party.members)) { canInputMove = false; } 
