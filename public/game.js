@@ -1,1 +1,7480 @@
-const _0x5d14f9=_0x7052;(function(_0x251ba2,_0x2ac22e){const _0x1b50f9=_0x7052,_0x4e4ef1=_0x251ba2();while(!![]){try{const _0x375dfe=-parseInt(_0x1b50f9(0x6bc))/0x1*(-parseInt(_0x1b50f9(0x7c6))/0x2)+-parseInt(_0x1b50f9(0x3ab))/0x3+-parseInt(_0x1b50f9(0x6e0))/0x4+-parseInt(_0x1b50f9(0x4fd))/0x5*(parseInt(_0x1b50f9(0x4f1))/0x6)+-parseInt(_0x1b50f9(0x6d1))/0x7*(parseInt(_0x1b50f9(0x26c))/0x8)+parseInt(_0x1b50f9(0x213))/0x9+parseInt(_0x1b50f9(0x2fd))/0xa;if(_0x375dfe===_0x2ac22e)break;else _0x4e4ef1['push'](_0x4e4ef1['shift']());}catch(_0x12c8e4){_0x4e4ef1['push'](_0x4e4ef1['shift']());}}}(_0xe910,0x8ea77));function _0xe910(){const _0x503c38=['Forging\x20Avatar...','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#f44336;\x20width:100%;\x20padding:8px;\x22\x20onclick=\x22document.getElementById(\x27guild-modal\x27).style.display=\x27none\x27\x22>Close</button>','Summons\x20an\x20untargetable\x20Ball\x20Drone\x20that\x20attacks\x20for\x20100%\x20of\x20your\x20INT.','cdReset','Entering\x20The\x20Cave...','ah_getMyAuctions','Heals\x20shielded\x20allies\x20for\x2010%\x20INT\x20continuously.','remotePlayers','.\x20Falling\x20back\x20to\x20town.mp3!','isGhost','Easter\x20Aura\x20Stone','ms\x20linear,\x20top\x20','ui-hp-bar',')\x22>Trial:\x20Floor\x20','getMaxHp','textAlign','Blink\x20to\x20the\x20enemy\x20and\x20stab\x20for\x202x\x20Attack.','sum4','No\x20object\x20here\x20to\x20delete.','<button\x20class=\x22btn\x22\x20style=\x22width:100%;\x20margin-bottom:10px;\x20padding:12px;\x20font-weight:bold;\x20font-size:16px;\x20background:#4CAF50;\x22\x20onclick=\x22window.openFastTravelUI()\x22>\x20Fast\x20Travel</button>','Use','spawnSpark','#aaaaaa','\x20padding:10px;\x20border-radius:6px;\x20margin-bottom:10px;\x20text-align:left;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22color:','hasGuild','usePotionHotkey','aura-burst\x200.6s\x20ease-out\x20forwards','preview-head','stop','shop-stone-buy-btn','game','toggleInventory','chat-line','spawnSkillText','oncanplaythrough','dungeon','maze-guide-modal','Golem\x20Buster','Collision\x20added.','snp3','order','translate(-50%,\x20-100%)','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22claim-btn\x22\x20id=\x22claim-','currentPortal','rank-3-name','Purification','closeWelcomeMessage','respawn','partyHeal','#555','transparent','trade-screen','Enter\x20spawn\x20X\x20coordinate\x20(Default\x20960):','game-screen','9000','pet_fox','touchpad','❌\x20You\x20haven\x27t\x20conquered\x20any\x20floors\x20yet!','\x20(Bonus)</span><br>','disabled','Increases\x20basic\x20attack\x20range\x20by\x2015%.','exoGems','position:absolute;\x20left:','<div><b>Random:</b>\x20+','Sword','ah_cancel','acceptDailyMission','You\x20left\x20the\x20party.','Sniper','spawnWhiteSplash','ctx-btn-extract-aura','isSpectating','Unknown','innerHTML','\x27)\x22>👁️\x20Spectate</button>','character_name','dragon','\x27,\x20\x27','Low-End\x20Mode:\x20OFF','abs','low-perf','ctrlKey','custom-prompt-cancel','1000','minotaur','25%\x20chance\x20to\x20Bleed\x20enemies\x20for\x2015%\x20ATK\x20over\x203\x20seconds.','plugins','browse','cursor','mailbox-screen','openCosmeticsCrafting','sepia(1)\x20hue-rotate(75deg)\x20saturate(2)\x20brightness(1)','Tech\x20Genius','admin-item-rarity','#fff','Store\x20plugin\x20not\x20loaded!','description','Transaction\x20failed:\x20','display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%);\x20background:#1a1a1a;\x20border:2px\x20solid\x20#311B92;\x20padding:20px;\x20z-index:9500;\x20width:300px;\x20border-radius:8px;\x20box-shadow:0\x200\x2020px\x20#311B92;\x20color:white;\x20text-align:center;','approved','openShop','ah-my-count','ui-hp-text','custom-prompt-msg','cosmetic-aura\x20aura-','role','\x20Divine\x20Essence</span></div>','?\x27))\x20socket.emit(\x27guildKick\x27,\x20\x27','exonie_user','<div\x20style=\x22background:#222;\x20','tradeInviteResponse','dungeonTimerStart',';\x20width:100%;\x20margin-bottom:5px;\x22\x20','<p\x20style=\x22color:#aaa;\x20text-align:center;\x22>Searching...</p>','Purchase\x20verification\x20failed:\x20','switchAuth','tavern-modal','skills','Auto-Optimized:\x20ON','watchedTutorial','Teleport\x20','select-name-display','None','partyPanel',';\x20color:white;\x20width:100%;\x20margin-bottom:5px;\x20font-weight:bold;\x22\x20','px)\x20scale(1.1)','backgroundColor','showBubble','\x20Blue\x20Exo\x20Metal</span></div>','town','Enhancement\x20mode\x20cancelled.','dodge','unique','\x20G</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#4CAF50;\x22\x20onclick=\x22window.ahBuy(\x27','logout','Improved\x20Oil','flex','collision-layers','Native\x20Preloader\x20Error:','#222','frequency','drop-shadow(0\x200\x2010px\x20gold)\x20brightness(1.2)','dailyMissionUpdate','renderConsumablesCrafting','❌\x20Not\x20enough\x20gold\x20to\x20buy\x20a\x20home!','tauntMonsters','15px','select-head','Adventurer','staff','pendant','tradeRequest','map-transition','town_map.png','code','Equip',';\x20font-size:12px;\x20margin-left:\x205px;\x22>(Lv.','items','Select\x20equipment\x20to\x20enhance!','eq-armor-slot','draggable','sepia(1)\x20hue-rotate(180deg)\x20saturate(2)\x20brightness(1)','Waiting\x20for\x20team\x20to\x20load...','data','Loading\x20Map...','Confirm\x20Trade','adminSpawnItem','inv-slot','drone_','.movable-window','getUTCDate','select-body','healAmount','\x27,\x20','trade-their-gold','text/plain','ahBuy','insertBefore','lastNetTs','Ice\x20Splash','openAuctionHouse','sendVerificationCode','getItemTooltip','nin1','rare','damage-text','Green\x20Exo\x20Metal','updateEquipmentDisplay','Makes\x20your\x20heal\x20x3\x20of\x20your\x20INT.','completed','<div\x20style=\x22display:flex;\x20gap:5px;\x20margin-bottom:5px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#2196F3;\x20flex:1;\x20font-size:13px;\x20padding:8px;\x22\x20onclick=\x22window.donateGuild()\x22>Donate\x20Gold</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#f44336;\x20flex:1;\x20font-size:13px;\x20padding:8px;\x22\x20onclick=\x22if(confirm(\x27Are\x20you\x20sure\x20you\x20want\x20to\x20leave\x20this\x20guild?\x27))\x20socket.emit(\x27guildLeave\x27)\x22>Leave\x20Guild</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>','1px\x20dashed\x20#E040FB','<h2\x20style=\x22color:#FF9800;\x20margin-top:\x2020px;\x22>Purchasing\x20Base...</h2>','div','mini_boss','showMapAnnouncement','Buy\x20','mouseup','floors','addTradeItem','versions','isApplyingForger','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20justify-content:space-between;\x20align-items:center;\x20gap:5px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#333;\x20padding:8px\x2010px;\x20font-size:14px;\x20color:#E040FB;\x20border-color:#9c27b0;\x20flex:1;\x20font-weight:bold;\x20cursor:pointer;\x20box-shadow:\x200\x200\x205px\x20#9c27b0;\x22\x20onclick=\x22window.buyWithGems(\x27','ondragstart','fullscreenElement','fill','custom-prompt-modal','Entering\x20Haunted\x20House...','Weekly\x20Entries:\x20','NEXT\x20MESSAGE\x20➔','px,\x20','rank-2-name','playerHit','Internet\x20connection\x20unstable.\x20Attempting\x20to\x20reconnect...','background:\x20linear-gradient(45deg,\x20#ff9800,\x20#ffea00);\x20color:\x20black;\x20font-weight:\x20bold;\x20width:\x20100%;\x20margin-bottom:\x2010px;\x20box-shadow:\x200\x200\x2010px\x20#ff9800;\x20border:\x20none;\x20padding:\x2010px;\x20cursor:\x20pointer;\x20border-radius:\x204px;\x20box-sizing:\x20border-box;\x20display:\x20block;','.png','</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22socket.emit(\x27guildHandleApplicant\x27,\x20{applicantName:\x27','firstChild','enhancedUntil','</strong>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20','weapon-aura-','video','useRevivalJuice','animate','bringWindowToFront','sepia(1)\x20hue-rotate(-25deg)\x20saturate(2.5)\x20brightness(1.1)','music/','now','isRunning','enhanceLevel','#444','\x20=\x20','quantity','email-step-1','--mob-color','true','updateForgerRarity','playDMSound','hotbar-1','pointerup','<p\x20style=\x22color:#ccc;\x20font-size:13px;\x20margin-bottom:15px;\x22>Accept\x20a\x20daily\x20mission\x20to\x20earn\x20large\x20amounts\x20of\x20Gold!\x20You\x20can\x20only\x20complete\x20one\x20mission\x20per\x20day.</p>','\x20(Lv.','radius','values','shootMonsterFireball','forger','fox','0.5','ui-gold-text','then','Enter\x20your\x20new\x20character\x20name\x20(Max\x2016\x20chars):','emailCodeSent','resume','RARITY_COLORS','HOME\x20PURCHASED!','neutralzone','friend-row','createGain','monsterHit','setHairStyle','tavernReset','eq-earrings-slot','\x20Lv.','inspect-title','immortalUntil','\x20Forger\x20to\x20reroll\x20this\x20item!','requestDivineCraft','auth-screen','rarity-godly','slice','phs3','translate3d(calc(-50%\x20+\x20','auctions','attacking','<h2\x20style=\x22color:#4CAF50;\x20margin-top:\x2020px;\x22>Processing\x20Deeds...</h2>','<p\x20style=\x22color:#aaa;\x20text-align:center;\x22>You\x20have\x20no\x20active\x20auctions.</p>','Town\x20of\x20Exonie','bld2','playerVitals','parse','requestAddFriend','inspect-screen','durationMs','verifyEmailCode','details','.png</div>','wheel','<span\x20style=\x22color:#00E5FF;\x20font-weight:bold;\x22>[Party]\x20','Registration\x20successful!\x20Please\x20log\x20in.','android','duration','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>','remotePlayerJoined','splice','death-screen','catch','touchstart','<span\x20style=\x22color:#ffeb3b;\x22><em>','login-user','Gained\x20','.gamma-shield','Purchase\x20successful!','cos','KeyX','classReset','remoteSkillEffect','music/lightning.mp3','\x27)\x22>Reroll\x20+','textShadow','Error:\x20Could\x20not\x20retrieve\x20the\x20promo\x20code.\x20Please\x20try\x20again.','#c71585','emit','clientFinishedLoadingMap','requestOpenStorage','gemsAdded','aura','&gt;','electron','Armor','indexOf','The\x20other\x20player\x20cancelled\x20the\x20trade.','shop-stone-rarity','lastAttack','❌\x20This\x20item\x20has\x20no\x20sub-stats\x20to\x20reroll.','customPrompt','Potion\x20is\x20on\x20cooldown!','Berserker','\x20G</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#f44336;\x22\x20onclick=\x22window.ahCancel(\x27','\x20⚔️','str','renderAhSellGrid','fixedStat',')\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','<div\x20style=\x22color:#555;\x20text-align:center;\x20margin-top:30px;\x22>No\x20open\x20guilds\x20found.</div>','Ring','isDrone','<h3\x20style=\x22margin:0;\x20color:#ff9800;\x22>','gammaShieldHp','</button>','destination-out','onkeydown','Accept\x20the\x20','updateLeaderboardUI','Summon\x20Slime','rerollSuccess','\x27)\x22\x20style=\x22background:#f44336;\x20color:white;\x20border:none;\x20padding:2px\x205px;\x20font-size:9px;\x20cursor:pointer;\x20border-radius:3px;\x22>KICK</button>','dungeonVictory','#pet-hp','icicle','mail-row','</p>','dungeonReset','releaseLoadingScreen','fixed','forcedLogout','Normal\x20attacks\x20heal\x20all\x20party\x20members\x20for\x205%\x20of\x20your\x20INT.','setItem','skills/','\x27\x20})\x22>Craft\x20','100px','renderSkillScreen','exonie_device_id','backgroundImage','Cosmetic:\x20Infuses\x20your\x20armor\x20with\x20a\x20flowing\x20water\x20effect.','#inventory-screen','toggleSkillScreen','--mob-border','Liquid\x20Aura\x20Stone','Captain','none','LEVEL\x20UP!','requestApplyAura','object','Weapon','newInventory','touchend','name','submitCharacterCreation','positionCaptured','#forger-modal','<div><span\x20style=\x22color:','\x20Ref.\x20Stone\x20Lv.100</span></div>','<p\x20style=\x22color:#aaa;\x20text-align:center;\x22>Loading...</p>','<h2\x20style=\x22margin-top:0;\x20color:#4CAF50;\x22>🚀\x20Fast\x20Travel</h2>','movable-window','eq-box-leggings','betaCodeResult','<div\x20style=\x22background:#222;\x20padding:10px;\x20border-radius:5px;\x20margin-bottom:15px;\x20font-size:13px;\x20text-align:left;\x20border:\x201px\x20solid\x20#444;\x22>','addFriend','loading-text','cssText','syncStorage','ondrop','nativePurchase','playTutorialVideo','Charge','routeMapMusic','shootLaser','when','mapLoadTimestamp','rarity','inspect','time','attackEvaded','0\x200\x2010px\x20red,\x202px\x202px\x202px\x20black','keydown','\x20wants\x20to\x20trade.','nin2','7737696tldmwF','ice2','loadMapScript','admin-item-level','preventDefault','ui-gem-balance','Select\x20an\x20equipment\x20piece\x20to\x20reroll\x20its\x20stats!','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20justify-content:space-between;\x20font-size:12px;\x20color:#aaa;\x20margin-bottom:5px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span>Progress</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span>','❌\x20Cannot\x20reroll\x20accessories!','translateY(0px)\x20scale(1)','<p\x20style=\x22color:#aaa;\x20text-align:center;\x22>No\x20items\x20found.</p>','Increases\x20base\x20Attack\x20by\x2025%.','revokeObjectURL','Linked\x20Item\x20Inspect','button','openMazeGuide','justifyContent','You\x20are\x20stunned!','player-cosmetic-aura','left\x20','<div\x20style=\x22text-align:\x20center;\x20width:\x20100%;\x22>','className','>Legendary</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22Godly\x22\x20','bump','undefined','hotbar-potion-count','tradeSync','head','display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%);\x20background:#1a1a1a;\x20border:2px\x20solid\x20#E040FB;\x20padding:20px;\x20z-index:9000;\x20width:350px;\x20border-radius:8px;\x20box-shadow:0\x200\x2030px\x20#E040FB;\x20color:white;\x20text-align:center;\x20max-height:\x2080vh;\x20overflow-y:\x20auto;','web','Select\x20an\x20item\x20to\x20sell\x20first.','guild-invite-text','key','invite-dialog','initiateSteamPurchase','<div\x20class=\x22monster-sprite-layer\x20golem-base\x22><div\x20class=\x22g-head\x22><div\x20class=\x22g-eye\x22></div><div\x20class=\x22g-eye\x22></div></div><div\x20class=\x22g-arm-l\x22></div><div\x20class=\x22g-arm-r\x22></div><div\x20class=\x22g-leg-l\x22></div><div\x20class=\x22g-leg-r\x22></div></div>','pointermove','playerContainer','PARRY!','0\x200\x2015px\x20#f44336','<span\x20style=\x22color:#E040FB;\x22>[DM]\x20','\x20Exo\x20Gems\x20to\x20your\x20account.</p>\x0a\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20<button\x20class=\x22btn\x22\x20style=\x22background:#555;\x20width:100%;\x20margin-top:15px;\x22\x20onclick=\x22window.openRealMoneyShop()\x22>Back\x20to\x20Shop</button>\x0a\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20','charAt','renderCosmeticsCrafting','exactTarget','charCodeAt','toUpperCase','partyInvite','contextmenu','goFullscreen','Blaze\x20Aura\x20Stone','homeX','ice1','isTeleporting','getDefense','\x20Exo\x20Gems</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>','No\x20target\x20in\x20range.','aura\x20aura-','Eagle\x20Eye','104','\x20&nbsp;\x20|\x20&nbsp;\x20HP\x20','background:\x20linear-gradient(45deg,\x20#9c27b0,\x20#E040FB);\x20color:\x20white;\x20font-weight:\x20bold;\x20width:\x20100%;\x20margin-bottom:\x2010px;\x20box-shadow:\x200\x200\x2010px\x20#E040FB;\x20border:\x20none;\x20padding:\x2010px;\x20cursor:\x20pointer;\x20border-radius:\x204px;\x20display:\x20block;\x20box-sizing:\x20border-box;','buyItem','renderInventory','guild-modal','active-class-name','getFriendsList','requestAppearanceChange','newsQueue','</div></div>','CdvPurchase','shop-potion-buy-btn','mob_type','getTime','StorePurchaseSuccess','Normal\x20cosmetics\x20and\x20pets\x20cannot\x20be\x20traded!','100%','flesh','storage-modal','#inv-context-menu','content','<div\x20style=\x22color:#E040FB;\x20font-weight:bold;\x20font-size:16px;\x20margin-bottom:10px;\x22>Void\x20Pet\x20<span\x20style=\x22color:#aaa;\x20font-size:12px;\x22>(Godly)</span></div>','sum2','📡\x20Downloading\x20Tutorial...','<div\x20class=\x22name-tag\x20mob-name\x22>','function','max','hasHome','<p\x20style=\x22text-align:center;\x20color:#aaa;\x22>Your\x20inbox\x20is\x20empty.</p>','650824cJjzzX','querySelector','copyAdminData','hotbar-','monster-sprite-layer\x20golem-base\x20boss\x20','<div\x20class=\x22monster-sprite-layer\x20dragon-base\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22d-wing-l\x22></div><div\x20class=\x22d-wing-r\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22d-body\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22d-chest\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22d-head\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22d-horn-l\x22></div><div\x20class=\x22d-horn-r\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22d-eye-l\x22></div><div\x20class=\x22d-eye-r\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22d-snout\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22d-foot-l\x22></div><div\x20class=\x22d-foot-r\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>','preload','receiveExp','openItemAction','player-avatar-container','snp2','skillName','tavernEntries','portalEntryTime','filter\x200.3s\x20ease','gemCount','px,\x200)\x20scale(','checkLevelUp','deg)','player_level','bossBgmTimeout','userSelect','Leggings','divine_pack','s\x20in\x20Floor\x20','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22mini-wraith\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22w-eye\x20left\x22></div><div\x20class=\x22w-eye\x20right\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22w-particles\x22><div\x20class=\x22w-p\x22></div><div\x20class=\x22w-p\x22></div><div\x20class=\x22w-p\x22></div><div\x20class=\x22w-p\x22></div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>','magic','chat-bubble','updatePotionPrice','activeSkills','You\x20cannot\x20use\x20potions\x20right\x20now.','KeyW','s</h2>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','You\x20can\x20only\x20use\x20this\x20when\x20you\x20are\x20dead!','ber1','borderRadius','style','getPlayerById','display:none;\x20position:fixed;\x20top:40%;\x20left:30%;\x20transform:translate(-50%,\x20-50%);\x20background:#1a1a1a;\x20border:2px\x20solid\x20#E040FB;\x20padding:15px;\x20z-index:9000;\x20width:340px;\x20border-radius:8px;\x20box-shadow:0\x200\x2020px\x20#E040FB;\x20color:white;\x20text-align:center;','70%\x20chance\x20to\x20parry\x20any\x20attacks\x20for\x2010\x20seconds.','requestNews','Enhanced\x20Godly\x20and\x20Divine\x20gear\x20cannot\x20be\x20traded!','eq-weapon-slot','merchant-modal','characterSelect','formatTitleAndGuild','saveData','<button\x20class=\x22btn\x22\x20style=\x22background:#f44336;\x20width:100%;\x22\x20onclick=\x22document.getElementById(\x27maze-guide-modal\x27).style.display=\x27none\x27\x22>Close</button>','getElementsByTagName','monsterAttack','lastSFXTime','Order\x20failed\x20to\x20open:\x20','Necklace','#757575','ah-view-my','Purchase\x20Verified!\x20Added\x20','registerSuccess','image','exp3','Trading...','Shields\x20party\x20and\x20summons\x20for\x20100%\x20INT.','openDailyMissionsUI','spark','</span><br>','loginmenu','heal4','phs2','???','Staff','mob_','<span\x20class=\x22inv-qty\x22>x','transform','Divine','parry','remotePlayerGhosted','display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%);\x20background:#222;\x20border:2px\x20solid\x20#2196F3;\x20padding:20px;\x20z-index:9000;\x20width:300px;\x20border-radius:8px;\x20box-shadow:0\x200\x2020px\x20#2196F3;\x20color:white;\x20text-align:center;','pet-fox','initAllMobileWindows','tradeDone','teleportCooldown','ah_list','reload','Increases\x20base\x20Defense\x20and\x20HP\x20by\x2025%.','autoplay','gem_pack_50','keys','translate(-50%,\x20-50%)\x20scale(0.8)\x20rotate(','exp','isStorageOpen','var\x20','resetAfkTimer','playerHair','potionCooldownReadyAt','push','column','Application\x20sent\x20to\x20','ah_buy','Immortal','.aura','\x20&\x20','requestThrowItem','friends-list-container','rgba(0,\x200,\x20255,\x200.4)','brightness(0.2)','</div><div\x20style=\x22margin-left:\x2017px;\x20display:flex;\x20gap:\x208px;\x22>','shootBullet','translate(-50%,\x20-50%)\x20scaleX(-1)','pet_','stopPropagation','isGolemBuster','guildbase','fontWeight','walking','isNewBest','alignItems','requestSell','attackPlayer','fillStyle','bld1','requestSpectate','blur','#ff9800','<button\x20class=\x22btn\x22\x20style=\x22background:#4CAF50;\x20width:100%;\x20margin-bottom:5px;\x20padding:8px;\x22\x20onclick=\x22window.enterGuildBase()\x22>Enter\x20Guild\x20Base</button>','Big\x20Boss','gamma-shield','renderPartyUI','saveTimer','freezeTimer','renderStorageGrid','register','FBAV','floorBossSpawns','touches','input','aura-','charData','activeTargetPlayerId','local_player','Using\x20','tech1','stats','fow-canvas','Throws\x20a\x20smoke\x20bomb.\x20Enemies\x20miss\x2075%\x20of\x20attacks\x20for\x2010s.','\x20Gold',';\x20font-weight:bold;\x20font-size:16px;\x20cursor:pointer;\x20text-decoration:underline;\x20text-shadow:\x200\x200\x205px\x20','3709000ugwUpP','portalStep','width','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','playerBody','ITEM_TEMPLATES','<span>','ah-tab-my','mobile-shop-btn','filter','getItem','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<h2\x20style=\x22color:#E040FB;\x20margin-top:0;\x20text-shadow:\x200\x200\x2010px\x20#9c27b0;\x22>Haunted\x20House</h2>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<p\x20style=\x22color:#ccc;\x20font-size:13px;\x20margin-bottom:20px;\x22>Unlimited\x20entries.\x20No\x20timers.\x20Face\x20the\x20Wraith\x20King.<br>The\x20monster\x27s\x20level\x20will\x20be\x20randomly\x20rolled\x20based\x20on\x20the\x20difficulty.</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#4CAF50;\x20width:100%;\x20margin-bottom:10px;\x20font-size:15px;\x20font-weight:bold;\x20padding:10px;\x22\x20onclick=\x22window.startHauntedHouse(\x27Easy\x27)\x22>Easy\x20(Lv\x201-15)\x20-\x201,000\x20G</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#FF9800;\x20width:100%;\x20margin-bottom:10px;\x20font-size:15px;\x20font-weight:bold;\x20padding:10px;\x22\x20onclick=\x22window.startHauntedHouse(\x27Normal\x27)\x22>Normal\x20(Lv\x2016-30)\x20-\x2010,000\x20G</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#f44336;\x20width:100%;\x20margin-bottom:15px;\x20font-size:15px;\x20font-weight:bold;\x20padding:10px;\x22\x20onclick=\x22window.startHauntedHouse(\x27Hard\x27)\x22>Hard\x20(Lv\x2031-80)\x20-\x20500,000\x20G</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#555;\x20width:100%;\x22\x20onclick=\x22document.getElementById(\x27haunted-house-modal\x27).style.display=\x27none\x27\x22>Close</button>\x0a\x20\x20\x20\x20','#e0ffff','confirmTrade','updateHotbarCooldowns','<div\x20style=\x22color:\x20#e0e0e0;\x20font-size:\x2016px;\x20margin-bottom:\x205px;\x20text-shadow:\x20-1px\x20-1px\x200\x20#000,\x201px\x20-1px\x200\x20#000,\x20-1px\x201px\x200\x20#000,\x201px\x201px\x200\x20#000,\x202px\x202px\x204px\x20#000;\x22>','homeY','craftForgerSuccess','ahSearch','translate(','\x27]\x20=\x20','admin-spawn-marker','title-tag','<p\x20style=\x22font-size:12px;\x20color:#aaa;\x22>Exchange\x20boss\x20materials\x20for\x20rare\x20pets\x20and\x20cosmetics.</p>','trade-confirm-btn',';\x22\x20class=\x22','global-mail-notif','requestNameChange','960','2px\x20dashed\x20#9c27b0','MARK\x20AS\x20READ','remote_','hauntedVictory','removeFromTrade','tutorial-overlay','⏳\x20Splitting\x20stack...','exp4','rgba(255,\x20234,\x200,\x200.2)','ah-view-','<p\x20style=\x22color:#f44336;\x20text-align:center;\x22>Equip\x20a\x20weapon\x20to\x20view\x20available\x20classes.</p>','stone','daily-missions-modal','necklace','forceUnstuck','toggleLeaderboard','<h2\x20style=\x22color:#4CAF50;\x20margin-top:\x2020px;\x22>Verifying\x20Purchase...</h2>','span','<select\x20onchange=\x22socket.emit(\x27guildUpdateRole\x27,\x20{targetName:\x27','DOWNLOAD\x20CLOSED\x20BETA','player','\x20Daily\x20Mission?\x20You\x20cannot\x20change\x20this\x20later\x20today.','remotePlayerMoved','Unstuck!\x20Returned\x20to\x20Town\x20center.','ah-view-sell','party','sepia(1)\x20hue-rotate(330deg)\x20saturate(2)\x20brightness(0.6)','px),\x200)','cloneNode','isFinite','blacksmith','receiptToken','Shadow\x20Copy','100','closeDungeonUI','requestGemPurchase','pop','getElementsByClassName','targetMapId','playerDied','hair_color','attemptLogin','Chill!','suspended','isAdmin','triangle','10s:\x20Slimes\x20gain\x20100%\x20stats.\x20Big\x20Boss\x20deals\x204x\x20Damage\x20(1800\x20AoE).','10%','display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%);\x20background:#1a1a1a;\x20border:2px\x20solid\x20#ffea00;\x20padding:20px;\x20z-index:9000;\x20width:450px;\x20border-radius:8px;\x20box-shadow:0\x200\x2030px\x20#ffea00;\x20color:white;\x20text-align:center;','Invalid\x20price.','<button\x20class=\x22btn\x22\x20style=\x22background:#f44336;\x20width:100%;\x22\x20onclick=\x22document.getElementById(\x27divine-forge-modal\x27).style.display=\x27none\x27;\x20document.getElementById(\x27merchant-modal\x27).style.display=\x27block\x27;\x20forgeSelectedIndex\x20=\x20-1;\x22>Back</button>','atan2','label','</div><button\x20class=\x22btn\x22\x20style=\x22background:','select-screen','openGuildUI','alive','inv-context-menu','select-level-display','sum1','renderTradeSlots','<span\x20style=\x22color:#555;\x20font-size:10px;\x22>Empty</span>','splash','❌\x20You\x20must\x20be\x20at\x20least\x20Level\x2050\x20to\x20enter\x20the\x20Training\x20Tavern.','dungeonTimerStop','stat-str','playerId','showNextNews','fps-counter','updateAnimationFrames','mailClaimSuccess','Trade\x20offer\x20full!','playSFX','tradeConfirmStatus','start','postMessage','player-aura','<button\x20onclick=\x22if(confirm(\x27Kick\x20','priceGems','url(\x27monsters/','chat-input-container','Item\x20sold\x20for\x20','newGold','substr','world','80px','mousedown','Tech\x20Geniuses\x20use\x20their\x20Drones\x20to\x20attack!\x20You\x20cannot\x20perform\x20basic\x20attacks.','message_text','level-up-text','<div\x20style=\x22display:flex;\x20flex-direction:column;\x20gap:10px;\x20margin-bottom:15px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#4CAF50;\x20padding:10px;\x20font-weight:bold;\x22\x20onclick=\x22window.acceptDailyMission(\x27Beginner\x27)\x22>Beginner\x20(Floor\x201-2)\x20-\x2025,000\x20G</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#2196F3;\x20padding:10px;\x20font-weight:bold;\x22\x20onclick=\x22window.acceptDailyMission(\x27Novice\x27)\x22>Novice\x20(Floor\x203-4)\x20-\x20100,000\x20G</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#f44336;\x20padding:10px;\x20font-weight:bold;\x22\x20onclick=\x22window.acceptDailyMission(\x27Expert\x27)\x22>Expert\x20(Floor\x205-6)\x20-\x20250,000\x20G</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>','.entity','Tab','Icicle\x20Spear','updatePotionHotbar','px;\x20top:','partyItemLink','trade-target-name','active-class-area','bold','round','townMapData','enterWorld','revertBGM','requestGuildData','title','Could\x20not\x20parse\x20linked\x20item.','party-panel','\x20is\x20on\x20cooldown!','tagName','24px','slash','sell','ctx-btn-sell','px;\x20width:50px;\x20height:50px;\x20border-radius:50%;\x20background:rgba(156,39,176,0.8);\x20box-shadow:0\x200\x2030px\x20#9c27b0;\x20z-index:300;\x20pointer-events:none;\x20transition:all\x200.4s\x20ease-out;\x20transform:translate(-50%,\x20-50%)\x20scale(0.5);\x20opacity:1;','scaleX(1)','common_mobs','Throws\x20a\x20firebomb\x20dealing\x20100%\x20ATK\x20per\x20second\x20on\x20the\x20ground.','<span\x20style=\x22color:#00ffff;\x22><em>','ownerId','random','<h2\x20style=\x22color:#FF9800;\x20margin-top:\x2020px;\x22>Processing...</h2>','<div\x20class=\x22inv-slot\x22\x20style=\x22border:\x202px\x20solid\x20','playerMoved','ontouchstart','eq-','opacity','\x0a\x20\x20\x20.pet-egg\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20position:\x20absolute;\x0a\x20\x20\x20\x20\x20\x20\x20\x20/*\x20🌟\x20THE\x20FIX:\x20Shrunk\x20the\x20egg\x20to\x20a\x20cuter,\x20less\x20intrusive\x20size\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20width:\x2022px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20height:\x2030px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20/*\x20Perfect\x20egg\x20shape\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x2050%\x2050%\x2050%\x2050%\x20/\x2060%\x2060%\x2040%\x2040%;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20/*\x20🌟\x20THE\x20FIX:\x20Tightened\x20the\x20stripes\x20so\x20they\x20still\x20show\x20up\x20nicely\x20on\x20a\x20smaller\x20egg\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20background:\x20repeating-linear-gradient(\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x2045deg,\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20#FFB7B2\x200px,\x20#FFB7B2\x206px,\x20\x20\x20/*\x20Pastel\x20Pink\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20#B5EAD7\x206px,\x20#B5EAD7\x2012px,\x20\x20/*\x20Pastel\x20Mint\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20#FFFFB5\x2012px,\x20#FFFFB5\x2018px,\x20/*\x20Pastel\x20Yellow\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20#C7CEEA\x2018px,\x20#C7CEEA\x2024px\x20\x20/*\x20Pastel\x20Periwinkle\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20);\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20/*\x20🌟\x20THE\x20FIX:\x20Scaled\x20down\x20the\x20glow\x20slightly\x20so\x20it\x20doesn\x27t\x20overwhelm\x20the\x20small\x20body\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20box-shadow:\x200\x200\x2010px\x203px\x20rgba(255,\x20128,\x20171,\x200.8),\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x200\x200\x2018px\x206px\x20rgba(255,\x20193,\x20227,\x200.6),\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20inset\x200\x200\x206px\x20rgba(255,\x20255,\x20255,\x200.9);\x0a\x20\x20\x20\x20\x20\x20\x20\x20border:\x201px\x20solid\x20rgba(255,\x20255,\x20255,\x200.6);\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20z-index:\x20105;\x20/*\x20Kept\x20at\x20105\x20so\x20it\x20stays\x20in\x20front\x20of\x20the\x20avatar\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20pointer-events:\x20none;\x0a\x20\x20\x20\x20\x20\x20\x20\x20transform-origin:\x20bottom\x20center;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20/*\x20The\x20requested\x2012s\x20float\x20and\x20shake\x20loop\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20animation:\x20eggFloatShake\x2012s\x20linear\x20infinite;\x20\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20@keyframes\x20eggFloatShake\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20/*\x20Phase\x201:\x200%\x20-\x2060%\x20(7.2s)\x20-\x20Pure\x20Smooth\x20Floating\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x200%,\x2020%,\x2040%,\x2060%\x20{\x20transform:\x20translateY(0);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x2010%,\x2030%,\x2050%\x20{\x20transform:\x20translateY(-12px);\x20}\x20/*\x20Hovering\x20up\x2012px\x20smoothly\x20*/\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20/*\x20Phase\x202:\x2060%\x20-\x2070%\x20(1.2s)\x20-\x20Gentle\x20\x27About\x20to\x20Hatch\x27\x20Shake\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x2062%\x20{\x20transform:\x20translateY(-6px)\x20translateX(1px)\x20rotate(1deg);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x2064%\x20{\x20transform:\x20translateY(-6px)\x20translateX(-1px)\x20rotate(-1deg);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x2066%\x20{\x20transform:\x20translateY(-6px)\x20translateX(1px)\x20rotate(1deg);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x2068%\x20{\x20transform:\x20translateY(-6px)\x20translateX(-1px)\x20rotate(-1deg);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x2070%\x20{\x20transform:\x20translateY(-6px)\x20rotate(0);\x20}\x20/*\x20Stop\x20shaking,\x20hovering\x20gently\x20*/\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20/*\x20Phase\x203:\x2070%\x20-\x2090%\x20(2.4s)\x20-\x20Short\x20Floating\x20Recovery\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x2080%\x20{\x20transform:\x20translateY(-12px);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x2090%\x20{\x20transform:\x20translateY(0);\x20}\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20/*\x20Phase\x204:\x2090%\x20-\x20100%\x20(1.2s)\x20-\x20Violent\x20\x27Ready\x20to\x20Pop!\x27\x20Shake\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x2091%\x20{\x20transform:\x20translateX(2px)\x20rotate(3deg);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x2093%\x20{\x20transform:\x20translateX(-2px)\x20rotate(-3deg);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x2095%\x20{\x20transform:\x20translateX(3px)\x20rotate(4deg);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x2097%\x20{\x20transform:\x20translateX(-3px)\x20rotate(-4deg);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x2099%\x20{\x20transform:\x20translateX(1px)\x20rotate(1deg);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20100%\x20{\x20transform:\x20translate(0)\x20rotate(0);\x20}\x20/*\x20Loop\x20back\x20to\x20Phase\x201\x20*/\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20/*\x20🐰\x20EASTER\x20AURA:\x20Supercharged\x20Color-Shifting\x20Glow\x20*/\x0a\x20\x20\x20\x20.avatar-rig:has(.aura-easter)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20animation:\x20easterColorShift\x204s\x20infinite\x20alternate\x20ease-in-out\x20!important;\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20/*\x20🔥\x20Boosted\x20the\x20shadows\x20with\x20a\x203rd\x20layer\x20and\x20added\x20brightness\x20for\x20intensity\x20*/\x0a\x20\x20\x20\x20@keyframes\x20easterColorShift\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x200%\x20{\x20filter:\x20drop-shadow(0\x200\x2010px\x20#FFB7B2)\x20drop-shadow(0\x200\x2020px\x20#FFB7B2)\x20drop-shadow(0\x200\x2040px\x20#FF919D)\x20brightness(1.4);\x20}\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x2033%\x20{\x20filter:\x20drop-shadow(0\x200\x2010px\x20#FFFFB5)\x20drop-shadow(0\x200\x2020px\x20#FFFFB5)\x20drop-shadow(0\x200\x2040px\x20#FFEA00)\x20brightness(1.4);\x20}\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x2066%\x20{\x20filter:\x20drop-shadow(0\x200\x2010px\x20#B5EAD7)\x20drop-shadow(0\x200\x2020px\x20#B5EAD7)\x20drop-shadow(0\x200\x2040px\x20#69F0AE)\x20brightness(1.4);\x20}\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20100%\x20{\x20filter:\x20drop-shadow(0\x200\x2010px\x20#C7CEEA)\x20drop-shadow(0\x200\x2020px\x20#C7CEEA)\x20drop-shadow(0\x200\x2040px\x20#8C9EFF)\x20brightness(1.4);\x20}\x20\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20.cosmetic-aura.aura-easter\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20display:\x20block\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20position:\x20absolute\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20inset:\x200\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20background:\x20none\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20box-shadow:\x20none\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20z-index:\x20100\x20!important;\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20/*\x20🐰\x20EASTER\x20AURA:\x20Bubbling\x20Bunny\x20Heads\x20*/\x0a\x20\x20\x20\x20.cosmetic-aura.aura-easter::before,\x0a\x20\x20\x20\x20.cosmetic-aura.aura-easter::after\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20content:\x20\x27\x27;\x0a\x20\x20\x20\x20\x20\x20\x20\x20position:\x20absolute;\x0a\x20\x20\x20\x20\x20\x20\x20\x20bottom:\x20-15px;\x20/*\x20Start\x20slightly\x20higher\x20due\x20to\x20smaller\x20size\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20background:\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20radial-gradient(circle\x20at\x2050%\x2065%,\x20#FFB7B2\x2035%,\x20transparent\x2036%),\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20radial-gradient(circle\x20at\x2025%\x2025%,\x20#FFB7B2\x2022%,\x20transparent\x2023%),\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20radial-gradient(circle\x20at\x2075%\x2025%,\x20#FFB7B2\x2022%,\x20transparent\x2023%);\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20filter:\x20drop-shadow(0\x200\x205px\x20#FFB7B2)\x20brightness(1.3);\x20/*\x20Slightly\x20less\x20shadow\x20for\x20smaller\x20objects\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20opacity:\x200;\x0a\x20\x20\x20\x20\x20\x20\x20\x20pointer-events:\x20none;\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20/*\x20First\x20Bunny:\x20Was\x2024px\x20->\x20Now\x2018px\x20(Scaled\x20down\x2025%)\x20*/\x0a\x20\x20\x20\x20.cosmetic-aura.aura-easter::before\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20left:\x20-8px;\x20/*\x20Adjusted\x20position\x20for\x20smaller\x20head\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20width:\x2018px;\x20\x20/*\x20<---\x20SHRUNKEN\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20height:\x2018px;\x20/*\x20<---\x20SHRUNKEN\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20animation:\x20bunnyBubble\x203s\x20ease-in\x20infinite;\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20/*\x20Second\x20Bunny:\x20Was\x2018px\x20->\x20Now\x2013px\x20(Scaled\x20down\x20~28%)\x20*/\x0a\x20\x20\x20\x20.cosmetic-aura.aura-easter::after\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20left:\x2022px;\x20/*\x20Adjusted\x20position\x20for\x20smaller\x20head\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20width:\x2013px;\x20\x20/*\x20<---\x20SHRUNKEN\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20height:\x2013px;\x20/*\x20<---\x20SHRUNKEN\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20animation:\x20bunnyBubble\x203.5s\x20ease-in\x20infinite\x201.5s;\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20/*\x20Keep\x20the\x20bunnyBubble\x20keyframes\x20the\x20same\x20(scale(1.1)\x20is\x20now\x201.1x\x20the\x20new,\x20smaller\x20size)\x20*/\x0a\x20\x20\x20\x20@keyframes\x20bunnyBubble\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x200%\x20{\x20transform:\x20translateY(0)\x20scale(0.5);\x20opacity:\x200;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x2020%\x20{\x20opacity:\x200.9;\x20transform:\x20translateY(-20px)\x20scale(1)\x20translateX(-5px);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x2050%\x20{\x20transform:\x20translateY(-50px)\x20scale(1.1)\x20translateX(5px);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x2080%\x20{\x20opacity:\x200.9;\x20transform:\x20translateY(-80px)\x20scale(0.9)\x20translateX(-3px);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20100%\x20{\x20transform:\x20translateY(-110px)\x20scale(0.5);\x20opacity:\x200;\x20}\x0a\x20\x20\x20\x20}\x0a','syncTrade','.tooltip','creation-screen','Inspect:\x20','Tradeable\x20Seasonal\x20Cosmetic:\x20A\x20cute\x20floating\x20Easter\x20Egg\x20that\x20follows\x20you.','#hair-button-container\x20.btn','findIndex','Dagger','lastFoxAttack','dungeon-screen','dagger','48px','inventoryItemUsed','leaderboard-content','❌\x20The\x20Haunted\x20House\x20is\x20a\x20solo\x20challenge.\x20Please\x20leave\x20your\x20party.','linkItem','More\x20Agility','916806mDOmmK','keyup','forgerSelectedRarity','lineTo','guild','#player-context-menu','</em></span>','respondTrade','monster-sprite-layer\x20bat-sprite','\x22></div>','itemName','script','stat-lvl','gameVolume','#2196F3','skillRef','respawnPlayer','gemPurchaseSuccess','76561197960287930','endY','<div\x20style=\x22display:flex;\x20justify-content:space-between;\x20align-items:center;\x20font-size:12px;\x20margin-bottom:3px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span>','</strong><br><span\x20style=\x22color:#888;\x22>Lv.\x20','CLAIMED!','facingRight','exp1','Town','Inventory\x20full!\x20Lost\x20','login','#f44336','destination','flex-end','bossCooldownActive','setPointerCapture','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22ah-price\x22>','<h2\x20style=\x22margin-top:0;\x20color:#ffea00;\x20text-shadow:\x200\x200\x2010px\x20#ffea00;\x22>✨\x20Divine\x20Forge</h2>','player-container','Admin\x20Mode\x20OFF','startsWith','Empty','Divine\x20Essence','hair','ui-level-text','You\x20cannot\x20escape\x20the\x20Tavern!','unequipItem','<h2\x20style=\x22color:#4CAF50;\x22>Loading\x20Guild\x20Data...</h2>','Nature\x20Aura\x20Stone','.pet-fox,\x20.pet-owl,\x20.pet-wisp,\x20.pet-egg,\x20.pet-void','requestMazeTrial','reconnect_attempt','\x22\x20style=\x22color:','Rare','ease-in','rgba(0,\x200,\x200,\x200.45)','instanceId','\x20Unread\x20Mail!','&lt;','#consumables-craft-modal','invite-text','You\x20reset\x20your\x20class!\x20Open\x20Skills\x20(K)\x20to\x20pick\x20a\x20new\x20one.','MapData','packageId','Test\x20Mode:\x20Open\x20Steam\x20Overlay\x20for\x20Order\x20','ctx-btn-equip','translate3d(-50%,\x20-50%,\x200)','<br>','Item\x20listed\x20on\x20the\x20Auction\x20House!','isPointInPath','fox_bite','Explosives\x20Expert','<div\x20style=\x22font-size:14px;\x20color:#ccc;\x20margin-bottom:10px;\x20text-align:center;\x22>Level\x20','Blademaster','level','skin','isSeasonal','Summon\x20Slime\x20now\x20spawns\x202\x20slimes.','inspectData','KeyS','cd-','Enhance','<div\x20style=\x22background:#111;\x20padding:15px;\x20border:1px\x20solid\x20#4CAF50;\x20border-radius:8px;\x20margin-bottom:15px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h3\x20style=\x22color:#4CAF50;\x20margin:0\x200\x2010px\x200;\x22>🎉\x20Mission\x20Completed!</h3>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20style=\x22color:#FFD700;\x20margin:0;\x20font-weight:bold;\x22>Reward:\x20','basic','guildApply','<span\x20style=\x22color:#ffeb3b;\x22>[System]\x20',';\x0aif(typeof\x20window\x20!==\x20\x27undefined\x27)\x20window[\x27','buyHome','hauntedhouse','requestDailyMission','auraColor','<div\x20id=\x22forge-grid\x22\x20style=\x22display:flex;\x20flex-wrap:wrap;\x20gap:8px;\x20justify-content:center;\x20max-height:160px;\x20overflow-y:auto;\x20margin-bottom:15px;\x20padding:10px\x205px;\x20border:1px\x20solid\x20#333;\x20background:#111;\x20align-items:flex-start;\x22>','<div\x20style=\x22max-height:300px;\x20overflow-y:auto;\x20margin-bottom:15px;\x20padding-right:5px;\x22>','requestUnequip','renderDivineForge','closest','btn','rgba(156,\x2039,\x20176,\x200.4)','email-step-2','window-dragging','wraith','online','meConfirmed','rm-shop-modal','portal-timer-sec','position:fixed;\x20top:0;\x20left:0;\x20width:100%;\x20height:100%;\x20background:black;\x20z-index:99999;\x20display:flex;\x20flex-direction:column;\x20justify-content:center;\x20align-items:center;','KeyD','permanent-map-name','TAUNT!','...','<div\x20class=\x22ah-row\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22ah-item-info\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22color:','<div\x20style=\x22background:#111;\x20color:#fff;\x20height:100vh;\x20display:flex;\x20flex-direction:column;\x20justify-content:center;\x20align-items:center;\x20font-family:sans-serif;\x22><h1\x20style=\x22color:#f44336;\x22>Game\x20Already\x20Open</h1><p>You\x20can\x20only\x20play\x20one\x20instance\x20of\x20Exonie.</p><p>Please\x20close\x20this\x20tab\x20and\x20return\x20to\x20your\x20active\x20game.</p></div>','ice-cube-overlay','avatar-layer\x20layer-weapon','actionSell','claim-','(pointer:\x20coarse),\x20(max-width:\x20950px)','switchAhTab','Contains\x205\x20Divine\x20Enhancement\x20Stones.\x20Works\x20on\x20any\x20level.','load','setUTCHours','ADMINS','register-form','trade-my-gold','lootFilter','MAX_ENHANCE_BY_RARITY','spriteData','documentElement','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h1\x20style=\x22font-size:80px;\x20margin:0;\x20text-shadow:0\x200\x2030px\x20#FFD700,\x204px\x204px\x200\x20#000;\x20letter-spacing:\x205px;\x22>VICTORY</h1>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h2\x20style=\x22font-size:40px;\x20margin:0;\x20color:#fff;\x20text-shadow:2px\x202px\x200\x20#000;\x22>Time:\x20','<div\x20class=\x22inspect-equip\x22\x20style=\x22border:\x202px\x20solid\x20','monsterState','time_taken',')\x20placed.','spectateTarget','store','\x27)\x22>Buy</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>','chooseClass','#00E5FF','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<h2\x20style=\x22color:#4CAF50;\x20margin-top:0;\x20text-shadow:\x200\x200\x2010px\x20#4CAF50;\x22>🏡\x20Home\x20For\x20Sale!</h2>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<p\x20style=\x22color:#ccc;\x20font-size:14px;\x22>Purchase\x20your\x20own\x20private\x20sanctuary.\x20Relax,\x20store\x20your\x20trophies,\x20and\x20invite\x20your\x20party\x20over!</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22margin:\x2020px\x200;\x20padding:\x2015px;\x20background:\x20#111;\x20border:\x201px\x20dashed\x20#FFD700;\x20border-radius:\x208px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20style=\x22color:#FFD700;\x20font-size:26px;\x20font-weight:bold;\x20letter-spacing:1px;\x22>1,000,000\x20G</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#4CAF50;\x20width:100%;\x20margin-bottom:10px;\x20font-size:16px;\x20font-weight:bold;\x20padding:12px;\x22\x20onclick=\x22window.buyHome()\x22>Purchase\x20Deed</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#f44336;\x20width:100%;\x22\x20onclick=\x22document.getElementById(\x27home-sale-modal\x27).style.display=\x27none\x27\x22>Maybe\x20Later</button>\x0a\x20\x20\x20\x20','activeFoxes','<div\x20style=\x22display:flex;\x20justify-content:space-between;\x20padding:6px\x200;\x20border-bottom:1px\x20solid\x20#222;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span>','<span\x20style=\x22color:#4CAF50;\x20font-size:13px;\x20font-weight:900;\x20letter-spacing:1px;\x20text-shadow:\x20-1px\x20-1px\x200\x20#fff,\x201px\x20-1px\x200\x20#fff,\x20-1px\x201px\x200\x20#fff,\x201px\x201px\x200\x20#fff,\x200\x202px\x204px\x20rgba(0,0,0,0.6);\x22>[','__topWindowZ','selectForgeItem','partyMembers','target','<div\x20class=\x22monster-sprite-layer\x22\x20style=\x22width:100%;\x20height:100%;\x20background-size:contain;\x20background-repeat:no-repeat;\x20background-position:bottom;\x22></div>','Taunts\x20enemies\x20and\x20multiplies\x20Defense\x20by\x203x\x20for\x2010s.','<button\x20class=\x22btn\x22\x20style=\x22background:#f44336;\x20width:100%;\x22\x20onclick=\x22document.getElementById(\x27consumables-craft-modal\x27).style.display=\x27none\x27;\x20document.getElementById(\x27merchant-modal\x27).style.display=\x27block\x27;\x22>Back</button>','isApplyingAura','transition-text','<button\x20class=\x22btn\x22\x20style=\x22background:','inspectRequest','Floor\x20Boss\x20(','hotbar','Announcement','message','Godly','tech2','receiptFailed','background-color\x200s','_attack','consumable','\x20Red\x20Exo\x20Metal</span></div>','openMazeTrialsUI','ondragover','cooldownReadyAt','afk-lock-screen','checked','monsterSpawned','weapon','50%\x20chance\x20to\x20release\x20a\x20double\x20bullet\x20on\x20any\x20attack.','ah-search-input','hit-flash','<div\x20class=\x22leaderboard-row\x20header\x22\x20style=\x22display:flex;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22width:15%\x22>Rank</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22width:35%\x22>Player</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22width:30%\x22>Target</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22width:20%;\x20text-align:right;\x22>Time</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>','execute','\x0a\x20\x20\x20\x20/*\x20---\x20🐂\x20MINOTAUR\x20(Exact\x20Golem\x20structure\x20with\x20separate\x20head)\x20---\x20*/\x0a\x20\x20\x20\x20.minotaur-base\x20{\x20position:relative;\x20width:100%;\x20height:100%;\x20display:flex;\x20justify-content:center;\x20}\x0a\x20\x20\x20\x20\x0a\x20\x20\x20\x20/*\x20Head\x20is\x20distinct\x20and\x20on\x20top\x20of\x20body\x20*/\x0a\x20\x20\x20\x20.m-head\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20width:\x2040%;\x20height:\x2030%;\x20background:\x20#795548;\x20border-radius:15px\x2015px\x2010px\x2010px;\x20border:3px\x20solid\x20#000;\x0a\x20\x20\x20\x20\x20\x20\x20\x20position:absolute;\x20top:5%;\x20left:50%;\x20transform:translateX(-50%);\x20z-index:\x203;\x20display:flex;\x20justify-content:center;\x0a\x20\x20\x20\x20\x20\x20\x20\x20box-shadow:\x200\x204px\x208px\x20rgba(0,0,0,0.5);\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20.m-eye-l,\x20.m-eye-r\x20{\x20width:20%;\x20height:20%;\x20background:#ff1744;\x20border-radius:50%;\x20position:absolute;\x20top:30%;\x20box-shadow:0\x200\x205px\x20#ff1744;\x20}\x0a\x20\x20\x20\x20.m-eye-l\x20{\x20left:\x2015%;\x20}\x20.m-eye-r\x20{\x20right:\x2015%;\x20}\x0a\x20\x20\x20\x20.m-snout\x20{\x20width:60%;\x20height:40%;\x20background:rgba(0,0,0,0.3);\x20position:absolute;\x20bottom:10%;\x20border-radius:15px;\x20display:flex;\x20justify-content:center;\x20}\x0a\x20\x20\x20\x20.m-ring\x20{\x20width:12px;\x20height:12px;\x20border:3px\x20solid\x20#FFD700;\x20border-radius:50%;\x20position:absolute;\x20bottom:-8px;}\x0a\x20\x20\x20\x20.m-horn-l,\x20.m-horn-r\x20{\x20width:35%;\x20height:45%;\x20background:#e0e0e0;\x20border:2px\x20solid\x20#000;\x20position:absolute;\x20top:-30%;\x20z-index:-1;}\x0a\x20\x20\x20\x20.m-horn-l\x20{\x20left:-10%;\x20border-radius:100%\x200\x200\x200;\x20transform:rotate(-35deg);\x20}\x0a\x20\x20\x20\x20.m-horn-r\x20{\x20right:-10%;\x20border-radius:0\x20100%\x200\x200;\x20transform:rotate(35deg);\x20}\x0a\x20\x20\x20\x20\x0a\x20\x20\x20\x20/*\x20Golem\x20Style\x20Torso\x20*/\x0a\x20\x20\x20\x20.m-body\x20{\x20width:\x2060%;\x20height:\x2050%;\x20background:#795548;\x20border-radius:15px;\x20border:3px\x20solid\x20#3E2723;\x20position:absolute;\x20bottom:20%;\x20z-index:2;\x20box-shadow:inset\x200\x20-10px\x20rgba(0,0,0,0.3);\x20}\x0a\x20\x20\x20\x20\x0a\x20\x20\x20\x20/*\x20Golem\x20style\x20floating\x20limbs\x20*/\x0a\x20\x20\x20\x20.minotaur-base\x20[class^=\x22m-arm\x22],\x20.minotaur-base\x20[class^=\x22m-leg\x22]\x20{\x20background:#795548;\x20border:3px\x20solid\x20#3E2723;\x20border-radius:8px;\x20z-index:1;\x20position:absolute;\x20}\x0a\x20\x20\x20\x20.m-arm-l,\x20.m-arm-r\x20{\x20width:15%;\x20height:35%;\x20top:30%;\x20}\x0a\x20\x20\x20\x20.m-arm-l\x20{\x20left:\x20-5%;\x20}\x20.m-arm-r\x20{\x20right:\x20-5%;\x20}\x0a\x20\x20\x20\x20.m-leg-l,\x20.m-leg-r\x20{\x20width:20%;\x20height:15%;\x20bottom:5%;\x20}\x0a\x20\x20\x20\x20.m-leg-l\x20{\x20left:\x2018%;\x20}\x20.m-leg-r\x20{\x20right:\x2018%;\x20}\x0a\x20\x20\x20\x20\x0a\x20\x20\x20\x20/*\x20The\x20Battleaxe\x20*/\x0a\x20\x20\x20\x20.m-axe\x20{\x20position:absolute;\x20top:50%;\x20left:-45px;\x20width:90px;\x20height:8px;\x20background:#3E2723;\x20transform:rotate(-20deg);\x20z-index:0;\x20}\x0a\x20\x20\x20\x20.m-axe::before\x20{\x20content:\x27\x27;\x20position:absolute;\x20top:-15px;\x20left:-10px;\x20width:35px;\x20height:40px;\x20background:#90a4ae;\x20border-radius:30%\x200\x200\x2050%;\x20border:2px\x20solid\x20#000;\x20}\x0a\x0a\x20\x20\x20\x20/*\x20Minotaur\x20Tiers\x20(RE-SKINNED\x20BASED\x20ON\x20TYPE)\x20*/\x0a\x20\x20\x20\x20.minotaur-base.common_mobs\x20.m-body,\x20.minotaur-base.common_mobs\x20.m-head,\x20.minotaur-base.common_mobs\x20[class*=\x22m-arm\x22],\x20.minotaur-base.common_mobs\x20[class*=\x22m-leg\x22]\x20{\x20background:\x20#795548;\x20border-color:\x20#3E2723;\x20}\x0a\x20\x20\x20\x20\x0a\x20\x20\x20\x20.minotaur-base.mini_boss\x20.m-body,\x20.minotaur-base.mini_boss\x20.m-head,\x20.minotaur-base.mini_boss\x20[class*=\x22m-arm\x22],\x20.minotaur-base.mini_boss\x20[class*=\x22m-leg\x22]\x20{\x20background:\x20#b71c1c;\x20border-color:\x20#4a0404;\x20}\x0a\x20\x20\x20\x20.minotaur-base.mini_boss\x20.m-axe::before\x20{\x20background:\x20#e0e0e0;\x20}\x0a\x20\x20\x20\x20\x0a\x20\x20\x20\x20.minotaur-base.floor_boss\x20.m-body,\x20.minotaur-base.floor_boss\x20.m-head,\x20.minotaur-base.floor_boss\x20[class*=\x22m-arm\x22],\x20.minotaur-base.floor_boss\x20[class*=\x22m-leg\x22]\x20{\x20background:\x20#212121;\x20border-color:\x20#ff9800;\x20box-shadow:\x200\x200\x2015px\x20#ff9800;}\x0a\x20\x20\x20\x20.minotaur-base.floor_boss\x20.m-eye-l,\x20.minotaur-base.floor_boss\x20.m-eye-r\x20{\x20background:#ff9800;\x20box-shadow:0\x200\x2010px\x20#ff9800;\x20}\x0a\x20\x20\x20\x20.minotaur-base.floor_boss\x20.m-axe::before\x20{\x20background:\x20#111;\x20border-color:\x20#ff9800;\x20}\x0a\x0a\x20\x20\x20/*\x20---\x20🐉\x20NATIVE\x20DRAGON\x20CSS\x20(COLOR-FORCED\x20GEOMETRY)\x20---\x20*/\x0a\x20\x20\x20\x20.dragon-base\x20{\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20position:relative;\x20width:100%;\x20height:100%;\x20display:flex;\x20justify-content:center;\x20align-items:center;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20/*\x20🛡️\x20FALLBACK\x20COLORS:\x20Guarantees\x20it\x20can\x20never\x20be\x20transparent!\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20--d-col:\x20#F97100;\x20--d-bor:\x20#530800;\x20--d-wing:\x20#E23401;\x20--d-chest:\x20#DBD5C5;\x20--d-eye:\x20#FBC614;\x20--d-horn:\x20#530800;\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20/*\x20🎨\x20Tier\x20Colors\x20(Overrides\x20the\x20fallbacks\x20based\x20on\x20category)\x20*/\x0a\x20\x20\x20\x20.dragon-base.common_mobs\x20{\x20--d-col:\x20#4caf50;\x20--d-bor:\x20#1b5e20;\x20--d-wing:\x20#2e7d32;\x20--d-chest:\x20#c8e6c9;\x20--d-eye:\x20#ffeb3b;\x20--d-horn:\x20#1b5e20;\x20}\x0a\x20\x20\x20\x20.dragon-base.mini_boss\x20{\x20--d-col:\x20#F97100;\x20--d-bor:\x20#530800;\x20--d-wing:\x20#E23401;\x20--d-chest:\x20#DBD5C5;\x20--d-eye:\x20#FBC614;\x20--d-horn:\x20#530800;\x20}\x0a\x20\x20\x20\x20.dragon-base.floor_boss\x20{\x20--d-col:\x20#aa00ff;\x20--d-bor:\x20#000000;\x20--d-wing:\x20#6200ea;\x20--d-chest:\x20#00e5ff;\x20--d-eye:\x20#00e5ff;\x20--d-horn:\x20#311b92;\x20filter:\x20drop-shadow(0\x200\x2015px\x20#aa00ff);\x20}\x0a\x0a\x20\x20\x20\x20/*\x20🪨\x20Body\x20*/\x0a\x20\x20\x20\x20.dragon-base\x20.d-body\x20{\x20position:\x20absolute;\x20bottom:\x2020%;\x20width:\x2050%;\x20height:\x2045%;\x20background-color:\x20var(--d-col)\x20!important;\x20border:\x203px\x20solid\x20#000;\x20z-index:\x202;\x20border-radius:\x2010px\x2010px\x2020px\x2020px;\x20box-shadow:\x20inset\x200\x20-10px\x20rgba(0,0,0,0.3);\x20}\x0a\x0a\x20\x20\x20\x20/*\x20💎\x20The\x20Signature\x20Diamond\x20Chest\x20*/\x0a\x20\x20\x20\x20.dragon-base\x20.d-chest\x20{\x20position:\x20absolute;\x20top:\x2035%;\x20width:\x2035%;\x20height:\x2035%;\x20background-color:\x20var(--d-chest)\x20!important;\x20transform:\x20rotate(45deg);\x20border:\x203px\x20solid\x20#000;\x20z-index:\x204;\x20box-shadow:\x20inset\x200\x20-5px\x20rgba(0,0,0,0.2);\x20}\x0a\x0a\x20\x20\x20\x20/*\x20🐉\x20Head\x20&\x20Snout\x20*/\x0a\x20\x20\x20\x20.dragon-base\x20.d-head\x20{\x20position:\x20absolute;\x20top:\x2010%;\x20width:\x2045%;\x20height:\x2035%;\x20background-color:\x20var(--d-col)\x20!important;\x20border:\x203px\x20solid\x20#000;\x20z-index:\x205;\x20border-radius:\x2010px\x2010px\x2030px\x2030px;\x20box-shadow:\x200\x204px\x206px\x20rgba(0,0,0,0.5);\x20display:flex;\x20justify-content:center;\x20}\x0a\x20\x20\x20\x20.dragon-base\x20.d-snout\x20{\x20position:\x20absolute;\x20bottom:\x20-5px;\x20width:\x2040%;\x20height:\x2030%;\x20background-color:\x20var(--d-horn)\x20!important;\x20border:\x202px\x20solid\x20#000;\x20border-radius:\x2050%;\x20}\x0a\x0a\x20\x20\x20\x20/*\x20😠\x20Angry\x20Eyes\x20*/\x0a\x20\x20\x20\x20.dragon-base\x20.d-eye-l,\x20.dragon-base\x20.d-eye-r\x20{\x20position:\x20absolute;\x20top:\x2030%;\x20width:\x2025%;\x20height:\x2015%;\x20background-color:\x20var(--d-eye)\x20!important;\x20border-radius:\x2050%;\x20box-shadow:\x200\x200\x205px\x20var(--d-eye);\x20border:1px\x20solid\x20#000;\x20}\x0a\x20\x20\x20\x20.dragon-base\x20.d-eye-l\x20{\x20left:\x2010%;\x20transform:\x20rotate(20deg);\x20}\x0a\x20\x20\x20\x20.dragon-base\x20.d-eye-r\x20{\x20right:\x2010%;\x20transform:\x20rotate(-20deg);\x20}\x0a\x20\x20\x20\x20\x0a\x20\x20\x20\x20/*\x20🗡️\x20Pointy\x20Horns\x20*/\x0a\x20\x20\x20\x20.dragon-base\x20.d-horn-l,\x20.dragon-base\x20.d-horn-r\x20{\x20position:\x20absolute;\x20top:\x20-30%;\x20width:\x2020%;\x20height:\x2050%;\x20background-color:\x20var(--d-horn)\x20!important;\x20z-index:\x20-1;\x20border:\x202px\x20solid\x20#000;\x20}\x0a\x20\x20\x20\x20.dragon-base\x20.d-horn-l\x20{\x20left:\x20-5%;\x20border-radius:\x20100%\x200\x200\x200;\x20transform:\x20rotate(-30deg);\x20}\x0a\x20\x20\x20\x20.dragon-base\x20.d-horn-r\x20{\x20right:\x20-5%;\x20border-radius:\x200\x20100%\x200\x200;\x20transform:\x20rotate(30deg);\x20}\x0a\x0a\x20\x20\x20\x20/*\x20🦇\x20Segmented\x20Wings\x20*/\x0a\x20\x20\x20\x20.dragon-base\x20.d-wing-l,\x20.dragon-base\x20.d-wing-r\x20{\x20position:\x20absolute;\x20top:\x205%;\x20width:\x2070%;\x20height:\x2060%;\x20background-color:\x20var(--d-wing)\x20!important;\x20border:\x203px\x20solid\x20#000;\x20z-index:\x201;\x20box-shadow:\x20inset\x200\x20-10px\x20rgba(0,0,0,0.3);\x20}\x0a\x20\x20\x20\x20.dragon-base\x20.d-wing-l\x20{\x20left:\x20-40%;\x20border-radius:\x20100%\x200\x2050%\x200;\x20transform:\x20rotate(-15deg);\x20}\x0a\x20\x20\x20\x20.dragon-base\x20.d-wing-r\x20{\x20right:\x20-40%;\x20border-radius:\x200\x20100%\x200\x2050%;\x20transform:\x20rotate(15deg);\x20}\x0a\x0a\x20\x20\x20\x20/*\x20🐾\x20Claws/Feet\x20*/\x0a\x20\x20\x20\x20.dragon-base\x20.d-foot-l,\x20.dragon-base\x20.d-foot-r\x20{\x20position:\x20absolute;\x20bottom:\x2010%;\x20width:\x2020%;\x20height:\x2015%;\x20background-color:\x20var(--d-horn)\x20!important;\x20border:\x203px\x20solid\x20#000;\x20z-index:\x201;\x20border-radius:\x2050%\x2050%\x2010px\x2010px;\x20}\x0a\x20\x20\x20\x20.dragon-base\x20.d-foot-l\x20{\x20left:\x2015%;\x20transform:\x20rotate(10deg);\x20}\x0a\x20\x20\x20\x20.dragon-base\x20.d-foot-r\x20{\x20right:\x2015%;\x20transform:\x20rotate(-10deg);\x20}\x0a','emitVitalsIfNeeded','aura_liquid','2px\x20dashed\x20#00f','ah-tab-','3px\x20solid\x20','stat-int','dungeonEntries','monster-sprite-layer\x20dragon-base\x20','CONSUMABLE','Slashes\x20the\x20enemy\x20for\x205x\x20Attack\x20Power.','appendChild','rank-1-name','ber3','webkitUserSelect','hair_style','install-btn','char-name-input','respondGuildInvite','<div\x20style=\x22text-align:center;\x20font-weight:bold;\x20margin-bottom:5px;\x20color:#fff;\x22>Requirements\x20to\x20ascend\x20','off','Clear\x20ALL\x20boxes?','admin-item-type','transition','dev_','You\x20cannot\x20use\x20skills\x20in\x20Town!','contains','buildCollisionLayers','dom','<div><b>Fixed:</b>\x20+','eq-ring-slot','ease-out','cosmetic_pet_','\x20invited\x20you\x20to\x20a\x20party.','<strong\x20class=\x22','\x20Gold</div>','collision-box','isColliding','translateY(-60px)\x20scale(1)','cachedUserData','disconnect','\x20onclick=\x22window.requestDivineCraft()\x22>Ascend\x20to\x20Divine</button>','#424242','KeyA','markTutorialWatched','broadcastSkill','golem','0\x200\x2010px\x20','webkitAudioContext','loading-screen','<div\x20style=\x22max-height:250px;\x20overflow-y:auto;\x20padding-right:5px;\x22>','playerName','lastVoiceTime','border:\x201px\x20solid\x20#444;','Legendary','startTime','INPUT','_attack.png','innerText','requestFullscreen','shatter\x200.3s\x20forwards','display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%);\x20background:#1a1a1a;\x20border:2px\x20solid\x20#E040FB;\x20padding:20px;\x20z-index:9000;\x20width:320px;\x20border-radius:8px;\x20box-shadow:0\x200\x2030px\x20#E040FB;\x20color:white;\x20text-align:center;','Advance\x20Medicine','spectate-ui','TesterName','heal3','animation/tutorial.mp4','Icicle\x20Storm','1-2','.mp3','authSuccess','error','<div\x20style=\x22color:#444;\x20font-size:11px;\x20margin-top:15px;\x20text-align:center;\x22>No\x20applications</div>','requestCraftDivine','btn-hair-','DODGE!','gold','>Divine</option>\x0a\x20\x20\x20\x20</select>','createObjectURL','dataTransfer','skillScreen','<button\x20class=\x22btn\x22\x20style=\x22background:#f44336;\x20width:100%;\x22\x20onclick=\x22window.closeStorageUI()\x22>Close\x20Storage</button>','mobileWindowState','Easter','.js','sendDM','joinGuild','Select\x20an\x20Accessory\x20(Necklace,\x20Ring,\x20Earrings)\x20to\x20socket\x20the\x20gem!','setHairColor','avatar-layer\x20layer-body','updateUI','_blank','<p\x20style=\x22color:#555;\x20width:100%;\x20margin:10px\x200;\x22>No\x20Godly\x20equipment\x20found\x20in\x20inventory.</p>','dungeon-timer-ui','Earrings','price','cd-3','sort','toggleMailbox','Cosmetic:\x20Infuses\x20your\x20armor\x20with\x20a\x20burning\x20red\x20flame\x20effect.','onrender.com','Fires\x20a\x20fast\x20silver\x20bullet\x20dealing\x202x\x20Attack\x20Power.','ice3','\x27,\x20newRole:this.value})\x22\x20style=\x22background:#222;\x20color:#fff;\x20font-size:10px;\x20padding:2px;\x20border:1px\x20solid\x20#444;\x20outline:none;\x20cursor:pointer;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22Member\x22\x20','clearAllBoxes','forEach','3px\x20solid\x20#ccc','monsterDied','onclick','getMagicAttack','player-weapon','requestBetaCode','selected','.btn','playerAvatarContainer','guild_details','hairColor','login-form','SKIP\x20/\x20CLOSE\x20TUTORIAL','lastTaunt','Revival\x20Juice','updateSkillMenu','.monster-sprite-layer','acceptsLootRarity','tech4','body','</span>','\x20items!','\x20from\x20','teleports','0\x200\x208px\x20#00BFFF,\x200\x200\x2015px\x20#ffffff','revivalJuiceUsed','pClass','playerTeleported','3-4','ber2','max-width:100%;\x20max-height:85%;\x20background:black;\x20outline:none;\x20box-shadow:\x200\x200\x2020px\x20#2196F3;\x20border-radius:\x208px;','children','Plugin\x20error:\x20','login-pass','Deleted\x20map\x20object\x20at\x20','number','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22color:#aaa;\x20font-size:12px;\x20margin-bottom:8px;\x22>','playerClass','Blink\x20Stab','50%','classList','cordova','activePets','playerLeggings','currentBGM',')</span>','success','6nssWUf','weapon/','hairStyle','Undid\x20last\x20collision.','difficulty','inviteTargetToParty','miniBossSpawns','ms\x20linear','find','#hair-color-group\x20.color-swatch','Entering\x20Exonie...','/20)</h2>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20justify-content:space-between;\x20margin:10px\x200;\x20font-size:13px;\x20color:#aaa;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span>Your\x20Role:\x20<strong\x20style=\x22color:#fff;\x22>','1840085ekDZxQ','<h2\x20style=\x22margin-top:0;\x20color:#2196F3;\x22>🗺️\x20Maze\x20Guide</h2>','clientX','Video\x20file\x20not\x20found!','map-announcement','fromId','\x20/\x20','Summons\x20a\x20Golem\x20Bot\x20that\x20taunts\x20enemies.\x20HP:\x2010x\x20INT,\x20DMG:\x20100%\x20MATK.','<br>Lv.\x20','absolute','0\x200\x208px\x20#ffeb3b,\x200\x200\x2015px\x20#ffffff',',\x20\x27','armor','Heals\x20all\x20party\x20members\x20in\x20range\x20x2\x20of\x20your\x20INT.','Go\x20Boom!\x20becomes\x20a\x20massive\x20AoE\x20explosion.','canPurchase','REVIVED','https://play.google.com/redeem?code=','\x0a\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20<h2\x20style=\x22color:#4CAF50;\x20margin-top:\x2020px;\x22>Purchase\x20Successful!</h2>\x0a\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20<p\x20style=\x22color:#fff;\x22>Added\x20','color','shiftKey','<button\x20class=\x22btn\x22\x20style=\x22width:100%;\x20margin-bottom:15px;\x20padding:12px;\x20font-weight:bold;\x20font-size:16px;\x20background:#9c27b0;\x20box-shadow:\x200\x200\x2010px\x20#9c27b0;\x22\x20onclick=\x22window.openMazeTrialsUI()\x22>Maze\x20Trials</button>','Duplicate','exonie_game_instance','justLeveledUp','Purchase\x20Approved!\x20Verifying\x20with\x20server...','Exo\x20Metal','Red\x20Exo\x20Metal','\x20Forger</button>','friends','home-sale-modal','skin_color','5-6','enterGuildBase','available-classes','KeyZ','Confirmed\x20-\x20Waiting...','Gun','border:\x202px\x20solid\x20#FFD700;\x20box-shadow:\x20inset\x200\x200\x2010px\x20rgba(255,\x20215,\x200,\x200.15);','petTaunt','ber4','baseStats',';\x22></div></div></div>','Send\x20Direct\x20Message\x20to\x20','<p\x20style=\x22color:#ccc;\x20font-size:14px;\x20margin-bottom:10px;\x22>Difficulty:\x20<strong\x20style=\x22color:#E040FB;\x22>','Trade\x20request\x20sent\x20to\x20','some','>Basic</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22Rare\x22\x20','getData','executeSkill','<div\x20style=\x22display:flex;\x20justify-content:space-between;\x20align-items:center;\x20padding:5px\x200;\x20border-bottom:1px\x20solid\x20#222;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20style=\x22font-size:12px;\x20color:\x20','admin-monster-key','player-leggings','requestExtractAura','animation/avatar_attack.png','loot-broadcast','#FFD700','mobile-controls','item_data','phs4','addLoot','eq-box-necklace','player_class','block','orange','submitVerificationCode','borderColor','ah-tab-browse','player-body','defense','onfinish','Cosmetics\x20and\x20pets\x20cannot\x20be\x20sold!','<span\x20style=\x22color:#aaa;\x20font-size:11px;\x22>','Basic','undoLastBox','leggings','display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%);\x20background:#1a1a1a;\x20border:2px\x20solid\x20#4CAF50;\x20padding:20px;\x20z-index:9000;\x20width:350px;\x20border-radius:8px;\x20box-shadow:0\x200\x2030px\x20#4CAF50;\x20color:white;\x20text-align:center;\x20font-family:sans-serif;','shopAuthState','ah_listSuccess','#777','onload','partyMemberVitals','Big\x20Explosion','actionEquip','display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%);\x20background:#1a1a1a;\x20border:2px\x20solid\x20#4CAF50;\x20padding:20px;\x20z-index:9000;\x20width:380px;\x20border-radius:8px;\x20box-shadow:0\x200\x2030px\x20#4CAF50;\x20color:white;\x20font-family:sans-serif;\x20text-align:center;','❌\x20You\x20have\x20no\x20Tavern\x20entries\x20left\x20this\x20week.\x20Resets\x20Monday.','TEXTAREA','gun','ah-my-results','globalCompositeOperation','</div></div><div\x20style=\x22text-align:right;\x20font-size:12px;\x20color:#aaa;\x22>Lv.','CLAIM\x20ATTACHMENT','chatMessage','Dual\x20Bullet','receiptVerified','1px\x20solid\x20red','<div\x20class=\x22inspect-equip\x22><div\x20style=\x22font-weight:bold;\x20color:#ffeb3b;\x20margin-bottom:6px;\x22>','Please\x20enter\x20a\x20valid\x20email.','maxExp','hasBase','tooltip','rig','exonie_pass','currentWeaponSrc','toLocaleString','Contains\x2010\x20Revival\x20Juices.\x20Revive\x20instantly\x20on\x20the\x20spot.','innerHeight','isBigBoss','0\x200\x2020px\x20','testexonie','preview-hair','saveMapToServer','<div\x20style=\x22margin-top:5px;\x20font-weight:bold;\x20color:','Capacitor','isLoading','inline-block','targetX','exonie_loot_filter','sprite','cleanupMap','matches','tavern-level','Vice\x20Master','chat-log','int','trim','<p\x20style=\x22color:#aaa;\x20text-align:center;\x20margin-top:25px;\x22>Select\x20a\x20Godly\x20item\x20to\x20view\x20requirements.</p></div>','closePath','openHauntedHouseUI','/a\x20','stringify','\x20added\x20to\x20','black','ah_searchResults','spawnDamageText','\x0a\x20\x20\x20\x20.rank-1-name\x20{\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20color:\x20#fff\x20!important;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20font-weight:\x20bold\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20text-shadow:\x200\x200\x205px\x20#fff,\x200\x200\x2010px\x20#FFD700,\x200\x200\x2020px\x20#FFD700,\x200\x200\x2030px\x20#FF8C00\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20filter:\x20drop-shadow(0\x200\x205px\x20#FFD700);\x0a\x20\x20\x20\x20\x20\x20\x20\x20animation:\x20auraGold\x202.5s\x20infinite\x20alternate\x20ease-in-out;\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20.rank-2-name\x20{\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20color:\x20#fff\x20!important;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20font-weight:\x20bold\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20text-shadow:\x200\x200\x205px\x20#fff,\x200\x200\x2010px\x20#E0E0E0,\x200\x200\x2020px\x20#E0E0E0,\x200\x200\x2030px\x20#9E9E9E\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20filter:\x20drop-shadow(0\x200\x205px\x20#E0E0E0);\x0a\x20\x20\x20\x20\x20\x20\x20\x20animation:\x20auraSilver\x202.5s\x20infinite\x20alternate\x20ease-in-out;\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20.rank-3-name\x20{\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20color:\x20#fff\x20!important;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20font-weight:\x20bold\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20text-shadow:\x200\x200\x205px\x20#fff,\x200\x200\x2010px\x20#CD7F32,\x200\x200\x2020px\x20#CD7F32,\x200\x200\x2030px\x20#8B4513\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20filter:\x20drop-shadow(0\x200\x205px\x20#CD7F32);\x0a\x20\x20\x20\x20\x20\x20\x20\x20animation:\x20auraBronze\x202.5s\x20infinite\x20alternate\x20ease-in-out;\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20@keyframes\x20auraGold\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20from\x20{\x20filter:\x20drop-shadow(0\x200\x202px\x20#FFD700);\x20text-shadow:\x200\x200\x205px\x20#fff,\x200\x200\x2010px\x20#FFD700,\x200\x200\x2020px\x20#FFD700;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20to\x20{\x20filter:\x20drop-shadow(0\x200\x2010px\x20#FFD700);\x20text-shadow:\x200\x200\x208px\x20#fff,\x200\x200\x2015px\x20#FFD700,\x200\x200\x2035px\x20#FF8C00;\x20}\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20@keyframes\x20auraSilver\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20from\x20{\x20filter:\x20drop-shadow(0\x200\x202px\x20#E0E0E0);\x20text-shadow:\x200\x200\x205px\x20#fff,\x200\x200\x2010px\x20#E0E0E0,\x200\x200\x2020px\x20#E0E0E0;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20to\x20{\x20filter:\x20drop-shadow(0\x200\x2010px\x20#E0E0E0);\x20text-shadow:\x200\x200\x208px\x20#fff,\x200\x200\x2015px\x20#E0E0E0,\x200\x200\x2035px\x20#9E9E9E;\x20}\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20@keyframes\x20auraBronze\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20from\x20{\x20filter:\x20drop-shadow(0\x200\x202px\x20#CD7F32);\x20text-shadow:\x200\x200\x205px\x20#fff,\x200\x200\x2010px\x20#CD7F32,\x200\x200\x2020px\x20#CD7F32;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20to\x20{\x20filter:\x20drop-shadow(0\x200\x2010px\x20#CD7F32);\x20text-shadow:\x200\x200\x208px\x20#fff,\x200\x200\x2015px\x20#CD7F32,\x200\x200\x2035px\x20#8B4513;\x20}\x0a\x20\x20\x20}\x0a\x20\x20\x20\x20\x0a\x20\x20\x20.weapon-aura-divine\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20/*\x20👑\x20INSANE\x20BLINDING\x20GLOW\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20filter:\x20drop-shadow(0\x200\x2010px\x20#ffffff)\x20drop-shadow(0\x200\x2020px\x20#ffea00)\x20drop-shadow(0\x200\x2040px\x20#ff9800)\x20brightness(2)\x20contrast(1.2)\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20animation:\x20divinePulseExtreme\x200.8s\x20infinite\x20alternate\x20ease-in-out;\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20@keyframes\x20divinePulseExtreme\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x200%\x20{\x20filter:\x20drop-shadow(0\x200\x2010px\x20#ffffff)\x20drop-shadow(0\x200\x2020px\x20#ffea00)\x20drop-shadow(0\x200\x2030px\x20#ff9800)\x20brightness(1.5)\x20contrast(1.1);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20100%\x20{\x20filter:\x20drop-shadow(0\x200\x2015px\x20#ffffff)\x20drop-shadow(0\x200\x2030px\x20#ffea00)\x20drop-shadow(0\x200\x2060px\x20#ff5722)\x20brightness(2.5)\x20contrast(1.3);\x20}\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20\x0a\x20\x20\x20\x20/*\x20👑\x20SPARKLING\x20GOLDEN\x20TEXT\x20FOR\x20INVENTORY\x20&\x20TOOLTIPS\x20*/\x0a\x20\x20\x20\x20.rarity-divine-text\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20color:\x20#ffea00\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20text-shadow:\x200\x200\x205px\x20#fff,\x200\x200\x2010px\x20#ffea00,\x200\x200\x2020px\x20#ff9800\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20animation:\x20textSparkle\x201.5s\x20infinite\x20alternate;\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20@keyframes\x20textSparkle\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x200%\x20{\x20filter:\x20brightness(1);\x20text-shadow:\x200\x200\x205px\x20#fff,\x200\x200\x2010px\x20#ffea00;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20100%\x20{\x20filter:\x20brightness(1.5);\x20text-shadow:\x200\x200\x208px\x20#fff,\x200\x200\x2015px\x20#ffea00,\x200\x200\x2025px\x20#ff9800;\x20}\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20/*\x20👼\x20NEW:\x20AURA\x20OF\x20THE\x20DIVINE\x20(ROYAL\x20TIER)\x20-\x20REFINED\x20*/\x0a\x20\x20\x20\x20.cosmetic-aura.aura-divine\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20display:\x20block\x20!important;\x20/*\x20👑\x20FORCES\x20VISIBILITY\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20position:\x20absolute\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20inset:\x200\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20background:\x20none\x20!important;\x20/*\x20Removes\x20the\x20ugly\x20wide\x20circle\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20box-shadow:\x20none\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20z-index:\x20-1\x20!important;\x20\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20/*\x201.\x20Tight\x20White\x20Border\x20&\x20Gold\x20Outer\x20Glow\x20*/\x0a\x20\x20\x20\x20.avatar-rig:has(.aura-divine)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20animation:\x20divine-outline-pulse\x201.5s\x20infinite\x20alternate\x20ease-in-out\x20!important;\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20@keyframes\x20divine-outline-pulse\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x200%\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20filter:\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20drop-shadow(0\x200\x201px\x20#fff)\x20drop-shadow(0\x200\x202px\x20#fff)\x20/*\x20Tight\x20white\x20border\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20drop-shadow(0\x200\x206px\x20#ffea00)\x20drop-shadow(0\x200\x2012px\x20#ff9800);\x20/*\x20Outer\x20gold\x20glow\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20100%\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20filter:\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20drop-shadow(0\x200\x202px\x20#fff)\x20drop-shadow(0\x200\x203px\x20#fff)\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20drop-shadow(0\x200\x2012px\x20#ffea00)\x20drop-shadow(0\x200\x2025px\x20#ff9800);\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20/*\x202.\x20Wings\x20attached\x20to\x20the\x20body\x20*/\x0a\x20\x20\x20\x20.cosmetic-aura.aura-divine::before\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20content:\x20\x27\x27;\x0a\x20\x20\x20\x20\x20\x20\x20\x20position:\x20absolute;\x0a\x20\x20\x20\x20\x20\x20\x20\x20top:\x2020px;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20left:\x20-15px;\x20/*\x20Pulled\x20inward\x20to\x20attach\x20to\x20the\x20back\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20width:\x2035px;\x20height:\x2060px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20background:\x20radial-gradient(ellipse\x20at\x20right,\x20rgba(255,255,255,1)\x2010%,\x20rgba(255,234,0,0.8)\x2060%,\x20transparent\x2080%);\x0a\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x20100%\x200%\x2060%\x200%;\x0a\x20\x20\x20\x20\x20\x20\x20\x20box-shadow:\x20-2px\x200\x2010px\x20#ffea00;\x0a\x20\x20\x20\x20\x20\x20\x20\x20transform-origin:\x20right\x20center;\x0a\x20\x20\x20\x20\x20\x20\x20\x20animation:\x20wingFlapLeft\x202s\x20infinite\x20alternate\x20ease-in-out;\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20.cosmetic-aura.aura-divine::after\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20content:\x20\x27\x27;\x0a\x20\x20\x20\x20\x20\x20\x20\x20position:\x20absolute;\x0a\x20\x20\x20\x20\x20\x20\x20\x20top:\x2020px;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20right:\x20-15px;\x20/*\x20Pulled\x20inward\x20to\x20attach\x20to\x20the\x20back\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20width:\x2035px;\x20height:\x2060px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20background:\x20radial-gradient(ellipse\x20at\x20left,\x20rgba(255,255,255,1)\x2010%,\x20rgba(255,234,0,0.8)\x2060%,\x20transparent\x2080%);\x0a\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x200%\x20100%\x200%\x2060%;\x0a\x20\x20\x20\x20\x20\x20\x20\x20box-shadow:\x202px\x200\x2010px\x20#ffea00;\x0a\x20\x20\x20\x20\x20\x20\x20\x20transform-origin:\x20left\x20center;\x0a\x20\x20\x20\x20\x20\x20\x20\x20animation:\x20wingFlapRight\x202s\x20infinite\x20alternate\x20ease-in-out;\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20@keyframes\x20wingFlapLeft\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x200%\x20{\x20transform:\x20rotate(10deg)\x20scaleY(1);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20100%\x20{\x20transform:\x20rotate(-15deg)\x20scaleY(0.9);\x20}\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20@keyframes\x20wingFlapRight\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x200%\x20{\x20transform:\x20rotate(-10deg)\x20scaleY(1);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20100%\x20{\x20transform:\x20rotate(15deg)\x20scaleY(0.9);\x20}\x0a\x20\x20\x20\x20}\x0a','How\x20much\x20Gold\x20would\x20you\x20like\x20to\x20donate\x20to\x20the\x20Guild\x20Funds?','openGuilds','monsterSkill','boxShadow','test_token','nextSibling','linkItemToChat','screen-shake','guildInviteReceived','spawnFireAoE','systemMessage','ahCancel','min','touch','hypot','spawnY','Throws\x20a\x20massive\x20bomb\x20dealing\x205x\x20Attack\x20Power.','ah_search','hostname','You\x20cannot\x20use\x20items\x20while\x20dead!','reg-pass','Enter\x20spawn\x20Y\x20coordinate\x20(Default\x201000):','<span\x20style=\x22color:#f44336;\x20font-size:11px;\x20font-weight:bold;\x20letter-spacing:1px;\x22>[UNTRADEABLE]</span><br>',')\x22>Teleport\x20to\x20Floor\x20','<div\x20class=\x22pet-hp-bar\x22\x20style=\x22top:-15px;\x22><div\x20class=\x22pet-hp-fill\x22\x20id=\x22pet-hp\x22></div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22monster-sprite-layer\x20golem-base\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22g-head\x22><div\x20class=\x22g-eye\x22></div><div\x20class=\x22g-eye\x22></div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22g-arm-l\x22></div><div\x20class=\x22g-arm-r\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22g-leg-l\x22></div><div\x20class=\x22g-leg-r\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>','onended','requestEmailLink','\x20drop:\x20','spectateTargetId','</div>','fontSize','claimMail','transferToStorage',';\x22>','ice4','Processing...','adminSetLevel','\x20onclick=\x22if(socket)\x20socket.emit(\x27requestCraftForger\x27,\x20{\x20rarity:\x20\x27','prepend','matchMedia','exponentialRampToValueAtTime','haunted-house-modal','isPendant','<button\x20class=\x22btn\x22\x20style=\x22width:100%;\x20margin-bottom:8px;\x20background:#333;\x20border:1px\x20solid\x20#E040FB;\x20color:#E040FB;\x22\x20onclick=\x22window.confirmForgerReroll(','monster-sprite-layer','desc','getBaseStat','\x20Exo\x20Gems\x20to\x20purchase\x20','members','townmap.js','pause','ahList','didFreeze','chat-input','buster_','combat-log','sellPrice','spawnX','guildName','\x20(Vol:\x20','zIndex','news-title','sum3','parentNode','clearLocalMonsters','Starter','<span\x20style=\x22color:#aaa;\x22><em>','.monster-container','Revives\x20dead\x20party\x20members\x20globally\x20and\x20heals\x20everyone.','petType','1px\x20solid\x20#2196F3','removeRemotePlayer','newGems','createGuild','loadLootFilter','<div\x20class=\x22tooltip\x22>','toggle','8px','earrings','tavernTimerStart','attack',';\x20box-shadow:\x200\x200\x2015px\x20','exonie_bgm_vol','<div\x20class=\x22monster-sprite-layer\x20wraith-base\x22><div\x20class=\x22w-eye\x20left\x22></div><div\x20class=\x22w-eye\x20right\x22></div><div\x20class=\x22w-particles\x22><div\x20class=\x22w-p\x22></div><div\x20class=\x22w-p\x22></div><div\x20class=\x22w-p\x22></div><div\x20class=\x22w-p\x22></div></div></div>','Browser\x20blocked\x20autoplay.\x20User\x20must\x20click\x20play.','Silver\x20Bullet','match','\x0a\x20\x20\x20\x20.tech-drone\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20position:\x20absolute;\x20width:\x2016px;\x20height:\x2016px;\x20background:\x20#222;\x20border:\x202px\x20solid\x20#00E5FF;\x0a\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x2050%;\x20box-shadow:\x200\x200\x2010px\x20#00E5FF;\x20z-index:\x20105;\x0a\x20\x20\x20\x20\x20\x20\x20\x20animation:\x20pulseDrone\x201s\x20infinite\x20alternate;\x20pointer-events:\x20none;\x0a\x20\x20\x20\x20\x20\x20\x20\x20transform:\x20translate(-50%,\x20-50%);\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20@keyframes\x20pulseDrone\x20{\x200%\x20{\x20box-shadow:\x200\x200\x205px\x20#00E5FF;\x20}\x20100%\x20{\x20box-shadow:\x200\x200\x2020px\x20#00E5FF;\x20}\x20}\x0a\x20\x20\x20\x20.gamma-shield\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20position:\x20absolute;\x20width:\x2060px;\x20height:\x20100px;\x20bottom:\x20-5px;\x20left:\x2050%;\x20transform:\x20translateX(-50%);\x0a\x20\x20\x20\x20\x20\x20\x20\x20border:\x202px\x20solid\x20rgba(0,\x20229,\x20255,\x200.8);\x20background:\x20linear-gradient(to\x20top,\x20rgba(0,229,255,0.4),\x20transparent);\x0a\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x2050%\x20/\x2010px;\x20box-shadow:\x200\x200\x2015px\x20rgba(0,229,255,0.5),\x20inset\x200\x200\x2015px\x20rgba(0,229,255,0.5);\x0a\x20\x20\x20\x20\x20\x20\x20\x20pointer-events:\x20none;\x20z-index:\x2010;\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20@keyframes\x20shatter\x20{\x200%\x20{\x20opacity:\x201;\x20transform:\x20translateX(-50%)\x20scale(1);\x20}\x20100%\x20{\x20opacity:\x200;\x20transform:\x20translateX(-50%)\x20scale(1.5);\x20}\x20}\x0a\x20\x20\x20\x20.golem-buster\x20.m-body,\x20.golem-buster\x20.m-head,\x20.golem-buster\x20[class*=\x22m-arm\x22],\x20.golem-buster\x20[class*=\x22m-leg\x22]\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20background:\x20#ffffff\x20!important;\x20border-color:\x20#bbbbbb\x20!important;\x20box-shadow:\x200\x200\x2015px\x20#00E5FF\x20!important;\x0a\x20\x20\x20\x20}\x0a','amount','getAttackPower','px),\x20calc(-50%\x20+\x20','consumables-craft-modal','animation/avatar_hair','startSpectate','wisp','click','getSpeed','shootOrb','home','trade-dialog','deviceready','source','scrollTop','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-size:12px;\x20color:#888;\x22>Seller:\x20','inventory','invScreen','tavern-mob-type','custom-prompt-input','Sharp\x20Edge','center','loot-announcement','#87CEEB','getMail','bld3','text','monsterId','Cosmetics\x20Crafting\x20(Pets)','.cosmetic-aura','createCharacter','name_change','Your\x20attacks\x20have\x20a\x2025%\x20chance\x20to\x20freeze\x20enemies.','<h2\x20style=\x22margin-top:0;\x20color:#E040FB;\x22>⚔️\x20Maze\x20Trials</h2>','purchaseSuccess','unlock','[AUDIO]\x20Missing\x20file\x20','⚠️\x20BOSS\x20RESPAWNS\x20IN<br>','bottom','updateLocalGuildTag',')\x22>','latestNews','extractAura','Health\x20Potion','updateNameplateRanks','admin-output','\x27,\x20accept:true})\x22\x20style=\x22background:#4CAF50;\x20color:white;\x20border:none;\x20padding:2px\x206px;\x20cursor:pointer;\x22>✔</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22socket.emit(\x27guildHandleApplicant\x27,\x20{applicantName:\x27','applicants','party-members','preloadMapAssets','addRemotePlayer','translate(-50%,\x20-50%)','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22width:35%;\x20line-height:1.2;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22color:#fff;\x22>','openStorageUI','player-avatar-container\x20avatar-rig','>Captain</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22Vice\x20Master\x22\x20','passive','player-hair','pet-void','#ff0000','Jubs4DaWin','gunshot','pet_egg','toggleFriends','pet','animation/avatar_walk.png','display:none;\x20position:fixed;\x20top:0;\x20left:0;\x20width:100%;\x20height:100%;\x20background:rgba(0,0,0,0.95);\x20z-index:9999999;\x20flex-direction:column;\x20justify-content:center;\x20align-items:center;\x20font-family:sans-serif;\x20cursor:pointer;\x20user-select:none;\x20backdrop-filter:\x20blur(5px);','sin','friendsListUpdate','setSkinColor','pet-slime\x20golem-buster','\x20Soul\x20Pieces</span></div>','aura_blaze','frozenUntil','mail-list-container','#8B4513','<div\x20style=\x22background:#111;\x20padding:15px;\x20border:1px\x20dashed\x20#FF9800;\x20border-radius:8px;\x20margin-bottom:15px;\x20text-align:left;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-weight:bold;\x20color:#fff;\x20margin-bottom:8px;\x22>Defeat\x20','attemptAttackTarget',']</span>','<div\x20class=\x22pet-hp-bar\x22\x20style=\x22top:-15px;\x22><div\x20class=\x22pet-hp-fill\x22\x20style=\x22width:100%\x22></div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22monster-sprite-layer\x20golem-base\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22g-head\x22><div\x20class=\x22g-eye\x22></div><div\x20class=\x22g-eye\x22></div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22g-arm-l\x22></div><div\x20class=\x22g-arm-r\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22g-leg-l\x22></div><div\x20class=\x22g-leg-r\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>','requestMapSync','Store\x20Connection\x20Error:\x20','Entries:\x20','<div\x20class=\x22tail\x22></div><div\x20class=\x22leg\x20leg1\x22></div><div\x20class=\x22leg\x20leg2\x22></div><div\x20class=\x22leg\x20leg3\x22></div><div\x20class=\x22leg\x20leg4\x22></div><div\x20class=\x22head\x22><div\x20class=\x22ear\x22></div></div>','#ffeb3b','0.6','A\x20loyal\x20fire-fox\x20companion\x20that\x20follows\x20you\x20and\x20attacks\x20enemies.','\x20(x','POST','<span\x20style=\x22color:#ff4444;\x20font-weight:bold;\x22>[GM]</span>\x20','closeShop','nin3','applyToGuild','auraId','websocket','lightning','attemptAttack','tauntBuffUntil','You\x20cannot\x20attack\x20in\x20Town!','#E040FB','Undid\x20last\x20teleport.','display','adminMode','applyGammaShield','<button\x20class=\x22btn\x22\x20style=\x22background:#f44336;\x20width:100%;\x22\x20onclick=\x22document.getElementById(\x27cosmetics-craft-modal\x27).style.display=\x27none\x27;\x20document.getElementById(\x27merchant-modal\x27).style.display=\x27block\x27;\x22>Back</button>','triggerBossBGM',';\x20font-weight:bold;\x20font-size:15px;\x20','select-hair','toLowerCase','syncPet','Forger\x20cancelled.','onmessage','CLOSE','targetId','BGM\x20Auto-play\x20blocked\x20by\x20browser.\x20Interaction\x20required.','animation','scaleX(-1)','auto','heal1','cssColor','qty','Socket\x20Gem','Selling\x201x:\x20','removeChild','\x20just\x20got</div><div\x20style=\x22color:\x20','I\x20love\x20PAIN','</em></span><br>','display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%);\x20background:#1a1a1a;\x20border:2px\x20solid\x20#FF9800;\x20padding:20px;\x20z-index:9000;\x20width:350px;\x20border-radius:8px;\x20box-shadow:0\x200\x2030px\x20#FF9800;\x20color:white;\x20text-align:center;\x20font-family:sans-serif;','buyWithGems','monster-fireball','That\x20item\x20cannot\x20be\x20sold\x20right\x20now.','Level\x20','dataset','ah-selected-item-name','remotePlayerLeft','egg','addEventListener','admin-player-level','Entering\x20town...','stat-atk','s\x20CD','Novice','state','❌\x20You\x20must\x20be\x20Level\x2050\x20to\x20enter\x20Extreme\x20difficulty.','inspectContent','enterGameWorld','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>','equips','\x0a\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20<div\x20style=\x22margin-top:15px;\x20display:flex;\x20flex-direction:column;\x20gap:8px;\x22>\x0a\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20<h3\x20style=\x22color:#aaa;\x20font-size:14px;\x20margin:\x200\x200\x205px\x200;\x20border-bottom:1px\x20solid\x20#333;\x20padding-bottom:5px;\x22>Get\x20More\x20Exo\x20Gems</h3>\x0a\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20<div\x20style=\x22display:flex;\x20gap:5px;\x22>\x0a\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20<button\x20class=\x22btn\x22\x20style=\x22background:#2196F3;\x20flex:1;\x20font-weight:bold;\x20padding:10px;\x22\x20onclick=\x22window.purchaseExoGems(\x27gem_pack_50\x27,\x205000,\x20\x2750\x20Exo\x20Gems\x27)\x22>💎\x2050\x20Gems</button>\x0a\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20<button\x20class=\x22btn\x22\x20style=\x22background:#9c27b0;\x20flex:1;\x20font-weight:bold;\x20padding:10px;\x22\x20onclick=\x22window.purchaseExoGems(\x27gem_pack_15\x27,\x201500,\x20\x2715\x20Exo\x20Gems\x27)\x22>💎\x2015\x20Gems</button>\x0a\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#555;\x20width:100%;\x20margin-top:5px;\x20padding:10px;\x22\x20onclick=\x22document.getElementById(\x27rm-shop-modal\x27).style.display=\x27none\x27\x22>Close</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20','requestShopAccess','9999','playerRevived','Fullscreen\x20blocked\x20by\x20browser\x20until\x20interaction.','Name\x20Change\x20Ticket','guildGold','topTavernPlayers','statScreen','otherConfirmed','includes','playerArmor','attemptApplyAura','eq-leggings-slot','Normal','Appearance\x20Reroll\x20Ticket','isMobileUI','Auth\x20crash:','json','\x20Exo\x20Gems.','inspectTargetPlayer','volume','mobileWindowReady','tech3','tavernTimerStop','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20justify-content:space-between;\x20align-items:center;\x20margin-bottom:15px;\x20border-bottom:1px\x20solid\x20#444;\x20padding-bottom:10px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h2\x20style=\x22margin:0;\x20color:#E040FB;\x20text-shadow:\x200\x200\x2010px\x20#E040FB;\x22>💎\x20Exo\x20Emporium</h2>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22background:#222;\x20padding:5px\x2010px;\x20border-radius:4px;\x20border:1px\x20solid\x20#E040FB;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20style=\x22color:#aaa;\x20font-size:12px;\x22>Balance:</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<strong\x20id=\x22ui-gem-balance\x22\x20style=\x22color:#E040FB;\x20font-size:16px;\x20margin-left:5px;\x22>','Divine\x20Enhancement\x20Stone','forger-modal','url(\x27','paddingBottom','attemptApplyGem','shop-stone-qty','0px','<button\x20class=\x22btn\x22\x20style=\x22background:#f44336;\x20width:100%;\x22\x20onclick=\x22window.openMazeGuide()\x22>Back</button>','base_stats','player-context-menu','donateGuildGold','dailyMissionData','2px\x20solid\x20','Bulk\x20Up!','homeBought','playerWeapon','.window-drag-handle','<h2\x20style=\x22color:#E040FB;\x22>Connecting\x20to\x20Server...</h2>','setUTCDate','swapInventory','toString','<h2\x20style=\x22margin-top:0;\x20color:#E040FB;\x22>✨\x20Select\x20Sub-Stat</h2>','<div\x20style=\x22color:#E040FB;\x20font-weight:bold;\x20font-size:16px;\x20margin-bottom:5px;\x20text-align:center;\x22>✨\x20Stat\x20Forger</div>','innerWidth','pointerId','phs1','\x27,\x20accept:false})\x22\x20style=\x22background:#f44336;\x20color:white;\x20border:none;\x20padding:2px\x206px;\x20cursor:pointer;\x22>✖</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>','inventory-screen','toFixed','mapPlayersList','exonie_low_end','lootDropped','Enhanced\x20Godly\x20and\x20Divine\x20gear\x20cannot\x20be\x20auctioned!','loot-filter-','music/charge.mp3','40%','DIV','0\x200\x2020px\x20#ffffff','category','normalSpawns','color:\x20white;\x20font-family:\x20sans-serif;\x20text-shadow:\x200\x200\x2010px\x20#2196F3;','partyKickedOrLeft','earthquake-ring','GOOGLE_PLAY','A\x20mysterious\x20owl\x20that\x20flies\x20by\x20your\x20side.','Boost','Mini\x20Boss\x20(','assign','currentKills','272317RMLVIF','walk','\x20required!','class-skills-list','partyInviteReceived','rarity-divine-text','player-name-tag','requestRerollStat','verify-email-input','Enter\x20Portal\x20ID\x20(Number\x20for\x20Floors,\x20Letter\x20for\x20Rooms):','offsetWidth','translate(-50%,\x20-50%)\x20scaleX(1)','playerEquipUpdate','reg-user','shop-stone-level','actionThrow','welcome-modal','active','toggleLowEndMode','value','type','63rhbVgW','display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%);\x20background:#111;\x20border:2px\x20solid\x20#E040FB;\x20padding:20px;\x20z-index:9000;\x20width:350px;\x20border-radius:8px;\x20box-shadow:0\x200\x2030px\x20#E040FB;\x20color:white;\x20text-align:center;\x20font-family:sans-serif;','loader-fill','play','tradeCancelled','ring','0\x200\x2030px\x20#2196F3,\x20inset\x200\x200\x2030px\x20#2196F3','savePlayerData','DEF\x20x3!','blue','</div><div\x20class=\x22skill-desc\x22>','width\x200.1s\x20linear','bld4','getElementById','</span></div><div\x20class=\x22party-hp-bar-bg\x22><div\x20class=\x22party-hp-bar-fill\x22\x20style=\x22width:\x20','229952rAeUGV','skinColor','admin-item-enhance','already_running','Unknown\x20Error','Summon\x20Slime\x20also\x20summons\x20a\x20Giant\x20White\x20Boss\x20Slime\x20(5x\x20HP)\x20with\x20Earthquake.','attemptRegister','attackMonster','purchaseToken','green','Increases\x20Molotov\x20ground\x20fire\x20duration\x20from\x203s\x20to\x2010s.','Enter','#skin-color-group\x20.color-swatch','Looted:\x20','low-perf-btn','pointerEvents','parentElement','donateGuild','entity\x20monster-container','#ffd700','monster-sprite-layer\x20golem-base\x20','Lv.\x20','position','btn-cosmetics-craft','<span\x20style=\x22color:#555;\x20font-size:11px;\x22>Novice</span>','\x20G</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>','src','deg);\x20box-shadow:0\x200\x2010px\x20#00E5FF,\x200\x200\x2020px\x20#00E5FF;\x20z-index:100;\x20pointer-events:none;\x20opacity:1;\x20transition:opacity\x200.2s;','currentHp','<div\x20class=\x22wing\x20wing-l\x22></div><div\x20class=\x22wing\x20wing-r\x22></div><div\x20class=\x22eyes\x22><div\x20class=\x22eye\x22></div><div\x20class=\x22eye\x22></div></div><div\x20class=\x22beak\x22></div>','borderBottom','floor_boss','border','vol-display','shop-screen','Spirit\x20Fox\x20Pet','<div\x20class=\x22pet-hp-bar\x22\x20style=\x22top:-15px;\x22><div\x20class=\x22pet-hp-fill\x22\x20id=\x22pet-hp\x22></div></div>','right','top','<div\x20class=\x22monster-ui-layer\x22\x20style=\x22position:absolute;\x20top:-20px;\x20left:0;\x20width:100%;\x20pointer-events:none;\x22><div\x20class=\x22bar-container\x22\x20style=\x22height:5px;\x20border-radius:0;\x20margin-bottom:0;\x22><div\x20class=\x22hp-fill\x20monster-hp-fill\x22\x20style=\x22background-color:#f44336;\x20height:100%;\x20width:100%;\x22></div></div></div>','requiredKills','No\x20item\x20selected','hotbar-3','Drops\x20an\x20icicle\x20dealing\x202x\x20Magic\x20Attack.','<div\x20style=\x22color:#00ffff;\x20font-size:13px;\x20margin-bottom:4px;\x20letter-spacing:2px;\x22>Sockets:\x20','speed','offline','<div\x20class=\x22pet-hp-bar\x22><div\x20class=\x22pet-hp-fill\x22\x20style=\x22width:100%\x22></div></div>','closeStorageUI','fromCharCode','player-title-tag','Enter\x20a\x20name\x20for\x20your\x20new\x20Guild:','15%\x20chance\x20to\x20heal\x20a\x20third\x20of\x20all\x20incoming\x20damage.','Admin\x20Mode\x20ON','music/bump.mp3','Trade\x20declined.','#ffea00','>Godly</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22Divine\x22\x20','JUST_SPAWNED','#4CAF50','>Member</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22Captain\x22\x20','products','sanitizeEquippedItem','Google\x20Play\x20found\x20the\x20item,\x20but\x20says\x20you\x20cannot\x20purchase\x20it\x20right\x20now.\x20Ensure\x20your\x20app\x20is\x20fully\x20updated\x20from\x20the\x20testing\x20link!','buyGuildBase','px;\x20left:','swapSlots','void','startDungeon','<button\x20class=\x22dm-btn\x22\x20onclick=\x22window.promptDM(\x27','stat-def','scrollHeight','Fires\x20a\x20devastating\x20bullet\x20dealing\x204x\x20Attack\x20Power.','showAura','aura_nature','\x20Green\x20Exo\x20Metal</span></div>','leaveParty','<span\x20style=\x22color:#4CAF50;\x20font-size:11px;\x20font-weight:bold;\x20letter-spacing:1px;\x20text-shadow:\x200\x200\x205px\x20#4CAF50;\x22>[TRADEABLE\x20COSMETIC]</span><br>','monster-sprite-layer\x20minotaur-base\x20','avatar-layer\x20layer-hair','useItem','gem','tavern-entries-text','</div></div><div\x20class=\x22inspect-stat\x22>','adminOutput',';\x20cursor:\x20pointer;\x20width:\x2060px;\x20height:\x2060px;\x22\x20onclick=\x22if(socket)\x20socket.emit(\x27transferFromStorage\x27,\x20','Low-End\x20Mode:\x20ON','idle','newHp','portalId','ah-sell-grid','resetMobileWindow','playBGM','material','music/splash.mp3','translate3d(','<button\x20class=\x22btn\x22\x20style=\x22background:#555;\x20width:100%;\x22\x20onclick=\x22document.getElementById(\x27daily-missions-modal\x27).style.display=\x27none\x27\x22>Close</button>','purchaseExoGems','game-container','trainingtavern','getBoundingClientRect','endX','lastSentState','electronAPI','cosmetics-craft-modal','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22width:30%;\x20font-size:12px;\x20color:#e0e0e0;\x22>','20px','currentPlatform','<div\x20class=\x22inspect-empty\x22>None</div>','margin-top:20px;\x20padding:12px\x2024px;\x20background:#f44336;\x20color:white;\x20border:none;\x20border-radius:5px;\x20cursor:pointer;\x20font-weight:bold;\x20font-size:16px;\x20box-shadow:0\x200\x2010px\x20red;\x20text-transform:\x20uppercase;','inventory-grid','Auto-Attack:\x20OFF\x20(AFK\x20Mode)','from','</strong></span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span>Funds:\x20<strong\x20style=\x22color:#FFD700;\x22>','isProcessingShop','Sleight\x20of\x20Hand','Render\x20crash\x20caught,\x20bypassing:','Are\x20you\x20sure\x20you\x20want\x20to\x20become\x20a\x20','2px\x20solid\x20#f44336','Master','shootFoxFire','altKey','Sharpen\x20Up!','isArray','<p\x20style=\x22color:#aaa;\x20font-size:12px;\x20margin-bottom:15px;\x22>Target:\x20','divine-forge-modal','tech-drone','ui-name-display','<span\x20style=\x22color:#FFD700;\x20font-weight:bold;\x20font-size:14px;\x20text-shadow:\x200\x200\x205px\x20rgba(255,215,0,0.5);\x22>Value:\x20','gain','tradeStarted','collisions','requestGuildUI_Refresh','forceTeleport','pointer','craftSuccess','Permanently\x20changes\x20your\x20character\x20name.\x20(Cannot\x20be\x20undone)','<button\x20class=\x22btn\x22\x20style=\x22background:#311B92;\x20width:100%;\x20margin-bottom:5px;\x20padding:8px;\x22\x20onclick=\x22window.customPrompt(\x27Enter\x20character\x20name\x20to\x20invite:\x27,\x20function(n)\x20{\x20if(n\x20&&\x20n.trim()\x20!==\x20\x27\x27)\x20socket.emit(\x27guildInvitePlayer\x27,\x20n.trim());\x20})\x22>Invite\x20Player</button>','left','querySelectorAll','toggleStats','emailVerifiedSuccess','respondInvite','nin4','attached_item','Spend\x20','Trade\x20completed.','splitInventoryItem','btn-consumables-craft','white-splash','Equip\x20Pet','getUTCDay','serverLevelUp','startTavern','localhost','Extreme','openHomeSaleUI','CLASS\x20RESET','url','Easter\x20Egg\x20Pet','requestTrade','getTotalStat','animation/avatar_head.png','damage','rgba(0,\x200,\x200,\x200.85)','petData','<div\x20style=\x22color:#888;\x20margin-top:6px;\x22>Sprite:\x20','Kei','Exo\x20Gems','world-boss-timer','#ffffff','50%\x2050%\x2040%\x2040%','inspectTitle','❌\x20Solo\x20Challenge!\x20You\x20must\x20leave\x20your\x20party\x20to\x20enter\x20the\x20Tavern.','ah-selected-item-tooltip','Instagram','linear','❌\x20You\x20need\x20a\x20','player-armor','>Unique</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22Legendary\x22\x20','starter','verify-code-input','emailError','connect','leaderId','updateLootFilter','MapDatabase','setValueAtTime','<p\x20style=\x22font-size:12px;\x20color:#aaa;\x20margin-bottom:20px;\x22>Choose\x20your\x20destination.</p>','name-tag','touchcancel','25%\x20chance\x20to\x20dodge\x20any\x20incoming\x20attack.','Your\x20skills\x20become\x20AoE\x20and\x20hit\x20all\x20nearby\x20enemies.',';\x20display:inline-block;\x20text-align:center;\x20box-shadow:0\x202px\x204px\x20rgba(0,0,0,0.5);\x20transition:all\x200.2s\x20ease;\x22\x20onclick=\x22window.selectForgeItem(','playerHead','Agility','tavern-timer-ui','\x0a\x20\x20\x20\x20\x20\x20\x20\x20','Loot\x20filter\x20updated.','height','revive-juice-btn','guild-invite-dialog','pointercancel','px;\x20transform-origin:0\x2050%;\x20transform:rotate(','attemptEnhance','showLinkedItem','eq-box-weapon','Google\x20Play\x20Error:\x20','closeHauntedUI','Auto-Attack:\x20','onerror','scale(','<span\x20style=\x22color:#4CAF50;\x22>+','#9c27b0','isTransitioning','snp1','#4E342E','shop-potion-qty','orderId','.player-avatar-container','enableMobileWindowControls','openForgerStatSelect','<p\x20style=\x22color:#888;\x20font-size:12px;\x22>Come\x20back\x20tomorrow\x20for\x20a\x20new\x20mission.</p>','null','Cancel\x20this\x20auction?\x20The\x20item\x20will\x20be\x20returned\x20to\x20your\x20inventory.','padding','4px\x20solid\x20#2196F3','mapId','removeItem','length','6PaARpD','Summons\x20a\x20200%\x20stat\x20clone\x20for\x2010\x20seconds.','Drops\x203\x20icicles\x20on\x20the\x20enemy.','clampWindowToViewport','\x27)\x22\x20title=\x22Click\x20to\x20inspect\x22>','item','Error:\x20The\x20app\x20could\x20not\x20find\x20this\x20product\x20ID:\x20','log','All\x20boxes\x20cleared.','getOffer','.title-tag','currentTime','❌\x20Only\x20the\x20Party\x20Leader\x20can\x20use\x20the\x20Maze\x20Guide.','Member','randomStat','ctx-btn','partyRevive','?\x20This\x20is\x20permanent!','\x0a\x20\x20\x20\x20/*\x20🛑\x20Disable\x20Weapon\x20Glows\x20&\x20Animations\x20*/\x0a\x20\x20\x20\x20body.low-perf\x20.weapon-aura-legendary,\x0a\x20\x20\x20\x20body.low-perf\x20.weapon-aura-godly,\x0a\x20\x20\x20\x20body.low-perf\x20.weapon-aura-divine\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20filter:\x20none\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20animation:\x20none\x20!important;\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20\x0a\x20\x20\x20\x20/*\x20🛑\x20Completely\x20Hide\x20Normal\x20Cosmetic\x20Armor\x20Auras,\x20BUT\x20KEEP\x20DIVINE\x20WINGS\x20*/\x0a\x20\x20\x20\x20body.low-perf\x20.cosmetic-aura:not(.aura-divine),\x0a\x20\x20\x20\x20body.low-perf\x20.aura:not(.aura-divine)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20display:\x20none\x20!important;\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20/*\x20👑\x20Optimize\x20Divine\x20Aura\x20for\x20Low-End\x20(Keep\x20Wings\x20&\x20Basic\x20Gold\x20Aura)\x20*/\x0a\u00a0\x20\u00a0\x20body.low-perf\x20.avatar-rig:has(.aura-divine)\x20{\x0a\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20animation:\x20none\x20!important;\x0a\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20filter:\x20drop-shadow(0\x200\x205px\x20#ffea00)\x20!important;\x20/*\x20🌟\x20THE\x20FIX:\x20A\x20single,\x20lightweight\x20static\x20gold\x20outline\x20*/\x0a\u00a0\x20\u00a0\x20}\x0a\u00a0\x20\u00a0\x20body.low-perf\x20.cosmetic-aura.aura-divine::before\x20{\x0a\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20box-shadow:\x20-2px\x200\x204px\x20#ffea00\x20!important;\x20/*\x20Tiny,\x20cheap\x20glow\x20for\x20left\x20wing\x20*/\x0a\u00a0\x20\u00a0\x20}\x0a\u00a0\x20\u00a0\x20body.low-perf\x20.cosmetic-aura.aura-divine::after\x20{\x0a\u00a0\x20\u00a0\x20\u00a0\x20\u00a0\x20box-shadow:\x202px\x200\x204px\x20#ffea00\x20!important;\x20/*\x20Tiny,\x20cheap\x20glow\x20for\x20right\x20wing\x20*/\x0a\u00a0\x20\u00a0\x20}\x0a\x0a\x20\x20\x20\x20/*\x20🛑\x20Strip\x20Expensive\x20Shadows\x20from\x20Projectiles\x20&\x20Effects\x20*/\x0a\x20\x20\x20\x20body.low-perf\x20.magic-orb,\x0a\x20\x20\x20\x20body.low-perf\x20.monster-fireball,\x0a\x20\x20\x20\x20body.low-perf\x20.fox-fireball,\x0a\x20\x20\x20\x20body.low-perf\x20.spark,\x0a\x20\x20\x20\x20body.low-perf\x20.white-splash,\x0a\x20\x20\x20\x20body.low-perf\x20.earthquake-ring\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20box-shadow:\x20none\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20filter:\x20none\x20!important;\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20/*\x20🛑\x20Strip\x20Glows\x20from\x20Pets\x20&\x20Clones\x20*/\x0a\x20\x20\x20\x20body.low-perf\x20.pet-wisp,\x0a\x20\x20\x20\x20body.low-perf\x20.pet-owl,\x0a\x20\x20\x20\x20body.low-perf\x20.pet-fox,\x0a\x20\x20\x20\x20body.low-perf\x20.pet-clone\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20box-shadow:\x20none\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20filter:\x20none\x20!important;\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20/*\x20🛑\x20Flatten\x20Leaderboard\x20Nameplates\x20*/\x0a\x20\x20\x20\x20body.low-perf\x20.rank-1-name,\x0a\x20\x20\x20\x20body.low-perf\x20.rank-2-name,\x0a\x20\x20\x20\x20body.low-perf\x20.rank-3-name\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20animation:\x20none\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20filter:\x20none\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20text-shadow:\x201px\x201px\x200\x20#000\x20!important;\x20\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20/*\x20🛑\x20Hide\x20Fog\x20of\x20War\x20Canvas\x20Completely\x20(Massive\x20CPU\x20Saver)\x20*/\x0a\x20\x20\x20\x20body.low-perf\x20#fow-canvas\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20display:\x20none\x20!important;\x0a\x20\x20\x20\x20}\x0a','isHiddenAdmin','potion','music/slash.mp3','.ice-cube-overlay','openRealMoneyShop','monsterKey','Unique','reward','requestMazeTeleport','actionSplit','bossfight','Normal\x20cosmetics\x20and\x20pets\x20cannot\x20be\x20auctioned!','\x20invited\x20you\x20to\x20join\x20[','add','weaponSprite','white','Ice\x20Master','addPersistentChat','\x20Gold</span><br>','rareLootBroadcast','dungeon-entries-text','pet-egg','px;\x20width:80px;\x20height:80px;\x20background:radial-gradient(circle,\x20rgba(100,100,100,0.9)\x200%,\x20rgba(150,150,150,0.5)\x2050%,\x20transparent\x2070%);\x20border-radius:50%;\x20z-index:40;\x20pointer-events:none;\x20animation:\x20pulseText\x201.5s\x20infinite\x20alternate;','startHauntedHouse','floor','closeInspect','translateX(-50%)','targetY','\x20EXP','Blinks\x20in\x20the\x20direction\x20you\x20are\x20facing.','remove','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22mail-item-preview\x22\x20style=\x22background:#222;\x20border:\x201px\x20dashed\x20#ffd700;\x20padding:\x2010px;\x20margin-bottom:10px;\x20border-radius:\x204px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20style=\x22color:#aaa;\x20font-size:12px;\x22>Attached\x20Loot:</span><br>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<strong\x20style=\x22color:#ffd700;\x20font-size:16px;\x22>','initialize','radial-gradient(circle,\x20rgba(255,87,34,0.8)\x200%,\x20rgba(255,152,0,0.4)\x2050%,\x20transparent\x2070%)','playerFriends','pet-slime','<span\x20style=\x22color:#00ffff;\x20font-size:13px;\x20letter-spacing:2px;\x22>Sockets:\x20','isDungeonUIOpen','game_opened','inv-qty',')\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','teleportApproved','0\x200\x2020px\x20#f44336','OFF','collision','context','You\x20are\x20now\x20a\x20','You\x20are\x20no\x20longer\x20in\x20a\x20party.','animation/avatar_idlefront.png','Heal','You\x20drank\x20the\x20Revival\x20Juice\x20and\x20came\x20back\x20to\x20life!','sword','portal-timer-ui','partyUpdate','No\x20Revival\x20Juice\x20found.',';\x22\x20onclick=\x22window.showLinkedItem(\x27','position:fixed;\x20top:0;\x20left:0;\x20width:100%;\x20height:100%;\x20background:rgba(0,0,0,0.9);\x20z-index:99999;\x20display:flex;\x20justify-content:center;\x20align-items:center;','titleUnlocked','pointerdown','Map\x20saved\x20to\x20server!','openPlayerContextMenu','clearRect','Revival\x20Juice\x20Bundle\x20(x10)','replace','#888','IMMORTAL','email-verify-screen','saveMapFile','.monster-hp-fill','createElement','owl','magic-orb','focus','\x20for\x20','Fetching\x20Redeem\x20Code...','Molotov','pulseText\x200.5s\x20infinite\x20alternate','remotePetSync','Blue\x20Exo\x20Metal','polling','setProperty','currentBodySrc','background','vendor','ah-browse-results','monsters','fowFrameCount','maxHp','clientY','pet-owl','paused','ui-exp-text','/api/shop/init','warn','map-announcement-text','cdt-'];_0xe910=function(){return _0x503c38;};return _0xe910();}const exonieChannel=new BroadcastChannel(_0x5d14f9(0x514));exonieChannel[_0x5d14f9(0x365)](_0x5d14f9(0x7ff)),exonieChannel[_0x5d14f9(0x64c)]=_0x209576=>{const _0x4179e6=_0x5d14f9;if(_0x209576[_0x4179e6(0x8dc)]==='game_opened')exonieChannel[_0x4179e6(0x365)](_0x4179e6(0x6e3));else{if(_0x209576[_0x4179e6(0x8dc)]===_0x4179e6(0x6e3)){document[_0x4179e6(0x4d5)][_0x4179e6(0x882)]=_0x4179e6(0x417);if(typeof socket!=='undefined')socket[_0x4179e6(0x480)]();}}};let serverUrl='https://exonieonline.onrender.com';if(typeof window!==_0x5d14f9(0x22b)&&window['location']){const host=window['location'][_0x5d14f9(0x597)];if(host[_0x5d14f9(0x67b)](_0x5d14f9(0x56a)))serverUrl='https://testexonie.onrender.com';else(host===_0x5d14f9(0x77a)||host==='127.0.0.1')&&(serverUrl='http://localhost:3000');}const socket=io(serverUrl,{'transports':[_0x5d14f9(0x63b),_0x5d14f9(0x828)],'reconnection':!![],'reconnectionAttempts':0xa,'reconnectionDelay':0x7d0,'reconnectionDelayMax':0x1388,'timeout':0x4e20});socket['on'](_0x5d14f9(0x3db),()=>{const _0x4f32e9=_0x5d14f9;console[_0x4f32e9(0x7cd)](_0x4f32e9(0x90e));});let currentShopItem=null;window[_0x5d14f9(0x752)]=![];let isMailboxOpen=![],isChatting=![],isInventoryOpen=![],isSkillOpen=![],isShopping=![],localBossTimer=null,isEnhancing=![],isApplyingAura=![];window[_0x5d14f9(0x2c4)]=![];let activeInvIndex=-0x1,attackCooldownActive=![],isAttacking=![],attackHeld=![],autoAttackMode=![],lastNetTs=0x0,lastSentState=_0x5d14f9(0x737),pendingPartyInvite=null,pendingTradeInvite=null,inTradeMode=![],tradeTarget=null,tradeMyItems=[null,null,null],tradeTheirItems=[null,null,null],lastVitalsSent={'hp':null,'maxHp':null,'level':null},lastVitalsTs=0x0,isDrawing=![],startX=0x0,startY=0x0,currentBox=null,drawType=_0x5d14f9(0x805),currentBGM=null,currentTrackName='',activeTargetPlayerId=null,currentAnimationId=null,lastFrameTime=0x0;const fpsInterval=0x3e8/0x3c;window[_0x5d14f9(0x421)]=[_0x5d14f9(0x787),_0x5d14f9(0x619),_0x5d14f9(0x498)],window[_0x5d14f9(0x346)]=function(_0x5d07b3){const _0x4367e5=_0x5d14f9;return window[_0x4367e5(0x421)]['includes'](_0x5d07b3);},window[_0x5d14f9(0x3c2)]=![],window['isLoading']=![],window[_0x5d14f9(0x7fe)]=![],window[_0x5d14f9(0x880)]=![],window[_0x5d14f9(0x5a1)]=null,window['potionCooldownReadyAt']=0x0;const dom={'game':document[_0x5d14f9(0x6de)]('game-screen'),'playerContainer':document['getElementById'](_0x5d14f9(0x3ce)),'playerAvatarContainer':document[_0x5d14f9(0x6de)](_0x5d14f9(0x275)),'playerBody':document[_0x5d14f9(0x6de)](_0x5d14f9(0x541)),'playerHead':document[_0x5d14f9(0x6de)]('player-head'),'playerHair':document['getElementById'](_0x5d14f9(0x616)),'playerWeapon':document[_0x5d14f9(0x6de)](_0x5d14f9(0x4c6)),'playerArmor':document['getElementById'](_0x5d14f9(0x792)),'playerLeggings':document[_0x5d14f9(0x6de)](_0x5d14f9(0x531)),'world':document[_0x5d14f9(0x6de)](_0x5d14f9(0x36e)),'log':document[_0x5d14f9(0x6de)](_0x5d14f9(0x5bc)),'statScreen':document[_0x5d14f9(0x6de)]('stat-screen'),'invScreen':document[_0x5d14f9(0x6de)](_0x5d14f9(0x6a6)),'inspect':document[_0x5d14f9(0x6de)](_0x5d14f9(0x194)),'inspectContent':document[_0x5d14f9(0x6de)]('inspect-content'),'inspectTitle':document[_0x5d14f9(0x6de)](_0x5d14f9(0x940)),'partyPanel':document[_0x5d14f9(0x6de)](_0x5d14f9(0x385)),'partyMembers':document['getElementById'](_0x5d14f9(0x60d)),'adminOutput':document[_0x5d14f9(0x6de)](_0x5d14f9(0x60a)),'skillScreen':document[_0x5d14f9(0x6de)]('skill-screen'),'hotbar':document['getElementById'](_0x5d14f9(0x442))};window['game']={'isRunning':![],'isGhost':![],'keys':{'w':![],'a':![],'s':![],'d':![],'z':![],'x':![],'c':![]},'player':{'id':_0x5d14f9(0x2f5),'name':_0x5d14f9(0x8cd),'level':0x1,'currentHp':0x64,'x':0x3c0,'y':0x3e8,'width':0x30,'height':0x60,'w':0x18,'h':0x14,'teleportCooldown':0x0,'currentPortal':null,'equips':{'weapon':null},'currentBodySrc':'','playerClass':null,'immortalUntil':0x0,'untargetableUntil':0x0,'activePets':[],'lootFilter':{'Starter':!![],'Basic':!![],'Rare':!![],'Unique':!![],'Legendary':!![],'Godly':!![]}},'monsters':{},'remotePlayers':{},'party':null};const DatabaseManager={'saveTimer':null,'savePlayerData':function(_0x14ec45){const _0x5ab919=_0x5d14f9;_0x14ec45[_0x5ab919(0x7c3)]=safeMapData['id']||_0x5ab919(0x8ba),_0x14ec45[_0x5ab919(0x830)]=window[_0x5ab919(0x847)](),clearTimeout(this[_0x5ab919(0x2ea)]),this[_0x5ab919(0x2ea)]=setTimeout(()=>{const _0x2f4549=_0x5ab919;if(socket)socket[_0x2f4549(0x1b2)](_0x2f4549(0x29a),_0x14ec45);if(socket)socket[_0x2f4549(0x1b2)](_0x2f4549(0x6c8),{'equips':_0x14ec45['equips']});},0x258);}},skinFilters={'flesh':_0x5d14f9(0x91a),'yellow':'sepia(1)\x20hue-rotate(15deg)\x20saturate(3)\x20brightness(1.2)','green':_0x5d14f9(0x894),'blue':'sepia(1)\x20hue-rotate(180deg)\x20saturate(2)\x20brightness(1)','white':'grayscale(1)\x20brightness(1.8)\x20contrast(0.9)'},hairFilters={'black':_0x5d14f9(0x2d3),'blonde':'sepia(1)\x20hue-rotate(15deg)\x20saturate(3)\x20brightness(1.5)','brown':_0x5d14f9(0x334),'blue':_0x5d14f9(0x8da),'white':'grayscale(1)\x20brightness(1.8)\x20contrast(0.9)'};window[_0x5d14f9(0x2f3)]={'skinColor':_0x5d14f9(0x260),'hairColor':_0x5d14f9(0x581),'hairStyle':'1'},window[_0x5d14f9(0x643)]=![];let CAMERA_ZOOM=window[_0x5d14f9(0x6a2)]<=0x3b6?1.2:1.8;const STAT_TYPES=[_0x5d14f9(0x5d5),_0x5d14f9(0x286),_0x5d14f9(0x542),_0x5d14f9(0x70d),_0x5d14f9(0x579),_0x5d14f9(0x1c4),'hp'];window[_0x5d14f9(0x678)]=[];const rankStyle=document[_0x5d14f9(0x81e)](_0x5d14f9(0x290));rankStyle[_0x5d14f9(0x882)]=_0x5d14f9(0x584),document['head']['appendChild'](rankStyle);const monsterStyle=document[_0x5d14f9(0x81e)]('style');monsterStyle['innerHTML']=_0x5d14f9(0x458),document[_0x5d14f9(0x22e)][_0x5d14f9(0x463)](monsterStyle);const perfStyle=document[_0x5d14f9(0x81e)](_0x5d14f9(0x290));perfStyle[_0x5d14f9(0x882)]=_0x5d14f9(0x7d8),document['head'][_0x5d14f9(0x463)](perfStyle),window['updateNameplateRanks']=function(){const _0x215766=_0x5d14f9,_0x564dc9=window[_0x215766(0x678)]||[],_0x358ca1=(_0x30f2a8,_0x560c91)=>{const _0x12a7ce=_0x215766;if(!_0x30f2a8)return;_0x30f2a8[_0x12a7ce(0x4ea)][_0x12a7ce(0x7f7)](_0x12a7ce(0x464),_0x12a7ce(0x90c),_0x12a7ce(0x865));let _0x6b9cd1=_0x564dc9[_0x12a7ce(0x1ba)](_0x560c91);if(_0x6b9cd1===0x0)_0x30f2a8[_0x12a7ce(0x4ea)][_0x12a7ce(0x7e6)](_0x12a7ce(0x464));else{if(_0x6b9cd1===0x1)_0x30f2a8[_0x12a7ce(0x4ea)][_0x12a7ce(0x7e6)]('rank-2-name');else{if(_0x6b9cd1===0x2)_0x30f2a8[_0x12a7ce(0x4ea)]['add'](_0x12a7ce(0x865));}}};_0x358ca1(document[_0x215766(0x6de)](_0x215766(0x6c2)),game[_0x215766(0x32e)][_0x215766(0x1f3)]);for(const _0x5b5dd0 in game[_0x215766(0x840)]){const _0x1f07c9=game[_0x215766(0x840)][_0x5b5dd0];if(_0x1f07c9&&_0x1f07c9[_0x215766(0x474)]){const _0x394b90=_0x1f07c9[_0x215766(0x474)][_0x215766(0x33f)]('name-tag');if(_0x394b90[_0x215766(0x7c5)]>0x0)_0x358ca1(_0x394b90[0x0],_0x1f07c9['name']);}}},window[_0x5d14f9(0x936)]={'Starter':_0x5d14f9(0x84f),'Basic':_0x5d14f9(0x628),'Rare':'#2196F3','Unique':'#9c27b0','Legendary':_0x5d14f9(0x3c7),'Godly':_0x5d14f9(0x309),'Divine':'#ffea00'},window[_0x5d14f9(0x302)]={'sword':{'slot':_0x5d14f9(0x452),'statKey':_0x5d14f9(0x5d5),'baseName':_0x5d14f9(0x879),'spriteName':_0x5d14f9(0x80c)},'staff':{'slot':_0x5d14f9(0x452),'statKey':'magic','baseName':_0x5d14f9(0x2b0),'spriteName':'staff'},'pendant':{'slot':_0x5d14f9(0x452),'statKey':'magic','baseName':'Pendant','spriteName':_0x5d14f9(0x8cf)},'gun':{'slot':_0x5d14f9(0x452),'statKey':'attack','baseName':_0x5d14f9(0x522),'spriteName':'gun'},'dagger':{'slot':_0x5d14f9(0x452),'statKey':_0x5d14f9(0x5d5),'baseName':_0x5d14f9(0x3a1),'spriteName':'dagger'},'touchpad':{'slot':_0x5d14f9(0x452),'statKey':'magic','baseName':'Touchpad','spriteName':'touchpad'},'armor':{'slot':_0x5d14f9(0x509),'statKey':'defense','baseName':_0x5d14f9(0x1b9),'spriteName':_0x5d14f9(0x509)},'leggings':{'slot':_0x5d14f9(0x548),'statKey':'hp','baseName':_0x5d14f9(0x282),'spriteName':_0x5d14f9(0x548)}},window['MapDatabase']=window[_0x5d14f9(0x79a)]||{};let safeMapData={'id':_0x5d14f9(0x8ba),'name':_0x5d14f9(0x94d),'image':'town_map.png','spawnX':0x3c0,'spawnY':0x3e8,'collisions':[],'teleports':[],'normalSpawns':[],'miniBossSpawns':[],'floorBossSpawns':[]};const CLASSES={'Healer':{'weapon':_0x5d14f9(0x8cf),'aura':_0x5d14f9(0x6e9),'skills':[{'id':_0x5d14f9(0x653),'name':_0x5d14f9(0x80a),'unlock':0x1,'cd':0x4e20,'type':_0x5d14f9(0x6cd),'desc':_0x5d14f9(0x50a)},{'id':'heal2','name':_0x5d14f9(0x6b8),'unlock':0x19,'type':_0x5d14f9(0x615),'desc':_0x5d14f9(0x8f5)},{'id':_0x5d14f9(0x499),'name':_0x5d14f9(0x866),'unlock':0x32,'cd':0x186a0,'type':_0x5d14f9(0x6cd),'desc':_0x5d14f9(0x5c9)},{'id':_0x5d14f9(0x2ad),'name':'Healing\x20Touch','unlock':0x4b,'type':'passive','desc':_0x5d14f9(0x1de)}]},'Summoner':{'weapon':_0x5d14f9(0x8ce),'aura':_0x5d14f9(0x6da),'skills':[{'id':'sum1','name':_0x5d14f9(0x1d2),'unlock':0x1,'cd':0x61a8,'type':_0x5d14f9(0x6cd),'desc':'Summons\x20a\x20permanent\x20slime\x20with\x2025%\x20stats\x20to\x20fight\x20alongside\x20you.'},{'id':_0x5d14f9(0x265),'name':_0x5d14f9(0x513),'unlock':0x19,'type':_0x5d14f9(0x615),'desc':_0x5d14f9(0x3f5)},{'id':_0x5d14f9(0x5c3),'name':'Enhance!','unlock':0x32,'cd':0x186a0,'type':_0x5d14f9(0x6cd),'desc':_0x5d14f9(0x348)},{'id':_0x5d14f9(0x84a),'name':_0x5d14f9(0x2e7),'unlock':0x4b,'type':'passive','desc':_0x5d14f9(0x6e5)}]},'Ice\x20Master':{'weapon':'staff','aura':_0x5d14f9(0x6da),'skills':[{'id':_0x5d14f9(0x247),'name':_0x5d14f9(0x377),'unlock':0x1,'cd':0x61a8,'type':_0x5d14f9(0x6cd),'desc':_0x5d14f9(0x70b)},{'id':_0x5d14f9(0x214),'name':_0x5d14f9(0x344),'unlock':0x19,'type':_0x5d14f9(0x615),'desc':_0x5d14f9(0x5fd)},{'id':_0x5d14f9(0x4be),'name':_0x5d14f9(0x49b),'unlock':0x32,'cd':0x186a0,'type':_0x5d14f9(0x6cd),'desc':_0x5d14f9(0x7c8)},{'id':_0x5d14f9(0x5a7),'name':_0x5d14f9(0x8ec),'unlock':0x4b,'type':_0x5d14f9(0x615),'desc':_0x5d14f9(0x7a0)}]},'Berserker':{'weapon':_0x5d14f9(0x80c),'aura':'red','skills':[{'id':_0x5d14f9(0x28e),'name':'Callout!','unlock':0x1,'cd':0x36b0,'type':_0x5d14f9(0x6cd),'desc':_0x5d14f9(0x43b)},{'id':_0x5d14f9(0x4df),'name':_0x5d14f9(0x698),'unlock':0x19,'type':_0x5d14f9(0x615),'desc':_0x5d14f9(0x2be)},{'id':'ber3','name':_0x5d14f9(0x2cd),'unlock':0x32,'cd':0x186a0,'type':'active','desc':'Your\x20HP\x20cannot\x20drop\x20below\x201\x20for\x2010\x20seconds.'},{'id':_0x5d14f9(0x525),'name':_0x5d14f9(0x65a),'unlock':0x4b,'type':'passive','desc':_0x5d14f9(0x714)}]},'Blademaster':{'weapon':_0x5d14f9(0x80c),'aura':'red','skills':[{'id':_0x5d14f9(0x2e2),'name':_0x5d14f9(0x75a),'unlock':0x1,'type':'passive','desc':_0x5d14f9(0x21e)},{'id':_0x5d14f9(0x94e),'name':'Parry','unlock':0x19,'cd':0x32c8,'type':_0x5d14f9(0x6cd),'desc':_0x5d14f9(0x293)},{'id':'bld3','name':'Mega\x20Slash','unlock':0x32,'cd':0xc350,'type':_0x5d14f9(0x6cd),'desc':_0x5d14f9(0x462)},{'id':_0x5d14f9(0x6dd),'name':_0x5d14f9(0x5f1),'unlock':0x4b,'type':'passive','desc':_0x5d14f9(0x88e)}]},'Sniper':{'weapon':'gun','aura':_0x5d14f9(0x7e8),'skills':[{'id':_0x5d14f9(0x7b7),'name':_0x5d14f9(0x24d),'unlock':0x1,'type':_0x5d14f9(0x615),'desc':_0x5d14f9(0x875)},{'id':'snp2','name':_0x5d14f9(0x5da),'unlock':0x19,'cd':0x1388,'type':_0x5d14f9(0x6cd),'desc':_0x5d14f9(0x4bd)},{'id':'snp3','name':'Killshot','unlock':0x32,'cd':0xc350,'type':_0x5d14f9(0x6cd),'desc':_0x5d14f9(0x728)},{'id':'snp4','name':_0x5d14f9(0x55a),'unlock':0x4b,'type':'passive','desc':_0x5d14f9(0x453)}]},'Explosives\x20Expert':{'weapon':_0x5d14f9(0x554),'aura':_0x5d14f9(0x53d),'skills':[{'id':_0x5d14f9(0x3c3),'name':_0x5d14f9(0x824),'unlock':0x1,'cd':0x2ee0,'type':_0x5d14f9(0x6cd),'desc':_0x5d14f9(0x38f)},{'id':'exp2','name':_0x5d14f9(0x8c0),'unlock':0x19,'type':'passive','desc':_0x5d14f9(0x6ea)},{'id':_0x5d14f9(0x2a6),'name':'Go\x20Boom!','unlock':0x32,'cd':0x7530,'type':_0x5d14f9(0x6cd),'desc':_0x5d14f9(0x595)},{'id':_0x5d14f9(0x321),'name':_0x5d14f9(0x54f),'unlock':0x4b,'type':_0x5d14f9(0x615),'desc':_0x5d14f9(0x50b)}]},'Phantom\x20Striker':{'weapon':_0x5d14f9(0x3a4),'aura':_0x5d14f9(0x7e8),'skills':[{'id':_0x5d14f9(0x6a4),'name':'Shadow\x20Step','unlock':0x1,'cd':0x1388,'type':_0x5d14f9(0x6cd),'desc':_0x5d14f9(0x7f6)},{'id':_0x5d14f9(0x2ae),'name':_0x5d14f9(0x753),'unlock':0x19,'type':_0x5d14f9(0x615),'desc':'50%\x20chance\x20to\x20hit\x20twice\x20in\x20one\x20interval.'},{'id':_0x5d14f9(0x947),'name':_0x5d14f9(0x4e8),'unlock':0x32,'cd':0x7530,'type':_0x5d14f9(0x6cd),'desc':_0x5d14f9(0x849)},{'id':_0x5d14f9(0x538),'name':'Craftiness','unlock':0x4b,'type':_0x5d14f9(0x615),'desc':'25%\x20chance\x20on\x20normal\x20attack\x20to\x20reset\x20all\x20skill\x20cooldowns.'}]},'Ninja\x20Assassin':{'weapon':_0x5d14f9(0x3a4),'aura':_0x5d14f9(0x63c),'skills':[{'id':_0x5d14f9(0x8f0),'name':'Smoke\x20Bomb','unlock':0x1,'cd':0x2710,'type':_0x5d14f9(0x6cd),'desc':_0x5d14f9(0x2fa)},{'id':_0x5d14f9(0x212),'name':_0x5d14f9(0x7a3),'unlock':0x19,'type':'passive','desc':_0x5d14f9(0x79f)},{'id':_0x5d14f9(0x638),'name':_0x5d14f9(0x33a),'unlock':0x32,'cd':0xc350,'type':_0x5d14f9(0x6cd),'desc':_0x5d14f9(0x7c7)},{'id':_0x5d14f9(0x76f),'name':_0x5d14f9(0x3aa),'unlock':0x4b,'type':_0x5d14f9(0x615),'desc':'Increases\x20your\x20dodge\x20chance\x20to\x2035%.'}]},'Tech\x20Genius':{'weapon':_0x5d14f9(0x871),'aura':_0x5d14f9(0x6da),'skills':[{'id':_0x5d14f9(0x2f7),'name':'Gadget\x20Drone','unlock':0x1,'type':_0x5d14f9(0x615),'desc':_0x5d14f9(0x83b)},{'id':_0x5d14f9(0x446),'name':'Gamma\x20Shield','unlock':0x19,'cd':0x186a0,'type':'active','desc':_0x5d14f9(0x2a8)},{'id':_0x5d14f9(0x688),'name':_0x5d14f9(0x85e),'unlock':0x32,'cd':0x186a0,'type':'active','desc':_0x5d14f9(0x504)},{'id':_0x5d14f9(0x4d4),'name':_0x5d14f9(0x496),'unlock':0x4b,'type':_0x5d14f9(0x615),'desc':_0x5d14f9(0x83f)}]}};window[_0x5d14f9(0x1e8)]=function(){const _0x1790e4=_0x5d14f9;isSkillOpen=!isSkillOpen,dom[_0x1790e4(0x4a8)]['style'][_0x1790e4(0x642)]=isSkillOpen?'block':_0x1790e4(0x1ec),isSkillOpen&&(window['renderSkillScreen'](),window[_0x1790e4(0x681)]()&&(window[_0x1790e4(0x7bc)](dom[_0x1790e4(0x4a8)]),window[_0x1790e4(0x919)](dom['skillScreen']),window[_0x1790e4(0x7c9)](dom['skillScreen'])));},window[_0x5d14f9(0x1e3)]=function(){const _0x4fc488=_0x5d14f9;let _0x1e2b3c=game[_0x4fc488(0x32e)]['baseStats']?.['playerClass']||null,_0x12b1c8=null;if(game[_0x4fc488(0x32e)][_0x4fc488(0x670)]?.[_0x4fc488(0x452)]?.[_0x4fc488(0x573)]){let _0x55693c=String(game[_0x4fc488(0x32e)]['equips'][_0x4fc488(0x452)][_0x4fc488(0x573)])[_0x4fc488(0x649)]();if(_0x55693c[_0x4fc488(0x67b)](_0x4fc488(0x80c)))_0x12b1c8=_0x4fc488(0x80c);else{if(_0x55693c[_0x4fc488(0x67b)](_0x4fc488(0x8ce)))_0x12b1c8='staff';else{if(_0x55693c[_0x4fc488(0x67b)]('pendant'))_0x12b1c8=_0x4fc488(0x8cf);else{if(_0x55693c['includes'](_0x4fc488(0x554)))_0x12b1c8='gun';else{if(_0x55693c[_0x4fc488(0x67b)](_0x4fc488(0x3a4)))_0x12b1c8=_0x4fc488(0x3a4);else{if(_0x55693c['includes'](_0x4fc488(0x871)))_0x12b1c8='touchpad';}}}}}}if(!_0x1e2b3c||!CLASSES[_0x1e2b3c]){document[_0x4fc488(0x6de)](_0x4fc488(0x37c))[_0x4fc488(0x290)]['display']=_0x4fc488(0x1ec);let _0x395cb4=document['getElementById']('class-selection-area'),_0x1c8dfe=document[_0x4fc488(0x6de)](_0x4fc488(0x51f));_0x395cb4[_0x4fc488(0x290)][_0x4fc488(0x642)]=_0x4fc488(0x53c),_0x1c8dfe[_0x4fc488(0x882)]='';if(!_0x12b1c8){_0x1c8dfe[_0x4fc488(0x882)]=_0x4fc488(0x324);return;}for(let _0xd7e039 in CLASSES){if(CLASSES[_0xd7e039]['weapon']===_0x12b1c8){let _0x29553f=document['createElement'](_0x4fc488(0x8fa));_0x29553f[_0x4fc488(0x228)]='skill-class-card',_0x29553f[_0x4fc488(0x882)]=_0x4fc488(0x1cb)+_0xd7e039+'</h3><p\x20style=\x22color:#aaa;\x20font-size:13px;\x20margin:5px\x200\x200\x200;\x22>Weapon:\x20'+(_0x12b1c8['charAt'](0x0)[_0x4fc488(0x241)]()+_0x12b1c8[_0x4fc488(0x946)](0x1))+_0x4fc488(0x1d9),_0x29553f[_0x4fc488(0x4c4)]=()=>window['chooseClass'](_0xd7e039),_0x1c8dfe['appendChild'](_0x29553f);}}}else{document['getElementById']('class-selection-area')['style'][_0x4fc488(0x642)]=_0x4fc488(0x1ec),document[_0x4fc488(0x6de)](_0x4fc488(0x37c))[_0x4fc488(0x290)][_0x4fc488(0x642)]=_0x4fc488(0x53c),document[_0x4fc488(0x6de)](_0x4fc488(0x254))[_0x4fc488(0x492)]=_0x1e2b3c;let _0x50f692=document[_0x4fc488(0x6de)](_0x4fc488(0x6bf));_0x50f692['innerHTML']='',CLASSES[_0x1e2b3c][_0x4fc488(0x8ae)]['forEach'](_0x4d02e=>{const _0x8b7de0=_0x4fc488;let _0x35b4f2=game[_0x8b7de0(0x32e)]['level']>=_0x4d02e['unlock'],_0x23e552=_0x35b4f2?'#4CAF50':_0x8b7de0(0x3c7);_0x50f692[_0x8b7de0(0x882)]+='<div\x20class=\x22skill-row\x22><div><div\x20style=\x22font-weight:bold;\x20color:'+_0x23e552+';\x22>'+_0x4d02e[_0x8b7de0(0x1f3)]+'\x20'+(_0x4d02e['type']===_0x8b7de0(0x615)?'(Passive)':'')+_0x8b7de0(0x6db)+_0x4d02e[_0x8b7de0(0x5b2)]+_0x8b7de0(0x557)+_0x4d02e['unlock']+_0x8b7de0(0x3eb)+(_0x4d02e['cd']?_0x4d02e['cd']/0x3e8+_0x8b7de0(0x669):'')+_0x8b7de0(0x258);});}},window[_0x5d14f9(0x430)]=function(_0x4917a0){const _0x4071f6=_0x5d14f9;if(!confirm(_0x4071f6(0x755)+_0x4917a0+_0x4071f6(0x7d7)))return;if(!game[_0x4071f6(0x32e)][_0x4071f6(0x526)])game[_0x4071f6(0x32e)][_0x4071f6(0x526)]={};game['player']['baseStats']['playerClass']=_0x4917a0,DatabaseManager[_0x4071f6(0x6d8)](game[_0x4071f6(0x32e)]),window['renderSkillScreen'](),window['updateSkillMenu'](),window[_0x4071f6(0x4b2)](),dom[_0x4071f6(0x7cd)][_0x4071f6(0x492)]=_0x4071f6(0x807)+_0x4917a0+'!',window[_0x4071f6(0x84e)](game['player']['x']+0x18,game[_0x4071f6(0x32e)]['y']+0x30);},window[_0x5d14f9(0x30b)]=function(){const _0x32bfc8=_0x5d14f9;let _0x265b40=![];const _0x458102=Date[_0x32bfc8(0x91c)]();if(game[_0x32bfc8(0x32e)][_0x32bfc8(0x289)])for(let _0x562b94=0x0;_0x562b94<0x2;_0x562b94++){let _0x2a087c=game['player']['activeSkills'][_0x562b94];if(_0x2a087c){let _0x1bfd1b=document['getElementById'](_0x32bfc8(0x3f8)+(_0x562b94+0x1)),_0x101787=document[_0x32bfc8(0x6de)](_0x32bfc8(0x838)+(_0x562b94+0x1));if(_0x458102<_0x2a087c['cooldownReadyAt']){let _0x58b8b4=_0x2a087c['cooldownReadyAt']-_0x458102,_0x1bd21e=_0x58b8b4/_0x2a087c['cd']*0x64;if(_0x1bfd1b)_0x1bfd1b[_0x32bfc8(0x290)]['height']=_0x1bd21e+'%';_0x101787&&(_0x101787[_0x32bfc8(0x290)]['display']=_0x32bfc8(0x53c),_0x101787[_0x32bfc8(0x492)]=Math['ceil'](_0x58b8b4/0x3e8)),_0x265b40=!![];}else{if(_0x1bfd1b)_0x1bfd1b[_0x32bfc8(0x290)][_0x32bfc8(0x7a7)]='0%';if(_0x101787)_0x101787[_0x32bfc8(0x290)][_0x32bfc8(0x642)]=_0x32bfc8(0x1ec);}}}let _0x1e4309=document['getElementById'](_0x32bfc8(0x4b8));if(window[_0x32bfc8(0x2c8)]&&_0x458102<window['potionCooldownReadyAt']){let _0x4f7136=window[_0x32bfc8(0x2c8)]-_0x458102,_0x546882=_0x4f7136/0x1388*0x64;if(_0x1e4309)_0x1e4309[_0x32bfc8(0x290)][_0x32bfc8(0x7a7)]=_0x546882+'%';_0x265b40=!![];}else{if(_0x1e4309)_0x1e4309[_0x32bfc8(0x290)]['height']='0%';}_0x265b40&&requestAnimationFrame(window[_0x32bfc8(0x30b)]);},window[_0x5d14f9(0x4d1)]=function(){const _0x340f92=_0x5d14f9;let _0x1cbf1f=game[_0x340f92(0x32e)][_0x340f92(0x526)]?.[_0x340f92(0x4e7)]||null,_0x43b985=null;if(game[_0x340f92(0x32e)][_0x340f92(0x670)]?.[_0x340f92(0x452)]?.[_0x340f92(0x573)]){let _0x55b408=String(game[_0x340f92(0x32e)][_0x340f92(0x670)]['weapon'][_0x340f92(0x573)])['toLowerCase']();if(_0x55b408[_0x340f92(0x67b)](_0x340f92(0x80c)))_0x43b985=_0x340f92(0x80c);else{if(_0x55b408[_0x340f92(0x67b)](_0x340f92(0x8ce)))_0x43b985=_0x340f92(0x8ce);else{if(_0x55b408[_0x340f92(0x67b)](_0x340f92(0x8cf)))_0x43b985='pendant';else{if(_0x55b408['includes'](_0x340f92(0x554)))_0x43b985=_0x340f92(0x554);else{if(_0x55b408[_0x340f92(0x67b)](_0x340f92(0x3a4)))_0x43b985=_0x340f92(0x3a4);else{if(_0x55b408[_0x340f92(0x67b)](_0x340f92(0x871)))_0x43b985=_0x340f92(0x871);}}}}}}if(game[_0x340f92(0x32e)][_0x340f92(0x4ec)]){let _0x2fcf1b=game[_0x340f92(0x32e)][_0x340f92(0x4ec)][_0x340f92(0x3a0)](_0x404590=>_0x404590[_0x340f92(0x1ca)]);if(_0x2fcf1b!==-0x1&&_0x1cbf1f!==_0x340f92(0x895)){game['player'][_0x340f92(0x4ec)][_0x2fcf1b][_0x340f92(0x474)]['remove']();if(socket)socket['emit'](_0x340f92(0x64a),{'id':game[_0x340f92(0x32e)][_0x340f92(0x4ec)][_0x2fcf1b]['id'],'alive':![]});game[_0x340f92(0x32e)][_0x340f92(0x4ec)][_0x340f92(0x1a0)](_0x2fcf1b,0x1);}if(_0x1cbf1f==='Tech\x20Genius'&&_0x2fcf1b===-0x1){let _0xe14c13=_0x340f92(0x8e1)+game[_0x340f92(0x32e)]['id'],_0xfd9fb4=document[_0x340f92(0x81e)](_0x340f92(0x8fa));_0xfd9fb4[_0x340f92(0x228)]=_0x340f92(0x75e),dom['world'][_0x340f92(0x463)](_0xfd9fb4);let _0x247208={'id':_0xe14c13,'dom':_0xfd9fb4,'x':game[_0x340f92(0x32e)]['x'],'y':game[_0x340f92(0x32e)]['y'],'hp':0xf423f,'maxHp':0xf423f,'isDrone':!![]};game[_0x340f92(0x32e)][_0x340f92(0x4ec)]['push'](_0x247208);if(socket)socket[_0x340f92(0x1b2)]('syncPet',{'id':_0xe14c13,'x':_0x247208['x'],'y':_0x247208['y'],'alive':!![],'isDrone':!![]});}}if(!_0x1cbf1f||!CLASSES[_0x1cbf1f]||CLASSES[_0x1cbf1f][_0x340f92(0x452)]!==_0x43b985){if(dom[_0x340f92(0x442)])dom['hotbar']['style'][_0x340f92(0x642)]=_0x340f92(0x8c1);game[_0x340f92(0x32e)][_0x340f92(0x289)]=[];const _0x4b12af=document[_0x340f92(0x6de)](_0x340f92(0x927)),_0x34a1b0=document['getElementById']('hotbar-2'),_0x148d0d=document['getElementById'](_0x340f92(0x70a));if(_0x4b12af)_0x4b12af[_0x340f92(0x290)][_0x340f92(0x642)]=_0x340f92(0x1ec);if(_0x34a1b0)_0x34a1b0[_0x340f92(0x290)]['display']=_0x340f92(0x1ec);if(_0x148d0d)_0x148d0d[_0x340f92(0x290)][_0x340f92(0x642)]=_0x340f92(0x8c1);window['updatePotionHotbar']();return;}let _0x5625b5={};game[_0x340f92(0x32e)][_0x340f92(0x289)]&&game[_0x340f92(0x32e)][_0x340f92(0x289)][_0x340f92(0x7c5)]>0x0&&game[_0x340f92(0x32e)][_0x340f92(0x289)]['forEach'](_0x20e283=>{const _0x51b325=_0x340f92;_0x5625b5[_0x20e283['id']]=_0x20e283[_0x51b325(0x44e)];});dom[_0x340f92(0x442)][_0x340f92(0x290)]['display']=_0x340f92(0x8c1),game[_0x340f92(0x32e)]['activeSkills']=[];let _0x2cb467=0x0;CLASSES[_0x1cbf1f][_0x340f92(0x8ae)][_0x340f92(0x4c1)](_0x42d437=>{const _0x4be596=_0x340f92;if(_0x42d437[_0x4be596(0x6d0)]===_0x4be596(0x6cd)&&game['player'][_0x4be596(0x3f2)]>=_0x42d437[_0x4be596(0x600)]&&_0x2cb467<0x2){let _0x428586=_0x5625b5[_0x42d437['id']]||0x0;game['player'][_0x4be596(0x289)][_0x4be596(0x2c9)]({'id':_0x42d437['id'],'name':_0x42d437['name'],'cd':_0x42d437['cd'],'cooldownReadyAt':_0x428586,'execute':()=>window[_0x4be596(0x52e)](_0x42d437['id'],_0x1cbf1f)}),document['getElementById'](_0x4be596(0x26f)+(_0x2cb467+0x1))['style'][_0x4be596(0x642)]=_0x4be596(0x8c1),document[_0x4be596(0x6de)]('hotbar-name-'+(_0x2cb467+0x1))[_0x4be596(0x492)]=_0x42d437[_0x4be596(0x1f3)],_0x2cb467++;}});for(let _0x101f35=_0x2cb467;_0x101f35<0x2;_0x101f35++){document[_0x340f92(0x6de)]('hotbar-'+(_0x101f35+0x1))[_0x340f92(0x290)]['display']=_0x340f92(0x1ec);}const _0x4f30f9=document[_0x340f92(0x6de)](_0x340f92(0x70a));if(_0x4f30f9)_0x4f30f9['style'][_0x340f92(0x642)]='flex';window[_0x340f92(0x30b)](),window[_0x340f92(0x378)]();},window[_0x5d14f9(0x52e)]=function(_0x3cf673,_0x403ad3){const _0x142780=_0x5d14f9;if(game['player'][_0x142780(0x626)]&&Date[_0x142780(0x91c)]()<game[_0x142780(0x32e)]['frozenUntil']){if(dom[_0x142780(0x7cd)])dom['log'][_0x142780(0x492)]=_0x142780(0x224);return;}if(safeMapData['id']===_0x142780(0x8ba)){if(dom['log'])dom[_0x142780(0x7cd)][_0x142780(0x492)]=_0x142780(0x471);return;}let _0x3af744=game[_0x142780(0x32e)][_0x142780(0x289)][_0x142780(0x4f9)](_0x4f4ba3=>_0x4f4ba3['id']===_0x3cf673);if(!_0x3af744)return;if(Date[_0x142780(0x91c)]()<_0x3af744[_0x142780(0x44e)]){if(dom[_0x142780(0x7cd)])dom['log'][_0x142780(0x492)]=_0x3af744[_0x142780(0x1f3)]+_0x142780(0x386);return;}attackCooldownActive=!![],setTimeout(()=>{attackCooldownActive=![];},0x320);const _0x50d597=window[_0x142780(0x5e5)]()||0x0,_0x1b4d5f=Math[_0x142780(0x7f1)](_0x50d597/0xc8)*0x3e8,_0x575485=Math[_0x142780(0x269)](0x1f4,_0x3af744['cd']-_0x1b4d5f);_0x3af744['cooldownReadyAt']=Date[_0x142780(0x91c)]()+_0x575485;if(typeof window[_0x142780(0x30b)]===_0x142780(0x268))window[_0x142780(0x30b)]();if(socket)socket[_0x142780(0x1b2)](_0x142780(0x485),{'skillId':_0x3cf673});const _0x232ba3=document['getElementById'](_0x142780(0x366));_0x232ba3&&(_0x232ba3[_0x142780(0x228)]=_0x142780(0x24c)+CLASSES[_0x403ad3][_0x142780(0x1b6)],_0x232ba3['style'][_0x142780(0x650)]='none',void _0x232ba3[_0x142780(0x6c6)],_0x232ba3[_0x142780(0x290)][_0x142780(0x650)]=_0x142780(0x853));const _0x1170c5=game[_0x142780(0x32e)][_0x142780(0x670)]?.[_0x142780(0x452)]?.['sprite']||'';if(typeof window[_0x142780(0x362)]===_0x142780(0x268))window[_0x142780(0x362)](_0x1170c5);if(typeof window[_0x142780(0x85a)]==='function')window['spawnSkillText'](game['player']['x']+0x18,game[_0x142780(0x32e)]['y']-0x14,_0x3af744['name'],'#00E5FF');if(_0x3cf673===_0x142780(0x6a4)){let _0x300428=window[_0x142780(0x3c2)]?0xa:-0xa,_0x143dff=0x12,_0x1e9663=game[_0x142780(0x32e)]['x'];for(let _0x2cb9ca=0x0;_0x2cb9ca<_0x143dff;_0x2cb9ca++){if(window[_0x142780(0x47d)](_0x1e9663+_0x300428,game[_0x142780(0x32e)]['y']))break;_0x1e9663+=_0x300428;}game[_0x142780(0x32e)]['x']=_0x1e9663,window[_0x142780(0x87e)](game[_0x142780(0x32e)]['x']+0x18,game[_0x142780(0x32e)]['y']+0x30),window['spawnDamageText'](game[_0x142780(0x32e)]['x']+0x18,game[_0x142780(0x32e)]['y']-0xa,'IMMUNE','#00E5FF');if(socket)socket[_0x142780(0x1b2)](_0x142780(0x395),{'x':game[_0x142780(0x32e)]['x'],'y':game[_0x142780(0x32e)]['y'],'state':_0x142780(0x6bd),'facingRight':window[_0x142780(0x3c2)],'weaponSprite':_0x1170c5});return;}if(_0x3cf673===_0x142780(0x688)){if(!game[_0x142780(0x32e)][_0x142780(0x4ec)])game[_0x142780(0x32e)]['activePets']=[];let _0x5f23f6=_0x142780(0x5bb)+Date['now'](),_0x227434=document[_0x142780(0x81e)](_0x142780(0x8fa));_0x227434[_0x142780(0x228)]=_0x142780(0x623),_0x227434[_0x142780(0x882)]=_0x142780(0x59d),_0x227434['style']['left']=game[_0x142780(0x32e)]['x']+'px',_0x227434[_0x142780(0x290)][_0x142780(0x706)]=game['player']['y']+'px',dom[_0x142780(0x36e)][_0x142780(0x463)](_0x227434);let _0x90d44f=(window['getTotalStat']('int')||0xa)*0xa,_0x3c8d1f={'id':_0x5f23f6,'dom':_0x227434,'x':game['player']['x'],'y':game[_0x142780(0x32e)]['y'],'homeX':game['player']['x'],'homeY':game[_0x142780(0x32e)]['y'],'hp':_0x90d44f,'maxHp':_0x90d44f,'isGolemBuster':!![],'skillRef':_0x3af744};game[_0x142780(0x32e)]['activePets'][_0x142780(0x2c9)](_0x3c8d1f);if(socket)socket[_0x142780(0x1b2)](_0x142780(0x64a),{'id':_0x5f23f6,'x':_0x3c8d1f['x'],'y':_0x3c8d1f['y'],'alive':!![],'isGolemBuster':!![],'maxHp':_0x90d44f});return;}if(_0x3cf673==='nin3'){if(!game[_0x142780(0x32e)][_0x142780(0x4ec)])game[_0x142780(0x32e)][_0x142780(0x4ec)]=[];let _0x554fd1=Date[_0x142780(0x91c)](),_0x29a320=document['createElement'](_0x142780(0x8fa));_0x29a320[_0x142780(0x228)]='pet-clone',_0x29a320[_0x142780(0x290)][_0x142780(0x6f6)]='absolute',_0x29a320[_0x142780(0x290)][_0x142780(0x76a)]=game[_0x142780(0x32e)]['x']+'px',_0x29a320[_0x142780(0x290)]['top']=game['player']['y']+'px',_0x29a320[_0x142780(0x290)]['width']=_0x142780(0x3a5),_0x29a320[_0x142780(0x290)]['height']='96px',_0x29a320['style'][_0x142780(0x5c1)]='50';let _0x3e95f0=dom[_0x142780(0x4ca)][_0x142780(0x336)](!![]);_0x3e95f0[_0x142780(0x290)][_0x142780(0x306)]='brightness(0)\x20opacity(0.6)\x20drop-shadow(0\x200\x205px\x20#000)',_0x29a320[_0x142780(0x882)]='<div\x20class=\x22pet-hp-bar\x22\x20style=\x22position:absolute;\x20top:-10px;\x20width:100%;\x22><div\x20class=\x22pet-hp-fill\x22\x20id=\x22pet-hp\x22\x20style=\x22width:100%;\x20background:#4CAF50;\x20height:100%;\x22></div></div>',_0x29a320['appendChild'](_0x3e95f0),dom[_0x142780(0x36e)][_0x142780(0x463)](_0x29a320);let _0x388895=window[_0x142780(0x847)](),_0x29bf3d={'id':_0x554fd1,'dom':_0x29a320,'x':game[_0x142780(0x32e)]['x'],'y':game['player']['y'],'hp':_0x388895,'maxHp':_0x388895,'isClone':!![],'skillRef':_0x3af744};game[_0x142780(0x32e)][_0x142780(0x4ec)][_0x142780(0x2c9)](_0x29bf3d);if(socket)socket['emit'](_0x142780(0x64a),{'id':_0x554fd1,'x':_0x29bf3d['x'],'y':_0x29bf3d['y'],'alive':!![],'isClone':!![]});setTimeout(()=>{const _0x5f1fc5=_0x142780;let _0x493a3b=game[_0x5f1fc5(0x32e)][_0x5f1fc5(0x4ec)][_0x5f1fc5(0x3a0)](_0x4af760=>_0x4af760['id']===_0x554fd1);if(_0x493a3b!==-0x1){game[_0x5f1fc5(0x32e)][_0x5f1fc5(0x4ec)][_0x493a3b][_0x5f1fc5(0x474)][_0x5f1fc5(0x7f7)](),game['player']['activePets']['splice'](_0x493a3b,0x1);if(socket)socket['emit']('syncPet',{'id':_0x554fd1,'alive':![]});}},0x2710);return;}if(_0x3cf673==='sum1'){if(game[_0x142780(0x32e)][_0x142780(0x4ec)]&&game['player'][_0x142780(0x4ec)][_0x142780(0x7c5)]>0x0)return;window[_0x142780(0x729)](CLASSES[_0x403ad3][_0x142780(0x1b6)]);if(!game[_0x142780(0x32e)][_0x142780(0x4ec)])game['player'][_0x142780(0x4ec)]=[];let _0x2da077=game[_0x142780(0x32e)][_0x142780(0x3f2)]>=0x19?0x2:0x1;for(let _0x508169=0x0;_0x508169<_0x2da077;_0x508169++){let _0x566b95=Date[_0x142780(0x91c)]()+_0x508169,_0x439324=document[_0x142780(0x81e)](_0x142780(0x8fa));_0x439324[_0x142780(0x228)]=_0x142780(0x7fc),_0x439324[_0x142780(0x882)]='<div\x20class=\x22pet-hp-bar\x22><div\x20class=\x22pet-hp-fill\x22\x20id=\x22pet-hp\x22></div></div>',_0x439324['style'][_0x142780(0x76a)]=game[_0x142780(0x32e)]['x']+'px',_0x439324['style'][_0x142780(0x706)]=game['player']['y']+'px',dom[_0x142780(0x36e)][_0x142780(0x463)](_0x439324);let _0x418586=Math[_0x142780(0x7f1)](window[_0x142780(0x847)]()*0.25),_0x104ec1={'id':_0x566b95,'dom':_0x439324,'x':game[_0x142780(0x32e)]['x'],'y':game['player']['y'],'hp':_0x418586,'maxHp':_0x418586,'skillRef':game[_0x142780(0x32e)][_0x142780(0x289)][_0x142780(0x4f9)](_0x58a967=>_0x58a967['id']==='sum1')};game[_0x142780(0x32e)]['activePets'][_0x142780(0x2c9)](_0x104ec1);if(socket)socket['emit'](_0x142780(0x64a),{'id':_0x566b95,'x':_0x104ec1['x'],'y':_0x104ec1['y'],'alive':!![]});}if(game['player'][_0x142780(0x3f2)]>=0x4b){let _0x26f16d=Date[_0x142780(0x91c)]()+0x63,_0x4deedf=document[_0x142780(0x81e)](_0x142780(0x8fa));_0x4deedf[_0x142780(0x228)]=_0x142780(0x7fc),_0x4deedf['innerHTML']=_0x142780(0x704),_0x4deedf[_0x142780(0x290)][_0x142780(0x76a)]=game[_0x142780(0x32e)]['x']+'px',_0x4deedf[_0x142780(0x290)][_0x142780(0x706)]=game[_0x142780(0x32e)]['y']+'px',_0x4deedf[_0x142780(0x290)]['width']=_0x142780(0x1e2),_0x4deedf[_0x142780(0x290)][_0x142780(0x7a7)]=_0x142780(0x1e2),_0x4deedf[_0x142780(0x290)][_0x142780(0x8b7)]=_0x142780(0x78a),_0x4deedf['style'][_0x142780(0x700)]=_0x142780(0x4c2),_0x4deedf[_0x142780(0x290)][_0x142780(0x28f)]=_0x142780(0x78b),_0x4deedf[_0x142780(0x290)]['boxShadow']=_0x142780(0x6b0),dom[_0x142780(0x36e)][_0x142780(0x463)](_0x4deedf);let _0x1f5b81=window['getMaxHp']()*0x5,_0x34d604={'id':_0x26f16d,'dom':_0x4deedf,'x':game['player']['x'],'y':game['player']['y'],'homeX':game['player']['x'],'homeY':game[_0x142780(0x32e)]['y'],'hp':_0x1f5b81,'maxHp':_0x1f5b81,'skillRef':game[_0x142780(0x32e)][_0x142780(0x289)][_0x142780(0x4f9)](_0x1fe97c=>_0x1fe97c['id']===_0x142780(0x355)),'isBigBoss':!![]};game[_0x142780(0x32e)][_0x142780(0x4ec)]['push'](_0x34d604);if(socket)socket['emit'](_0x142780(0x64a),{'id':_0x26f16d,'x':_0x34d604['x'],'y':_0x34d604['y'],'alive':!![],'isBigBoss':!![]});}return;}window[_0x142780(0x729)](CLASSES[_0x403ad3][_0x142780(0x1b6)]),isAttacking=!![],setTimeout(()=>{isAttacking=![];},0x1f4);if(_0x3cf673==='heal1'){if(socket)socket[_0x142780(0x1b2)](_0x142780(0x869));return;}if(_0x3cf673===_0x142780(0x499)){game[_0x142780(0x32e)]['currentHp']=window[_0x142780(0x847)](),window[_0x142780(0x583)](game[_0x142780(0x32e)]['x']+0x18,game[_0x142780(0x32e)]['y']-0xa,'FULL\x20HEAL',_0x142780(0x71b)),window[_0x142780(0x4b2)]();if(socket&&game[_0x142780(0x333)])socket[_0x142780(0x1b2)](_0x142780(0x7d6));return;}if(_0x3cf673===_0x142780(0x5c3)){if(game[_0x142780(0x32e)][_0x142780(0x4ec)])game['player'][_0x142780(0x4ec)][_0x142780(0x4c1)](_0x338a64=>{const _0x445d60=_0x142780;_0x338a64[_0x445d60(0x913)]=Date[_0x445d60(0x91c)]()+0x2710,_0x338a64[_0x445d60(0x474)]&&(_0x338a64[_0x445d60(0x474)]['style']['filter']=_0x445d60(0x8c6),_0x338a64[_0x445d60(0x474)][_0x445d60(0x290)]['transition']=_0x445d60(0x27a),setTimeout(()=>{const _0x4e3743=_0x445d60;if(_0x338a64[_0x4e3743(0x474)])_0x338a64['dom'][_0x4e3743(0x290)]['filter']='none';},0x2710)),window[_0x445d60(0x84e)](_0x338a64['x']+0xf,_0x338a64['y']+0xf);});return;}if(_0x3cf673===_0x142780(0x28e)){if(socket)socket[_0x142780(0x1b2)](_0x142780(0x8ca),{'radius':0x12c});game[_0x142780(0x32e)]['tauntBuffUntil']=Date[_0x142780(0x91c)]()+0x2710,window[_0x142780(0x583)](game[_0x142780(0x32e)]['x']+0x18,game[_0x142780(0x32e)]['y']-0xa,_0x142780(0x6d9),_0x142780(0x631)),window[_0x142780(0x84e)](game[_0x142780(0x32e)]['x']+0x18,game[_0x142780(0x32e)]['y']+0x30);return;}if(_0x3cf673===_0x142780(0x465)){game[_0x142780(0x32e)][_0x142780(0x941)]=Date[_0x142780(0x91c)]()+0x2710,window['spawnDamageText'](game[_0x142780(0x32e)]['x']+0x18,game[_0x142780(0x32e)]['y']-0xa,_0x142780(0x81a),_0x142780(0x631));return;}if(_0x3cf673==='bld2'){game[_0x142780(0x32e)]['parryUntil']=Date[_0x142780(0x91c)]()+0x2710,window['spawnDamageText'](game[_0x142780(0x32e)]['x']+0x18,game[_0x142780(0x32e)]['y']-0xa,'PARRY\x20STANCE',_0x142780(0x631));if(socket)socket[_0x142780(0x1b2)]('setParryStance');return;}if(_0x3cf673===_0x142780(0x247)||_0x3cf673===_0x142780(0x4be)||_0x3cf673===_0x142780(0x5f6)||_0x3cf673[_0x142780(0x3d0)]('snp')||_0x3cf673['startsWith']('exp')||_0x3cf673===_0x142780(0x947)||_0x3cf673===_0x142780(0x8f0)){let _0x1b1d58=null,_0x3d192d=null,_0x4cef4e=Infinity;const _0x4455b9=game['player']['x']+0x18,_0x29cd1b=game[_0x142780(0x32e)]['y']+0x30;let _0x4924b0=_0x403ad3===_0x142780(0x7e9)||_0x403ad3===_0x142780(0x3ef)||_0x403ad3===_0x142780(0x87d)?0x12c:0x50;if(_0x403ad3===_0x142780(0x87d))_0x4924b0=0x159;for(let _0x543b78 in game[_0x142780(0x82e)]){let _0x589699=game['monsters'][_0x543b78];if(!_0x589699['alive'])continue;let _0x9b1c9=Math[_0x142780(0x593)](_0x4455b9-(_0x589699['x']+_0x589699['width']/0x2),_0x29cd1b-(_0x589699['y']+_0x589699[_0x142780(0x7a7)]/0x2));_0x9b1c9<=_0x4924b0&&_0x9b1c9<_0x4cef4e&&(_0x4cef4e=_0x9b1c9,_0x1b1d58=_0x589699,_0x3d192d=null);}if(safeMapData['id']==='neutralzone')for(let _0x46a3c9 in game[_0x142780(0x840)]){let _0x6d42e5=game[_0x142780(0x840)][_0x46a3c9];if(_0x6d42e5['isGhost']||_0x6d42e5[_0x142780(0x7d9)])continue;if(game[_0x142780(0x333)]&&game['party']['members']&&game[_0x142780(0x333)]['members'][_0x142780(0x52b)](_0x372b53=>_0x372b53['id']===_0x6d42e5['id']))continue;let _0x101406=Math[_0x142780(0x593)](_0x4455b9-(_0x6d42e5['x']+0x18),_0x29cd1b-(_0x6d42e5['y']+0x30));_0x101406<=_0x4924b0&&_0x101406<_0x4cef4e&&(_0x4cef4e=_0x101406,_0x3d192d=_0x6d42e5,_0x1b1d58=null);}const _0x585123=_0x1b1d58||_0x3d192d;if(_0x585123){let _0x50dac0=_0x1b1d58?_0x585123['x']+_0x585123[_0x142780(0x2ff)]/0x2:_0x585123['x']+0x18,_0x444a55=_0x1b1d58?_0x585123['y']+_0x585123[_0x142780(0x7a7)]/0x2:_0x585123['y']+0x30;const _0x1c56de=()=>{const _0x9c0dcf=_0x142780;if(socket){if(_0x1b1d58)socket[_0x9c0dcf(0x1b2)](_0x9c0dcf(0x6e7),{'monsterId':_0x585123['id'],'skillId':_0x3cf673});else{if(_0x3d192d)socket[_0x9c0dcf(0x1b2)](_0x9c0dcf(0x2e0),{'targetId':_0x585123['id'],'skillId':_0x3cf673});}}};if(_0x403ad3===_0x142780(0x7e9)){let _0x2de0d4=_0x3cf673===_0x142780(0x4be)?0x3:0x1;for(let _0x33deae=0x0;_0x33deae<_0x2de0d4;_0x33deae++){setTimeout(()=>{const _0x370761=_0x142780;let _0x559476=document[_0x370761(0x81e)]('div');_0x559476[_0x370761(0x228)]=_0x370761(0x1d7),_0x559476[_0x370761(0x290)][_0x370761(0x76a)]=_0x50dac0+'px',_0x559476['style'][_0x370761(0x706)]=_0x444a55-0x64+'px',dom[_0x370761(0x36e)][_0x370761(0x463)](_0x559476);let _0x1c951d=_0x559476[_0x370761(0x918)]([{'top':_0x444a55-0x64+'px'},{'top':_0x444a55+'px'}],{'duration':0x12c,'easing':_0x370761(0x3de)});_0x1c951d[_0x370761(0x543)]=()=>{const _0x32aa7a=_0x370761;_0x559476[_0x32aa7a(0x7f7)]();if(_0x33deae===_0x2de0d4-0x1)_0x1c56de();};},_0x33deae*0xc8);}}_0x3cf673==='bld3'&&(window[_0x142780(0x87e)](_0x50dac0,_0x444a55),_0x1c56de());if(_0x3cf673==='phs3'){let _0x3fdc72=_0x585123['x']+(_0x50dac0>_0x4455b9?-0x28:0x28),_0x22ffe5=_0x585123['y'];window[_0x142780(0x47d)](_0x3fdc72,_0x22ffe5)&&(_0x3fdc72=_0x585123['x']+(_0x50dac0>_0x4455b9?0x28:-0x28),window[_0x142780(0x47d)](_0x3fdc72,_0x22ffe5)&&(_0x3fdc72=game[_0x142780(0x32e)]['x'],_0x22ffe5=game['player']['y']));game[_0x142780(0x32e)]['x']=_0x3fdc72,game[_0x142780(0x32e)]['y']=_0x22ffe5,window['spawnWhiteSplash'](game[_0x142780(0x32e)]['x']+0x18,game[_0x142780(0x32e)]['y']+0x30);if(socket)socket[_0x142780(0x1b2)](_0x142780(0x395),{'x':game['player']['x'],'y':game['player']['y'],'state':_0x142780(0x5d5),'facingRight':window[_0x142780(0x3c2)],'weaponSprite':_0x1170c5});_0x1c56de();}_0x3cf673===_0x142780(0x8f0)&&(window[_0x142780(0x5e6)](_0x4455b9,_0x29cd1b-0xf,_0x50dac0,_0x444a55,_0x142780(0x2a1)),setTimeout(()=>{const _0x54b2d3=_0x142780;_0x1c56de();const _0x3629e1=document[_0x54b2d3(0x81e)]('div');_0x3629e1[_0x54b2d3(0x290)][_0x54b2d3(0x201)]=_0x54b2d3(0x877)+(_0x50dac0-0x28)+_0x54b2d3(0x379)+(_0x444a55-0x28)+_0x54b2d3(0x7ef),dom['world'][_0x54b2d3(0x463)](_0x3629e1),setTimeout(()=>_0x3629e1[_0x54b2d3(0x7f7)](),0x2710);},0x190));_0x3cf673===_0x142780(0x276)&&(window[_0x142780(0x5e6)](_0x4455b9,_0x29cd1b-0xf,_0x50dac0,_0x444a55,_0x142780(0x78a)),setTimeout(()=>{_0x1c56de();},0xc8));if(_0x3cf673===_0x142780(0x860)){window[_0x142780(0x5e6)](_0x4455b9,_0x29cd1b-0xf,_0x50dac0,_0x444a55,'#ff0000');const _0x30a378=document[_0x142780(0x6de)](_0x142780(0x742));_0x30a378[_0x142780(0x4ea)][_0x142780(0x7e6)](_0x142780(0x58c)),setTimeout(()=>_0x30a378['classList']['remove']('screen-shake'),0x1f4),setTimeout(()=>{_0x1c56de(),window['spawnWhiteSplash'](_0x50dac0,_0x444a55);},0xc8);}_0x3cf673===_0x142780(0x3c3)&&(window[_0x142780(0x5e6)](_0x4455b9,_0x29cd1b-0xf,_0x50dac0,_0x444a55,'#ff9800'),setTimeout(()=>{const _0x1000ba=_0x142780;_0x1c56de(),window[_0x1000ba(0x58e)](_0x50dac0,_0x444a55,game[_0x1000ba(0x32e)][_0x1000ba(0x3f2)]>=0x19?0x2710:0xbb8);},0x190)),_0x3cf673==='exp3'&&(window['shootOrb'](_0x4455b9,_0x29cd1b-0xf,_0x50dac0,_0x444a55,_0x142780(0x482)),setTimeout(()=>{const _0x54bbc9=_0x142780;_0x1c56de(),window[_0x54bbc9(0x87e)](_0x50dac0,_0x444a55);const _0x1e3027=document[_0x54bbc9(0x6de)](_0x54bbc9(0x742));_0x1e3027[_0x54bbc9(0x4ea)][_0x54bbc9(0x7e6)]('screen-shake'),setTimeout(()=>_0x1e3027[_0x54bbc9(0x4ea)]['remove'](_0x54bbc9(0x58c)),0x1f4);},0x1f4));}}},window[_0x5d14f9(0x63d)]=function(_0x54655b){const _0x29a616=_0x5d14f9;if(game[_0x29a616(0x32e)][_0x29a616(0x626)]&&Date['now']()<game[_0x29a616(0x32e)][_0x29a616(0x626)])return;if(safeMapData['id']==='town'){if(!_0x54655b&&dom[_0x29a616(0x7cd)])dom[_0x29a616(0x7cd)][_0x29a616(0x492)]=_0x29a616(0x63f);return;}if(game[_0x29a616(0x32e)][_0x29a616(0x6fc)]<=0x0||isInventoryOpen||window['adminMode']||game[_0x29a616(0x842)])return;if(attackCooldownActive)return;let _0x117fce=null,_0x3f3fcc=null,_0xc9dbb9=Infinity;const _0x50be91=game[_0x29a616(0x32e)]['x']+0x18,_0x5dfdd1=game['player']['y']+0x30;let _0xd81f0a=game[_0x29a616(0x32e)][_0x29a616(0x670)]&&game[_0x29a616(0x32e)][_0x29a616(0x670)][_0x29a616(0x452)]?game[_0x29a616(0x32e)][_0x29a616(0x670)][_0x29a616(0x452)][_0x29a616(0x573)]:'';if(_0xd81f0a[_0x29a616(0x67b)](_0x29a616(0x871))){if(!_0x54655b&&dom['log'])dom['log'][_0x29a616(0x492)]=_0x29a616(0x371);return;}const _0x2cf746=_0xd81f0a['includes'](_0x29a616(0x8ce))||_0xd81f0a[_0x29a616(0x67b)](_0x29a616(0x8cf))||_0xd81f0a['includes'](_0x29a616(0x554));let _0x1f8f2c=_0x2cf746?0xfa:0x50;game[_0x29a616(0x32e)][_0x29a616(0x526)]?.['playerClass']===_0x29a616(0x87d)&&(_0x1f8f2c=287.5);for(let _0x301085 in game['monsters']){let _0x860f16=game[_0x29a616(0x82e)][_0x301085];if(!_0x860f16[_0x29a616(0x352)])continue;let _0x5b3b59=_0x860f16['x']+_0x860f16['width']/0x2,_0x5523c4=_0x860f16['y']+_0x860f16['height']/0x2,_0x29b7da=Math[_0x29a616(0x593)](_0x50be91-_0x5b3b59,_0x5dfdd1-_0x5523c4);_0x29b7da<=_0x1f8f2c&&_0x29b7da<_0xc9dbb9&&(_0xc9dbb9=_0x29b7da,_0x117fce=_0x860f16,_0x3f3fcc=null);}if(safeMapData['id']==='neutralzone'){if(window[_0x29a616(0x2f4)]&&game[_0x29a616(0x840)][window[_0x29a616(0x2f4)]]){let _0x4a9291=game[_0x29a616(0x840)][window[_0x29a616(0x2f4)]];if(!_0x4a9291[_0x29a616(0x842)]&&!_0x4a9291[_0x29a616(0x7d9)]&&!(game[_0x29a616(0x333)]&&game[_0x29a616(0x333)][_0x29a616(0x5b5)]&&game[_0x29a616(0x333)][_0x29a616(0x5b5)]['some'](_0x25c313=>_0x25c313['id']===_0x4a9291['id']))){let _0x5cc583=Math[_0x29a616(0x593)](_0x50be91-(_0x4a9291['x']+0x18),_0x5dfdd1-(_0x4a9291['y']+0x30));_0x5cc583<=_0x1f8f2c&&(_0xc9dbb9=_0x5cc583,_0x3f3fcc=_0x4a9291,_0x117fce=null);}window[_0x29a616(0x2f4)]=null;}else for(let _0x417ffd in game[_0x29a616(0x840)]){let _0x175b2d=game[_0x29a616(0x840)][_0x417ffd];if(_0x175b2d[_0x29a616(0x842)]||_0x175b2d[_0x29a616(0x7d9)])continue;if(game[_0x29a616(0x333)]&&game['party'][_0x29a616(0x5b5)]&&game[_0x29a616(0x333)][_0x29a616(0x5b5)][_0x29a616(0x52b)](_0x167f20=>_0x167f20['id']===_0x175b2d['id']))continue;let _0x5262ac=_0x175b2d['x']+0x18,_0x15403f=_0x175b2d['y']+0x30,_0x52ccbd=Math[_0x29a616(0x593)](_0x50be91-_0x5262ac,_0x5dfdd1-_0x15403f);_0x52ccbd<=_0x1f8f2c&&_0x52ccbd<_0xc9dbb9&&(_0xc9dbb9=_0x52ccbd,_0x3f3fcc=_0x175b2d,_0x117fce=null);}}if(!_0x117fce&&!_0x3f3fcc){if(!_0x54655b&&dom[_0x29a616(0x7cd)])dom['log'][_0x29a616(0x492)]=_0x29a616(0x24b);return;}isAttacking=!![],attackCooldownActive=!![];if(socket)socket[_0x29a616(0x1b2)]('playerMoved',{'x':game[_0x29a616(0x32e)]['x'],'y':game[_0x29a616(0x32e)]['y'],'state':_0x29a616(0x5d5),'facingRight':window[_0x29a616(0x3c2)],'weaponSprite':_0xd81f0a});if(typeof window['playSFX']==='function')window['playSFX'](_0xd81f0a);const _0x566898=_0x117fce?_0x117fce['x']+_0x117fce[_0x29a616(0x2ff)]/0x2:_0x3f3fcc['x']+0x18,_0x39f994=_0x117fce?_0x117fce['y']+_0x117fce['height']/0x2:_0x3f3fcc['y']+0x30,_0x80355d=_0x117fce?_0x117fce['id']:_0x3f3fcc['id'],_0x30d4fd=_0x117fce?'attackMonster':_0x29a616(0x2e0),_0x5619dc=_0x117fce?{'monsterId':_0x80355d,'skillId':_0x29a616(0x3fb)}:{'targetId':_0x80355d,'skillId':'basic'};if(_0xd81f0a['includes'](_0x29a616(0x554))){if(typeof window[_0x29a616(0x2d5)]==='function')window[_0x29a616(0x2d5)](_0x50be91,_0x5dfdd1-0xf,_0x566898,_0x39f994);setTimeout(()=>{const _0x47a5b7=_0x29a616;if(socket)socket[_0x47a5b7(0x1b2)](_0x30d4fd,_0x5619dc);},0x96);}else{if(_0x2cf746){if(typeof window[_0x29a616(0x5e6)]===_0x29a616(0x268))window[_0x29a616(0x5e6)](_0x50be91,_0x5dfdd1-0xf,_0x566898,_0x39f994);setTimeout(()=>{const _0x4644e6=_0x29a616;if(socket)socket[_0x4644e6(0x1b2)](_0x30d4fd,_0x5619dc);},0x1f4);}else setTimeout(()=>{const _0x2edca0=_0x29a616;if(socket)socket[_0x2edca0(0x1b2)](_0x30d4fd,_0x5619dc);},0x12c);}setTimeout(()=>{isAttacking=![];},0x1f4),setTimeout(()=>{attackCooldownActive=![];},0x320);};function gameLoop(_0x5eb285){const _0x949005=_0x5d14f9;currentAnimationId=requestAnimationFrame(gameLoop);if(!game[_0x949005(0x91d)])return;if(!_0x5eb285)_0x5eb285=performance[_0x949005(0x91c)]();const _0x4c2203=_0x5eb285-lastFrameTime;if(_0x4c2203<fpsInterval)return;lastFrameTime=_0x5eb285-_0x4c2203%fpsInterval;if(game[_0x949005(0x32e)]['currentHp']<=0x0&&!game['isGhost']){game[_0x949005(0x842)]=!![],dom[_0x949005(0x238)][_0x949005(0x290)][_0x949005(0x398)]=_0x949005(0x930);if(socket)socket[_0x949005(0x1b2)](_0x949005(0x341));}if(game[_0x949005(0x842)]&&game['party']&&game['party']['members']&&game[_0x949005(0x333)][_0x949005(0x5b5)][_0x949005(0x7c5)]===0x1){if(dom[_0x949005(0x7cd)])dom[_0x949005(0x7cd)][_0x949005(0x492)]='You\x20are\x20the\x20last\x20one\x20left.\x20Returning\x20to\x20Town.';if(typeof window[_0x949005(0x72c)]===_0x949005(0x268))window[_0x949005(0x72c)]();}let _0x1f028e=game[_0x949005(0x32e)]['x'],_0x298c9e=game[_0x949005(0x32e)]['y'],_0x3ed88b=![];const _0x53d531=0x5;let _0x592052=game[_0x949005(0x32e)][_0x949005(0x626)]&&Date[_0x949005(0x91c)]()<game[_0x949005(0x32e)][_0x949005(0x626)],_0xcde742=!isChatting&&!window[_0x949005(0x7b6)]&&!window[_0x949005(0x56f)]&&!window['isDungeonUIOpen']&&!_0x592052;if(game['isGhost']){if(!game[_0x949005(0x333)]||!Array[_0x949005(0x75b)](game[_0x949005(0x333)]['members']))_0xcde742=![];else{let _0x5b7a16=game[_0x949005(0x333)][_0x949005(0x5b5)][_0x949005(0x52b)](_0x4728fb=>!_0x4728fb[_0x949005(0x842)]&&_0x4728fb['id']!==game['player']['id']);if(!_0x5b7a16)_0xcde742=![];}}_0xcde742&&(game[_0x949005(0x2c1)]['w']&&(_0x298c9e-=_0x53d531,_0x3ed88b=!![]),game['keys']['s']&&(_0x298c9e+=_0x53d531,_0x3ed88b=!![]),game[_0x949005(0x2c1)]['a']&&(_0x1f028e-=_0x53d531,_0x3ed88b=!![],window['facingRight']=![]),game[_0x949005(0x2c1)]['d']&&(_0x1f028e+=_0x53d531,_0x3ed88b=!![],window['facingRight']=!![]));if(_0x3ed88b){let _0x289154=!![],_0x2d020d=!![];typeof window[_0x949005(0x47d)]==='function'&&(_0x289154=!window[_0x949005(0x47d)](_0x1f028e,game[_0x949005(0x32e)]['y'])||window[_0x949005(0x643)],_0x2d020d=!window[_0x949005(0x47d)](game[_0x949005(0x32e)]['x'],_0x298c9e)||window['adminMode'],window[_0x949005(0x47d)](game[_0x949005(0x32e)]['x'],game[_0x949005(0x32e)]['y'])&&(_0x289154=!![],_0x2d020d=!![]));if(_0x289154)game[_0x949005(0x32e)]['x']=_0x1f028e;if(_0x2d020d)game[_0x949005(0x32e)]['y']=_0x298c9e;}if(game['player'][_0x949005(0x526)]?.['playerClass']==='Tech\x20Genius'&&!game[_0x949005(0x842)]&&!window['isLoading']){if(!game[_0x949005(0x32e)]['activePets']||!game[_0x949005(0x32e)][_0x949005(0x4ec)][_0x949005(0x52b)](_0x26b76d=>_0x26b76d['isDrone'])){if(typeof window[_0x949005(0x4d1)]===_0x949005(0x268))window[_0x949005(0x4d1)]();}}game['player']['activePets']&&game[_0x949005(0x32e)][_0x949005(0x4ec)][_0x949005(0x7c5)]>0x0&&game[_0x949005(0x32e)][_0x949005(0x4ec)][_0x949005(0x4c1)]((_0x20e11c,_0x5e21d9)=>{const _0x177a93=_0x949005;let _0x2c0208=Object[_0x177a93(0x92c)](game[_0x177a93(0x82e)])[_0x177a93(0x4f9)](_0x10baaa=>_0x10baaa['alive']&&Math[_0x177a93(0x593)](_0x10baaa['x']-_0x20e11c['x'],_0x10baaa['y']-_0x20e11c['y'])<0x12c),_0x68aa3b=null;!_0x2c0208&&safeMapData['id']===_0x177a93(0x938)&&(_0x68aa3b=Object['values'](game[_0x177a93(0x840)])[_0x177a93(0x4f9)](_0x5d8014=>{const _0xd95fa9=_0x177a93;if(_0x5d8014[_0xd95fa9(0x842)])return![];if(game[_0xd95fa9(0x333)]&&game[_0xd95fa9(0x333)][_0xd95fa9(0x5b5)]&&game[_0xd95fa9(0x333)]['members'][_0xd95fa9(0x52b)](_0x1313ef=>_0x1313ef['id']===_0x5d8014['id']))return![];return Math['hypot'](_0x5d8014['x']-_0x20e11c['x'],_0x5d8014['y']-_0x20e11c['y'])<0x12c;}));let _0x42069d=_0x2c0208||_0x68aa3b;if(_0x20e11c[_0x177a93(0x1ca)]){let _0x3de471=game[_0x177a93(0x32e)]['x']+(window[_0x177a93(0x3c2)]?-0x28:0x28),_0x33e1dc=game[_0x177a93(0x32e)]['y']-0x28;_0x20e11c['x']+=(_0x3de471-_0x20e11c['x'])*0.15,_0x20e11c['y']+=(_0x33e1dc-_0x20e11c['y'])*0.15;if(game[_0x177a93(0x842)])return;if(_0x42069d){if(!_0x20e11c[_0x177a93(0x1bd)]||Date[_0x177a93(0x91c)]()-_0x20e11c[_0x177a93(0x1bd)]>0x3e8){_0x20e11c[_0x177a93(0x1bd)]=Date['now'](),window[_0x177a93(0x208)](_0x20e11c['x'],_0x20e11c['y'],_0x42069d['x']+(_0x42069d['width']||0x30)/0x2,_0x42069d['y']+(_0x42069d[_0x177a93(0x7a7)]||0x60)/0x2);if(socket){if(_0x2c0208)socket[_0x177a93(0x1b2)]('attackMonster',{'monsterId':_0x2c0208['id'],'skillId':_0x177a93(0x2f7)});else socket[_0x177a93(0x1b2)](_0x177a93(0x2e0),{'targetId':_0x68aa3b['id'],'skillId':_0x177a93(0x2f7)});}}}}else{if(_0x42069d){let _0x58b100=Math[_0x177a93(0x593)](_0x42069d['x']-_0x20e11c['x'],_0x42069d['y']-_0x20e11c['y']),_0x26be88=_0x20e11c[_0x177a93(0x568)]?0x64:_0x20e11c['isGolemBuster']?0x50:0x28;if(_0x58b100>_0x26be88)_0x20e11c[_0x177a93(0x568)]||_0x20e11c[_0x177a93(0x2d9)]?(_0x20e11c['x']+=(_0x42069d['x']-_0x20e11c['x'])*0.05,_0x20e11c['y']+=(_0x42069d['y']-_0x20e11c['y'])*0.05):(_0x20e11c['x']+=(_0x42069d['x']-_0x20e11c['x'])*0.15,_0x20e11c['y']+=(_0x42069d['y']-_0x20e11c['y'])*0.15);else{let _0x2f7171=_0x20e11c[_0x177a93(0x568)]?0x5dc:_0x20e11c[_0x177a93(0x2d9)]?0x5dc:0x3e8;if(!_0x20e11c[_0x177a93(0x1bd)]||Date[_0x177a93(0x91c)]()-_0x20e11c['lastAttack']>_0x2f7171){_0x20e11c[_0x177a93(0x1bd)]=Date['now']();let _0x236655=_0x20e11c[_0x177a93(0x568)]?2.5:0x1,_0x203258=_0x20e11c['isBigBoss']?0x3:1.5;_0x20e11c[_0x177a93(0x474)][_0x177a93(0x290)][_0x177a93(0x2b3)]=_0x177a93(0x7b3)+_0x203258+')\x20translateY(-20px)',setTimeout(()=>{const _0x56ea78=_0x177a93;if(_0x20e11c[_0x56ea78(0x474)])_0x20e11c['dom'][_0x56ea78(0x290)]['transform']=_0x56ea78(0x7b3)+_0x236655+')';if(socket){if(_0x2c0208)socket[_0x56ea78(0x1b2)]('attackMonster',{'monsterId':_0x2c0208['id'],'skillId':_0x56ea78(0x61d),'petId':_0x20e11c['id'],'isBigBoss':_0x20e11c['isBigBoss'],'isGolemBuster':_0x20e11c['isGolemBuster']});else socket[_0x56ea78(0x1b2)](_0x56ea78(0x2e0),{'targetId':_0x68aa3b['id'],'skillId':_0x56ea78(0x61d),'petId':_0x20e11c['id'],'isBigBoss':_0x20e11c['isBigBoss'],'isGolemBuster':_0x20e11c[_0x56ea78(0x2d9)]});}},0xc8);}if(_0x20e11c['isGolemBuster']){if(!_0x20e11c[_0x177a93(0x4cf)]||Date[_0x177a93(0x91c)]()-_0x20e11c['lastTaunt']>0x1388){_0x20e11c['lastTaunt']=Date['now'](),window[_0x177a93(0x583)](_0x20e11c['x'],_0x20e11c['y']-0x28,_0x177a93(0x414),_0x177a93(0x631));if(socket)socket['emit'](_0x177a93(0x524),{'petId':_0x20e11c['id'],'radius':0x12c});}}}}else{let _0x3a8521,_0xa4f31d;_0x20e11c['isBigBoss']||_0x20e11c[_0x177a93(0x2d9)]?(_0x3a8521=_0x20e11c[_0x177a93(0x246)]||_0x20e11c['x'],_0xa4f31d=_0x20e11c[_0x177a93(0x30d)]||_0x20e11c['y'],_0x20e11c['x']+=(_0x3a8521-_0x20e11c['x'])*0.05,_0x20e11c['y']+=(_0xa4f31d-_0x20e11c['y'])*0.05):(_0x3a8521=game[_0x177a93(0x32e)]['x']+(_0x5e21d9===0x0?-0x28:0x28),_0xa4f31d=game[_0x177a93(0x32e)]['y']-0x14,_0x20e11c['x']+=(_0x3a8521-_0x20e11c['x'])*0.15,_0x20e11c['y']+=(_0xa4f31d-_0x20e11c['y'])*0.15);}}_0x20e11c[_0x177a93(0x474)][_0x177a93(0x290)][_0x177a93(0x76a)]=_0x20e11c['x']+'px',_0x20e11c[_0x177a93(0x474)][_0x177a93(0x290)][_0x177a93(0x706)]=_0x20e11c['y']+'px';let _0x4c37c8=_0x20e11c[_0x177a93(0x474)][_0x177a93(0x26d)](_0x177a93(0x1d6));if(_0x4c37c8)_0x4c37c8[_0x177a93(0x290)][_0x177a93(0x2ff)]=_0x20e11c['hp']/_0x20e11c[_0x177a93(0x830)]*0x64+'%';if(_0x20e11c['hp']<=0x0){if(_0x20e11c[_0x177a93(0x3ba)])_0x20e11c[_0x177a93(0x3ba)][_0x177a93(0x44e)]=Date[_0x177a93(0x91c)]()+_0x20e11c[_0x177a93(0x3ba)]['cd'];if(typeof window[_0x177a93(0x30b)]==='function')window[_0x177a93(0x30b)]();_0x20e11c[_0x177a93(0x474)]['remove'](),game['player']['activePets']['splice'](_0x5e21d9,0x1);if(socket)socket[_0x177a93(0x1b2)](_0x177a93(0x64a),{'id':_0x20e11c['id'],'alive':![]});}else{if(Math[_0x177a93(0x392)]()<0.05&&socket)socket[_0x177a93(0x1b2)](_0x177a93(0x64a),{'id':_0x20e11c['id'],'x':_0x20e11c['x'],'y':_0x20e11c['y'],'alive':!![]});}});let _0x2d9c3e=[];const _0x19fcfb=[_0x949005(0x92f),_0x949005(0x81f),_0x949005(0x5e3),_0x949005(0x664),_0x949005(0x723)];let _0x51edd5=game[_0x949005(0x32e)][_0x949005(0x670)]?.[_0x949005(0x548)]?.[_0x949005(0x1b6)];if(_0x19fcfb[_0x949005(0x67b)](_0x51edd5)){_0x2d9c3e[_0x949005(0x2c9)]({'id':game['player']['id'],'targetX':game['player']['x'],'targetY':game[_0x949005(0x32e)]['y'],'facingRight':window[_0x949005(0x3c2)],'type':_0x51edd5});if(Date[_0x949005(0x91c)]()-window[_0x949005(0x3a2)]>0x5dc){let _0x49ea68=null,_0x21fa74=null,_0x3d5907=Infinity,_0x32fe1e=game['player']['x']+0x18,_0x49bfad=game[_0x949005(0x32e)]['y']+0x30;for(let _0xdd90cd in game[_0x949005(0x82e)]){let _0x58c463=game['monsters'][_0xdd90cd];if(!_0x58c463[_0x949005(0x352)])continue;let _0x43cb47=Math[_0x949005(0x593)](_0x32fe1e-(_0x58c463['x']+_0x58c463[_0x949005(0x2ff)]/0x2),_0x49bfad-(_0x58c463['y']+_0x58c463[_0x949005(0x7a7)]/0x2));_0x43cb47<=0x96&&_0x43cb47<_0x3d5907&&(_0x3d5907=_0x43cb47,_0x49ea68=_0x58c463,_0x21fa74=null);}if(safeMapData['id']===_0x949005(0x938))for(let _0x4c36f9 in game[_0x949005(0x840)]){let _0x8eedee=game[_0x949005(0x840)][_0x4c36f9];if(_0x8eedee['isGhost']||game['party']&&game[_0x949005(0x333)][_0x949005(0x5b5)]&&game[_0x949005(0x333)]['members']['some'](_0x353e0d=>_0x353e0d['id']===_0x8eedee['id']))continue;let _0x3074e0=Math[_0x949005(0x593)](_0x32fe1e-(_0x8eedee['x']+0x18),_0x49bfad-(_0x8eedee['y']+0x30));_0x3074e0<=0x96&&_0x3074e0<_0x3d5907&&(_0x3d5907=_0x3074e0,_0x21fa74=_0x8eedee,_0x49ea68=null);}let _0x528310=_0x49ea68||_0x21fa74;if(_0x528310&&window['activeFoxes'][game[_0x949005(0x32e)]['id']]){window[_0x949005(0x3a2)]=Date[_0x949005(0x91c)]();let _0x24cb42=_0x49ea68?_0x528310['x']+_0x528310['width']/0x2:_0x528310['x']+0x18,_0x4a558a=_0x49ea68?_0x528310['y']+_0x528310['height']/0x2:_0x528310['y']+0x30;if(socket){if(_0x49ea68)socket[_0x949005(0x1b2)]('attackMonster',{'monsterId':_0x528310['id'],'skillId':'fox_bite'});else socket[_0x949005(0x1b2)](_0x949005(0x2e0),{'targetId':_0x528310['id'],'skillId':_0x949005(0x3ee)});}window[_0x949005(0x758)](window[_0x949005(0x433)][game['player']['id']]['x'],window[_0x949005(0x433)][game['player']['id']]['y'],_0x24cb42,_0x4a558a,_0x51edd5);}}}for(let _0x497d48 in game['remotePlayers']){let _0x421cd3=game[_0x949005(0x840)][_0x497d48],_0xced4e1=_0x421cd3['spriteData']?.['pet'];if(_0x19fcfb[_0x949005(0x67b)](_0xced4e1)){let _0x111452=_0x421cd3[_0x949005(0x562)][_0x949005(0x290)][_0x949005(0x2b3)][_0x949005(0x67b)](_0x949005(0x651));_0x2d9c3e[_0x949005(0x2c9)]({'id':_0x421cd3['id'],'targetX':_0x421cd3['x'],'targetY':_0x421cd3['y'],'facingRight':_0x111452,'type':_0xced4e1});}}let _0x5af69b=new Set();_0x2d9c3e[_0x949005(0x4c1)](_0x3fa989=>{const _0x3d05f2=_0x949005;_0x5af69b['add'](_0x3fa989['id']);let _0x21ab1b=_0x3d05f2(0x478)+_0x3fa989['id'],_0x18bedd=document[_0x3d05f2(0x6de)](_0x21ab1b);_0x18bedd&&_0x18bedd[_0x3d05f2(0x661)]['petType']!==_0x3fa989[_0x3d05f2(0x6d0)]&&(_0x18bedd[_0x3d05f2(0x7f7)](),_0x18bedd=null);if(!_0x18bedd){_0x18bedd=document[_0x3d05f2(0x81e)](_0x3d05f2(0x8fa)),_0x18bedd['id']=_0x21ab1b,_0x18bedd[_0x3d05f2(0x661)][_0x3d05f2(0x5ca)]=_0x3fa989[_0x3d05f2(0x6d0)];if(_0x3fa989[_0x3d05f2(0x6d0)]===_0x3d05f2(0x92f))_0x18bedd['className']=_0x3d05f2(0x2b8),_0x18bedd[_0x3d05f2(0x882)]=_0x3d05f2(0x630);else{if(_0x3fa989[_0x3d05f2(0x6d0)]===_0x3d05f2(0x81f))_0x18bedd['className']=_0x3d05f2(0x832),_0x18bedd['innerHTML']=_0x3d05f2(0x6fd);else{if(_0x3fa989['type']===_0x3d05f2(0x5e3))_0x18bedd[_0x3d05f2(0x228)]='pet-wisp';else{if(_0x3fa989[_0x3d05f2(0x6d0)]===_0x3d05f2(0x664))_0x18bedd[_0x3d05f2(0x228)]=_0x3d05f2(0x7ee),_0x18bedd[_0x3d05f2(0x882)]='';else _0x3fa989[_0x3d05f2(0x6d0)]===_0x3d05f2(0x723)&&(_0x18bedd[_0x3d05f2(0x228)]=_0x3d05f2(0x617),_0x18bedd[_0x3d05f2(0x882)]=_0x3d05f2(0x285));}}}dom[_0x3d05f2(0x36e)][_0x3d05f2(0x463)](_0x18bedd),window[_0x3d05f2(0x433)][_0x3fa989['id']]={'x':_0x3fa989['targetX'],'y':_0x3fa989['targetY']};}let _0x259bae=window[_0x3d05f2(0x433)][_0x3fa989['id']],_0xa066d8=_0x3fa989[_0x3d05f2(0x3c2)]?-0x2d:0x2d,_0x2809c2=_0x3fa989[_0x3d05f2(0x571)]+0x18+_0xa066d8,_0x58be8b=_0x3fa989[_0x3d05f2(0x7f4)]+(_0x3fa989[_0x3d05f2(0x6d0)]===_0x3d05f2(0x92f)?0x50:0x1e),_0x36b825=_0x2809c2-_0x259bae['x'],_0x406943=_0x58be8b-_0x259bae['y'],_0x3d2093=Math[_0x3d05f2(0x593)](_0x36b825,_0x406943);if(_0x3d2093>0x2){_0x259bae['x']+=_0x36b825*0.15,_0x259bae['y']+=_0x406943*0.15;if(_0x3fa989[_0x3d05f2(0x6d0)]==='fox')_0x18bedd[_0x3d05f2(0x4ea)][_0x3d05f2(0x7e6)]('walking');}else{if(_0x3fa989[_0x3d05f2(0x6d0)]==='fox')_0x18bedd[_0x3d05f2(0x4ea)][_0x3d05f2(0x7f7)](_0x3d05f2(0x2dc));}_0x18bedd[_0x3d05f2(0x290)]['left']=_0x259bae['x']+'px',_0x18bedd[_0x3d05f2(0x290)]['top']=_0x259bae['y']+'px',_0x18bedd[_0x3d05f2(0x290)][_0x3d05f2(0x2b3)]=_0x3fa989['facingRight']?_0x3d05f2(0x2d6):_0x3d05f2(0x6c7);}),document[_0x949005(0x76b)](_0x949005(0x3d9))['forEach'](_0x191905=>{const _0x587f6f=_0x949005;let _0x53f344=_0x191905['id'][_0x587f6f(0x818)](_0x587f6f(0x478),'');!_0x5af69b['has'](_0x53f344)&&(_0x191905[_0x587f6f(0x7f7)](),delete window[_0x587f6f(0x433)][_0x53f344]);});if(game[_0x949005(0x32e)][_0x949005(0x2bb)]>0x0)game[_0x949005(0x32e)][_0x949005(0x2bb)]-=0x10;if(game[_0x949005(0x32e)][_0x949005(0x2bb)]<=0x0&&!game[_0x949005(0x842)]){const _0x5dbb11=game['player']['x']+0xc,_0x48c4c4=game[_0x949005(0x32e)]['y']+0x4c,_0x515402=safeMapData[_0x949005(0x4d9)]||[];let _0x4c9571=null;for(let _0x506ad8 of _0x515402){if(_0x5dbb11<_0x506ad8['x']+_0x506ad8['w']&&_0x5dbb11+0x18>_0x506ad8['x']&&_0x48c4c4<_0x506ad8['y']+_0x506ad8['h']&&_0x48c4c4+0x14>_0x506ad8['y'])_0x4c9571=_0x506ad8;}const _0x56c212=document[_0x949005(0x6de)](_0x949005(0x80d)),_0x259a30=document[_0x949005(0x6de)](_0x949005(0x410));if(_0x4c9571){if(_0x4c9571[_0x949005(0x739)]==='E'){game[_0x949005(0x32e)][_0x949005(0x864)]=null,game[_0x949005(0x32e)]['y']+=0xf,game[_0x949005(0x32e)]['teleportCooldown']=0x7d0,document[_0x949005(0x6de)](_0x949005(0x297))['style'][_0x949005(0x642)]=_0x949005(0x53c);return;}if(_0x4c9571[_0x949005(0x739)]==='F'){game[_0x949005(0x32e)][_0x949005(0x864)]=null,game[_0x949005(0x32e)]['y']+=0xf,game[_0x949005(0x32e)][_0x949005(0x2bb)]=0x7d0,window[_0x949005(0x222)]();return;}if(_0x4c9571[_0x949005(0x739)]==='G'&&(!game[_0x949005(0x32e)]['baseStats']||!game[_0x949005(0x32e)][_0x949005(0x526)][_0x949005(0x26a)])){game[_0x949005(0x32e)][_0x949005(0x864)]=null,game[_0x949005(0x32e)]['y']+=0xf,game[_0x949005(0x32e)]['teleportCooldown']=0x7d0,window[_0x949005(0x77c)]();return;}if(_0x4c9571[_0x949005(0x739)]==='I'){game[_0x949005(0x32e)]['currentPortal']=null,game[_0x949005(0x32e)]['y']+=0xf,game[_0x949005(0x32e)][_0x949005(0x2bb)]=0x7d0,window['openStorageUI']();return;}if(_0x4c9571[_0x949005(0x739)]==='J'){game[_0x949005(0x32e)][_0x949005(0x864)]=null,game['player']['y']+=0xf,game['player']['teleportCooldown']=0x7d0,window['openHauntedHouseUI']();return;}if(_0x4c9571[_0x949005(0x739)]==='K'){game[_0x949005(0x32e)][_0x949005(0x864)]=null,game[_0x949005(0x32e)]['y']+=0xf,game[_0x949005(0x32e)][_0x949005(0x2bb)]=0x7d0,window['openGuildUI']();return;}if(_0x4c9571['portalId']==='M'){game[_0x949005(0x32e)][_0x949005(0x864)]=null,game['player']['y']+=0xf,game['player'][_0x949005(0x2bb)]=0x7d0,window[_0x949005(0x2a9)]();return;}if(_0x4c9571[_0x949005(0x739)]==='A'){game[_0x949005(0x32e)][_0x949005(0x864)]=null,game['player']['y']+=0xf,game[_0x949005(0x32e)]['teleportCooldown']=0x7d0;const _0x241528=new Date();let _0x2dc3bb=_0x241528[_0x949005(0x777)](),_0x2aceff=_0x2dc3bb===0x0?0x6:_0x2dc3bb-0x1,_0x403ec0=new Date(_0x241528[_0x949005(0x25c)]());_0x403ec0[_0x949005(0x69d)](_0x241528[_0x949005(0x8e3)]()-_0x2aceff),_0x403ec0[_0x949005(0x420)](0x0,0x0,0x0,0x0);const _0x53d5b3=_0x403ec0[_0x949005(0x25c)]();if(!game[_0x949005(0x32e)][_0x949005(0x526)])game[_0x949005(0x32e)][_0x949005(0x526)]={};(!game['player']['baseStats'][_0x949005(0x93d)]||game['player'][_0x949005(0x526)][_0x949005(0x93d)]<_0x53d5b3)&&(game[_0x949005(0x32e)][_0x949005(0x526)][_0x949005(0x278)]=0x5,game[_0x949005(0x32e)][_0x949005(0x526)]['tavernReset']=Date['now']());document[_0x949005(0x6de)](_0x949005(0x732))[_0x949005(0x492)]=_0x949005(0x62f)+game[_0x949005(0x32e)][_0x949005(0x526)][_0x949005(0x278)]+'/5',document[_0x949005(0x6de)](_0x949005(0x8ad))[_0x949005(0x290)][_0x949005(0x642)]=_0x949005(0x53c);return;}if(game[_0x949005(0x32e)][_0x949005(0x864)]!==_0x4c9571[_0x949005(0x739)]&&game['player'][_0x949005(0x864)]!==_0x949005(0x71a)){game[_0x949005(0x32e)][_0x949005(0x864)]=_0x4c9571[_0x949005(0x739)],game[_0x949005(0x32e)][_0x949005(0x279)]=Date[_0x949005(0x91c)]();if(_0x56c212)_0x56c212[_0x949005(0x290)][_0x949005(0x642)]=_0x949005(0x53c);}if(game['player'][_0x949005(0x279)]){let _0x48ed49=Date[_0x949005(0x91c)]()-game['player'][_0x949005(0x279)],_0x5a07d0=Math[_0x949005(0x269)](0x0,0x7d0-_0x48ed49);if(_0x259a30)_0x259a30[_0x949005(0x492)]=(_0x5a07d0/0x3e8)[_0x949005(0x6a7)](0x1);if(_0x5a07d0<=0x0&&!game[_0x949005(0x32e)]['isTeleporting']){game[_0x949005(0x32e)][_0x949005(0x248)]=!![];if(_0x56c212)_0x56c212[_0x949005(0x290)][_0x949005(0x642)]=_0x949005(0x1ec);if(socket)socket[_0x949005(0x1b2)](_0x949005(0x2fe),{'portalId':_0x4c9571[_0x949005(0x739)],'targetMapId':_0x4c9571[_0x949005(0x340)]});}}}else{if(game['player'][_0x949005(0x864)]!==null){game['player']['currentPortal']=null,game[_0x949005(0x32e)]['portalEntryTime']=null,game[_0x949005(0x32e)][_0x949005(0x248)]=![];if(_0x56c212)_0x56c212[_0x949005(0x290)][_0x949005(0x642)]=_0x949005(0x1ec);if(socket)socket['emit']('portalLeave');document[_0x949005(0x6de)](_0x949005(0x8ad))[_0x949005(0x290)][_0x949005(0x642)]=_0x949005(0x1ec);}}}dom[_0x949005(0x238)][_0x949005(0x290)][_0x949005(0x76a)]=game[_0x949005(0x32e)]['x']+'px',dom['playerContainer'][_0x949005(0x290)][_0x949005(0x706)]=game[_0x949005(0x32e)]['y']+'px',window['fowFrameCount']=(window[_0x949005(0x82f)]||0x0)+0x1;const _0x2a8445=document[_0x949005(0x6de)](_0x949005(0x2f9));if(_0x2a8445&&window[_0x949005(0x82f)]%0x3===0x0){const _0x3c8d75=_0x2a8445['getContext']('2d',{'alpha':!![]});if(safeMapData['id']!==_0x949005(0x8ba)&&!String(safeMapData['id'])['includes'](_0x949005(0x5e7))&&!String(safeMapData['id'])[_0x949005(0x67b)](_0x949005(0x2da))&&!game['isGhost']){_0x2a8445[_0x949005(0x4ea)][_0x949005(0x7e6)](_0x949005(0x6cd)),_0x3c8d75['clearRect'](0x0,0x0,0x7d0,0x535),_0x3c8d75[_0x949005(0x556)]='source-over',_0x3c8d75[_0x949005(0x2e1)]=_0x949005(0x3df),_0x3c8d75['fillRect'](0x0,0x0,0x7d0,0x535);let _0x3608d1=game['player']['x']+0x18,_0x59b8c6=game[_0x949005(0x32e)]['y']+0x1e;const _0x92de92=0xbb8;let _0x14a050=[],_0x4e4fd5=[];const _0x208e44=[{'x':0x0,'y':0x0},{'x':0x7d0,'y':0x0},{'x':0x7d0,'y':0x535},{'x':0x0,'y':0x535}];_0x4e4fd5[_0x949005(0x2c9)](..._0x208e44);for(let _0x8078f3=0x0;_0x8078f3<0x4;_0x8078f3++)_0x14a050[_0x949005(0x2c9)]({'a':_0x208e44[_0x8078f3],'b':_0x208e44[(_0x8078f3+0x1)%0x4]});safeMapData[_0x949005(0x763)]&&safeMapData[_0x949005(0x763)][_0x949005(0x4c1)](_0x39fa41=>{const _0x1a72b1=_0x949005;if(Math[_0x1a72b1(0x888)](_0x39fa41['x']-_0x3608d1)>0x3e8||Math[_0x1a72b1(0x888)](_0x39fa41['y']-_0x59b8c6)>0x3e8)return;if(_0x3608d1>=_0x39fa41['x']&&_0x3608d1<=_0x39fa41['x']+_0x39fa41['w']&&_0x59b8c6>=_0x39fa41['y']&&_0x59b8c6<=_0x39fa41['y']+_0x39fa41['h']){let _0x5824e2=Math[_0x1a72b1(0x888)](_0x39fa41['y']+_0x39fa41['h']-_0x59b8c6),_0x8b2557=Math[_0x1a72b1(0x888)](_0x59b8c6-_0x39fa41['y']),_0x19537b=Math['abs'](_0x3608d1-_0x39fa41['x']),_0xa128f8=Math[_0x1a72b1(0x888)](_0x39fa41['x']+_0x39fa41['w']-_0x3608d1),_0x2addd4=Math[_0x1a72b1(0x591)](_0x5824e2,_0x8b2557,_0x19537b,_0xa128f8);if(_0x2addd4===_0x5824e2)_0x59b8c6=_0x39fa41['y']+_0x39fa41['h']+0x1;else{if(_0x2addd4===_0x8b2557)_0x59b8c6=_0x39fa41['y']-0x1;else{if(_0x2addd4===_0x19537b)_0x3608d1=_0x39fa41['x']-0x1;else{if(_0x2addd4===_0xa128f8)_0x3608d1=_0x39fa41['x']+_0x39fa41['w']+0x1;}}}}let _0x53ee4d=[{'x':_0x39fa41['x'],'y':_0x39fa41['y']},{'x':_0x39fa41['x']+_0x39fa41['w'],'y':_0x39fa41['y']},{'x':_0x39fa41['x']+_0x39fa41['w'],'y':_0x39fa41['y']+_0x39fa41['h']},{'x':_0x39fa41['x'],'y':_0x39fa41['y']+_0x39fa41['h']}];_0x4e4fd5[_0x1a72b1(0x2c9)](..._0x53ee4d);for(let _0x1beb1a=0x0;_0x1beb1a<0x4;_0x1beb1a++)_0x14a050[_0x1a72b1(0x2c9)]({'a':_0x53ee4d[_0x1beb1a],'b':_0x53ee4d[(_0x1beb1a+0x1)%0x4]});});let _0x4769f3=[];_0x4e4fd5['forEach'](_0x3637a3=>{const _0x5760f4=_0x949005;let _0x31504e=Math[_0x5760f4(0x34d)](_0x3637a3['y']-_0x59b8c6,_0x3637a3['x']-_0x3608d1);_0x4769f3['push'](_0x31504e-0.0001,_0x31504e,_0x31504e+0.0001);}),_0x4769f3[_0x949005(0x4b9)]((_0xdbd5b8,_0x2767a1)=>_0xdbd5b8-_0x2767a1);let _0x856530=[];_0x4769f3['forEach'](_0x41a148=>{const _0x2c24a9=_0x949005;let _0x2a00cb=Math[_0x2c24a9(0x1a9)](_0x41a148)*_0x92de92,_0x1e4aba=Math[_0x2c24a9(0x620)](_0x41a148)*_0x92de92,_0x4ad538=null,_0x35c57c=0x1;_0x14a050[_0x2c24a9(0x4c1)](_0x21f662=>{let _0x4e8abc=_0x21f662['b']['x']-_0x21f662['a']['x'],_0x3023c6=_0x21f662['b']['y']-_0x21f662['a']['y'],_0x5d8c85=_0x2a00cb*_0x3023c6-_0x1e4aba*_0x4e8abc;if(_0x5d8c85===0x0)return;let _0x3b79f9=((_0x21f662['a']['x']-_0x3608d1)*_0x3023c6-(_0x21f662['a']['y']-_0x59b8c6)*_0x4e8abc)/_0x5d8c85,_0x24568d=((_0x21f662['a']['x']-_0x3608d1)*_0x1e4aba-(_0x21f662['a']['y']-_0x59b8c6)*_0x2a00cb)/_0x5d8c85;_0x3b79f9>0x0&&_0x3b79f9<=0x1&&_0x24568d>=0x0&&_0x24568d<=0x1&&(_0x3b79f9<_0x35c57c&&(_0x35c57c=_0x3b79f9,_0x4ad538={'x':_0x3608d1+_0x2a00cb*_0x3b79f9,'y':_0x59b8c6+_0x1e4aba*_0x3b79f9}));}),_0x856530[_0x2c24a9(0x2c9)](_0x4ad538?_0x4ad538:{'x':_0x3608d1+_0x2a00cb,'y':_0x59b8c6+_0x1e4aba});}),_0x3c8d75['globalCompositeOperation']=_0x949005(0x1ce),_0x3c8d75[_0x949005(0x2e1)]='rgba(255,\x20255,\x20255,\x201)';let _0xf6e75e=new Path2D();if(_0x856530['length']>0x0){_0xf6e75e['moveTo'](_0x856530[0x0]['x'],_0x856530[0x0]['y']);for(let _0x2f8f37=0x1;_0x2f8f37<_0x856530[_0x949005(0x7c5)];_0x2f8f37++){_0xf6e75e[_0x949005(0x3ae)](_0x856530[_0x2f8f37]['x'],_0x856530[_0x2f8f37]['y']);}}_0xf6e75e[_0x949005(0x57c)](),_0x3c8d75[_0x949005(0x906)](_0xf6e75e);for(let _0x305aa2 in game[_0x949005(0x82e)]){const _0x3ffc40=game[_0x949005(0x82e)][_0x305aa2];if(!_0x3ffc40[_0x949005(0x352)])continue;const _0x4c8e87=document[_0x949005(0x6de)](_0x949005(0x2b1)+_0x305aa2);if(!_0x4c8e87)continue;const _0x4085e9=_0x3c8d75[_0x949005(0x3ed)](_0xf6e75e,_0x3ffc40['x']+_0x3ffc40['width']/0x2,_0x3ffc40['y']+_0x3ffc40[_0x949005(0x7a7)]/0x2);_0x4085e9?_0x4c8e87[_0x949005(0x290)][_0x949005(0x398)]!=='1'&&(_0x4c8e87[_0x949005(0x290)][_0x949005(0x398)]='1',_0x4c8e87[_0x949005(0x290)][_0x949005(0x6ef)]=_0x949005(0x652)):_0x4c8e87[_0x949005(0x290)][_0x949005(0x398)]!=='0'&&(_0x4c8e87[_0x949005(0x290)][_0x949005(0x398)]='0',_0x4c8e87[_0x949005(0x290)][_0x949005(0x6ef)]=_0x949005(0x1ec));}for(let _0x54b538 in game[_0x949005(0x840)]){const _0x5bb0f7=game['remotePlayers'][_0x54b538];if(_0x5bb0f7&&_0x5bb0f7['dom']){const _0x31b0fd=_0x3c8d75[_0x949005(0x3ed)](_0xf6e75e,_0x5bb0f7['x']+0x18,_0x5bb0f7['y']+0x30);_0x31b0fd?_0x5bb0f7['dom'][_0x949005(0x290)]['opacity']!=='1'&&(_0x5bb0f7[_0x949005(0x474)][_0x949005(0x290)][_0x949005(0x398)]='1',_0x5bb0f7[_0x949005(0x474)][_0x949005(0x290)]['pointerEvents']=_0x949005(0x652)):_0x5bb0f7['dom'][_0x949005(0x290)]['opacity']!=='0'&&(_0x5bb0f7[_0x949005(0x474)][_0x949005(0x290)][_0x949005(0x398)]='0',_0x5bb0f7['dom'][_0x949005(0x290)][_0x949005(0x6ef)]=_0x949005(0x1ec));}}}else{_0x2a8445[_0x949005(0x4ea)][_0x949005(0x7f7)](_0x949005(0x6cd)),_0x3c8d75[_0x949005(0x816)](0x0,0x0,0x7d0,0x535);for(let _0x4e9d84 in game[_0x949005(0x82e)]){const _0x20ae6e=document[_0x949005(0x6de)](_0x949005(0x2b1)+_0x4e9d84);_0x20ae6e&&_0x20ae6e[_0x949005(0x290)][_0x949005(0x398)]!=='1'&&(_0x20ae6e['style']['opacity']='1',_0x20ae6e['style'][_0x949005(0x6ef)]=_0x949005(0x652));}for(let _0xe707e9 in game[_0x949005(0x840)]){const _0xf441=game[_0x949005(0x840)][_0xe707e9];_0xf441&&_0xf441[_0x949005(0x474)]&&_0xf441[_0x949005(0x474)][_0x949005(0x290)][_0x949005(0x398)]!=='1'&&(_0xf441[_0x949005(0x474)][_0x949005(0x290)][_0x949005(0x398)]='1',_0xf441[_0x949005(0x474)][_0x949005(0x290)][_0x949005(0x6ef)]=_0x949005(0x652));}}}let _0x1ed5f3=game['player']['x'],_0x369efa=game[_0x949005(0x32e)]['y'],_0xddec71=window[_0x949005(0x6a2)]<=0x3b6?1.2:1.8;window[_0x949005(0x880)]&&window[_0x949005(0x5a1)]&&game[_0x949005(0x840)][window[_0x949005(0x5a1)]]&&(_0x1ed5f3=game[_0x949005(0x840)][window[_0x949005(0x5a1)]]['x'],_0x369efa=game[_0x949005(0x840)][window[_0x949005(0x5a1)]]['y']);const _0x2a6236=Math[_0x949005(0x7f1)](window[_0x949005(0x6a2)]/0x2-_0x1ed5f3*_0xddec71-0x30*_0xddec71/0x2),_0x2e4815=Math[_0x949005(0x7f1)](window[_0x949005(0x567)]/0x2-_0x369efa*_0xddec71-0x60*_0xddec71/0x2);dom[_0x949005(0x36e)][_0x949005(0x290)][_0x949005(0x2b3)]=_0x949005(0x73f)+_0x2a6236+_0x949005(0x90b)+_0x2e4815+_0x949005(0x27c)+_0xddec71+')';window['isSpectating']&&(_0x3ed88b=![],_0xcde742=![]);if(!game[_0x949005(0x842)]){if(autoAttackMode&&!window[_0x949005(0x643)]&&!isInventoryOpen&&typeof window[_0x949005(0x63d)]===_0x949005(0x268))window[_0x949005(0x63d)](!![]);if(typeof window[_0x949005(0x35f)]===_0x949005(0x268)){if(isAttacking)window['updateAnimationFrames'](_0x949005(0x5d5));else{if(_0x3ed88b)window[_0x949005(0x35f)]('walk');else window['updateAnimationFrames'](_0x949005(0x737));}}}attackHeld&&!isInventoryOpen&&!window[_0x949005(0x643)]&&!isChatting&&!autoAttackMode&&!game[_0x949005(0x842)]&&typeof window[_0x949005(0x63d)]==='function'&&window['attemptAttack'](![]);const _0x29409e=isAttacking?_0x949005(0x5d5):_0x3ed88b?_0x949005(0x6bd):_0x949005(0x737),_0x3466f1=Date[_0x949005(0x91c)]();let _0x931688=window[_0x949005(0x8eb)]||0x0,_0x330bea=window[_0x949005(0x746)]||'idle';if(_0x3466f1-_0x931688>=0x3c||_0x29409e!==_0x330bea){window['lastNetTs']=_0x3466f1,window[_0x949005(0x746)]=_0x29409e;if(socket)socket[_0x949005(0x1b2)]('playerMoved',{'x':game[_0x949005(0x32e)]['x'],'y':game['player']['y'],'state':_0x29409e,'facingRight':window[_0x949005(0x3c2)],'weaponSprite':game[_0x949005(0x32e)]['equips']?.[_0x949005(0x452)]?.[_0x949005(0x573)]||null});}}window[_0x5d14f9(0x215)]=function(_0x544e32,_0xd4138c){const _0x28b3b1=_0x5d14f9;if(window[_0x28b3b1(0x79a)][_0x544e32]&&window['MapDatabase'][_0x544e32][_0x28b3b1(0x763)])return _0xd4138c();let _0x47c989=_0x544e32==='town'?_0x28b3b1(0x5b6):_0x544e32+_0x28b3b1(0x4ac),_0x59be93=document[_0x28b3b1(0x81e)](_0x28b3b1(0x3b6));_0x59be93[_0x28b3b1(0x6fa)]=_0x47c989;const _0x39045e={'id':_0x544e32,'name':_0x544e32,'image':_0x544e32===_0x28b3b1(0x8ba)?_0x28b3b1(0x8d2):_0x544e32+'.png','spawnX':0x3c0,'spawnY':0x3e8,'collisions':[],'teleports':[],'normalSpawns':[],'miniBossSpawns':[],'floorBossSpawns':[]};_0x59be93[_0x28b3b1(0x54d)]=()=>{const _0x46b97d=_0x28b3b1;let _0x1beb28=_0x544e32===_0x46b97d(0x8ba)?_0x46b97d(0x37f):_0x544e32+_0x46b97d(0x3e6);if(typeof window[_0x1beb28]!=='undefined')window['MapDatabase'][_0x544e32]=JSON['parse'](JSON[_0x46b97d(0x57f)](window[_0x1beb28]));else window[_0x46b97d(0x79a)][_0x544e32]=_0x39045e;_0xd4138c();},_0x59be93[_0x28b3b1(0x7b2)]=()=>{const _0x361154=_0x28b3b1;window[_0x361154(0x79a)][_0x544e32]=_0x39045e,_0xd4138c();},document[_0x28b3b1(0x22e)][_0x28b3b1(0x463)](_0x59be93);},window['resolveAsset']=function(_0x3e6db6){const _0x22b554=_0x5d14f9,_0x515788='https://exonieonline.onrender.com/';if(window['currentPlatform']===_0x22b554(0x230))return _0x515788+_0x3e6db6;return _0x3e6db6;},window['preloadMapAssets']=function(_0x3afc11,_0x79d3bc){const _0x4d901a=_0x5d14f9;window[_0x4d901a(0x56f)]=!![];const _0x506da2=document[_0x4d901a(0x6de)](_0x4d901a(0x6d3));if(_0x506da2)_0x506da2[_0x4d901a(0x290)][_0x4d901a(0x2ff)]=_0x4d901a(0x349);const _0x1795d0=_0x3afc11?.[_0x4d901a(0x2a5)]?String(_0x3afc11[_0x4d901a(0x2a5)]):_0x4d901a(0x8d2),_0x56bcb6='https://exonieonline.onrender.com/';if(window['currentPlatform']===_0x4d901a(0x230)){const _0x288087=new Image();let _0x57ffb2=![],_0x28cefe=setTimeout(()=>{const _0x38c853=_0x4d901a;if(!_0x57ffb2){_0x57ffb2=!![];if(_0x506da2)_0x506da2[_0x38c853(0x290)][_0x38c853(0x2ff)]=_0x38c853(0x25f);console[_0x38c853(0x836)]('Web\x20load\x20hit\x205-second\x20cap.\x20Forcing\x20entry!'),_0x79d3bc(),_0x1791a9();}},0x1388);_0x288087[_0x4d901a(0x54d)]=_0x288087[_0x4d901a(0x7b2)]=()=>{const _0x521886=_0x4d901a;if(!_0x57ffb2){_0x57ffb2=!![],clearTimeout(_0x28cefe);if(_0x506da2)_0x506da2[_0x521886(0x290)][_0x521886(0x2ff)]=_0x521886(0x25f);_0x79d3bc(),_0x1791a9();}},_0x288087[_0x4d901a(0x6fa)]=_0x56bcb6+_0x1795d0;function _0x1791a9(){const _0x237bf2=_0x4d901a;let _0x1e430c=window['routeMapMusic'](_0x3afc11?.['id']||_0x237bf2(0x8ba)),_0x4468ac=[_0x237bf2(0x7db),_0x237bf2(0x1ad),_0x237bf2(0x73e),_0x237bf2(0x716),_0x237bf2(0x91b)+_0x1e430c+'.mp3'];if(game['player']['baseStats']?.[_0x237bf2(0x4e7)]){let _0x317734=window[_0x237bf2(0x2f3)]?.[_0x237bf2(0x4f3)]===_0x237bf2(0x1ec)?'none':'hair'+(window[_0x237bf2(0x2f3)]?.[_0x237bf2(0x4f3)]||'1'),_0x3d873e=String(game[_0x237bf2(0x32e)][_0x237bf2(0x526)][_0x237bf2(0x4e7)])[_0x237bf2(0x818)](/\s+/g,'')[_0x237bf2(0x649)]();_0x4468ac[_0x237bf2(0x2c9)](_0x237bf2(0x1e0)+_0x317734+'_'+_0x3d873e+_0x237bf2(0x49d));}_0x4468ac['forEach'](_0x439c71=>{const _0x24e4fc=_0x237bf2,_0x1f43d0=new Audio();_0x1f43d0[_0x24e4fc(0x272)]=_0x24e4fc(0x652),_0x1f43d0[_0x24e4fc(0x6fa)]=_0x56bcb6+_0x439c71,_0x1f43d0[_0x24e4fc(0x41f)]();});}return;}try{let _0x5a0c26=[_0x1795d0,_0x4d901a(0x809),_0x4d901a(0x61e),'animation/avatar_attack.png','animation/avatar_head.png'];if(game['player'][_0x4d901a(0x670)]?.[_0x4d901a(0x452)]?.[_0x4d901a(0x573)]){let _0x380fac=_0x4d901a(0x80c),_0x1d0287=String(game[_0x4d901a(0x32e)][_0x4d901a(0x670)][_0x4d901a(0x452)][_0x4d901a(0x573)])[_0x4d901a(0x649)]();if(_0x1d0287[_0x4d901a(0x67b)](_0x4d901a(0x8ce)))_0x380fac='staff';else{if(_0x1d0287['includes'](_0x4d901a(0x8cf)))_0x380fac=_0x4d901a(0x8cf);else{if(_0x1d0287['includes'](_0x4d901a(0x554)))_0x380fac=_0x4d901a(0x554);else{if(_0x1d0287[_0x4d901a(0x67b)](_0x4d901a(0x3a4)))_0x380fac=_0x4d901a(0x3a4);else{if(_0x1d0287[_0x4d901a(0x67b)](_0x4d901a(0x871)))_0x380fac=_0x4d901a(0x871);}}}}let _0x43ef86=String(game['player']['equips'][_0x4d901a(0x452)][_0x4d901a(0x20b)]||_0x4d901a(0x3fb))[_0x4d901a(0x649)]();if(_0x43ef86===_0x4d901a(0x794))_0x43ef86=_0x4d901a(0x3fb);let _0x4482cb=''+_0x43ef86+_0x380fac;_0x5a0c26['push']('weapon/'+_0x4482cb+_0x4d901a(0x910));if(!_0x4482cb[_0x4d901a(0x67b)](_0x4d901a(0x8cf)))_0x5a0c26[_0x4d901a(0x2c9)]('weapon/'+_0x4482cb+_0x4d901a(0x491));}let _0x458fb1=window['routeMapMusic'](_0x3afc11?.['id']||_0x4d901a(0x8ba));_0x5a0c26[_0x4d901a(0x2c9)](_0x4d901a(0x7db),_0x4d901a(0x1ad),'music/splash.mp3','music/bump.mp3',_0x4d901a(0x91b)+_0x458fb1+_0x4d901a(0x49d));if(game[_0x4d901a(0x32e)][_0x4d901a(0x526)]?.[_0x4d901a(0x4e7)]){let _0x1f1d55=window['charData']?.[_0x4d901a(0x4f3)]==='none'?_0x4d901a(0x1ec):_0x4d901a(0x3d3)+(window[_0x4d901a(0x2f3)]?.[_0x4d901a(0x4f3)]||'1'),_0x1379a3=String(game[_0x4d901a(0x32e)][_0x4d901a(0x526)][_0x4d901a(0x4e7)])[_0x4d901a(0x818)](/\s+/g,'')[_0x4d901a(0x649)]();_0x5a0c26['push']('skills/'+_0x1f1d55+'_'+_0x1379a3+_0x4d901a(0x49d));}let _0x298276=0x0,_0x4bd602=_0x5a0c26[_0x4d901a(0x7c5)];const _0x5e992e=()=>{const _0x40b081=_0x4d901a;_0x298276++;if(_0x506da2)_0x506da2[_0x40b081(0x290)][_0x40b081(0x2ff)]=_0x298276/_0x4bd602*0x64+'%';if(_0x298276>=_0x4bd602)_0x79d3bc();};_0x4bd602===0x0?_0x79d3bc():_0x5a0c26['forEach'](_0x3095f5=>{const _0x4707d9=_0x4d901a;if(_0x3095f5['endsWith'](_0x4707d9(0x49d))){const _0xb718a4=new Audio();_0xb718a4[_0x4707d9(0x85b)]=_0x5e992e,_0xb718a4[_0x4707d9(0x7b2)]=()=>{const _0x13789d=_0x4707d9;!_0xb718a4[_0x13789d(0x6fa)][_0x13789d(0x67b)](_0x13789d(0x4bc))?(_0xb718a4[_0x13789d(0x6fa)]=_0x56bcb6+_0x3095f5,_0xb718a4[_0x13789d(0x41f)]()):_0x5e992e();},_0xb718a4[_0x4707d9(0x6fa)]=_0x3095f5,_0xb718a4[_0x4707d9(0x41f)]();}else{const _0xa5e8fa=new Image();_0xa5e8fa[_0x4707d9(0x54d)]=_0x5e992e,_0xa5e8fa[_0x4707d9(0x7b2)]=()=>{const _0x4a5b1d=_0x4707d9;!_0xa5e8fa[_0x4a5b1d(0x6fa)]['includes'](_0x4a5b1d(0x4bc))?_0xa5e8fa[_0x4a5b1d(0x6fa)]=_0x56bcb6+_0x3095f5:_0x5e992e();},_0xa5e8fa['src']=_0x3095f5;}});}catch(_0x169f20){console['error'](_0x4d901a(0x8c3),_0x169f20),window[_0x4d901a(0x56f)]=![],window['isTransitioning']=![],_0x79d3bc();}},window[_0x5d14f9(0x574)]=function(){const _0x113859=_0x5d14f9;Object[_0x113859(0x2c1)](game[_0x113859(0x840)])[_0x113859(0x4c1)](_0x56aa1c=>window[_0x113859(0x5cc)](_0x56aa1c)),document[_0x113859(0x76b)]('.monster-container,\x20.pet-slime')[_0x113859(0x4c1)](_0x490459=>_0x490459[_0x113859(0x7f7)]()),game[_0x113859(0x82e)]={};game['player'][_0x113859(0x4ec)]&&(game['player']['activePets']['forEach'](_0x38c4ac=>{const _0x308558=_0x113859;if(_0x38c4ac[_0x308558(0x474)])_0x38c4ac[_0x308558(0x474)][_0x308558(0x7f7)]();}),game['player']['activePets']=[]);if(localBossTimer)clearInterval(localBossTimer);let _0xf096bb=document['getElementById'](_0x113859(0x789));if(_0xf096bb)_0xf096bb[_0x113859(0x7f7)]();window[_0x113859(0x20a)]=Date['now']();},window[_0x5d14f9(0x328)]=function(){const _0xc23ea4=_0x5d14f9;if(safeMapData['id']===_0xc23ea4(0x743)){if(dom['log'])dom[_0xc23ea4(0x7cd)][_0xc23ea4(0x492)]=_0xc23ea4(0x3d5);return;}game['player']['x']=0x3c0,game['player']['y']=0x3e8;if(safeMapData['id']!==_0xc23ea4(0x8ba)){if(socket)socket['emit'](_0xc23ea4(0x765),{'mapId':_0xc23ea4(0x8ba),'x':0x3c0,'y':0x3e8});dom['log'][_0xc23ea4(0x492)]='Evacuating\x20to\x20Town...';}else{if(socket)socket[_0xc23ea4(0x1b2)](_0xc23ea4(0x395),{'x':0x3c0,'y':0x3e8,'state':_0xc23ea4(0x737),'facingRight':window[_0xc23ea4(0x3c2)],'weaponSprite':game[_0xc23ea4(0x32e)]['equips'][_0xc23ea4(0x452)]?.[_0xc23ea4(0x573)]||null});dom[_0xc23ea4(0x7cd)][_0xc23ea4(0x492)]=_0xc23ea4(0x331);}},window['showMapAnnouncement']=function(_0x4e23dc){const _0xbb7914=_0x5d14f9;if(!_0x4e23dc)return;let _0x3ac438=String(_0x4e23dc)['replace'](/_/g,'\x20')[_0xbb7914(0x818)](/\b\w/g,_0x2a999b=>_0x2a999b[_0xbb7914(0x241)]());const _0x482065=document['getElementById'](_0xbb7914(0x413));_0x482065&&(_0x482065[_0xbb7914(0x492)]=_0x3ac438,_0x482065['style'][_0xbb7914(0x642)]=_0xbb7914(0x53c));const _0x35bd8a=document['getElementById'](_0xbb7914(0x501)),_0x2a11d4=document[_0xbb7914(0x6de)](_0xbb7914(0x837));_0x35bd8a&&_0x2a11d4&&(_0x2a11d4[_0xbb7914(0x492)]=_0x3ac438,_0x35bd8a[_0xbb7914(0x290)]['opacity']='1',setTimeout(()=>{const _0x51474f=_0xbb7914;_0x35bd8a[_0x51474f(0x290)][_0x51474f(0x398)]='0';},0xbb8));},window['isColliding']=function(_0x351da5,_0x327ece){const _0x341f80=_0x5d14f9,_0x3920e5=_0x351da5+(game[_0x341f80(0x32e)][_0x341f80(0x2ff)]-game[_0x341f80(0x32e)]['w'])/0x2,_0x849556=_0x327ece+game[_0x341f80(0x32e)][_0x341f80(0x7a7)]-game[_0x341f80(0x32e)]['h'],_0x304373=safeMapData[_0x341f80(0x763)]||[];for(let _0x379a46 of _0x304373){if(_0x3920e5<_0x379a46['x']+_0x379a46['w']&&_0x3920e5+game[_0x341f80(0x32e)]['w']>_0x379a46['x']&&_0x849556<_0x379a46['y']+_0x379a46['h']&&_0x849556+game['player']['h']>_0x379a46['y'])return!![];}return![];},window[_0x5d14f9(0x583)]=function(_0xff0cde,_0xbfc117,_0x9f951f,_0x54015b){const _0x4c1979=_0x5d14f9,_0x22349c=document[_0x4c1979(0x81e)](_0x4c1979(0x8fa));_0x22349c['className']=_0x4c1979(0x8f2),_0x22349c[_0x4c1979(0x492)]=_0x9f951f;let _0x33d079=Math[_0x4c1979(0x392)]()*0x28-0x14,_0x56e097=Math[_0x4c1979(0x392)]()*0x14-0xa;_0x22349c[_0x4c1979(0x290)][_0x4c1979(0x76a)]=_0xff0cde-0xa+_0x33d079+'px',_0x22349c[_0x4c1979(0x290)][_0x4c1979(0x706)]=_0xbfc117+_0x56e097+'px',_0x22349c[_0x4c1979(0x290)]['color']=_0x54015b,dom[_0x4c1979(0x36e)]['appendChild'](_0x22349c),setTimeout(()=>_0x22349c[_0x4c1979(0x7f7)](),0x3e8);},window['spawnSkillText']=function(_0x1c6f1e,_0x169e91,_0x457148,_0x466747){const _0x8a873f=_0x5d14f9,_0x52d37e=document[_0x8a873f(0x81e)]('div');_0x52d37e[_0x8a873f(0x228)]='damage-text',_0x52d37e[_0x8a873f(0x492)]=_0x457148,_0x52d37e['style'][_0x8a873f(0x76a)]=_0x1c6f1e-0x1e+'px',_0x52d37e['style']['top']=_0x169e91+'px',_0x52d37e[_0x8a873f(0x290)][_0x8a873f(0x510)]=_0x466747||_0x8a873f(0x431),_0x52d37e[_0x8a873f(0x290)][_0x8a873f(0x2db)]='bold',_0x52d37e['style'][_0x8a873f(0x1af)]='0\x200\x205px\x20#fff,\x200\x200\x2010px\x20'+_0x466747,_0x52d37e[_0x8a873f(0x290)][_0x8a873f(0x5c1)]=_0x8a873f(0x88c),dom[_0x8a873f(0x36e)][_0x8a873f(0x463)](_0x52d37e);const _0x2feaec=_0x52d37e[_0x8a873f(0x918)]([{'transform':_0x8a873f(0x21c),'opacity':0x1},{'transform':'translateY(-40px)\x20scale(1.2)','opacity':0x1,'offset':0.5},{'transform':_0x8a873f(0x47e),'opacity':0x0}],{'duration':0x5dc,'easing':_0x8a873f(0x477)});_0x2feaec['onfinish']=()=>_0x52d37e[_0x8a873f(0x7f7)]();},window[_0x5d14f9(0x84e)]=function(_0x4ae52e,_0x5b5c6e){const _0x3688a6=_0x5d14f9,_0x5c657c=document[_0x3688a6(0x81e)](_0x3688a6(0x8fa));_0x5c657c[_0x3688a6(0x228)]=_0x3688a6(0x2aa),_0x5c657c[_0x3688a6(0x290)]['left']=_0x4ae52e+(Math['random']()*0x14-0xa)+'px',_0x5c657c[_0x3688a6(0x290)][_0x3688a6(0x706)]=_0x5b5c6e+(Math['random']()*0x14-0xa)+'px',dom[_0x3688a6(0x36e)][_0x3688a6(0x463)](_0x5c657c),setTimeout(()=>_0x5c657c[_0x3688a6(0x7f7)](),0x12c);},window['spawnWhiteSplash']=function(_0x551b66,_0x5f4063){const _0x31101e=_0x5d14f9,_0x32dc2a=document['createElement']('div');_0x32dc2a[_0x31101e(0x228)]=_0x31101e(0x775),_0x32dc2a['style'][_0x31101e(0x76a)]=_0x551b66+'px',_0x32dc2a[_0x31101e(0x290)][_0x31101e(0x706)]=_0x5f4063+'px',dom[_0x31101e(0x36e)][_0x31101e(0x463)](_0x32dc2a),setTimeout(()=>_0x32dc2a[_0x31101e(0x7f7)](),0x12c);},window[_0x5d14f9(0x208)]=function(_0x1c4f54,_0x15a495,_0x2abda8,_0x33d39f){const _0x4257ab=_0x5d14f9,_0x1fedde=document[_0x4257ab(0x81e)](_0x4257ab(0x8fa)),_0x31985c=Math['hypot'](_0x2abda8-_0x1c4f54,_0x33d39f-_0x15a495),_0x3eb855=Math[_0x4257ab(0x34d)](_0x33d39f-_0x15a495,_0x2abda8-_0x1c4f54)*0xb4/Math['PI'];_0x1fedde['style'][_0x4257ab(0x201)]='position:absolute;\x20background:#00E5FF;\x20height:4px;\x20width:'+_0x31985c+_0x4257ab(0x721)+_0x1c4f54+'px;\x20top:'+_0x15a495+_0x4257ab(0x7ab)+_0x3eb855+_0x4257ab(0x6fb),dom[_0x4257ab(0x36e)]['appendChild'](_0x1fedde);let _0x2517cc=new Audio('music/lightning.mp3');_0x2517cc['volume']=0.3,_0x2517cc[_0x4257ab(0x6d4)]()[_0x4257ab(0x1a2)](()=>{}),setTimeout(()=>_0x1fedde[_0x4257ab(0x290)]['opacity']='0',0x32),setTimeout(()=>_0x1fedde[_0x4257ab(0x7f7)](),0xfa),window[_0x4257ab(0x84e)](_0x2abda8,_0x33d39f);},window[_0x5d14f9(0x92d)]=function(_0x43ea00,_0x2c562b,_0x4649f1,_0x94f021){const _0x2eec11=_0x5d14f9,_0x2cdadf=document[_0x2eec11(0x81e)](_0x2eec11(0x8fa));_0x2cdadf[_0x2eec11(0x228)]=_0x2eec11(0x65e),_0x2cdadf['style']['left']=_0x43ea00+'px',_0x2cdadf['style'][_0x2eec11(0x706)]=_0x2c562b+'px',dom[_0x2eec11(0x36e)][_0x2eec11(0x463)](_0x2cdadf);const _0x17b553=_0x4649f1-_0x43ea00,_0x15fe16=_0x94f021-_0x2c562b,_0x464555=Math['atan2'](_0x15fe16,_0x17b553)*(0xb4/Math['PI']);_0x2cdadf[_0x2eec11(0x918)]([{'left':_0x43ea00+'px','top':_0x2c562b+'px','transform':_0x2eec11(0x2c2)+_0x464555+'deg)'},{'left':_0x4649f1+'px','top':_0x94f021+'px','transform':'translate(-50%,\x20-50%)\x20scale(1.15)\x20rotate('+_0x464555+_0x2eec11(0x27e)}],{'duration':0x190,'easing':_0x2eec11(0x790)})[_0x2eec11(0x543)]=()=>{const _0x115ec2=_0x2eec11;_0x2cdadf[_0x115ec2(0x7f7)](),window['spawnWhiteSplash'](_0x4649f1,_0x94f021);};},window[_0x5d14f9(0x5e6)]=function(_0x1a92e7,_0x3afa35,_0x38d6ea,_0x5ef87d,_0xbbbcc){const _0x53bda2=_0x5d14f9,_0x2324f8=document[_0x53bda2(0x81e)]('div');_0x2324f8[_0x53bda2(0x228)]=_0x53bda2(0x820),_0x2324f8[_0x53bda2(0x290)]['left']=_0x1a92e7+'px',_0x2324f8[_0x53bda2(0x290)][_0x53bda2(0x706)]=_0x3afa35+'px';_0xbbbcc&&(_0x2324f8[_0x53bda2(0x290)]['background']=_0xbbbcc,_0x2324f8[_0x53bda2(0x290)][_0x53bda2(0x588)]=_0x53bda2(0x487)+_0xbbbcc);dom['world'][_0x53bda2(0x463)](_0x2324f8);const _0x2c3c6d=_0x2324f8[_0x53bda2(0x918)]([{'left':_0x1a92e7+'px','top':_0x3afa35+'px'},{'left':_0x38d6ea+'px','top':_0x5ef87d+'px'}],{'duration':0x1f4,'easing':_0x53bda2(0x3de)});_0x2c3c6d[_0x53bda2(0x543)]=()=>_0x2324f8[_0x53bda2(0x7f7)]();},window[_0x5d14f9(0x58e)]=function(_0x4d328b,_0x402a72,_0x5446c7){const _0x592242=_0x5d14f9,_0x8fcf91=document[_0x592242(0x81e)](_0x592242(0x8fa));_0x8fcf91[_0x592242(0x290)][_0x592242(0x6f6)]=_0x592242(0x506),_0x8fcf91[_0x592242(0x290)][_0x592242(0x76a)]=_0x4d328b-0x28+'px',_0x8fcf91['style'][_0x592242(0x706)]=_0x402a72-0x28+'px',_0x8fcf91['style'][_0x592242(0x2ff)]=_0x592242(0x36f),_0x8fcf91[_0x592242(0x290)][_0x592242(0x7a7)]=_0x592242(0x36f),_0x8fcf91[_0x592242(0x290)][_0x592242(0x82b)]=_0x592242(0x7fa),_0x8fcf91[_0x592242(0x290)][_0x592242(0x28f)]=_0x592242(0x4e9),_0x8fcf91[_0x592242(0x290)]['zIndex']='40',_0x8fcf91[_0x592242(0x290)][_0x592242(0x650)]=_0x592242(0x825),_0x8fcf91[_0x592242(0x290)][_0x592242(0x6ef)]='none',dom['world'][_0x592242(0x463)](_0x8fcf91),setTimeout(()=>_0x8fcf91[_0x592242(0x7f7)](),_0x5446c7);},window[_0x5d14f9(0x8b8)]=function(_0x2fce27,_0x511992){const _0x57016c=_0x5d14f9;if(!_0x2fce27||!_0x2fce27[_0x57016c(0x474)])return;const _0x33b1ac=document[_0x57016c(0x81e)](_0x57016c(0x8fa));_0x33b1ac[_0x57016c(0x228)]=_0x57016c(0x287),_0x33b1ac[_0x57016c(0x492)]=_0x511992,_0x2fce27[_0x57016c(0x474)][_0x57016c(0x463)](_0x33b1ac),setTimeout(()=>_0x33b1ac[_0x57016c(0x7f7)](),0xfa0);},window['activeFoxes']={},window[_0x5d14f9(0x3a2)]=0x0,window[_0x5d14f9(0x758)]=function(_0x20869d,_0x39de60,_0x80fdbc,_0x487ff4,_0x2d1adf){const _0x2300c8=_0x5d14f9,_0xf70e38=document[_0x2300c8(0x81e)]('div');_0xf70e38[_0x2300c8(0x228)]='fox-fireball';if(_0x2d1adf==='wisp')_0xf70e38['style'][_0x2300c8(0x82b)]=_0x2300c8(0x5f4),_0xf70e38[_0x2300c8(0x290)]['boxShadow']=_0x2300c8(0x4da);else _0x2d1adf===_0x2300c8(0x81f)&&(_0xf70e38[_0x2300c8(0x290)][_0x2300c8(0x82b)]=_0x2300c8(0x78a),_0xf70e38[_0x2300c8(0x290)]['boxShadow']=_0x2300c8(0x507));_0xf70e38[_0x2300c8(0x290)][_0x2300c8(0x76a)]=_0x20869d+'px',_0xf70e38['style'][_0x2300c8(0x706)]=_0x39de60+'px',dom['world']['appendChild'](_0xf70e38);const _0x4898b0=_0xf70e38['animate']([{'left':_0x20869d+'px','top':_0x39de60+'px'},{'left':_0x80fdbc+'px','top':_0x487ff4+'px'}],{'duration':0x12c,'easing':_0x2300c8(0x790)});_0x4898b0[_0x2300c8(0x543)]=()=>{const _0x5df023=_0x2300c8;_0xf70e38[_0x5df023(0x7f7)](),window[_0x5df023(0x84e)](_0x80fdbc,_0x487ff4);};},window['updateAnimationFrames']=function(_0x1a1055){const _0x35c016=_0x5d14f9;let _0x3b213e=game['player'][_0x35c016(0x670)]?.['armor']?.['aura']||null,_0x38f739=document[_0x35c016(0x6de)](_0x35c016(0x225));_0x38f739&&(_0x38f739[_0x35c016(0x228)]='cosmetic-aura',_0x3b213e&&_0x38f739[_0x35c016(0x4ea)][_0x35c016(0x7e6)](_0x35c016(0x2f2)+_0x3b213e));if(dom[_0x35c016(0x4ca)])dom[_0x35c016(0x4ca)][_0x35c016(0x290)]['transform']=window[_0x35c016(0x3c2)]?_0x35c016(0x651):_0x35c016(0x38d);let _0x91a16f=game[_0x35c016(0x32e)][_0x35c016(0x670)]?.[_0x35c016(0x452)]?game[_0x35c016(0x32e)][_0x35c016(0x670)][_0x35c016(0x452)][_0x35c016(0x573)]:null,_0x170a4b=_0x91a16f?_0x91a16f['replace'](_0x35c016(0x794),'basic'):null,_0x22c87c=Math[_0x35c016(0x7f1)](Date['now']()/0xfa)%0x2===0x0,_0x562890=_0x35c016(0x809),_0x676b8=![];if(_0x1a1055===_0x35c016(0x5d5))_0x562890=_0x35c016(0x533),_0x676b8=!![];else _0x1a1055===_0x35c016(0x6bd)&&(_0x562890=_0x22c87c?_0x35c016(0x61e):_0x35c016(0x809));game[_0x35c016(0x32e)][_0x35c016(0x82a)]!==_0x562890&&dom[_0x35c016(0x301)]&&(dom[_0x35c016(0x301)]['src']=_0x562890,game['player'][_0x35c016(0x82a)]=_0x562890);if(_0x170a4b&&dom[_0x35c016(0x69a)]){dom[_0x35c016(0x69a)][_0x35c016(0x290)][_0x35c016(0x642)]=_0x35c016(0x53c);let _0x4e905d=_0x35c016(0x4f2)+_0x170a4b+(_0x1a1055===_0x35c016(0x5d5)&&_0x676b8&&!_0x170a4b[_0x35c016(0x67b)]('pendant')?_0x35c016(0x449):'')+'.png';game[_0x35c016(0x32e)][_0x35c016(0x564)]!==_0x4e905d&&(dom[_0x35c016(0x69a)][_0x35c016(0x6fa)]=_0x4e905d,game[_0x35c016(0x32e)]['currentWeaponSrc']=_0x4e905d);dom['playerWeapon'][_0x35c016(0x228)]=_0x35c016(0x419);let _0x4d671e=game['player'][_0x35c016(0x670)]?.[_0x35c016(0x452)]?.[_0x35c016(0x20b)];_0x4d671e&&![_0x35c016(0x5c6),'Basic','Rare',_0x35c016(0x7df)][_0x35c016(0x67b)](_0x4d671e)&&dom['playerWeapon'][_0x35c016(0x4ea)][_0x35c016(0x7e6)](_0x35c016(0x915)+_0x4d671e[_0x35c016(0x649)]());}else dom[_0x35c016(0x69a)]&&(dom[_0x35c016(0x69a)][_0x35c016(0x290)][_0x35c016(0x642)]='none',game[_0x35c016(0x32e)][_0x35c016(0x564)]='',dom[_0x35c016(0x69a)][_0x35c016(0x228)]=_0x35c016(0x419));},window[_0x5d14f9(0x729)]=function(_0x2226c0){const _0x35a388=_0x5d14f9,_0x4e9d4a=document[_0x35a388(0x6de)]('player-aura');_0x4e9d4a[_0x35a388(0x228)]=_0x35a388(0x24c)+_0x2226c0,_0x4e9d4a[_0x35a388(0x290)][_0x35a388(0x650)]=_0x35a388(0x1ec),void _0x4e9d4a['offsetWidth'],_0x4e9d4a[_0x35a388(0x290)][_0x35a388(0x650)]=_0x35a388(0x853);},window[_0x5d14f9(0x48c)]=0x0,window['playVoice']=function(_0x3bfdb8){const _0x3e76bf=_0x5d14f9;let _0x4aa695=Date[_0x3e76bf(0x91c)]();if(_0x4aa695-window['lastVoiceTime']<0x1f4)return;window[_0x3e76bf(0x48c)]=_0x4aa695;let _0x581a3b=window[_0x3e76bf(0x2f3)]['hairStyle']===_0x3e76bf(0x1ec)?_0x3e76bf(0x1ec):_0x3e76bf(0x3d3)+window['charData'][_0x3e76bf(0x4f3)],_0x3edb72=_0x3bfdb8['replace'](/\s+/g,'')['toLowerCase'](),_0xa6e74c=new Audio('skills/'+_0x581a3b+'_'+_0x3edb72+_0x3e76bf(0x49d));_0xa6e74c[_0x3e76bf(0x686)]=0.8,_0xa6e74c['play']()[_0x3e76bf(0x1a2)](_0x14324f=>{});},window['bossBgmTimeout']=null,window[_0x5d14f9(0x381)]=function(){const _0x1361dd=_0x5d14f9;let _0x11c287=safeMapData['id']==='trainingtavern'||safeMapData['id']===_0x1361dd(0x400)||String(safeMapData['id'])[_0x1361dd(0x67b)](_0x1361dd(0x85c));currentTrackName===_0x1361dd(0x7e3)&&!_0x11c287&&window['playBGM'](window[_0x1361dd(0x207)](safeMapData['id']));},window['triggerBossBGM']=function(_0x589be4){const _0x3aa3f4=_0x5d14f9;if(!_0x589be4||_0x589be4[_0x3aa3f4(0x6b1)]!==_0x3aa3f4(0x6ff)&&_0x589be4['category']!==_0x3aa3f4(0x8fb))return;if(currentTrackName!=='bossfight'){window[_0x3aa3f4(0x73c)]('bossfight');if(dom['log'])dom[_0x3aa3f4(0x7cd)][_0x3aa3f4(0x492)]='⚔️\x20EPIC\x20ENCOUNTER:\x20'+_0x589be4['name']+_0x3aa3f4(0x1c3);}clearTimeout(window[_0x3aa3f4(0x280)]),window[_0x3aa3f4(0x280)]=setTimeout(window[_0x3aa3f4(0x381)],0x2710);},window[_0x5d14f9(0x1bf)]=function(_0x52bc03,_0x17cc27){const _0x45fcf2=_0x5d14f9,_0x47590b=document[_0x45fcf2(0x6de)](_0x45fcf2(0x907)),_0x228f2e=document[_0x45fcf2(0x6de)](_0x45fcf2(0x8a0)),_0x2aad7f=document[_0x45fcf2(0x6de)](_0x45fcf2(0x5f0)),_0x30c565=document['getElementById']('custom-prompt-ok'),_0x3e409c=document[_0x45fcf2(0x6de)](_0x45fcf2(0x88b));if(!_0x47590b)return;_0x228f2e[_0x45fcf2(0x492)]=_0x52bc03,_0x2aad7f[_0x45fcf2(0x6cf)]='',_0x47590b['style'][_0x45fcf2(0x642)]=_0x45fcf2(0x8c1),_0x2aad7f[_0x45fcf2(0x821)]();typeof window[_0x45fcf2(0x919)]==='function'&&window['bringWindowToFront'](_0x47590b);const _0x5393bb=()=>{const _0x170feb=_0x45fcf2;_0x47590b[_0x170feb(0x290)][_0x170feb(0x642)]=_0x170feb(0x1ec),_0x30c565[_0x170feb(0x4c4)]=null,_0x3e409c[_0x170feb(0x4c4)]=null,_0x2aad7f[_0x170feb(0x1cf)]=null;};_0x30c565[_0x45fcf2(0x4c4)]=()=>{const _0x199227=_0x45fcf2,_0x4ab73e=_0x2aad7f[_0x199227(0x6cf)]['trim']();_0x5393bb();if(_0x4ab73e)_0x17cc27(_0x4ab73e);},_0x3e409c[_0x45fcf2(0x4c4)]=()=>{_0x5393bb();},_0x2aad7f['onkeydown']=_0x347f47=>{const _0x19877a=_0x45fcf2;_0x347f47['key']==='Enter'&&(_0x347f47[_0x19877a(0x217)](),_0x30c565['click']()),_0x347f47['key']==='Escape'&&(_0x347f47[_0x19877a(0x217)](),_0x3e409c[_0x19877a(0x5e4)]());};},window[_0x5d14f9(0x3b8)]=localStorage[_0x5d14f9(0x307)]('exonie_bgm_vol')!==null?parseFloat(localStorage[_0x5d14f9(0x307)](_0x5d14f9(0x5d7))):0.5;if(window['gameVolume']>0x1)window[_0x5d14f9(0x3b8)]=window[_0x5d14f9(0x3b8)]/0x64;document[_0x5d14f9(0x665)](_0x5d14f9(0x2f1),_0x88d408=>{const _0x4301ab=_0x5d14f9;if(_0x88d408[_0x4301ab(0x439)]&&_0x88d408[_0x4301ab(0x439)]['id']==='bgm-volume-slider'){let _0x4656a2=parseFloat(_0x88d408[_0x4301ab(0x439)][_0x4301ab(0x6cf)]),_0x5f2855=_0x4656a2>0x1?_0x4656a2/0x64:_0x4656a2;window[_0x4301ab(0x3b8)]=_0x5f2855,localStorage[_0x4301ab(0x1df)](_0x4301ab(0x5d7),_0x5f2855);let _0x1a714f=document[_0x4301ab(0x6de)](_0x4301ab(0x701));if(_0x1a714f)_0x1a714f[_0x4301ab(0x492)]=Math[_0x4301ab(0x37e)](_0x5f2855*0x64)+'%';window[_0x4301ab(0x4ee)]&&(window['currentBGM'][_0x4301ab(0x686)]=_0x5f2855);}}),window[_0x5d14f9(0x207)]=function(_0x51a9f1){const _0x570431=_0x5d14f9;if(!_0x51a9f1)return _0x570431(0x8ba);let _0x18834f=String(_0x51a9f1)['toLowerCase']();if(_0x18834f===_0x570431(0x743)||_0x18834f==='hauntedhouse'||_0x18834f['includes'](_0x570431(0x85c)))return _0x570431(0x7e3);if(_0x18834f[_0x570431(0x67b)](_0x570431(0x7f1)))return _0x570431(0x8ff);if(_0x18834f['includes'](_0x570431(0x5e7)))return _0x570431(0x5e7);if(_0x18834f[_0x570431(0x67b)]('guildbase'))return'guildbase';return _0x18834f;},window['playBGM']=function(_0x2d6bce){const _0x433b8d=_0x5d14f9;if(!_0x2d6bce){if(window[_0x433b8d(0x4ee)])window[_0x433b8d(0x4ee)][_0x433b8d(0x5b7)]();currentTrackName='';return;}if(window[_0x433b8d(0x4ee)]&&currentTrackName===_0x2d6bce&&!window[_0x433b8d(0x4ee)][_0x433b8d(0x833)]){window[_0x433b8d(0x4ee)][_0x433b8d(0x686)]=window['gameVolume'];return;}window['currentBGM']&&(window[_0x433b8d(0x4ee)][_0x433b8d(0x5b7)](),window[_0x433b8d(0x4ee)][_0x433b8d(0x7d1)]=0x0);let _0x375abb=_0x433b8d(0x91b)+_0x2d6bce+_0x433b8d(0x49d);console[_0x433b8d(0x7cd)]('[AUDIO]\x20Attempting\x20to\x20play:\x20'+_0x375abb+_0x433b8d(0x5c0)+window[_0x433b8d(0x3b8)]+')');let _0x5a8c98=new Audio(_0x375abb);_0x5a8c98['loop']=!![],_0x5a8c98[_0x433b8d(0x686)]=window[_0x433b8d(0x3b8)],_0x5a8c98[_0x433b8d(0x7b2)]=function(){const _0x4b6239=_0x433b8d;_0x2d6bce!==_0x4b6239(0x8ba)&&(console[_0x4b6239(0x836)](_0x4b6239(0x601)+_0x375abb+_0x4b6239(0x841)),window[_0x4b6239(0x73c)](_0x4b6239(0x8ba)));},window[_0x433b8d(0x4ee)]=_0x5a8c98,currentTrackName=_0x2d6bce,_0x5a8c98[_0x433b8d(0x6d4)]()[_0x433b8d(0x1a2)](_0x54956c=>{const _0x3a657b=_0x433b8d;console[_0x3a657b(0x836)](_0x3a657b(0x64f));});},window[_0x5d14f9(0x29e)]=0x0,window[_0x5d14f9(0x362)]=function(_0x519f3f){const _0x5b5234=_0x5d14f9;let _0x1832a0=Date[_0x5b5234(0x91c)]();if(_0x1832a0-window['lastSFXTime']<0x190)return;window[_0x5b5234(0x29e)]=_0x1832a0;let _0x542dcb=_0x5b5234(0x22a);if(_0x519f3f&&_0x519f3f['includes']('staff'))_0x542dcb=_0x5b5234(0x63c);if(_0x519f3f&&_0x519f3f[_0x5b5234(0x67b)]('sword'))_0x542dcb=_0x5b5234(0x389);if(_0x519f3f&&_0x519f3f[_0x5b5234(0x67b)](_0x5b5234(0x3a4)))_0x542dcb=_0x5b5234(0x389);if(_0x519f3f&&_0x519f3f[_0x5b5234(0x67b)](_0x5b5234(0x8cf)))_0x542dcb=_0x5b5234(0x358);if(_0x519f3f&&_0x519f3f[_0x5b5234(0x67b)](_0x5b5234(0x554)))_0x542dcb=_0x5b5234(0x61a);let _0x46808c=new Audio(_0x5b5234(0x91b)+_0x542dcb+_0x5b5234(0x49d));_0x46808c[_0x5b5234(0x686)]=0.5,_0x46808c['play']()[_0x5b5234(0x1a2)](_0x3a1bc5=>{});},window['MAX_ENHANCE_BY_RARITY']={'Starter':0x0,'Basic':0xa,'Rare':0xc,'Unique':0xe,'Legendary':0xf,'Godly':0x14,'Divine':0x19},window[_0x5d14f9(0x71e)]=function(_0x2cb473,_0x1f389f){const _0x285180=_0x5d14f9;if(!_0x2cb473||typeof _0x2cb473!==_0x285180(0x1ef))return null;if(_0x2cb473['type']!==_0x1f389f)return null;const _0x282388=JSON[_0x285180(0x192)](JSON[_0x285180(0x57f)](_0x2cb473));_0x282388[_0x285180(0x91e)]=Number(_0x282388['enhanceLevel']||0x0);if(!_0x282388[_0x285180(0x1c6)]||typeof _0x282388['fixedStat']!==_0x285180(0x1ef))_0x282388['fixedStat']={};if(!_0x282388['randomStat']||typeof _0x282388[_0x285180(0x7d4)]!==_0x285180(0x1ef))_0x282388[_0x285180(0x7d4)]={};if(_0x282388[_0x285180(0x2f8)]){const _0x3715bd={'atk':_0x285180(0x5d5),'matk':'magic','def':'defense','spd':'speed','hp':'hp','int':'int','str':_0x285180(0x1c4)};for(let _0x468b5a in _0x3715bd){if(_0x282388['stats'][_0x468b5a]&&_0x282388[_0x285180(0x2f8)][_0x468b5a]>0x0){let _0x349188=_0x3715bd[_0x468b5a];_0x282388[_0x285180(0x7d4)][_0x349188]=(_0x282388['randomStat'][_0x349188]||0x0)+_0x282388[_0x285180(0x2f8)][_0x468b5a],_0x282388[_0x285180(0x2f8)][_0x468b5a]=0x0;}}}return Object[_0x285180(0x2c1)](_0x282388[_0x285180(0x1c6)])[_0x285180(0x4c1)](_0x47e385=>{const _0x34e4aa=_0x285180;if(typeof _0x282388[_0x34e4aa(0x1c6)][_0x47e385]!=='number'||!Number[_0x34e4aa(0x337)](_0x282388['fixedStat'][_0x47e385]))_0x282388[_0x34e4aa(0x1c6)][_0x47e385]=0x0;}),Object[_0x285180(0x2c1)](_0x282388[_0x285180(0x7d4)])[_0x285180(0x4c1)](_0x87ecb0=>{const _0x89a5ce=_0x285180;if(typeof _0x282388[_0x89a5ce(0x7d4)][_0x87ecb0]!==_0x89a5ce(0x4e5)||!Number['isFinite'](_0x282388[_0x89a5ce(0x7d4)][_0x87ecb0]))_0x282388['randomStat'][_0x87ecb0]=0x0;}),_0x282388;},window[_0x5d14f9(0x781)]=function(_0xd217d2){const _0x507c18=_0x5d14f9;if(!game['player']||!game[_0x507c18(0x32e)]['baseStats'])return 0x0;let _0x3615b=Number(game[_0x507c18(0x32e)][_0x507c18(0x526)][_0xd217d2]||0x0);[_0x507c18(0x452),'armor','leggings',_0x507c18(0x327),_0x507c18(0x6d6),_0x507c18(0x5d3)]['forEach'](_0x1d34aa=>{const _0x2f32f5=_0x507c18,_0x8fd371=window['sanitizeEquippedItem'](game[_0x2f32f5(0x32e)][_0x2f32f5(0x670)]?.[_0x1d34aa],_0x1d34aa);if(!_0x8fd371)return;if(typeof _0x8fd371[_0x2f32f5(0x1c6)][_0xd217d2]===_0x2f32f5(0x4e5))_0x3615b+=_0x8fd371['fixedStat'][_0xd217d2];if(typeof _0x8fd371[_0x2f32f5(0x7d4)][_0xd217d2]===_0x2f32f5(0x4e5))_0x3615b+=_0x8fd371[_0x2f32f5(0x7d4)][_0xd217d2];});const _0x440ef9=game[_0x507c18(0x32e)][_0x507c18(0x526)][_0x507c18(0x4e7)];return _0x440ef9===_0x507c18(0x1c1)&&game[_0x507c18(0x32e)][_0x507c18(0x3f2)]>=0x19&&(_0xd217d2==='hp'||_0xd217d2===_0x507c18(0x542))&&(_0x3615b+=Math['floor']((Number(game['player']['baseStats'][_0xd217d2])||0x0)*0.25)),_0x440ef9===_0x507c18(0x3f1)&&_0xd217d2===_0x507c18(0x5d5)&&(_0x3615b+=Math[_0x507c18(0x7f1)]((Number(game[_0x507c18(0x32e)][_0x507c18(0x526)]['attack'])||0x0)*0.25)),Math[_0x507c18(0x269)](0x0,_0x3615b);},window[_0x5d14f9(0x5de)]=function(){const _0x2c94b1=_0x5d14f9;return window['getTotalStat']('attack')+Math[_0x2c94b1(0x7f1)](window[_0x2c94b1(0x781)]('str')/0x2);},window[_0x5d14f9(0x4c5)]=function(){const _0x40c0c4=_0x5d14f9;return window[_0x40c0c4(0x781)](_0x40c0c4(0x286))+Math[_0x40c0c4(0x7f1)](window[_0x40c0c4(0x781)](_0x40c0c4(0x579))/0x2);},window[_0x5d14f9(0x847)]=function(){return window['getTotalStat']('hp');},window[_0x5d14f9(0x459)]=function(_0x5b7421=![]){const _0x53bdb8=_0x5d14f9;if(!game['player']||!socket)return;const _0x55beff=Date[_0x53bdb8(0x91c)](),_0x142a2a=game['player'][_0x53bdb8(0x3f2)];(_0x5b7421||_0x142a2a!==lastVitalsSent[_0x53bdb8(0x3f2)]||_0x55beff-lastVitalsTs>0x1388)&&(lastVitalsSent={'level':_0x142a2a},lastVitalsTs=_0x55beff,socket[_0x53bdb8(0x1b2)]('playerVitals',{'level':_0x142a2a}));},window[_0x5d14f9(0x249)]=function(){const _0x74d8ad=_0x5d14f9;let _0x52c23b=window[_0x74d8ad(0x781)](_0x74d8ad(0x542));return game[_0x74d8ad(0x32e)]['tauntBuffUntil']&&Date['now']()<game[_0x74d8ad(0x32e)][_0x74d8ad(0x63e)]&&(_0x52c23b*=0x3),_0x52c23b;},window[_0x5d14f9(0x5e5)]=function(){const _0x239caa=_0x5d14f9;return window[_0x239caa(0x781)]('speed');},window[_0x5d14f9(0x5b3)]=function(_0x3e5453){const _0x178d6b=_0x5d14f9;if(_0x3e5453>=0x32){let _0x32455c=Math[_0x178d6b(0x7f1)]((_0x3e5453-0x32)/0x5);return 0x64+_0x32455c*0x3;}if(_0x3e5453>=0x2d)return 0x2d;if(_0x3e5453>=0x28)return 0x28;if(_0x3e5453>=0x23)return 0x1e;if(_0x3e5453>=0x1e)return 0x1b;if(_0x3e5453>=0x19)return 0x16;if(_0x3e5453>=0x14)return 0x14;if(_0x3e5453>=0xf)return 0xf;if(_0x3e5453>=0xa)return 0xc;if(_0x3e5453>=0x5)return 0x8;return 0x5;},window[_0x5d14f9(0x539)]=function(_0x2f520e){const _0x2c45db=_0x5d14f9;if(!_0x2f520e)return;if(!window[_0x2c45db(0x4d3)](_0x2f520e)){if(dom['log'])dom['log']['innerText']='Ignored\x20'+(_0x2f520e[_0x2c45db(0x20b)]||_0x2c45db(0x546))+_0x2c45db(0x5a0)+_0x2f520e[_0x2c45db(0x1f3)];return;}_0x2f520e['quantity']=_0x2f520e[_0x2c45db(0x921)]||0x1;if(_0x2f520e['type']===_0x2c45db(0x7da)||_0x2f520e['type']===_0x2c45db(0x73d)||_0x2f520e[_0x2c45db(0x6d0)]==='consumable'){const _0x803dc0=game[_0x2c45db(0x32e)][_0x2c45db(0x5ed)]||[];let _0x24d409=_0x803dc0[_0x2c45db(0x3a0)](_0x1e642f=>_0x1e642f&&_0x1e642f[_0x2c45db(0x1f3)]===_0x2f520e[_0x2c45db(0x1f3)]);if(_0x24d409!==-0x1){game['player'][_0x2c45db(0x5ed)][_0x24d409][_0x2c45db(0x921)]+=_0x2f520e[_0x2c45db(0x921)],dom[_0x2c45db(0x7cd)][_0x2c45db(0x492)]='Looted:\x20'+_0x2f520e[_0x2c45db(0x1f3)]+'\x20(x'+game[_0x2c45db(0x32e)]['inventory'][_0x24d409][_0x2c45db(0x921)]+')!';if(isInventoryOpen)window[_0x2c45db(0x252)]();DatabaseManager['savePlayerData'](game[_0x2c45db(0x32e)]);return;}}const _0x1f5763=game[_0x2c45db(0x32e)][_0x2c45db(0x5ed)]||[],_0x57b9f4=_0x1f5763[_0x2c45db(0x3a0)](_0x3a7304=>_0x3a7304===null);if(_0x57b9f4!==-0x1){game[_0x2c45db(0x32e)][_0x2c45db(0x5ed)][_0x57b9f4]=_0x2f520e,dom[_0x2c45db(0x7cd)]['innerText']=_0x2c45db(0x6ed)+_0x2f520e[_0x2c45db(0x1f3)]+'!';if(isInventoryOpen)window['renderInventory']();DatabaseManager[_0x2c45db(0x6d8)](game[_0x2c45db(0x32e)]);}else dom[_0x2c45db(0x7cd)]['innerText']=_0x2c45db(0x3c5)+_0x2f520e[_0x2c45db(0x1f3)]+'.';},window[_0x5d14f9(0x8ef)]=function(_0x27024c){const _0x2fef68=_0x5d14f9;if(!_0x27024c)return'';let _0xb090c4=_0x27024c[_0x2fef68(0x20b)]===_0x2fef68(0x445)?_0x2fef68(0x945):_0x27024c[_0x2fef68(0x20b)]===_0x2fef68(0x2b4)?'rarity-divine-text':'',_0x3ca03d=_0x2fef68(0x47a)+_0xb090c4+_0x2fef68(0x3dc)+_0x27024c['color']+';\x20font-size:\x2013px;\x22>'+(_0x27024c[_0x2fef68(0x91e)]?_0x27024c[_0x2fef68(0x1f3)]+'\x20+'+_0x27024c['enhanceLevel']:_0x27024c[_0x2fef68(0x1f3)])+_0x2fef68(0x3c0)+(_0x27024c[_0x2fef68(0x3f2)]||0x1)+'\x20'+(_0x27024c[_0x2fef68(0x20b)]||_0x2fef68(0x67f))+'</span><br>';_0x27024c['sellPrice']&&(_0x3ca03d+=_0x2fef68(0x760)+_0x27024c[_0x2fef68(0x5bd)][_0x2fef68(0x565)]()+_0x2fef68(0x7eb));if((_0x27024c[_0x2fef68(0x20b)]===_0x2fef68(0x445)||_0x27024c['rarity']===_0x2fef68(0x2b4))&&_0x27024c[_0x2fef68(0x91e)]>0x0)_0x3ca03d+=_0x2fef68(0x59b);else _0x27024c[_0x2fef68(0x6d0)]==='aura'&&(_0x27024c[_0x2fef68(0x3f4)]||String(_0x27024c[_0x2fef68(0x1f3)])[_0x2fef68(0x67b)](_0x2fef68(0x4ab)))&&(_0x3ca03d+=_0x2fef68(0x72d));_0x3ca03d+=_0x2fef68(0x3eb);if(_0x27024c[_0x2fef68(0x6d0)]===_0x2fef68(0x73d))return _0x3ca03d+(_0x2fef68(0x5c7)+_0x27024c['description']+_0x2fef68(0x3b1));if(_0x27024c[_0x2fef68(0x6d0)]===_0x2fef68(0x731))return _0x3ca03d+(_0x2fef68(0x390)+_0x27024c[_0x2fef68(0x899)]+_0x2fef68(0x65b));if(_0x27024c[_0x2fef68(0x6d0)]===_0x2fef68(0x7da))return _0x3ca03d+'Heals\x20100\x20HP';if(_0x27024c[_0x2fef68(0x6d0)]===_0x2fef68(0x44a))return _0x3ca03d+(_0x2fef68(0x1a4)+_0x27024c[_0x2fef68(0x899)]+_0x2fef68(0x3b1));if([_0x2fef68(0x327),_0x2fef68(0x6d6),_0x2fef68(0x5d3)][_0x2fef68(0x67b)](_0x27024c[_0x2fef68(0x6d0)])){let _0x30e608={'Basic':0x1,'Rare':0x1,'Unique':0x2,'Legendary':0x3,'Godly':0x4,'Divine':0x5}[_0x27024c[_0x2fef68(0x20b)]]||0x0;if(_0x30e608>0x0){let _0x554245=_0x27024c[_0x2fef68(0x27b)]||0x0,_0x4c70df='';for(let _0x5634bc=0x0;_0x5634bc<_0x30e608;_0x5634bc++){_0x4c70df+=_0x5634bc<_0x554245?'♦':'♢';}_0x3ca03d+=_0x2fef68(0x7fd)+_0x4c70df+_0x2fef68(0x2ab);}}if(_0x27024c[_0x2fef68(0x1c6)]){for(let _0x1e39c6 in _0x27024c[_0x2fef68(0x1c6)])_0x3ca03d+='+'+_0x27024c['fixedStat'][_0x1e39c6]+'\x20'+_0x1e39c6[_0x2fef68(0x241)]()+'<br>';}if(_0x27024c[_0x2fef68(0x7d4)]){for(let _0x27f9b2 in _0x27024c[_0x2fef68(0x7d4)])_0x3ca03d+=_0x2fef68(0x7b4)+_0x27024c[_0x2fef68(0x7d4)][_0x27f9b2]+'\x20'+_0x27f9b2['toUpperCase']()+_0x2fef68(0x873);}return _0x3ca03d;},window[_0x5d14f9(0x5cf)]=function(){const _0x49f2b3=_0x5d14f9;let _0x27f2a0=null;try{_0x27f2a0=JSON[_0x49f2b3(0x192)](localStorage['getItem']('exonie_loot_filter')||_0x49f2b3(0x7bf));}catch(_0x267a97){}const _0x510028={'Starter':!![],'Basic':!![],'Rare':!![],'Unique':!![],'Legendary':!![],'Godly':!![]};game[_0x49f2b3(0x32e)][_0x49f2b3(0x424)]=Object['assign']({},_0x510028,_0x27f2a0||{}),Object[_0x49f2b3(0x2c1)](_0x510028)[_0x49f2b3(0x4c1)](_0x346613=>{const _0xc831af=_0x49f2b3,_0x23d9d2=document[_0xc831af(0x6de)](_0xc831af(0x6ac)+_0x346613);if(_0x23d9d2)_0x23d9d2[_0xc831af(0x450)]=!!game[_0xc831af(0x32e)][_0xc831af(0x424)][_0x346613];});},window[_0x5d14f9(0x799)]=function(){const _0x106149=_0x5d14f9,_0x43a9a3=[_0x106149(0x5c6),'Basic',_0x106149(0x3dd),_0x106149(0x7df),_0x106149(0x48e),_0x106149(0x445)];if(!game[_0x106149(0x32e)][_0x106149(0x424)])game[_0x106149(0x32e)]['lootFilter']={};_0x43a9a3[_0x106149(0x4c1)](_0x2d08b5=>{const _0x723808=_0x106149,_0xb78ea4=document[_0x723808(0x6de)](_0x723808(0x6ac)+_0x2d08b5);game['player'][_0x723808(0x424)][_0x2d08b5]=!!(_0xb78ea4&&_0xb78ea4['checked']);}),localStorage['setItem'](_0x106149(0x572),JSON[_0x106149(0x57f)](game[_0x106149(0x32e)][_0x106149(0x424)]));socket&&socket[_0x106149(0x1b2)](_0x106149(0x799),game[_0x106149(0x32e)][_0x106149(0x424)]);if(dom[_0x106149(0x7cd)])dom[_0x106149(0x7cd)][_0x106149(0x492)]=_0x106149(0x7a6);},window[_0x5d14f9(0x4d3)]=function(_0x5d7a9e){const _0x119c36=_0x5d14f9;if(!_0x5d7a9e)return![];const _0x384eaa=_0x5d7a9e['rarity']||_0x119c36(0x546);if(!game[_0x119c36(0x32e)][_0x119c36(0x424)])return!![];if(typeof game[_0x119c36(0x32e)][_0x119c36(0x424)][_0x384eaa]===_0x119c36(0x22b))return!![];return!!game['player']['lootFilter'][_0x384eaa];},window[_0x5d14f9(0x858)]=function(){const _0x41824a=_0x5d14f9;isInventoryOpen=!isInventoryOpen,isInventoryOpen?(window[_0x41824a(0x252)](),dom[_0x41824a(0x5ee)][_0x41824a(0x290)][_0x41824a(0x642)]=_0x41824a(0x53c),window[_0x41824a(0x681)]()&&(window[_0x41824a(0x7bc)](dom['invScreen']),window[_0x41824a(0x919)](dom[_0x41824a(0x5ee)]),window[_0x41824a(0x7c9)](dom['invScreen']))):(dom['invScreen']['style'][_0x41824a(0x642)]=_0x41824a(0x1ec),document[_0x41824a(0x6de)](_0x41824a(0x353))[_0x41824a(0x290)][_0x41824a(0x642)]='none');},window[_0x5d14f9(0x252)]=function(){const _0x2be52c=_0x5d14f9,_0xc4c82c=document['getElementById'](_0x2be52c(0x74e));if(!_0xc4c82c)return;_0xc4c82c[_0x2be52c(0x882)]='';const _0x2d1b45=game[_0x2be52c(0x32e)][_0x2be52c(0x5ed)]||new Array(0x14)[_0x2be52c(0x906)](null);for(let _0x3a7e10=0x0;_0x3a7e10<_0x2d1b45[_0x2be52c(0x7c5)];_0x3a7e10++){const _0x1a91b2=document[_0x2be52c(0x81e)]('div');_0x1a91b2['className']=_0x2be52c(0x8e0);const _0x1bd978=_0x2d1b45[_0x3a7e10];_0x1a91b2[_0x2be52c(0x8d9)]=!![],_0x1a91b2[_0x2be52c(0x904)]=_0x44b22a=>{const _0xf2ba0a=_0x2be52c;_0x44b22a[_0xf2ba0a(0x4a7)]['setData'](_0xf2ba0a(0x8e8),_0x3a7e10);},_0x1a91b2[_0x2be52c(0x44d)]=_0x5818ca=>{const _0x13657a=_0x2be52c;_0x5818ca[_0x13657a(0x217)]();},_0x1a91b2[_0x2be52c(0x203)]=_0x3802ed=>{const _0x42fb1d=_0x2be52c;_0x3802ed[_0x42fb1d(0x217)](),window['swapSlots'](parseInt(_0x3802ed['dataTransfer'][_0x42fb1d(0x52d)](_0x42fb1d(0x8e8))),_0x3a7e10);};if(_0x1bd978){if(inTradeMode)_0x1a91b2['style'][_0x2be52c(0x700)]=_0x2be52c(0x5cb),_0x1a91b2['onclick']=()=>window[_0x2be52c(0x900)](_0x3a7e10);else{if(isEnhancing)_0x1a91b2[_0x2be52c(0x290)][_0x2be52c(0x700)]='1px\x20dashed\x20#ffeb3b',_0x1a91b2['onclick']=_0x5db993=>window[_0x2be52c(0x7ac)](_0x3a7e10,_0x5db993);else{if(window[_0x2be52c(0x2c4)])_0x1a91b2['style']['border']=_0x2be52c(0x8f8),_0x1a91b2[_0x2be52c(0x4c4)]=()=>{const _0x58876b=_0x2be52c;if(socket)socket[_0x58876b(0x1b2)](_0x58876b(0x5a5),_0x3a7e10);};else{if(window[_0x2be52c(0x43d)])_0x1a91b2[_0x2be52c(0x290)][_0x2be52c(0x700)]='1px\x20dashed\x20#00ffff',_0x1a91b2[_0x2be52c(0x4c4)]=_0x32314d=>{const _0x3a9cfe=_0x2be52c;if(game['player'][_0x3a9cfe(0x5ed)][activeInvIndex]?.['type']===_0x3a9cfe(0x731))window[_0x3a9cfe(0x68f)](_0x3a7e10,_0x32314d);else window[_0x3a9cfe(0x67d)](_0x3a7e10,_0x32314d);};else window[_0x2be52c(0x902)]?(_0x1a91b2[_0x2be52c(0x290)][_0x2be52c(0x700)]=_0x2be52c(0x8f8),_0x1a91b2[_0x2be52c(0x4c4)]=_0x1914af=>window[_0x2be52c(0x7bd)](_0x3a7e10,_0x1914af)):(_0x1a91b2[_0x2be52c(0x290)][_0x2be52c(0x6fe)]=_0x2be52c(0x45d)+(_0x1bd978['color']||_0x2be52c(0x897)),_0x1a91b2[_0x2be52c(0x4c4)]=_0x43a71b=>{const _0x51e905=_0x2be52c;_0x43a71b['shiftKey']?window['linkItemToChat'](_0x3a7e10):window[_0x51e905(0x274)](_0x3a7e10,_0x43a71b);});}}}let _0x5b115d=document[_0x2be52c(0x81e)]('span');_0x5b115d[_0x2be52c(0x492)]=_0x1bd978[_0x2be52c(0x91e)]?_0x1bd978[_0x2be52c(0x1f3)]+'\x20+'+_0x1bd978[_0x2be52c(0x91e)]:_0x1bd978[_0x2be52c(0x1f3)];if(_0x1bd978[_0x2be52c(0x20b)]===_0x2be52c(0x2b4))_0x5b115d[_0x2be52c(0x228)]='rarity-divine-text';_0x1a91b2[_0x2be52c(0x463)](_0x5b115d);let _0x194204=document[_0x2be52c(0x81e)]('div');_0x194204[_0x2be52c(0x228)]=_0x2be52c(0x561),_0x194204[_0x2be52c(0x882)]=window['getItemTooltip'](_0x1bd978),_0x1a91b2[_0x2be52c(0x463)](_0x194204);if(_0x1bd978['quantity']&&_0x1bd978[_0x2be52c(0x921)]>0x1){let _0x5b2818=document[_0x2be52c(0x81e)](_0x2be52c(0x32b));_0x5b2818[_0x2be52c(0x228)]=_0x2be52c(0x800),_0x5b2818[_0x2be52c(0x492)]='x'+_0x1bd978[_0x2be52c(0x921)],_0x1a91b2[_0x2be52c(0x463)](_0x5b2818);}}_0xc4c82c['appendChild'](_0x1a91b2);}window[_0x2be52c(0x8f4)](),window[_0x2be52c(0x378)]();},window[_0x5d14f9(0x722)]=function(_0x51480b,_0x484f30){const _0x5c874a=_0x5d14f9;if(_0x51480b===_0x484f30||isNaN(_0x51480b)||isNaN(_0x484f30)||_0x51480b<0x0||_0x484f30<0x0)return;if(socket)socket[_0x5c874a(0x1b2)](_0x5c874a(0x69e),{'from':_0x51480b,'to':_0x484f30});let _0x31c267=game[_0x5c874a(0x32e)][_0x5c874a(0x5ed)][_0x51480b];game[_0x5c874a(0x32e)][_0x5c874a(0x5ed)][_0x51480b]=game['player'][_0x5c874a(0x5ed)][_0x484f30],game[_0x5c874a(0x32e)][_0x5c874a(0x5ed)][_0x484f30]=_0x31c267,window['renderInventory']();},window[_0x5d14f9(0x274)]=function(_0x345a79,_0x31facf){const _0x281001=_0x5d14f9;_0x31facf[_0x281001(0x2d8)](),activeInvIndex=_0x345a79;const _0xc140ff=document[_0x281001(0x6de)]('inv-context-menu'),_0x2a6e80=game[_0x281001(0x32e)][_0x281001(0x5ed)][_0x345a79];if(!_0x2a6e80)return;const _0x5b7306=_0x2a6e80[_0x281001(0x6d0)]===_0x281001(0x1b6)&&[_0x281001(0x92f),_0x281001(0x81f),_0x281001(0x5e3),_0x281001(0x664),'void'][_0x281001(0x67b)](_0x2a6e80[_0x281001(0x63a)]);_0x2a6e80[_0x281001(0x6d0)]===_0x281001(0x731)?(document[_0x281001(0x6de)](_0x281001(0x3e9))[_0x281001(0x492)]=_0x281001(0x656),window['isApplyingAura']=!![],dom[_0x281001(0x7cd)][_0x281001(0x492)]='Select\x20an\x20Accessory\x20(Necklace,\x20Ring,\x20Earrings)\x20to\x20socket\x20the\x20gem!'):document[_0x281001(0x6de)](_0x281001(0x3e9))[_0x281001(0x492)]=_0x2a6e80['type']==='potion'||_0x2a6e80[_0x281001(0x6d0)]===_0x281001(0x44a)?_0x281001(0x84d):_0x2a6e80[_0x281001(0x6d0)]===_0x281001(0x73d)?_0x281001(0x3f9):_0x2a6e80['type']===_0x281001(0x1b6)?_0x5b7306?_0x281001(0x776):'Apply\x20Aura':_0x2a6e80[_0x281001(0x6d0)]===_0x281001(0x92e)?'Use\x20Forger':_0x281001(0x8d4),document[_0x281001(0x6de)](_0x281001(0x38b))[_0x281001(0x290)][_0x281001(0x642)]=isShopping?_0x281001(0x53c):'none',document[_0x281001(0x6de)](_0x281001(0x87f))['style'][_0x281001(0x642)]=(_0x2a6e80[_0x281001(0x6d0)]===_0x281001(0x509)||_0x2a6e80[_0x281001(0x6d0)]==='leggings')&&_0x2a6e80[_0x281001(0x1b6)]?_0x281001(0x53c):_0x281001(0x1ec),document['getElementById']('ctx-btn-split')[_0x281001(0x290)][_0x281001(0x642)]=_0x2a6e80['quantity']&&_0x2a6e80[_0x281001(0x921)]>0x1?_0x281001(0x53c):'none',_0xc140ff[_0x281001(0x290)][_0x281001(0x642)]='flex',_0xc140ff[_0x281001(0x290)][_0x281001(0x76a)]=_0x31facf[_0x281001(0x4ff)]+'px',_0xc140ff[_0x281001(0x290)][_0x281001(0x706)]=_0x31facf[_0x281001(0x831)]+'px';},window[_0x5d14f9(0x7e2)]=function(_0x11a70b){const _0x199afe=_0x5d14f9;if(_0x11a70b)_0x11a70b[_0x199afe(0x2d8)]();if(activeInvIndex===-0x1||!game[_0x199afe(0x32e)]['inventory'][activeInvIndex])return;let _0x48472a=game[_0x199afe(0x32e)]['inventory'][activeInvIndex],_0x2bde9b=Number(_0x48472a[_0x199afe(0x921)])||0x1;if(_0x2bde9b<=0x1){if(dom[_0x199afe(0x7cd)])dom[_0x199afe(0x7cd)][_0x199afe(0x492)]='❌\x20Cannot\x20split\x20a\x20single\x20item.';return;}let _0x57087c=activeInvIndex,_0x390550=_0x2bde9b-0x1;window['customPrompt']('How\x20many\x20to\x20split\x20off?\x20(Max:\x20'+_0x390550+')',function(_0x569014){const _0x364bf5=_0x199afe;let _0x1d789f=parseInt(_0x569014);if(isNaN(_0x1d789f)||_0x1d789f<=0x0){if(dom[_0x364bf5(0x7cd)])dom[_0x364bf5(0x7cd)][_0x364bf5(0x492)]='❌\x20Invalid\x20split\x20amount!';return;}if(_0x1d789f>_0x390550){if(dom[_0x364bf5(0x7cd)])dom[_0x364bf5(0x7cd)]['innerText']='❌\x20You\x20can\x20only\x20split\x20up\x20to\x20'+_0x390550+_0x364bf5(0x4d7);return;}if(socket){socket[_0x364bf5(0x1b2)](_0x364bf5(0x773),{'index':_0x57087c,'amount':_0x1d789f});if(dom[_0x364bf5(0x7cd)])dom['log'][_0x364bf5(0x492)]=_0x364bf5(0x320);}}),document[_0x199afe(0x6de)](_0x199afe(0x353))[_0x199afe(0x290)]['display']=_0x199afe(0x1ec),activeInvIndex=-0x1;},window[_0x5d14f9(0x58b)]=function(_0x5bcf90){const _0x26005a=_0x5d14f9;let _0x517a9c=game[_0x26005a(0x32e)][_0x26005a(0x5ed)][_0x5bcf90];if(!_0x517a9c)return;if(socket)socket[_0x26005a(0x1b2)](_0x26005a(0x3a9),{'item':_0x517a9c});document[_0x26005a(0x6de)]('inv-context-menu')[_0x26005a(0x290)]['display']=_0x26005a(0x1ec);},window[_0x5d14f9(0x7ad)]=function(_0x4a43df){const _0x57c3ca=_0x5d14f9;try{let _0x2397e9=JSON['parse'](decodeURIComponent(_0x4a43df));dom[_0x57c3ca(0x20c)][_0x57c3ca(0x290)][_0x57c3ca(0x642)]=_0x57c3ca(0x53c),dom[_0x57c3ca(0x78c)][_0x57c3ca(0x492)]=_0x57c3ca(0x220);let _0x47a830=_0x57c3ca(0x429)+(_0x2397e9['color']||_0x57c3ca(0x897))+_0x57c3ca(0x5d6)+(_0x2397e9['color']||'#fff')+';\x22>'+window[_0x57c3ca(0x8ef)](_0x2397e9)+_0x57c3ca(0x5a2);dom[_0x57c3ca(0x66d)][_0x57c3ca(0x882)]=_0x47a830,window['isMobileUI']()&&(window[_0x57c3ca(0x7bc)](dom[_0x57c3ca(0x20c)]),window[_0x57c3ca(0x919)](dom['inspect']),window[_0x57c3ca(0x7c9)](dom['inspect']));}catch(_0xb4a4cd){console[_0x57c3ca(0x49f)](_0x57c3ca(0x384));}},window[_0x5d14f9(0x550)]=function(_0x276904){const _0x47bb19=_0x5d14f9;if(_0x276904)_0x276904[_0x47bb19(0x2d8)]();if(activeInvIndex===-0x1||!game['player'][_0x47bb19(0x5ed)][activeInvIndex])return;let _0x2b8698=game[_0x47bb19(0x32e)][_0x47bb19(0x5ed)][activeInvIndex];if(_0x2b8698['type']===_0x47bb19(0x73d))isEnhancing=!![],dom['log']['innerText']=_0x47bb19(0x8d7),window['renderInventory']();else{if(_0x2b8698[_0x47bb19(0x6d0)]===_0x47bb19(0x1b6)){window[_0x47bb19(0x43d)]=!![];const _0x4b64fa=['fox',_0x47bb19(0x81f),'wisp','egg',_0x47bb19(0x723)][_0x47bb19(0x67b)](_0x2b8698[_0x47bb19(0x63a)]);dom[_0x47bb19(0x7cd)]['innerText']=_0x4b64fa?'Select\x20Leggings\x20to\x20equip\x20your\x20Pet!':'Select\x20an\x20Armor\x20to\x20apply\x20the\x20Aura!',window[_0x47bb19(0x252)]();}else{if(_0x2b8698[_0x47bb19(0x6d0)]==='gem')window['isApplyingAura']=!![],dom['log'][_0x47bb19(0x492)]=_0x47bb19(0x4af),window[_0x47bb19(0x252)]();else _0x2b8698[_0x47bb19(0x6d0)]==='forger'?(window[_0x47bb19(0x902)]=!![],dom['log'][_0x47bb19(0x492)]=_0x47bb19(0x219),window[_0x47bb19(0x252)]()):window[_0x47bb19(0x730)](activeInvIndex);}}document['getElementById'](_0x47bb19(0x353))['style'][_0x47bb19(0x642)]='none';},window[_0x5d14f9(0x67d)]=function(_0x19ee59,_0x40f852){const _0x522992=_0x5d14f9;_0x40f852['stopPropagation']();if(socket)socket[_0x522992(0x1b2)](_0x522992(0x1ee),{'stoneIndex':activeInvIndex,'targetIndex':_0x19ee59});window[_0x522992(0x43d)]=![],window[_0x522992(0x252)]();},window[_0x5d14f9(0x607)]=function(_0xdc8f5){const _0x1196e6=_0x5d14f9;if(_0xdc8f5)_0xdc8f5['stopPropagation']();if(activeInvIndex===-0x1||!game[_0x1196e6(0x32e)][_0x1196e6(0x5ed)][activeInvIndex])return;if(socket)socket[_0x1196e6(0x1b2)](_0x1196e6(0x532),{'targetIndex':activeInvIndex});document[_0x1196e6(0x6de)](_0x1196e6(0x353))[_0x1196e6(0x290)]['display']=_0x1196e6(0x1ec),activeInvIndex=-0x1;},window[_0x5d14f9(0x41a)]=function(_0x2aeb6a){const _0x183e1e=_0x5d14f9;if(_0x2aeb6a)_0x2aeb6a[_0x183e1e(0x2d8)]();if(activeInvIndex===-0x1||!game[_0x183e1e(0x32e)][_0x183e1e(0x5ed)][activeInvIndex])return;let _0x337630=game[_0x183e1e(0x32e)][_0x183e1e(0x5ed)][activeInvIndex];if(!_0x337630||!_0x337630['id']){dom[_0x183e1e(0x7cd)]['innerText']=_0x183e1e(0x65f),document[_0x183e1e(0x6de)](_0x183e1e(0x353))[_0x183e1e(0x290)]['display']=_0x183e1e(0x1ec),activeInvIndex=-0x1;return;}if(_0x337630[_0x183e1e(0x6d0)]==='aura'){dom[_0x183e1e(0x7cd)][_0x183e1e(0x492)]=_0x183e1e(0x544),document[_0x183e1e(0x6de)](_0x183e1e(0x353))[_0x183e1e(0x290)]['display']=_0x183e1e(0x1ec),activeInvIndex=-0x1;return;}socket&&socket[_0x183e1e(0x1b2)](_0x183e1e(0x2df),{'itemId':_0x337630['id'],'index':activeInvIndex}),document[_0x183e1e(0x6de)](_0x183e1e(0x353))[_0x183e1e(0x290)][_0x183e1e(0x642)]=_0x183e1e(0x1ec),activeInvIndex=-0x1;},window[_0x5d14f9(0x6cb)]=function(_0x2c0e3f){const _0x5e1b63=_0x5d14f9;if(_0x2c0e3f)_0x2c0e3f[_0x5e1b63(0x2d8)]();if(activeInvIndex===-0x1||!game[_0x5e1b63(0x32e)][_0x5e1b63(0x5ed)][activeInvIndex])return;if(socket)socket['emit'](_0x5e1b63(0x2d0),{'index':activeInvIndex});dom[_0x5e1b63(0x7cd)][_0x5e1b63(0x492)]='Threw\x20away\x20item.',document[_0x5e1b63(0x6de)](_0x5e1b63(0x353))[_0x5e1b63(0x290)][_0x5e1b63(0x642)]=_0x5e1b63(0x1ec),activeInvIndex=-0x1;},window[_0x5d14f9(0x3d6)]=function(_0x1775f0){const _0x3f6ac3=_0x5d14f9;if(!game[_0x3f6ac3(0x32e)]['equips']||!game[_0x3f6ac3(0x32e)][_0x3f6ac3(0x670)][_0x1775f0])return;const _0x17898c=document[_0x3f6ac3(0x6de)](_0x3f6ac3(0x397)+_0x1775f0+'-slot');if(_0x17898c)_0x17898c[_0x3f6ac3(0x492)]=_0x3f6ac3(0x415);if(socket)socket[_0x3f6ac3(0x1b2)](_0x3f6ac3(0x405),{'slot':_0x1775f0});},window[_0x5d14f9(0x917)]=function(_0x46eb53=-0x1){const _0x5a5e0d=_0x5d14f9;if(!game[_0x5a5e0d(0x842)]){dom['log']['innerText']=_0x5a5e0d(0x28d);return;}let _0x3500de=_0x46eb53;_0x3500de===-0x1&&(_0x3500de=game[_0x5a5e0d(0x32e)][_0x5a5e0d(0x5ed)][_0x5a5e0d(0x3a0)](_0x4b4647=>_0x4b4647&&_0x4b4647[_0x5a5e0d(0x1f3)]===_0x5a5e0d(0x4d0)));if(_0x3500de===-0x1){dom[_0x5a5e0d(0x7cd)][_0x5a5e0d(0x492)]=_0x5a5e0d(0x80f);return;}socket&&socket[_0x5a5e0d(0x1b2)](_0x5a5e0d(0x917),{'invIndex':_0x3500de});},window['useItem']=function(_0x145dca){const _0x118ff0=_0x5d14f9,_0x50417e=game[_0x118ff0(0x32e)][_0x118ff0(0x5ed)][_0x145dca];if(!_0x50417e)return;if(game[_0x118ff0(0x842)]&&_0x50417e[_0x118ff0(0x1f3)]!==_0x118ff0(0x4d0)){if(dom[_0x118ff0(0x7cd)])dom[_0x118ff0(0x7cd)]['innerText']=_0x118ff0(0x598);return;}if(safeMapData['id']==='trainingtavern'&&(_0x50417e['type']===_0x118ff0(0x7da)||_0x50417e[_0x118ff0(0x6d0)]==='consumable')){if(dom['log'])dom[_0x118ff0(0x7cd)]['innerText']='Items\x20are\x20forbidden\x20in\x20the\x20Training\x20Tavern!';return;}if(_0x50417e[_0x118ff0(0x3f2)]&&_0x50417e[_0x118ff0(0x3f2)]>game[_0x118ff0(0x32e)]['level']){if(dom['log'])dom[_0x118ff0(0x7cd)][_0x118ff0(0x492)]=_0x118ff0(0x660)+_0x50417e[_0x118ff0(0x3f2)]+_0x118ff0(0x6be);return;}if(_0x50417e[_0x118ff0(0x6d0)]===_0x118ff0(0x7da)){if(Date[_0x118ff0(0x91c)]()<window[_0x118ff0(0x2c8)]){if(dom[_0x118ff0(0x7cd)])dom[_0x118ff0(0x7cd)]['innerText']=_0x118ff0(0x1c0);return;}window[_0x118ff0(0x2c8)]=Date['now']()+0x1388;if(typeof window[_0x118ff0(0x30b)]===_0x118ff0(0x268))window[_0x118ff0(0x30b)]();const _0xfed3dd=0x64,_0x2341fd=window[_0x118ff0(0x847)]()||0x64;game[_0x118ff0(0x32e)][_0x118ff0(0x6fc)]=Math[_0x118ff0(0x591)](_0x2341fd,(game[_0x118ff0(0x32e)][_0x118ff0(0x6fc)]||0x0)+_0xfed3dd),_0x50417e[_0x118ff0(0x921)]=(_0x50417e[_0x118ff0(0x921)]||0x1)-0x1;if(_0x50417e[_0x118ff0(0x921)]<=0x0)game[_0x118ff0(0x32e)][_0x118ff0(0x5ed)][_0x145dca]=null;if(typeof window[_0x118ff0(0x4b2)]==='function')window[_0x118ff0(0x4b2)]();if(typeof window[_0x118ff0(0x378)]===_0x118ff0(0x268))window[_0x118ff0(0x378)]();if(typeof isInventoryOpen!==_0x118ff0(0x22b)&&isInventoryOpen&&typeof window['renderInventory']===_0x118ff0(0x268))window['renderInventory']();}if(['potion',_0x118ff0(0x44a),'weapon','armor','leggings',_0x118ff0(0x327),_0x118ff0(0x6d6),_0x118ff0(0x5d3)][_0x118ff0(0x67b)](_0x50417e[_0x118ff0(0x6d0)])){if(_0x50417e['name']==='Revival\x20Juice')window[_0x118ff0(0x917)](_0x145dca);else{if(_0x50417e[_0x118ff0(0x1f3)]===_0x118ff0(0x676))window[_0x118ff0(0x1bf)](_0x118ff0(0x933),function(_0x497b79){const _0x26d9d4=_0x118ff0;if(_0x497b79&&_0x497b79[_0x26d9d4(0x57a)]()[_0x26d9d4(0x7c5)]>=0x3&&_0x497b79['trim']()['length']<=0x10){if(socket)socket[_0x26d9d4(0x1b2)](_0x26d9d4(0x318),{'index':_0x145dca,'newName':_0x497b79[_0x26d9d4(0x57a)]()});}else{if(_0x497b79){if(dom['log'])dom[_0x26d9d4(0x7cd)][_0x26d9d4(0x492)]='Name\x20must\x20be\x20between\x203\x20and\x2016\x20characters.';}}});else{if(_0x50417e[_0x118ff0(0x1f3)]==='Appearance\x20Reroll\x20Ticket'){document[_0x118ff0(0x6de)](_0x118ff0(0x469))['style'][_0x118ff0(0x642)]=_0x118ff0(0x1ec),document[_0x118ff0(0x6de)](_0x118ff0(0x39c))[_0x118ff0(0x4ea)]['add'](_0x118ff0(0x6cd));const _0x5eba6c=document[_0x118ff0(0x6de)]('creation-screen')[_0x118ff0(0x26d)](_0x118ff0(0x4c9)),_0x54572c=_0x5eba6c[_0x118ff0(0x4c4)];_0x5eba6c[_0x118ff0(0x4c4)]=function(){const _0x11223a=_0x118ff0;if(socket)socket['emit'](_0x11223a(0x256),{'index':_0x145dca,'charData':window[_0x11223a(0x2f3)]});document[_0x11223a(0x6de)](_0x11223a(0x39c))[_0x11223a(0x4ea)][_0x11223a(0x7f7)](_0x11223a(0x6cd)),document[_0x11223a(0x6de)](_0x11223a(0x469))[_0x11223a(0x290)][_0x11223a(0x642)]='block',_0x5eba6c[_0x11223a(0x4c4)]=_0x54572c;};}else{if(socket)socket[_0x118ff0(0x1b2)]('useInventoryItem',{'index':_0x145dca});}}}return;}if(dom['log'])dom[_0x118ff0(0x7cd)][_0x118ff0(0x492)]='That\x20item\x20cannot\x20be\x20equipped.';},window['usePotionHotkey']=function(){const _0x37d131=_0x5d14f9;if(window[_0x37d131(0x56f)]||game['isGhost']){if(dom['log'])dom[_0x37d131(0x7cd)][_0x37d131(0x492)]=_0x37d131(0x28a);return;}const _0x370060=game[_0x37d131(0x32e)][_0x37d131(0x5ed)]||[],_0x2f8d63=_0x370060['findIndex'](_0x252169=>_0x252169&&_0x252169[_0x37d131(0x6d0)]==='potion'&&_0x252169[_0x37d131(0x1f3)]===_0x37d131(0x608)&&(_0x252169[_0x37d131(0x921)]||0x1)>0x0);if(_0x2f8d63===-0x1){if(dom[_0x37d131(0x7cd)])dom[_0x37d131(0x7cd)][_0x37d131(0x492)]='No\x20Health\x20Potions\x20in\x20inventory.';return;}window[_0x37d131(0x730)](_0x2f8d63);},window[_0x5d14f9(0x7ac)]=function(_0x2c7484,_0x277a2f){const _0x3484b6=_0x5d14f9;_0x277a2f[_0x3484b6(0x2d8)]();let _0x1abc66=game[_0x3484b6(0x32e)][_0x3484b6(0x5ed)][activeInvIndex],_0x5c86e6=game['player'][_0x3484b6(0x5ed)][_0x2c7484];if(!_0x1abc66||!_0x5c86e6||_0x1abc66[_0x3484b6(0x6d0)]!==_0x3484b6(0x73d)||_0x5c86e6['type']===_0x3484b6(0x73d)||_0x5c86e6[_0x3484b6(0x6d0)]===_0x3484b6(0x7da)||_0x5c86e6[_0x3484b6(0x20b)]===_0x3484b6(0x5c6)){isEnhancing=![],window[_0x3484b6(0x252)]();return;}let _0x4656de=_0x1abc66[_0x3484b6(0x20b)]===_0x3484b6(0x2b4)&&_0x5c86e6['rarity']===_0x3484b6(0x2b4)&&_0x1abc66[_0x3484b6(0x1f3)]==='Divine\x20Enhancement\x20Stone',_0x1bb620=_0x1abc66['rarity']===_0x5c86e6[_0x3484b6(0x20b)]&&_0x1abc66[_0x3484b6(0x3f2)]===_0x5c86e6[_0x3484b6(0x3f2)]&&_0x1abc66[_0x3484b6(0x1f3)]!==_0x3484b6(0x68b),_0x9b11e5=window[_0x3484b6(0x425)][_0x5c86e6[_0x3484b6(0x20b)]]||0x14;if(!_0x4656de&&!_0x1bb620||(_0x5c86e6[_0x3484b6(0x91e)]||0x0)>=_0x9b11e5){isEnhancing=![],window[_0x3484b6(0x252)]();return;}if(socket)socket[_0x3484b6(0x1b2)]('requestEnhance',{'stoneIndex':activeInvIndex,'targetIndex':_0x2c7484});isEnhancing=![],window[_0x3484b6(0x252)]();},window[_0x5d14f9(0x8f4)]=function(){const _0x3b43ea=_0x5d14f9;try{if(game[_0x3b43ea(0x32e)][_0x3b43ea(0x670)]?.[_0x3b43ea(0x452)]?.[_0x3b43ea(0x573)]&&game[_0x3b43ea(0x32e)]['equips']?.[_0x3b43ea(0x452)]?.['rarity']){let _0x21ac10=game[_0x3b43ea(0x32e)][_0x3b43ea(0x670)][_0x3b43ea(0x452)],_0x1b1e7f=_0x3b43ea(0x80c),_0xb6bd2e=String(_0x21ac10[_0x3b43ea(0x573)])[_0x3b43ea(0x649)]();if(_0xb6bd2e[_0x3b43ea(0x67b)](_0x3b43ea(0x8ce)))_0x1b1e7f='staff';else{if(_0xb6bd2e[_0x3b43ea(0x67b)](_0x3b43ea(0x8cf)))_0x1b1e7f=_0x3b43ea(0x8cf);else{if(_0xb6bd2e['includes'](_0x3b43ea(0x554)))_0x1b1e7f=_0x3b43ea(0x554);else{if(_0xb6bd2e[_0x3b43ea(0x67b)](_0x3b43ea(0x3a4)))_0x1b1e7f=_0x3b43ea(0x3a4);else{if(_0xb6bd2e[_0x3b43ea(0x67b)](_0x3b43ea(0x871)))_0x1b1e7f=_0x3b43ea(0x871);}}}}let _0x46b275=String(_0x21ac10[_0x3b43ea(0x20b)])[_0x3b43ea(0x649)]();if(_0x46b275===_0x3b43ea(0x794))_0x46b275=_0x3b43ea(0x3fb);_0x21ac10[_0x3b43ea(0x573)]=''+_0x46b275+_0x1b1e7f;}const _0x907c59=_0x54077d=>_0x54077d?_0x54077d[_0x3b43ea(0x91e)]?_0x54077d[_0x3b43ea(0x1f3)]+'\x20+'+_0x54077d[_0x3b43ea(0x91e)]:_0x54077d[_0x3b43ea(0x1f3)]:'None';let _0x935af5=game[_0x3b43ea(0x32e)][_0x3b43ea(0x670)][_0x3b43ea(0x452)],_0x350a46=game[_0x3b43ea(0x32e)][_0x3b43ea(0x670)][_0x3b43ea(0x509)],_0x546bfb=game['player'][_0x3b43ea(0x670)]['leggings'],_0xfdb59f=game['player']['equips'][_0x3b43ea(0x327)],_0x320c86=game[_0x3b43ea(0x32e)][_0x3b43ea(0x670)][_0x3b43ea(0x6d6)],_0xd94b28=game['player']['equips'][_0x3b43ea(0x5d3)];const _0x5d2f9d=(_0x3b066b,_0xfb9049)=>{const _0x26657e=_0x3b43ea;let _0x5bb4a9=document[_0x26657e(0x6de)](_0x3b066b);if(!_0x5bb4a9)return;_0x5bb4a9['innerText']=_0x907c59(_0xfb9049);if(_0xfb9049)_0x5bb4a9[_0x26657e(0x290)][_0x26657e(0x510)]=_0xfb9049['color'];else _0x5bb4a9[_0x26657e(0x290)][_0x26657e(0x510)]='';};_0x5d2f9d(_0x3b43ea(0x296),_0x935af5),_0x5d2f9d(_0x3b43ea(0x8d8),_0x350a46),_0x5d2f9d(_0x3b43ea(0x67e),_0x546bfb),_0x5d2f9d('eq-necklace-slot',_0xfdb59f),_0x5d2f9d(_0x3b43ea(0x476),_0x320c86),_0x5d2f9d(_0x3b43ea(0x93e),_0xd94b28),dom[_0x3b43ea(0x67c)][_0x3b43ea(0x290)][_0x3b43ea(0x642)]=_0x3b43ea(0x1ec),dom[_0x3b43ea(0x4ed)][_0x3b43ea(0x290)][_0x3b43ea(0x642)]=_0x3b43ea(0x1ec);const _0x47b85c=(_0x128839,_0x441b7a)=>{const _0x3c8748=_0x3b43ea;let _0x635ec3=document['getElementById'](_0x441b7a);if(!_0x635ec3)return;let _0x35d05f=_0x635ec3[_0x3c8748(0x26d)](_0x3c8748(0x39b));!_0x35d05f&&(_0x35d05f=document[_0x3c8748(0x81e)](_0x3c8748(0x8fa)),_0x35d05f[_0x3c8748(0x228)]=_0x3c8748(0x561),_0x635ec3['appendChild'](_0x35d05f));if(_0x128839)_0x35d05f['innerHTML']=window[_0x3c8748(0x8ef)](_0x128839);else _0x35d05f[_0x3c8748(0x7f7)]();};_0x47b85c(_0x935af5,_0x3b43ea(0x7ae)),_0x47b85c(_0x350a46,'eq-box-armor'),_0x47b85c(_0x546bfb,_0x3b43ea(0x1fc)),_0x47b85c(_0xfdb59f,_0x3b43ea(0x53a)),_0x47b85c(_0x320c86,'eq-box-ring'),_0x47b85c(_0xd94b28,'eq-box-earrings');let _0x44e75e=window['getMaxHp']();if(game[_0x3b43ea(0x32e)][_0x3b43ea(0x6fc)]>_0x44e75e)game['player']['currentHp']=_0x44e75e;window[_0x3b43ea(0x4b2)]();}catch(_0x5acc77){}},window[_0x5d14f9(0x4b2)]=function(){const _0x2b5837=_0x5d14f9;document[_0x2b5837(0x6de)](_0x2b5837(0x89f))[_0x2b5837(0x492)]=game[_0x2b5837(0x32e)]['currentHp']+_0x2b5837(0x503)+window[_0x2b5837(0x847)](),document['getElementById'](_0x2b5837(0x845))[_0x2b5837(0x290)]['width']=game[_0x2b5837(0x32e)][_0x2b5837(0x6fc)]/Math[_0x2b5837(0x269)](0x1,window[_0x2b5837(0x847)]())*0x64+'%',document['getElementById'](_0x2b5837(0x845))[_0x2b5837(0x290)][_0x2b5837(0x8b7)]=game[_0x2b5837(0x32e)][_0x2b5837(0x6fc)]<window[_0x2b5837(0x847)]()*0.3?'#f44336':_0x2b5837(0x71b),document[_0x2b5837(0x6de)](_0x2b5837(0x3d4))[_0x2b5837(0x492)]=game['player'][_0x2b5837(0x3f2)],document[_0x2b5837(0x6de)](_0x2b5837(0x834))[_0x2b5837(0x492)]=game['player']['exp']+_0x2b5837(0x503)+game['player'][_0x2b5837(0x55f)],document[_0x2b5837(0x6de)]('ui-exp-bar')['style']['width']=game['player'][_0x2b5837(0x2c3)]/Math[_0x2b5837(0x269)](0x1,game[_0x2b5837(0x32e)][_0x2b5837(0x55f)])*0x64+'%',document[_0x2b5837(0x6de)](_0x2b5837(0x931))[_0x2b5837(0x492)]=game[_0x2b5837(0x32e)][_0x2b5837(0x4a4)]||0x0;if(game['party']&&game[_0x2b5837(0x333)][_0x2b5837(0x5b5)]){let _0x3b7473=game['party'][_0x2b5837(0x5b5)]['find'](_0xa33166=>_0xa33166['id']===game[_0x2b5837(0x32e)]['id']);_0x3b7473&&(_0x3b7473[_0x2b5837(0x6fc)]=game[_0x2b5837(0x32e)]['currentHp'],_0x3b7473[_0x2b5837(0x830)]=window[_0x2b5837(0x847)](),_0x3b7473['level']=game[_0x2b5837(0x32e)][_0x2b5837(0x3f2)],window[_0x2b5837(0x2e9)]());}if(typeof window[_0x2b5837(0x609)]==='function')window[_0x2b5837(0x609)]();},window[_0x5d14f9(0x378)]=function(){const _0x54c341=_0x5d14f9,_0x5e8963=document['getElementById'](_0x54c341(0x22c)),_0x4635df=document[_0x54c341(0x6de)](_0x54c341(0x70a));if(!_0x5e8963||!_0x4635df)return;const _0x10fbe6=game[_0x54c341(0x32e)][_0x54c341(0x5ed)]||[];let _0x255ab4=0x0;_0x10fbe6[_0x54c341(0x4c1)](_0x47c851=>{const _0x659f11=_0x54c341;_0x47c851&&_0x47c851[_0x659f11(0x6d0)]===_0x659f11(0x7da)&&_0x47c851[_0x659f11(0x1f3)]===_0x659f11(0x608)&&(_0x255ab4+=_0x47c851[_0x659f11(0x921)]||0x1);}),_0x5e8963[_0x54c341(0x492)]=_0x255ab4,_0x255ab4>0x0?(_0x4635df[_0x54c341(0x290)][_0x54c341(0x398)]='1',_0x4635df['style'][_0x54c341(0x53f)]=_0x54c341(0x71b)):(_0x4635df[_0x54c341(0x290)]['opacity']=_0x54c341(0x632),_0x4635df['style'][_0x54c341(0x53f)]=_0x54c341(0x86a));},window['toggleStats']=function(){const _0x577494=_0x5d14f9;dom[_0x577494(0x679)][_0x577494(0x290)][_0x577494(0x642)]===_0x577494(0x53c)?dom[_0x577494(0x679)][_0x577494(0x290)][_0x577494(0x642)]=_0x577494(0x1ec):(document[_0x577494(0x6de)](_0x577494(0x3b7))[_0x577494(0x492)]=game[_0x577494(0x32e)][_0x577494(0x3f2)],document['getElementById']('stat-maxhp')['innerText']=window[_0x577494(0x847)](),document[_0x577494(0x6de)](_0x577494(0x668))[_0x577494(0x492)]=window[_0x577494(0x5de)](),document[_0x577494(0x6de)]('stat-matk')['innerText']=window[_0x577494(0x4c5)](),document[_0x577494(0x6de)](_0x577494(0x726))[_0x577494(0x492)]=window[_0x577494(0x249)](),document[_0x577494(0x6de)]('stat-spd')[_0x577494(0x492)]=window[_0x577494(0x5e5)](),document['getElementById'](_0x577494(0x35b))['innerText']=window[_0x577494(0x781)](_0x577494(0x1c4)),document[_0x577494(0x6de)](_0x577494(0x45e))[_0x577494(0x492)]=window['getTotalStat'](_0x577494(0x579)),dom[_0x577494(0x679)]['style'][_0x577494(0x642)]=_0x577494(0x53c),window['isMobileUI']()&&(window[_0x577494(0x7bc)](dom[_0x577494(0x679)]),window['bringWindowToFront'](dom[_0x577494(0x679)]),window['clampWindowToViewport'](dom[_0x577494(0x679)])));},window[_0x5d14f9(0x27d)]=function(){const _0x1608ee=_0x5d14f9;if(game['player'][_0x1608ee(0x3f2)]>=0x50)return;while(game['player'][_0x1608ee(0x2c3)]>=game['player']['maxExp']&&game[_0x1608ee(0x32e)]['level']<0x50){game[_0x1608ee(0x32e)]['exp']-=game[_0x1608ee(0x32e)][_0x1608ee(0x55f)],game['player'][_0x1608ee(0x3f2)]++,game[_0x1608ee(0x32e)]['maxExp']+=game[_0x1608ee(0x32e)][_0x1608ee(0x3f2)]>=0x47?0x2710:game[_0x1608ee(0x32e)][_0x1608ee(0x3f2)]>=0x3d?0x1d4c:game['player']['level']>=0x33?0x1388:game[_0x1608ee(0x32e)][_0x1608ee(0x3f2)]>=0x29?0x5dc:game[_0x1608ee(0x32e)][_0x1608ee(0x3f2)]>=0x1f?0x3e8:game[_0x1608ee(0x32e)][_0x1608ee(0x3f2)]>=0x15?0x2ee:game[_0x1608ee(0x32e)][_0x1608ee(0x3f2)]>=0xb?0x1f4:0x64,game['player']['baseStats']['hp']+=0xa,game['player']['baseStats'][_0x1608ee(0x1c4)]+=0x2,game[_0x1608ee(0x32e)][_0x1608ee(0x526)][_0x1608ee(0x579)]+=0x2,game[_0x1608ee(0x32e)][_0x1608ee(0x6fc)]=window[_0x1608ee(0x847)]();const _0x162daa=document['createElement']('div');_0x162daa['className']=_0x1608ee(0x373),_0x162daa['innerText']=_0x1608ee(0x1ed),_0x162daa[_0x1608ee(0x290)][_0x1608ee(0x76a)]=game['player']['x']-0x14+'px',_0x162daa[_0x1608ee(0x290)][_0x1608ee(0x706)]=game[_0x1608ee(0x32e)]['y']-0x28+'px',dom['world'][_0x1608ee(0x463)](_0x162daa),setTimeout(()=>_0x162daa[_0x1608ee(0x7f7)](),0x7d0);}window[_0x1608ee(0x4b2)](),window[_0x1608ee(0x4d1)](),DatabaseManager[_0x1608ee(0x6d8)](game['player']);},window[_0x5d14f9(0x473)]=function(){const _0x342839=_0x5d14f9,_0x912d73=document[_0x342839(0x6de)](_0x342839(0x8c2));if(!_0x912d73)return;_0x912d73[_0x342839(0x882)]='';const _0x2d1b11=safeMapData['collisions']||[];_0x2d1b11[_0x342839(0x4c1)](_0x151c43=>{const _0x4ebd54=_0x342839,_0x57d844=document[_0x4ebd54(0x81e)](_0x4ebd54(0x8fa));_0x57d844['className']=_0x4ebd54(0x47c),_0x57d844[_0x4ebd54(0x290)][_0x4ebd54(0x76a)]=_0x151c43['x']+'px',_0x57d844[_0x4ebd54(0x290)][_0x4ebd54(0x706)]=_0x151c43['y']+'px',_0x57d844[_0x4ebd54(0x290)]['width']=_0x151c43['w']+'px',_0x57d844[_0x4ebd54(0x290)][_0x4ebd54(0x7a7)]=_0x151c43['h']+'px',_0x912d73[_0x4ebd54(0x463)](_0x57d844);});const _0x49ce07=safeMapData[_0x342839(0x4d9)]||[];_0x49ce07[_0x342839(0x4c1)](_0x57430c=>{const _0x10aac1=_0x342839,_0x59918=document[_0x10aac1(0x81e)]('div');_0x59918[_0x10aac1(0x228)]=_0x10aac1(0x47c),_0x59918['style'][_0x10aac1(0x76a)]=_0x57430c['x']+'px',_0x59918[_0x10aac1(0x290)]['top']=_0x57430c['y']+'px',_0x59918[_0x10aac1(0x290)][_0x10aac1(0x2ff)]=_0x57430c['w']+'px',_0x59918[_0x10aac1(0x290)][_0x10aac1(0x7a7)]=_0x57430c['h']+'px';if(window[_0x10aac1(0x643)]){const _0x2120e7=isNaN(parseInt(_0x57430c[_0x10aac1(0x739)]));_0x59918[_0x10aac1(0x290)][_0x10aac1(0x82b)]=_0x2120e7?_0x10aac1(0x409):_0x10aac1(0x2d2),_0x59918['style'][_0x10aac1(0x700)]=_0x2120e7?_0x10aac1(0x31a):_0x10aac1(0x45b),_0x59918[_0x10aac1(0x492)]=_0x57430c['portalId']||'?',_0x59918[_0x10aac1(0x290)][_0x10aac1(0x510)]=_0x10aac1(0x7e8),_0x59918[_0x10aac1(0x290)][_0x10aac1(0x642)]='flex',_0x59918['style'][_0x10aac1(0x223)]=_0x10aac1(0x5f2),_0x59918[_0x10aac1(0x290)]['alignItems']=_0x10aac1(0x5f2),_0x59918['style'][_0x10aac1(0x5a3)]=_0x10aac1(0x388),_0x59918[_0x10aac1(0x290)][_0x10aac1(0x2db)]=_0x10aac1(0x37d);}_0x912d73[_0x10aac1(0x463)](_0x59918);});if(window[_0x342839(0x643)]){if(safeMapData[_0x342839(0x5be)]!==undefined){const _0x8293bf=document[_0x342839(0x81e)](_0x342839(0x8fa));_0x8293bf[_0x342839(0x228)]=_0x342839(0x312),_0x8293bf[_0x342839(0x290)][_0x342839(0x76a)]=safeMapData[_0x342839(0x5be)]+'px',_0x8293bf[_0x342839(0x290)][_0x342839(0x706)]=safeMapData[_0x342839(0x594)]+'px',_0x8293bf[_0x342839(0x492)]='S',_0x912d73[_0x342839(0x463)](_0x8293bf);}(safeMapData[_0x342839(0x6b2)]||[])[_0x342839(0x4c1)](_0x2d9395=>{const _0x1100b2=_0x342839,_0x3816ec=document[_0x1100b2(0x81e)](_0x1100b2(0x8fa));_0x3816ec[_0x1100b2(0x228)]='admin-spawn-marker',_0x3816ec[_0x1100b2(0x290)][_0x1100b2(0x76a)]=_0x2d9395['x']+'px',_0x3816ec[_0x1100b2(0x290)][_0x1100b2(0x706)]=_0x2d9395['y']+'px',_0x3816ec['style'][_0x1100b2(0x53f)]='#0f0',_0x3816ec[_0x1100b2(0x492)]='M',_0x912d73[_0x1100b2(0x463)](_0x3816ec);}),(safeMapData[_0x342839(0x4f7)]||[])[_0x342839(0x4c1)](_0x38004a=>{const _0x4aa105=_0x342839,_0x40d5f0=document[_0x4aa105(0x81e)](_0x4aa105(0x8fa));_0x40d5f0[_0x4aa105(0x228)]=_0x4aa105(0x312),_0x40d5f0[_0x4aa105(0x290)][_0x4aa105(0x76a)]=_0x38004a['x']+'px',_0x40d5f0['style'][_0x4aa105(0x706)]=_0x38004a['y']+'px',_0x40d5f0[_0x4aa105(0x290)][_0x4aa105(0x53f)]=_0x4aa105(0x2e5),_0x40d5f0[_0x4aa105(0x492)]='MB',_0x912d73[_0x4aa105(0x463)](_0x40d5f0);}),(safeMapData['floorBossSpawns']||[])['forEach'](_0x39082e=>{const _0x46d60e=_0x342839,_0x151e9e=document[_0x46d60e(0x81e)](_0x46d60e(0x8fa));_0x151e9e[_0x46d60e(0x228)]=_0x46d60e(0x312),_0x151e9e[_0x46d60e(0x290)]['left']=_0x39082e['x']+'px',_0x151e9e[_0x46d60e(0x290)][_0x46d60e(0x706)]=_0x39082e['y']+'px',_0x151e9e[_0x46d60e(0x290)][_0x46d60e(0x53f)]=_0x46d60e(0x7b5),_0x151e9e[_0x46d60e(0x492)]='FB',_0x912d73[_0x46d60e(0x463)](_0x151e9e);});}},window[_0x5d14f9(0x56c)]=function(){const _0x49dbf2=_0x5d14f9;let _0x15ac0c=safeMapData['id']||'town',_0x23e5c1=_0x15ac0c==='town'?_0x49dbf2(0x37f):_0x15ac0c+_0x49dbf2(0x3e6),_0x532b37=_0x49dbf2(0x2c5)+_0x23e5c1+_0x49dbf2(0x920)+JSON[_0x49dbf2(0x57f)](safeMapData,null,0x4)+(_0x49dbf2(0x3fe)+_0x23e5c1+_0x49dbf2(0x311)+_0x23e5c1+';');dom['adminOutput'][_0x49dbf2(0x6cf)]=_0x532b37;if(socket)socket[_0x49dbf2(0x1b2)](_0x49dbf2(0x81c),{'mapId':_0x15ac0c,'content':_0x532b37});dom[_0x49dbf2(0x7cd)][_0x49dbf2(0x492)]=_0x49dbf2(0x814);},dom[_0x5d14f9(0x36e)][_0x5d14f9(0x665)](_0x5d14f9(0x243),_0x497319=>{const _0x1a6002=_0x5d14f9;window[_0x1a6002(0x643)]&&_0x497319[_0x1a6002(0x217)]();});let isAdminDragging=![],dragStartX=0x0,dragStartY=0x0,dragBoxElement=null,isDrawingPortal=![];dom[_0x5d14f9(0x36e)]['addEventListener'](_0x5d14f9(0x370),_0x387041=>{const _0x4100eb=_0x5d14f9;if(!window['adminMode'])return;const _0x519bcd=dom[_0x4100eb(0x36e)]['getBoundingClientRect'](),_0x50d086=Math[_0x4100eb(0x37e)]((_0x387041[_0x4100eb(0x4ff)]-_0x519bcd[_0x4100eb(0x76a)])/CAMERA_ZOOM),_0x34a050=Math[_0x4100eb(0x37e)]((_0x387041[_0x4100eb(0x831)]-_0x519bcd['top'])/CAMERA_ZOOM);if(_0x387041[_0x4100eb(0x221)]===0x2){let _0x100574=0x28,_0x1c56ac=null,_0x327c9e=-0x1;const _0x414324=_0x62ab9d=>{if(!_0x62ab9d)return;_0x62ab9d['forEach']((_0x590ca4,_0x2de853)=>{let _0x2462c4=Math['hypot'](_0x50d086-_0x590ca4['x'],_0x34a050-_0x590ca4['y']);_0x2462c4<_0x100574&&(_0x100574=_0x2462c4,_0x1c56ac=_0x62ab9d,_0x327c9e=_0x2de853);});},_0x593b10=_0x12916d=>{const _0x5d083f=_0x4100eb;if(!_0x12916d)return;_0x12916d[_0x5d083f(0x4c1)]((_0x2b93a2,_0x2c9e42)=>{_0x2b93a2['w']&&_0x2b93a2['h']&&(_0x50d086>=_0x2b93a2['x']&&_0x50d086<=_0x2b93a2['x']+_0x2b93a2['w']&&_0x34a050>=_0x2b93a2['y']&&_0x34a050<=_0x2b93a2['y']+_0x2b93a2['h']&&(_0x1c56ac=_0x12916d,_0x327c9e=_0x2c9e42));});};_0x593b10(safeMapData['collisions']);if(_0x327c9e===-0x1)_0x593b10(safeMapData['teleports']);_0x327c9e===-0x1&&(_0x414324(safeMapData[_0x4100eb(0x6b2)]),_0x414324(safeMapData[_0x4100eb(0x4f7)]),_0x414324(safeMapData[_0x4100eb(0x2ef)]));_0x327c9e!==-0x1?(_0x1c56ac[_0x4100eb(0x1a0)](_0x327c9e,0x1),window[_0x4100eb(0x473)](),window[_0x4100eb(0x26e)](),dom[_0x4100eb(0x7cd)][_0x4100eb(0x492)]=_0x4100eb(0x4e4)+_0x50d086+',\x20'+_0x34a050):dom[_0x4100eb(0x7cd)][_0x4100eb(0x492)]=_0x4100eb(0x84b);return;}if(_0x387041[_0x4100eb(0x221)]===0x0&&(game[_0x4100eb(0x2c1)]['z']||game[_0x4100eb(0x2c1)]['x']||game[_0x4100eb(0x2c1)]['c'])){const _0x619468=document[_0x4100eb(0x6de)](_0x4100eb(0x530))[_0x4100eb(0x6cf)],_0x2fdd02=parseInt(document[_0x4100eb(0x6de)]('admin-monster-level')[_0x4100eb(0x6cf)])||0x5,_0x4e5aaf={'x':_0x50d086,'y':_0x34a050,'monsterKey':_0x619468,'level':_0x2fdd02};if(game[_0x4100eb(0x2c1)]['z']){if(!safeMapData[_0x4100eb(0x6b2)])safeMapData[_0x4100eb(0x6b2)]=[];safeMapData[_0x4100eb(0x6b2)][_0x4100eb(0x2c9)](_0x4e5aaf),dom[_0x4100eb(0x7cd)][_0x4100eb(0x492)]='Normal\x20Mob\x20('+_0x619468+_0x4100eb(0x42c);}else{if(game[_0x4100eb(0x2c1)]['x']){if(!safeMapData[_0x4100eb(0x4f7)])safeMapData[_0x4100eb(0x4f7)]=[];safeMapData[_0x4100eb(0x4f7)][_0x4100eb(0x2c9)](_0x4e5aaf),dom['log']['innerText']=_0x4100eb(0x6b9)+_0x619468+_0x4100eb(0x42c);}else{if(game[_0x4100eb(0x2c1)]['c']){if(!safeMapData[_0x4100eb(0x2ef)])safeMapData['floorBossSpawns']=[];safeMapData[_0x4100eb(0x2ef)][_0x4100eb(0x2c9)](_0x4e5aaf),dom[_0x4100eb(0x7cd)][_0x4100eb(0x492)]=_0x4100eb(0x441)+_0x619468+_0x4100eb(0x42c);}}}window['buildCollisionLayers'](),window[_0x4100eb(0x26e)]();return;}_0x387041['button']===0x0&&_0x387041[_0x4100eb(0x759)]&&(isAdminDragging=!![],isDrawingPortal=_0x387041[_0x4100eb(0x511)],dragStartX=_0x50d086,dragStartY=_0x34a050,dragBoxElement=document['createElement'](_0x4100eb(0x8fa)),dragBoxElement[_0x4100eb(0x290)][_0x4100eb(0x6f6)]=_0x4100eb(0x506),dragBoxElement['style'][_0x4100eb(0x76a)]=dragStartX+'px',dragBoxElement[_0x4100eb(0x290)][_0x4100eb(0x706)]=dragStartY+'px',dragBoxElement['style'][_0x4100eb(0x2ff)]='0px',dragBoxElement[_0x4100eb(0x290)][_0x4100eb(0x7a7)]=_0x4100eb(0x691),dragBoxElement[_0x4100eb(0x290)]['background']=isDrawingPortal?_0x4100eb(0x2d2):'rgba(255,\x200,\x200,\x200.4)',dragBoxElement[_0x4100eb(0x290)][_0x4100eb(0x700)]=isDrawingPortal?_0x4100eb(0x45b):_0x4100eb(0x55c),dragBoxElement['style'][_0x4100eb(0x5c1)]=_0x4100eb(0x88c),dragBoxElement[_0x4100eb(0x290)][_0x4100eb(0x6ef)]=_0x4100eb(0x1ec),dom[_0x4100eb(0x36e)][_0x4100eb(0x463)](dragBoxElement));}),window[_0x5d14f9(0x665)]('mousemove',_0x4a6058=>{const _0x119862=_0x5d14f9;if(!isAdminDragging||!dragBoxElement)return;const _0x38c02a=dom[_0x119862(0x36e)][_0x119862(0x744)](),_0x155759=Math[_0x119862(0x37e)]((_0x4a6058[_0x119862(0x4ff)]-_0x38c02a['left'])/CAMERA_ZOOM),_0x1b6642=Math[_0x119862(0x37e)]((_0x4a6058[_0x119862(0x831)]-_0x38c02a['top'])/CAMERA_ZOOM);let _0x18cb3d=Math[_0x119862(0x591)](dragStartX,_0x155759),_0x5ac4c5=Math[_0x119862(0x591)](dragStartY,_0x1b6642),_0x5c2090=Math[_0x119862(0x888)](_0x155759-dragStartX),_0x173d08=Math[_0x119862(0x888)](_0x1b6642-dragStartY);dragBoxElement['style']['left']=_0x18cb3d+'px',dragBoxElement[_0x119862(0x290)][_0x119862(0x706)]=_0x5ac4c5+'px',dragBoxElement['style'][_0x119862(0x2ff)]=_0x5c2090+'px',dragBoxElement['style'][_0x119862(0x7a7)]=_0x173d08+'px';}),window[_0x5d14f9(0x665)](_0x5d14f9(0x8fe),_0xab87b1=>{const _0x2209ee=_0x5d14f9;if(isAdminDragging){isAdminDragging=![];dragBoxElement&&(dragBoxElement[_0x2209ee(0x7f7)](),dragBoxElement=null);const _0xa46a15=dom[_0x2209ee(0x36e)][_0x2209ee(0x744)](),_0x4b9796=Math[_0x2209ee(0x37e)]((_0xab87b1['clientX']-_0xa46a15[_0x2209ee(0x76a)])/CAMERA_ZOOM),_0x4a208b=Math[_0x2209ee(0x37e)]((_0xab87b1[_0x2209ee(0x831)]-_0xa46a15[_0x2209ee(0x706)])/CAMERA_ZOOM);let _0x4f364e=Math[_0x2209ee(0x591)](dragStartX,_0x4b9796),_0x2f7edc=Math[_0x2209ee(0x591)](dragStartY,_0x4a208b),_0x2564b7=Math[_0x2209ee(0x888)](_0x4b9796-dragStartX),_0x3067c8=Math['abs'](_0x4a208b-dragStartY);if(_0x2564b7>0xf&&_0x3067c8>0xf){let _0xdc66ba={'x':_0x4f364e,'y':_0x2f7edc,'w':_0x2564b7,'h':_0x3067c8};if(isDrawingPortal){window[_0x2209ee(0x1bf)](_0x2209ee(0x6c5),_0x2dc0a3=>{const _0x426528=_0x2209ee;if(!_0x2dc0a3)return;window[_0x426528(0x1bf)]('Enter\x20Target\x20Map\x20ID\x20(e.g.,\x20floor1\x20or\x20house1):',_0x56a45d=>{const _0x52147d=_0x426528;if(!_0x56a45d)return;window['customPrompt'](_0x52147d(0x86d),_0x48f913=>{const _0x1c0d40=_0x52147d;let _0x482e61=_0x48f913||_0x1c0d40(0x319);window[_0x1c0d40(0x1bf)](_0x1c0d40(0x59a),_0x5d12be=>{const _0x33be93=_0x1c0d40;let _0xcafd0f=_0x5d12be||_0x33be93(0x88c),_0x120186=isNaN(parseInt(_0x2dc0a3))?String(_0x2dc0a3)[_0x33be93(0x241)]()[_0x33be93(0x23d)](0x0):parseInt(_0x2dc0a3);_0xdc66ba[_0x33be93(0x739)]=_0x120186,_0xdc66ba[_0x33be93(0x340)]=_0x56a45d,_0xdc66ba['targetX']=Number(_0x482e61),_0xdc66ba[_0x33be93(0x7f4)]=Number(_0xcafd0f);if(!safeMapData[_0x33be93(0x4d9)])safeMapData[_0x33be93(0x4d9)]=[];safeMapData[_0x33be93(0x4d9)][_0x33be93(0x2c9)](_0xdc66ba),dom[_0x33be93(0x7cd)][_0x33be93(0x492)]=_0x33be93(0x8b1)+_0x120186+_0x33be93(0x580)+_0x56a45d,window[_0x33be93(0x473)](),window[_0x33be93(0x26e)]();});});});});return;}else{if(!safeMapData[_0x2209ee(0x763)])safeMapData[_0x2209ee(0x763)]=[];safeMapData['collisions'][_0x2209ee(0x2c9)](_0xdc66ba),dom['log'][_0x2209ee(0x492)]=_0x2209ee(0x85f);}window[_0x2209ee(0x473)](),window[_0x2209ee(0x26e)]();}}}),window[_0x5d14f9(0x547)]=function(){const _0xaf8e17=_0x5d14f9;if(!window['adminMode'])return;if(safeMapData[_0xaf8e17(0x4d9)]?.[_0xaf8e17(0x7c5)]>0x0)safeMapData[_0xaf8e17(0x4d9)]['pop'](),dom[_0xaf8e17(0x7cd)][_0xaf8e17(0x492)]=_0xaf8e17(0x641);else safeMapData[_0xaf8e17(0x763)]?.[_0xaf8e17(0x7c5)]>0x0&&(safeMapData[_0xaf8e17(0x763)][_0xaf8e17(0x33e)](),dom['log'][_0xaf8e17(0x492)]=_0xaf8e17(0x4f4));window[_0xaf8e17(0x473)](),window[_0xaf8e17(0x26e)]();},window[_0x5d14f9(0x4c0)]=function(){const _0x55b4ee=_0x5d14f9;if(!window[_0x55b4ee(0x643)]||!confirm(_0x55b4ee(0x46d)))return;safeMapData['collisions']=[],safeMapData[_0x55b4ee(0x4d9)]=[],safeMapData[_0x55b4ee(0x6b2)]=[],safeMapData['miniBossSpawns']=[],safeMapData[_0x55b4ee(0x2ef)]=[],window[_0x55b4ee(0x473)](),window[_0x55b4ee(0x26e)](),dom[_0x55b4ee(0x7cd)]['innerText']=_0x55b4ee(0x7ce);},window[_0x5d14f9(0x26e)]=function(){const _0x43e56c=_0x5d14f9;let _0xd06ce7=safeMapData['id']||_0x43e56c(0x8ba),_0x5e94f4=_0xd06ce7===_0x43e56c(0x8ba)?_0x43e56c(0x37f):_0xd06ce7+_0x43e56c(0x3e6),_0x3691f2=_0x43e56c(0x2c5)+_0x5e94f4+_0x43e56c(0x920)+JSON[_0x43e56c(0x57f)](safeMapData,null,0x4)+(_0x43e56c(0x3fe)+_0x5e94f4+_0x43e56c(0x311)+_0x5e94f4+';');dom[_0x43e56c(0x734)][_0x43e56c(0x6cf)]=_0x3691f2;},window['adminSetPlayerLevel']=function(){const _0x551ded=_0x5d14f9;let _0x515f32=parseInt(document[_0x551ded(0x6de)](_0x551ded(0x666))['value'])||0x1;if(socket)socket[_0x551ded(0x1b2)](_0x551ded(0x5a9),_0x515f32);},window['adminGiveCustomItem']=function(){const _0x29d44f=_0x5d14f9;let _0x14d18e=document[_0x29d44f(0x6de)](_0x29d44f(0x896))['value'],_0x54cdb9=document[_0x29d44f(0x6de)](_0x29d44f(0x46e))[_0x29d44f(0x6cf)],_0x153247=parseInt(document[_0x29d44f(0x6de)](_0x29d44f(0x216))[_0x29d44f(0x6cf)])||0x1,_0x12d822=parseInt(document['getElementById'](_0x29d44f(0x6e2))['value'])||0x0;if(socket)socket['emit'](_0x29d44f(0x8df),{'rarity':_0x14d18e,'type':_0x54cdb9,'level':_0x153247,'enhanceLevel':_0x12d822});},window[_0x5d14f9(0x291)]=function(_0x169a7e){const _0x364412=_0x5d14f9;if(!_0x169a7e)return null;if(_0x169a7e===game[_0x364412(0x32e)]['id'])return game['player'];return game['remotePlayers'][_0x169a7e]||null;},window['goFullscreen']=function(){const _0x4f5345=_0x5d14f9;!document[_0x4f5345(0x905)]&&document[_0x4f5345(0x427)][_0x4f5345(0x493)]&&document['documentElement'][_0x4f5345(0x493)]()[_0x4f5345(0x1a2)](_0x58b71b=>console[_0x4f5345(0x836)](_0x4f5345(0x675)));},window[_0x5d14f9(0x8ac)]=function(_0x5953cf){const _0x3feee3=_0x5d14f9;document['getElementById'](_0x3feee3(0x4cd))['style'][_0x3feee3(0x642)]=_0x5953cf===_0x3feee3(0x3c6)?_0x3feee3(0x53c):_0x3feee3(0x1ec),document[_0x3feee3(0x6de)](_0x3feee3(0x422))[_0x3feee3(0x290)]['display']=_0x5953cf===_0x3feee3(0x2ed)?_0x3feee3(0x53c):'none',window[_0x3feee3(0x73c)](_0x3feee3(0x2ac));},window[_0x5d14f9(0x343)]=function(){const _0xd6386d=_0x5d14f9,_0x412e08=document[_0xd6386d(0x6de)](_0xd6386d(0x1a5))['value'][_0xd6386d(0x57a)](),_0x5cfafb=document[_0xd6386d(0x6de)](_0xd6386d(0x4e3))[_0xd6386d(0x6cf)];if(!_0x412e08||!_0x5cfafb)return;let _0x274c76=localStorage['getItem'](_0xd6386d(0x1e4));!_0x274c76&&(_0x274c76=_0xd6386d(0x470)+Math[_0xd6386d(0x392)]()[_0xd6386d(0x69f)](0x24)[_0xd6386d(0x36d)](0x2,0x9),localStorage[_0xd6386d(0x1df)](_0xd6386d(0x1e4),_0x274c76));localStorage['setItem'](_0xd6386d(0x8a5),_0x412e08),localStorage['setItem'](_0xd6386d(0x563),_0x5cfafb),document[_0xd6386d(0x6de)](_0xd6386d(0x944))[_0xd6386d(0x4ea)][_0xd6386d(0x7f7)](_0xd6386d(0x6cd)),document[_0xd6386d(0x6de)](_0xd6386d(0x489))[_0xd6386d(0x290)][_0xd6386d(0x642)]='flex';if(socket)socket[_0xd6386d(0x1b2)](_0xd6386d(0x3c6),{'username':_0x412e08,'password':_0x5cfafb,'deviceId':_0x274c76});window[_0xd6386d(0x73c)](_0xd6386d(0x2ac)),window[_0xd6386d(0x244)]();},window[_0x5d14f9(0x6e6)]=function(){const _0x30bfe8=_0x5d14f9,_0x23936a=document['getElementById'](_0x30bfe8(0x6c9))['value'][_0x30bfe8(0x57a)](),_0x133728=document[_0x30bfe8(0x6de)](_0x30bfe8(0x599))[_0x30bfe8(0x6cf)];if(!_0x23936a||!_0x133728)return;let _0x159021=localStorage[_0x30bfe8(0x307)](_0x30bfe8(0x1e4));!_0x159021&&(_0x159021=_0x30bfe8(0x470)+Math[_0x30bfe8(0x392)]()[_0x30bfe8(0x69f)](0x24)[_0x30bfe8(0x36d)](0x2,0x9),localStorage[_0x30bfe8(0x1df)](_0x30bfe8(0x1e4),_0x159021));localStorage[_0x30bfe8(0x1df)](_0x30bfe8(0x8a5),_0x23936a),localStorage[_0x30bfe8(0x1df)](_0x30bfe8(0x563),_0x133728),document['getElementById'](_0x30bfe8(0x944))[_0x30bfe8(0x4ea)]['remove'](_0x30bfe8(0x6cd)),document[_0x30bfe8(0x6de)](_0x30bfe8(0x489))[_0x30bfe8(0x290)][_0x30bfe8(0x642)]='flex';if(socket)socket[_0x30bfe8(0x1b2)](_0x30bfe8(0x2ed),{'username':_0x23936a,'password':_0x133728,'deviceId':_0x159021});window[_0x30bfe8(0x73c)]('loginmenu'),window[_0x30bfe8(0x244)]();},window[_0x5d14f9(0x1f4)]=function(){const _0x35ff5c=_0x5d14f9,_0x3f4c46=document['getElementById'](_0x35ff5c(0x469))[_0x35ff5c(0x6cf)];document['getElementById'](_0x35ff5c(0x39c))[_0x35ff5c(0x4ea)][_0x35ff5c(0x7f7)](_0x35ff5c(0x6cd)),document['getElementById'](_0x35ff5c(0x200))[_0x35ff5c(0x492)]=_0x35ff5c(0x839),document[_0x35ff5c(0x6de)](_0x35ff5c(0x489))[_0x35ff5c(0x290)][_0x35ff5c(0x642)]='flex',window['playBGM'](_0x35ff5c(0x2ac));if(socket)socket[_0x35ff5c(0x1b2)](_0x35ff5c(0x5fb),{'username':_0x3f4c46,'charData':window[_0x35ff5c(0x2f3)]});window[_0x35ff5c(0x244)]();},window[_0x5d14f9(0x66e)]=function(){const _0x59c0c7=_0x5d14f9;if(!game[_0x59c0c7(0x47f)])return;document[_0x59c0c7(0x6de)](_0x59c0c7(0x350))['classList']['remove'](_0x59c0c7(0x6cd)),document[_0x59c0c7(0x6de)](_0x59c0c7(0x200))[_0x59c0c7(0x492)]=_0x59c0c7(0x4fb),document[_0x59c0c7(0x6de)]('loading-screen')['style'][_0x59c0c7(0x642)]=_0x59c0c7(0x8c1);let _0x4f586c=new Audio();_0x4f586c[_0x59c0c7(0x6d4)]()[_0x59c0c7(0x1a2)](()=>{});if(socket)socket['emit'](_0x59c0c7(0x380),game['cachedUserData']);window[_0x59c0c7(0x244)]();},window[_0x5d14f9(0x622)]=function(_0x3a74ac,_0x1dad81){const _0x290e78=_0x5d14f9;window[_0x290e78(0x2f3)][_0x290e78(0x6e1)]=_0x3a74ac,document['getElementById']('preview-body')[_0x290e78(0x290)][_0x290e78(0x306)]=skinFilters[_0x3a74ac],document[_0x290e78(0x6de)](_0x290e78(0x854))[_0x290e78(0x290)][_0x290e78(0x306)]=skinFilters[_0x3a74ac],document[_0x290e78(0x76b)](_0x290e78(0x6ec))['forEach'](_0x2e5927=>_0x2e5927[_0x290e78(0x4ea)][_0x290e78(0x7f7)]('selected')),_0x1dad81[_0x290e78(0x4ea)]['add']('selected');},window[_0x5d14f9(0x4b0)]=function(_0x5aa0a2,_0x3b6fde){const _0x4aeeb6=_0x5d14f9;window[_0x4aeeb6(0x2f3)][_0x4aeeb6(0x4cc)]=_0x5aa0a2,document[_0x4aeeb6(0x6de)](_0x4aeeb6(0x56b))['style'][_0x4aeeb6(0x306)]=hairFilters[_0x5aa0a2],document[_0x4aeeb6(0x76b)](_0x4aeeb6(0x4fa))[_0x4aeeb6(0x4c1)](_0x2ddeab=>_0x2ddeab[_0x4aeeb6(0x4ea)][_0x4aeeb6(0x7f7)](_0x4aeeb6(0x4c8))),_0x3b6fde[_0x4aeeb6(0x4ea)]['add']('selected');},window[_0x5d14f9(0x93c)]=function(_0x552713){const _0x13d54c=_0x5d14f9;window[_0x13d54c(0x2f3)]['hairStyle']=_0x552713;const _0x3508c9=document[_0x13d54c(0x6de)](_0x13d54c(0x56b));_0x552713===_0x13d54c(0x1ec)?_0x3508c9[_0x13d54c(0x290)]['display']='none':(_0x3508c9[_0x13d54c(0x290)][_0x13d54c(0x642)]=_0x13d54c(0x53c),_0x3508c9['src']=_0x13d54c(0x5e1)+_0x552713+'.png');document['querySelectorAll'](_0x13d54c(0x39f))[_0x13d54c(0x4c1)](_0x53f4c9=>_0x53f4c9[_0x13d54c(0x4ea)][_0x13d54c(0x7f7)]('selected'));const _0x535590=document[_0x13d54c(0x6de)](_0x13d54c(0x4a2)+_0x552713);if(_0x535590)_0x535590[_0x13d54c(0x4ea)][_0x13d54c(0x7e6)](_0x13d54c(0x4c8));},setTimeout(()=>{const _0x5a04c7=_0x5d14f9;let _0x5635cc=document['querySelector']('#skin-color-group\x20.color-swatch.selected'),_0x5544b8=document[_0x5a04c7(0x26d)]('#hair-color-group\x20.color-swatch.selected');if(_0x5635cc)window[_0x5a04c7(0x622)](_0x5a04c7(0x260),_0x5635cc);if(_0x5544b8)window['setHairColor']('black',_0x5544b8);},0x64),window[_0x5d14f9(0x868)]=function(){const _0x162a8d=_0x5d14f9,_0x118c9a=document[_0x162a8d(0x6de)]('death-screen');if(_0x118c9a)_0x118c9a[_0x162a8d(0x290)][_0x162a8d(0x642)]='none';if(socket)socket[_0x162a8d(0x1b2)](_0x162a8d(0x3bb));};let joystickActive=![];const joyStick=document[_0x5d14f9(0x6de)](_0x5d14f9(0x536)),joyKnob=document['getElementById']('joystick-knob');joyStick[_0x5d14f9(0x665)](_0x5d14f9(0x1a3),_0x3ac2b0=>{const _0x28957c=_0x5d14f9;_0x3ac2b0[_0x28957c(0x217)](),_0x3ac2b0['stopPropagation'](),joystickActive=!![],moveJoystick(_0x3ac2b0);},{'passive':![]}),joyStick[_0x5d14f9(0x665)]('touchmove',_0x260ff6=>{const _0x269aa3=_0x5d14f9;_0x260ff6['preventDefault'](),_0x260ff6[_0x269aa3(0x2d8)]();if(joystickActive)moveJoystick(_0x260ff6);},{'passive':![]}),joyStick['addEventListener'](_0x5d14f9(0x1f2),_0x1fed53=>{const _0x2614dd=_0x5d14f9;_0x1fed53[_0x2614dd(0x217)](),_0x1fed53[_0x2614dd(0x2d8)](),joystickActive=![],joyKnob[_0x2614dd(0x290)]['transform']=_0x2614dd(0x3ea),game['keys']['w']=![],game[_0x2614dd(0x2c1)]['a']=![],game[_0x2614dd(0x2c1)]['s']=![],game[_0x2614dd(0x2c1)]['d']=![];});function moveJoystick(_0x17cdaf){const _0x10290f=_0x5d14f9;if(!joystickActive)return;const _0x4c7cd0=joyStick[_0x10290f(0x744)](),_0x20e13a=_0x4c7cd0[_0x10290f(0x76a)]+_0x4c7cd0['width']/0x2,_0x4d376b=_0x4c7cd0['top']+_0x4c7cd0[_0x10290f(0x7a7)]/0x2,_0x1a65f3=_0x17cdaf[_0x10290f(0x2f0)][0x0];let _0x3f9253=_0x1a65f3[_0x10290f(0x4ff)]-_0x20e13a,_0x594482=_0x1a65f3[_0x10290f(0x831)]-_0x4d376b;const _0x5c9f2a=Math['min'](0x19,Math[_0x10290f(0x593)](_0x3f9253,_0x594482)),_0x10a4e1=Math[_0x10290f(0x34d)](_0x594482,_0x3f9253);let _0x37f82c=Math[_0x10290f(0x1a9)](_0x10a4e1)*_0x5c9f2a,_0x2419fb=Math['sin'](_0x10a4e1)*_0x5c9f2a;joyKnob[_0x10290f(0x290)][_0x10290f(0x2b3)]=_0x10290f(0x948)+_0x37f82c+_0x10290f(0x5df)+_0x2419fb+_0x10290f(0x335);const _0x57d81e=_0x3f9253/0x19,_0x27e125=_0x594482/0x19;game['keys']['w']=_0x27e125<-0.3,game[_0x10290f(0x2c1)]['s']=_0x27e125>0.3,game['keys']['a']=_0x57d81e<-0.3,game[_0x10290f(0x2c1)]['d']=_0x57d81e>0.3;if(game['keys']['a'])window['facingRight']=![];if(game[_0x10290f(0x2c1)]['d'])window[_0x10290f(0x3c2)]=!![];}let isFriendsOpen=![];window[_0x5d14f9(0x61c)]=function(){const _0x12f171=_0x5d14f9;isFriendsOpen=!isFriendsOpen;const _0x289ae4=document[_0x12f171(0x6de)]('friends-screen');_0x289ae4[_0x12f171(0x290)][_0x12f171(0x642)]=isFriendsOpen?'block':_0x12f171(0x1ec);if(isFriendsOpen){if(socket)socket[_0x12f171(0x1b2)](_0x12f171(0x255));window[_0x12f171(0x681)]()&&(window['enableMobileWindowControls'](_0x289ae4),window['bringWindowToFront'](_0x289ae4),window[_0x12f171(0x7c9)](_0x289ae4));}},window[_0x5d14f9(0x193)]=function(){const _0x5f06d3=_0x5d14f9;if(!activeTargetPlayerId)return;document[_0x5f06d3(0x6de)](_0x5f06d3(0x694))[_0x5f06d3(0x290)][_0x5f06d3(0x642)]=_0x5f06d3(0x1ec);if(socket)socket['emit'](_0x5f06d3(0x1ff),{'targetId':activeTargetPlayerId});},window['promptDM']=function(_0xf281b9){const _0x1a0277=_0x5d14f9;window['customPrompt'](_0x1a0277(0x528)+_0xf281b9+':',function(_0x305f15){const _0x5d9d2d=_0x1a0277;if(_0x305f15&&_0x305f15[_0x5d9d2d(0x57a)]()!==''){if(socket)socket['emit'](_0x5d9d2d(0x4ad),{'targetId':_0xf281b9,'message':_0x305f15['trim']()});}});},window[_0x5d14f9(0x926)]=function(){const _0x18cef5=_0x5d14f9;try{const _0x37075c=window['AudioContext']||window[_0x18cef5(0x488)],_0x1b3138=new _0x37075c();_0x1b3138['state']===_0x18cef5(0x345)&&_0x1b3138[_0x18cef5(0x935)]();const _0xa32afe=_0x1b3138['createOscillator'](),_0x20afea=_0x1b3138[_0x18cef5(0x93a)]();_0xa32afe[_0x18cef5(0x6d0)]=_0x18cef5(0x347),_0xa32afe[_0x18cef5(0x8c5)][_0x18cef5(0x79b)](587.33,_0x1b3138[_0x18cef5(0x7d1)]),_0xa32afe[_0x18cef5(0x8c5)][_0x18cef5(0x5ad)](1174.66,_0x1b3138[_0x18cef5(0x7d1)]+0.1),_0x20afea['gain'][_0x18cef5(0x79b)](0.7,_0x1b3138['currentTime']),_0x20afea[_0x18cef5(0x761)][_0x18cef5(0x5ad)](0.01,_0x1b3138[_0x18cef5(0x7d1)]+0.5),_0xa32afe[_0x18cef5(0x797)](_0x20afea),_0x20afea['connect'](_0x1b3138[_0x18cef5(0x3c8)]),_0xa32afe[_0x18cef5(0x364)](),_0xa32afe[_0x18cef5(0x855)](_0x1b3138[_0x18cef5(0x7d1)]+0.5);const _0x54dc8f=document[_0x18cef5(0x6de)](_0x18cef5(0x578));_0x54dc8f&&(_0x54dc8f[_0x18cef5(0x290)][_0x18cef5(0x8b7)]=_0x18cef5(0x409),_0x54dc8f[_0x18cef5(0x290)]['transition']=_0x18cef5(0x448),setTimeout(()=>{const _0x152b4d=_0x18cef5;_0x54dc8f[_0x152b4d(0x290)][_0x152b4d(0x46f)]='background-color\x200.5s\x20ease',_0x54dc8f['style'][_0x152b4d(0x8b7)]=_0x152b4d(0x86b);},0x96));}catch(_0x31a65e){}},window[_0x5d14f9(0x5e2)]=function(_0x2c8e3a){const _0x3699cb=_0x5d14f9;if(!_0x2c8e3a||!socket)return;socket[_0x3699cb(0x1b2)](_0x3699cb(0x2e3),_0x2c8e3a);},window['stopSpectating']=function(){const _0x559f8f=_0x5d14f9;if(!socket)return;socket[_0x559f8f(0x1b2)]('stopSpectate');},window[_0x5d14f9(0x815)]=function(_0x4132e0,_0x37ab01){const _0x431196=_0x5d14f9;if(safeMapData['id']===_0x431196(0x938))return;activeTargetPlayerId=_0x4132e0;const _0x52a10c=document[_0x431196(0x6de)]('player-context-menu');_0x52a10c['style'][_0x431196(0x642)]='flex',_0x52a10c[_0x431196(0x290)]['left']=_0x37ab01[_0x431196(0x4ff)]+'px',_0x52a10c['style'][_0x431196(0x706)]=_0x37ab01[_0x431196(0x831)]+'px';},window[_0x5d14f9(0x685)]=function(){const _0x43b84f=_0x5d14f9;if(!activeTargetPlayerId)return;document[_0x43b84f(0x6de)](_0x43b84f(0x694))[_0x43b84f(0x290)][_0x43b84f(0x642)]=_0x43b84f(0x1ec);const _0x477c16=game['remotePlayers'][activeTargetPlayerId];if(!_0x477c16)return;dom[_0x43b84f(0x20c)]['style'][_0x43b84f(0x642)]='block';window['isMobileUI']()&&(window[_0x43b84f(0x7bc)](dom[_0x43b84f(0x20c)]),window[_0x43b84f(0x919)](dom[_0x43b84f(0x20c)]),window[_0x43b84f(0x7c9)](dom[_0x43b84f(0x20c)]));dom[_0x43b84f(0x78c)][_0x43b84f(0x492)]=_0x43b84f(0x39d)+(_0x477c16[_0x43b84f(0x1f3)]||_0x477c16['id']);let _0x486caf=_0x43b84f(0x2af),_0x483662='???\x20/\x20???';if(game[_0x43b84f(0x333)]&&game['party'][_0x43b84f(0x5b5)]){let _0x3edc5a=game['party'][_0x43b84f(0x5b5)]['find'](_0x1ab9b6=>_0x1ab9b6['id']===_0x477c16['id']);_0x3edc5a&&(_0x486caf=_0x3edc5a[_0x43b84f(0x3f2)],_0x483662=_0x3edc5a[_0x43b84f(0x6fc)]+'\x20/\x20'+_0x3edc5a[_0x43b84f(0x830)]);}let _0x2d3d2d=_0x477c16[_0x43b84f(0x426)]&&_0x477c16[_0x43b84f(0x426)]['weapon']?_0x477c16[_0x43b84f(0x426)][_0x43b84f(0x452)][_0x43b84f(0x818)]('starter','basic'):_0x43b84f(0x8b3),_0x4aef1d=_0x43b84f(0x3f0)+_0x486caf+_0x43b84f(0x24f)+_0x483662+_0x43b84f(0x5a2);_0x4aef1d+='<div\x20class=\x22inspect-equip\x22><div\x20style=\x22font-weight:bold;\x20color:#ffeb3b;\x20margin-bottom:6px;\x22>Weapon\x20(Visual\x20Cache)</div><div\x20class=\x22inspect-item-name\x22\x20style=\x22color:#fff;\x22>'+_0x2d3d2d+_0x43b84f(0x258),dom['inspectContent'][_0x43b84f(0x882)]=_0x4aef1d;if(socket)socket[_0x43b84f(0x1b2)](_0x43b84f(0x440),{'targetId':activeTargetPlayerId});},window[_0x5d14f9(0x4f6)]=function(){const _0x257485=_0x5d14f9;if(!activeTargetPlayerId)return;document[_0x257485(0x6de)](_0x257485(0x694))[_0x257485(0x290)][_0x257485(0x642)]=_0x257485(0x1ec);if(socket)socket[_0x257485(0x1b2)](_0x257485(0x242),{'targetId':activeTargetPlayerId});dom[_0x257485(0x7cd)][_0x257485(0x492)]='Party\x20invite\x20sent\x20to\x20'+activeTargetPlayerId+'.';},window[_0x5d14f9(0x780)]=function(){const _0x2bc98f=_0x5d14f9;if(!activeTargetPlayerId)return;document['getElementById'](_0x2bc98f(0x694))['style'][_0x2bc98f(0x642)]=_0x2bc98f(0x1ec);if(socket)socket[_0x2bc98f(0x1b2)](_0x2bc98f(0x8d0),{'targetId':activeTargetPlayerId});dom[_0x2bc98f(0x7cd)][_0x2bc98f(0x492)]=_0x2bc98f(0x52a)+activeTargetPlayerId+'.';},window[_0x5d14f9(0x7f2)]=function(){const _0x1a7866=_0x5d14f9;dom[_0x1a7866(0x20c)][_0x1a7866(0x290)][_0x1a7866(0x642)]='none';},window[_0x5d14f9(0x72c)]=function(){const _0xfc6f75=_0x5d14f9;if(socket)socket[_0xfc6f75(0x1b2)](_0xfc6f75(0x72c));dom[_0xfc6f75(0x8b4)]['style'][_0xfc6f75(0x642)]=_0xfc6f75(0x1ec),dom[_0xfc6f75(0x438)][_0xfc6f75(0x882)]='',game[_0xfc6f75(0x333)]=null,dom[_0xfc6f75(0x7cd)]['innerText']=_0xfc6f75(0x87c);if(safeMapData['id']!=='town'){const _0x1224fc=document[_0xfc6f75(0x6de)](_0xfc6f75(0x8d1));document['getElementById'](_0xfc6f75(0x43e))['innerText']=_0xfc6f75(0x667),_0x1224fc[_0xfc6f75(0x290)][_0xfc6f75(0x642)]=_0xfc6f75(0x8c1),setTimeout(()=>{const _0x57445f=_0xfc6f75;_0x1224fc['style'][_0x57445f(0x398)]='1';},0xa),game['player']['teleportCooldown']=0xfa0,setTimeout(()=>{window['loadMapScript']('town',()=>{const _0x44f491=_0x7052;safeMapData=window['MapDatabase'][_0x44f491(0x8ba)],game[_0x44f491(0x32e)]['x']=safeMapData['spawnX']||0x3c0,game[_0x44f491(0x32e)]['y']=safeMapData[_0x44f491(0x594)]||0x3e8,window[_0x44f491(0x60e)](safeMapData,()=>{const _0x1f4de1=_0x44f491;dom['world']['style'][_0x1f4de1(0x1e5)]='url(\x27'+safeMapData['image']+'\x27)',window['buildCollisionLayers'](),window[_0x1f4de1(0x574)]();if(socket)socket[_0x1f4de1(0x1b2)](_0x1f4de1(0x4dd),{'mapId':_0x1f4de1(0x8ba),'x':game[_0x1f4de1(0x32e)]['x'],'y':game[_0x1f4de1(0x32e)]['y'],'mapData':safeMapData});let _0x3bf082=![];document[_0x1f4de1(0x6de)](_0x1f4de1(0x43e))[_0x1f4de1(0x492)]=_0x3bf082?_0x1f4de1(0x8db):'Loading\x20Map...';if(socket)socket[_0x1f4de1(0x1b2)](_0x1f4de1(0x1b3));setTimeout(()=>{const _0x2eefd1=_0x1f4de1;if(!_0x3bf082||window[_0x2eefd1(0x56f)]){window[_0x2eefd1(0x56f)]=![],window[_0x2eefd1(0x7b6)]=![],game[_0x2eefd1(0x32e)][_0x2eefd1(0x248)]=![];let _0xf52530=document[_0x2eefd1(0x6de)](_0x2eefd1(0x489));if(_0xf52530)_0xf52530[_0x2eefd1(0x290)][_0x2eefd1(0x642)]='none';let _0x43fa43=document[_0x2eefd1(0x6de)](_0x2eefd1(0x8d1));_0x43fa43&&(_0x43fa43[_0x2eefd1(0x290)]['opacity']='0',setTimeout(()=>_0x43fa43['style'][_0x2eefd1(0x642)]=_0x2eefd1(0x1ec),0x3e8));if(typeof safeMapData!==_0x2eefd1(0x22b)&&safeMapData['id']){window[_0x2eefd1(0x73c)](window[_0x2eefd1(0x207)](safeMapData['id']));try{window[_0x2eefd1(0x8fc)](safeMapData['id']);}catch(_0x5d6f6e){}}}},_0x3bf082?0xbb8:0x12c);});});},0x1f4);}},window[_0x5d14f9(0x76e)]=function(_0x433d33){const _0x340d88=_0x5d14f9;document[_0x340d88(0x6de)](_0x340d88(0x234))[_0x340d88(0x290)][_0x340d88(0x642)]=_0x340d88(0x1ec);if(pendingPartyInvite){if(socket)socket[_0x340d88(0x1b2)]('partyInviteResponse',{'fromId':pendingPartyInvite,'accept':_0x433d33});pendingPartyInvite=null;}},window[_0x5d14f9(0x3b2)]=function(_0x2e375f){const _0x1eb6a5=_0x5d14f9;document[_0x1eb6a5(0x6de)]('trade-dialog')[_0x1eb6a5(0x290)][_0x1eb6a5(0x642)]=_0x1eb6a5(0x1ec);if(pendingTradeInvite){if(socket)socket[_0x1eb6a5(0x1b2)](_0x1eb6a5(0x8a7),{'fromId':pendingTradeInvite,'accept':_0x2e375f});_0x2e375f?(tradeTarget=pendingTradeInvite,inTradeMode=!![],document[_0x1eb6a5(0x6de)](_0x1eb6a5(0x37b))['innerText']=tradeTarget,document[_0x1eb6a5(0x6de)](_0x1eb6a5(0x86c))['style']['display']=_0x1eb6a5(0x53c),window[_0x1eb6a5(0x356)](),window['renderInventory'](),dom[_0x1eb6a5(0x5ee)][_0x1eb6a5(0x290)][_0x1eb6a5(0x642)]=_0x1eb6a5(0x53c)):dom['log'][_0x1eb6a5(0x492)]=_0x1eb6a5(0x717),pendingTradeInvite=null;}},window['closeTrade']=function(){const _0x26e98f=_0x5d14f9;inTradeMode=![],document['getElementById'](_0x26e98f(0x86c))[_0x26e98f(0x290)][_0x26e98f(0x642)]='none',dom[_0x26e98f(0x7cd)][_0x26e98f(0x492)]='Trade\x20cancelled.',tradeMyItems[_0x26e98f(0x4c1)](_0xbd3090=>{if(_0xbd3090)window['addLoot'](_0xbd3090);}),tradeMyItems=[null,null,null],document[_0x26e98f(0x6de)](_0x26e98f(0x423))[_0x26e98f(0x6cf)]=0x0,tradeTheirItems=[null,null,null],document[_0x26e98f(0x6de)](_0x26e98f(0x8e7))[_0x26e98f(0x492)]='0',window['renderInventory']();if(socket)socket[_0x26e98f(0x1b2)]('tradeCancel');},window[_0x5d14f9(0x30a)]=function(){const _0x1c73db=_0x5d14f9;if(socket)socket[_0x1c73db(0x1b2)]('requestConfirmTrade');},window[_0x5d14f9(0x900)]=function(_0x101014){const _0x450ec4=_0x5d14f9;if(!inTradeMode)return;const _0x194415=game['player'][_0x450ec4(0x5ed)][_0x101014];if(!_0x194415)return;if(_0x194415[_0x450ec4(0x6d0)]===_0x450ec4(0x1b6)&&!_0x194415[_0x450ec4(0x3f4)]&&!String(_0x194415[_0x450ec4(0x1f3)])['includes'](_0x450ec4(0x4ab))){dom['log'][_0x450ec4(0x492)]=_0x450ec4(0x25e);return;}if((_0x194415[_0x450ec4(0x20b)]===_0x450ec4(0x445)||_0x194415[_0x450ec4(0x20b)]==='Divine')&&_0x194415[_0x450ec4(0x91e)]>0x0){dom[_0x450ec4(0x7cd)][_0x450ec4(0x492)]=_0x450ec4(0x295);return;}const _0x1a046c=tradeMyItems[_0x450ec4(0x3a0)](_0x354fd1=>_0x354fd1===null);if(_0x1a046c===-0x1){dom['log'][_0x450ec4(0x492)]=_0x450ec4(0x361);return;}tradeMyItems[_0x1a046c]=_0x194415,game[_0x450ec4(0x32e)][_0x450ec4(0x5ed)][_0x101014]=null,window['renderInventory'](),window[_0x450ec4(0x356)](),window[_0x450ec4(0x39a)]();},window[_0x5d14f9(0x31e)]=function(_0x2ecc48){const _0x4c3c9e=_0x5d14f9;if(!inTradeMode)return;const _0x54bba3=tradeMyItems[_0x2ecc48];if(!_0x54bba3)return;window[_0x4c3c9e(0x539)](_0x54bba3),tradeMyItems[_0x2ecc48]=null,window[_0x4c3c9e(0x252)](),window[_0x4c3c9e(0x356)](),window[_0x4c3c9e(0x39a)]();},document[_0x5d14f9(0x6de)](_0x5d14f9(0x423))[_0x5d14f9(0x665)](_0x5d14f9(0x2f1),_0x3763d8=>{const _0x1062fb=_0x5d14f9;let _0x5ca730=parseInt(_0x3763d8[_0x1062fb(0x439)]['value'])||0x0;_0x5ca730>game['player'][_0x1062fb(0x4a4)]&&(_0x5ca730=game[_0x1062fb(0x32e)][_0x1062fb(0x4a4)],_0x3763d8[_0x1062fb(0x439)][_0x1062fb(0x6cf)]=_0x5ca730),window[_0x1062fb(0x39a)]();}),window[_0x5d14f9(0x356)]=function(){const _0x577bc9=_0x5d14f9,_0xc1c97a=document['getElementById']('trade-my-items');_0xc1c97a['innerHTML']='';const _0xc7e002=document[_0x577bc9(0x6de)]('trade-their-items');_0xc7e002[_0x577bc9(0x882)]='';for(let _0x5319f7=0x0;_0x5319f7<0x3;_0x5319f7++){const _0xc2eab5=document[_0x577bc9(0x81e)](_0x577bc9(0x8fa));_0xc2eab5[_0x577bc9(0x228)]='inv-slot';tradeMyItems[_0x5319f7]?(_0xc2eab5[_0x577bc9(0x290)][_0x577bc9(0x700)]='2px\x20solid\x20'+(tradeMyItems[_0x5319f7]['color']||_0x577bc9(0x897)),_0xc2eab5[_0x577bc9(0x492)]=tradeMyItems[_0x5319f7]['enhanceLevel']?tradeMyItems[_0x5319f7][_0x577bc9(0x1f3)]+'\x20+'+tradeMyItems[_0x5319f7][_0x577bc9(0x91e)]:tradeMyItems[_0x5319f7][_0x577bc9(0x1f3)],_0xc2eab5[_0x577bc9(0x4c4)]=()=>window[_0x577bc9(0x31e)](_0x5319f7)):(_0xc2eab5[_0x577bc9(0x492)]=_0x577bc9(0x3d1),_0xc2eab5[_0x577bc9(0x290)][_0x577bc9(0x510)]=_0x577bc9(0x86a));_0xc1c97a['appendChild'](_0xc2eab5);const _0x572f20=document[_0x577bc9(0x81e)](_0x577bc9(0x8fa));_0x572f20[_0x577bc9(0x228)]=_0x577bc9(0x8e0),tradeTheirItems[_0x5319f7]?(_0x572f20[_0x577bc9(0x290)]['border']=_0x577bc9(0x697)+(tradeTheirItems[_0x5319f7][_0x577bc9(0x510)]||_0x577bc9(0x897)),_0x572f20[_0x577bc9(0x492)]=tradeTheirItems[_0x5319f7][_0x577bc9(0x91e)]?tradeTheirItems[_0x5319f7][_0x577bc9(0x1f3)]+'\x20+'+tradeTheirItems[_0x5319f7]['enhanceLevel']:tradeTheirItems[_0x5319f7][_0x577bc9(0x1f3)]):(_0x572f20[_0x577bc9(0x492)]=_0x577bc9(0x3d1),_0x572f20[_0x577bc9(0x290)][_0x577bc9(0x510)]='#555'),_0xc7e002[_0x577bc9(0x463)](_0x572f20);}},window[_0x5d14f9(0x39a)]=function(){const _0x248e56=_0x5d14f9;socket&&tradeTarget&&socket[_0x248e56(0x1b2)](_0x248e56(0x22d),{'gold':parseInt(document[_0x248e56(0x6de)](_0x248e56(0x423))['value'])||0x0,'items':tradeMyItems});},window[_0x5d14f9(0x2e9)]=function(){const _0x47ea2a=_0x5d14f9;if(!game[_0x47ea2a(0x333)]||!Array[_0x47ea2a(0x75b)](game[_0x47ea2a(0x333)][_0x47ea2a(0x5b5)])||game[_0x47ea2a(0x333)][_0x47ea2a(0x5b5)][_0x47ea2a(0x7c5)]<=0x1){dom[_0x47ea2a(0x8b4)][_0x47ea2a(0x290)][_0x47ea2a(0x642)]='none',dom[_0x47ea2a(0x438)][_0x47ea2a(0x882)]='';return;}dom['partyPanel'][_0x47ea2a(0x290)][_0x47ea2a(0x642)]=_0x47ea2a(0x53c);let _0x55d342='';for(const _0x33fa73 of game[_0x47ea2a(0x333)][_0x47ea2a(0x5b5)]){const _0x51485b=typeof _0x33fa73['currentHp']===_0x47ea2a(0x4e5)&&typeof _0x33fa73['maxHp']===_0x47ea2a(0x4e5)?Math[_0x47ea2a(0x269)](0x0,Math[_0x47ea2a(0x591)](0x64,_0x33fa73[_0x47ea2a(0x6fc)]/_0x33fa73['maxHp']*0x64)):0x64,_0x1af371=_0x33fa73['isGhost']?'\x20(GHOST)':'',_0x1c399e=_0x33fa73['isGhost']?'#888':'#fff',_0x3b69ca=_0x33fa73[_0x47ea2a(0x842)]?_0x47ea2a(0x86a):_0x51485b<0x1e?_0x47ea2a(0x3c7):_0x47ea2a(0x71b);_0x55d342+='<div\x20class=\x22party-row\x22><div\x20class=\x22party-name-row\x22><span\x20style=\x22color:'+_0x1c399e+'\x22>'+_0x33fa73['name']+_0x47ea2a(0x92a)+(_0x33fa73[_0x47ea2a(0x3f2)]||0x1)+')'+_0x1af371+_0x47ea2a(0x6df)+_0x51485b+'%;\x20background:\x20'+_0x3b69ca+_0x47ea2a(0x527);}dom[_0x47ea2a(0x438)]['innerHTML']=_0x55d342;},window[_0x5d14f9(0x7ea)]=function(_0x4c2c7){const _0x579d5c=_0x5d14f9;let _0x2c2b91=document['getElementById']('persistent-chat-content');if(!_0x2c2b91)return;let _0x4bdf7d=document[_0x579d5c(0x81e)](_0x579d5c(0x8fa));_0x4bdf7d[_0x579d5c(0x228)]=_0x579d5c(0x859),_0x4bdf7d[_0x579d5c(0x882)]=_0x4c2c7,_0x2c2b91['appendChild'](_0x4bdf7d);if(_0x2c2b91['childNodes'][_0x579d5c(0x7c5)]>0x32)_0x2c2b91[_0x579d5c(0x658)](_0x2c2b91[_0x579d5c(0x912)]);_0x2c2b91[_0x579d5c(0x6f0)][_0x579d5c(0x5eb)]=_0x2c2b91[_0x579d5c(0x6f0)][_0x579d5c(0x727)];};const chatInputDom=document['getElementById'](_0x5d14f9(0x5ba)),chatContainerDom=document['getElementById'](_0x5d14f9(0x36a));chatInputDom[_0x5d14f9(0x665)]('blur',()=>{const _0x504989=_0x5d14f9;isChatting=![],chatContainerDom[_0x504989(0x290)][_0x504989(0x642)]=_0x504989(0x1ec);}),window['addEventListener'](_0x5d14f9(0x210),_0x35ea40=>{const _0x4549a0=_0x5d14f9;if(_0x35ea40[_0x4549a0(0x233)]===_0x4549a0(0x6eb)){if(dom[_0x4549a0(0x857)][_0x4549a0(0x4ea)]['contains'](_0x4549a0(0x6cd))){if(isChatting){let _0x134c3c=chatInputDom[_0x4549a0(0x6cf)][_0x4549a0(0x57a)]();_0x134c3c!==''&&socket&&(window[_0x4549a0(0x643)]&&_0x134c3c[_0x4549a0(0x3d0)](_0x4549a0(0x57e))?socket[_0x4549a0(0x1b2)]('adminBroadcast',{'text':_0x134c3c['substring'](0x3)}):(socket['emit'](_0x4549a0(0x559),{'text':_0x134c3c}),window[_0x4549a0(0x8b8)](game[_0x4549a0(0x32e)],_0x134c3c))),chatInputDom['value']='',chatContainerDom[_0x4549a0(0x290)]['display']=_0x4549a0(0x1ec),chatInputDom[_0x4549a0(0x2e4)](),isChatting=![];}else chatContainerDom[_0x4549a0(0x290)][_0x4549a0(0x642)]='block',chatInputDom['focus'](),isChatting=!![],game[_0x4549a0(0x2c1)]['w']=![],game['keys']['a']=![],game['keys']['s']=![],game[_0x4549a0(0x2c1)]['d']=![];}}if(!isChatting&&_0x35ea40['key']['toLowerCase']()==='f')window[_0x4549a0(0x61c)]();if(!isChatting&&_0x35ea40['key'][_0x4549a0(0x649)]()==='m')window[_0x4549a0(0x4ba)]();});function setKeyState(_0x44ca51,_0x5ec7e1){const _0x98f0f9=_0x5d14f9;if(typeof isChatting!==_0x98f0f9(0x22b)&&isChatting)return;if(_0x44ca51[_0x98f0f9(0x439)]&&(_0x44ca51['target'][_0x98f0f9(0x387)]==='INPUT'||_0x44ca51[_0x98f0f9(0x439)][_0x98f0f9(0x387)]===_0x98f0f9(0x553)))return;if(_0x44ca51['key']===_0x98f0f9(0x376)||_0x44ca51[_0x98f0f9(0x8d3)]==='Tab'){if(_0x5ec7e1)_0x44ca51[_0x98f0f9(0x217)]();game[_0x98f0f9(0x2c1)]['tab']=_0x5ec7e1;return;}const _0x23fb10=_0x44ca51[_0x98f0f9(0x8d3)]===_0x98f0f9(0x28b)?'w':_0x44ca51[_0x98f0f9(0x8d3)]===_0x98f0f9(0x483)?'a':_0x44ca51[_0x98f0f9(0x8d3)]===_0x98f0f9(0x3f7)?'s':_0x44ca51[_0x98f0f9(0x8d3)]===_0x98f0f9(0x412)?'d':_0x44ca51[_0x98f0f9(0x8d3)]===_0x98f0f9(0x520)?'z':_0x44ca51[_0x98f0f9(0x8d3)]===_0x98f0f9(0x1aa)?'x':_0x44ca51['code']==='KeyC'?'c':(_0x44ca51[_0x98f0f9(0x233)]||'')[_0x98f0f9(0x649)]();if(_0x5ec7e1&&_0x23fb10==='b'){autoAttackMode=!autoAttackMode;if(dom[_0x98f0f9(0x7cd)])dom[_0x98f0f9(0x7cd)][_0x98f0f9(0x492)]=_0x98f0f9(0x7b1)+(autoAttackMode?'ON':_0x98f0f9(0x804));return;}if(game['keys']['hasOwnProperty'](_0x23fb10))game[_0x98f0f9(0x2c1)][_0x23fb10]=_0x5ec7e1;if(_0x5ec7e1){if(_0x23fb10==='p'&&typeof window[_0x98f0f9(0x76c)]==='function')window[_0x98f0f9(0x76c)]();if(_0x23fb10==='l')window[_0x98f0f9(0x329)]();if(_0x23fb10==='i'&&typeof window['toggleInventory']==='function')window[_0x98f0f9(0x858)]();if(_0x23fb10==='k'&&typeof window[_0x98f0f9(0x1e8)]===_0x98f0f9(0x268))window[_0x98f0f9(0x1e8)]();if(_0x23fb10==='j'&&typeof window[_0x98f0f9(0x89d)]===_0x98f0f9(0x268))window[_0x98f0f9(0x89d)]();if(_0x23fb10==='m'&&typeof window['toggleMailbox']===_0x98f0f9(0x268))window[_0x98f0f9(0x4ba)]();if(_0x23fb10==='g'&&typeof window['openGuildUI']===_0x98f0f9(0x268))window[_0x98f0f9(0x351)]();if(_0x23fb10==='c'&&typeof window[_0x98f0f9(0x7dd)]===_0x98f0f9(0x268))window[_0x98f0f9(0x7dd)]();if(_0x23fb10==='o'){if(window['isAdmin'](game[_0x98f0f9(0x32e)]['name'])){window['adminMode']=!window[_0x98f0f9(0x643)];let _0x569b10=document[_0x98f0f9(0x6de)]('admin-panel');if(_0x569b10)_0x569b10[_0x98f0f9(0x290)][_0x98f0f9(0x642)]=window[_0x98f0f9(0x643)]?'block':_0x98f0f9(0x1ec);dom[_0x98f0f9(0x36e)][_0x98f0f9(0x4ea)][_0x98f0f9(0x5d1)]('admin-active',window['adminMode']);if(dom[_0x98f0f9(0x7cd)])dom[_0x98f0f9(0x7cd)]['innerText']=window['adminMode']?_0x98f0f9(0x715):_0x98f0f9(0x3cf);if(typeof window[_0x98f0f9(0x473)]===_0x98f0f9(0x268))window[_0x98f0f9(0x473)]();}else{if(dom['log'])dom[_0x98f0f9(0x7cd)]['innerText']='null';}}if(_0x23fb10==='3'){if(!window[_0x98f0f9(0x56f)]&&!window[_0x98f0f9(0x643)]&&typeof window[_0x98f0f9(0x852)]===_0x98f0f9(0x268))window[_0x98f0f9(0x852)]();}if(_0x23fb10==='1'||_0x23fb10==='2'){if(!game[_0x98f0f9(0x842)]&&!window[_0x98f0f9(0x56f)]&&typeof isInventoryOpen!=='undefined'&&!isInventoryOpen&&typeof isSkillOpen!=='undefined'&&!isSkillOpen&&!window[_0x98f0f9(0x643)]){let _0x54b569=_0x23fb10==='1'?0x0:0x1,_0x596a01=game[_0x98f0f9(0x32e)][_0x98f0f9(0x289)]?game[_0x98f0f9(0x32e)][_0x98f0f9(0x289)][_0x54b569]:null;if(_0x596a01&&typeof _0x596a01[_0x98f0f9(0x457)]==='function')_0x596a01[_0x98f0f9(0x457)]();}}}}window[_0x5d14f9(0x665)](_0x5d14f9(0x210),_0x19949b=>setKeyState(_0x19949b,!![]),{'capture':!![]}),window[_0x5d14f9(0x665)](_0x5d14f9(0x3ac),_0x35f4d5=>setKeyState(_0x35f4d5,![]),{'capture':!![]}),window['addEventListener'](_0x5d14f9(0x2e4),()=>{const _0x6b5b=_0x5d14f9;for(const _0x1dfc85 in game[_0x6b5b(0x2c1)])game['keys'][_0x1dfc85]=![];attackHeld=![],isChatting=![];}),window[_0x5d14f9(0x665)](_0x5d14f9(0x2e4),()=>{const _0xc39cdb=_0x5d14f9;for(const _0xcb7a9a in game[_0xc39cdb(0x2c1)])game[_0xc39cdb(0x2c1)][_0xcb7a9a]=![];attackHeld=![],isChatting=![];}),window[_0x5d14f9(0x665)](_0x5d14f9(0x370),_0x177a97=>{const _0x14b3b8=_0x5d14f9;if(_0x177a97[_0x14b3b8(0x439)][_0x14b3b8(0x4ea)][_0x14b3b8(0x472)](_0x14b3b8(0x7d5)))return;if(!_0x177a97['target']['closest']('#inv-context-menu'))document[_0x14b3b8(0x6de)](_0x14b3b8(0x353))[_0x14b3b8(0x290)][_0x14b3b8(0x642)]=_0x14b3b8(0x1ec);if(!_0x177a97[_0x14b3b8(0x439)][_0x14b3b8(0x407)](_0x14b3b8(0x3b0))&&!_0x177a97[_0x14b3b8(0x439)]['closest'](_0x14b3b8(0x375)))document[_0x14b3b8(0x6de)]('player-context-menu')[_0x14b3b8(0x290)][_0x14b3b8(0x642)]=_0x14b3b8(0x1ec);isEnhancing&&!_0x177a97[_0x14b3b8(0x439)][_0x14b3b8(0x407)](_0x14b3b8(0x1e7))&&!_0x177a97[_0x14b3b8(0x439)][_0x14b3b8(0x407)](_0x14b3b8(0x262))&&(isEnhancing=![],dom[_0x14b3b8(0x7cd)][_0x14b3b8(0x492)]=_0x14b3b8(0x8bb),window[_0x14b3b8(0x252)]()),window[_0x14b3b8(0x902)]&&!_0x177a97[_0x14b3b8(0x439)][_0x14b3b8(0x407)](_0x14b3b8(0x1e7))&&!_0x177a97['target']['closest'](_0x14b3b8(0x262))&&!_0x177a97[_0x14b3b8(0x439)][_0x14b3b8(0x407)](_0x14b3b8(0x1f6))&&!_0x177a97[_0x14b3b8(0x439)]['closest'](_0x14b3b8(0x3e3))&&(window[_0x14b3b8(0x902)]=![],dom[_0x14b3b8(0x7cd)][_0x14b3b8(0x492)]=_0x14b3b8(0x64b),window[_0x14b3b8(0x252)]());}),document[_0x5d14f9(0x665)](_0x5d14f9(0x199),function(_0x34d0d2){const _0x218193=_0x5d14f9;_0x34d0d2[_0x218193(0x88a)]&&!window[_0x218193(0x643)]&&_0x34d0d2['preventDefault']();},{'passive':![]}),window[_0x5d14f9(0x665)]('pointerup',()=>{attackHeld=![];}),dom[_0x5d14f9(0x36e)][_0x5d14f9(0x665)]('pointerdown',_0x2550f0=>{const _0x7647cf=_0x5d14f9;!window[_0x7647cf(0x643)]&&_0x2550f0[_0x7647cf(0x439)]['id']==='world'&&(attackHeld=!![],window[_0x7647cf(0x63d)](![]));}),window[_0x5d14f9(0x89d)]=function(){const _0x493ecf=_0x5d14f9;if(isShopping){window[_0x493ecf(0x637)]();return;}isShopping=!![],document['getElementById']('shop-my-gold')['innerText']=game[_0x493ecf(0x32e)][_0x493ecf(0x4a4)]||0x0,document[_0x493ecf(0x6de)](_0x493ecf(0x702))[_0x493ecf(0x290)][_0x493ecf(0x642)]=_0x493ecf(0x53c);const _0x34c2d2=document[_0x493ecf(0x6de)]('shop-screen');window[_0x493ecf(0x681)]()&&(window[_0x493ecf(0x7bc)](_0x34c2d2),window[_0x493ecf(0x919)](_0x34c2d2),window[_0x493ecf(0x7c9)](_0x34c2d2));if(!isInventoryOpen&&typeof window['toggleInventory']===_0x493ecf(0x268))window[_0x493ecf(0x858)]();window[_0x493ecf(0x288)](),window['updateStonePrice']();},window[_0x5d14f9(0x637)]=function(){const _0x4f2001=_0x5d14f9;isShopping=![],document[_0x4f2001(0x6de)]('shop-screen')[_0x4f2001(0x290)][_0x4f2001(0x642)]=_0x4f2001(0x1ec);if(isInventoryOpen&&typeof window[_0x4f2001(0x252)]===_0x4f2001(0x268))window[_0x4f2001(0x252)]();},window['updatePotionPrice']=function(){const _0x224476=_0x5d14f9;let _0x52c9c1=parseInt(document[_0x224476(0x6de)](_0x224476(0x7b9))[_0x224476(0x6cf)])||0x1;_0x52c9c1<0x1&&(_0x52c9c1=0x1,document[_0x224476(0x6de)](_0x224476(0x7b9))[_0x224476(0x6cf)]=0x1),document[_0x224476(0x6de)](_0x224476(0x25a))[_0x224476(0x492)]=_0x52c9c1*0x19+_0x224476(0x2fb);},window['updateStonePrice']=function(){const _0x58f288=_0x5d14f9;let _0x4d9519=parseInt(document[_0x58f288(0x6de)](_0x58f288(0x6ca))[_0x58f288(0x6cf)])||0xa,_0x3dbfd8=document['getElementById'](_0x58f288(0x1bc))[_0x58f288(0x6cf)]||_0x58f288(0x546),_0x14e336=parseInt(document[_0x58f288(0x6de)](_0x58f288(0x690))['value'])||0x1;_0x14e336<0x1&&(_0x14e336=0x1,document[_0x58f288(0x6de)](_0x58f288(0x690))['value']=0x1);let _0x2efcda=_0x4d9519*0xf,_0x497f54={'Basic':0x1,'Rare':0x3,'Unique':0x8,'Legendary':0x14,'Godly':0x32}[_0x3dbfd8]||0x1,_0x1dafba=_0x2efcda*_0x497f54*_0x14e336;document[_0x58f288(0x6de)](_0x58f288(0x856))[_0x58f288(0x492)]=_0x1dafba+_0x58f288(0x2fb);},window[_0x5d14f9(0x251)]=function(_0x1ecbe0){const _0x196bc8=_0x5d14f9;let _0x26e791=0x1,_0x46ede2={'type':_0x1ecbe0};if(_0x1ecbe0===_0x196bc8(0x7da))_0x26e791=parseInt(document[_0x196bc8(0x6de)](_0x196bc8(0x7b9))[_0x196bc8(0x6cf)])||0x1,_0x46ede2[_0x196bc8(0x655)]=_0x26e791;else _0x1ecbe0===_0x196bc8(0x325)&&(_0x26e791=parseInt(document[_0x196bc8(0x6de)](_0x196bc8(0x690))[_0x196bc8(0x6cf)])||0x1,_0x46ede2[_0x196bc8(0x655)]=_0x26e791,_0x46ede2[_0x196bc8(0x3f2)]=parseInt(document['getElementById']('shop-stone-level')['value'])||0xa,_0x46ede2['rarity']=document[_0x196bc8(0x6de)](_0x196bc8(0x1bc))[_0x196bc8(0x6cf)]||_0x196bc8(0x546));if(socket)socket[_0x196bc8(0x1b2)]('requestPurchase',_0x46ede2);},window[_0x5d14f9(0x4ba)]=function(){const _0x1da6da=_0x5d14f9;isMailboxOpen=!isMailboxOpen;const _0x5fa8c2=document['getElementById'](_0x1da6da(0x892));_0x5fa8c2[_0x1da6da(0x290)][_0x1da6da(0x642)]=isMailboxOpen?_0x1da6da(0x53c):_0x1da6da(0x1ec);if(isMailboxOpen){if(socket)socket['emit'](_0x1da6da(0x5f5));window[_0x1da6da(0x681)]()&&(window['enableMobileWindowControls'](_0x5fa8c2),window[_0x1da6da(0x919)](_0x5fa8c2),window['clampWindowToViewport'](_0x5fa8c2));}},window[_0x5d14f9(0x5a4)]=function(_0x400741){const _0x4723ac=_0x5d14f9;if(socket)socket[_0x4723ac(0x1b2)](_0x4723ac(0x5a4),_0x400741);},window[_0x5d14f9(0x60f)]=function(_0x1c84c5){const _0x2720b9=_0x5d14f9;if(!_0x1c84c5||!_0x1c84c5['id']||_0x1c84c5['id']===game[_0x2720b9(0x32e)]['id']||game[_0x2720b9(0x840)][_0x1c84c5['id']])return;const _0x425b84=document[_0x2720b9(0x81e)]('div');_0x425b84['className']='entity',_0x425b84['id']=_0x2720b9(0x31c)+_0x1c84c5['id'],_0x425b84['style'][_0x2720b9(0x76a)]=(_0x1c84c5['x']||0x0)+'px',_0x425b84[_0x2720b9(0x290)]['top']=(_0x1c84c5['y']||0x0)+'px',_0x425b84[_0x2720b9(0x290)][_0x2720b9(0x5c1)]=_0x2720b9(0x24e),_0x425b84['style']['cursor']='pointer',_0x425b84[_0x2720b9(0x665)]('pointerdown',_0xe13728=>{const _0x4a4ad7=_0x2720b9;_0xe13728[_0x4a4ad7(0x2d8)](),_0xe13728[_0x4a4ad7(0x217)](),safeMapData['id']===_0x4a4ad7(0x938)?!window[_0x4a4ad7(0x56f)]&&(window['activeTargetPlayerId']=_0x1c84c5['id'],window[_0x4a4ad7(0x63d)](![])):window['openPlayerContextMenu'](_0x1c84c5['id'],_0xe13728);});const _0x369697=document['createElement'](_0x2720b9(0x8fa));_0x369697[_0x2720b9(0x228)]=_0x2720b9(0x79d);window['isAdmin'](_0x1c84c5[_0x2720b9(0x1f3)]||_0x1c84c5['id'])?_0x369697[_0x2720b9(0x882)]=_0x2720b9(0x636)+(_0x1c84c5[_0x2720b9(0x1f3)]||_0x1c84c5['id']):_0x369697[_0x2720b9(0x492)]=_0x1c84c5['name']||_0x1c84c5['id'];_0x425b84[_0x2720b9(0x463)](_0x369697);const _0x4b6ee8=document[_0x2720b9(0x81e)](_0x2720b9(0x8fa));_0x4b6ee8[_0x2720b9(0x228)]=_0x2720b9(0x313);let _0x4e5b61=_0x2720b9(0x227);_0x4e5b61+=_0x1c84c5[_0x2720b9(0x426)]&&_0x1c84c5['spriteData'][_0x2720b9(0x383)]?_0x2720b9(0x3e2)+_0x1c84c5[_0x2720b9(0x426)][_0x2720b9(0x383)]+_0x2720b9(0x1b7):'';_0x1c84c5[_0x2720b9(0x426)]&&_0x1c84c5[_0x2720b9(0x426)][_0x2720b9(0x5bf)]&&(_0x4e5b61+=(_0x1c84c5[_0x2720b9(0x426)]&&_0x1c84c5['spriteData']['title']?_0x2720b9(0x3eb):'')+(_0x2720b9(0x435)+_0x1c84c5[_0x2720b9(0x426)]['guildName']+_0x2720b9(0x62b)));_0x4e5b61+=_0x2720b9(0x5a2),_0x4b6ee8[_0x2720b9(0x882)]=_0x4e5b61,_0x425b84['appendChild'](_0x4b6ee8);const _0x147662=document[_0x2720b9(0x81e)](_0x2720b9(0x8fa));_0x147662[_0x2720b9(0x228)]=_0x2720b9(0x613);const _0x2c3d80=new Image();_0x2c3d80[_0x2720b9(0x228)]=_0x2720b9(0x72f);const _0x8d3d7e=new Image();_0x8d3d7e['className']='avatar-layer\x20layer-head',_0x8d3d7e[_0x2720b9(0x6fa)]=_0x2720b9(0x782);const _0x419300=new Image();_0x419300[_0x2720b9(0x228)]=_0x2720b9(0x4b1),_0x419300[_0x2720b9(0x6fa)]='animation/avatar_idlefront.png';const _0x558acf=new Image();_0x558acf[_0x2720b9(0x228)]=_0x2720b9(0x419);const _0x4e6eaa=_0x1c84c5['spriteData']&&_0x1c84c5[_0x2720b9(0x426)][_0x2720b9(0x3f3)]?_0x1c84c5['spriteData']['skin']:_0x2720b9(0x260),_0x13a80b=_0x1c84c5[_0x2720b9(0x426)]&&_0x1c84c5[_0x2720b9(0x426)][_0x2720b9(0x3d3)]?_0x1c84c5[_0x2720b9(0x426)][_0x2720b9(0x3d3)]:'black',_0x21c4af=_0x1c84c5[_0x2720b9(0x426)]&&_0x1c84c5[_0x2720b9(0x426)]['style']?_0x1c84c5[_0x2720b9(0x426)][_0x2720b9(0x290)]:'1';if(_0x21c4af===_0x2720b9(0x1ec))_0x2c3d80[_0x2720b9(0x290)][_0x2720b9(0x642)]=_0x2720b9(0x1ec);else _0x2c3d80[_0x2720b9(0x290)][_0x2720b9(0x642)]=_0x2720b9(0x53c),_0x2c3d80['src']=_0x2720b9(0x5e1)+_0x21c4af+_0x2720b9(0x910);_0x8d3d7e[_0x2720b9(0x290)][_0x2720b9(0x306)]=skinFilters[_0x4e6eaa]||skinFilters[_0x2720b9(0x260)],_0x419300[_0x2720b9(0x290)][_0x2720b9(0x306)]=skinFilters[_0x4e6eaa]||skinFilters[_0x2720b9(0x260)],_0x2c3d80[_0x2720b9(0x290)][_0x2720b9(0x306)]=hairFilters[_0x13a80b]||hairFilters['black'],_0x558acf[_0x2720b9(0x290)][_0x2720b9(0x642)]=_0x2720b9(0x1ec);const _0x164f6b=document[_0x2720b9(0x81e)](_0x2720b9(0x8fa));_0x164f6b['className']='cosmetic-aura';if(_0x1c84c5['spriteData']&&_0x1c84c5[_0x2720b9(0x426)][_0x2720b9(0x1b6)])_0x164f6b['classList'][_0x2720b9(0x7e6)](_0x2720b9(0x2f2)+_0x1c84c5[_0x2720b9(0x426)][_0x2720b9(0x1b6)]);_0x147662[_0x2720b9(0x463)](_0x164f6b),_0x2c3d80[_0x2720b9(0x290)]['opacity']='1',_0x8d3d7e['style'][_0x2720b9(0x398)]='1',_0x419300[_0x2720b9(0x290)][_0x2720b9(0x398)]='1',_0x558acf[_0x2720b9(0x290)]['opacity']='1',_0x147662[_0x2720b9(0x463)](_0x2c3d80),_0x147662[_0x2720b9(0x463)](_0x8d3d7e),_0x147662[_0x2720b9(0x463)](_0x419300),_0x147662[_0x2720b9(0x463)](_0x558acf),_0x425b84['appendChild'](_0x147662),dom[_0x2720b9(0x36e)]['appendChild'](_0x425b84),game[_0x2720b9(0x840)][_0x1c84c5['id']]={'id':_0x1c84c5['id'],'name':_0x1c84c5['name']||_0x1c84c5['id'],'x':_0x1c84c5['x']||0x0,'y':_0x1c84c5['y']||0x0,'dom':_0x425b84,'rig':_0x147662,'body':_0x419300,'weapon':_0x558acf,'currentBodySrc':'','currentWeaponSrc':'','isGhost':!!_0x1c84c5['isGhost'],'spriteData':_0x1c84c5['spriteData']};if(_0x1c84c5[_0x2720b9(0x842)])_0x425b84[_0x2720b9(0x290)]['opacity']=_0x2720b9(0x930);const _0x18f998=_0x1c84c5[_0x2720b9(0x426)]&&_0x1c84c5[_0x2720b9(0x426)][_0x2720b9(0x452)]?_0x1c84c5[_0x2720b9(0x426)][_0x2720b9(0x452)]:_0x1c84c5[_0x2720b9(0x7e7)]||null;if(_0x18f998){const _0x39bcda=_0x18f998['replace']('starter','basic');_0x558acf[_0x2720b9(0x290)]['display']=_0x2720b9(0x53c),_0x558acf['src']=_0x2720b9(0x4f2)+_0x39bcda+_0x2720b9(0x910),game[_0x2720b9(0x840)][_0x1c84c5['id']][_0x2720b9(0x564)]=_0x558acf[_0x2720b9(0x6fa)],_0x558acf['className']=_0x2720b9(0x419);let _0xc2cec6=_0x39bcda['toLowerCase']();[_0x2720b9(0x80c),_0x2720b9(0x8ce),_0x2720b9(0x8cf),_0x2720b9(0x554),'dagger',_0x2720b9(0x871)][_0x2720b9(0x4c1)](_0xb599ff=>{const _0xe22d99=_0x2720b9;if(_0xc2cec6[_0xe22d99(0x67b)](_0xb599ff)){let _0x2289d7=_0xc2cec6['replace'](_0xb599ff,'');_0x2289d7&&![_0xe22d99(0x794),'basic',_0xe22d99(0x8f1),_0xe22d99(0x8bd)][_0xe22d99(0x67b)](_0x2289d7)&&_0x558acf[_0xe22d99(0x4ea)][_0xe22d99(0x7e6)]('weapon-aura-'+_0x2289d7);}});}window[_0x2720b9(0x609)]();},window['removeRemotePlayer']=function(_0x1d253e){const _0x1216ee=_0x5d14f9,_0x41267f=game[_0x1216ee(0x840)][_0x1d253e];if(_0x41267f&&_0x41267f[_0x1216ee(0x474)])_0x41267f['dom'][_0x1216ee(0x7f7)]();delete game['remotePlayers'][_0x1d253e];};if(socket){socket['on']('topTavernPlayers',_0x35bec9=>{const _0x14c06e=_0x5d14f9;window[_0x14c06e(0x678)]=_0x35bec9||[],window[_0x14c06e(0x609)]();}),window[_0x5d14f9(0x299)]=function(_0x480f45,_0x5b8e87){const _0x3e24e4=_0x5d14f9;let _0x37be98=_0x3e24e4(0x227);return _0x37be98+=_0x480f45?'&lt;'+_0x480f45+_0x3e24e4(0x1b7):'',_0x5b8e87&&(_0x37be98+=(_0x480f45?_0x3e24e4(0x3eb):'')+(_0x3e24e4(0x435)+_0x5b8e87+_0x3e24e4(0x62b))),_0x37be98+='</div>',_0x37be98;},socket['on'](_0x5d14f9(0x812),_0x206ddd=>{const _0x335bd9=_0x5d14f9;if(document[_0x335bd9(0x6de)]('player-title-tag')){let _0x53b8b8=game[_0x335bd9(0x32e)][_0x335bd9(0x426)]?game['player']['spriteData']['guildName']:null;document[_0x335bd9(0x6de)](_0x335bd9(0x712))[_0x335bd9(0x882)]=window[_0x335bd9(0x299)](_0x206ddd,_0x53b8b8);}}),socket['on'](_0x5d14f9(0x604),_0x227566=>{const _0x24d950=_0x5d14f9;if(!game[_0x24d950(0x32e)][_0x24d950(0x426)])game[_0x24d950(0x32e)][_0x24d950(0x426)]={};game[_0x24d950(0x32e)][_0x24d950(0x426)][_0x24d950(0x5bf)]=_0x227566,document[_0x24d950(0x6de)]('player-title-tag')&&(document[_0x24d950(0x6de)](_0x24d950(0x712))[_0x24d950(0x882)]=window['formatTitleAndGuild'](game[_0x24d950(0x32e)][_0x24d950(0x426)][_0x24d950(0x383)],_0x227566));}),socket[_0x5d14f9(0x46c)](_0x5d14f9(0x49e)),socket['on'](_0x5d14f9(0x49e),_0x1689b6=>{const _0x46eff8=_0x5d14f9;try{game[_0x46eff8(0x32e)]['id']=_0x1689b6['character_name']||'Unknown',game[_0x46eff8(0x32e)][_0x46eff8(0x1f3)]=_0x1689b6[_0x46eff8(0x884)]||_0x46eff8(0x881);let _0x1f5aac=window['isAdmin'](game['player'][_0x46eff8(0x1f3)])?'<span\x20style=\x22color:#ff4444;\x20font-weight:bold;\x22>[GM]</span>\x20'+game[_0x46eff8(0x32e)][_0x46eff8(0x1f3)]:game['player'][_0x46eff8(0x1f3)];if(document[_0x46eff8(0x6de)](_0x46eff8(0x6c2)))document[_0x46eff8(0x6de)](_0x46eff8(0x6c2))[_0x46eff8(0x882)]=_0x1f5aac;if(document[_0x46eff8(0x6de)](_0x46eff8(0x75f)))document[_0x46eff8(0x6de)](_0x46eff8(0x75f))[_0x46eff8(0x882)]=_0x1f5aac;game[_0x46eff8(0x32e)]['title']=_0x1689b6['title']||null;if(!game['player'][_0x46eff8(0x426)])game[_0x46eff8(0x32e)][_0x46eff8(0x426)]={};game[_0x46eff8(0x32e)][_0x46eff8(0x426)]['title']=_0x1689b6[_0x46eff8(0x383)]||null,game[_0x46eff8(0x32e)]['spriteData'][_0x46eff8(0x5bf)]=_0x1689b6['guild_details']?_0x1689b6[_0x46eff8(0x4cb)][_0x46eff8(0x1f3)]:null;document[_0x46eff8(0x6de)](_0x46eff8(0x712))&&(document['getElementById'](_0x46eff8(0x712))['innerHTML']=window[_0x46eff8(0x299)](game['player']['spriteData'][_0x46eff8(0x383)],game[_0x46eff8(0x32e)][_0x46eff8(0x426)][_0x46eff8(0x5bf)]));game['player'][_0x46eff8(0x3f2)]=_0x1689b6[_0x46eff8(0x3f2)]||0x1,game['player']['exp']=_0x1689b6[_0x46eff8(0x2c3)]||0x0,game[_0x46eff8(0x32e)][_0x46eff8(0x55f)]=_0x1689b6['max_exp']||0xc8,game['player'][_0x46eff8(0x4a4)]=_0x1689b6[_0x46eff8(0x4a4)]||0x0,game[_0x46eff8(0x32e)]['baseStats']=typeof _0x1689b6['base_stats']==='object'&&_0x1689b6['base_stats']!==null?_0x1689b6[_0x46eff8(0x693)]:{'hp':0x64,'attack':0x5,'magic':0x5,'defense':0x2,'speed':0x1,'str':0xa,'int':0xa,'playerClass':null};game['player'][_0x46eff8(0x526)][_0x46eff8(0x4e7)]&&(!CLASSES||!CLASSES[game['player'][_0x46eff8(0x526)][_0x46eff8(0x4e7)]])&&(game[_0x46eff8(0x32e)][_0x46eff8(0x526)][_0x46eff8(0x4e7)]=null);game[_0x46eff8(0x32e)][_0x46eff8(0x5ed)]=Array['isArray'](_0x1689b6[_0x46eff8(0x5ed)])?_0x1689b6['inventory']:new Array(0x14)['fill'](null);const _0xfe09={'weapon':null,'armor':null,'leggings':null,'necklace':null,'ring':null,'earrings':null};game[_0x46eff8(0x32e)]['equips']=Object[_0x46eff8(0x6ba)]({},_0xfe09,_0x1689b6[_0x46eff8(0x670)]||{}),window[_0x46eff8(0x2f3)][_0x46eff8(0x6e1)]=_0x1689b6['skin_color']||_0x46eff8(0x260),window[_0x46eff8(0x2f3)][_0x46eff8(0x4cc)]=_0x1689b6['hair_color']||_0x46eff8(0x581),window[_0x46eff8(0x2f3)][_0x46eff8(0x4f3)]=_0x1689b6[_0x46eff8(0x467)]||'1',game[_0x46eff8(0x32e)][_0x46eff8(0x6fc)]=window['getMaxHp'](),window[_0x46eff8(0x4d1)](),window['loadLootFilter']();if(socket)socket['emit'](_0x46eff8(0x799),game[_0x46eff8(0x32e)]['lootFilter']);let _0x4e7963=_0x46eff8(0x8ba);window[_0x46eff8(0x215)](_0x4e7963,()=>{const _0xa6e58b=_0x46eff8;safeMapData=window[_0xa6e58b(0x79a)][_0x4e7963]||{'id':_0xa6e58b(0x8ba),'name':_0xa6e58b(0x3c4),'image':_0xa6e58b(0x8d2),'spawnX':0x3c0,'spawnY':0x3e8,'collisions':[],'teleports':[],'normalSpawns':[],'miniBossSpawns':[],'floorBossSpawns':[]},game[_0xa6e58b(0x32e)]['x']=0x3c0,game[_0xa6e58b(0x32e)]['y']=0x3e8,window[_0xa6e58b(0x60e)](safeMapData,()=>{const _0x5e5857=_0xa6e58b;try{dom[_0x5e5857(0x36e)][_0x5e5857(0x290)][_0x5e5857(0x1e5)]=_0x5e5857(0x68d)+safeMapData['image']+'\x27)',game[_0x5e5857(0x32e)][_0x5e5857(0x474)]=dom[_0x5e5857(0x238)];if(dom[_0x5e5857(0x301)])dom[_0x5e5857(0x301)][_0x5e5857(0x290)][_0x5e5857(0x306)]=skinFilters[window['charData'][_0x5e5857(0x6e1)]]||'';if(dom[_0x5e5857(0x7a2)])dom[_0x5e5857(0x7a2)][_0x5e5857(0x290)][_0x5e5857(0x306)]=skinFilters[window[_0x5e5857(0x2f3)][_0x5e5857(0x6e1)]]||'';if(dom[_0x5e5857(0x2c7)])dom['playerHair'][_0x5e5857(0x290)][_0x5e5857(0x306)]=hairFilters[window[_0x5e5857(0x2f3)][_0x5e5857(0x4cc)]]||'';if(dom[_0x5e5857(0x238)])dom['playerContainer']['style'][_0x5e5857(0x398)]='1';if(dom[_0x5e5857(0x301)])dom[_0x5e5857(0x301)][_0x5e5857(0x290)][_0x5e5857(0x398)]='1';if(dom[_0x5e5857(0x7a2)])dom[_0x5e5857(0x7a2)][_0x5e5857(0x290)][_0x5e5857(0x398)]='1';if(dom[_0x5e5857(0x2c7)])dom[_0x5e5857(0x2c7)][_0x5e5857(0x290)][_0x5e5857(0x398)]='1';if(dom['playerHair']){if(window[_0x5e5857(0x2f3)][_0x5e5857(0x4f3)]==='none')dom['playerHair'][_0x5e5857(0x290)][_0x5e5857(0x642)]='none';else dom[_0x5e5857(0x2c7)][_0x5e5857(0x290)][_0x5e5857(0x642)]=_0x5e5857(0x53c),dom['playerHair'][_0x5e5857(0x6fa)]=_0x5e5857(0x5e1)+window[_0x5e5857(0x2f3)][_0x5e5857(0x4f3)]+_0x5e5857(0x910);}window[_0x5e5857(0x473)](),window[_0x5e5857(0x8f4)](),window[_0x5e5857(0x4b2)](),window[_0x5e5857(0x252)](),window[_0x5e5857(0x459)](!![]),safeMapData['id']==='town'&&(document['querySelectorAll'](_0x5e5857(0x5c8))[_0x5e5857(0x4c1)](_0x11c152=>_0x11c152[_0x5e5857(0x7f7)]()),game['monsters']={}),socket[_0x5e5857(0x46c)](_0x5e5857(0x62d)),socket['on']('requestMapSync',_0x17ae1d=>{const _0x3fc1cf=_0x5e5857;window['loadMapScript'](_0x17ae1d[_0x3fc1cf(0x7c3)],()=>{const _0xe6db0a=_0x3fc1cf;let _0x598e71=Object[_0xe6db0a(0x6ba)]({},window[_0xe6db0a(0x79a)][_0x17ae1d['mapId']],{'instanceId':_0x17ae1d[_0xe6db0a(0x3e0)]});socket[_0xe6db0a(0x1b2)]('syncMapData',_0x598e71);});});}catch(_0x1fecde){console['error'](_0x5e5857(0x754),_0x1fecde);}document[_0x5e5857(0x6de)]('loading-screen')&&(document['getElementById']('loading-screen')[_0x5e5857(0x290)][_0x5e5857(0x642)]=_0x5e5857(0x1ec));window[_0x5e5857(0x56f)]=![],window[_0x5e5857(0x7b6)]=![],dom[_0x5e5857(0x857)][_0x5e5857(0x4ea)][_0x5e5857(0x7e6)]('active'),game['isRunning']=!![];const _0x5b044f=document[_0x5e5857(0x6de)]('persistent-chat-box');if(_0x5b044f)_0x5b044f[_0x5e5857(0x290)][_0x5e5857(0x642)]=_0x5e5857(0x8c1);if(currentAnimationId)cancelAnimationFrame(currentAnimationId);if(typeof gameLoop!==_0x5e5857(0x22b))currentAnimationId=requestAnimationFrame(gameLoop);game[_0x5e5857(0x32e)][_0x5e5857(0x526)]&&!game[_0x5e5857(0x32e)][_0x5e5857(0x526)]['watchedTutorial']?window[_0x5e5857(0x205)]():setTimeout(()=>{const _0x18d591=_0x5e5857;window[_0x18d591(0x73c)](window[_0x18d591(0x207)](safeMapData['id']));try{window[_0x18d591(0x8fc)](safeMapData['id']||_0x18d591(0x8ba));}catch(_0x40d395){}},0x78),socket[_0x5e5857(0x1b2)](_0x5e5857(0x5f5)),socket[_0x5e5857(0x1b2)](_0x5e5857(0x294));});});}catch(_0x43699b){console[_0x46eff8(0x49f)](_0x46eff8(0x682),_0x43699b);if(document[_0x46eff8(0x6de)](_0x46eff8(0x489)))document['getElementById']('loading-screen')[_0x46eff8(0x290)]['display']=_0x46eff8(0x1ec);dom[_0x46eff8(0x857)][_0x46eff8(0x4ea)]['add']('active');}}),socket['on']('mailList',_0x4b4fba=>{const _0x5b445e=_0x5d14f9,_0x1a0c75=document[_0x5b445e(0x6de)](_0x5b445e(0x627));_0x1a0c75[_0x5b445e(0x882)]='';const _0x5c3b8b=(_0x4b4fba||[])[_0x5b445e(0x7c5)];let _0x499153=document[_0x5b445e(0x6de)](_0x5b445e(0x317));!_0x499153&&(_0x499153=document[_0x5b445e(0x81e)](_0x5b445e(0x8fa)),_0x499153['id']='global-mail-notif',_0x499153['style'][_0x5b445e(0x6f6)]='absolute',_0x499153[_0x5b445e(0x290)]['top']='15px',_0x499153[_0x5b445e(0x290)][_0x5b445e(0x705)]=_0x5b445e(0x8cb),_0x499153[_0x5b445e(0x290)][_0x5b445e(0x82b)]=_0x5b445e(0x3c7),_0x499153[_0x5b445e(0x290)][_0x5b445e(0x510)]='white',_0x499153['style'][_0x5b445e(0x7c1)]='8px\x2015px',_0x499153['style'][_0x5b445e(0x28f)]=_0x5b445e(0x5d2),_0x499153['style'][_0x5b445e(0x2db)]=_0x5b445e(0x37d),_0x499153[_0x5b445e(0x290)][_0x5b445e(0x891)]=_0x5b445e(0x766),_0x499153['style']['boxShadow']=_0x5b445e(0x23a),_0x499153[_0x5b445e(0x290)][_0x5b445e(0x5c1)]=_0x5b445e(0x86f),_0x499153[_0x5b445e(0x4c4)]=window[_0x5b445e(0x4ba)],document[_0x5b445e(0x6de)](_0x5b445e(0x86e))['appendChild'](_0x499153));_0x5c3b8b>0x0?(_0x499153[_0x5b445e(0x492)]='📧\x20'+_0x5c3b8b+_0x5b445e(0x3e1),_0x499153[_0x5b445e(0x290)][_0x5b445e(0x642)]=_0x5b445e(0x53c)):_0x499153[_0x5b445e(0x290)][_0x5b445e(0x642)]='none';if(_0x5c3b8b===0x0){_0x1a0c75[_0x5b445e(0x882)]=_0x5b445e(0x26b);return;}_0x4b4fba[_0x5b445e(0x4c1)](_0x35d2ee=>{const _0x13f9c7=_0x5b445e,_0x3f0af2=document[_0x13f9c7(0x81e)](_0x13f9c7(0x8fa));_0x3f0af2[_0x13f9c7(0x228)]=_0x13f9c7(0x1d8);let _0x102f4e='';if(_0x35d2ee[_0x13f9c7(0x770)]){let _0x5a50b8=typeof _0x35d2ee[_0x13f9c7(0x770)]==='object'?_0x35d2ee[_0x13f9c7(0x770)][_0x13f9c7(0x1f3)]:_0x35d2ee[_0x13f9c7(0x770)],_0x2c950c=_0x35d2ee[_0x13f9c7(0x770)][_0x13f9c7(0x921)]&&_0x35d2ee[_0x13f9c7(0x770)]['quantity']>0x1?'x'+_0x35d2ee[_0x13f9c7(0x770)][_0x13f9c7(0x921)]+'\x20':'';_0x102f4e=_0x13f9c7(0x7f8)+_0x2c950c+_0x5a50b8+'</strong>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>';}let _0x2a9b53=_0x35d2ee[_0x13f9c7(0x372)]||_0x35d2ee['content']||'System\x20Notification';_0x3f0af2[_0x13f9c7(0x882)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22mail-sender\x22\x20style=\x22color:#4CAF50;\x20border-bottom:1px\x20solid\x20#444;\x20padding-bottom:5px;\x20margin-bottom:8px;\x22>FROM:\x20SYSTEM</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22mail-msg\x22\x20style=\x22font-size:15px;\x20margin-bottom:15px;\x20line-height:1.5;\x22>'+_0x2a9b53+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x102f4e+_0x13f9c7(0x863)+_0x35d2ee['id']+'\x22\x20onclick=\x22window.claimMail('+_0x35d2ee['id']+_0x13f9c7(0x801)+(_0x35d2ee[_0x13f9c7(0x770)]?_0x13f9c7(0x558):_0x13f9c7(0x31b))+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20',_0x1a0c75[_0x13f9c7(0x463)](_0x3f0af2);});}),socket['on'](_0x5d14f9(0x360),_0x39e703=>{const _0x54c355=_0x5d14f9,_0x3a228b=document[_0x54c355(0x6de)](_0x54c355(0x41b)+_0x39e703);_0x3a228b&&(_0x3a228b[_0x54c355(0x492)]=_0x54c355(0x3c1),_0x3a228b[_0x54c355(0x874)]=!![],_0x3a228b[_0x54c355(0x290)][_0x54c355(0x82b)]=_0x54c355(0x86a));if(dom[_0x54c355(0x7cd)])dom[_0x54c355(0x7cd)][_0x54c355(0x492)]='Mail\x20claimed\x20successfully!';if(typeof window[_0x54c355(0x252)]==='function')window[_0x54c355(0x252)]();setTimeout(()=>{const _0x5d4c85=_0x54c355;if(socket)socket[_0x5d4c85(0x1b2)](_0x5d4c85(0x5f5));},0x1f4);}),socket['on'](_0x5d14f9(0x5ff),_0x5882e0=>{const _0x550ad4=_0x5d14f9;game[_0x550ad4(0x32e)][_0x550ad4(0x4a4)]=_0x5882e0[_0x550ad4(0x36c)],game[_0x550ad4(0x32e)][_0x550ad4(0x5ed)]=_0x5882e0[_0x550ad4(0x5ed)],window[_0x550ad4(0x4b2)](),window[_0x550ad4(0x252)](),dom[_0x550ad4(0x7cd)][_0x550ad4(0x492)]=_0x550ad4(0x1a8);}),socket['on'](_0x5d14f9(0x699),_0x2e384c=>{const _0x419609=_0x5d14f9;game[_0x419609(0x32e)][_0x419609(0x4a4)]=_0x2e384c;if(!game[_0x419609(0x32e)][_0x419609(0x526)])game['player'][_0x419609(0x526)]={};game[_0x419609(0x32e)]['baseStats']['hasHome']=!![];let _0x2de52f=document[_0x419609(0x6de)](_0x419609(0x51b));if(_0x2de52f)_0x2de52f['style'][_0x419609(0x642)]='none';if(dom[_0x419609(0x7cd)])dom[_0x419609(0x7cd)]['innerText']='🎉\x20Congratulations!\x20You\x20are\x20now\x20a\x20homeowner!';window['updateUI'](),window[_0x419609(0x583)](game[_0x419609(0x32e)]['x']+0x18,game[_0x419609(0x32e)]['y']-0x14,_0x419609(0x937),_0x419609(0x71b)),DatabaseManager[_0x419609(0x6d8)](game[_0x419609(0x32e)]);}),socket['on']('sellSuccess',_0x3aedbf=>{const _0x564613=_0x5d14f9;game[_0x564613(0x32e)][_0x564613(0x4a4)]=_0x3aedbf['newGold'],game[_0x564613(0x32e)][_0x564613(0x5ed)]=_0x3aedbf['inventory'],dom[_0x564613(0x7cd)][_0x564613(0x492)]=_0x564613(0x36b)+_0x3aedbf[_0x564613(0x4b7)]+'\x20Gold.',window[_0x564613(0x4b2)](),window[_0x564613(0x252)]();}),socket['on']('syncInventory',_0x3e66cf=>{const _0x4e4138=_0x5d14f9;game[_0x4e4138(0x32e)]['inventory']=_0x3e66cf,window[_0x4e4138(0x8f4)](),window[_0x4e4138(0x252)]();}),socket['on'](_0x5d14f9(0x191),_0x5b18d9=>{const _0x369c1a=_0x5d14f9;if(!_0x5b18d9)return;if(typeof _0x5b18d9[_0x369c1a(0x6fc)]===_0x369c1a(0x4e5))game[_0x369c1a(0x32e)][_0x369c1a(0x6fc)]=_0x5b18d9['currentHp'];if(typeof _0x5b18d9['maxHp']===_0x369c1a(0x4e5))game[_0x369c1a(0x32e)][_0x369c1a(0x830)]=_0x5b18d9[_0x369c1a(0x830)];if(typeof _0x5b18d9['level']===_0x369c1a(0x4e5))game[_0x369c1a(0x32e)][_0x369c1a(0x3f2)]=_0x5b18d9[_0x369c1a(0x3f2)];if(typeof window['updateUI']===_0x369c1a(0x268))window[_0x369c1a(0x4b2)]();}),socket['on'](_0x5d14f9(0x3a6),_0x47545c=>{const _0x54b3e8=_0x5d14f9;if(!_0x47545c)return;if(Array[_0x54b3e8(0x75b)](_0x47545c[_0x54b3e8(0x5ed)]))game[_0x54b3e8(0x32e)]['inventory']=_0x47545c[_0x54b3e8(0x5ed)];if(typeof _0x47545c[_0x54b3e8(0x6fc)]===_0x54b3e8(0x4e5))game['player'][_0x54b3e8(0x6fc)]=_0x47545c[_0x54b3e8(0x6fc)];if(_0x47545c[_0x54b3e8(0x670)]){game[_0x54b3e8(0x32e)][_0x54b3e8(0x670)]=_0x47545c[_0x54b3e8(0x670)];if(typeof window[_0x54b3e8(0x8f4)]===_0x54b3e8(0x268))window[_0x54b3e8(0x8f4)]();if(typeof window['updateSkillMenu']==='function')window['updateSkillMenu']();}if(_0x47545c[_0x54b3e8(0x1ab)]){if(!game[_0x54b3e8(0x32e)]['baseStats'])game[_0x54b3e8(0x32e)]['baseStats']={};game[_0x54b3e8(0x32e)]['baseStats']['playerClass']=null,game[_0x54b3e8(0x32e)]['activeSkills']=[];if(typeof window[_0x54b3e8(0x4d1)]===_0x54b3e8(0x268))window[_0x54b3e8(0x4d1)]();if(typeof isSkillOpen!=='undefined'&&isSkillOpen&&typeof window[_0x54b3e8(0x1e3)]===_0x54b3e8(0x268))window['renderSkillScreen']();window[_0x54b3e8(0x583)](game['player']['x']+0x18,game['player']['y']-0x14,_0x54b3e8(0x77d),'#ffeb3b');if(dom['log'])dom[_0x54b3e8(0x7cd)][_0x54b3e8(0x492)]=_0x54b3e8(0x3e5);}else{if(_0x47545c['healAmount']){window[_0x54b3e8(0x583)](game['player']['x']+0x18,game['player']['y']-0x14,'+'+_0x47545c[_0x54b3e8(0x8e5)]+'\x20HP',_0x54b3e8(0x71b));if(dom[_0x54b3e8(0x7cd)])dom[_0x54b3e8(0x7cd)]['innerText']=_0x54b3e8(0x2f6)+_0x47545c[_0x54b3e8(0x3b5)]+_0x54b3e8(0x415);}else{if(dom[_0x54b3e8(0x7cd)])dom[_0x54b3e8(0x7cd)]['innerText']=_0x47545c[_0x54b3e8(0x3b5)]+'\x20used.';}}if(typeof window['updateUI']===_0x54b3e8(0x268))window[_0x54b3e8(0x4b2)]();if(typeof window[_0x54b3e8(0x252)]==='function')window[_0x54b3e8(0x252)]();if(typeof window['updatePotionHotbar']===_0x54b3e8(0x268))window[_0x54b3e8(0x378)]();}),socket['on']('needsCharacterCreation',_0x437333=>{const _0x3576ab=_0x5d14f9;document[_0x3576ab(0x6de)](_0x3576ab(0x489))[_0x3576ab(0x290)][_0x3576ab(0x642)]=_0x3576ab(0x1ec),document[_0x3576ab(0x6de)](_0x3576ab(0x469))[_0x3576ab(0x6cf)]=_0x437333,document[_0x3576ab(0x6de)](_0x3576ab(0x39c))['classList'][_0x3576ab(0x7e6)]('active');}),socket['on'](_0x5d14f9(0x7ec),_0x284bb2=>{const _0x255336=_0x5d14f9;let _0xc29584=_0x284bb2['playerName']===game[_0x255336(0x32e)][_0x255336(0x1f3)],_0x111451=game['party']&&game['party'][_0x255336(0x5b5)]&&game[_0x255336(0x333)][_0x255336(0x5b5)]['some'](_0x405153=>_0x405153[_0x255336(0x1f3)]===_0x284bb2['playerName']),_0x576df2=_0x284bb2[_0x255336(0x20b)]===_0x255336(0x2b4),_0x1fd930=String(_0x284bb2['itemName'])[_0x255336(0x67b)](_0x255336(0x517));if(_0x1fd930)return;if(!_0x576df2&&!_0xc29584&&!_0x111451)return;let _0x262ca6=document[_0x255336(0x6de)](_0x255336(0x534));!_0x262ca6&&(_0x262ca6=document[_0x255336(0x81e)](_0x255336(0x8fa)),_0x262ca6['id']=_0x255336(0x534),_0x262ca6[_0x255336(0x290)][_0x255336(0x6f6)]=_0x255336(0x1dc),_0x262ca6[_0x255336(0x290)][_0x255336(0x706)]='25%',_0x262ca6[_0x255336(0x290)][_0x255336(0x76a)]='50%',_0x262ca6[_0x255336(0x290)][_0x255336(0x2b3)]=_0x255336(0x7f3),_0x262ca6[_0x255336(0x290)]['zIndex']='2147483647',_0x262ca6[_0x255336(0x290)][_0x255336(0x642)]=_0x255336(0x8c1),_0x262ca6[_0x255336(0x290)]['flexDirection']=_0x255336(0x2ca),_0x262ca6[_0x255336(0x290)]['alignItems']=_0x255336(0x5f2),_0x262ca6[_0x255336(0x290)][_0x255336(0x6ef)]=_0x255336(0x1ec),_0x262ca6['style'][_0x255336(0x2ff)]=_0x255336(0x25f),document[_0x255336(0x4d5)][_0x255336(0x463)](_0x262ca6));const _0x221205=document[_0x255336(0x81e)](_0x255336(0x8fa));_0x221205['className']=_0x255336(0x5f3),_0x221205[_0x255336(0x290)][_0x255336(0x53f)]=_0x284bb2['color']||'#fff',_0x221205['style'][_0x255336(0x588)]=_0x255336(0x569)+_0x284bb2[_0x255336(0x510)];let _0x66f1f2=_0x284bb2[_0x255336(0x20b)]===_0x255336(0x2b4)?'rarity-divine-text':_0x284bb2[_0x255336(0x20b)]===_0x255336(0x445)?_0x255336(0x945):'';_0x284bb2[_0x255336(0x20b)]===_0x255336(0x2b4)&&(_0x221205['style'][_0x255336(0x53f)]=_0x255336(0x718),_0x221205[_0x255336(0x290)][_0x255336(0x588)]='0\x200\x2030px\x20#ffea00,\x20inset\x200\x200\x2020px\x20rgba(255,\x20152,\x200,\x200.8)');let _0x5f405a=_0x284bb2[_0x255336(0x3f2)]?_0x255336(0x6f5)+_0x284bb2[_0x255336(0x3f2)]:'';_0x221205[_0x255336(0x882)]=_0x255336(0x30c)+_0x284bb2[_0x255336(0x48b)]+_0x255336(0x659)+_0x284bb2[_0x255336(0x510)]+';\x20font-size:\x2028px;\x20font-weight:\x20bold;\x20-webkit-text-stroke:\x201px\x20black;\x20text-shadow:\x20-1px\x20-1px\x200\x20#000,\x201px\x20-1px\x200\x20#000,\x20-1px\x201px\x200\x20#000,\x201px\x201px\x200\x20#000,\x200\x200\x2015px\x20'+_0x284bb2[_0x255336(0x510)]+_0x255336(0x316)+_0x66f1f2+'\x22>'+_0x284bb2[_0x255336(0x3b5)]+'\x20'+_0x5f405a+'</div>',_0x262ca6[_0x255336(0x5ab)](_0x221205),setTimeout(()=>{if(_0x221205)_0x221205['remove']();},0xbb8);});let pendingVerifyUsername='';socket['on']('requireEmailVerification',_0x3c454b=>{const _0x2ba552=_0x5d14f9;pendingVerifyUsername=_0x3c454b,document[_0x2ba552(0x6de)](_0x2ba552(0x489))[_0x2ba552(0x290)][_0x2ba552(0x642)]=_0x2ba552(0x1ec);let _0x1d1ddb=document[_0x2ba552(0x6de)](_0x2ba552(0x81b));!_0x1d1ddb&&(_0x1d1ddb=document['createElement'](_0x2ba552(0x8fa)),_0x1d1ddb['id']=_0x2ba552(0x81b),_0x1d1ddb[_0x2ba552(0x290)][_0x2ba552(0x201)]=_0x2ba552(0x811),_0x1d1ddb['innerHTML']='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22background:#111;\x20border:2px\x20solid\x20#2196F3;\x20padding:30px;\x20border-radius:8px;\x20box-shadow:0\x200\x2030px\x20#2196F3;\x20color:white;\x20text-align:center;\x20width:\x20350px;\x20font-family:sans-serif;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h2\x20style=\x22color:#2196F3;\x20margin-top:0;\x22>Secure\x20Your\x20Account</h2>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20style=\x22font-size:13px;\x20color:#aaa;\x20margin-bottom:20px;\x22>Exonie\x20Online\x20now\x20requires\x20email\x20verification.\x20Max\x204\x20characters\x20per\x20email.</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22email-step-1\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22email\x22\x20id=\x22verify-email-input\x22\x20placeholder=\x22Enter\x20an\x20active\x20Email\x20address\x22\x20style=\x22width:100%;\x20padding:10px;\x20margin-bottom:15px;\x20border-radius:4px;\x20border:1px\x20solid\x20#444;\x20background:#222;\x20color:white;\x20box-sizing:border-box;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22width:100%;\x20background:#2196F3;\x20padding:12px;\x20font-weight:bold;\x20font-size:16px;\x22\x20onclick=\x22window.sendVerificationCode()\x22>Send\x20Code</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22email-step-2\x22\x20style=\x22display:none;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20style=\x22font-size:12px;\x20color:#4CAF50;\x22>Code\x20sent!\x20Please\x20check\x20your\x20inbox/spam.</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22text\x22\x20id=\x22verify-code-input\x22\x20placeholder=\x22Enter\x206-digit\x20code\x22\x20maxlength=\x226\x22\x20style=\x22width:100%;\x20padding:10px;\x20margin-bottom:15px;\x20border-radius:4px;\x20border:1px\x20solid\x20#444;\x20background:#222;\x20color:white;\x20text-align:center;\x20font-size:20px;\x20letter-spacing:5px;\x20box-sizing:border-box;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22width:100%;\x20background:#4CAF50;\x20padding:12px;\x20font-weight:bold;\x20font-size:16px;\x22\x20onclick=\x22window.submitVerificationCode()\x22>Verify\x20&\x20Play</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22width:100%;\x20background:#f44336;\x20margin-top:10px;\x22\x20onclick=\x22location.reload()\x22>Cancel\x20/\x20Back\x20to\x20Login</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20',document[_0x2ba552(0x4d5)][_0x2ba552(0x463)](_0x1d1ddb)),document[_0x2ba552(0x6de)](_0x2ba552(0x922))[_0x2ba552(0x290)][_0x2ba552(0x642)]='block',document[_0x2ba552(0x6de)](_0x2ba552(0x40a))[_0x2ba552(0x290)][_0x2ba552(0x642)]=_0x2ba552(0x1ec),_0x1d1ddb[_0x2ba552(0x290)][_0x2ba552(0x642)]=_0x2ba552(0x8c1);}),window[_0x5d14f9(0x8ee)]=function(){const _0x2cec8d=_0x5d14f9,_0x59e552=document[_0x2cec8d(0x6de)](_0x2cec8d(0x6c4))[_0x2cec8d(0x6cf)]['trim']();if(!_0x59e552||!_0x59e552[_0x2cec8d(0x67b)]('@'))return alert(_0x2cec8d(0x55e));socket['emit'](_0x2cec8d(0x59f),{'username':pendingVerifyUsername,'email':_0x59e552}),document['getElementById']('verify-email-input')[_0x2cec8d(0x874)]=!![];},window[_0x5d14f9(0x53e)]=function(){const _0x580ad3=_0x5d14f9,_0x87cdb5=document['getElementById'](_0x580ad3(0x795))[_0x580ad3(0x6cf)][_0x580ad3(0x57a)]();if(_0x87cdb5[_0x580ad3(0x7c5)]!==0x6)return alert('Code\x20must\x20be\x206\x20digits.');socket[_0x580ad3(0x1b2)](_0x580ad3(0x196),{'username':pendingVerifyUsername,'code':_0x87cdb5});},socket['on'](_0x5d14f9(0x934),()=>{const _0x44d038=_0x5d14f9;document['getElementById'](_0x44d038(0x922))['style'][_0x44d038(0x642)]='none',document[_0x44d038(0x6de)](_0x44d038(0x40a))[_0x44d038(0x290)][_0x44d038(0x642)]=_0x44d038(0x53c);}),socket['on'](_0x5d14f9(0x796),_0x1b2ed4=>{const _0x1fce3f=_0x5d14f9;alert(_0x1b2ed4),document[_0x1fce3f(0x6de)]('verify-email-input')[_0x1fce3f(0x874)]=![];}),socket['on'](_0x5d14f9(0x76d),_0x3ba921=>{const _0x52504c=_0x5d14f9;document[_0x52504c(0x6de)](_0x52504c(0x81b))[_0x52504c(0x290)][_0x52504c(0x642)]=_0x52504c(0x1ec),alert('Email\x20successfully\x20linked!\x20Welcome\x20to\x20Exonie.\x20PLEASE\x20REFRESH\x20YOUR\x20GAME');if(!global[_0x52504c(0x7fb)])global['playerFriends']={};global[_0x52504c(0x7fb)][_0x3ba921[_0x52504c(0x884)]]=new Set(_0x3ba921[_0x52504c(0x51a)]||[]);if(!_0x3ba921[_0x52504c(0x51c)])socket[_0x52504c(0x1b2)]('needsCharacterCreation',_0x3ba921['character_name']);else socket['emit'](_0x52504c(0x298),_0x3ba921);}),socket['on']('authError',_0x1daee6=>{const _0x3a8c4a=_0x5d14f9;alert(_0x1daee6),document[_0x3a8c4a(0x6de)](_0x3a8c4a(0x489))[_0x3a8c4a(0x290)]['display']=_0x3a8c4a(0x1ec),document[_0x3a8c4a(0x6de)](_0x3a8c4a(0x944))['classList'][_0x3a8c4a(0x7e6)]('active');}),socket['on'](_0x5d14f9(0x1dd),_0x5250fb=>{const _0x1cc6c7=_0x5d14f9;alert(_0x5250fb||'You\x20were\x20logged\x20out\x20because\x20this\x20account\x20was\x20opened\x20elsewhere.'),localStorage[_0x1cc6c7(0x7c4)](_0x1cc6c7(0x8a5)),localStorage['removeItem']('exonie_pass'),location[_0x1cc6c7(0x2bd)]();}),socket['on'](_0x5d14f9(0x2a4),_0x5920c8=>{const _0x2c5832=_0x5d14f9;alert(_0x2c5832(0x19b)),window[_0x2c5832(0x8ac)](_0x2c5832(0x3c6)),document['getElementById']('loading-screen')[_0x2c5832(0x290)]['display']='none',document[_0x2c5832(0x6de)]('auth-screen')['classList'][_0x2c5832(0x7e6)](_0x2c5832(0x6cd));}),socket['on'](_0x5d14f9(0x298),_0x29a6af=>{const _0x5409bc=_0x5d14f9;document[_0x5409bc(0x6de)](_0x5409bc(0x489))[_0x5409bc(0x290)]['display']='none',document[_0x5409bc(0x6de)](_0x5409bc(0x8b2))['innerText']=_0x29a6af[_0x5409bc(0x884)],document[_0x5409bc(0x6de)](_0x5409bc(0x354))[_0x5409bc(0x492)]=_0x5409bc(0x660)+(_0x29a6af[_0x5409bc(0x3f2)]||0x1);const _0x524844=document['getElementById'](_0x5409bc(0x8e4)),_0xd9bea2=document[_0x5409bc(0x6de)](_0x5409bc(0x8cc)),_0x5eb1d3=document[_0x5409bc(0x6de)](_0x5409bc(0x648)),_0x2cc11c=document['getElementById']('select-weapon');_0x524844[_0x5409bc(0x290)]['filter']=skinFilters[_0x29a6af['skin_color']||_0x5409bc(0x260)],_0xd9bea2[_0x5409bc(0x290)][_0x5409bc(0x306)]=skinFilters[_0x29a6af[_0x5409bc(0x51c)]||_0x5409bc(0x260)];if(_0x29a6af[_0x5409bc(0x467)]===_0x5409bc(0x1ec)||!_0x29a6af['hair_style'])_0x5eb1d3['style'][_0x5409bc(0x642)]=_0x5409bc(0x1ec);else _0x5eb1d3[_0x5409bc(0x290)][_0x5409bc(0x642)]='block',_0x5eb1d3['src']=_0x5409bc(0x5e1)+_0x29a6af[_0x5409bc(0x467)]+_0x5409bc(0x910),_0x5eb1d3[_0x5409bc(0x290)][_0x5409bc(0x306)]=hairFilters[_0x29a6af[_0x5409bc(0x342)]||_0x5409bc(0x581)];_0x29a6af[_0x5409bc(0x670)]?.['weapon']?.[_0x5409bc(0x573)]?(_0x2cc11c[_0x5409bc(0x290)][_0x5409bc(0x642)]=_0x5409bc(0x53c),_0x2cc11c['src']=_0x5409bc(0x4f2)+_0x29a6af[_0x5409bc(0x670)][_0x5409bc(0x452)][_0x5409bc(0x573)][_0x5409bc(0x818)](_0x5409bc(0x794),_0x5409bc(0x3fb))+_0x5409bc(0x910)):_0x2cc11c[_0x5409bc(0x290)]['display']=_0x5409bc(0x1ec),_0x524844['style'][_0x5409bc(0x398)]='1',_0xd9bea2['style']['opacity']='1',_0x5eb1d3[_0x5409bc(0x290)]['opacity']='1',_0x2cc11c[_0x5409bc(0x290)][_0x5409bc(0x398)]='1',document[_0x5409bc(0x6de)]('select-screen')[_0x5409bc(0x4ea)]['add'](_0x5409bc(0x6cd)),game[_0x5409bc(0x47f)]=_0x29a6af;}),socket['on'](_0x5d14f9(0x6a8),_0x50490b=>{const _0x3715e0=_0x5d14f9;for(const _0x32e16a in game[_0x3715e0(0x840)])window[_0x3715e0(0x5cc)](_0x32e16a);(_0x50490b||[])[_0x3715e0(0x4c1)](_0x52a166=>window[_0x3715e0(0x60f)](_0x52a166));}),socket['on'](_0x5d14f9(0x19f),_0x4dcddb=>window[_0x5d14f9(0x60f)](_0x4dcddb)),socket['on'](_0x5d14f9(0x663),_0x30a3cc=>window['removeRemotePlayer'](_0x30a3cc)),window['renderDeathScreen']=function(_0x2b2ea5){const _0x3659a1=_0x5d14f9,_0xc0d72d=document['getElementById'](_0x3659a1(0x1a1));if(!_0xc0d72d)return;_0xc0d72d[_0x3659a1(0x290)][_0x3659a1(0x82b)]='rgba(20,\x200,\x200,\x200.3)',_0xc0d72d[_0x3659a1(0x290)][_0x3659a1(0x2de)]='flex-end',_0xc0d72d[_0x3659a1(0x290)][_0x3659a1(0x68e)]=_0x3659a1(0x349);let _0x11b5a9=_0xc0d72d[_0x3659a1(0x26d)](_0x3659a1(0x8fa))||_0xc0d72d;_0xc0d72d[_0x3659a1(0x4e1)][_0x3659a1(0x7c5)]>0x0&&_0xc0d72d['children'][0x0][_0x3659a1(0x387)]===_0x3659a1(0x6af)&&(_0x11b5a9=_0xc0d72d[_0x3659a1(0x4e1)][0x0],_0x11b5a9[_0x3659a1(0x290)][_0x3659a1(0x82b)]=_0x3659a1(0x784),_0x11b5a9[_0x3659a1(0x290)][_0x3659a1(0x700)]=_0x3659a1(0x756),_0x11b5a9[_0x3659a1(0x290)]['borderRadius']='8px',_0x11b5a9[_0x3659a1(0x290)]['padding']=_0x3659a1(0x74a),_0x11b5a9[_0x3659a1(0x290)][_0x3659a1(0x588)]=_0x3659a1(0x803),_0x11b5a9[_0x3659a1(0x290)][_0x3659a1(0x848)]='center');const _0x251ed6=document[_0x3659a1(0x6de)](_0x3659a1(0x7a8)),_0x3f59c2=Array[_0x3659a1(0x750)](_0x11b5a9[_0x3659a1(0x29c)](_0x3659a1(0x221)))['find'](_0x6674bf=>_0x6674bf['id']!=='revive-juice-btn');let _0x30e866=game[_0x3659a1(0x32e)][_0x3659a1(0x5ed)][_0x3659a1(0x52b)](_0x2cd899=>_0x2cd899&&_0x2cd899[_0x3659a1(0x1f3)]===_0x3659a1(0x4d0)),_0x12a362=safeMapData['id']==='trainingtavern';_0x251ed6&&(_0x251ed6[_0x3659a1(0x290)][_0x3659a1(0x642)]=_0x30e866&&!_0x12a362?_0x3659a1(0x570):_0x3659a1(0x1ec)),_0x3f59c2&&(_0x3f59c2[_0x3659a1(0x290)][_0x3659a1(0x642)]=_0x2b2ea5?_0x3659a1(0x570):_0x3659a1(0x1ec)),_0xc0d72d['style'][_0x3659a1(0x642)]=_0x3659a1(0x8c1);},socket['on'](_0x5d14f9(0x2b6),_0x50d501=>{const _0x1ca604=_0x5d14f9;if(_0x50d501===game['player']['id']){game[_0x1ca604(0x842)]=!![],game['player']['currentHp']=0x0,dom[_0x1ca604(0x238)]['style'][_0x1ca604(0x398)]=_0x1ca604(0x930);let _0x4bc2b2=![];window['renderDeathScreen'](!_0x4bc2b2),window['updateUI']();}else{const _0x299da9=document[_0x1ca604(0x6de)](_0x1ca604(0x31c)+_0x50d501);if(_0x299da9)_0x299da9[_0x1ca604(0x290)][_0x1ca604(0x398)]='0.5';if(game[_0x1ca604(0x840)][_0x50d501])game[_0x1ca604(0x840)][_0x50d501][_0x1ca604(0x842)]=!![];}window[_0x1ca604(0x2e9)]();}),socket['on'](_0x5d14f9(0x674),_0x4ae76b=>{const _0x29cd0f=_0x5d14f9;if(_0x4ae76b['id']===game[_0x29cd0f(0x32e)]['id']){game[_0x29cd0f(0x842)]=![],game[_0x29cd0f(0x32e)]['currentHp']=_0x4ae76b[_0x29cd0f(0x6fc)],dom[_0x29cd0f(0x238)][_0x29cd0f(0x290)]['opacity']='1';const _0x4e5103=document[_0x29cd0f(0x6de)](_0x29cd0f(0x1a1));if(_0x4e5103)_0x4e5103[_0x29cd0f(0x290)][_0x29cd0f(0x642)]='none';window[_0x29cd0f(0x4b2)]();}else{const _0x4760ee=document['getElementById']('remote_'+_0x4ae76b['id']);if(_0x4760ee)_0x4760ee[_0x29cd0f(0x290)][_0x29cd0f(0x398)]='1';if(game[_0x29cd0f(0x840)][_0x4ae76b['id']])game[_0x29cd0f(0x840)][_0x4ae76b['id']]['isGhost']=![];}window['renderPartyUI']();}),socket['on'](_0x5d14f9(0x4db),_0x5368dd=>{const _0x32145b=_0x5d14f9;game[_0x32145b(0x32e)][_0x32145b(0x5ed)]=_0x5368dd[_0x32145b(0x5ed)],game[_0x32145b(0x32e)]['currentHp']=_0x5368dd[_0x32145b(0x6fc)],game['isGhost']=![],dom[_0x32145b(0x238)]['style'][_0x32145b(0x398)]='1';const _0x4a5b54=document[_0x32145b(0x6de)](_0x32145b(0x1a1));if(_0x4a5b54)_0x4a5b54[_0x32145b(0x290)][_0x32145b(0x642)]='none';window[_0x32145b(0x4b2)]();if(typeof window['renderInventory']===_0x32145b(0x268))window[_0x32145b(0x252)]();}),socket['on']('partyError',_0x598eee=>{dom['log']['innerText']=_0x598eee;}),socket['on'](_0x5d14f9(0x6b4),()=>{const _0x1799db=_0x5d14f9;dom[_0x1799db(0x8b4)][_0x1799db(0x290)]['display']=_0x1799db(0x1ec),dom[_0x1799db(0x438)][_0x1799db(0x882)]='',game[_0x1799db(0x333)]=null,dom[_0x1799db(0x7cd)]['innerText']=_0x1799db(0x808);}),socket['on']('chatMessage',_0x26f02a=>{const _0x1b68b4=_0x5d14f9;if(_0x26f02a['id']===game[_0x1b68b4(0x32e)]['id'])return;const _0x5aca49=game[_0x1b68b4(0x840)][_0x26f02a['id']];if(_0x5aca49)window[_0x1b68b4(0x8b8)](_0x5aca49,_0x26f02a[_0x1b68b4(0x5f7)]);}),socket['on'](_0x5d14f9(0x621),_0x33091f=>{const _0x320523=_0x5d14f9,_0x250eb7=document['getElementById'](_0x320523(0x2d1));_0x250eb7[_0x320523(0x882)]='';if(!_0x33091f||_0x33091f[_0x320523(0x7c5)]===0x0){_0x250eb7['innerHTML']='<p\x20style=\x22text-align:center;\x20color:#aaa;\x22>Your\x20friends\x20list\x20is\x20empty.</p>';return;}_0x33091f[_0x320523(0x4c1)](_0x1b09c3=>{const _0x326d4d=_0x320523,_0x29f86b=document[_0x326d4d(0x81e)](_0x326d4d(0x8fa));_0x29f86b[_0x326d4d(0x228)]=_0x326d4d(0x939);let _0x14d9c7=_0x1b09c3[_0x326d4d(0x40d)]?_0x326d4d(0x6f3):_0x326d4d(0x819),_0x58890b='<span\x20style=\x22color:'+_0x14d9c7+_0x326d4d(0x8d5)+_0x1b09c3[_0x326d4d(0x3f2)]+_0x326d4d(0x4ef),_0x3a9361=_0x1b09c3[_0x326d4d(0x4dc)]?_0x326d4d(0x545)+_0x1b09c3[_0x326d4d(0x4dc)]+_0x326d4d(0x4d6):_0x326d4d(0x6f8),_0x4b90ac=_0x1b09c3[_0x326d4d(0x40d)]?'<span\x20style=\x22color:#2196F3;\x20font-size:11px;\x22>['+(_0x1b09c3[_0x326d4d(0x7c3)]||_0x326d4d(0x3c4))+']</span>':'',_0x29f009=window['isAdmin'](game[_0x326d4d(0x32e)][_0x326d4d(0x1f3)])&&_0x1b09c3[_0x326d4d(0x40d)]?'<button\x20class=\x22dm-btn\x22\x20style=\x22background:#f44336;\x20margin-bottom:5px;\x22\x20onclick=\x22window.startSpectate(\x27'+_0x1b09c3['id']+_0x326d4d(0x883):'';_0x29f86b[_0x326d4d(0x882)]='<div\x20class=\x22friend-info\x22\x20style=\x22flex-direction:column;\x20align-items:flex-start;\x20gap:2px;\x22><div\x20style=\x22display:flex;\x20align-items:center;\x20gap:5px;\x22><div\x20class=\x22status-dot\x20'+(_0x1b09c3[_0x326d4d(0x40d)]?'online':_0x326d4d(0x70e))+_0x326d4d(0x3b4)+_0x1b09c3['id']+'\x20'+_0x58890b+_0x326d4d(0x2d4)+_0x3a9361+'\x20'+_0x4b90ac+'</div></div><div\x20style=\x22display:flex;\x20flex-direction:column;\x22>'+_0x29f009+_0x326d4d(0x725)+_0x1b09c3['id']+'\x27)\x22>DM</button></div>',_0x250eb7[_0x326d4d(0x463)](_0x29f86b);});}),socket['on']('receiveDM',_0x30f94c=>{const _0x20ee8f=_0x5d14f9;let _0x47a265=_0x20ee8f(0x23b)+_0x30f94c['from']+':\x20'+_0x30f94c['message']+_0x20ee8f(0x4d6);window[_0x20ee8f(0x7ea)](_0x47a265),dom[_0x20ee8f(0x7cd)][_0x20ee8f(0x882)]=_0x47a265;if(!_0x30f94c['from'][_0x20ee8f(0x3d0)]('To\x20'))window[_0x20ee8f(0x926)]();}),socket['on'](_0x5d14f9(0x58f),_0x3385c6=>{const _0x23a213=_0x5d14f9;let _0x213d25=_0x23a213(0x3fd)+_0x3385c6+_0x23a213(0x4d6);window[_0x23a213(0x7ea)](_0x213d25),dom[_0x23a213(0x7cd)]['innerHTML']=_0x213d25;}),socket['on']('partyChatMessage',_0x3a00f2=>{const _0xad10a4=_0x5d14f9;window[_0xad10a4(0x7ea)](_0xad10a4(0x19a)+_0x3a00f2['from']+':\x20'+_0x3a00f2[_0xad10a4(0x5f7)]+'</span>');}),socket['on'](_0x5d14f9(0x37a),_0x44324f=>{const _0x27d070=_0x5d14f9;let _0x2ab22d=window[_0x27d070(0x936)][_0x44324f[_0x27d070(0x7cb)]['rarity']]||_0x27d070(0x897),_0x14f00=_0x44324f[_0x27d070(0x7cb)]['enhanceLevel']?'\x20+'+_0x44324f[_0x27d070(0x7cb)]['enhanceLevel']:'',_0xeba04e=_0x44324f[_0x27d070(0x7cb)]['name']+_0x14f00,_0x14e40b=encodeURIComponent(JSON[_0x27d070(0x57f)](_0x44324f[_0x27d070(0x7cb)])),_0xbb2ac='<span\x20style=\x22color:#00E5FF;\x20font-weight:bold;\x22>[Party]\x20'+_0x44324f[_0x27d070(0x750)]+'\x20linked:\x20</span><span\x20style=\x22color:'+_0x2ab22d+';\x20font-weight:bold;\x20cursor:pointer;\x20text-decoration:underline;\x20text-shadow:\x200\x200\x205px\x20'+_0x2ab22d+_0x27d070(0x810)+_0x14e40b+'\x27)\x22>['+_0xeba04e+_0x27d070(0x62b);window['addPersistentChat'](_0xbb2ac);if(dom[_0x27d070(0x7cd)])dom[_0x27d070(0x7cd)]['innerHTML']=_0xbb2ac;}),socket['on'](_0x5d14f9(0x765),_0xf8a52b=>{const _0x6e974d=_0x5d14f9;window[_0x6e974d(0x7b6)]=!![],game[_0x6e974d(0x32e)]['teleportCooldown']=0x7d0,game[_0x6e974d(0x32e)][_0x6e974d(0x248)]=![],game[_0x6e974d(0x32e)]['currentPortal']='JUST_SPAWNED',window[_0x6e974d(0x7fe)]=![];if(document[_0x6e974d(0x6de)](_0x6e974d(0x4b5)))document[_0x6e974d(0x6de)](_0x6e974d(0x4b5))[_0x6e974d(0x290)][_0x6e974d(0x642)]='none';window[_0x6e974d(0x215)](_0xf8a52b[_0x6e974d(0x7c3)],()=>{const _0x23ba87=_0x6e974d;safeMapData=window[_0x23ba87(0x79a)][_0xf8a52b[_0x23ba87(0x7c3)]],safeMapData['id']=_0xf8a52b[_0x23ba87(0x7c3)],window[_0x23ba87(0x60e)](safeMapData,()=>{const _0x35b544=_0x23ba87;if(_0xf8a52b['mapId']===_0x35b544(0x8ba)&&safeMapData[_0x35b544(0x4d9)]&&!_0xf8a52b[_0x35b544(0x42d)]){const _0xe13018=safeMapData[_0x35b544(0x4d9)][_0x35b544(0x4f9)](_0x31fa50=>_0x31fa50[_0x35b544(0x739)]===0x1);_0xe13018?(game[_0x35b544(0x32e)]['x']=_0xe13018['x']+_0xe13018['w']/0x2-game[_0x35b544(0x32e)]['width']/0x2,game[_0x35b544(0x32e)]['y']=_0xe13018['y']+_0xe13018['h']-game[_0x35b544(0x32e)][_0x35b544(0x7a7)]+0x5):(game[_0x35b544(0x32e)]['x']=_0xf8a52b['x'],game[_0x35b544(0x32e)]['y']=_0xf8a52b['y']);}else game[_0x35b544(0x32e)]['x']=_0xf8a52b['x'],game[_0x35b544(0x32e)]['y']=_0xf8a52b['y'];window[_0x35b544(0x574)](),dom['world'][_0x35b544(0x290)][_0x35b544(0x1e5)]=_0x35b544(0x68d)+safeMapData[_0x35b544(0x2a5)]+'\x27)',window[_0x35b544(0x473)]();let _0x48a47f=_0x35b544(0x8ba),_0x1512e9=String(_0xf8a52b[_0x35b544(0x7c3)]||_0xf8a52b[_0x35b544(0x340)]||_0x35b544(0x8ba))[_0x35b544(0x649)]();if(_0x1512e9===_0x35b544(0x743)||_0x1512e9===_0x35b544(0x400)||_0x1512e9[_0x35b544(0x67b)](_0x35b544(0x85c)))_0x48a47f=_0x35b544(0x7e3);else{if(_0x1512e9[_0x35b544(0x67b)](_0x35b544(0x7f1)))_0x48a47f=_0x35b544(0x8ff);else{if(_0x1512e9[_0x35b544(0x67b)](_0x35b544(0x5e7)))_0x48a47f=_0x35b544(0x5e7);else _0x1512e9===_0x35b544(0x2da)&&(_0x48a47f=_0x35b544(0x3af));}}window[_0x35b544(0x73c)](window[_0x35b544(0x207)](_0xf8a52b[_0x35b544(0x7c3)])),window[_0x35b544(0x8fc)](_0xf8a52b[_0x35b544(0x7c3)]);if(_0xf8a52b[_0x35b544(0x42d)]){window[_0x35b544(0x880)]=!![],window[_0x35b544(0x5a1)]=_0xf8a52b[_0x35b544(0x42d)],game[_0x35b544(0x842)]=!![],dom[_0x35b544(0x238)][_0x35b544(0x290)][_0x35b544(0x642)]='none',document['getElementById'](_0x35b544(0x497))[_0x35b544(0x290)][_0x35b544(0x642)]='block';if(dom[_0x35b544(0x7cd)])dom[_0x35b544(0x7cd)][_0x35b544(0x492)]='[ADMIN]\x20Now\x20Spectating:\x20'+_0xf8a52b['spectateTarget'];}else window[_0x35b544(0x880)]=![],window[_0x35b544(0x5a1)]=null,game[_0x35b544(0x842)]=![],dom['playerContainer']['style'][_0x35b544(0x642)]=_0x35b544(0x53c),document['getElementById'](_0x35b544(0x497))[_0x35b544(0x290)]['display']=_0x35b544(0x1ec),dom[_0x35b544(0x238)][_0x35b544(0x290)]['opacity']='1',socket[_0x35b544(0x1b2)]('playerMoved',{'x':game['player']['x'],'y':game[_0x35b544(0x32e)]['y'],'state':'idle','facingRight':window[_0x35b544(0x3c2)],'weaponSprite':game['player'][_0x35b544(0x670)][_0x35b544(0x452)]?.['sprite']||null}),socket[_0x35b544(0x1b2)](_0x35b544(0x4dd),{'mapId':_0xf8a52b[_0x35b544(0x7c3)],'x':game[_0x35b544(0x32e)]['x'],'y':game[_0x35b544(0x32e)]['y'],'mapData':safeMapData});let _0x36ff72=![];document['getElementById'](_0x35b544(0x200))['innerText']=_0x36ff72?_0x35b544(0x8db):'Loading\x20Map...';if(socket)socket[_0x35b544(0x1b2)](_0x35b544(0x1b3));setTimeout(()=>{const _0x1f18b2=_0x35b544;if(!_0x36ff72||window[_0x1f18b2(0x56f)]){window[_0x1f18b2(0x56f)]=![],window[_0x1f18b2(0x7b6)]=![],game[_0x1f18b2(0x32e)][_0x1f18b2(0x248)]=![];let _0x1bdb61=document[_0x1f18b2(0x6de)](_0x1f18b2(0x489));if(_0x1bdb61)_0x1bdb61['style'][_0x1f18b2(0x642)]=_0x1f18b2(0x1ec);let _0x521402=document[_0x1f18b2(0x6de)]('map-transition');_0x521402&&(_0x521402[_0x1f18b2(0x290)][_0x1f18b2(0x398)]='0',setTimeout(()=>_0x521402[_0x1f18b2(0x290)][_0x1f18b2(0x642)]=_0x1f18b2(0x1ec),0x3e8));if(typeof safeMapData!==_0x1f18b2(0x22b)&&safeMapData['id']){window[_0x1f18b2(0x73c)](window[_0x1f18b2(0x207)](safeMapData['id']));try{window['showMapAnnouncement'](safeMapData['id']);}catch(_0x80333a){}}}},_0x36ff72?0xbb8:0x12c);});}),socket['on'](_0x6e974d(0x1db),()=>{const _0x2b6d8f=_0x6e974d;window[_0x2b6d8f(0x56f)]=![],window['isTransitioning']=![],game['player'][_0x2b6d8f(0x248)]=![];const _0x305f10=document['getElementById'](_0x2b6d8f(0x489));if(_0x305f10)_0x305f10[_0x2b6d8f(0x290)][_0x2b6d8f(0x642)]=_0x2b6d8f(0x1ec);const _0x4fb6bc=document['getElementById'](_0x2b6d8f(0x8d1));_0x4fb6bc&&(_0x4fb6bc[_0x2b6d8f(0x290)][_0x2b6d8f(0x398)]='0',setTimeout(()=>{const _0x4bd27e=_0x2b6d8f;_0x4fb6bc['style'][_0x4bd27e(0x642)]=_0x4bd27e(0x1ec);},0x3e8));if(typeof safeMapData!==_0x2b6d8f(0x22b)&&safeMapData['id']){window[_0x2b6d8f(0x73c)](window[_0x2b6d8f(0x207)](safeMapData['id']));try{window['showMapAnnouncement'](safeMapData['id']);}catch(_0x2c8d01){}}});}),socket['on'](_0x5d14f9(0x802),_0x1a1a98=>{const _0x559179=_0x5d14f9;window[_0x559179(0x7b6)]=!![];let _0x245dcf=_0x1a1a98[_0x559179(0x340)]||_0x559179(0x8ba);if(_0x245dcf==='dungeon1'){game[_0x559179(0x32e)][_0x559179(0x864)]=null,window[_0x559179(0x7fe)]=!![],game[_0x559179(0x2c1)]['w']=![],game['keys']['a']=![],game[_0x559179(0x2c1)]['s']=![],game[_0x559179(0x2c1)]['d']=![];const _0x3c97ab=new Date();let _0x45f3b2=_0x3c97ab['getUTCDay'](),_0x3d96df=_0x45f3b2===0x0?0x6:_0x45f3b2-0x1,_0x446237=new Date(_0x3c97ab[_0x559179(0x25c)]());_0x446237[_0x559179(0x69d)](_0x3c97ab['getUTCDate']()-_0x3d96df),_0x446237[_0x559179(0x420)](0x0,0x0,0x0,0x0);const _0x37f3ac=_0x446237[_0x559179(0x25c)]();if(!game[_0x559179(0x32e)][_0x559179(0x526)])game[_0x559179(0x32e)]['baseStats']={};(!game[_0x559179(0x32e)]['baseStats'][_0x559179(0x1da)]||game[_0x559179(0x32e)][_0x559179(0x526)][_0x559179(0x1da)]<_0x37f3ac)&&(game[_0x559179(0x32e)][_0x559179(0x526)][_0x559179(0x45f)]=0x7,game['player'][_0x559179(0x526)][_0x559179(0x1da)]=Date[_0x559179(0x91c)]());game['party']&&game[_0x559179(0x333)][_0x559179(0x5b5)]&&game[_0x559179(0x333)][_0x559179(0x5b5)]['length']>0x1?game['party']['leaderId']===game[_0x559179(0x32e)]['id']?(document['getElementById'](_0x559179(0x7ed))['innerText']=_0x559179(0x909)+game['player'][_0x559179(0x526)][_0x559179(0x45f)]+'/7',document['getElementById'](_0x559179(0x3a3))['style']['display']=_0x559179(0x8c1)):(document[_0x559179(0x6de)]('loading-text')[_0x559179(0x492)]='Waiting\x20for\x20Party\x20Leader\x20to\x20select\x20difficulty...',document[_0x559179(0x6de)](_0x559179(0x489))[_0x559179(0x290)]['display']=_0x559179(0x8c1)):(document[_0x559179(0x6de)]('dungeon-entries-text')['innerText']=_0x559179(0x909)+game[_0x559179(0x32e)][_0x559179(0x526)][_0x559179(0x45f)]+'/7',document[_0x559179(0x6de)](_0x559179(0x3a3))[_0x559179(0x290)][_0x559179(0x642)]=_0x559179(0x8c1));return;}const _0x2827cd=document[_0x559179(0x6de)](_0x559179(0x8d1));document[_0x559179(0x6de)]('transition-text')[_0x559179(0x492)]='Entering\x20'+_0x245dcf+_0x559179(0x415),_0x2827cd[_0x559179(0x290)][_0x559179(0x642)]=_0x559179(0x8c1),setTimeout(()=>{const _0x33937d=_0x559179;_0x2827cd[_0x33937d(0x290)][_0x33937d(0x398)]='1';},0xa),game[_0x559179(0x32e)]['teleportCooldown']=0xfa0,setTimeout(()=>{window['loadMapScript'](_0x245dcf,()=>{const _0x7613b0=_0x7052;safeMapData=window['MapDatabase'][_0x245dcf],safeMapData['id']=_0x245dcf;let _0x2a4a45;if(_0x1a1a98[_0x7613b0(0x23f)])_0x2a4a45=_0x1a1a98[_0x7613b0(0x739)];else{if(typeof _0x1a1a98[_0x7613b0(0x739)]==='number')_0x2a4a45=_0x1a1a98[_0x7613b0(0x739)]%0x2===0x1?_0x1a1a98[_0x7613b0(0x739)]+0x1:_0x1a1a98[_0x7613b0(0x739)]-0x1;else{let _0x23f420=String(_0x1a1a98['portalId'])[_0x7613b0(0x240)](0x0),_0x41c621=_0x23f420%0x2===0x1?_0x23f420+0x1:_0x23f420-0x1;_0x2a4a45=String[_0x7613b0(0x711)](_0x41c621);}}let _0x23b7fb=safeMapData[_0x7613b0(0x4d9)][_0x7613b0(0x4f9)](_0x5eeb81=>_0x5eeb81['portalId']===_0x2a4a45);window['preloadMapAssets'](safeMapData,()=>{const _0x3292cf=_0x7613b0;game['player']['x']=_0x23b7fb?_0x23b7fb['x']+_0x23b7fb['w']/0x2-game[_0x3292cf(0x32e)][_0x3292cf(0x2ff)]/0x2:safeMapData[_0x3292cf(0x5be)],game[_0x3292cf(0x32e)]['y']=_0x23b7fb?_0x23b7fb['y']+_0x23b7fb['h']-game[_0x3292cf(0x32e)]['height']+0x5:safeMapData[_0x3292cf(0x594)],dom[_0x3292cf(0x36e)][_0x3292cf(0x290)][_0x3292cf(0x1e5)]=_0x3292cf(0x68d)+safeMapData[_0x3292cf(0x2a5)]+'\x27)',window[_0x3292cf(0x473)](),window[_0x3292cf(0x574)]();if(socket)socket['emit']('playerTeleported',{'mapId':_0x245dcf,'x':game['player']['x'],'y':game[_0x3292cf(0x32e)]['y'],'mapData':safeMapData});let _0x3ff34b=![];document[_0x3292cf(0x6de)](_0x3292cf(0x43e))[_0x3292cf(0x492)]=_0x3ff34b?_0x3292cf(0x8db):_0x3292cf(0x8dd);if(socket)socket[_0x3292cf(0x1b2)](_0x3292cf(0x1b3));setTimeout(()=>{const _0x318641=_0x3292cf;if(!_0x3ff34b||window[_0x318641(0x56f)]){window['isLoading']=![],window[_0x318641(0x7b6)]=![],game['player']['isTeleporting']=![];let _0x3448ab=document[_0x318641(0x6de)](_0x318641(0x489));if(_0x3448ab)_0x3448ab[_0x318641(0x290)][_0x318641(0x642)]=_0x318641(0x1ec);let _0x15c4f5=document[_0x318641(0x6de)](_0x318641(0x8d1));_0x15c4f5&&(_0x15c4f5['style']['opacity']='0',setTimeout(()=>_0x15c4f5['style'][_0x318641(0x642)]='none',0x3e8));if(typeof safeMapData!==_0x318641(0x22b)&&safeMapData['id']){window['playBGM'](window[_0x318641(0x207)](safeMapData['id']));try{window['showMapAnnouncement'](safeMapData['id']);}catch(_0x5d70f3){}}}},_0x3ff34b?0xbb8:0x12c);});});},0x1f4);}),socket['on'](_0x5d14f9(0x330),_0x4d2cbb=>{const _0x32cc59=_0x5d14f9;if(!game[_0x32cc59(0x840)][_0x4d2cbb['id']])window[_0x32cc59(0x60f)]({'id':_0x4d2cbb['id'],'name':_0x4d2cbb['id'],'x':_0x4d2cbb['x'],'y':_0x4d2cbb['y'],'spriteData':{}});const _0xd13496=game[_0x32cc59(0x840)][_0x4d2cbb['id']];if(!_0xd13496)return;_0xd13496['x']=_0x4d2cbb['x'],_0xd13496['y']=_0x4d2cbb['y'],_0xd13496['dom'][_0x32cc59(0x290)]['left']=_0xd13496['x']+'px',_0xd13496[_0x32cc59(0x474)]['style'][_0x32cc59(0x706)]=_0xd13496['y']+'px',_0xd13496[_0x32cc59(0x562)][_0x32cc59(0x290)][_0x32cc59(0x2b3)]=_0x4d2cbb[_0x32cc59(0x3c2)]?'scaleX(-1)':'scaleX(1)';let _0x50e1bf=Math['floor'](Date[_0x32cc59(0x91c)]()/0xfa)%0x2===0x0,_0x43f3c5=_0x32cc59(0x809),_0x11de09=![];if(_0x4d2cbb['state']===_0x32cc59(0x5d5))_0x43f3c5=_0x32cc59(0x533),_0x11de09=!![];else _0x4d2cbb[_0x32cc59(0x66b)]===_0x32cc59(0x6bd)&&(_0x43f3c5=_0x50e1bf?_0x32cc59(0x61e):'animation/avatar_idlefront.png');_0xd13496[_0x32cc59(0x82a)]!==_0x43f3c5&&(_0xd13496[_0x32cc59(0x4d5)][_0x32cc59(0x6fa)]=_0x43f3c5,_0xd13496[_0x32cc59(0x82a)]=_0x43f3c5);if(_0x4d2cbb['weaponSprite']){_0xd13496[_0x32cc59(0x452)]['style']['display']='block';let _0x183fed=_0x4d2cbb['weaponSprite'][_0x32cc59(0x818)]('starter','basic'),_0x522e4b=_0x32cc59(0x4f2)+_0x183fed+(_0x4d2cbb[_0x32cc59(0x66b)]===_0x32cc59(0x5d5)&&_0x11de09&&!_0x183fed['includes'](_0x32cc59(0x8cf))?_0x32cc59(0x449):'')+_0x32cc59(0x910);_0xd13496['currentWeaponSrc']!==_0x522e4b&&(_0xd13496[_0x32cc59(0x452)][_0x32cc59(0x6fa)]=_0x522e4b,_0xd13496[_0x32cc59(0x564)]=_0x522e4b);if(!_0xd13496[_0x32cc59(0x426)])_0xd13496[_0x32cc59(0x426)]={};_0xd13496[_0x32cc59(0x426)]['weapon']=_0x183fed,_0xd13496[_0x32cc59(0x452)]['className']=_0x32cc59(0x419);let _0x55b6dd=_0x183fed[_0x32cc59(0x649)]();[_0x32cc59(0x80c),_0x32cc59(0x8ce),_0x32cc59(0x8cf),_0x32cc59(0x554),_0x32cc59(0x3a4)][_0x32cc59(0x4c1)](_0x269dae=>{const _0x23ab94=_0x32cc59;if(_0x55b6dd['includes'](_0x269dae)){let _0x3e2208=_0x55b6dd[_0x23ab94(0x818)](_0x269dae,'');_0x3e2208&&![_0x23ab94(0x794),'basic',_0x23ab94(0x8f1),_0x23ab94(0x8bd)][_0x23ab94(0x67b)](_0x3e2208)&&_0xd13496[_0x23ab94(0x452)][_0x23ab94(0x4ea)][_0x23ab94(0x7e6)]('weapon-aura-'+_0x3e2208);}});}else{_0xd13496['weapon'][_0x32cc59(0x290)][_0x32cc59(0x642)]='none',_0xd13496['currentWeaponSrc']='';if(_0xd13496[_0x32cc59(0x426)])_0xd13496[_0x32cc59(0x426)][_0x32cc59(0x452)]=null;_0xd13496['weapon'][_0x32cc59(0x228)]='avatar-layer\x20layer-weapon';}const _0x3a2672=_0xd13496[_0x32cc59(0x562)][_0x32cc59(0x26d)](_0x32cc59(0x5fa));_0x3a2672&&(_0x3a2672[_0x32cc59(0x228)]=_0x4d2cbb[_0x32cc59(0x426)]?.[_0x32cc59(0x1b6)]?_0x32cc59(0x8a1)+_0x4d2cbb['spriteData'][_0x32cc59(0x1b6)]:'cosmetic-aura');const _0x176047=_0xd13496[_0x32cc59(0x474)][_0x32cc59(0x26d)](_0x32cc59(0x7d0));if(_0x176047){let _0x111ba7='<div\x20style=\x22text-align:\x20center;\x20width:\x20100%;\x22>';_0x111ba7+=_0x4d2cbb['spriteData']?.[_0x32cc59(0x383)]?_0x32cc59(0x3e2)+_0x4d2cbb[_0x32cc59(0x426)]['title']+_0x32cc59(0x1b7):'',_0x4d2cbb[_0x32cc59(0x426)]?.[_0x32cc59(0x5bf)]&&(_0x111ba7+=(_0x4d2cbb[_0x32cc59(0x426)]?.[_0x32cc59(0x383)]?_0x32cc59(0x3eb):'')+(_0x32cc59(0x435)+_0x4d2cbb[_0x32cc59(0x426)][_0x32cc59(0x5bf)]+_0x32cc59(0x62b))),_0x111ba7+=_0x32cc59(0x5a2),_0x176047[_0x32cc59(0x882)]=_0x111ba7;}}),socket['on'](_0x5d14f9(0x3f6),_0x4d2b0f=>{const _0x1951c4=_0x5d14f9;if(!_0x4d2b0f)return;dom['inspect'][_0x1951c4(0x290)][_0x1951c4(0x642)]='block',dom['inspectTitle'][_0x1951c4(0x492)]=_0x1951c4(0x39d)+(_0x4d2b0f[_0x1951c4(0x1f3)]||_0x4d2b0f['id']||_0x1951c4(0x881));const _0x2fe96e=_0x4d2b0f['equips']||{},_0x48eaba=[{'key':_0x1951c4(0x452),'label':_0x1951c4(0x1f0)},{'key':_0x1951c4(0x509),'label':'Armor'},{'key':_0x1951c4(0x548),'label':_0x1951c4(0x282)},{'key':_0x1951c4(0x327),'label':_0x1951c4(0x2a0)},{'key':_0x1951c4(0x6d6),'label':_0x1951c4(0x1c9)},{'key':_0x1951c4(0x5d3),'label':_0x1951c4(0x4b6)}];function _0x479f6d(_0x5e2239){const _0xa728c3=_0x1951c4;if(!_0x5e2239)return _0xa728c3(0x74c);const _0x12abb3=_0x5e2239['color']||(window[_0xa728c3(0x936)][_0x5e2239['rarity']]||'#fff'),_0x1e33c3=_0x5e2239[_0xa728c3(0x20b)]==='Godly'?_0xa728c3(0x945):_0x5e2239[_0xa728c3(0x20b)]===_0xa728c3(0x2b4)?_0xa728c3(0x6c1):'',_0x499d4e=_0x5e2239['enhanceLevel']?_0x5e2239[_0xa728c3(0x1f3)]+'\x20+'+_0x5e2239[_0xa728c3(0x91e)]:_0x5e2239[_0xa728c3(0x1f3)];let _0xd719d7='<div\x20class=\x22inspect-title\x22><div\x20class=\x22inspect-item-name\x20'+_0x1e33c3+_0xa728c3(0x3dc)+_0x12abb3+';\x22>'+_0x499d4e+'</div><div\x20class=\x22inspect-sub\x22>Lv.'+(_0x5e2239[_0xa728c3(0x3f2)]||0x1)+'\x20'+(_0x5e2239[_0xa728c3(0x20b)]||_0xa728c3(0x881))+_0xa728c3(0x733);if([_0xa728c3(0x327),_0xa728c3(0x6d6),_0xa728c3(0x5d3)][_0xa728c3(0x67b)](_0x5e2239[_0xa728c3(0x6d0)])){let _0x460194={'Basic':0x1,'Rare':0x1,'Unique':0x2,'Legendary':0x3,'Godly':0x4,'Divine':0x5}[_0x5e2239[_0xa728c3(0x20b)]]||0x0;if(_0x460194>0x0){let _0x1bcd9e=_0x5e2239['gemCount']||0x0,_0x3c15ca='';for(let _0x521179=0x0;_0x521179<_0x460194;_0x521179++){_0x3c15ca+=_0x521179<_0x1bcd9e?'♦':'♢';}_0xd719d7+=_0xa728c3(0x70c)+_0x3c15ca+_0xa728c3(0x5a2);}}if(_0x5e2239['fixedStat']){for(const _0x1fe47d in _0x5e2239[_0xa728c3(0x1c6)])_0xd719d7+=_0xa728c3(0x475)+_0x5e2239[_0xa728c3(0x1c6)][_0x1fe47d]+'\x20'+_0x1fe47d['toUpperCase']()+_0xa728c3(0x5a2);}if(_0x5e2239[_0xa728c3(0x7d4)]){for(const _0x53b899 in _0x5e2239[_0xa728c3(0x7d4)])_0xd719d7+=_0xa728c3(0x878)+_0x5e2239[_0xa728c3(0x7d4)][_0x53b899]+'\x20'+_0x53b899['toUpperCase']()+_0xa728c3(0x5a2);}return _0x5e2239['sprite']&&(_0xd719d7+=_0xa728c3(0x786)+_0x5e2239[_0xa728c3(0x573)]+_0xa728c3(0x198)),_0xd719d7+=_0xa728c3(0x5a2),_0xd719d7;}let _0x2193f1='<div\x20style=\x22font-size:14px;\x20color:#ccc;\x20margin-bottom:10px;\x20text-align:center;\x22>Level\x20'+(_0x4d2b0f[_0x1951c4(0x3f2)]||0x1)+'\x20&nbsp;\x20|\x20&nbsp;\x20HP\x20'+(_0x4d2b0f[_0x1951c4(0x6fc)]??'?')+_0x1951c4(0x503)+(_0x4d2b0f[_0x1951c4(0x830)]??'?')+_0x1951c4(0x5a2);_0x48eaba['forEach'](_0x41f020=>{const _0x37369a=_0x1951c4;_0x2193f1+=_0x37369a(0x55d)+_0x41f020[_0x37369a(0x34e)]+_0x37369a(0x5a2)+_0x479f6d(_0x2fe96e[_0x41f020['key']])+_0x37369a(0x5a2);}),dom[_0x1951c4(0x66d)][_0x1951c4(0x882)]=_0x2193f1;}),socket['on'](_0x5d14f9(0x6c0),_0x3ed096=>{const _0x360099=_0x5d14f9;pendingPartyInvite=_0x3ed096?.['fromId']||_0x360099(0x881),document['getElementById'](_0x360099(0x3e4))['innerText']=pendingPartyInvite+_0x360099(0x479),document[_0x360099(0x6de)]('invite-dialog')['style']['display']=_0x360099(0x53c);}),socket['on']('tradeInviteReceived',_0x45bddc=>{const _0x1da575=_0x5d14f9;pendingTradeInvite=_0x45bddc?.[_0x1da575(0x502)]||'Unknown',document[_0x1da575(0x6de)]('trade-text')[_0x1da575(0x492)]=pendingTradeInvite+_0x1da575(0x211),document[_0x1da575(0x6de)](_0x1da575(0x5e8))[_0x1da575(0x290)][_0x1da575(0x642)]=_0x1da575(0x53c);}),socket['on'](_0x5d14f9(0x762),_0x4f4ebc=>{const _0x405565=_0x5d14f9;tradeTarget=_0x4f4ebc[_0x405565(0x64e)],inTradeMode=!![],tradeMyItems=[null,null,null],tradeTheirItems=[null,null,null],document[_0x405565(0x6de)](_0x405565(0x37b))[_0x405565(0x492)]=tradeTarget,document['getElementById'](_0x405565(0x86c))[_0x405565(0x290)][_0x405565(0x642)]=_0x405565(0x53c);const _0x4bffbe=document[_0x405565(0x6de)](_0x405565(0x86c));window['isMobileUI']()&&(window[_0x405565(0x7bc)](_0x4bffbe),window[_0x405565(0x919)](_0x4bffbe),window[_0x405565(0x7c9)](_0x4bffbe));document[_0x405565(0x6de)](_0x405565(0x423))['value']=0x0,document[_0x405565(0x6de)]('trade-their-gold')[_0x405565(0x492)]='0';const _0x269e50=document[_0x405565(0x6de)](_0x405565(0x315));_0x269e50&&(_0x269e50['innerText']='Confirm\x20Trade',_0x269e50['disabled']=![],_0x269e50[_0x405565(0x290)]['background']=_0x405565(0x3b9),_0x269e50[_0x405565(0x290)]['borderColor']=_0x405565(0x3b9)),window['renderTradeSlots'](),window['renderInventory'](),dom[_0x405565(0x5ee)][_0x405565(0x290)][_0x405565(0x642)]='block';}),socket['on']('tradeSyncReceived',_0x3525ba=>{const _0x3e284a=_0x5d14f9;document['getElementById'](_0x3e284a(0x8e7))[_0x3e284a(0x492)]=_0x3525ba[_0x3e284a(0x4a4)]||0x0,tradeTheirItems=Array['isArray'](_0x3525ba[_0x3e284a(0x8d6)])?_0x3525ba[_0x3e284a(0x8d6)]:[null,null,null],window[_0x3e284a(0x356)]();}),socket['on'](_0x5d14f9(0x363),_0x1f901a=>{const _0x4c44b9=_0x5d14f9,_0x537455=document[_0x4c44b9(0x6de)](_0x4c44b9(0x315));if(!_0x537455)return;if(_0x1f901a[_0x4c44b9(0x40e)]&&_0x1f901a[_0x4c44b9(0x67a)]){_0x537455['innerText']=_0x4c44b9(0x2a7),_0x537455[_0x4c44b9(0x874)]=!![],_0x537455[_0x4c44b9(0x290)][_0x4c44b9(0x82b)]=_0x4c44b9(0x86a),_0x537455[_0x4c44b9(0x290)]['borderColor']=_0x4c44b9(0x86a);return;}_0x1f901a[_0x4c44b9(0x40e)]?(_0x537455[_0x4c44b9(0x492)]=_0x4c44b9(0x521),_0x537455['disabled']=!![],_0x537455[_0x4c44b9(0x290)][_0x4c44b9(0x82b)]=_0x4c44b9(0x71b),_0x537455[_0x4c44b9(0x290)][_0x4c44b9(0x53f)]=_0x4c44b9(0x71b)):(_0x537455[_0x4c44b9(0x492)]=_0x4c44b9(0x8de),_0x537455[_0x4c44b9(0x874)]=![],_0x537455[_0x4c44b9(0x290)]['background']='#2196F3',_0x537455[_0x4c44b9(0x290)]['borderColor']=_0x4c44b9(0x3b9));}),socket['on'](_0x5d14f9(0x2ba),_0x41cc77=>{const _0x58877b=_0x5d14f9;inTradeMode=![],tradeTarget=null,tradeMyItems=[null,null,null],tradeTheirItems=[null,null,null],game[_0x58877b(0x32e)]['gold']=_0x41cc77[_0x58877b(0x36c)]||0x0,game[_0x58877b(0x32e)][_0x58877b(0x5ed)]=Array['isArray'](_0x41cc77[_0x58877b(0x1f1)])?_0x41cc77[_0x58877b(0x1f1)]:game['player']['inventory'],document[_0x58877b(0x6de)](_0x58877b(0x423))[_0x58877b(0x6cf)]=0x0,document[_0x58877b(0x6de)]('trade-their-gold')[_0x58877b(0x492)]='0',document[_0x58877b(0x6de)](_0x58877b(0x86c))[_0x58877b(0x290)][_0x58877b(0x642)]=_0x58877b(0x1ec);const _0x187ea2=document[_0x58877b(0x6de)](_0x58877b(0x315));_0x187ea2&&(_0x187ea2[_0x58877b(0x492)]=_0x58877b(0x8de),_0x187ea2[_0x58877b(0x874)]=![],_0x187ea2[_0x58877b(0x290)][_0x58877b(0x82b)]=_0x58877b(0x3b9),_0x187ea2['style']['borderColor']='#2196F3'),window[_0x58877b(0x356)](),window[_0x58877b(0x252)](),window[_0x58877b(0x4b2)](),dom[_0x58877b(0x7cd)][_0x58877b(0x492)]=_0x58877b(0x772);}),socket['on'](_0x5d14f9(0x6d5),()=>{const _0x42bf20=_0x5d14f9;inTradeMode=![],tradeTarget=null,document['getElementById'](_0x42bf20(0x86c))[_0x42bf20(0x290)][_0x42bf20(0x642)]=_0x42bf20(0x1ec),dom[_0x42bf20(0x7cd)][_0x42bf20(0x492)]=_0x42bf20(0x1bb),tradeMyItems[_0x42bf20(0x4c1)](_0x32782c=>{const _0x3164a7=_0x42bf20;if(_0x32782c)window[_0x3164a7(0x539)](_0x32782c);}),tradeMyItems=[null,null,null],tradeTheirItems=[null,null,null],document[_0x42bf20(0x6de)](_0x42bf20(0x423))['value']=0x0,document[_0x42bf20(0x6de)](_0x42bf20(0x8e7))[_0x42bf20(0x492)]='0';const _0x40ae43=document[_0x42bf20(0x6de)](_0x42bf20(0x315));_0x40ae43&&(_0x40ae43['innerText']='Confirm\x20Trade',_0x40ae43[_0x42bf20(0x874)]=![],_0x40ae43['style']['background']=_0x42bf20(0x3b9),_0x40ae43['style'][_0x42bf20(0x53f)]='#2196F3'),window[_0x42bf20(0x252)](),window[_0x42bf20(0x356)]();}),socket['on'](_0x5d14f9(0x80e),_0x45045b=>{const _0x1f5779=_0x5d14f9;game[_0x1f5779(0x333)]=_0x45045b||null,window[_0x1f5779(0x2e9)]();}),window['justLeveledUp']=![],socket['on'](_0x5d14f9(0x273),_0x2b350f=>{const _0x4fc494=_0x5d14f9;window[_0x4fc494(0x515)]?window['justLeveledUp']=![]:game[_0x4fc494(0x32e)][_0x4fc494(0x2c3)]+=_0x2b350f[_0x4fc494(0x5dd)];if(_0x2b350f[_0x4fc494(0x4a4)])game[_0x4fc494(0x32e)][_0x4fc494(0x4a4)]+=_0x2b350f[_0x4fc494(0x4a4)];dom[_0x4fc494(0x7cd)][_0x4fc494(0x492)]=_0x4fc494(0x1a6)+_0x2b350f[_0x4fc494(0x5dd)]+_0x4fc494(0x7f5)+(_0x2b350f[_0x4fc494(0x4a4)]?_0x4fc494(0x2cf)+_0x2b350f[_0x4fc494(0x4a4)]+_0x4fc494(0x2fb):'')+_0x4fc494(0x4d8)+_0x2b350f[_0x4fc494(0x5ea)]+'!',window[_0x4fc494(0x4b2)]();}),socket['on'](_0x5d14f9(0x778),_0x22dae3=>{const _0x435bda=_0x5d14f9;window[_0x435bda(0x515)]=!![],game['player'][_0x435bda(0x3f2)]=_0x22dae3[_0x435bda(0x3f2)],game[_0x435bda(0x32e)][_0x435bda(0x2c3)]=_0x22dae3[_0x435bda(0x2c3)],game[_0x435bda(0x32e)]['maxExp']=_0x22dae3['maxExp'],game['player'][_0x435bda(0x526)]=_0x22dae3[_0x435bda(0x526)],game[_0x435bda(0x32e)][_0x435bda(0x6fc)]=_0x22dae3[_0x435bda(0x6fc)];const _0x4c70b8=document[_0x435bda(0x81e)](_0x435bda(0x8fa));_0x4c70b8[_0x435bda(0x228)]=_0x435bda(0x373),_0x4c70b8[_0x435bda(0x492)]='LEVEL\x20UP!',_0x4c70b8[_0x435bda(0x290)][_0x435bda(0x76a)]=game[_0x435bda(0x32e)]['x']-0x14+'px',_0x4c70b8[_0x435bda(0x290)]['top']=game[_0x435bda(0x32e)]['y']-0x28+'px',dom[_0x435bda(0x36e)][_0x435bda(0x463)](_0x4c70b8),setTimeout(()=>_0x4c70b8[_0x435bda(0x7f7)](),0x7d0),window['updateUI'](),window[_0x435bda(0x4d1)]();}),socket['on'](_0x5d14f9(0x54e),_0x23a87f=>{const _0x20bb75=_0x5d14f9;if(game[_0x20bb75(0x333)]&&game[_0x20bb75(0x333)][_0x20bb75(0x5b5)]){let _0x3eaa0e=game[_0x20bb75(0x333)]['members'][_0x20bb75(0x4f9)](_0x1202c0=>_0x1202c0['id']===_0x23a87f['id']);_0x3eaa0e&&(_0x3eaa0e[_0x20bb75(0x6fc)]=_0x23a87f[_0x20bb75(0x6fc)],_0x3eaa0e[_0x20bb75(0x830)]=_0x23a87f[_0x20bb75(0x830)],_0x3eaa0e['level']=_0x23a87f[_0x20bb75(0x3f2)],window[_0x20bb75(0x2e9)]());}}),socket['on'](_0x5d14f9(0x826),_0xbf343e=>{const _0x5a66e9=_0x5d14f9;let _0x39da17=_0x5a66e9(0x2d7)+_0xbf343e[_0x5a66e9(0x391)]+'_'+_0xbf343e[_0x5a66e9(0x785)]['id'],_0x2e661f=document[_0x5a66e9(0x6de)](_0x39da17);if(_0xbf343e[_0x5a66e9(0x785)]['alive']){if(!_0x2e661f){_0x2e661f=document[_0x5a66e9(0x81e)](_0x5a66e9(0x8fa)),_0x2e661f['id']=_0x39da17;if(_0xbf343e[_0x5a66e9(0x785)][_0x5a66e9(0x1ca)])_0x2e661f[_0x5a66e9(0x228)]='tech-drone';else _0xbf343e[_0x5a66e9(0x785)][_0x5a66e9(0x2d9)]?(_0x2e661f[_0x5a66e9(0x228)]='pet-slime\x20golem-buster',_0x2e661f['innerHTML']=_0x5a66e9(0x62c)):(_0x2e661f[_0x5a66e9(0x228)]='pet-slime',_0x2e661f[_0x5a66e9(0x882)]=_0x5a66e9(0x70f));_0xbf343e[_0x5a66e9(0x785)][_0x5a66e9(0x568)]&&(_0x2e661f['style']['width']='100px',_0x2e661f[_0x5a66e9(0x290)][_0x5a66e9(0x7a7)]=_0x5a66e9(0x1e2),_0x2e661f[_0x5a66e9(0x290)][_0x5a66e9(0x8b7)]=_0x5a66e9(0x78a),_0x2e661f['style'][_0x5a66e9(0x700)]=_0x5a66e9(0x4c2),_0x2e661f[_0x5a66e9(0x290)][_0x5a66e9(0x28f)]=_0x5a66e9(0x78b),_0x2e661f[_0x5a66e9(0x290)][_0x5a66e9(0x588)]='0\x200\x2020px\x20#ffffff'),dom[_0x5a66e9(0x36e)]['appendChild'](_0x2e661f);}_0x2e661f[_0x5a66e9(0x290)][_0x5a66e9(0x76a)]=_0xbf343e['petData']['x']+'px',_0x2e661f['style']['top']=_0xbf343e[_0x5a66e9(0x785)]['y']+'px';}else _0x2e661f&&_0x2e661f[_0x5a66e9(0x7f7)]();}),socket['on']('playerRevived',_0x44d383=>{const _0x589ece=_0x5d14f9;if(!_0x44d383)return;if(_0x44d383['id']===game['player']['id']){game[_0x589ece(0x842)]=![],game[_0x589ece(0x32e)][_0x589ece(0x6fc)]=_0x44d383[_0x589ece(0x6fc)]||window[_0x589ece(0x847)](),game[_0x589ece(0x32e)]['currentPortal']=null,game[_0x589ece(0x32e)][_0x589ece(0x279)]=null,game[_0x589ece(0x32e)][_0x589ece(0x248)]=![];if(dom['playerContainer'])dom['playerContainer'][_0x589ece(0x290)][_0x589ece(0x398)]='1';const _0x3de418=document[_0x589ece(0x6de)](_0x589ece(0x1a1));if(_0x3de418)_0x3de418[_0x589ece(0x290)][_0x589ece(0x642)]=_0x589ece(0x1ec);const _0x3c635d=document['getElementById'](_0x589ece(0x80d));if(_0x3c635d)_0x3c635d[_0x589ece(0x290)]['display']='none';window[_0x589ece(0x583)](game[_0x589ece(0x32e)]['x']+0x18,game[_0x589ece(0x32e)]['y'],'REVIVED','#4CAF50');}else game[_0x589ece(0x840)][_0x44d383['id']]&&(game[_0x589ece(0x840)][_0x44d383['id']][_0x589ece(0x842)]=![],game['remotePlayers'][_0x44d383['id']][_0x589ece(0x474)]['style'][_0x589ece(0x398)]='1',window['spawnDamageText'](game[_0x589ece(0x840)][_0x44d383['id']]['x']+0x18,game[_0x589ece(0x840)][_0x44d383['id']]['y'],_0x589ece(0x50d),_0x589ece(0x71b)));window['updateUI'](),window[_0x589ece(0x2e9)]();}),socket['on'](_0x5d14f9(0x4db),_0x2035a8=>{const _0x41121f=_0x5d14f9;if(!_0x2035a8)return;Array[_0x41121f(0x75b)](_0x2035a8['inventory'])&&(game[_0x41121f(0x32e)][_0x41121f(0x5ed)]=_0x2035a8[_0x41121f(0x5ed)]);game['isGhost']=![],game['player']['currentHp']=_0x2035a8[_0x41121f(0x6fc)]||window[_0x41121f(0x847)](),game[_0x41121f(0x32e)][_0x41121f(0x864)]=null,game['player']['portalEntryTime']=null,game[_0x41121f(0x32e)]['isTeleporting']=![];if(dom[_0x41121f(0x238)])dom['playerContainer'][_0x41121f(0x290)][_0x41121f(0x398)]='1';const _0x50aae4=document['getElementById'](_0x41121f(0x1a1));if(_0x50aae4)_0x50aae4['style'][_0x41121f(0x642)]=_0x41121f(0x1ec);const _0x39d6f7=document[_0x41121f(0x6de)](_0x41121f(0x80d));if(_0x39d6f7)_0x39d6f7[_0x41121f(0x290)][_0x41121f(0x642)]=_0x41121f(0x1ec);window[_0x41121f(0x583)](game[_0x41121f(0x32e)]['x']+0x18,game['player']['y'],'REVIVED',_0x41121f(0x631)),dom[_0x41121f(0x7cd)]['innerText']=_0x41121f(0x80b),window[_0x41121f(0x4b2)](),window[_0x41121f(0x252)](),window['emitVitalsIfNeeded'](!![]),socket&&socket[_0x41121f(0x1b2)]('playerMoved',{'x':game['player']['x'],'y':game[_0x41121f(0x32e)]['y'],'state':_0x41121f(0x737),'facingRight':window[_0x41121f(0x3c2)],'weaponSprite':game[_0x41121f(0x32e)][_0x41121f(0x670)]?.[_0x41121f(0x452)]?.['sprite']||null});}),socket['on']('playerHealed',_0x538dae=>{const _0x49aff3=_0x5d14f9,_0xa14296=_0x538dae['id']===game[_0x49aff3(0x32e)]['id']?game['player']:game[_0x49aff3(0x840)][_0x538dae['id']];if(_0xa14296){if(_0x538dae['id']===game[_0x49aff3(0x32e)]['id'])game[_0x49aff3(0x32e)][_0x49aff3(0x6fc)]=_0x538dae[_0x49aff3(0x6fc)];window['spawnDamageText'](_0xa14296['x']+0x18,_0xa14296['y']-0xa,'+'+_0x538dae[_0x49aff3(0x5dd)],'#4CAF50');}window[_0x49aff3(0x4b2)](),window[_0x49aff3(0x2e9)]();}),socket['on'](_0x5d14f9(0x1ac),_0x3ffc3a=>{const _0x3267bd=_0x5d14f9,_0x134ed5=game[_0x3267bd(0x840)][_0x3ffc3a[_0x3267bd(0x35c)]];if(_0x134ed5){const _0x53d046=_0x134ed5['dom']['querySelector'](_0x3267bd(0x2ce))||document['createElement'](_0x3267bd(0x8fa));_0x53d046[_0x3267bd(0x228)]='aura\x20aura-'+_0x3ffc3a[_0x3267bd(0x402)];if(!_0x134ed5[_0x3267bd(0x474)]['querySelector'](_0x3267bd(0x2ce)))_0x134ed5['dom'][_0x3267bd(0x26d)](_0x3267bd(0x7bb))['prepend'](_0x53d046);_0x53d046[_0x3267bd(0x290)][_0x3267bd(0x650)]=_0x3267bd(0x1ec),void _0x53d046[_0x3267bd(0x6c6)],_0x53d046[_0x3267bd(0x290)][_0x3267bd(0x650)]=_0x3267bd(0x853);if(typeof window[_0x3267bd(0x362)]===_0x3267bd(0x268))window['playSFX'](_0x3ffc3a[_0x3267bd(0x7e7)]);_0x3ffc3a[_0x3267bd(0x277)]&&typeof window['spawnSkillText']==='function'&&window[_0x3267bd(0x85a)](_0x134ed5['x']+0x18,_0x134ed5['y']-0x14,_0x3ffc3a[_0x3267bd(0x277)],_0x3267bd(0x431));}}),socket['on'](_0x5d14f9(0x42a),_0x38b9a3=>{const _0x717509=_0x5d14f9;if(window['isTransitioning']||window['isLoading']||!Array[_0x717509(0x75b)](_0x38b9a3)||safeMapData['id']===_0x717509(0x8ba))return;const _0x5ddbb6=new Set();_0x38b9a3[_0x717509(0x4c1)](_0x1c5f9c=>{const _0x41708b=_0x717509;_0x5ddbb6[_0x41708b(0x7e6)](_0x1c5f9c['id']);let _0x16e0f0=document[_0x41708b(0x6de)](_0x41708b(0x2b1)+_0x1c5f9c['id']);if(!_0x16e0f0){_0x16e0f0=document['createElement']('div'),_0x16e0f0['id']=_0x41708b(0x2b1)+_0x1c5f9c['id'],_0x16e0f0[_0x41708b(0x228)]=_0x41708b(0x6f2),_0x16e0f0[_0x41708b(0x290)][_0x41708b(0x6f6)]=_0x41708b(0x506),_0x16e0f0[_0x41708b(0x290)]['cursor']='crosshair',_0x16e0f0[_0x41708b(0x290)][_0x41708b(0x5c1)]='50',_0x16e0f0[_0x41708b(0x290)][_0x41708b(0x642)]=_0x41708b(0x8c1),_0x16e0f0[_0x41708b(0x290)][_0x41708b(0x223)]=_0x41708b(0x5f2),_0x16e0f0[_0x41708b(0x290)]['alignItems']=_0x41708b(0x3c9);let _0x3ff18d='';if(_0x1c5f9c[_0x41708b(0x7de)][_0x41708b(0x67b)](_0x41708b(0x486)))_0x3ff18d=_0x41708b(0x236);else{if(_0x1c5f9c[_0x41708b(0x7de)]['includes'](_0x41708b(0x40c)))_0x3ff18d=_0x41708b(0x5d8);else{if(_0x1c5f9c[_0x41708b(0x7de)]['includes'](_0x41708b(0x88d)))_0x3ff18d='<div\x20class=\x22monster-sprite-layer\x20minotaur-base\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22m-head\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22m-horn-l\x22></div><div\x20class=\x22m-horn-r\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22m-eye-l\x22></div><div\x20class=\x22m-eye-r\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22m-snout\x22><div\x20class=\x22m-ring\x22></div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22m-body\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22m-arm-l\x22><div\x20class=\x22m-axe\x22></div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22m-arm-r\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22m-leg-l\x22></div><div\x20class=\x22m-leg-r\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>';else _0x1c5f9c[_0x41708b(0x7de)]['includes']('dragon')?_0x3ff18d=_0x41708b(0x271):_0x3ff18d=_0x41708b(0x43a);}}_0x16e0f0[_0x41708b(0x882)]=_0x41708b(0x267)+_0x1c5f9c[_0x41708b(0x1f3)]+_0x41708b(0x93f)+(_0x1c5f9c['level']||0x5)+_0x41708b(0x5a2)+_0x3ff18d+_0x41708b(0x707),_0x16e0f0[_0x41708b(0x665)](_0x41708b(0x813),_0x42e3c6=>{const _0x277f9a=_0x41708b;_0x42e3c6['stopPropagation'](),!window[_0x277f9a(0x56f)]&&(window[_0x277f9a(0x62a)]=_0x1c5f9c['id'],window[_0x277f9a(0x63d)](![]));}),dom['world'][_0x41708b(0x463)](_0x16e0f0);}game[_0x41708b(0x82e)][_0x1c5f9c['id']]=_0x1c5f9c;if(!_0x1c5f9c[_0x41708b(0x352)])_0x16e0f0['style']['display']=_0x41708b(0x1ec);else{_0x16e0f0[_0x41708b(0x290)][_0x41708b(0x642)]=_0x41708b(0x8c1),_0x16e0f0[_0x41708b(0x290)][_0x41708b(0x76a)]=_0x1c5f9c['x']+'px',_0x16e0f0[_0x41708b(0x290)][_0x41708b(0x706)]=_0x1c5f9c['y']+'px',_0x16e0f0['style'][_0x41708b(0x2ff)]=(_0x1c5f9c[_0x41708b(0x2ff)]||0x28)+'px',_0x16e0f0[_0x41708b(0x290)]['height']=(_0x1c5f9c['height']||0x28)+'px';const _0x3e5ec6=_0x16e0f0[_0x41708b(0x26d)](_0x41708b(0x81d));if(_0x3e5ec6)_0x3e5ec6['style']['width']=_0x1c5f9c[_0x41708b(0x6fc)]/Math[_0x41708b(0x269)](0x1,_0x1c5f9c['maxHp'])*0x64+'%';const _0x253c1b=_0x16e0f0[_0x41708b(0x26d)](_0x41708b(0x4d2));_0x16e0f0[_0x41708b(0x290)][_0x41708b(0x829)](_0x41708b(0x923),_0x1c5f9c[_0x41708b(0x654)]||_0x41708b(0x7b5)),_0x16e0f0[_0x41708b(0x290)][_0x41708b(0x829)](_0x41708b(0x1e9),_0x1c5f9c['cssBorder']||_0x41708b(0x7b8));let _0x39597c=_0x1c5f9c['category']||_0x41708b(0x38e);if(_0x1c5f9c['monsterKey'][_0x41708b(0x67b)](_0x41708b(0x486)))_0x253c1b[_0x41708b(0x228)]=_0x39597c===_0x41708b(0x6ff)?_0x41708b(0x270)+_0x39597c:_0x41708b(0x6f4)+_0x39597c;else{if(_0x1c5f9c[_0x41708b(0x7de)][_0x41708b(0x67b)](_0x41708b(0x40c)))_0x253c1b[_0x41708b(0x228)]='monster-sprite-layer\x20wraith-base\x20'+_0x39597c;else{if(_0x1c5f9c['monsterKey'][_0x41708b(0x67b)](_0x41708b(0x88d)))_0x253c1b[_0x41708b(0x228)]=_0x41708b(0x72e)+_0x1c5f9c[_0x41708b(0x6b1)];else{if(_0x1c5f9c[_0x41708b(0x7de)][_0x41708b(0x67b)](_0x41708b(0x885)))_0x253c1b[_0x41708b(0x228)]=_0x41708b(0x460)+_0x1c5f9c[_0x41708b(0x6b1)];else{if(_0x1c5f9c[_0x41708b(0x7de)][_0x41708b(0x67b)]('2'))_0x253c1b[_0x41708b(0x228)]=_0x41708b(0x3b3),_0x253c1b['style']['background']=_0x1c5f9c['cssColor'],_0x253c1b[_0x41708b(0x290)]['border']=_0x41708b(0x1ec),_0x253c1b['style'][_0x41708b(0x650)]=_0x41708b(0x1ec);else{if(_0x1c5f9c[_0x41708b(0x7de)][_0x41708b(0x67b)]('3'))_0x253c1b[_0x41708b(0x228)]='monster-sprite-layer\x20fire-sprite',_0x253c1b[_0x41708b(0x290)][_0x41708b(0x82b)]=_0x1c5f9c[_0x41708b(0x654)],_0x253c1b[_0x41708b(0x290)]['border']=_0x41708b(0x1ec),_0x253c1b[_0x41708b(0x290)][_0x41708b(0x650)]=_0x41708b(0x1ec);else _0x1c5f9c[_0x41708b(0x7de)][_0x41708b(0x67b)]('1')||_0x1c5f9c['monsterKey']['includes'](_0x41708b(0x38e))||_0x1c5f9c[_0x41708b(0x7de)][_0x41708b(0x67b)](_0x41708b(0x8fb))||_0x1c5f9c[_0x41708b(0x7de)]['includes']('floor_boss')?(_0x253c1b[_0x41708b(0x228)]=_0x41708b(0x5b1),_0x253c1b[_0x41708b(0x290)][_0x41708b(0x1e5)]='none',_0x253c1b[_0x41708b(0x290)]['backgroundColor']=_0x1c5f9c[_0x41708b(0x654)]||'#ff69b4',_0x253c1b[_0x41708b(0x290)][_0x41708b(0x700)]=_0x41708b(0x697)+(_0x1c5f9c['cssBorder']||_0x41708b(0x1b1)),_0x253c1b['style'][_0x41708b(0x28f)]='50%\x2050%\x2040%\x2040%',_0x253c1b['style'][_0x41708b(0x650)]='slime-bounce\x200.5s\x20infinite\x20alternate'):(_0x253c1b[_0x41708b(0x228)]=_0x41708b(0x5b1),_0x253c1b[_0x41708b(0x290)][_0x41708b(0x8b7)]=_0x41708b(0x86b),_0x253c1b['style'][_0x41708b(0x700)]=_0x41708b(0x1ec),_0x253c1b[_0x41708b(0x290)][_0x41708b(0x28f)]='0',_0x253c1b[_0x41708b(0x290)]['backgroundImage']=_0x41708b(0x369)+_0x1c5f9c[_0x41708b(0x7de)]+'.png\x27)',_0x253c1b[_0x41708b(0x290)][_0x41708b(0x650)]='none');}}}}}}}),Object[_0x717509(0x2c1)](game[_0x717509(0x82e)])[_0x717509(0x4c1)](_0x4fbe2c=>{const _0x18e220=_0x717509;if(!_0x5ddbb6['has'](_0x4fbe2c)){let _0x51de9f=document['getElementById'](_0x18e220(0x2b1)+_0x4fbe2c);if(_0x51de9f)_0x51de9f[_0x18e220(0x7f7)]();delete game[_0x18e220(0x82e)][_0x4fbe2c];}});}),socket['on']('playerStunned',_0x310548=>{const _0x4482a0=_0x5d14f9;_0x310548[_0x4482a0(0x64e)]===game[_0x4482a0(0x32e)]['id']&&(game[_0x4482a0(0x32e)][_0x4482a0(0x626)]=Date[_0x4482a0(0x91c)]()+_0x310548[_0x4482a0(0x19d)],window['spawnDamageText'](game[_0x4482a0(0x32e)]['x']+0x18,game[_0x4482a0(0x32e)]['y']-0x14,'STUNNED!',_0x4482a0(0x631)));}),socket['on'](_0x5d14f9(0x29d),_0xfb6851=>{const _0x5e6bee=_0x5d14f9;if(window['isTransitioning']||window['isLoading']||!_0xfb6851)return;const _0x208cd4=_0xfb6851[_0x5e6bee(0x64e)];let _0x50e0c6=null;game[_0x5e6bee(0x32e)]['activePets']&&(_0x50e0c6=game['player'][_0x5e6bee(0x4ec)][_0x5e6bee(0x4f9)](_0x18f106=>_0x18f106['id']===_0x208cd4));if(_0x50e0c6){const _0x25d451=Number(_0xfb6851['atk']||0x19),_0x1fd186=_0x50e0c6[_0x5e6bee(0x568)]||_0x50e0c6[_0x5e6bee(0x2d9)]?window['getDefense']():Math[_0x5e6bee(0x7f1)](window[_0x5e6bee(0x249)]()*0.25);let _0x4cb9aa=Math[_0x5e6bee(0x269)](0x1,_0x25d451-_0x1fd186);if(_0x50e0c6[_0x5e6bee(0x1cc)]&&_0x50e0c6[_0x5e6bee(0x1cc)]>0x0){if(_0x4cb9aa>=_0x50e0c6[_0x5e6bee(0x1cc)]){_0x4cb9aa=0x0,_0x50e0c6[_0x5e6bee(0x1cc)]=0x0;let _0x8db358=_0x50e0c6[_0x5e6bee(0x474)][_0x5e6bee(0x26d)](_0x5e6bee(0x1a7));_0x8db358&&(_0x8db358[_0x5e6bee(0x290)][_0x5e6bee(0x650)]=_0x5e6bee(0x494),setTimeout(()=>_0x8db358[_0x5e6bee(0x7f7)](),0x12c));}else _0x50e0c6[_0x5e6bee(0x1cc)]-=_0x4cb9aa,_0x4cb9aa=0x0;}_0x50e0c6['hp']-=_0x4cb9aa,window[_0x5e6bee(0x583)](_0x50e0c6['x']+0xf,_0x50e0c6['y']-0xa,_0x4cb9aa,_0x5e6bee(0x618));}else{if(_0x208cd4===game[_0x5e6bee(0x32e)]['id'])game[_0x5e6bee(0x32e)][_0x5e6bee(0x6fc)]=Math[_0x5e6bee(0x269)](0x0,_0xfb6851[_0x5e6bee(0x738)]),_0xfb6851['damage']>0x0&&(window[_0x5e6bee(0x583)](game[_0x5e6bee(0x32e)]['x']+0x18,game[_0x5e6bee(0x32e)]['y']-0xa,_0xfb6851[_0x5e6bee(0x783)],_0x5e6bee(0x3c7)),window[_0x5e6bee(0x84e)](game[_0x5e6bee(0x32e)]['x']+0x18,game[_0x5e6bee(0x32e)]['y']+0x30)),game[_0x5e6bee(0x32e)][_0x5e6bee(0x6fc)]<=0x0&&Date['now']()<game[_0x5e6bee(0x32e)][_0x5e6bee(0x941)]&&(game[_0x5e6bee(0x32e)][_0x5e6bee(0x6fc)]=0x1,window['spawnDamageText'](game[_0x5e6bee(0x32e)]['x']+0x18,game[_0x5e6bee(0x32e)]['y']-0xa,_0x5e6bee(0x81a),_0x5e6bee(0x631))),window[_0x5e6bee(0x4b2)]();else{if(game[_0x5e6bee(0x840)][_0x208cd4]){const _0x32c3eb=game[_0x5e6bee(0x840)][_0x208cd4];_0xfb6851[_0x5e6bee(0x783)]>0x0&&(window[_0x5e6bee(0x583)](_0x32c3eb['x']+0x18,_0x32c3eb['y']-0xa,_0xfb6851[_0x5e6bee(0x783)],_0x5e6bee(0x3c7)),window[_0x5e6bee(0x84e)](_0x32c3eb['x']+0x18,_0x32c3eb['y']+0x30));}}}if(!game['monsters'][_0xfb6851[_0x5e6bee(0x5f8)]])return;const _0x49551f=game[_0x5e6bee(0x82e)][_0xfb6851['monsterId']];window[_0x5e6bee(0x646)](_0x49551f);const _0x3118d8=document[_0x5e6bee(0x6de)](_0x5e6bee(0x2b1)+_0x49551f['id']);if(!_0x3118d8)return;let _0x44b630=game['player']['x']+0x18,_0x355054=game[_0x5e6bee(0x32e)]['y']+0x30;_0x208cd4!==game['player']['id']&&game['remotePlayers'][_0x208cd4]&&(_0x44b630=game[_0x5e6bee(0x840)][_0x208cd4]['x']+0x18,_0x355054=game[_0x5e6bee(0x840)][_0x208cd4]['y']+0x30);_0x50e0c6&&(_0x44b630=_0x50e0c6['x']+0xf,_0x355054=_0x50e0c6['y']+0xf);const _0x130197=_0x49551f[_0x5e6bee(0x7de)]&&(String(_0x49551f[_0x5e6bee(0x7de)])['includes']('3')||String(_0x49551f[_0x5e6bee(0x7de)])[_0x5e6bee(0x67b)](_0x5e6bee(0x885))),_0x463f3a=_0x49551f['x']+_0x49551f[_0x5e6bee(0x2ff)]/0x2,_0xc5bbd3=_0x49551f['y']+_0x49551f[_0x5e6bee(0x7a7)]/0x2;if(_0x130197)window[_0x5e6bee(0x92d)](_0x463f3a,_0xc5bbd3,_0x44b630,_0x355054);let _0x3a31fe=_0x44b630-_0x463f3a,_0x260dca=_0x355054-_0xc5bbd3,_0x483785=Math['hypot'](_0x3a31fe,_0x260dca)||0x1,_0x2f71d7=_0x3a31fe/_0x483785*0x14,_0x32d66f=_0x260dca/_0x483785*0x14;const _0x1ae02d=_0x3118d8[_0x5e6bee(0x26d)](_0x5e6bee(0x4d2));_0x1ae02d&&(_0x49551f[_0x5e6bee(0x7de)][_0x5e6bee(0x67b)](_0x5e6bee(0x486))&&(_0x1ae02d['classList'][_0x5e6bee(0x7e6)]('attacking'),setTimeout(()=>_0x1ae02d[_0x5e6bee(0x4ea)]['remove'](_0x5e6bee(0x94a)),0xc8)),_0x1ae02d[_0x5e6bee(0x290)][_0x5e6bee(0x2b3)]=_0x5e6bee(0x310)+_0x2f71d7+'px,\x20'+_0x32d66f+_0x5e6bee(0x8b6),setTimeout(()=>{const _0x16f54a=_0x5e6bee;_0x1ae02d['style'][_0x16f54a(0x2b3)]='translate(0px,\x200px)\x20scale(1)';},0x96));let _0x1060b1=_0x5e6bee(0x22a);if(_0x49551f[_0x5e6bee(0x7de)]['includes']('2'))_0x1060b1='lightning';else{if(_0x49551f['monsterKey'][_0x5e6bee(0x67b)]('3')||_0x49551f[_0x5e6bee(0x7de)][_0x5e6bee(0x67b)](_0x5e6bee(0x885)))_0x1060b1='splash';}let _0x454edb=new Audio(_0x5e6bee(0x91b)+_0x1060b1+_0x5e6bee(0x49d));_0x454edb[_0x5e6bee(0x686)]=0.4,_0x454edb[_0x5e6bee(0x6d4)]()[_0x5e6bee(0x1a2)](_0x4d015e=>{});}),socket['on'](_0x5d14f9(0x587),_0x3232c4=>{const _0x1514e8=_0x5d14f9;if(window[_0x1514e8(0x7b6)]||window[_0x1514e8(0x56f)])return;if(_0x3232c4[_0x1514e8(0x277)]===_0x1514e8(0x206)){let _0x5ad5c5=new Audio(_0x1514e8(0x6ad));_0x5ad5c5[_0x1514e8(0x686)]=0.6,_0x5ad5c5['play']()['catch'](_0x455bd6=>{});const _0x7be256=document['getElementById'](_0x1514e8(0x2b1)+_0x3232c4['monsterId']);_0x7be256&&(_0x7be256[_0x1514e8(0x290)][_0x1514e8(0x46f)]=_0x1514e8(0x226)+_0x3232c4[_0x1514e8(0x19d)]+_0x1514e8(0x844)+_0x3232c4[_0x1514e8(0x19d)]+_0x1514e8(0x4f8),_0x7be256['style'][_0x1514e8(0x76a)]=_0x3232c4[_0x1514e8(0x745)]+'px',_0x7be256[_0x1514e8(0x290)][_0x1514e8(0x706)]=_0x3232c4[_0x1514e8(0x3be)]+'px',setTimeout(()=>{const _0x577932=_0x1514e8;if(_0x7be256)_0x7be256[_0x577932(0x290)][_0x577932(0x46f)]=_0x577932(0x1ec);},_0x3232c4[_0x1514e8(0x19d)]));}else{if(_0x3232c4[_0x1514e8(0x277)]==='Earthquake'){const _0x1a8152=document[_0x1514e8(0x6de)](_0x1514e8(0x742));_0x1a8152[_0x1514e8(0x4ea)][_0x1514e8(0x7e6)](_0x1514e8(0x58c)),setTimeout(()=>_0x1a8152[_0x1514e8(0x4ea)][_0x1514e8(0x7f7)](_0x1514e8(0x58c)),0x1f4);const _0x4de2b4=document['getElementById'](_0x1514e8(0x2b1)+_0x3232c4[_0x1514e8(0x5f8)]);if(_0x4de2b4){const _0x34d80f=_0x4de2b4[_0x1514e8(0x26d)]('.golem-base');_0x34d80f&&(_0x34d80f[_0x1514e8(0x4ea)][_0x1514e8(0x7e6)](_0x1514e8(0x94a)),setTimeout(()=>_0x34d80f[_0x1514e8(0x4ea)]['remove']('attacking'),0x12c));}const _0x5bf504=document['createElement'](_0x1514e8(0x8fa));_0x5bf504['className']=_0x1514e8(0x6b5),_0x5bf504[_0x1514e8(0x290)]['left']=_0x3232c4['x']-_0x3232c4[_0x1514e8(0x92b)]+'px',_0x5bf504[_0x1514e8(0x290)][_0x1514e8(0x706)]=_0x3232c4['y']-_0x3232c4[_0x1514e8(0x92b)]+'px',_0x5bf504[_0x1514e8(0x290)][_0x1514e8(0x2ff)]=_0x3232c4[_0x1514e8(0x92b)]*0x2+'px',_0x5bf504['style']['height']=_0x3232c4[_0x1514e8(0x92b)]*0x2+'px',_0x3232c4[_0x1514e8(0x510)]===_0x1514e8(0x6da)&&(_0x5bf504[_0x1514e8(0x290)][_0x1514e8(0x700)]=_0x1514e8(0x7c2),_0x5bf504[_0x1514e8(0x290)][_0x1514e8(0x588)]=_0x1514e8(0x6d7)),document[_0x1514e8(0x6de)](_0x1514e8(0x36e))['appendChild'](_0x5bf504),setTimeout(()=>_0x5bf504[_0x1514e8(0x7f7)](),0x320);}else{if(_0x3232c4[_0x1514e8(0x277)]==='Vanish'){const _0xca8b21=document[_0x1514e8(0x81e)](_0x1514e8(0x8fa));_0xca8b21[_0x1514e8(0x290)][_0x1514e8(0x201)]=_0x1514e8(0x877)+_0x3232c4['x']+_0x1514e8(0x379)+_0x3232c4['y']+_0x1514e8(0x38c),document[_0x1514e8(0x6de)](_0x1514e8(0x36e))[_0x1514e8(0x463)](_0xca8b21),requestAnimationFrame(()=>{requestAnimationFrame(()=>{const _0x2bb255=_0x7052;_0xca8b21[_0x2bb255(0x290)][_0x2bb255(0x2b3)]='translate(-50%,\x20-50%)\x20scale(2.5)',_0xca8b21[_0x2bb255(0x290)][_0x2bb255(0x398)]='0';});}),setTimeout(()=>_0xca8b21[_0x1514e8(0x7f7)](),0x190);}}}}),socket['on'](_0x5d14f9(0x90d),_0xcb8d25=>{const _0xc5c930=_0x5d14f9;if(_0xcb8d25[_0xc5c930(0x64e)]===game[_0xc5c930(0x32e)]['id'])game['player']['currentHp']=_0xcb8d25['newHp'],window[_0xc5c930(0x583)](game['player']['x']+0x18,game[_0xc5c930(0x32e)]['y']-0xa,_0xcb8d25['damage'],_0xc5c930(0x3c7)),window[_0xc5c930(0x84e)](game[_0xc5c930(0x32e)]['x']+0x18,game[_0xc5c930(0x32e)]['y']+0x30),window[_0xc5c930(0x4b2)]();else{if(game['remotePlayers'][_0xcb8d25[_0xc5c930(0x64e)]]){const _0x512e13=game['remotePlayers'][_0xcb8d25[_0xc5c930(0x64e)]];window[_0xc5c930(0x583)](_0x512e13['x']+0x18,_0x512e13['y']-0xa,_0xcb8d25[_0xc5c930(0x783)],_0xc5c930(0x3c7)),window[_0xc5c930(0x84e)](_0x512e13['x']+0x18,_0x512e13['y']+0x30);}}}),socket['on'](_0x5d14f9(0x93b),_0x53a231=>{const _0x25e269=_0x5d14f9;if(window[_0x25e269(0x7b6)]||window[_0x25e269(0x56f)]||!_0x53a231||!game[_0x25e269(0x82e)][_0x53a231['monsterId']])return;const _0x23bde8=game[_0x25e269(0x82e)][_0x53a231[_0x25e269(0x5f8)]];window[_0x25e269(0x646)](_0x23bde8),_0x23bde8[_0x25e269(0x6fc)]=_0x53a231['newHp'],_0x23bde8[_0x25e269(0x830)]=_0x53a231[_0x25e269(0x830)]||_0x23bde8[_0x25e269(0x830)];const _0x59f0e0=_0x23bde8['x']+_0x23bde8[_0x25e269(0x2ff)]/0x2,_0x57b393=_0x23bde8['y']+_0x23bde8[_0x25e269(0x7a7)]/0x2;window[_0x25e269(0x583)](_0x59f0e0,_0x23bde8['y']-0xa,_0x53a231[_0x25e269(0x783)],_0x25e269(0x897));if(_0x53a231[_0x25e269(0x5af)])window[_0x25e269(0x87e)](_0x59f0e0,_0x57b393);else window[_0x25e269(0x84e)](_0x59f0e0,_0x57b393);const _0x1d5c87=document[_0x25e269(0x6de)]('mob_'+_0x23bde8['id']);if(_0x1d5c87){_0x1d5c87['classList'][_0x25e269(0x7e6)](_0x25e269(0x455)),setTimeout(()=>_0x1d5c87[_0x25e269(0x4ea)][_0x25e269(0x7f7)](_0x25e269(0x455)),0x64);if(_0x53a231[_0x25e269(0x5b9)]){let _0x449f2c=_0x1d5c87[_0x25e269(0x26d)](_0x25e269(0x7dc));!_0x449f2c&&(_0x449f2c=document[_0x25e269(0x81e)]('div'),_0x449f2c[_0x25e269(0x228)]=_0x25e269(0x418),_0x1d5c87[_0x25e269(0x463)](_0x449f2c));if(_0x1d5c87[_0x25e269(0x2eb)])clearTimeout(_0x1d5c87[_0x25e269(0x2eb)]);_0x1d5c87['freezeTimer']=setTimeout(()=>{const _0x593d3a=_0x25e269;if(_0x449f2c)_0x449f2c[_0x593d3a(0x7f7)]();},0xbb8);}}window[_0x25e269(0x4b2)]();}),socket['on'](_0x5d14f9(0x4c3),_0x551c7d=>{const _0x2a755f=_0x5d14f9;if(window[_0x2a755f(0x7b6)]||window[_0x2a755f(0x56f)]||!_0x551c7d||!game[_0x2a755f(0x82e)][_0x551c7d[_0x2a755f(0x5f8)]])return;game['monsters'][_0x551c7d[_0x2a755f(0x5f8)]][_0x2a755f(0x352)]=![];const _0x5d6873=document[_0x2a755f(0x6de)](_0x2a755f(0x2b1)+_0x551c7d[_0x2a755f(0x5f8)]);if(_0x5d6873)_0x5d6873['style'][_0x2a755f(0x642)]=_0x2a755f(0x1ec);(m['category']===_0x2a755f(0x6ff)||m[_0x2a755f(0x6b1)]===_0x2a755f(0x8fb))&&window[_0x2a755f(0x381)](),window[_0x2a755f(0x4b2)]();}),socket['on'](_0x5d14f9(0x5c5),()=>{const _0x2ee02a=_0x5d14f9;if(typeof game!==_0x2ee02a(0x22b)&&game[_0x2ee02a(0x82e)]){for(let _0x44ab40 in game[_0x2ee02a(0x82e)]){let _0x3f90ee=document[_0x2ee02a(0x6de)](_0x44ab40)||document[_0x2ee02a(0x6de)](_0x2ee02a(0x2b1)+_0x44ab40);if(_0x3f90ee)_0x3f90ee['remove']();}game[_0x2ee02a(0x82e)]={};}});let localBossTimer=null;socket['on'](_0x5d14f9(0x3ca),_0x3a48a1=>{const _0x1cba3e=_0x5d14f9;if(localBossTimer)clearInterval(localBossTimer);let _0x2fa565=_0x3a48a1['remaining'],_0x51cf8e=0x3c0,_0x2a4497=0x3e8;safeMapData[_0x1cba3e(0x2ef)]&&safeMapData['floorBossSpawns'][_0x1cba3e(0x7c5)]>0x0&&(_0x51cf8e=safeMapData['floorBossSpawns'][0x0]['x'],_0x2a4497=safeMapData[_0x1cba3e(0x2ef)][0x0]['y']);let _0x1bf075=document[_0x1cba3e(0x6de)]('world-boss-timer');!_0x1bf075&&(_0x1bf075=document[_0x1cba3e(0x81e)](_0x1cba3e(0x8fa)),_0x1bf075['id']=_0x1cba3e(0x789),_0x1bf075[_0x1cba3e(0x290)]['position']=_0x1cba3e(0x506),_0x1bf075['style'][_0x1cba3e(0x510)]=_0x1cba3e(0x2e5),_0x1bf075[_0x1cba3e(0x290)][_0x1cba3e(0x2db)]=_0x1cba3e(0x37d),_0x1bf075['style'][_0x1cba3e(0x5a3)]=_0x1cba3e(0x388),_0x1bf075[_0x1cba3e(0x290)]['textAlign']=_0x1cba3e(0x5f2),_0x1bf075['style'][_0x1cba3e(0x1af)]=_0x1cba3e(0x20f),_0x1bf075[_0x1cba3e(0x290)][_0x1cba3e(0x2b3)]=_0x1cba3e(0x862),_0x1bf075['style']['pointerEvents']='none',_0x1bf075[_0x1cba3e(0x290)][_0x1cba3e(0x5c1)]=_0x1cba3e(0x33b),dom[_0x1cba3e(0x36e)][_0x1cba3e(0x463)](_0x1bf075)),_0x1bf075[_0x1cba3e(0x290)][_0x1cba3e(0x76a)]=_0x51cf8e+'px',_0x1bf075['style'][_0x1cba3e(0x706)]=_0x2a4497+'px',localBossTimer=setInterval(()=>{const _0x3a0d49=_0x1cba3e;_0x2fa565-=0x3e8;if(_0x2fa565<=0x0)clearInterval(localBossTimer),_0x1bf075[_0x3a0d49(0x7f7)]();else{let _0x255180=Math['floor'](_0x2fa565/(0x3e8*0x3c*0x3c)),_0x4a72bf=Math[_0x3a0d49(0x7f1)](_0x2fa565%(0x3e8*0x3c*0x3c)/(0x3e8*0x3c)),_0x49457c=Math['floor'](_0x2fa565%(0x3e8*0x3c)/0x3e8);_0x1bf075['innerHTML']=_0x3a0d49(0x602)+_0x255180+'h\x20'+_0x4a72bf+'m\x20'+_0x49457c+'s';}},0x3e8);}),socket['on'](_0x5d14f9(0x451),_0x3845a6=>{const _0x4be49f=_0x5d14f9;if(window[_0x4be49f(0x7b6)]||window[_0x4be49f(0x56f)]||!_0x3845a6||safeMapData['id']===_0x4be49f(0x8ba))return;if(Date[_0x4be49f(0x91c)]()-(window[_0x4be49f(0x20a)]||0x0)<0x7d0)return;game['monsters'][_0x3845a6['id']]=_0x3845a6;const _0x24354e=document['getElementById'](_0x4be49f(0x2b1)+_0x3845a6['id']);if(_0x24354e)_0x24354e[_0x4be49f(0x290)][_0x4be49f(0x642)]=_0x4be49f(0x8c1);}),socket['on'](_0x5d14f9(0x6aa),_0xba9948=>{const _0x11ee92=_0x5d14f9;if(!_0xba9948)return;let _0x3c85c2=_0xba9948['quantity']>0x1?_0x11ee92(0x634)+_0xba9948['quantity']+')':'';if(dom&&dom[_0x11ee92(0x7cd)])dom[_0x11ee92(0x7cd)]['innerText']='Looted:\x20'+_0xba9948[_0x11ee92(0x1f3)]+_0x3c85c2+'!';});}var lastLoopTime=performance[_0x5d14f9(0x91c)](),frameCount=0x0,fpsDisplay=document[_0x5d14f9(0x6de)](_0x5d14f9(0x35e)),lowEndMode=localStorage['getItem'](_0x5d14f9(0x6a9))===_0x5d14f9(0x924),lowFpsTimer=0x0;function _0x7052(_0x5d6534,_0x5d0f77){_0x5d6534=_0x5d6534-0x191;const _0xe910f3=_0xe910();let _0x705260=_0xe910f3[_0x5d6534];return _0x705260;}function updateFPS(){const _0x386999=_0x5d14f9;let _0x320a6d=performance[_0x386999(0x91c)]();frameCount++;if(_0x320a6d-lastLoopTime>=0x3e8){let _0x527ce6=frameCount;fpsDisplay&&(fpsDisplay[_0x386999(0x492)]='FPS:\x20'+_0x527ce6,fpsDisplay[_0x386999(0x290)][_0x386999(0x510)]=_0x527ce6>0x2d?_0x386999(0x71b):_0x527ce6>0x19?_0x386999(0x631):_0x386999(0x3c7));if(!lowEndMode&&_0x527ce6<0x14){lowFpsTimer++;if(lowFpsTimer>=0x5){window[_0x386999(0x6ce)](!![]);if(dom[_0x386999(0x7cd)])dom['log'][_0x386999(0x492)]='Performance\x20alert:\x20Auto-Optimization\x20enabled.';}}else lowFpsTimer=0x0;frameCount=0x0,lastLoopTime=_0x320a6d;}requestAnimationFrame(updateFPS);}updateFPS(),window['toggleLowEndMode']=function(_0x5c5d42=![]){const _0x34d5f8=_0x5d14f9;lowEndMode=_0x5c5d42?!![]:!lowEndMode,localStorage[_0x34d5f8(0x1df)](_0x34d5f8(0x6a9),lowEndMode);const _0x55f372=document[_0x34d5f8(0x6de)](_0x34d5f8(0x6ee));lowEndMode?(document[_0x34d5f8(0x4d5)]['classList']['add'](_0x34d5f8(0x889)),_0x55f372&&(_0x55f372[_0x34d5f8(0x492)]=_0x5c5d42?_0x34d5f8(0x8af):_0x34d5f8(0x736),_0x55f372[_0x34d5f8(0x290)]['background']=_0x34d5f8(0x71b)),lowFpsTimer=0x0):(document[_0x34d5f8(0x4d5)][_0x34d5f8(0x4ea)][_0x34d5f8(0x7f7)]('low-perf'),_0x55f372&&(_0x55f372[_0x34d5f8(0x492)]=_0x34d5f8(0x887),_0x55f372[_0x34d5f8(0x290)][_0x34d5f8(0x82b)]=_0x34d5f8(0x86a)));};lowEndMode&&(document[_0x5d14f9(0x4d5)][_0x5d14f9(0x4ea)][_0x5d14f9(0x7e6)](_0x5d14f9(0x889)),setTimeout(()=>{const _0x48872b=_0x5d14f9,_0x1c6997=document[_0x48872b(0x6de)]('low-perf-btn');_0x1c6997&&(_0x1c6997['innerText']=_0x48872b(0x736),_0x1c6997['style']['background']=_0x48872b(0x71b));},0x3e8));window[_0x5d14f9(0x665)](_0x5d14f9(0x5e4),_0x4be162=>{const _0x4dc9a8=_0x5d14f9;_0x4be162['target']['id']===_0x4dc9a8(0x468)&&(_0x4be162[_0x4dc9a8(0x439)]['innerText']=_0x4dc9a8(0x823),typeof socket!==_0x4dc9a8(0x22b)&&socket&&socket['emit'](_0x4dc9a8(0x4c7)));});typeof socket!==_0x5d14f9(0x22b)&&socket&&socket['on'](_0x5d14f9(0x1fd),_0x5b2e7c=>{const _0x2ecd43=_0x5d14f9,_0x1bd75d=document[_0x2ecd43(0x6de)](_0x2ecd43(0x468));if(_0x1bd75d)_0x1bd75d[_0x2ecd43(0x492)]=_0x2ecd43(0x32d);const _0x465634=_0x5b2e7c[_0x2ecd43(0x8d3)]||_0x5b2e7c[_0x2ecd43(0x77e)];if(_0x5b2e7c[_0x2ecd43(0x4f0)]&&_0x465634){const _0x55f627=navigator['userAgent']||navigator[_0x2ecd43(0x82c)]||window['opera'],_0x380e81=_0x55f627[_0x2ecd43(0x1ba)]('FBAN')>-0x1||_0x55f627[_0x2ecd43(0x1ba)](_0x2ecd43(0x2ee))>-0x1||_0x55f627['indexOf'](_0x2ecd43(0x78f))>-0x1;if(_0x380e81){const _0x51ec63=document['getElementById']('webview-warning');if(_0x51ec63)_0x51ec63[_0x2ecd43(0x290)][_0x2ecd43(0x642)]=_0x2ecd43(0x53c);}let _0x5ed964=_0x465634['startsWith']('http')?_0x465634:_0x2ecd43(0x50e)+_0x465634;const _0x12e030=document[_0x2ecd43(0x81e)]('a');_0x12e030['href']=_0x5ed964,_0x12e030['target']=_0x2ecd43(0x4b3),document[_0x2ecd43(0x4d5)][_0x2ecd43(0x463)](_0x12e030),_0x12e030[_0x2ecd43(0x5e4)](),document[_0x2ecd43(0x4d5)][_0x2ecd43(0x658)](_0x12e030),socket[_0x2ecd43(0x1b2)]('confirmCodeOpened',{'codeId':_0x5b2e7c['codeId']});}else alert(_0x2ecd43(0x1b0));});window[_0x5d14f9(0x257)]=[],socket['on'](_0x5d14f9(0x606),_0x38136d=>{const _0xdca259=_0x5d14f9;if(!Array[_0xdca259(0x75b)](_0x38136d)||_0x38136d['length']===0x0)return;window[_0xdca259(0x257)]=_0x38136d,window[_0xdca259(0x35d)]();}),window[_0x5d14f9(0x35d)]=function(){const _0x13940a=_0x5d14f9,_0x427f1e=document[_0x13940a(0x6de)](_0x13940a(0x6cc));if(window[_0x13940a(0x257)][_0x13940a(0x7c5)]===0x0){if(_0x427f1e)_0x427f1e[_0x13940a(0x290)][_0x13940a(0x642)]='none';return;}const _0x1cb387=window[_0x13940a(0x257)]['shift'](),_0x974744=document[_0x13940a(0x6de)](_0x13940a(0x5c2)),_0x887c1=document[_0x13940a(0x6de)]('news-content'),_0xb746f=_0x427f1e[_0x13940a(0x26d)](_0x13940a(0x221));_0x427f1e&&_0x974744&&_0x887c1&&(_0x974744[_0x13940a(0x492)]=_0x1cb387[_0x13940a(0x383)]||_0x13940a(0x443),_0x887c1['innerHTML']=_0x1cb387[_0x13940a(0x263)]||_0x1cb387['Content']||_0x1cb387[_0x13940a(0x806)]||'',_0xb746f&&(_0xb746f['innerText']=window['newsQueue'][_0x13940a(0x7c5)]>0x0?_0x13940a(0x90a):_0x13940a(0x64d)),_0x427f1e[_0x13940a(0x290)][_0x13940a(0x642)]=_0x13940a(0x8c1));},window[_0x5d14f9(0x867)]=function(){window['showNextNews']();},window[_0x5d14f9(0x33c)]=function(){const _0x2e33bf=_0x5d14f9,_0x379fcd=document[_0x2e33bf(0x6de)](_0x2e33bf(0x3a3));if(_0x379fcd)_0x379fcd[_0x2e33bf(0x290)][_0x2e33bf(0x642)]=_0x2e33bf(0x1ec);window[_0x2e33bf(0x7fe)]=![];},window[_0x5d14f9(0x724)]=function(_0x35b103){const _0x385c16=_0x5d14f9;if(_0x35b103===_0x385c16(0x77b)&&game[_0x385c16(0x32e)][_0x385c16(0x3f2)]<0x32&&!window[_0x385c16(0x346)](game[_0x385c16(0x32e)]['name'])){if(dom[_0x385c16(0x7cd)])dom['log'][_0x385c16(0x492)]=_0x385c16(0x66c);return;}let _0x3e49db=game['player'][_0x385c16(0x526)]?.[_0x385c16(0x45f)]!==undefined?game[_0x385c16(0x32e)][_0x385c16(0x526)][_0x385c16(0x45f)]:0x7;if(_0x3e49db<=0x0&&!window[_0x385c16(0x346)](game[_0x385c16(0x32e)]['name'])){if(dom[_0x385c16(0x7cd)])dom['log'][_0x385c16(0x492)]='❌\x20You\x20have\x20no\x20Dungeon\x20entries\x20left\x20this\x20week.\x20Resets\x20Monday.';return;}if(!window[_0x385c16(0x346)](game[_0x385c16(0x32e)][_0x385c16(0x1f3)])){game['player'][_0x385c16(0x526)][_0x385c16(0x45f)]=_0x3e49db-0x1;let _0x11a4e1=document[_0x385c16(0x6de)]('dungeon-entries-text');if(_0x11a4e1)_0x11a4e1[_0x385c16(0x492)]=_0x385c16(0x909)+game[_0x385c16(0x32e)][_0x385c16(0x526)][_0x385c16(0x45f)]+'/7';}window[_0x385c16(0x33c)]();const _0x29a53d={'mapId':safeMapData['id'],'x':game[_0x385c16(0x32e)]['x'],'y':game[_0x385c16(0x32e)]['y']+0x14};if(socket)socket[_0x385c16(0x1b2)](_0x385c16(0x724),{'difficulty':_0x35b103,'returnData':_0x29a53d});document[_0x385c16(0x6de)](_0x385c16(0x200))[_0x385c16(0x492)]=_0x385c16(0x83d),document['getElementById']('loading-screen')['style'][_0x385c16(0x642)]=_0x385c16(0x8c1);},window[_0x5d14f9(0x68f)]=function(_0x163fe9,_0x2ea583){const _0x300819=_0x5d14f9;_0x2ea583[_0x300819(0x2d8)]();if(socket)socket[_0x300819(0x1b2)]('requestApplyGem',{'gemIndex':activeInvIndex,'targetIndex':_0x163fe9});window[_0x300819(0x43d)]=![],window[_0x300819(0x252)]();};if(socket){socket['on']('closeDungeonUI',()=>{const _0xc9cc50=_0x5d14f9;window['closeDungeonUI']();const _0x182b78=document[_0xc9cc50(0x6de)](_0xc9cc50(0x489));if(_0x182b78)_0x182b78[_0xc9cc50(0x290)][_0xc9cc50(0x642)]=_0xc9cc50(0x1ec);window[_0xc9cc50(0x7fe)]=![];});let dungeonTimerInt=null;socket['on'](_0x5d14f9(0x8a8),_0x1767f1=>{const _0x581b08=_0x5d14f9,_0x46e284=document['getElementById'](_0x581b08(0x4b5));if(_0x46e284)_0x46e284['style'][_0x581b08(0x642)]=_0x581b08(0x53c);let _0x57be28=_0x1767f1[_0x581b08(0x48f)]+_0x1767f1[_0x581b08(0x195)];clearInterval(dungeonTimerInt),dungeonTimerInt=setInterval(()=>{const _0x57f577=_0x581b08;let _0x14ace7=_0x57be28-Date[_0x57f577(0x91c)]();_0x14ace7<=0x0&&(_0x14ace7=0x0,clearInterval(dungeonTimerInt));let _0x420539=Math['floor'](_0x14ace7/0xea60),_0x30482e=Math['floor'](_0x14ace7%0xea60/0x3e8);if(_0x46e284)_0x46e284[_0x57f577(0x492)]='⏳\x20'+(_0x420539<0xa?'0'+_0x420539:_0x420539)+':'+(_0x30482e<0xa?'0'+_0x30482e:_0x30482e);},0x3e8);}),socket['on'](_0x5d14f9(0x35a),()=>{const _0x48ff9c=_0x5d14f9;clearInterval(dungeonTimerInt);const _0x4f896f=document[_0x48ff9c(0x6de)](_0x48ff9c(0x4b5));if(_0x4f896f)_0x4f896f[_0x48ff9c(0x290)]['display']=_0x48ff9c(0x1ec);}),socket['on'](_0x5d14f9(0x1d5),()=>{const _0x15fdcb=_0x5d14f9,_0x44d187=document[_0x15fdcb(0x81e)](_0x15fdcb(0x8fa));_0x44d187['innerHTML']='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h1\x20style=\x22font-size:80px;\x20margin:0;\x20text-shadow:0\x200\x2030px\x20#4CAF50,\x204px\x204px\x200\x20#000;\x20letter-spacing:\x205px;\x20animation:\x20pulseText\x201s\x20infinite\x20alternate;\x22>DUNGEON\x20CLEAR!</h1>\x0a\x20\x20\x20\x20\x20\x20\x20\x20',_0x44d187['style']['position']='fixed',_0x44d187['style']['top']=_0x15fdcb(0x6ae),_0x44d187[_0x15fdcb(0x290)][_0x15fdcb(0x76a)]=_0x15fdcb(0x4e9),_0x44d187[_0x15fdcb(0x290)][_0x15fdcb(0x2b3)]=_0x15fdcb(0x610),_0x44d187[_0x15fdcb(0x290)][_0x15fdcb(0x848)]=_0x15fdcb(0x5f2),_0x44d187[_0x15fdcb(0x290)][_0x15fdcb(0x510)]=_0x15fdcb(0x71b),_0x44d187['style'][_0x15fdcb(0x5c1)]=_0x15fdcb(0x673),document['body'][_0x15fdcb(0x463)](_0x44d187),setTimeout(()=>{_0x44d187['remove']();},0xfa0);});}window[_0x5d14f9(0x8bf)]=function(){const _0x3f13f=_0x5d14f9;localStorage['removeItem'](_0x3f13f(0x8a5)),localStorage[_0x3f13f(0x7c4)]('exonie_pass'),location[_0x3f13f(0x2bd)]();},window[_0x5d14f9(0x4aa)]={},window[_0x5d14f9(0x436)]=0x1770,window[_0x5d14f9(0x681)]=function(){const _0xfd0064=_0x5d14f9;return window[_0xfd0064(0x5ac)](_0xfd0064(0x41c))[_0xfd0064(0x575)];},window[_0x5d14f9(0x919)]=function(_0x5a17f2){const _0x421423=_0x5d14f9;if(!_0x5a17f2)return;window['__topWindowZ']+=0x1,_0x5a17f2[_0x421423(0x290)][_0x421423(0x5c1)]=window[_0x421423(0x436)];},window['clampWindowToViewport']=function(_0x3c4156){const _0x3908ae=_0x5d14f9;if(!_0x3c4156)return;if(_0x3c4156[_0x3908ae(0x290)][_0x3908ae(0x642)]==='none')return;const _0x3410b1=_0x3c4156[_0x3908ae(0x744)]();let _0x823155=parseFloat(_0x3c4156[_0x3908ae(0x661)][_0x3908ae(0x76a)]||'0'),_0x4eddd5=parseFloat(_0x3c4156[_0x3908ae(0x661)][_0x3908ae(0x706)]||'0');const _0x23ead3=Math['max'](0x0,window['innerWidth']-_0x3410b1['width']),_0x7df02e=Math[_0x3908ae(0x269)](0x0,window[_0x3908ae(0x567)]-_0x3410b1[_0x3908ae(0x7a7)]);_0x823155=Math['max'](0x0,Math[_0x3908ae(0x591)](_0x823155,_0x23ead3)),_0x4eddd5=Math[_0x3908ae(0x269)](0x0,Math[_0x3908ae(0x591)](_0x4eddd5,_0x7df02e)),_0x3c4156[_0x3908ae(0x661)][_0x3908ae(0x76a)]=_0x823155,_0x3c4156[_0x3908ae(0x661)][_0x3908ae(0x706)]=_0x4eddd5,_0x3c4156[_0x3908ae(0x290)][_0x3908ae(0x76a)]=_0x823155+'px',_0x3c4156[_0x3908ae(0x290)][_0x3908ae(0x706)]=_0x4eddd5+'px',_0x3c4156['style'][_0x3908ae(0x2b3)]=_0x3908ae(0x1ec);},window[_0x5d14f9(0x7bc)]=function(_0x5e0fa3){const _0xfa4219=_0x5d14f9;if(!_0x5e0fa3||_0x5e0fa3[_0xfa4219(0x661)][_0xfa4219(0x687)]==='1')return;_0x5e0fa3[_0xfa4219(0x661)]['mobileWindowReady']='1';const _0x2d528e=_0x5e0fa3[_0xfa4219(0x26d)](_0xfa4219(0x69b));function _0x5da2d9(){const _0x279686=_0xfa4219;if(_0x5e0fa3[_0x279686(0x661)][_0x279686(0x1f5)]==='1')return;const _0x443cd5=_0x5e0fa3[_0x279686(0x744)]();_0x5e0fa3[_0x279686(0x661)][_0x279686(0x76a)]=_0x443cd5['left'],_0x5e0fa3[_0x279686(0x661)][_0x279686(0x706)]=_0x443cd5[_0x279686(0x706)],_0x5e0fa3[_0x279686(0x661)][_0x279686(0x1f5)]='1',_0x5e0fa3['style']['position']=_0x279686(0x1dc),_0x5e0fa3[_0x279686(0x290)][_0x279686(0x705)]=_0x279686(0x652),_0x5e0fa3[_0x279686(0x290)]['bottom']=_0x279686(0x652),_0x5e0fa3[_0x279686(0x290)][_0x279686(0x76a)]=_0x443cd5['left']+'px',_0x5e0fa3['style'][_0x279686(0x706)]=_0x443cd5[_0x279686(0x706)]+'px',_0x5e0fa3[_0x279686(0x290)][_0x279686(0x2b3)]='none';}if(!_0x2d528e){setTimeout(()=>{const _0x53d3bf=_0xfa4219;_0x5da2d9(),window[_0x53d3bf(0x7c9)](_0x5e0fa3);},0x32);return;}let _0x12822a=![],_0x4bab07=null,_0x356643=0x0,_0x3fe5e1=0x0,_0x3f7e34=0x0,_0x1e21cd=0x0;function _0x5241a1(_0x424eab,_0x3dd921,_0x2ce191){const _0x26ea2c=_0xfa4219;_0x5da2d9(),_0x12822a=!![],_0x4bab07=_0x2ce191||null,_0x356643=_0x424eab,_0x3fe5e1=_0x3dd921,_0x3f7e34=parseFloat(_0x5e0fa3[_0x26ea2c(0x661)][_0x26ea2c(0x76a)]||'0'),_0x1e21cd=parseFloat(_0x5e0fa3[_0x26ea2c(0x661)][_0x26ea2c(0x706)]||'0'),window['bringWindowToFront'](_0x5e0fa3),_0x5e0fa3[_0x26ea2c(0x4ea)][_0x26ea2c(0x7e6)]('window-dragging'),document['body'][_0x26ea2c(0x290)][_0x26ea2c(0x281)]='none',document[_0x26ea2c(0x4d5)][_0x26ea2c(0x290)][_0x26ea2c(0x466)]=_0x26ea2c(0x1ec);}function _0x6930d4(_0x1d2d08,_0x30f1a7){const _0x400456=_0xfa4219;if(!_0x12822a)return;const _0x3e2df1=_0x1d2d08-_0x356643,_0x321e5e=_0x30f1a7-_0x3fe5e1,_0x401bf8=_0x3f7e34+_0x3e2df1,_0x1f10da=_0x1e21cd+_0x321e5e;_0x5e0fa3[_0x400456(0x661)][_0x400456(0x76a)]=_0x401bf8,_0x5e0fa3['dataset']['top']=_0x1f10da,_0x5e0fa3[_0x400456(0x290)][_0x400456(0x76a)]=_0x401bf8+'px',_0x5e0fa3[_0x400456(0x290)]['top']=_0x1f10da+'px',_0x5e0fa3[_0x400456(0x290)][_0x400456(0x2b3)]=_0x400456(0x1ec);}function _0x20bdbb(){const _0x3c1264=_0xfa4219;if(!_0x12822a)return;_0x12822a=![],_0x4bab07=null,_0x5e0fa3['classList']['remove'](_0x3c1264(0x40b)),document['body'][_0x3c1264(0x290)][_0x3c1264(0x281)]='',document[_0x3c1264(0x4d5)][_0x3c1264(0x290)][_0x3c1264(0x466)]='',window['clampWindowToViewport'](_0x5e0fa3);}_0x2d528e[_0xfa4219(0x665)](_0xfa4219(0x813),function(_0x26fe58){const _0xef58cf=_0xfa4219;if(_0x5e0fa3['style'][_0xef58cf(0x642)]===_0xef58cf(0x1ec))return;if(_0x26fe58[_0xef58cf(0x221)]!==undefined&&_0x26fe58[_0xef58cf(0x221)]!==0x0)return;_0x5241a1(_0x26fe58['clientX'],_0x26fe58[_0xef58cf(0x831)],_0x26fe58['pointerId']),_0x2d528e[_0xef58cf(0x3cb)]&&_0x2d528e[_0xef58cf(0x3cb)](_0x26fe58[_0xef58cf(0x6a3)]),_0x26fe58[_0xef58cf(0x217)](),_0x26fe58[_0xef58cf(0x2d8)]();}),_0x2d528e[_0xfa4219(0x665)](_0xfa4219(0x237),function(_0x4e970d){const _0x5da17f=_0xfa4219;if(!_0x12822a)return;if(_0x4bab07!==null&&_0x4e970d['pointerId']!==_0x4bab07)return;_0x6930d4(_0x4e970d[_0x5da17f(0x4ff)],_0x4e970d['clientY']),_0x4e970d[_0x5da17f(0x217)](),_0x4e970d[_0x5da17f(0x2d8)]();}),_0x2d528e[_0xfa4219(0x665)](_0xfa4219(0x928),function(_0x55d6df){const _0x383af4=_0xfa4219;_0x20bdbb(),_0x55d6df[_0x383af4(0x217)](),_0x55d6df['stopPropagation']();}),_0x2d528e[_0xfa4219(0x665)](_0xfa4219(0x7aa),function(_0x5a8183){const _0x126b93=_0xfa4219;_0x20bdbb(),_0x5a8183[_0x126b93(0x217)](),_0x5a8183[_0x126b93(0x2d8)]();}),_0x2d528e[_0xfa4219(0x665)](_0xfa4219(0x1a3),function(_0x207f61){const _0x28a969=_0xfa4219;if(_0x5e0fa3['style']['display']===_0x28a969(0x1ec))return;const _0x177eed=_0x207f61[_0x28a969(0x2f0)][0x0];if(!_0x177eed)return;_0x5241a1(_0x177eed[_0x28a969(0x4ff)],_0x177eed[_0x28a969(0x831)],_0x28a969(0x592)),_0x207f61['preventDefault'](),_0x207f61[_0x28a969(0x2d8)]();},{'passive':![]}),_0x2d528e[_0xfa4219(0x665)]('touchmove',function(_0xfa6ea7){const _0x4eb9af=_0xfa4219;if(!_0x12822a)return;const _0x3d458e=_0xfa6ea7['touches'][0x0];if(!_0x3d458e)return;_0x6930d4(_0x3d458e[_0x4eb9af(0x4ff)],_0x3d458e[_0x4eb9af(0x831)]),_0xfa6ea7[_0x4eb9af(0x217)](),_0xfa6ea7[_0x4eb9af(0x2d8)]();},{'passive':![]}),_0x2d528e[_0xfa4219(0x665)](_0xfa4219(0x1f2),function(_0x15ab68){const _0x177f45=_0xfa4219;_0x20bdbb(),_0x15ab68['preventDefault'](),_0x15ab68[_0x177f45(0x2d8)]();},{'passive':![]}),_0x2d528e[_0xfa4219(0x665)](_0xfa4219(0x79e),function(_0x27774f){const _0x451bb9=_0xfa4219;_0x20bdbb(),_0x27774f[_0x451bb9(0x217)](),_0x27774f[_0x451bb9(0x2d8)]();},{'passive':![]}),_0x5e0fa3[_0xfa4219(0x665)](_0xfa4219(0x813),function(){const _0x44e4cb=_0xfa4219;window[_0x44e4cb(0x919)](_0x5e0fa3);}),setTimeout(()=>{const _0x19147e=_0xfa4219;_0x5da2d9(),window[_0x19147e(0x7c9)](_0x5e0fa3);},0x32);},window[_0x5d14f9(0x2b9)]=function(){const _0x52f28b=_0x5d14f9;document[_0x52f28b(0x76b)](_0x52f28b(0x8e2))[_0x52f28b(0x4c1)](_0x3397a1=>{const _0x8cdc87=_0x52f28b;window[_0x8cdc87(0x7bc)](_0x3397a1);});},window[_0x5d14f9(0x73b)]=function(_0x9518df,_0x153040=0xc,_0x37bdf2=0x46){const _0x3be5ee=_0x5d14f9,_0x45f731=document[_0x3be5ee(0x6de)](_0x9518df);if(!_0x45f731)return;_0x45f731[_0x3be5ee(0x661)]['left']=_0x153040,_0x45f731[_0x3be5ee(0x661)][_0x3be5ee(0x706)]=_0x37bdf2,_0x45f731[_0x3be5ee(0x290)][_0x3be5ee(0x6f6)]=_0x3be5ee(0x1dc),_0x45f731[_0x3be5ee(0x290)][_0x3be5ee(0x705)]=_0x3be5ee(0x652),_0x45f731[_0x3be5ee(0x290)][_0x3be5ee(0x603)]=_0x3be5ee(0x652),_0x45f731['style'][_0x3be5ee(0x76a)]=_0x153040+'px',_0x45f731[_0x3be5ee(0x290)][_0x3be5ee(0x706)]=_0x37bdf2+'px',_0x45f731[_0x3be5ee(0x290)][_0x3be5ee(0x2b3)]=_0x3be5ee(0x1ec),window[_0x3be5ee(0x7c9)](_0x45f731);},window[_0x5d14f9(0x665)]('resize',function(){const _0x43c164=_0x5d14f9;document[_0x43c164(0x76b)](_0x43c164(0x8e2))[_0x43c164(0x4c1)](_0x29d435=>{const _0x2c3f81=_0x43c164;window[_0x2c3f81(0x7c9)](_0x29d435);});}),window['openGuildUI']=function(){const _0x1593bd=_0x5d14f9;let _0x5eee38=document[_0x1593bd(0x6de)](_0x1593bd(0x253));!_0x5eee38&&(_0x5eee38=document['createElement'](_0x1593bd(0x8fa)),_0x5eee38['id']='guild-modal',_0x5eee38[_0x1593bd(0x228)]=_0x1593bd(0x1fb),_0x5eee38[_0x1593bd(0x290)][_0x1593bd(0x201)]=_0x1593bd(0x551),document[_0x1593bd(0x4d5)][_0x1593bd(0x463)](_0x5eee38));_0x5eee38['innerHTML']=_0x1593bd(0x3d7),_0x5eee38[_0x1593bd(0x290)]['display']=_0x1593bd(0x53c);window[_0x1593bd(0x681)]()&&(window[_0x1593bd(0x7bc)](_0x5eee38),window['bringWindowToFront'](_0x5eee38),window[_0x1593bd(0x7c9)](_0x5eee38));if(socket)socket[_0x1593bd(0x1b2)](_0x1593bd(0x382));};socket&&(socket['on'](_0x5d14f9(0x764),()=>{const _0x41fff5=_0x5d14f9;document[_0x41fff5(0x6de)]('guild-modal')?.[_0x41fff5(0x290)][_0x41fff5(0x642)]===_0x41fff5(0x53c)&&socket[_0x41fff5(0x1b2)](_0x41fff5(0x382));}),socket['on']('guildDataResponse',_0x7ac748=>{const _0x35761f=_0x5d14f9,_0x53f5b2=document[_0x35761f(0x6de)](_0x35761f(0x253));if(!_0x53f5b2)return;if(_0x7ac748[_0x35761f(0x851)]){let _0x5582ce=_0x7ac748[_0x35761f(0x197)],_0x2f21f0=_0x7ac748['myRole']||_0x35761f(0x7d3);const _0x4ab975={'Master':0x4,'Vice\x20Master':0x3,'Captain':0x2,'Member':0x1};let _0x5e51d1='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22window-drag-handle\x22\x20style=\x22cursor:grab;\x20padding:10px;\x20background:#222;\x20margin:-20px\x20-20px\x2015px\x20-20px;\x20border-radius:8px\x208px\x200\x200;\x20border-bottom:1px\x20solid\x20#4CAF50;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h2\x20style=\x22margin:0;\x20color:#4CAF50;\x20pointer-events:none;\x22>🏰\x20'+_0x5582ce[_0x35761f(0x1f3)]+'\x20('+_0x7ac748[_0x35761f(0x5b5)][_0x35761f(0x7c5)]+_0x35761f(0x4fc)+_0x2f21f0+_0x35761f(0x751)+(_0x7ac748[_0x35761f(0x677)]||0x0)['toLocaleString']()+'\x20G</strong></span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20';_0x5e51d1+='<div\x20style=\x22background:#111;\x20padding:10px;\x20border:1px\x20solid\x20#333;\x20height:120px;\x20overflow-y:auto;\x20margin-bottom:10px;\x20text-align:left;\x22>',_0x7ac748[_0x35761f(0x5b5)][_0x35761f(0x4c1)](_0x318d4b=>{const _0x589c30=_0x35761f;let _0x2b2608=_0x589c30(0x303)+_0x318d4b[_0x589c30(0x8a2)]+_0x589c30(0x4d6);_0x2f21f0===_0x589c30(0x757)&&_0x318d4b[_0x589c30(0x1f3)]!==game['player'][_0x589c30(0x1f3)]&&(_0x2b2608=_0x589c30(0x32c)+_0x318d4b[_0x589c30(0x1f3)]+_0x589c30(0x4bf)+(_0x318d4b['role']===_0x589c30(0x7d3)?_0x589c30(0x4c8):'')+_0x589c30(0x71c)+(_0x318d4b[_0x589c30(0x8a2)]===_0x589c30(0x1eb)?_0x589c30(0x4c8):'')+_0x589c30(0x614)+(_0x318d4b['role']===_0x589c30(0x577)?_0x589c30(0x4c8):'')+'>Vice\x20Master</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</select>');let _0x1540ca=_0x4ab975[_0x318d4b['role']]||0x1,_0x3c2466=_0x2f21f0===_0x589c30(0x757)&&_0x318d4b['name']!==game['player'][_0x589c30(0x1f3)]||_0x2f21f0===_0x589c30(0x577)&&_0x1540ca<=0x2;_0x5e51d1+=_0x589c30(0x52f)+(_0x318d4b[_0x589c30(0x40d)]?_0x589c30(0x897):_0x589c30(0x54c))+_0x589c30(0x5a6)+(_0x318d4b[_0x589c30(0x40d)]?'🟢':'⚪')+'\x20'+_0x318d4b['name']+'</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20gap:5px;\x20align-items:center;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x2b2608+_0x589c30(0x300)+(_0x3c2466?_0x589c30(0x367)+_0x318d4b[_0x589c30(0x1f3)]+_0x589c30(0x8a4)+_0x318d4b[_0x589c30(0x1f3)]+_0x589c30(0x1d4):'')+_0x589c30(0x19e);}),_0x5e51d1+=_0x35761f(0x5a2);_0x4ab975[_0x2f21f0]>=0x3&&(_0x5e51d1+='<h4\x20style=\x22margin:5px\x200;\x20font-size:12px;\x20color:#aaa;\x20text-align:left;\x22>Pending\x20Applicants</h4>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22background:#111;\x20padding:5px;\x20border:1px\x20solid\x20#333;\x20height:60px;\x20overflow-y:auto;\x20margin-bottom:10px;\x22>',_0x7ac748[_0x35761f(0x60c)]&&_0x7ac748[_0x35761f(0x60c)][_0x35761f(0x7c5)]>0x0?_0x7ac748['applicants'][_0x35761f(0x4c1)](_0x91f8e6=>{const _0x21c457=_0x35761f;_0x5e51d1+=_0x21c457(0x3bf)+_0x91f8e6+_0x21c457(0x911)+_0x91f8e6+_0x21c457(0x60b)+_0x91f8e6+_0x21c457(0x6a5);}):_0x5e51d1+=_0x35761f(0x4a0),_0x5e51d1+=_0x35761f(0x5a2));_0x5e51d1+=_0x35761f(0x8f7);_0x4ab975[_0x2f21f0]>=0x2&&(_0x5e51d1+=_0x35761f(0x769));if(_0x7ac748[_0x35761f(0x560)])_0x5e51d1+=_0x35761f(0x2e6);else _0x2f21f0===_0x35761f(0x757)&&(_0x5e51d1+='<button\x20class=\x22btn\x22\x20style=\x22background:#FF9800;\x20width:100%;\x20margin-bottom:5px;\x20padding:8px;\x22\x20onclick=\x22window.buyGuildBase()\x22>Buy\x20Guild\x20Base\x20(1,000,000\x20G)</button>');_0x5e51d1+='<button\x20class=\x22btn\x22\x20style=\x22background:#555;\x20width:100%;\x20margin-top:5px;\x20padding:8px;\x22\x20onclick=\x22document.getElementById(\x27guild-modal\x27).style.display=\x27none\x27\x22>Close</button>',_0x53f5b2['innerHTML']=_0x5e51d1;}else{let _0x195102='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22window-drag-handle\x22\x20style=\x22cursor:grab;\x20padding:10px;\x20background:#222;\x20margin:-20px\x20-20px\x2015px\x20-20px;\x20border-radius:8px\x208px\x200\x200;\x20border-bottom:1px\x20solid\x20#4CAF50;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h2\x20style=\x22margin:0;\x20color:#4CAF50;\x20pointer-events:none;\x22>🏰\x20Guild\x20Registry</h2>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#FF9800;\x20width:100%;\x20margin-bottom:15px;\x20font-weight:bold;\x20padding:12px;\x22\x20onclick=\x22window.createGuild()\x22>Establish\x20Guild\x20(1M\x20Gold)</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h3\x20style=\x22color:#aaa;\x20font-size:14px;\x20border-bottom:1px\x20solid\x20#333;\x20padding-bottom:5px;\x22>Open\x20Guilds</h3>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22background:#111;\x20padding:10px;\x20border:1px\x20solid\x20#333;\x20border-radius:5px;\x20height:120px;\x20overflow-y:auto;\x20margin-bottom:15px;\x20text-align:left;\x22>';_0x7ac748[_0x35761f(0x586)]&&_0x7ac748[_0x35761f(0x586)][_0x35761f(0x7c5)]>0x0?_0x7ac748[_0x35761f(0x586)][_0x35761f(0x4c1)](_0x5f22c4=>{const _0x449982=_0x35761f;_0x195102+=_0x449982(0x434)+_0x5f22c4[_0x449982(0x1f3)]+'\x20<span\x20style=\x22color:#aaa;\x20font-size:11px;\x22>('+_0x5f22c4[_0x449982(0x5b5)]+'\x20members)</span></span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#4CAF50;\x20padding:2px\x208px;\x20font-size:11px;\x22\x20onclick=\x22window.applyToGuild(\x27'+_0x5f22c4[_0x449982(0x1f3)]+'\x27)\x22>Apply</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>';}):_0x195102+=_0x35761f(0x1c8),_0x195102+=_0x35761f(0x83a),_0x53f5b2[_0x35761f(0x882)]=_0x195102;}}));if(!document['getElementById'](_0x5d14f9(0x7a9))){let gModal=document[_0x5d14f9(0x81e)](_0x5d14f9(0x8fa));gModal['id']=_0x5d14f9(0x7a9),gModal[_0x5d14f9(0x228)]=_0x5d14f9(0x1fb),gModal[_0x5d14f9(0x290)][_0x5d14f9(0x201)]=_0x5d14f9(0x89b),gModal[_0x5d14f9(0x882)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20<h3\x20style=\x22color:#E040FB;\x20margin-top:0;\x22>Guild\x20Invitation</h3>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<p\x20id=\x22guild-invite-text\x22\x20style=\x22font-size:14px;\x20margin-bottom:20px;\x22></p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20gap:10px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#4CAF50;\x20flex:1;\x22\x20onclick=\x22window.respondGuildInvite(true)\x22>Accept</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x22\x20style=\x22background:#f44336;\x20flex:1;\x22\x20onclick=\x22window.respondGuildInvite(false)\x22>Decline</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20',document[_0x5d14f9(0x4d5)][_0x5d14f9(0x463)](gModal);}let pendingGuildInvite=null;socket&&socket['on'](_0x5d14f9(0x58d),_0x33d7d6=>{const _0x4f2990=_0x5d14f9;pendingGuildInvite=_0x33d7d6[_0x4f2990(0x5bf)],document[_0x4f2990(0x6de)](_0x4f2990(0x232))[_0x4f2990(0x492)]=_0x33d7d6[_0x4f2990(0x750)]+_0x4f2990(0x7e5)+_0x33d7d6[_0x4f2990(0x5bf)]+'].',document[_0x4f2990(0x6de)](_0x4f2990(0x7a9))[_0x4f2990(0x290)][_0x4f2990(0x642)]=_0x4f2990(0x53c);});window[_0x5d14f9(0x46a)]=function(_0x1978d9){const _0x478b7d=_0x5d14f9;document[_0x478b7d(0x6de)](_0x478b7d(0x7a9))[_0x478b7d(0x290)]['display']=_0x478b7d(0x1ec),_0x1978d9&&pendingGuildInvite&&socket[_0x478b7d(0x1b2)](_0x478b7d(0x4ae),pendingGuildInvite),pendingGuildInvite=null;},window[_0x5d14f9(0x5ce)]=function(){const _0x4668e0=_0x5d14f9;window[_0x4668e0(0x1bf)](_0x4668e0(0x713),function(_0x5f02cc){const _0x3f6c36=_0x4668e0;if(_0x5f02cc&&_0x5f02cc[_0x3f6c36(0x57a)]()['length']>0x2&&_0x5f02cc[_0x3f6c36(0x57a)]()[_0x3f6c36(0x7c5)]<=0xf)socket[_0x3f6c36(0x1b2)](_0x3f6c36(0x5ce),_0x5f02cc[_0x3f6c36(0x57a)]());else _0x5f02cc&&alert('Guild\x20name\x20must\x20be\x20between\x203\x20and\x2015\x20characters.');});},window[_0x5d14f9(0x4ae)]=function(_0x378c03){const _0x7a2b88=_0x5d14f9;confirm('Join\x20'+_0x378c03+'?')&&socket[_0x7a2b88(0x1b2)](_0x7a2b88(0x4ae),_0x378c03);},window[_0x5d14f9(0x639)]=function(_0x4f1b62){const _0x77b68=_0x5d14f9;socket[_0x77b68(0x1b2)](_0x77b68(0x3fc),_0x4f1b62);if(dom[_0x77b68(0x7cd)])dom[_0x77b68(0x7cd)]['innerText']=_0x77b68(0x2cb)+_0x4f1b62+_0x77b68(0x415);},window[_0x5d14f9(0x6f1)]=function(){const _0x16be3c=_0x5d14f9;window[_0x16be3c(0x1bf)](_0x16be3c(0x585),function(_0x27ce1b){const _0xa55797=_0x16be3c;let _0x33c454=parseInt(_0x27ce1b);!isNaN(_0x33c454)&&_0x33c454>0x0&&socket[_0xa55797(0x1b2)](_0xa55797(0x695),_0x33c454);});},window[_0x5d14f9(0x720)]=function(){const _0x2ea256=_0x5d14f9;if(confirm('Spend\x201,000,000\x20Guild\x20Funds\x20to\x20purchase\x20a\x20Guild\x20Base?\x20Only\x20the\x20Guild\x20Leader\x20can\x20do\x20this.')){if(socket)socket[_0x2ea256(0x1b2)]('requestBuyGuildBase');document['getElementById'](_0x2ea256(0x253))[_0x2ea256(0x882)]=_0x2ea256(0x8f9);}},window[_0x5d14f9(0x51e)]=function(){const _0x368950=_0x5d14f9;document['getElementById'](_0x368950(0x253))[_0x368950(0x290)][_0x368950(0x642)]=_0x368950(0x1ec),socket[_0x368950(0x1b2)]('forceTeleport',{'mapId':_0x368950(0x2da),'x':0x3c0,'y':0x3e8});},window['openMazeGuide']=function(){const _0x151bba=_0x5d14f9;if(game['party']&&game[_0x151bba(0x333)][_0x151bba(0x5b5)]&&game[_0x151bba(0x333)][_0x151bba(0x5b5)][_0x151bba(0x7c5)]>0x1){if(game['party'][_0x151bba(0x798)]!==game[_0x151bba(0x32e)]['id']){dom[_0x151bba(0x7cd)][_0x151bba(0x492)]=_0x151bba(0x7d2);return;}}let _0x3a8359=document[_0x151bba(0x6de)]('maze-guide-modal');!_0x3a8359&&(_0x3a8359=document[_0x151bba(0x81e)]('div'),_0x3a8359['id']=_0x151bba(0x85d),_0x3a8359[_0x151bba(0x228)]=_0x151bba(0x1fb),_0x3a8359[_0x151bba(0x290)]['cssText']=_0x151bba(0x2b7),document[_0x151bba(0x4d5)][_0x151bba(0x463)](_0x3a8359));let _0x5022c2=_0x151bba(0x4fe);_0x5022c2+=_0x151bba(0x79c),_0x5022c2+=_0x151bba(0x84c),_0x5022c2+=_0x151bba(0x512),_0x5022c2+=_0x151bba(0x29b),_0x3a8359[_0x151bba(0x882)]=_0x5022c2,_0x3a8359[_0x151bba(0x290)]['display']='block';},window['openFastTravelUI']=function(){const _0x4b4ef8=_0x5d14f9;let _0x3b8789=0x0,_0x3fafb4=game[_0x4b4ef8(0x32e)][_0x4b4ef8(0x383)]||'',_0x164adc=game[_0x4b4ef8(0x32e)]['spriteData']?.[_0x4b4ef8(0x383)]||'',_0x28fd93=game[_0x4b4ef8(0x47f)]?.[_0x4b4ef8(0x383)]||'',_0x1c6b41=document['getElementById'](_0x4b4ef8(0x712))?document['getElementById'](_0x4b4ef8(0x712))[_0x4b4ef8(0x492)]:'',_0x10049f=(_0x3fafb4+'\x20'+_0x164adc+'\x20'+_0x28fd93+'\x20'+_0x1c6b41)[_0x4b4ef8(0x241)]();const _0x37dd81=_0x10049f[_0x4b4ef8(0x5db)](/FLOOR CONQUEROR (\d+)/);_0x37dd81&&(_0x3b8789=parseInt(_0x37dd81[0x1]));if(_0x3b8789===0x0){dom[_0x4b4ef8(0x7cd)]['innerText']=_0x4b4ef8(0x872);return;}let _0x59e1b9=document[_0x4b4ef8(0x6de)]('maze-guide-modal'),_0x332604=_0x4b4ef8(0x1fa);_0x332604+='<p\x20style=\x22font-size:12px;\x20color:#aaa;\x22>Select\x20a\x20conquered\x20floor\x20to\x20fast-travel.</p>',_0x332604+='<div\x20style=\x22max-height:300px;\x20overflow-y:auto;\x20margin-bottom:15px;\x20padding-right:5px;\x22>';for(let _0x3b4311=0x1;_0x3b4311<=_0x3b8789;_0x3b4311++){_0x332604+='<button\x20class=\x22btn\x22\x20style=\x22width:100%;\x20margin-bottom:5px;\x20background:#4CAF50;\x22\x20onclick=\x22window.requestMazeTeleport('+_0x3b4311+_0x4b4ef8(0x59c)+_0x3b4311+'</button>';}_0x332604+='</div>',_0x332604+='<button\x20class=\x22btn\x22\x20style=\x22background:#f44336;\x20width:100%;\x22\x20onclick=\x22window.openMazeGuide()\x22>Back</button>',_0x59e1b9[_0x4b4ef8(0x882)]=_0x332604;},window[_0x5d14f9(0x44c)]=function(){const _0x2cb537=_0x5d14f9;let _0x3992f8=document['getElementById'](_0x2cb537(0x85d)),_0x46e341=_0x2cb537(0x5fe);_0x46e341+='<p\x20style=\x22font-size:12px;\x20color:#aaa;\x22>Challenge\x20a\x20Floor\x20Boss\x20in\x20a\x20private\x20instance.\x201\x20Entry\x20per\x20day.</p>',_0x46e341+=_0x2cb537(0x404);for(let _0x194b97=0x1;_0x194b97<=0x7;_0x194b97++){_0x46e341+='<button\x20class=\x22btn\x22\x20style=\x22width:100%;\x20margin-bottom:5px;\x20background:#9c27b0;\x22\x20onclick=\x22window.requestMazeTrial('+_0x194b97+_0x2cb537(0x846)+_0x194b97+_0x2cb537(0x1cd);}_0x46e341+=_0x2cb537(0x5a2),_0x46e341+=_0x2cb537(0x692),_0x3992f8[_0x2cb537(0x882)]=_0x46e341;},window[_0x5d14f9(0x3da)]=function(_0x295ebd){const _0x3baa9c=_0x5d14f9;document[_0x3baa9c(0x6de)](_0x3baa9c(0x85d))['style'][_0x3baa9c(0x642)]=_0x3baa9c(0x1ec);if(socket)socket['emit'](_0x3baa9c(0x3da),{'targetFloor':_0x295ebd});},window[_0x5d14f9(0x7e1)]=function(_0x20dc6b){const _0x2d16b8=_0x5d14f9;document[_0x2d16b8(0x6de)]('maze-guide-modal')[_0x2d16b8(0x290)][_0x2d16b8(0x642)]=_0x2d16b8(0x1ec);if(socket)socket['emit'](_0x2d16b8(0x7e1),{'targetFloor':_0x20dc6b});},window[_0x5d14f9(0x779)]=function(){const _0x453c4c=_0x5d14f9;if(game[_0x453c4c(0x32e)][_0x453c4c(0x3f2)]<0x32&&!window[_0x453c4c(0x346)](game['player'][_0x453c4c(0x1f3)])){if(dom[_0x453c4c(0x7cd)])dom[_0x453c4c(0x7cd)][_0x453c4c(0x492)]=_0x453c4c(0x359);document[_0x453c4c(0x6de)](_0x453c4c(0x8ad))[_0x453c4c(0x290)][_0x453c4c(0x642)]=_0x453c4c(0x1ec);return;}if(game[_0x453c4c(0x333)]&&game[_0x453c4c(0x333)][_0x453c4c(0x5b5)]&&game[_0x453c4c(0x333)][_0x453c4c(0x5b5)][_0x453c4c(0x7c5)]>0x1){if(dom[_0x453c4c(0x7cd)])dom[_0x453c4c(0x7cd)][_0x453c4c(0x492)]=_0x453c4c(0x78d);document[_0x453c4c(0x6de)]('tavern-modal')[_0x453c4c(0x290)][_0x453c4c(0x642)]='none';return;}let _0x283809=document['getElementById'](_0x453c4c(0x5ef))[_0x453c4c(0x6cf)],_0x1dfd31=parseInt(document[_0x453c4c(0x6de)](_0x453c4c(0x576))[_0x453c4c(0x6cf)])||0xa,_0x423bb2=game['player']['baseStats']?.['tavernEntries']!==undefined?game[_0x453c4c(0x32e)][_0x453c4c(0x526)][_0x453c4c(0x278)]:0x5;if(_0x423bb2<=0x0&&!window[_0x453c4c(0x346)](game[_0x453c4c(0x32e)][_0x453c4c(0x1f3)])){if(dom[_0x453c4c(0x7cd)])dom[_0x453c4c(0x7cd)]['innerText']=_0x453c4c(0x552);document[_0x453c4c(0x6de)](_0x453c4c(0x8ad))[_0x453c4c(0x290)][_0x453c4c(0x642)]=_0x453c4c(0x1ec);return;}!window[_0x453c4c(0x346)](game[_0x453c4c(0x32e)][_0x453c4c(0x1f3)])&&(game['player'][_0x453c4c(0x526)][_0x453c4c(0x278)]=_0x423bb2-0x1);if(socket)socket['emit'](_0x453c4c(0x779),{'mobType':_0x283809,'level':_0x1dfd31});document['getElementById'](_0x453c4c(0x8ad))[_0x453c4c(0x290)][_0x453c4c(0x642)]=_0x453c4c(0x1ec),isInventoryOpen=![],dom[_0x453c4c(0x5ee)][_0x453c4c(0x290)]['display']='none',isSkillOpen=![],dom[_0x453c4c(0x4a8)][_0x453c4c(0x290)]['display']='none',isShopping=![],document['getElementById'](_0x453c4c(0x702))[_0x453c4c(0x290)][_0x453c4c(0x642)]='none',isMailboxOpen=![],document[_0x453c4c(0x6de)]('mailbox-screen')[_0x453c4c(0x290)][_0x453c4c(0x642)]='none',dom['statScreen'][_0x453c4c(0x290)][_0x453c4c(0x642)]='none',document[_0x453c4c(0x6de)]('friends-screen')[_0x453c4c(0x290)][_0x453c4c(0x642)]=_0x453c4c(0x1ec),document[_0x453c4c(0x6de)](_0x453c4c(0x86c))[_0x453c4c(0x290)][_0x453c4c(0x642)]=_0x453c4c(0x1ec),document[_0x453c4c(0x6de)](_0x453c4c(0x353))['style'][_0x453c4c(0x642)]=_0x453c4c(0x1ec),document[_0x453c4c(0x6de)]('player-context-menu')['style']['display']='none',document['getElementById'](_0x453c4c(0x200))[_0x453c4c(0x492)]='Entering\x20Tavern...';const _0x1ebf2f=document[_0x453c4c(0x6de)]('loader-fill');_0x1ebf2f&&(_0x1ebf2f[_0x453c4c(0x290)][_0x453c4c(0x2ff)]='0%',_0x1ebf2f['style']['transition']=_0x453c4c(0x6dc));document[_0x453c4c(0x6de)](_0x453c4c(0x489))[_0x453c4c(0x290)][_0x453c4c(0x642)]='flex';let _0x17c43d=0x0,_0x4065cf=setInterval(()=>{const _0x4b42d7=_0x453c4c;_0x17c43d+=0x8;if(_0x1ebf2f)_0x1ebf2f[_0x4b42d7(0x290)]['width']=Math[_0x4b42d7(0x591)](0x64,_0x17c43d)+'%';if(_0x17c43d>=0x64)clearInterval(_0x4065cf);},0x64);};let tavernTimerInt=null,tavernStartTs=0x0;socket&&(socket['on'](_0x5d14f9(0x5d4),()=>{const _0x18ff1c=_0x5d14f9;document['getElementById'](_0x18ff1c(0x489))['style'][_0x18ff1c(0x642)]=_0x18ff1c(0x1ec),window[_0x18ff1c(0x56f)]=![],document[_0x18ff1c(0x6de)](_0x18ff1c(0x7a4))[_0x18ff1c(0x290)][_0x18ff1c(0x642)]=_0x18ff1c(0x53c),tavernStartTs=Date['now'](),clearInterval(tavernTimerInt),tavernTimerInt=setInterval(()=>{const _0x57dd69=_0x18ff1c;let _0x264dbf=Date[_0x57dd69(0x91c)]()-tavernStartTs,_0x1d7c4b=Math['floor'](_0x264dbf/0x3e8),_0x289534=Math[_0x57dd69(0x7f1)](_0x264dbf%0x3e8/0xa);document[_0x57dd69(0x6de)](_0x57dd69(0x7a4))[_0x57dd69(0x492)]=(_0x1d7c4b<0xa?'0'+_0x1d7c4b:_0x1d7c4b)+':'+(_0x289534<0xa?'0'+_0x289534:_0x289534);},0x32);}),socket['on'](_0x5d14f9(0x689),()=>{clearInterval(tavernTimerInt),setTimeout(()=>{const _0x33ebf4=_0x7052;document[_0x33ebf4(0x6de)](_0x33ebf4(0x7a4))[_0x33ebf4(0x290)][_0x33ebf4(0x642)]=_0x33ebf4(0x1ec);},0x1388);}),socket['on']('tavernVictory',_0x32e2aa=>{const _0x210190=_0x5d14f9;clearInterval(tavernTimerInt);let _0x4d7707=Math[_0x210190(0x7f1)](_0x32e2aa['time']/0x3e8),_0x31e799=Math['floor'](_0x32e2aa[_0x210190(0x20d)]%0x3e8/0xa);document[_0x210190(0x6de)](_0x210190(0x7a4))[_0x210190(0x492)]=(_0x4d7707<0xa?'0'+_0x4d7707:_0x4d7707)+':'+(_0x31e799<0xa?'0'+_0x31e799:_0x31e799);const _0x41b984=document[_0x210190(0x81e)](_0x210190(0x8fa));_0x41b984['innerHTML']=_0x210190(0x428)+(_0x32e2aa['time']/0x3e8)['toFixed'](0x2)+_0x210190(0x28c)+(_0x32e2aa[_0x210190(0x2dd)]?'<h3\x20style=\x22color:#4CAF50;\x20font-size:32px;\x20margin-top:15px;\x20text-shadow:0\x200\x2015px\x20#4CAF50,\x202px\x202px\x200\x20#000;\x20animation:\x20pulseText\x201s\x20infinite\x20alternate;\x22>🏆\x20NEW\x20PERSONAL\x20BEST!\x20🏆</h3>':'')+_0x210190(0x7a5),_0x41b984[_0x210190(0x290)][_0x210190(0x6f6)]=_0x210190(0x1dc),_0x41b984[_0x210190(0x290)][_0x210190(0x706)]=_0x210190(0x6ae),_0x41b984[_0x210190(0x290)][_0x210190(0x76a)]=_0x210190(0x4e9),_0x41b984[_0x210190(0x290)]['transform']='translate(-50%,\x20-50%)',_0x41b984[_0x210190(0x290)][_0x210190(0x848)]=_0x210190(0x5f2),_0x41b984[_0x210190(0x290)][_0x210190(0x510)]=_0x210190(0x535),_0x41b984[_0x210190(0x290)]['zIndex']='9999',document['body'][_0x210190(0x463)](_0x41b984),setTimeout(()=>{const _0x25aecd=_0x210190;_0x41b984[_0x25aecd(0x7f7)]();},0x1388);}),socket['on'](_0x5d14f9(0x1d1),_0x3687b7=>{const _0xeaebd8=_0x5d14f9;let _0x2218c3=_0xeaebd8(0x456);_0x3687b7[_0xeaebd8(0x4c1)]((_0x4366bd,_0x5b9f4d)=>{const _0x54c471=_0xeaebd8;let _0x543875=_0x4366bd[_0x54c471(0x53b)]||_0x54c471(0x66a),_0x2302b6=_0x4366bd[_0x54c471(0x27f)]||0x1;_0x2218c3+='<div\x20class=\x22leaderboard-row\x22\x20style=\x22display:flex;\x20align-items:center;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22width:15%;\x20color:#FF9800;\x20font-weight:bold;\x22>#'+(_0x5b9f4d+0x1)+_0x54c471(0x611)+_0x4366bd[_0x54c471(0x884)]+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22color:#aaa;\x20font-size:11px;\x22>Lv.'+_0x2302b6+'\x20'+_0x543875+_0x54c471(0x749)+_0x4366bd[_0x54c471(0x25b)][_0x54c471(0x818)]('_','\x20')[_0x54c471(0x241)]()+_0x54c471(0x505)+_0x4366bd['mob_level']+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22width:20%;\x20text-align:right;\x20color:#4CAF50;\x20font-weight:bold;\x22>'+(_0x4366bd[_0x54c471(0x42b)]/0x3e8)[_0x54c471(0x6a7)](0x2)+'s</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>';}),document[_0xeaebd8(0x6de)](_0xeaebd8(0x3a7))[_0xeaebd8(0x882)]=_0x2218c3;}));window[_0x5d14f9(0x329)]=function(){const _0x287a4d=_0x5d14f9,_0x5bf267=document[_0x287a4d(0x6de)]('leaderboard-modal'),_0x59998b=_0x5bf267[_0x287a4d(0x290)][_0x287a4d(0x642)]!==_0x287a4d(0x53c);if(_0x59998b){if(socket)socket['emit']('getTavernLeaderboard');_0x5bf267[_0x287a4d(0x290)][_0x287a4d(0x642)]=_0x287a4d(0x53c),window[_0x287a4d(0x681)]()&&(window['enableMobileWindowControls'](_0x5bf267),window[_0x287a4d(0x919)](_0x5bf267),window[_0x287a4d(0x7c9)](_0x5bf267));}else _0x5bf267[_0x287a4d(0x290)]['display']=_0x287a4d(0x1ec);},socket['on'](_0x5d14f9(0x644),_0x125c8f=>{const _0x97f9e3=_0x5d14f9;let _0x256d0c=null;if(_0x125c8f['targetId']===game[_0x97f9e3(0x32e)]['id'])_0x256d0c=dom[_0x97f9e3(0x4ca)];else{if(game['remotePlayers'][_0x125c8f[_0x97f9e3(0x64e)]])_0x256d0c=game[_0x97f9e3(0x840)][_0x125c8f[_0x97f9e3(0x64e)]][_0x97f9e3(0x562)];else{if(_0x125c8f['isPet']){const _0x1138ef=document['getElementById'](_0x125c8f[_0x97f9e3(0x64e)])||document['getElementById'](_0x97f9e3(0x2d7)+game['player']['id']+'_'+_0x125c8f[_0x97f9e3(0x64e)]);if(_0x1138ef)_0x256d0c=_0x1138ef;else{const _0x492b9f=game['player'][_0x97f9e3(0x4ec)]?.[_0x97f9e3(0x4f9)](_0x9fcf41=>_0x9fcf41['id']===_0x125c8f['targetId']);if(_0x492b9f)_0x256d0c=_0x492b9f[_0x97f9e3(0x474)];}}}}if(_0x256d0c&&!_0x256d0c[_0x97f9e3(0x26d)](_0x97f9e3(0x1a7))){let _0x306331=document[_0x97f9e3(0x81e)](_0x97f9e3(0x8fa));_0x306331[_0x97f9e3(0x228)]=_0x97f9e3(0x2e8),_0x256d0c[_0x97f9e3(0x463)](_0x306331);}if(_0x125c8f['isPet']){const _0x4b17eb=game[_0x97f9e3(0x32e)][_0x97f9e3(0x4ec)]?.[_0x97f9e3(0x4f9)](_0x300758=>_0x300758['id']===_0x125c8f[_0x97f9e3(0x64e)]);if(_0x4b17eb)_0x4b17eb[_0x97f9e3(0x1cc)]=_0x125c8f['hp'];}}),socket['on']('breakGammaShield',_0x2d842d=>{const _0x25a3e4=_0x5d14f9;let _0x3c54c8=null;if(_0x2d842d[_0x25a3e4(0x64e)]===game[_0x25a3e4(0x32e)]['id'])_0x3c54c8=dom[_0x25a3e4(0x4ca)];else{if(game['remotePlayers'][_0x2d842d[_0x25a3e4(0x64e)]])_0x3c54c8=game['remotePlayers'][_0x2d842d['targetId']][_0x25a3e4(0x562)];else{const _0x481db3=document[_0x25a3e4(0x6de)](_0x2d842d[_0x25a3e4(0x64e)])||document[_0x25a3e4(0x6de)](_0x25a3e4(0x2d7)+game['player']['id']+'_'+_0x2d842d['targetId']);if(_0x481db3)_0x3c54c8=_0x481db3;else{const _0x52405d=game[_0x25a3e4(0x32e)][_0x25a3e4(0x4ec)]?.[_0x25a3e4(0x4f9)](_0x83f0b9=>_0x83f0b9['id']===_0x2d842d['targetId']);if(_0x52405d)_0x3c54c8=_0x52405d[_0x25a3e4(0x474)];}}}if(_0x3c54c8){let _0x2ef4b1=_0x3c54c8['querySelector'](_0x25a3e4(0x1a7));_0x2ef4b1&&(_0x2ef4b1['style'][_0x25a3e4(0x650)]=_0x25a3e4(0x494),setTimeout(()=>_0x2ef4b1[_0x25a3e4(0x7f7)](),0x12c));}}),socket['on'](_0x5d14f9(0x83c),()=>{const _0x52b181=_0x5d14f9;if(game[_0x52b181(0x32e)]['activeSkills']){game[_0x52b181(0x32e)]['activeSkills'][_0x52b181(0x4c1)](_0x15c94a=>_0x15c94a[_0x52b181(0x44e)]=0x0);if(typeof window[_0x52b181(0x30b)]===_0x52b181(0x268))window[_0x52b181(0x30b)]();}}),socket['on'](_0x5d14f9(0x20e),_0x5a3a69=>{const _0x105d70=_0x5d14f9;let _0x2cfff2=_0x5a3a69[_0x105d70(0x6d0)]===_0x105d70(0x8bc)?_0x105d70(0x4a3):_0x5a3a69['type']===_0x105d70(0x2b5)?_0x105d70(0x239):'MISS',_0x3adeb6=_0x5a3a69['type']==='dodge'?_0x105d70(0x431):_0x5a3a69[_0x105d70(0x6d0)]===_0x105d70(0x2b5)?_0x105d70(0x631):'#aaaaaa',_0xbc0549=null;if(_0x5a3a69['targetId']===game[_0x105d70(0x32e)]['id'])_0xbc0549=game[_0x105d70(0x32e)];else{if(game['remotePlayers'][_0x5a3a69[_0x105d70(0x64e)]])_0xbc0549=game[_0x105d70(0x840)][_0x5a3a69[_0x105d70(0x64e)]];else{if(game[_0x105d70(0x82e)][_0x5a3a69[_0x105d70(0x5f8)]])_0xbc0549=game[_0x105d70(0x82e)][_0x5a3a69['monsterId']];}}if(_0xbc0549){let _0x5983c3=_0xbc0549['x']+(_0xbc0549[_0x105d70(0x2ff)]?_0xbc0549[_0x105d70(0x2ff)]/0x2:0x18),_0x3eec8f=_0xbc0549['y']+(_0xbc0549[_0x105d70(0x7a7)]?_0xbc0549[_0x105d70(0x7a7)]/0x2:0x30);window['spawnDamageText'](_0x5983c3,_0x3eec8f-0xa,_0x2cfff2,_0x3adeb6);}});if(!document['getElementById']('afk-lock-screen')){let afkOverlay=document['createElement'](_0x5d14f9(0x8fa));afkOverlay['id']=_0x5d14f9(0x44f),afkOverlay['style'][_0x5d14f9(0x201)]=_0x5d14f9(0x61f),afkOverlay[_0x5d14f9(0x882)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20<h1\x20style=\x22color:#FF9800;\x20font-size:50px;\x20margin:0\x200\x2010px\x200;\x20text-shadow:\x200\x200\x2030px\x20#FF9800;\x20letter-spacing:3px;\x22>GAME\x20PAUSED</h1>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<h2\x20style=\x22color:#fff;\x20margin:0;\x20animation:\x20pulseText\x201.5s\x20infinite\x20alternate;\x22>Click\x20the\x20screen\x20to\x20resume\x20playing</h2>\x0a\x20\x20\x20\x20',document[_0x5d14f9(0x4d5)]['appendChild'](afkOverlay);let afkTimer=null;const AFK_TIME_LIMIT=0x5*0x3c*0x3e8;window[_0x5d14f9(0x2c6)]=function(_0x14687){const _0x5ed473=_0x5d14f9;afkOverlay[_0x5ed473(0x290)][_0x5ed473(0x642)]===_0x5ed473(0x8c1)&&(afkOverlay[_0x5ed473(0x290)]['display']=_0x5ed473(0x1ec),_0x14687&&(_0x14687[_0x5ed473(0x217)](),_0x14687[_0x5ed473(0x2d8)]())),clearTimeout(afkTimer),afkTimer=setTimeout(()=>{const _0x5f5509=_0x5ed473;if(game[_0x5f5509(0x91d)]&&!window['isLoading']&&document[_0x5f5509(0x6de)](_0x5f5509(0x489))?.[_0x5f5509(0x290)]['display']===_0x5f5509(0x1ec)){afkOverlay[_0x5f5509(0x290)][_0x5f5509(0x642)]=_0x5f5509(0x8c1);for(const _0xed90ff in game['keys'])game['keys'][_0xed90ff]=![];autoAttackMode=![],attackHeld=![];if(dom['log'])dom['log']['innerText']=_0x5f5509(0x74f);}},AFK_TIME_LIMIT);},['mousemove',_0x5d14f9(0x370),_0x5d14f9(0x210),_0x5d14f9(0x1a3),'pointerdown',_0x5d14f9(0x199)][_0x5d14f9(0x4c1)](_0x2e8b6f=>{const _0x15967c=_0x5d14f9;window[_0x15967c(0x665)](_0x2e8b6f,window['resetAfkTimer'],{'capture':!![],'passive':![]});}),window[_0x5d14f9(0x2c6)]();}window[_0x5d14f9(0x54d)]=()=>{const _0x20ae57=_0x5d14f9;window[_0x20ae57(0x5cf)](),window['initAllMobileWindows']();let _0x59e921=localStorage['getItem'](_0x20ae57(0x8a5)),_0x36107e=localStorage[_0x20ae57(0x307)](_0x20ae57(0x563));if(_0x59e921&&_0x36107e){let _0xd9982a=document[_0x20ae57(0x6de)](_0x20ae57(0x1a5)),_0x4fac23=document[_0x20ae57(0x6de)](_0x20ae57(0x4e3));if(_0xd9982a&&_0x4fac23){_0xd9982a[_0x20ae57(0x6cf)]=_0x59e921,_0x4fac23['value']=_0x36107e;if(typeof window[_0x20ae57(0x343)]===_0x20ae57(0x268))window[_0x20ae57(0x343)]();}}setTimeout(()=>{const _0x21d6b3=_0x20ae57;let _0x41be1b=document[_0x21d6b3(0x6de)]('unstuck-btn');_0x41be1b&&(window[_0x21d6b3(0x681)]()?_0x41be1b[_0x21d6b3(0x290)]['display']='none':_0x41be1b['style'][_0x21d6b3(0x642)]=_0x21d6b3(0x53c));},0x3e8);},window[_0x5d14f9(0x8bf)]=function(){const _0x1ca5ef=_0x5d14f9;localStorage[_0x1ca5ef(0x7c4)](_0x1ca5ef(0x8a5)),localStorage[_0x1ca5ef(0x7c4)](_0x1ca5ef(0x563)),location[_0x1ca5ef(0x2bd)]();},window[_0x5d14f9(0x665)](_0x5d14f9(0x210),_0xe1b4e6=>{const _0x5ba118=_0x5d14f9;if(typeof isChatting!==_0x5ba118(0x22b)&&isChatting)return;if(_0xe1b4e6['target']&&(_0xe1b4e6[_0x5ba118(0x439)][_0x5ba118(0x387)]===_0x5ba118(0x490)||_0xe1b4e6[_0x5ba118(0x439)][_0x5ba118(0x387)]===_0x5ba118(0x553)))return;if(_0xe1b4e6[_0x5ba118(0x233)][_0x5ba118(0x649)]()==='m'){if(typeof window[_0x5ba118(0x4ba)]===_0x5ba118(0x268))window['toggleMailbox']();}}),window[_0x5d14f9(0x205)]=function(){const _0x58ce0e=_0x5d14f9;typeof currentBGM!==_0x58ce0e(0x22b)&&currentBGM&&(currentBGM[_0x58ce0e(0x5b7)](),currentBGM[_0x58ce0e(0x7d1)]=0x0);typeof currentTrackName!==_0x58ce0e(0x22b)&&(currentTrackName='');let _0xb84ed9=document[_0x58ce0e(0x6de)]('tutorial-overlay');if(!_0xb84ed9){_0xb84ed9=document[_0x58ce0e(0x81e)](_0x58ce0e(0x8fa)),_0xb84ed9['id']=_0x58ce0e(0x31f),_0xb84ed9['style'][_0x58ce0e(0x201)]=_0x58ce0e(0x411);const _0xdbcb2b=document[_0x58ce0e(0x81e)]('h2');_0xdbcb2b['innerText']=_0x58ce0e(0x266),_0xdbcb2b[_0x58ce0e(0x290)]['cssText']=_0x58ce0e(0x6b3),_0xb84ed9[_0x58ce0e(0x463)](_0xdbcb2b),document[_0x58ce0e(0x4d5)][_0x58ce0e(0x463)](_0xb84ed9),fetch(_0x58ce0e(0x49a))[_0x58ce0e(0x932)](_0x56584c=>{const _0x1b2205=_0x58ce0e;if(!_0x56584c['ok'])throw new Error(_0x1b2205(0x500));return _0x56584c['blob']();})[_0x58ce0e(0x932)](_0x296b88=>{const _0x41ff7a=_0x58ce0e,_0x59a1b6=URL[_0x41ff7a(0x4a6)](_0x296b88);_0xdbcb2b[_0x41ff7a(0x290)]['display']=_0x41ff7a(0x1ec);const _0x571051=document[_0x41ff7a(0x81e)](_0x41ff7a(0x916));_0x571051['id']='tutorial-video',_0x571051[_0x41ff7a(0x6fa)]=_0x59a1b6,_0x571051['controls']=!![],_0x571051[_0x41ff7a(0x2bf)]=!![],_0x571051[_0x41ff7a(0x290)][_0x41ff7a(0x201)]=_0x41ff7a(0x4e0);const _0x348c30=document[_0x41ff7a(0x81e)]('button');_0x348c30[_0x41ff7a(0x492)]=_0x41ff7a(0x4ce),_0x348c30[_0x41ff7a(0x290)]['cssText']=_0x41ff7a(0x74d);const _0x4bb87e=()=>{const _0xc6be6f=_0x41ff7a;_0x571051['pause'](),_0x571051['removeAttribute']('src'),_0x571051[_0xc6be6f(0x41f)](),_0xb84ed9[_0xc6be6f(0x7f7)](),setTimeout(()=>{const _0x57af76=_0xc6be6f;URL[_0x57af76(0x21f)](_0x59a1b6);},0x3e8),game[_0xc6be6f(0x32e)][_0xc6be6f(0x526)]&&(game[_0xc6be6f(0x32e)]['baseStats'][_0xc6be6f(0x8b0)]=!![]),socket&&socket[_0xc6be6f(0x1b2)](_0xc6be6f(0x484)),setTimeout(()=>{const _0x333481=_0xc6be6f;let _0x16fe45=typeof safeMapData!==_0x333481(0x22b)&&safeMapData['id']?String(safeMapData['id']):_0x333481(0x8ba),_0x50c7dd=window['routeMapMusic'](_0x16fe45);window['playBGM'](_0x50c7dd);try{window[_0x333481(0x8fc)](_0x16fe45);}catch(_0xe652f6){}},0x64);};_0x571051[_0x41ff7a(0x59e)]=_0x4bb87e,_0x348c30[_0x41ff7a(0x4c4)]=_0x4bb87e,_0xb84ed9[_0x41ff7a(0x463)](_0x571051),_0xb84ed9['appendChild'](_0x348c30),_0x571051['play']()[_0x41ff7a(0x1a2)](_0x54be52=>console['warn'](_0x41ff7a(0x5d9)));})[_0x58ce0e(0x1a2)](_0x14c2d9=>{const _0x860a7e=_0x58ce0e;console['error']('Tutorial\x20fetch\x20failed:',_0x14c2d9);if(_0xb84ed9)_0xb84ed9[_0x860a7e(0x7f7)]();game[_0x860a7e(0x32e)][_0x860a7e(0x526)]&&(game['player'][_0x860a7e(0x526)][_0x860a7e(0x8b0)]=!![]);socket&&socket[_0x860a7e(0x1b2)](_0x860a7e(0x484));typeof DatabaseManager!==_0x860a7e(0x22b)&&DatabaseManager[_0x860a7e(0x6d8)](game[_0x860a7e(0x32e)]);let _0x57c40a=typeof safeMapData!==_0x860a7e(0x22b)&&safeMapData['id']?String(safeMapData['id']):_0x860a7e(0x8ba),_0x1e02e7=_0x57c40a['includes'](_0x860a7e(0x7f1))?'floors':_0x860a7e(0x8ba);window[_0x860a7e(0x73c)](_0x1e02e7);try{window['showMapAnnouncement'](_0x57c40a);}catch(_0x4fb8eb){}});}},window[_0x5d14f9(0x7dd)]=function(){const _0x1841d1=_0x5d14f9;let _0xe4d42f=document[_0x1841d1(0x6de)]('rm-shop-modal');!_0xe4d42f&&(_0xe4d42f=document[_0x1841d1(0x81e)](_0x1841d1(0x8fa)),_0xe4d42f['id']=_0x1841d1(0x40f),_0xe4d42f[_0x1841d1(0x228)]=_0x1841d1(0x1fb),_0xe4d42f[_0x1841d1(0x290)][_0x1841d1(0x201)]=_0x1841d1(0x6d2),document[_0x1841d1(0x4d5)][_0x1841d1(0x463)](_0xe4d42f));_0xe4d42f[_0x1841d1(0x882)]=_0x1841d1(0x69c),_0xe4d42f[_0x1841d1(0x290)][_0x1841d1(0x642)]='block';if(socket)socket[_0x1841d1(0x1b2)](_0x1841d1(0x672));};socket&&(socket['on'](_0x5d14f9(0x54a),_0x15d001=>{const _0x3434a3=_0x5d14f9;let _0x387521=document['getElementById'](_0x3434a3(0x40f));if(!_0x387521)return;let _0x5a355a=_0x3434a3(0x68a)+(_0x15d001[_0x3434a3(0x876)]||0x0)+_0x3434a3(0x914);if(_0x15d001[_0x3434a3(0x66b)]==='shop_open'){const _0x4e97bf=[{'id':'aura_easter','name':_0x3434a3(0x843),'priceGems':0xf,'desc':'Tradeable\x20Seasonal\x20Cosmetic:\x20A\x20beautiful\x20pastel\x20aura\x20that\x20shifts\x20colors.','isSeasonal':!![]},{'id':_0x3434a3(0x61b),'name':_0x3434a3(0x77f),'priceGems':0xf,'desc':_0x3434a3(0x39e),'isSeasonal':!![]},{'id':_0x3434a3(0x5fc),'name':'Name\x20Change\x20Ticket','priceGems':0xf,'desc':_0x3434a3(0x768)},{'id':'edit_char','name':_0x3434a3(0x680),'priceGems':0xf,'desc':'Re-open\x20the\x20character\x20creator\x20to\x20change\x20your\x20hair,\x20skin\x20color,\x20and\x20style.'},{'id':_0x3434a3(0x870),'name':_0x3434a3(0x703),'priceGems':0xa,'desc':_0x3434a3(0x633)},{'id':'pet_owl','name':'Night\x20Owl\x20Pet','priceGems':0xa,'desc':_0x3434a3(0x6b7)},{'id':_0x3434a3(0x625),'name':_0x3434a3(0x245),'priceGems':0xa,'desc':_0x3434a3(0x4bb)},{'id':_0x3434a3(0x45a),'name':_0x3434a3(0x1ea),'priceGems':0xa,'desc':_0x3434a3(0x1e6)},{'id':_0x3434a3(0x72a),'name':_0x3434a3(0x3d8),'priceGems':0xa,'desc':'Cosmetic:\x20Infuses\x20your\x20armor\x20with\x20a\x20leaf\x20and\x20vine\x20effect.'},{'id':_0x3434a3(0x283),'name':'Divine\x20Stone\x20Bundle\x20(x5)','priceGems':0xa,'desc':_0x3434a3(0x41e)},{'id':'revival_pack','name':_0x3434a3(0x817),'priceGems':0x5,'desc':_0x3434a3(0x566)}];_0x5a355a+=_0x3434a3(0x48a),_0x4e97bf[_0x3434a3(0x4c1)](_0x2d7727=>{const _0x118050=_0x3434a3;let _0xc6f916=_0x2d7727[_0x118050(0x3f4)]?_0x118050(0x535):_0x118050(0x640),_0x33c314=_0x2d7727[_0x118050(0x3f4)]?'text-shadow:\x200\x200\x2010px\x20#FFD700;':'',_0x417773=_0x2d7727[_0x118050(0x3f4)]?_0x118050(0x523):_0x118050(0x48d),_0x5869a8=_0x2d7727[_0x118050(0x3f4)]?'\x20<span\x20style=\x22font-size:11px;\x20color:#fff;\x22>🐰\x20(Seasonal)</span>':'';_0x5a355a+=_0x118050(0x8a6)+_0x417773+_0x118050(0x850)+_0xc6f916+_0x118050(0x647)+_0x33c314+'\x22>'+_0x2d7727[_0x118050(0x1f3)]+_0x5869a8+_0x118050(0x4e6)+_0x2d7727[_0x118050(0x5b2)]+_0x118050(0x903)+_0x2d7727['id']+_0x118050(0x886)+_0x2d7727['name']+_0x118050(0x8e6)+_0x2d7727['priceGems']+')\x22>💎\x20Buy\x20for\x20'+_0x2d7727[_0x118050(0x368)]+_0x118050(0x24a);}),_0x5a355a+=_0x3434a3(0x5a2);}_0x5a355a+=_0x3434a3(0x671),_0x387521[_0x3434a3(0x882)]=_0x5a355a;}),socket['on'](_0x5d14f9(0x3bc),_0x28b637=>{const _0x304187=_0x5d14f9;let _0x468d2e=document[_0x304187(0x6de)](_0x304187(0x218));if(_0x468d2e)_0x468d2e[_0x304187(0x492)]=_0x28b637[_0x304187(0x5cd)];if(!game[_0x304187(0x32e)][_0x304187(0x526)])game[_0x304187(0x32e)][_0x304187(0x526)]={};game[_0x304187(0x32e)][_0x304187(0x526)][_0x304187(0x876)]=_0x28b637[_0x304187(0x5cd)],DatabaseManager['savePlayerData'](game['player']);}),socket['on'](_0x5d14f9(0x55b),_0x389878=>{const _0xe94cd4=_0x5d14f9;let _0x4bee04=document[_0xe94cd4(0x6de)]('ui-gem-balance');if(_0x4bee04)_0x4bee04[_0xe94cd4(0x492)]=_0x389878[_0xe94cd4(0x5cd)];document[_0xe94cd4(0x6de)](_0xe94cd4(0x40f))[_0xe94cd4(0x882)]=_0xe94cd4(0x50f)+_0x389878[_0xe94cd4(0x1b5)]+_0xe94cd4(0x23c);if(dom['log'])dom[_0xe94cd4(0x7cd)][_0xe94cd4(0x492)]=_0xe94cd4(0x2a3)+_0x389878[_0xe94cd4(0x1b5)]+_0xe94cd4(0x684);if(!game[_0xe94cd4(0x32e)][_0xe94cd4(0x526)])game[_0xe94cd4(0x32e)][_0xe94cd4(0x526)]={};game[_0xe94cd4(0x32e)]['baseStats'][_0xe94cd4(0x876)]=_0x389878[_0xe94cd4(0x5cd)],DatabaseManager['savePlayerData'](game[_0xe94cd4(0x32e)]);}),socket['on'](_0x5d14f9(0x447),_0xc393ee=>{const _0x4cc890=_0x5d14f9;alert(_0x4cc890(0x8ab)+_0xc393ee),window[_0x4cc890(0x7dd)]();}));window[_0x5d14f9(0x74b)]='web';if(typeof process!==_0x5d14f9(0x22b)&&process[_0x5d14f9(0x901)]&&process[_0x5d14f9(0x901)][_0x5d14f9(0x1b8)])window[_0x5d14f9(0x74b)]='steam';else(window[_0x5d14f9(0x56e)]||window[_0x5d14f9(0x4eb)]&&window[_0x5d14f9(0x4eb)][_0x5d14f9(0x88f)])&&(window['currentPlatform']=_0x5d14f9(0x19c));window[_0x5d14f9(0x741)]=async function(_0x215a3f,_0x50560f,_0x3afa39){const _0x42bc1c=_0x5d14f9;document[_0x42bc1c(0x6de)](_0x42bc1c(0x40f))['innerHTML']='<h2\x20style=\x22color:#E040FB;\x20margin-top:\x2020px;\x22>Connecting\x20to\x20Store...</h2>';if(window[_0x42bc1c(0x74b)]==='steam')try{let _0x4f5f15=window[_0x42bc1c(0x747)]&&window['electronAPI']['getSteamId']?await window[_0x42bc1c(0x747)]['getSteamId']():_0x42bc1c(0x3bd);const _0x45de28=await fetch(serverUrl+_0x42bc1c(0x835),{'method':_0x42bc1c(0x635),'headers':{'Content-Type':'application/json'},'body':JSON[_0x42bc1c(0x57f)]({'steamId':_0x4f5f15,'itemId':_0x215a3f,'amountCents':_0x50560f,'itemDescription':_0x3afa39||_0x42bc1c(0x788)})}),_0xa91025=await _0x45de28[_0x42bc1c(0x683)]();if(_0xa91025[_0x42bc1c(0x4f0)]){if(window[_0x42bc1c(0x747)])window[_0x42bc1c(0x747)][_0x42bc1c(0x235)](_0xa91025[_0x42bc1c(0x7ba)]);else alert(_0x42bc1c(0x3e8)+_0xa91025['orderId']);}else alert('Store\x20Init\x20Failed:\x20'+(_0xa91025['error']||_0x42bc1c(0x6e4))),window[_0x42bc1c(0x7dd)]();}catch(_0x1a0e44){alert(_0x42bc1c(0x62e)+_0x1a0e44['message']),window['openRealMoneyShop']();}else{if(window[_0x42bc1c(0x74b)]===_0x42bc1c(0x19c)){if(window[_0x42bc1c(0x259)])try{const _0x42e4ee=window[_0x42bc1c(0x259)][_0x42bc1c(0x42e)],_0x2d3c61=_0x42e4ee['get'](_0x215a3f);if(!_0x2d3c61){alert(_0x42bc1c(0x7cc)+_0x215a3f),window[_0x42bc1c(0x7dd)]();return;}if(_0x2d3c61[_0x42bc1c(0x50c)]){const _0x274b3d=_0x2d3c61['getOffer']?_0x2d3c61[_0x42bc1c(0x7cf)]():null;_0x274b3d?_0x274b3d[_0x42bc1c(0x861)]()[_0x42bc1c(0x1a2)](_0x4f9136=>{const _0xfa151f=_0x42bc1c;alert(_0xfa151f(0x29f)+_0x4f9136),window[_0xfa151f(0x7dd)]();}):_0x42e4ee[_0x42bc1c(0x861)](_0x2d3c61['id'])[_0x42bc1c(0x1a2)](_0x573732=>{const _0x4fa09e=_0x42bc1c;alert('Order\x20fallback\x20failed:\x20'+_0x573732),window[_0x4fa09e(0x7dd)]();});}else alert(_0x42bc1c(0x71f)),window[_0x42bc1c(0x7dd)]();}catch(_0x444a14){alert(_0x42bc1c(0x4e2)+_0x444a14[_0x42bc1c(0x444)]),window[_0x42bc1c(0x7dd)]();}else alert(_0x42bc1c(0x898)),window['openRealMoneyShop']();}else alert('In-App\x20Purchases\x20are\x20only\x20available\x20via\x20the\x20Steam\x20or\x20Android\x20versions\x20of\x20Exonie!'),window[_0x42bc1c(0x7dd)]();}},window['addEventListener'](_0x5d14f9(0x25d),async _0x1fe863=>{const _0x367439=_0x5d14f9,_0x10403c=_0x1fe863['detail'];document[_0x367439(0x6de)](_0x367439(0x40f))[_0x367439(0x882)]=_0x367439(0x32a);if(window['currentPlatform']==='steam')try{const _0x1b6086=await fetch(serverUrl+'/api/shop/finalize',{'method':_0x367439(0x635),'headers':{'Content-Type':'application/json'},'body':JSON[_0x367439(0x57f)]({'orderId':_0x10403c[_0x367439(0x339)],'username':game[_0x367439(0x32e)]['id']})}),_0x5ddf7c=await _0x1b6086[_0x367439(0x683)]();!_0x5ddf7c[_0x367439(0x4f0)]&&(alert(_0x367439(0x89a)+_0x5ddf7c[_0x367439(0x444)]),window[_0x367439(0x7dd)]());}catch(_0x15cce4){alert('Error\x20verifying\x20purchase:\x20'+_0x15cce4[_0x367439(0x444)]),window['openRealMoneyShop']();}else socket&&socket[_0x367439(0x1b2)]('verifyStoreReceipt',{'platform':window[_0x367439(0x74b)],'receipt':_0x10403c[_0x367439(0x339)],'packageId':_0x10403c[_0x367439(0x3e7)]});}),window[_0x5d14f9(0x65d)]=function(_0x1ddee8,_0x214fc8,_0x3da969){const _0x3aa197=_0x5d14f9;if(!confirm(_0x3aa197(0x771)+_0x3da969+_0x3aa197(0x5b4)+_0x214fc8+'?'))return;socket[_0x3aa197(0x1b2)](_0x3aa197(0x33d),{'itemId':_0x1ddee8});};let shopRetryCount=0x0,shopInjectInterval=setInterval(()=>{const _0x2b32e3=_0x5d14f9,_0x267ca2=document[_0x2b32e3(0x6de)](_0x2b32e3(0x742));if(_0x267ca2){if(window[_0x2b32e3(0x681)]()){if(!document[_0x2b32e3(0x6de)](_0x2b32e3(0x305))){let _0x25a597=document[_0x2b32e3(0x81e)](_0x2b32e3(0x221));_0x25a597['id']='mobile-shop-btn',_0x25a597[_0x2b32e3(0x882)]='💎',_0x25a597[_0x2b32e3(0x290)][_0x2b32e3(0x201)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20position:\x20fixed;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20top:\x20125px;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20right:\x2015px;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20width:\x2045px;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20height:\x2045px;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20background:\x20#111;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20color:\x20white;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border:\x202px\x20solid\x20#E040FB;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x208px;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-size:\x2020px;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20display:\x20flex;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20justify-content:\x20center;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20align-items:\x20center;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20z-index:\x209999;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20cursor:\x20pointer;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20box-shadow:\x200\x200\x2015px\x20#E040FB;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20';const _0x100b64=_0x201d99=>{const _0x4d5cc6=_0x2b32e3;_0x201d99[_0x4d5cc6(0x217)](),_0x201d99[_0x4d5cc6(0x2d8)](),window[_0x4d5cc6(0x7dd)]();};_0x25a597[_0x2b32e3(0x4c4)]=_0x100b64,_0x25a597[_0x2b32e3(0x396)]=_0x100b64,_0x267ca2[_0x2b32e3(0x463)](_0x25a597);}}clearInterval(shopInjectInterval);}shopRetryCount++;if(shopRetryCount>0x1e)clearInterval(shopInjectInterval);},0x3e8);window[_0x5d14f9(0x2a9)]=function(){const _0x5afd45=_0x5d14f9;let _0xd75ef2=document[_0x5afd45(0x6de)]('daily-missions-modal');!_0xd75ef2&&(_0xd75ef2=document['createElement']('div'),_0xd75ef2['id']='daily-missions-modal',_0xd75ef2[_0x5afd45(0x228)]='movable-window',_0xd75ef2[_0x5afd45(0x290)]['cssText']=_0x5afd45(0x65c),document[_0x5afd45(0x4d5)][_0x5afd45(0x463)](_0xd75ef2));_0xd75ef2[_0x5afd45(0x882)]='<h2\x20style=\x22color:#FF9800;\x20margin-top:0;\x22>Loading\x20Missions...</h2>',_0xd75ef2[_0x5afd45(0x290)][_0x5afd45(0x642)]=_0x5afd45(0x53c);window[_0x5afd45(0x681)]()&&(window[_0x5afd45(0x7bc)](_0xd75ef2),window[_0x5afd45(0x919)](_0xd75ef2),window[_0x5afd45(0x7c9)](_0xd75ef2));if(socket)socket['emit'](_0x5afd45(0x401));};socket&&(socket['on'](_0x5d14f9(0x696),_0x5b53c=>{const _0x5c7b9c=_0x5d14f9,_0x3c3f84=document[_0x5c7b9c(0x6de)](_0x5c7b9c(0x326));if(!_0x3c3f84)return;let _0x1704af='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22window-drag-handle\x22\x20style=\x22cursor:grab;\x20padding:10px;\x20background:#222;\x20margin:-20px\x20-20px\x2015px\x20-20px;\x20border-radius:8px\x208px\x200\x200;\x20border-bottom:1px\x20solid\x20#FF9800;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h2\x20style=\x22margin:0;\x20color:#FF9800;\x20pointer-events:none;\x22>📜\x20Daily\x20Mission</h2>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20';if(_0x5b53c['active']){let _0x2e8651=Math[_0x5c7b9c(0x591)](0x64,_0x5b53c[_0x5c7b9c(0x6bb)]/_0x5b53c[_0x5c7b9c(0x708)]*0x64),_0x446a46=_0x5b53c[_0x5c7b9c(0x8f6)]?_0x5c7b9c(0x71b):_0x5c7b9c(0x3b9);_0x1704af+=_0x5c7b9c(0x529)+_0x5b53c[_0x5c7b9c(0x4f5)]+'</strong></p>';if(_0x5b53c[_0x5c7b9c(0x8f6)])_0x1704af+=_0x5c7b9c(0x3fa)+_0x5b53c[_0x5c7b9c(0x7e0)]['toLocaleString']()+'\x20G</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>',_0x1704af+=_0x5c7b9c(0x7be);else{let _0x2d13dc=_0x5b53c['difficulty']==='Beginner'?_0x5c7b9c(0x49c):_0x5b53c['difficulty']===_0x5c7b9c(0x66a)?_0x5c7b9c(0x4de):_0x5c7b9c(0x51d);_0x1704af+=_0x5c7b9c(0x629)+_0x5b53c[_0x5c7b9c(0x708)]+'\x20'+_0x5b53c['targetName']+_0x5c7b9c(0x284)+_0x2d13dc+_0x5c7b9c(0x21a)+_0x5b53c['currentKills']+_0x5c7b9c(0x503)+_0x5b53c['requiredKills']+'</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22background:#222;\x20border-radius:4px;\x20height:10px;\x20width:100%;\x20overflow:hidden;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22background:'+_0x446a46+';\x20width:'+_0x2e8651+'%;\x20height:100%;\x20transition:width\x200.3s;\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22margin-top:10px;\x20color:#FFD700;\x20font-size:13px;\x20font-weight:bold;\x20text-align:right;\x22>Reward:\x20'+_0x5b53c['reward'][_0x5c7b9c(0x565)]()+_0x5c7b9c(0x6f9);}}else _0x1704af+=_0x5c7b9c(0x929),_0x1704af+=_0x5c7b9c(0x374);_0x1704af+=_0x5c7b9c(0x740),_0x3c3f84['innerHTML']=_0x1704af;}),socket['on'](_0x5d14f9(0x8c7),_0x80d3c6=>{const _0x1068dd=_0x5d14f9;if(game[_0x1068dd(0x32e)][_0x1068dd(0x526)])game[_0x1068dd(0x32e)]['baseStats']['dailyMission']=_0x80d3c6;document[_0x1068dd(0x6de)]('daily-missions-modal')?.[_0x1068dd(0x290)][_0x1068dd(0x642)]===_0x1068dd(0x53c)&&socket['emit']('requestDailyMission');}));window[_0x5d14f9(0x87b)]=function(_0x286743){const _0x49dcde=_0x5d14f9;if(confirm(_0x49dcde(0x1d0)+_0x286743+_0x49dcde(0x32f))){if(socket)socket['emit']('acceptDailyMission',_0x286743);document[_0x49dcde(0x6de)]('daily-missions-modal')[_0x49dcde(0x882)]=_0x49dcde(0x393);}};let ahSelectedInvIndex=-0x1;window['openDivineForge']=function(){const _0x280ec8=_0x5d14f9;document[_0x280ec8(0x6de)](_0x280ec8(0x297))[_0x280ec8(0x290)][_0x280ec8(0x642)]='none';let _0x18fd47=document[_0x280ec8(0x6de)](_0x280ec8(0x75d));!_0x18fd47&&(_0x18fd47=document[_0x280ec8(0x81e)](_0x280ec8(0x8fa)),_0x18fd47['id']=_0x280ec8(0x75d),_0x18fd47[_0x280ec8(0x228)]='movable-window',_0x18fd47[_0x280ec8(0x290)]['cssText']=_0x280ec8(0x34a),document[_0x280ec8(0x4d5)][_0x280ec8(0x463)](_0x18fd47)),window[_0x280ec8(0x406)](),_0x18fd47[_0x280ec8(0x290)]['display']='block';};let forgeSelectedIndex=-0x1;window['renderDivineForge']=function(){const _0x464858=_0x5d14f9;let _0x4bb37f=document[_0x464858(0x6de)]('divine-forge-modal'),_0x597e7a=_0x464858(0x3cd);_0x597e7a+='<p\x20style=\x22font-size:12px;\x20color:#aaa;\x22>Select\x20a\x20Godly\x20equipment\x20to\x20ascend\x20it\x20to\x20Divine.</p>',_0x597e7a+=_0x464858(0x403);const _0x33d1d6=game[_0x464858(0x32e)][_0x464858(0x5ed)]||[];let _0x41695d=![];for(let _0x3c3b58=0x0;_0x3c3b58<_0x33d1d6[_0x464858(0x7c5)];_0x3c3b58++){if(_0x33d1d6[_0x3c3b58]&&_0x33d1d6[_0x3c3b58][_0x464858(0x20b)]==='Godly'&&[_0x464858(0x452),'armor',_0x464858(0x548),_0x464858(0x327),_0x464858(0x6d6),'earrings'][_0x464858(0x67b)](_0x33d1d6[_0x3c3b58]['type'])){_0x41695d=!![];let _0x317ce7=forgeSelectedIndex===_0x3c3b58,_0x4b0223=_0x317ce7?'#ffea00':_0x464858(0x91f),_0x11c2b7=_0x317ce7?_0x464858(0x322):_0x464858(0x8c4);_0x597e7a+='<div\x20style=\x22border:2px\x20solid\x20'+_0x4b0223+';\x20background:'+_0x11c2b7+';\x20cursor:pointer;\x20padding:8px\x2012px;\x20border-radius:6px;\x20font-size:13px;\x20font-weight:bold;\x20color:'+_0x33d1d6[_0x3c3b58][_0x464858(0x510)]+_0x464858(0x7a1)+_0x3c3b58+_0x464858(0x1c7)+(_0x33d1d6[_0x3c3b58][_0x464858(0x91e)]?_0x33d1d6[_0x3c3b58][_0x464858(0x1f3)]+'\x20+'+_0x33d1d6[_0x3c3b58][_0x464858(0x91e)]:_0x33d1d6[_0x3c3b58][_0x464858(0x1f3)])+_0x464858(0x66f);}}if(!_0x41695d)_0x597e7a+=_0x464858(0x4b4);_0x597e7a+='</div>',_0x597e7a+='<div\x20id=\x22forge-reqs\x22\x20style=\x22background:#222;\x20padding:10px;\x20border-radius:5px;\x20margin-bottom:15px;\x20min-height:80px;\x20font-size:13px;\x20text-align:left;\x22>';if(forgeSelectedIndex!==-0x1&&_0x33d1d6[forgeSelectedIndex]){let _0x1abe8d=_0x33d1d6[forgeSelectedIndex],_0x3033bb=_0x1abe8d[_0x464858(0x6d0)],_0x2f63e0=0x0,_0x40b162=0x0,_0x15ed60=0x0,_0xb4dd0f=0x0,_0x29f205=0x0;if(_0x3033bb==='weapon')_0x2f63e0=0x3,_0x40b162=0x1,_0x15ed60=0x1,_0xb4dd0f=0x1,_0x29f205=0x2dc6c0;else _0x3033bb===_0x464858(0x509)||_0x3033bb===_0x464858(0x548)?(_0x2f63e0=0x1,_0x40b162=0x1,_0x15ed60=0x1,_0xb4dd0f=0x1,_0x29f205=0xf4240):(_0x2f63e0=0x5,_0x40b162=0x2,_0x15ed60=0x2,_0xb4dd0f=0x2,_0x29f205=0x4c4b40);let _0x2a2d87=0x0,_0x2c686b=0x0,_0x3b034c=0x0,_0x56bb55=0x0;_0x33d1d6['forEach'](_0x5bc391=>{const _0x25dd50=_0x464858;if(!_0x5bc391||!_0x5bc391[_0x25dd50(0x1f3)])return;const _0x1dedcc=String(_0x5bc391[_0x25dd50(0x1f3)])[_0x25dd50(0x57a)]();if(_0x1dedcc[_0x25dd50(0x67b)](_0x25dd50(0x3d2)))_0x2a2d87+=_0x5bc391[_0x25dd50(0x921)]||0x1;if(_0x1dedcc[_0x25dd50(0x67b)](_0x25dd50(0x518)))_0x2c686b+=_0x5bc391[_0x25dd50(0x921)]||0x1;if(_0x1dedcc[_0x25dd50(0x67b)](_0x25dd50(0x8f3)))_0x3b034c+=_0x5bc391[_0x25dd50(0x921)]||0x1;if(_0x1dedcc[_0x25dd50(0x67b)](_0x25dd50(0x827)))_0x56bb55+=_0x5bc391[_0x25dd50(0x921)]||0x1;});const _0x4558a0=(_0x405c9b,_0x50fb3f)=>_0x405c9b>=_0x50fb3f?_0x464858(0x71b):_0x464858(0x3c7),_0x2ae375=game[_0x464858(0x32e)][_0x464858(0x4a4)]>=_0x29f205?_0x464858(0x71b):_0x464858(0x3c7);_0x597e7a+=_0x464858(0x46b)+_0x1abe8d[_0x464858(0x1f3)]+_0x464858(0x5a2),_0x597e7a+=_0x464858(0x1f7)+_0x4558a0(_0x2a2d87,_0x2f63e0)+'\x22>'+_0x2a2d87+'/'+_0x2f63e0+_0x464858(0x8a3),_0x597e7a+=_0x464858(0x1f7)+_0x4558a0(_0x2c686b,_0x40b162)+'\x22>'+_0x2c686b+'/'+_0x40b162+_0x464858(0x44b),_0x597e7a+=_0x464858(0x1f7)+_0x4558a0(_0x3b034c,_0x15ed60)+'\x22>'+_0x3b034c+'/'+_0x15ed60+_0x464858(0x72b),_0x597e7a+=_0x464858(0x1f7)+_0x4558a0(_0x56bb55,_0xb4dd0f)+'\x22>'+_0x56bb55+'/'+_0xb4dd0f+'\x20Blue\x20Exo\x20Metal</span></div>',_0x597e7a+=_0x464858(0x56d)+_0x2ae375+'\x22>'+game['player'][_0x464858(0x4a4)][_0x464858(0x565)]()+_0x464858(0x503)+_0x29f205['toLocaleString']()+_0x464858(0x47b);let _0x27d767=_0x2a2d87>=_0x2f63e0&&_0x2c686b>=_0x40b162&&_0x3b034c>=_0x15ed60&&_0x56bb55>=_0xb4dd0f&&game[_0x464858(0x32e)][_0x464858(0x4a4)]>=_0x29f205;_0x597e7a+=_0x464858(0x34f)+(_0x27d767?_0x464858(0x3b9):_0x464858(0x86a))+_0x464858(0x8a9)+(_0x27d767?'':_0x464858(0x874))+_0x464858(0x481);}else _0x597e7a+=_0x464858(0x57b);_0x597e7a+=_0x464858(0x34c),_0x4bb37f[_0x464858(0x882)]=_0x597e7a;},window[_0x5d14f9(0x437)]=function(_0x59b4d4){const _0x278461=_0x5d14f9;forgeSelectedIndex=_0x59b4d4,window[_0x278461(0x406)]();},window[_0x5d14f9(0x943)]=function(){const _0x47900d=_0x5d14f9;if(forgeSelectedIndex===-0x1)return;socket[_0x47900d(0x1b2)](_0x47900d(0x4a1),{'baseIndex':forgeSelectedIndex}),document[_0x47900d(0x6de)](_0x47900d(0x75d))['innerHTML']='<h2\x20style=\x22color:#ffea00;\x20margin-top:\x2050px;\x22>Forging\x20in\x20the\x20Heavens...</h2>';};socket&&socket['on'](_0x5d14f9(0x767),()=>{forgeSelectedIndex=-0x1,setTimeout(()=>{const _0x392926=_0x7052;if(document[_0x392926(0x6de)](_0x392926(0x75d))[_0x392926(0x290)][_0x392926(0x642)]===_0x392926(0x53c))window[_0x392926(0x406)]();},0x5dc);});window['isApplyingForger']=![],window[_0x5d14f9(0x7bd)]=function(_0x1e2a99,_0x4a303d){const _0x2812a9=_0x5d14f9;_0x4a303d[_0x2812a9(0x2d8)]();let _0x292747=game['player'][_0x2812a9(0x5ed)][_0x1e2a99],_0x41cfdb=game[_0x2812a9(0x32e)]['inventory'][activeInvIndex];if(!_0x292747||['necklace','ring',_0x2812a9(0x5d3)][_0x2812a9(0x67b)](_0x292747[_0x2812a9(0x6d0)])){dom['log'][_0x2812a9(0x492)]=_0x2812a9(0x21b),window[_0x2812a9(0x902)]=![],window[_0x2812a9(0x252)]();return;}if(_0x292747[_0x2812a9(0x20b)]!==_0x41cfdb[_0x2812a9(0x20b)]){dom[_0x2812a9(0x7cd)]['innerText']=_0x2812a9(0x791)+_0x292747[_0x2812a9(0x20b)]+_0x2812a9(0x942),window[_0x2812a9(0x902)]=![],window[_0x2812a9(0x252)]();return;}if(!_0x292747[_0x2812a9(0x7d4)]||Object[_0x2812a9(0x2c1)](_0x292747[_0x2812a9(0x7d4)])[_0x2812a9(0x7c5)]===0x0){dom[_0x2812a9(0x7cd)]['innerText']=_0x2812a9(0x1be),window[_0x2812a9(0x902)]=![],window[_0x2812a9(0x252)]();return;}let _0x1afaf7=document[_0x2812a9(0x6de)]('forger-modal');!_0x1afaf7&&(_0x1afaf7=document[_0x2812a9(0x81e)](_0x2812a9(0x8fa)),_0x1afaf7['id']=_0x2812a9(0x68c),_0x1afaf7[_0x2812a9(0x228)]=_0x2812a9(0x1fb),_0x1afaf7[_0x2812a9(0x290)][_0x2812a9(0x201)]=_0x2812a9(0x495),document['body'][_0x2812a9(0x463)](_0x1afaf7));let _0x27058f=_0x2812a9(0x6a0);_0x27058f+=_0x2812a9(0x75c)+(_0x292747['enhanceLevel']?_0x292747[_0x2812a9(0x1f3)]+'\x20+'+_0x292747[_0x2812a9(0x91e)]:_0x292747[_0x2812a9(0x1f3)])+'</p>';for(let _0x1d0487 in _0x292747[_0x2812a9(0x7d4)]){_0x27058f+=_0x2812a9(0x5b0)+_0x1e2a99+_0x2812a9(0x508)+_0x1d0487+_0x2812a9(0x1ae)+_0x292747['randomStat'][_0x1d0487]+'\x20'+_0x1d0487['toUpperCase']()+_0x2812a9(0x1cd);}_0x27058f+='<button\x20class=\x22btn\x22\x20style=\x22background:#f44336;\x20width:100%;\x20margin-top:10px;\x22\x20onclick=\x22document.getElementById(\x27forger-modal\x27).style.display=\x27none\x27;\x20window.isApplyingForger=false;\x20window.renderInventory();\x22>Cancel</button>',_0x1afaf7[_0x2812a9(0x882)]=_0x27058f,_0x1afaf7['style'][_0x2812a9(0x642)]=_0x2812a9(0x53c);},window['confirmForgerReroll']=function(_0x1e6183,_0x2b89cf){const _0x1d720c=_0x5d14f9;if(socket)socket[_0x1d720c(0x1b2)](_0x1d720c(0x6c3),{'forgerIndex':activeInvIndex,'targetIndex':_0x1e6183,'statKey':_0x2b89cf});document['getElementById'](_0x1d720c(0x68c))[_0x1d720c(0x882)]='<h2\x20style=\x22color:#E040FB;\x20margin-top:\x2020px;\x22>Rerolling...</h2>';},window['openConsumablesCrafting']=function(){const _0x478ec5=_0x5d14f9;document[_0x478ec5(0x6de)](_0x478ec5(0x297))[_0x478ec5(0x290)]['display']='none';let _0x41a4d9=document[_0x478ec5(0x6de)](_0x478ec5(0x5e0));!_0x41a4d9&&(_0x41a4d9=document[_0x478ec5(0x81e)](_0x478ec5(0x8fa)),_0x41a4d9['id']=_0x478ec5(0x5e0),_0x41a4d9[_0x478ec5(0x228)]=_0x478ec5(0x1fb),_0x41a4d9['style'][_0x478ec5(0x201)]=_0x478ec5(0x22f),document[_0x478ec5(0x4d5)][_0x478ec5(0x463)](_0x41a4d9)),window[_0x478ec5(0x8c8)](),_0x41a4d9[_0x478ec5(0x290)][_0x478ec5(0x642)]=_0x478ec5(0x53c);},window['forgerSelectedRarity']=window[_0x5d14f9(0x3ad)]||_0x5d14f9(0x445),window[_0x5d14f9(0x925)]=function(_0x1befca){const _0x3e8c4b=_0x5d14f9;window[_0x3e8c4b(0x3ad)]=_0x1befca,window[_0x3e8c4b(0x8c8)]();},window['renderConsumablesCrafting']=function(){const _0x2b7475=_0x5d14f9;let _0x4ef5d4=document['getElementById'](_0x2b7475(0x5e0)),_0x44cf78=window[_0x2b7475(0x3ad)],_0xe056c3=0x3,_0x32d2e4=0x493e0,_0x5b0136=0x3;const _0x53385d=game[_0x2b7475(0x32e)][_0x2b7475(0x5ed)]||[];let _0x25dc6e=0x0,_0xd09344=0x0,_0x3b0d4d=0x0,_0x4fdea5=0x0;_0x53385d[_0x2b7475(0x4c1)](_0x13d413=>{const _0x28b504=_0x2b7475;if(!_0x13d413||!_0x13d413[_0x28b504(0x1f3)])return;const _0x52c214=String(_0x13d413['name'])[_0x28b504(0x57a)]();if(_0x52c214[_0x28b504(0x67b)]('Red\x20Exo\x20Metal'))_0x25dc6e+=_0x13d413[_0x28b504(0x921)]||0x1;if(_0x52c214[_0x28b504(0x67b)](_0x28b504(0x8f3)))_0xd09344+=_0x13d413['quantity']||0x1;if(_0x52c214[_0x28b504(0x67b)](_0x28b504(0x827)))_0x3b0d4d+=_0x13d413['quantity']||0x1;if(_0x52c214[_0x28b504(0x67b)]('Refinement\x20Stone')&&(_0x44cf78===_0x28b504(0x2b4)||_0x13d413[_0x28b504(0x3f2)]>=0x64)&&_0x13d413[_0x28b504(0x20b)]===_0x44cf78)_0x4fdea5+=_0x13d413['quantity']||0x1;});const _0x189a0c=(_0x44fd1f,_0x46d5cd)=>_0x44fd1f>=_0x46d5cd?_0x2b7475(0x71b):_0x2b7475(0x3c7),_0x59dfd8=game[_0x2b7475(0x32e)][_0x2b7475(0x4a4)]>=_0x32d2e4?'#4CAF50':_0x2b7475(0x3c7);let _0x5bc2ba=_0x25dc6e>=_0xe056c3&&_0xd09344>=_0xe056c3&&_0x3b0d4d>=_0xe056c3&&_0x4fdea5>=_0x5b0136&&game[_0x2b7475(0x32e)][_0x2b7475(0x4a4)]>=_0x32d2e4,_0x3dd4ce='<h2\x20style=\x22margin-top:0;\x20color:#E040FB;\x20text-shadow:\x200\x200\x2010px\x20#E040FB;\x22>🧪\x20Consumables</h2>';_0x3dd4ce+='<p\x20style=\x22font-size:12px;\x20color:#aaa;\x22>Craft\x20powerful\x20consumable\x20items.</p>',_0x3dd4ce+=_0x2b7475(0x1fe),_0x3dd4ce+=_0x2b7475(0x6a1),_0x3dd4ce+='<p\x20style=\x22font-size:11px;\x20color:#aaa;\x20margin-top:0;\x20text-align:center;\x22>Rerolls\x20a\x20random\x20sub-stat.\x20Select\x20rarity:</p>',_0x3dd4ce+='<select\x20onchange=\x22window.updateForgerRarity(this.value)\x22\x20style=\x22width:100%;\x20padding:8px;\x20margin-bottom:10px;\x20background:#333;\x20color:white;\x20border:1px\x20solid\x20#E040FB;\x20border-radius:4px;\x20outline:none;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22Basic\x22\x20'+(_0x44cf78==='Basic'?'selected':'')+_0x2b7475(0x52c)+(_0x44cf78==='Rare'?_0x2b7475(0x4c8):'')+'>Rare</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22Unique\x22\x20'+(_0x44cf78===_0x2b7475(0x7df)?_0x2b7475(0x4c8):'')+_0x2b7475(0x793)+(_0x44cf78===_0x2b7475(0x48e)?_0x2b7475(0x4c8):'')+_0x2b7475(0x229)+(_0x44cf78===_0x2b7475(0x445)?_0x2b7475(0x4c8):'')+_0x2b7475(0x719)+(_0x44cf78===_0x2b7475(0x2b4)?_0x2b7475(0x4c8):'')+_0x2b7475(0x4a5),_0x3dd4ce+=_0x2b7475(0x1f7)+_0x189a0c(_0x25dc6e,_0xe056c3)+'\x22>'+_0x25dc6e+'/'+_0xe056c3+_0x2b7475(0x44b),_0x3dd4ce+=_0x2b7475(0x1f7)+_0x189a0c(_0xd09344,_0xe056c3)+'\x22>'+_0xd09344+'/'+_0xe056c3+_0x2b7475(0x72b),_0x3dd4ce+=_0x2b7475(0x1f7)+_0x189a0c(_0x3b0d4d,_0xe056c3)+'\x22>'+_0x3b0d4d+'/'+_0xe056c3+_0x2b7475(0x8b9),_0x3dd4ce+='<div><span\x20style=\x22color:'+_0x189a0c(_0x4fdea5,_0x5b0136)+'\x22>'+_0x4fdea5+'/'+_0x5b0136+'\x20'+_0x44cf78+_0x2b7475(0x1f8),_0x3dd4ce+=_0x2b7475(0x56d)+_0x59dfd8+'\x22>'+(game[_0x2b7475(0x32e)][_0x2b7475(0x4a4)]||0x0)[_0x2b7475(0x565)]()+'\x20/\x20'+_0x32d2e4['toLocaleString']()+_0x2b7475(0x47b),_0x3dd4ce+=_0x2b7475(0x43f)+(_0x5bc2ba?_0x2b7475(0x640):_0x2b7475(0x86a))+';\x20color:white;\x20width:100%;\x20margin-top:10px;\x20font-weight:bold;\x22\x20'+(_0x5bc2ba?'':_0x2b7475(0x874))+_0x2b7475(0x5aa)+_0x44cf78+_0x2b7475(0x1e1)+_0x44cf78+_0x2b7475(0x519),_0x3dd4ce+='</div>',_0x3dd4ce+=_0x2b7475(0x43c),_0x4ef5d4['innerHTML']=_0x3dd4ce;};socket&&(socket['on'](_0x5d14f9(0x30e),()=>{setTimeout(()=>{const _0x2063f3=_0x7052;if(document[_0x2063f3(0x6de)](_0x2063f3(0x5e0))&&document[_0x2063f3(0x6de)](_0x2063f3(0x5e0))[_0x2063f3(0x290)][_0x2063f3(0x642)]==='block')window[_0x2063f3(0x8c8)]();},0x64);}),socket['on'](_0x5d14f9(0x1d3),()=>{const _0x39ae49=_0x5d14f9;let _0x3e39aa=document[_0x39ae49(0x6de)](_0x39ae49(0x68c));if(_0x3e39aa)_0x3e39aa[_0x39ae49(0x290)][_0x39ae49(0x642)]=_0x39ae49(0x1ec);window[_0x39ae49(0x902)]=![],activeInvIndex=-0x1,window[_0x39ae49(0x252)]();}));setTimeout(()=>{const _0x330dff=_0x5d14f9;let _0x392984=document[_0x330dff(0x6de)](_0x330dff(0x297));if(_0x392984){let _0x7f07a6=_0x392984[_0x330dff(0x29c)](_0x330dff(0x221));for(let _0x45b6a3 of _0x7f07a6){if(_0x45b6a3[_0x330dff(0x492)]['toLowerCase']()[_0x330dff(0x67b)](_0x330dff(0x338))){_0x45b6a3[_0x330dff(0x492)]='Blacksmith\x20(Divine\x20Forge)',_0x45b6a3[_0x330dff(0x4c4)]=window['openDivineForge'],_0x45b6a3[_0x330dff(0x290)][_0x330dff(0x201)]=_0x330dff(0x90f);if(!document['getElementById']('btn-consumables-craft')){let _0x1cd6b6=document[_0x330dff(0x81e)](_0x330dff(0x221));_0x1cd6b6['id']=_0x330dff(0x774),_0x1cd6b6[_0x330dff(0x228)]=_0x330dff(0x408),_0x1cd6b6[_0x330dff(0x492)]='Consumables\x20Crafting',_0x1cd6b6[_0x330dff(0x290)][_0x330dff(0x201)]=_0x330dff(0x250),_0x1cd6b6['onclick']=window['openConsumablesCrafting'],_0x45b6a3[_0x330dff(0x5c4)][_0x330dff(0x8ea)](_0x1cd6b6,_0x45b6a3[_0x330dff(0x58a)]);if(!document[_0x330dff(0x6de)](_0x330dff(0x6f7))){let _0xd3c392=document['createElement'](_0x330dff(0x221));_0xd3c392['id']=_0x330dff(0x6f7),_0xd3c392[_0x330dff(0x228)]=_0x330dff(0x408),_0xd3c392['innerText']=_0x330dff(0x5f9),_0xd3c392[_0x330dff(0x290)]['cssText']='background:\x20linear-gradient(45deg,\x20#311B92,\x20#E040FB);\x20color:\x20white;\x20font-weight:\x20bold;\x20width:\x20100%;\x20margin-bottom:\x2010px;\x20box-shadow:\x200\x200\x2010px\x20#E040FB;\x20border:\x20none;\x20padding:\x2010px;\x20cursor:\x20pointer;\x20border-radius:\x204px;\x20display:\x20block;\x20box-sizing:\x20border-box;',_0xd3c392[_0x330dff(0x4c4)]=window[_0x330dff(0x893)],_0x1cd6b6['parentNode'][_0x330dff(0x8ea)](_0xd3c392,_0x1cd6b6['nextSibling']);}}break;}}}},0x7d0),window[_0x5d14f9(0x8ed)]=function(){const _0xd91a2e=_0x5d14f9;document['getElementById'](_0xd91a2e(0x297))[_0xd91a2e(0x290)][_0xd91a2e(0x642)]=_0xd91a2e(0x1ec),document['getElementById']('ah-modal')['style'][_0xd91a2e(0x642)]=_0xd91a2e(0x53c),window[_0xd91a2e(0x41d)](_0xd91a2e(0x890));},window[_0x5d14f9(0x41d)]=function(_0x170fa9){const _0x346129=_0x5d14f9;document[_0x346129(0x6de)](_0x346129(0x540))[_0x346129(0x4ea)][_0x346129(0x7f7)]('selected'),document[_0x346129(0x6de)]('ah-tab-sell')['classList'][_0x346129(0x7f7)](_0x346129(0x4c8)),document[_0x346129(0x6de)](_0x346129(0x304))[_0x346129(0x4ea)][_0x346129(0x7f7)](_0x346129(0x4c8)),document[_0x346129(0x6de)]('ah-view-browse')[_0x346129(0x290)][_0x346129(0x642)]='none',document['getElementById'](_0x346129(0x332))[_0x346129(0x290)][_0x346129(0x642)]='none',document[_0x346129(0x6de)](_0x346129(0x2a2))[_0x346129(0x290)][_0x346129(0x642)]=_0x346129(0x1ec),document[_0x346129(0x6de)](_0x346129(0x45c)+_0x170fa9)[_0x346129(0x4ea)][_0x346129(0x7e6)](_0x346129(0x4c8)),document[_0x346129(0x6de)](_0x346129(0x323)+_0x170fa9)['style'][_0x346129(0x642)]=_0x346129(0x53c);_0x170fa9===_0x346129(0x890)&&(document[_0x346129(0x6de)](_0x346129(0x454))[_0x346129(0x6cf)]='',document[_0x346129(0x6de)]('ah-browse-results')['innerHTML']=_0x346129(0x1f9),socket['emit'](_0x346129(0x596),''));if(_0x170fa9===_0x346129(0x38a))window['renderAhSellGrid']();_0x170fa9==='my'&&(document['getElementById'](_0x346129(0x555))[_0x346129(0x882)]=_0x346129(0x1f9),socket[_0x346129(0x1b2)](_0x346129(0x83e)));},window[_0x5d14f9(0x30f)]=function(){const _0x4c1b01=_0x5d14f9,_0x1a191d=document['getElementById'](_0x4c1b01(0x454))['value'][_0x4c1b01(0x57a)]();document['getElementById']('ah-browse-results')['innerHTML']=_0x4c1b01(0x8aa),socket[_0x4c1b01(0x1b2)](_0x4c1b01(0x596),_0x1a191d);},window[_0x5d14f9(0x1c5)]=function(){const _0x428647=_0x5d14f9,_0x5b8293=document['getElementById'](_0x428647(0x73a));_0x5b8293['innerHTML']='',ahSelectedInvIndex=-0x1,document['getElementById'](_0x428647(0x662))['innerText']=_0x428647(0x709),document[_0x428647(0x6de)](_0x428647(0x78e))[_0x428647(0x882)]='';const _0x10e265=game[_0x428647(0x32e)]['inventory']||[];for(let _0x35938b=0x0;_0x35938b<_0x10e265[_0x428647(0x7c5)];_0x35938b++){const _0x2d8fd8=document['createElement']('div');_0x2d8fd8['className']=_0x428647(0x8e0);if(_0x10e265[_0x35938b]){_0x2d8fd8[_0x428647(0x290)][_0x428647(0x6fe)]='3px\x20solid\x20'+(_0x10e265[_0x35938b][_0x428647(0x510)]||_0x428647(0x897));let _0x1ba70c=_0x10e265[_0x35938b]['enhanceLevel']?_0x10e265[_0x35938b][_0x428647(0x1f3)]+'\x20+'+_0x10e265[_0x35938b][_0x428647(0x91e)]:_0x10e265[_0x35938b][_0x428647(0x1f3)];_0x2d8fd8['innerText']=_0x1ba70c;if(_0x10e265[_0x35938b][_0x428647(0x921)]&&_0x10e265[_0x35938b][_0x428647(0x921)]>0x1){let _0x4d1510=document[_0x428647(0x81e)](_0x428647(0x32b));_0x4d1510[_0x428647(0x228)]=_0x428647(0x800),_0x4d1510['innerText']='x'+_0x10e265[_0x35938b][_0x428647(0x921)],_0x2d8fd8[_0x428647(0x463)](_0x4d1510);}_0x2d8fd8[_0x428647(0x4c4)]=()=>{const _0x4d87ed=_0x428647;document[_0x4d87ed(0x76b)]('#ah-sell-grid\x20.inv-slot')[_0x4d87ed(0x4c1)](_0x28840e=>_0x28840e[_0x4d87ed(0x290)][_0x4d87ed(0x53f)]='#444'),_0x2d8fd8[_0x4d87ed(0x290)][_0x4d87ed(0x53f)]=_0x4d87ed(0x2e5),ahSelectedInvIndex=_0x35938b,document[_0x4d87ed(0x6de)]('ah-selected-item-name')[_0x4d87ed(0x290)][_0x4d87ed(0x510)]=_0x10e265[_0x35938b]['color']||_0x4d87ed(0x897),document[_0x4d87ed(0x6de)]('ah-selected-item-name')[_0x4d87ed(0x492)]=_0x4d87ed(0x657)+_0x1ba70c,document[_0x4d87ed(0x6de)](_0x4d87ed(0x78e))[_0x4d87ed(0x882)]=window[_0x4d87ed(0x8ef)](_0x10e265[_0x35938b]);};}_0x5b8293[_0x428647(0x463)](_0x2d8fd8);}},window[_0x5d14f9(0x5b8)]=function(){const _0x3a4356=_0x5d14f9;if(ahSelectedInvIndex===-0x1)return dom[_0x3a4356(0x7cd)][_0x3a4356(0x492)]=_0x3a4356(0x231);const _0x51bbb6=game[_0x3a4356(0x32e)][_0x3a4356(0x5ed)][ahSelectedInvIndex];if(_0x51bbb6&&_0x51bbb6[_0x3a4356(0x6d0)]===_0x3a4356(0x1b6)&&!_0x51bbb6['isSeasonal']&&!String(_0x51bbb6[_0x3a4356(0x1f3)])[_0x3a4356(0x67b)](_0x3a4356(0x4ab)))return dom[_0x3a4356(0x7cd)]['innerText']=_0x3a4356(0x7e4);if(_0x51bbb6&&(_0x51bbb6[_0x3a4356(0x20b)]==='Godly'||_0x51bbb6[_0x3a4356(0x20b)]===_0x3a4356(0x2b4))&&_0x51bbb6[_0x3a4356(0x91e)]>0x0)return dom[_0x3a4356(0x7cd)]['innerText']=_0x3a4356(0x6ab);const _0x114352=parseInt(document[_0x3a4356(0x6de)]('ah-sell-price')[_0x3a4356(0x6cf)]);if(isNaN(_0x114352)||_0x114352<0x1)return dom[_0x3a4356(0x7cd)][_0x3a4356(0x492)]=_0x3a4356(0x34b);socket[_0x3a4356(0x1b2)](_0x3a4356(0x2bc),{'invIndex':ahSelectedInvIndex,'price':_0x114352}),document[_0x3a4356(0x6de)](_0x3a4356(0x662))[_0x3a4356(0x492)]=_0x3a4356(0x5a8);},window[_0x5d14f9(0x8e9)]=function(_0x15719b,_0x164733,_0xed6fc8){const _0x528242=_0x5d14f9;if(!confirm(_0x528242(0x8fd)+_0xed6fc8+_0x528242(0x822)+_0x164733+'\x20Gold?'))return;socket['emit'](_0x528242(0x2cc),{'auctionId':_0x15719b});},window[_0x5d14f9(0x590)]=function(_0x4a44cb){const _0x276f24=_0x5d14f9;if(!confirm(_0x276f24(0x7c0)))return;socket['emit'](_0x276f24(0x87a),{'auctionId':_0x4a44cb});};socket&&(socket['on'](_0x5d14f9(0x582),_0x1f2b40=>{const _0x496a89=_0x5d14f9,_0x32f873=document[_0x496a89(0x6de)](_0x496a89(0x82d));if(!_0x1f2b40||_0x1f2b40[_0x496a89(0x7c5)]===0x0){_0x32f873['innerHTML']=_0x496a89(0x21d);return;}let _0xc6db8='';_0x1f2b40[_0x496a89(0x4c1)](_0x1075eb=>{const _0x20adc9=_0x496a89;let _0x5810ec=_0x1075eb[_0x20adc9(0x537)],_0x21acaf=_0x5810ec[_0x20adc9(0x91e)]?_0x5810ec[_0x20adc9(0x1f3)]+'\x20+'+_0x5810ec[_0x20adc9(0x91e)]:_0x5810ec['name'],_0x2737f5=encodeURIComponent(JSON[_0x20adc9(0x57f)](_0x5810ec));_0xc6db8+=_0x20adc9(0x416)+(_0x5810ec[_0x20adc9(0x510)]||_0x20adc9(0x897))+_0x20adc9(0x2fc)+(_0x5810ec[_0x20adc9(0x510)]||_0x20adc9(0x897))+';\x22\x20onclick=\x22window.showLinkedItem(\x27'+_0x2737f5+_0x20adc9(0x7ca)+_0x21acaf+_0x20adc9(0x5ec)+_0x1075eb['seller_name']+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22ah-price\x22>'+_0x1075eb[_0x20adc9(0x4b7)]+_0x20adc9(0x8be)+_0x1075eb['id']+_0x20adc9(0x8e6)+_0x1075eb[_0x20adc9(0x4b7)]+_0x20adc9(0x508)+_0x21acaf['replace'](/'/g,'\x5c\x27')+_0x20adc9(0x42f);}),_0x32f873[_0x496a89(0x882)]=_0xc6db8;}),socket['on']('ah_myAuctions',_0x5675f3=>{const _0x41ab38=_0x5d14f9;document[_0x41ab38(0x6de)](_0x41ab38(0x89e))[_0x41ab38(0x492)]=_0x5675f3['count'];const _0x1c132d=document[_0x41ab38(0x6de)]('ah-my-results');if(_0x5675f3['count']===0x0){_0x1c132d[_0x41ab38(0x882)]=_0x41ab38(0x94c);return;}let _0x536d72='';_0x5675f3[_0x41ab38(0x949)]['forEach'](_0x5b2e32=>{const _0x4192ed=_0x41ab38;let _0x5aaead=_0x5b2e32[_0x4192ed(0x537)],_0x5f000d=_0x5aaead[_0x4192ed(0x91e)]?_0x5aaead[_0x4192ed(0x1f3)]+'\x20+'+_0x5aaead['enhanceLevel']:_0x5aaead[_0x4192ed(0x1f3)],_0x6358fe=encodeURIComponent(JSON[_0x4192ed(0x57f)](_0x5aaead));_0x536d72+='<div\x20class=\x22ah-row\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22ah-item-info\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22color:'+(_0x5aaead[_0x4192ed(0x510)]||'#fff')+_0x4192ed(0x2fc)+(_0x5aaead[_0x4192ed(0x510)]||'#fff')+';\x22\x20onclick=\x22window.showLinkedItem(\x27'+_0x6358fe+'\x27)\x22\x20title=\x22Click\x20to\x20inspect\x22>'+_0x5f000d+_0x4192ed(0x3cc)+_0x5b2e32[_0x4192ed(0x4b7)]+_0x4192ed(0x1c2)+_0x5b2e32['id']+'\x27)\x22>Cancel</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>';}),_0x1c132d['innerHTML']=_0x536d72;}),socket['on'](_0x5d14f9(0x54b),()=>{const _0x1a1173=_0x5d14f9;dom[_0x1a1173(0x7cd)]['innerText']=_0x1a1173(0x3ec),window['switchAhTab']('my');}));setTimeout(()=>{const _0x84c4cf=_0x5d14f9;let _0x56253a=document[_0x84c4cf(0x6de)](_0x84c4cf(0x454));_0x56253a&&_0x56253a['addEventListener']('input',function(){const _0x7447aa=_0x84c4cf;document[_0x7447aa(0x6de)](_0x7447aa(0x82d))[_0x7447aa(0x882)]='<p\x20style=\x22color:#aaa;\x20text-align:center;\x22>Searching...</p>',socket[_0x7447aa(0x1b2)](_0x7447aa(0x596),this['value'][_0x7447aa(0x57a)]());});},0x7d0),window[_0x5d14f9(0x77c)]=function(){const _0x3a7ed7=_0x5d14f9;let _0x388ceb=document['getElementById'](_0x3a7ed7(0x51b));!_0x388ceb&&(_0x388ceb=document[_0x3a7ed7(0x81e)]('div'),_0x388ceb['id']=_0x3a7ed7(0x51b),_0x388ceb[_0x3a7ed7(0x228)]=_0x3a7ed7(0x1fb),_0x388ceb[_0x3a7ed7(0x290)][_0x3a7ed7(0x201)]=_0x3a7ed7(0x549),document[_0x3a7ed7(0x4d5)][_0x3a7ed7(0x463)](_0x388ceb)),_0x388ceb['innerHTML']=_0x3a7ed7(0x432),_0x388ceb[_0x3a7ed7(0x290)][_0x3a7ed7(0x642)]=_0x3a7ed7(0x53c),window[_0x3a7ed7(0x681)]()&&(window[_0x3a7ed7(0x7bc)](_0x388ceb),window[_0x3a7ed7(0x919)](_0x388ceb),window[_0x3a7ed7(0x7c9)](_0x388ceb));},window[_0x5d14f9(0x3ff)]=function(){const _0x1685b5=_0x5d14f9;if(game[_0x1685b5(0x32e)]['gold']<0xf4240){if(dom['log'])dom[_0x1685b5(0x7cd)][_0x1685b5(0x492)]=_0x1685b5(0x8c9);return;}if(socket)socket[_0x1685b5(0x1b2)]('requestBuyHome');document[_0x1685b5(0x6de)](_0x1685b5(0x51b))[_0x1685b5(0x882)]=_0x1685b5(0x94b);},window['openStorageUI']=function(){const _0x4e0036=_0x5d14f9;window[_0x4e0036(0x2c4)]=!![];if(!isInventoryOpen)window[_0x4e0036(0x858)]();if(socket)socket['emit'](_0x4e0036(0x1b4));},window[_0x5d14f9(0x710)]=function(){const _0x5be3b3=_0x5d14f9;window[_0x5be3b3(0x2c4)]=![];let _0x489812=document['getElementById'](_0x5be3b3(0x261));if(_0x489812)_0x489812[_0x5be3b3(0x290)]['display']=_0x5be3b3(0x1ec);window[_0x5be3b3(0x252)]();},window[_0x5d14f9(0x2ec)]=function(_0x1e32b0){const _0x5265ef=_0x5d14f9;let _0x497f8b=document[_0x5265ef(0x6de)]('storage-modal');if(!_0x497f8b)return;let _0x536c47='<div\x20class=\x22window-drag-handle\x22\x20style=\x22cursor:grab;\x20padding:10px;\x20background:#222;\x20margin:-15px\x20-15px\x2015px\x20-15px;\x20border-radius:8px\x208px\x200\x200;\x20border-bottom:1px\x20solid\x20#E040FB;\x22><h2\x20style=\x22color:#E040FB;\x20margin:0;\x20pointer-events:none;\x22>🧰\x20Home\x20Storage</h2></div>';_0x536c47+='<p\x20style=\x22font-size:12px;\x20color:#aaa;\x22>Click\x20items\x20in\x20your\x20Inventory\x20to\x20store\x20them.\x20Click\x20items\x20here\x20to\x20retrieve\x20them.</p>',_0x536c47+='<div\x20style=\x22display:flex;\x20flex-wrap:wrap;\x20gap:5px;\x20justify-content:center;\x20margin-bottom:15px;\x20background:#111;\x20padding:10px;\x20border-radius:5px;\x22>';for(let _0x255c19=0x0;_0x255c19<0xa;_0x255c19++){let _0x686791=_0x1e32b0[_0x255c19];_0x536c47+=_0x5265ef(0x394)+(_0x686791?_0x686791[_0x5265ef(0x510)]||_0x5265ef(0x897):_0x5265ef(0x91f))+_0x5265ef(0x735)+_0x255c19+_0x5265ef(0x605);if(_0x686791){_0x536c47+='<span\x20style=\x22font-size:10px;\x22>'+(_0x686791[_0x5265ef(0x91e)]?'+'+_0x686791[_0x5265ef(0x91e)]:'')+'\x20'+_0x686791[_0x5265ef(0x1f3)]['substring'](0x0,0x8)+_0x5265ef(0x4d6);if(_0x686791['quantity']&&_0x686791[_0x5265ef(0x921)]>0x1)_0x536c47+=_0x5265ef(0x2b2)+_0x686791[_0x5265ef(0x921)]+_0x5265ef(0x4d6);_0x536c47+=_0x5265ef(0x5d0)+window[_0x5265ef(0x8ef)](_0x686791)+_0x5265ef(0x5a2);}else _0x536c47+=_0x5265ef(0x357);_0x536c47+=_0x5265ef(0x5a2);}_0x536c47+=_0x5265ef(0x5a2),_0x536c47+=_0x5265ef(0x4a9),_0x497f8b['innerHTML']=_0x536c47;};socket&&(socket['on'](_0x5d14f9(0x612),_0x13c759=>{const _0x266213=_0x5d14f9;let _0x50d642=document['getElementById'](_0x266213(0x261));!_0x50d642&&(_0x50d642=document[_0x266213(0x81e)](_0x266213(0x8fa)),_0x50d642['id']=_0x266213(0x261),_0x50d642[_0x266213(0x228)]=_0x266213(0x1fb),_0x50d642[_0x266213(0x290)][_0x266213(0x201)]=_0x266213(0x292),document[_0x266213(0x4d5)][_0x266213(0x463)](_0x50d642)),_0x50d642[_0x266213(0x290)][_0x266213(0x642)]=_0x266213(0x53c),window[_0x266213(0x2ec)](_0x13c759),window[_0x266213(0x7bc)](_0x50d642),window[_0x266213(0x919)](_0x50d642);}),socket['on'](_0x5d14f9(0x202),_0x1fe2eb=>{const _0x2b31cc=_0x5d14f9;if(window['isStorageOpen'])window[_0x2b31cc(0x2ec)](_0x1fe2eb);}));window[_0x5d14f9(0x57d)]=function(){const _0x57e15b=_0x5d14f9;if(game['party']&&game['party'][_0x57e15b(0x5b5)]&&game[_0x57e15b(0x333)]['members'][_0x57e15b(0x7c5)]>0x1){if(dom[_0x57e15b(0x7cd)])dom[_0x57e15b(0x7cd)][_0x57e15b(0x492)]=_0x57e15b(0x3a8);return;}let _0x11122f=document['getElementById']('haunted-house-modal');!_0x11122f&&(_0x11122f=document[_0x57e15b(0x81e)](_0x57e15b(0x8fa)),_0x11122f['id']='haunted-house-modal',_0x11122f[_0x57e15b(0x228)]=_0x57e15b(0x1fb),_0x11122f[_0x57e15b(0x290)][_0x57e15b(0x201)]='display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%);\x20background:#1a1a1a;\x20border:2px\x20solid\x20#9c27b0;\x20padding:20px;\x20z-index:9000;\x20width:350px;\x20border-radius:8px;\x20box-shadow:0\x200\x2030px\x20#9c27b0;\x20color:white;\x20text-align:center;\x20font-family:sans-serif;',document[_0x57e15b(0x4d5)][_0x57e15b(0x463)](_0x11122f)),_0x11122f[_0x57e15b(0x882)]=_0x57e15b(0x308),_0x11122f[_0x57e15b(0x290)]['display']='block',window['isMobileUI']()&&(window['enableMobileWindowControls'](_0x11122f),window[_0x57e15b(0x919)](_0x11122f),window[_0x57e15b(0x7c9)](_0x11122f));},window[_0x5d14f9(0x7f0)]=function(_0x2859d0){const _0x4d65f1=_0x5d14f9;if(socket)socket[_0x4d65f1(0x1b2)](_0x4d65f1(0x7f0),{'difficulty':_0x2859d0});document[_0x4d65f1(0x6de)](_0x4d65f1(0x5ae))['style'][_0x4d65f1(0x642)]=_0x4d65f1(0x1ec),document[_0x4d65f1(0x6de)](_0x4d65f1(0x200))[_0x4d65f1(0x492)]=_0x4d65f1(0x908);const _0x79ef5d=document[_0x4d65f1(0x6de)]('loader-fill');_0x79ef5d&&(_0x79ef5d[_0x4d65f1(0x290)]['width']='0%',_0x79ef5d[_0x4d65f1(0x290)][_0x4d65f1(0x46f)]='width\x200.1s\x20linear');document[_0x4d65f1(0x6de)](_0x4d65f1(0x489))['style'][_0x4d65f1(0x642)]=_0x4d65f1(0x8c1);let _0x59f2ff=0x0,_0x2901d0=setInterval(()=>{const _0x50366a=_0x4d65f1;_0x59f2ff+=0xf;if(_0x79ef5d)_0x79ef5d[_0x50366a(0x290)]['width']=Math[_0x50366a(0x591)](0x64,_0x59f2ff)+'%';if(_0x59f2ff>=0x64)clearInterval(_0x2901d0);},0x64);};socket&&(socket['on'](_0x5d14f9(0x7b0),()=>{const _0x388c38=_0x5d14f9;let _0x33f9a1=document[_0x388c38(0x6de)](_0x388c38(0x5ae));if(_0x33f9a1)_0x33f9a1[_0x388c38(0x290)][_0x388c38(0x642)]='none';}),socket['on'](_0x5d14f9(0x31d),()=>{const _0xa7e0cc=_0x5d14f9,_0x57af1a=document[_0xa7e0cc(0x81e)](_0xa7e0cc(0x8fa));_0x57af1a['innerHTML']='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h1\x20style=\x22font-size:70px;\x20margin:0;\x20text-shadow:0\x200\x2030px\x20#E040FB,\x204px\x204px\x200\x20#000;\x20letter-spacing:\x205px;\x20animation:\x20pulseText\x201s\x20infinite\x20alternate;\x22>HOUSE\x20CLEAR!</h1>\x0a\x20\x20\x20\x20\x20\x20\x20\x20',_0x57af1a[_0xa7e0cc(0x290)][_0xa7e0cc(0x6f6)]='fixed',_0x57af1a[_0xa7e0cc(0x290)][_0xa7e0cc(0x706)]=_0xa7e0cc(0x6ae),_0x57af1a[_0xa7e0cc(0x290)]['left']=_0xa7e0cc(0x4e9),_0x57af1a[_0xa7e0cc(0x290)][_0xa7e0cc(0x2b3)]='translate(-50%,\x20-50%)',_0x57af1a[_0xa7e0cc(0x290)]['textAlign']=_0xa7e0cc(0x5f2),_0x57af1a[_0xa7e0cc(0x290)][_0xa7e0cc(0x510)]=_0xa7e0cc(0x640),_0x57af1a[_0xa7e0cc(0x290)][_0xa7e0cc(0x5c1)]=_0xa7e0cc(0x673),document[_0xa7e0cc(0x4d5)][_0xa7e0cc(0x463)](_0x57af1a),setTimeout(()=>{const _0x45d71c=_0xa7e0cc;_0x57af1a[_0x45d71c(0x7f7)]();},0xfa0);}));const eggStyle=document['createElement'](_0x5d14f9(0x290));eggStyle[_0x5d14f9(0x882)]=_0x5d14f9(0x399),document[_0x5d14f9(0x22e)]['appendChild'](eggStyle);const techStyle=document[_0x5d14f9(0x81e)]('style');techStyle['innerHTML']=_0x5d14f9(0x5dc),document['head'][_0x5d14f9(0x463)](techStyle),window[_0x5d14f9(0x893)]=function(){const _0x4c6ec0=_0x5d14f9;document[_0x4c6ec0(0x6de)](_0x4c6ec0(0x297))[_0x4c6ec0(0x290)][_0x4c6ec0(0x642)]=_0x4c6ec0(0x1ec);let _0x22b5e1=document[_0x4c6ec0(0x6de)](_0x4c6ec0(0x748));!_0x22b5e1&&(_0x22b5e1=document[_0x4c6ec0(0x81e)](_0x4c6ec0(0x8fa)),_0x22b5e1['id']=_0x4c6ec0(0x748),_0x22b5e1['className']=_0x4c6ec0(0x1fb),_0x22b5e1['style'][_0x4c6ec0(0x201)]='display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%);\x20background:#1a1a1a;\x20border:2px\x20solid\x20#E040FB;\x20padding:20px;\x20z-index:9000;\x20width:350px;\x20border-radius:8px;\x20box-shadow:0\x200\x2030px\x20#E040FB;\x20color:white;\x20text-align:center;',document[_0x4c6ec0(0x4d5)][_0x4c6ec0(0x463)](_0x22b5e1)),window[_0x4c6ec0(0x23e)](),_0x22b5e1['style']['display']=_0x4c6ec0(0x53c);},window['renderCosmeticsCrafting']=function(){const _0x27141b=_0x5d14f9;let _0x5b622d=document[_0x27141b(0x6de)](_0x27141b(0x748));const _0x582ad5=game['player'][_0x27141b(0x5ed)]||[];let _0xbbd42e=0x0;_0x582ad5['forEach'](_0x5341ae=>{const _0x444845=_0x27141b;if(_0x5341ae&&_0x5341ae[_0x444845(0x1f3)]==='Soul\x20Piece')_0xbbd42e+=_0x5341ae[_0x444845(0x921)]||0x1;});const _0x30da7d=0xa;let _0x4bfc73=_0xbbd42e>=_0x30da7d,_0x25ef32=_0x4bfc73?_0x27141b(0x71b):'#f44336',_0x1ba85f='<h2\x20style=\x22margin-top:0;\x20color:#E040FB;\x20text-shadow:\x200\x200\x2010px\x20#E040FB;\x22>👻\x20Cosmetics\x20Crafting</h2>';_0x1ba85f+=_0x27141b(0x314),_0x1ba85f+='<div\x20style=\x22background:#222;\x20padding:15px;\x20border-radius:5px;\x20margin-bottom:15px;\x20font-size:14px;\x20text-align:left;\x20border:\x201px\x20solid\x20#444;\x22>',_0x1ba85f+=_0x27141b(0x264),_0x1ba85f+=_0x27141b(0x1f7)+_0x25ef32+'\x22>'+_0xbbd42e+'/'+_0x30da7d+_0x27141b(0x624),_0x1ba85f+=_0x27141b(0x5a2),_0x1ba85f+=_0x27141b(0x43f)+(_0x4bfc73?_0x27141b(0x640):_0x27141b(0x86a))+_0x27141b(0x8b5)+(_0x4bfc73?'':_0x27141b(0x874))+'\x20onclick=\x22if(socket)\x20socket.emit(\x27requestCraftVoidPet\x27)\x22>Craft\x20Void\x20Pet</button>',_0x1ba85f+=_0x27141b(0x645),_0x5b622d['innerHTML']=_0x1ba85f;};socket&&socket['on']('craftVoidSuccess',()=>{setTimeout(()=>{const _0x4084d1=_0x7052;if(document[_0x4084d1(0x6de)]('cosmetics-craft-modal')&&document[_0x4084d1(0x6de)]('cosmetics-craft-modal')['style'][_0x4084d1(0x642)]===_0x4084d1(0x53c))window['renderCosmeticsCrafting']();},0x64);});const voidStyle=document[_0x5d14f9(0x81e)]('style');voidStyle[_0x5d14f9(0x882)]='\x0a\x20\x20\x20\x20.pet-void\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20position:\x20absolute;\x0a\x20\x20\x20\x20\x20\x20\x20\x20width:\x2035px;\x20height:\x2035px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20z-index:\x20105;\x20pointer-events:\x20none;\x0a\x20\x20\x20\x20\x20\x20\x20\x20transform-origin:\x20center\x20center;\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20.pet-void\x20.mini-wraith\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20width:\x20100%;\x20height:\x20100%;\x0a\x20\x20\x20\x20\x20\x20\x20\x20background:\x20linear-gradient(45deg,\x20#4A148C,\x20#000000);\x0a\x20\x20\x20\x20\x20\x20\x20\x20border:\x202px\x20solid\x20#311B92;\x0a\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x2050%\x2050%\x2040%\x2040%;\x0a\x20\x20\x20\x20\x20\x20\x20\x20position:\x20relative;\x0a\x20\x20\x20\x20\x20\x20\x20\x20box-shadow:\x200\x200\x2015px\x20#311B92;\x0a\x20\x20\x20\x20\x20\x20\x20\x20/*\x20👻\x20THE\x20FIX:\x20Replaced\x20float\x20with\x20the\x20new\x20vanish/fade\x20animation\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20animation:\x20voidFadeFloat\x206s\x20ease-in-out\x20infinite;\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20.pet-void\x20.w-eye\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20position:\x20absolute;\x20width:\x206px;\x20height:\x206px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20background:\x20#ffffff;\x0a\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x2050%;\x20top:\x2012px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20box-shadow:\x200\x200\x208px\x20#ffffff;\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20.pet-void\x20.w-eye.left\x20{\x20left:\x208px;\x20}\x0a\x20\x20\x20\x20.pet-void\x20.w-eye.right\x20{\x20right:\x208px;\x20}\x0a\x20\x20\x20\x20.pet-void\x20.w-particles\x20{\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20position:\x20absolute;\x20bottom:\x20-8px;\x20width:\x20100%;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20display:\x20flex;\x20justify-content:\x20space-around;\x20\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20.pet-void\x20.w-p\x20{\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20width:\x206px;\x20height:\x2012px;\x20background:\x20#311B92;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x2050%;\x20opacity:\x200.6;\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20animation:\x20wraithTail\x201s\x20infinite\x20alternate;\x20\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20.pet-void\x20.w-p:nth-child(2)\x20{\x20animation-delay:\x200.2s;\x20}\x0a\x20\x20\x20\x20.pet-void\x20.w-p:nth-child(3)\x20{\x20animation-delay:\x200.4s;\x20}\x0a\x20\x20\x20\x20.pet-void\x20.w-p:nth-child(4)\x20{\x20animation-delay:\x200.6s;\x20}\x0a\x20\x20\x20\x20\x0a\x20\x20\x20\x20@keyframes\x20wraithTail\x20{\x200%\x20{\x20transform:\x20translateY(0);\x20opacity:\x200.8;\x20}\x20100%\x20{\x20transform:\x20translateY(8px);\x20opacity:\x200.1;\x20}\x20}\x0a\x0a\x20\x20\x20\x20/*\x20👻\x20THE\x20VANISHING\x20ANIMATION\x20*/\x0a\x20\x20\x20\x20@keyframes\x20voidFadeFloat\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x200%\x20\x20\x20{\x20transform:\x20translateY(0);\x20opacity:\x201;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x2020%\x20\x20{\x20transform:\x20translateY(-10px);\x20opacity:\x201;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x2040%\x20\x20{\x20transform:\x20translateY(0);\x20opacity:\x201;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x2045%\x20\x20{\x20transform:\x20translateY(-5px);\x20opacity:\x200;\x20}\x20/*\x20Poof\x20out\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x2065%\x20\x20{\x20transform:\x20translateY(-15px);\x20opacity:\x200;\x20}\x20/*\x20Move\x20while\x20invisible\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x2070%\x20\x20{\x20transform:\x20translateY(-10px);\x20opacity:\x201;\x20}\x20/*\x20Poof\x20in\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x2085%\x20\x20{\x20transform:\x20translateY(0);\x20opacity:\x201;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20100%\x20{\x20transform:\x20translateY(0);\x20opacity:\x201;\x20}\x0a\x20\x20\x20\x20}\x0a',document[_0x5d14f9(0x22e)][_0x5d14f9(0x463)](voidStyle),document[_0x5d14f9(0x665)](_0x5d14f9(0x5e9),()=>{const _0x445be2=_0x5d14f9;if(window[_0x445be2(0x259)]){const {store:_0x360f56,ProductType:_0x245297,Platform:_0x53d487}=window[_0x445be2(0x259)];_0x360f56[_0x445be2(0x2ed)]([{'id':'gem_pack_50','type':_0x245297['CONSUMABLE'],'platform':_0x53d487['GOOGLE_PLAY']},{'id':'gem_pack_15','type':_0x245297[_0x445be2(0x461)],'platform':_0x53d487[_0x445be2(0x6b6)]}]),_0x360f56[_0x445be2(0x209)]()[_0x445be2(0x89c)](_0x510dce=>{const _0x13d5f9=_0x445be2;console['log'](_0x13d5f9(0x516));let _0x18c66e=_0x510dce['productId']||(_0x510dce[_0x13d5f9(0x71d)]&&_0x510dce[_0x13d5f9(0x71d)][_0x13d5f9(0x7c5)]>0x0?_0x510dce[_0x13d5f9(0x71d)][0x0]['id']:_0x13d5f9(0x2c0)),_0x130f88=_0x510dce[_0x13d5f9(0x6e8)]||_0x510dce[_0x13d5f9(0x204)]&&_0x510dce[_0x13d5f9(0x204)][_0x13d5f9(0x6e8)]||_0x510dce['id']||_0x13d5f9(0x589);window['dispatchEvent'](new CustomEvent(_0x13d5f9(0x25d),{'detail':{'receiptToken':_0x130f88,'packageId':_0x18c66e}})),_0x510dce['finish']();}),_0x360f56[_0x445be2(0x49f)](_0x46d528=>{const _0x5e7c81=_0x445be2;alert(_0x5e7c81(0x7af)+_0x46d528[_0x5e7c81(0x444)]),window[_0x5e7c81(0x7dd)]();}),_0x360f56[_0x445be2(0x7f9)]([_0x53d487[_0x445be2(0x6b6)]]),_0x360f56['update']();}},![]);
+// ==========================================
+// 🚨 EMERGENCY MOBILE APP FIX (NO REBUILD NEEDED)
+// ==========================================
+if (!window.__exonie_cleaned) {
+    window.__exonie_cleaned = true;
+
+    // 1. DELETE THE GHOST LEFT SCREEN (Kills the duplicates causing the split screen)
+    const duplicateContainers = document.querySelectorAll('#game-container');
+    for (let i = 1; i < duplicateContainers.length; i++) {
+        duplicateContainers[i].remove();
+    }
+
+    const duplicateLandings = document.querySelectorAll('#web-landing-page');
+    for (let i = 1; i < duplicateLandings.length; i++) {
+        duplicateLandings[i].remove();
+    }
+
+    // 2. FIX TROPHY & DIAMOND BUTTON OVERLAP (Pushes them left to 140px)
+    const cssFix = document.createElement('style');
+    cssFix.innerHTML = `#mobile-rank-btn, #mobile-cash-btn { right: 140px !important; }`;
+    document.head.appendChild(cssFix);
+}
+// ==========================================
+// 🛡️ ANTI-MULTI-BOXING: TAB LOCK
+// ==========================================
+const exonieChannel = new BroadcastChannel('exonie_game_instance');
+exonieChannel.postMessage('game_opened');
+exonieChannel.onmessage = (event) => {
+    if (event.data === 'game_opened') {
+        exonieChannel.postMessage('already_running');
+    } else if (event.data === 'already_running') {
+        document.body.innerHTML = `<div style="background:#111; color:#fff; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; font-family:sans-serif;"><h1 style="color:#f44336;">Game Already Open</h1><p>You can only play one instance of Exonie.</p><p>Please close this tab and return to your active game.</p></div>`;
+        if (typeof socket !== 'undefined') socket.disconnect();
+    }
+};
+
+// ==========================================
+// 1. CORE VARIABLES & SETUP
+// ==========================================
+// 🌐 AUTO-DETECTS TEST OR LIVE SERVER + MOBILE RECONNECTS
+let serverUrl = 'https://exonieonline.onrender.com'; // 📱 Default to Live (for Mobile Apps without a web origin)
+
+// 🛡️ THE ROUTER FIX: Check if we are running on the Test Server or Local Computer
+if (typeof window !== 'undefined' && window.location) {
+    const host = window.location.hostname;
+    if (host.includes('testexonie')) {
+        serverUrl = 'https://testexonie.onrender.com'; // Route to the Render test backend
+    } else if (host === 'localhost' || host === '127.0.0.1') {
+        serverUrl = 'http://localhost:3000'; // Route to your local PC backend if testing locally
+    }
+}
+const socket = io(serverUrl, {
+    transports: ['websocket', 'polling'], // 🚀 THE MOBILE FIX: Forces high-speed connection
+    reconnection: true,            
+    reconnectionAttempts: 10,      
+    reconnectionDelay: 2000,       
+    reconnectionDelayMax: 5000,    
+    timeout: 20000,                
+});
+
+// 🔔 OPTIONAL: Log to console if the internet flickers
+socket.on('reconnect_attempt', () => {
+    console.log("Internet connection unstable. Attempting to reconnect...");
+});
+let currentShopItem = null; // 🛡️ GLOBAL TRACKER FOR THE SHOP
+window.isProcessingShop = false; // Anti-Spam Lock
+let isMailboxOpen = false, isChatting = false, isInventoryOpen = false, isSkillOpen = false, isShopping = false, localBossTimer = null, isEnhancing = false, isApplyingAura = false;
+window.isStorageOpen = false; // <-- ADD THIS
+let activeInvIndex = -1, attackCooldownActive = false, isAttacking = false, attackHeld = false, autoAttackMode = false;
+let lastNetTs = 0, lastSentState = 'idle', pendingPartyInvite = null, pendingTradeInvite = null, inTradeMode = false, tradeTarget = null;
+let tradeMyItems = [null,null,null], tradeTheirItems = [null,null,null], lastVitalsSent = {hp:null,maxHp:null,level:null}, lastVitalsTs = 0;
+let isDrawing = false, startX = 0, startY = 0, currentBox = null, drawType = 'collision';
+let currentBGM = null, currentTrackName = "", activeTargetPlayerId = null;
+
+// 🛡️ THE FIX: Game Loop & FPS Cap Variables
+let currentAnimationId = null;
+let lastFrameTime = 0;
+const fpsInterval = 1000 / 60; // Caps the game at 60 FPS so 144Hz monitors aren't twice as fast!
+
+// 👑 GLOBAL ADMIN LIST (Keep this matched with server.js!)
+window.ADMINS = ['Kei', 'Jubs4DaWin', 'TesterName'];
+window.isAdmin = function(name) { return window.ADMINS.includes(name); };
+
+window.facingRight = false; window.isLoading = false; window.isDungeonUIOpen = false;
+window.isSpectating = false; window.spectateTargetId = null; window.potionCooldownReadyAt = 0;
+
+const dom = { 
+    game: document.getElementById('game-screen'), playerContainer: document.getElementById('player-container'), playerAvatarContainer: document.getElementById('player-avatar-container'), 
+    playerBody: document.getElementById('player-body'), playerHead: document.getElementById('player-head'), playerHair: document.getElementById('player-hair'), 
+    playerWeapon: document.getElementById('player-weapon'), playerArmor: document.getElementById('player-armor'), playerLeggings: document.getElementById('player-leggings'), 
+    world: document.getElementById('world'), log: document.getElementById('combat-log'), statScreen: document.getElementById('stat-screen'), 
+    invScreen: document.getElementById('inventory-screen'), inspect: document.getElementById('inspect-screen'), inspectContent: document.getElementById('inspect-content'), 
+    inspectTitle: document.getElementById('inspect-title'), partyPanel: document.getElementById('party-panel'), partyMembers: document.getElementById('party-members'), 
+    adminOutput: document.getElementById('admin-output'), skillScreen: document.getElementById('skill-screen'), hotbar: document.getElementById('hotbar')
+};
+
+window.game = { 
+    isRunning: false, isGhost: false, keys: { w: false, a: false, s: false, d: false, z: false, x: false, c: false },
+    player: { 
+        id: 'local_player',
+        name: "Adventurer",
+        level: 1,
+        currentHp: 100,
+        x: 960,
+        y: 1000,
+        width: 48,
+        height: 96,
+        w: 24,
+        h: 20,
+        teleportCooldown: 0,
+        currentPortal: null,
+        equips: { weapon: null },
+        currentBodySrc: '',
+        playerClass: null,
+        immortalUntil: 0,
+        untargetableUntil: 0,
+        activePets: [],
+        lootFilter: {
+            Starter: true,
+            Basic: true,
+            Rare: true,
+            Unique: true,
+            Legendary: true,
+            Godly: true
+        }
+    }, 
+    monsters: {}, remotePlayers: {}, party: null 
+};
+
+const DatabaseManager = { 
+    saveTimer: null,
+    savePlayerData: function(playerObj) { 
+        playerObj.mapId = safeMapData.id || 'town'; 
+        playerObj.maxHp = window.getMaxHp(); 
+        
+        clearTimeout(this.saveTimer);
+        this.saveTimer = setTimeout(() => {
+            if(socket) socket.emit('saveData', playerObj); 
+            if(socket) socket.emit('playerEquipUpdate', { equips: playerObj.equips }); 
+        }, 600);
+    } 
+};
+const skinFilters = { 'flesh': 'sepia(1) hue-rotate(-25deg) saturate(2.5) brightness(1.1)', 'yellow': 'sepia(1) hue-rotate(15deg) saturate(3) brightness(1.2)', 'green': 'sepia(1) hue-rotate(75deg) saturate(2) brightness(1)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2) brightness(1)', 'white': 'grayscale(1) brightness(1.8) contrast(0.9)' };
+const hairFilters = { 'black': 'brightness(0.2)', 'blonde': 'sepia(1) hue-rotate(15deg) saturate(3) brightness(1.5)', 'brown': 'sepia(1) hue-rotate(330deg) saturate(2) brightness(0.6)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2) brightness(1)', 'white': 'grayscale(1) brightness(1.8) contrast(0.9)' };
+window.charData = { skinColor: 'flesh', hairColor: 'black', hairStyle: '1' }; 
+window.adminMode = false; let CAMERA_ZOOM = window.innerWidth <= 950 ? 1.2 : 1.8; 
+const STAT_TYPES = ['attack', 'magic', 'defense', 'speed', 'int', 'str', 'hp'];
+
+// TAVERN LEADERBOARD SHINES
+window.topTavernPlayers = [];
+const rankStyle = document.createElement('style');
+rankStyle.innerHTML = `
+    .rank-1-name { 
+        color: #fff !important; 
+        font-weight: bold !important;
+        text-shadow: 0 0 5px #fff, 0 0 10px #FFD700, 0 0 20px #FFD700, 0 0 30px #FF8C00 !important;
+        filter: drop-shadow(0 0 5px #FFD700);
+        animation: auraGold 2.5s infinite alternate ease-in-out;
+    }
+    .rank-2-name { 
+        color: #fff !important; 
+        font-weight: bold !important;
+        text-shadow: 0 0 5px #fff, 0 0 10px #E0E0E0, 0 0 20px #E0E0E0, 0 0 30px #9E9E9E !important;
+        filter: drop-shadow(0 0 5px #E0E0E0);
+        animation: auraSilver 2.5s infinite alternate ease-in-out;
+    }
+    .rank-3-name { 
+        color: #fff !important; 
+        font-weight: bold !important;
+        text-shadow: 0 0 5px #fff, 0 0 10px #CD7F32, 0 0 20px #CD7F32, 0 0 30px #8B4513 !important;
+        filter: drop-shadow(0 0 5px #CD7F32);
+        animation: auraBronze 2.5s infinite alternate ease-in-out;
+    }
+    @keyframes auraGold {
+        from { filter: drop-shadow(0 0 2px #FFD700); text-shadow: 0 0 5px #fff, 0 0 10px #FFD700, 0 0 20px #FFD700; }
+        to { filter: drop-shadow(0 0 10px #FFD700); text-shadow: 0 0 8px #fff, 0 0 15px #FFD700, 0 0 35px #FF8C00; }
+    }
+    @keyframes auraSilver {
+        from { filter: drop-shadow(0 0 2px #E0E0E0); text-shadow: 0 0 5px #fff, 0 0 10px #E0E0E0, 0 0 20px #E0E0E0; }
+        to { filter: drop-shadow(0 0 10px #E0E0E0); text-shadow: 0 0 8px #fff, 0 0 15px #E0E0E0, 0 0 35px #9E9E9E; }
+    }
+    @keyframes auraBronze {
+        from { filter: drop-shadow(0 0 2px #CD7F32); text-shadow: 0 0 5px #fff, 0 0 10px #CD7F32, 0 0 20px #CD7F32; }
+        to { filter: drop-shadow(0 0 10px #CD7F32); text-shadow: 0 0 8px #fff, 0 0 15px #CD7F32, 0 0 35px #8B4513; }
+   }
+    
+   .weapon-aura-divine {
+        /* 👑 INSANE BLINDING GLOW */
+        filter: drop-shadow(0 0 10px #ffffff) drop-shadow(0 0 20px #ffea00) drop-shadow(0 0 40px #ff9800) brightness(2) contrast(1.2) !important;
+        animation: divinePulseExtreme 0.8s infinite alternate ease-in-out;
+    }
+    @keyframes divinePulseExtreme {
+        0% { filter: drop-shadow(0 0 10px #ffffff) drop-shadow(0 0 20px #ffea00) drop-shadow(0 0 30px #ff9800) brightness(1.5) contrast(1.1); }
+        100% { filter: drop-shadow(0 0 15px #ffffff) drop-shadow(0 0 30px #ffea00) drop-shadow(0 0 60px #ff5722) brightness(2.5) contrast(1.3); }
+    }
+    
+    /* 👑 SPARKLING GOLDEN TEXT FOR INVENTORY & TOOLTIPS */
+    .rarity-divine-text {
+        color: #ffea00 !important;
+        text-shadow: 0 0 5px #fff, 0 0 10px #ffea00, 0 0 20px #ff9800 !important;
+        animation: textSparkle 1.5s infinite alternate;
+    }
+    @keyframes textSparkle {
+        0% { filter: brightness(1); text-shadow: 0 0 5px #fff, 0 0 10px #ffea00; }
+        100% { filter: brightness(1.5); text-shadow: 0 0 8px #fff, 0 0 15px #ffea00, 0 0 25px #ff9800; }
+    }
+
+    /* 👼 NEW: AURA OF THE DIVINE (ROYAL TIER) - REFINED */
+    .cosmetic-aura.aura-divine {
+        display: block !important; /* 👑 FORCES VISIBILITY */
+        position: absolute !important;
+        inset: 0 !important;
+        background: none !important; /* Removes the ugly wide circle */
+        box-shadow: none !important;
+        z-index: -1 !important; 
+    }
+
+    /* 1. Tight White Border & Gold Outer Glow */
+    .avatar-rig:has(.aura-divine) {
+        animation: divine-outline-pulse 1.5s infinite alternate ease-in-out !important;
+    }
+
+    @keyframes divine-outline-pulse {
+        0% {
+            filter: 
+                drop-shadow(0 0 1px #fff) drop-shadow(0 0 2px #fff) /* Tight white border */
+                drop-shadow(0 0 6px #ffea00) drop-shadow(0 0 12px #ff9800); /* Outer gold glow */
+        }
+        100% {
+            filter: 
+                drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #fff) 
+                drop-shadow(0 0 12px #ffea00) drop-shadow(0 0 25px #ff9800);
+        }
+    }
+
+    /* 2. Wings attached to the body */
+    .cosmetic-aura.aura-divine::before {
+        content: '';
+        position: absolute;
+        top: 20px; 
+        left: -15px; /* Pulled inward to attach to the back */
+        width: 35px; height: 60px;
+        background: radial-gradient(ellipse at right, rgba(255,255,255,1) 10%, rgba(255,234,0,0.8) 60%, transparent 80%);
+        border-radius: 100% 0% 60% 0%;
+        box-shadow: -2px 0 10px #ffea00;
+        transform-origin: right center;
+        animation: wingFlapLeft 2s infinite alternate ease-in-out;
+    }
+
+    .cosmetic-aura.aura-divine::after {
+        content: '';
+        position: absolute;
+        top: 20px; 
+        right: -15px; /* Pulled inward to attach to the back */
+        width: 35px; height: 60px;
+        background: radial-gradient(ellipse at left, rgba(255,255,255,1) 10%, rgba(255,234,0,0.8) 60%, transparent 80%);
+        border-radius: 0% 100% 0% 60%;
+        box-shadow: 2px 0 10px #ffea00;
+        transform-origin: left center;
+        animation: wingFlapRight 2s infinite alternate ease-in-out;
+    }
+
+    @keyframes wingFlapLeft {
+        0% { transform: rotate(10deg) scaleY(1); }
+        100% { transform: rotate(-15deg) scaleY(0.9); }
+    }
+    @keyframes wingFlapRight {
+        0% { transform: rotate(-10deg) scaleY(1); }
+        100% { transform: rotate(15deg) scaleY(0.9); }
+    }
+`;
+document.head.appendChild(rankStyle);
+// ==========================================
+// 🐉 MONSTER CSS (FINALIZED MINOTAUR & SCALED DRAGON)
+// ==========================================
+const monsterStyle = document.createElement('style');
+monsterStyle.innerHTML = `
+    /* --- 🐂 MINOTAUR (Exact Golem structure with separate head) --- */
+    .minotaur-base { position:relative; width:100%; height:100%; display:flex; justify-content:center; }
+    
+    /* Head is distinct and on top of body */
+    .m-head {
+        width: 40%; height: 30%; background: #795548; border-radius:15px 15px 10px 10px; border:3px solid #000;
+        position:absolute; top:5%; left:50%; transform:translateX(-50%); z-index: 3; display:flex; justify-content:center;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    }
+    .m-eye-l, .m-eye-r { width:20%; height:20%; background:#ff1744; border-radius:50%; position:absolute; top:30%; box-shadow:0 0 5px #ff1744; }
+    .m-eye-l { left: 15%; } .m-eye-r { right: 15%; }
+    .m-snout { width:60%; height:40%; background:rgba(0,0,0,0.3); position:absolute; bottom:10%; border-radius:15px; display:flex; justify-content:center; }
+    .m-ring { width:12px; height:12px; border:3px solid #FFD700; border-radius:50%; position:absolute; bottom:-8px;}
+    .m-horn-l, .m-horn-r { width:35%; height:45%; background:#e0e0e0; border:2px solid #000; position:absolute; top:-30%; z-index:-1;}
+    .m-horn-l { left:-10%; border-radius:100% 0 0 0; transform:rotate(-35deg); }
+    .m-horn-r { right:-10%; border-radius:0 100% 0 0; transform:rotate(35deg); }
+    
+    /* Golem Style Torso */
+    .m-body { width: 60%; height: 50%; background:#795548; border-radius:15px; border:3px solid #3E2723; position:absolute; bottom:20%; z-index:2; box-shadow:inset 0 -10px rgba(0,0,0,0.3); }
+    
+    /* Golem style floating limbs */
+    .minotaur-base [class^="m-arm"], .minotaur-base [class^="m-leg"] { background:#795548; border:3px solid #3E2723; border-radius:8px; z-index:1; position:absolute; }
+    .m-arm-l, .m-arm-r { width:15%; height:35%; top:30%; }
+    .m-arm-l { left: -5%; } .m-arm-r { right: -5%; }
+    .m-leg-l, .m-leg-r { width:20%; height:15%; bottom:5%; }
+    .m-leg-l { left: 18%; } .m-leg-r { right: 18%; }
+    
+    /* The Battleaxe */
+    .m-axe { position:absolute; top:50%; left:-45px; width:90px; height:8px; background:#3E2723; transform:rotate(-20deg); z-index:0; }
+    .m-axe::before { content:''; position:absolute; top:-15px; left:-10px; width:35px; height:40px; background:#90a4ae; border-radius:30% 0 0 50%; border:2px solid #000; }
+
+    /* Minotaur Tiers (RE-SKINNED BASED ON TYPE) */
+    .minotaur-base.common_mobs .m-body, .minotaur-base.common_mobs .m-head, .minotaur-base.common_mobs [class*="m-arm"], .minotaur-base.common_mobs [class*="m-leg"] { background: #795548; border-color: #3E2723; }
+    
+    .minotaur-base.mini_boss .m-body, .minotaur-base.mini_boss .m-head, .minotaur-base.mini_boss [class*="m-arm"], .minotaur-base.mini_boss [class*="m-leg"] { background: #b71c1c; border-color: #4a0404; }
+    .minotaur-base.mini_boss .m-axe::before { background: #e0e0e0; }
+    
+    .minotaur-base.floor_boss .m-body, .minotaur-base.floor_boss .m-head, .minotaur-base.floor_boss [class*="m-arm"], .minotaur-base.floor_boss [class*="m-leg"] { background: #212121; border-color: #ff9800; box-shadow: 0 0 15px #ff9800;}
+    .minotaur-base.floor_boss .m-eye-l, .minotaur-base.floor_boss .m-eye-r { background:#ff9800; box-shadow:0 0 10px #ff9800; }
+    .minotaur-base.floor_boss .m-axe::before { background: #111; border-color: #ff9800; }
+
+   /* --- 🐉 NATIVE DRAGON CSS (COLOR-FORCED GEOMETRY) --- */
+    .dragon-base { 
+        position:relative; width:100%; height:100%; display:flex; justify-content:center; align-items:center; 
+        /* 🛡️ FALLBACK COLORS: Guarantees it can never be transparent! */
+        --d-col: #F97100; --d-bor: #530800; --d-wing: #E23401; --d-chest: #DBD5C5; --d-eye: #FBC614; --d-horn: #530800;
+    }
+
+    /* 🎨 Tier Colors (Overrides the fallbacks based on category) */
+    .dragon-base.common_mobs { --d-col: #4caf50; --d-bor: #1b5e20; --d-wing: #2e7d32; --d-chest: #c8e6c9; --d-eye: #ffeb3b; --d-horn: #1b5e20; }
+    .dragon-base.mini_boss { --d-col: #F97100; --d-bor: #530800; --d-wing: #E23401; --d-chest: #DBD5C5; --d-eye: #FBC614; --d-horn: #530800; }
+    .dragon-base.floor_boss { --d-col: #aa00ff; --d-bor: #000000; --d-wing: #6200ea; --d-chest: #00e5ff; --d-eye: #00e5ff; --d-horn: #311b92; filter: drop-shadow(0 0 15px #aa00ff); }
+
+    /* 🪨 Body */
+    .dragon-base .d-body { position: absolute; bottom: 20%; width: 50%; height: 45%; background-color: var(--d-col) !important; border: 3px solid #000; z-index: 2; border-radius: 10px 10px 20px 20px; box-shadow: inset 0 -10px rgba(0,0,0,0.3); }
+
+    /* 💎 The Signature Diamond Chest */
+    .dragon-base .d-chest { position: absolute; top: 35%; width: 35%; height: 35%; background-color: var(--d-chest) !important; transform: rotate(45deg); border: 3px solid #000; z-index: 4; box-shadow: inset 0 -5px rgba(0,0,0,0.2); }
+
+    /* 🐉 Head & Snout */
+    .dragon-base .d-head { position: absolute; top: 10%; width: 45%; height: 35%; background-color: var(--d-col) !important; border: 3px solid #000; z-index: 5; border-radius: 10px 10px 30px 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.5); display:flex; justify-content:center; }
+    .dragon-base .d-snout { position: absolute; bottom: -5px; width: 40%; height: 30%; background-color: var(--d-horn) !important; border: 2px solid #000; border-radius: 50%; }
+
+    /* 😠 Angry Eyes */
+    .dragon-base .d-eye-l, .dragon-base .d-eye-r { position: absolute; top: 30%; width: 25%; height: 15%; background-color: var(--d-eye) !important; border-radius: 50%; box-shadow: 0 0 5px var(--d-eye); border:1px solid #000; }
+    .dragon-base .d-eye-l { left: 10%; transform: rotate(20deg); }
+    .dragon-base .d-eye-r { right: 10%; transform: rotate(-20deg); }
+    
+    /* 🗡️ Pointy Horns */
+    .dragon-base .d-horn-l, .dragon-base .d-horn-r { position: absolute; top: -30%; width: 20%; height: 50%; background-color: var(--d-horn) !important; z-index: -1; border: 2px solid #000; }
+    .dragon-base .d-horn-l { left: -5%; border-radius: 100% 0 0 0; transform: rotate(-30deg); }
+    .dragon-base .d-horn-r { right: -5%; border-radius: 0 100% 0 0; transform: rotate(30deg); }
+
+    /* 🦇 Segmented Wings */
+    .dragon-base .d-wing-l, .dragon-base .d-wing-r { position: absolute; top: 5%; width: 70%; height: 60%; background-color: var(--d-wing) !important; border: 3px solid #000; z-index: 1; box-shadow: inset 0 -10px rgba(0,0,0,0.3); }
+    .dragon-base .d-wing-l { left: -40%; border-radius: 100% 0 50% 0; transform: rotate(-15deg); }
+    .dragon-base .d-wing-r { right: -40%; border-radius: 0 100% 0 50%; transform: rotate(15deg); }
+
+    /* 🐾 Claws/Feet */
+    .dragon-base .d-foot-l, .dragon-base .d-foot-r { position: absolute; bottom: 10%; width: 20%; height: 15%; background-color: var(--d-horn) !important; border: 3px solid #000; z-index: 1; border-radius: 50% 50% 10px 10px; }
+    .dragon-base .d-foot-l { left: 15%; transform: rotate(10deg); }
+    .dragon-base .d-foot-r { right: 15%; transform: rotate(-10deg); }
+`;
+document.head.appendChild(monsterStyle);
+// ==========================================
+// 🚀 LOW-END MODE CSS OPTIMIZATIONS
+// ==========================================
+const perfStyle = document.createElement('style');
+perfStyle.innerHTML = `
+    /* 🛑 Disable Weapon Glows & Animations */
+    body.low-perf .weapon-aura-legendary,
+    body.low-perf .weapon-aura-godly,
+    body.low-perf .weapon-aura-divine {
+        filter: none !important;
+        animation: none !important;
+    }
+    
+    /* 🛑 Completely Hide Normal Cosmetic Armor Auras, BUT KEEP DIVINE WINGS */
+    body.low-perf .cosmetic-aura:not(.aura-divine),
+    body.low-perf .aura:not(.aura-divine) {
+        display: none !important;
+    }
+
+    /* 👑 Optimize Divine Aura for Low-End (Keep Wings & Basic Gold Aura) */
+    body.low-perf .avatar-rig:has(.aura-divine) {
+        animation: none !important;
+        filter: drop-shadow(0 0 5px #ffea00) !important; /* 🌟 THE FIX: A single, lightweight static gold outline */
+    }
+    body.low-perf .cosmetic-aura.aura-divine::before {
+        box-shadow: -2px 0 4px #ffea00 !important; /* Tiny, cheap glow for left wing */
+    }
+    body.low-perf .cosmetic-aura.aura-divine::after {
+        box-shadow: 2px 0 4px #ffea00 !important; /* Tiny, cheap glow for right wing */
+    }
+
+    /* 🛑 Strip Expensive Shadows from Projectiles & Effects */
+    body.low-perf .magic-orb,
+    body.low-perf .monster-fireball,
+    body.low-perf .fox-fireball,
+    body.low-perf .spark,
+    body.low-perf .white-splash,
+    body.low-perf .earthquake-ring {
+        box-shadow: none !important;
+        filter: none !important;
+    }
+
+    /* 🛑 Strip Glows from Pets & Clones */
+    body.low-perf .pet-wisp,
+    body.low-perf .pet-owl,
+    body.low-perf .pet-fox,
+    body.low-perf .pet-clone {
+        box-shadow: none !important;
+        filter: none !important;
+    }
+
+    /* 🛑 Flatten Leaderboard Nameplates */
+    body.low-perf .rank-1-name,
+    body.low-perf .rank-2-name,
+    body.low-perf .rank-3-name {
+        animation: none !important;
+        filter: none !important;
+        text-shadow: 1px 1px 0 #000 !important; 
+    }
+
+    /* 🛑 Hide Fog of War Canvas Completely (Massive CPU Saver) */
+    body.low-perf #fow-canvas {
+        display: none !important;
+    }
+`;
+document.head.appendChild(perfStyle);
+
+window.updateNameplateRanks = function() {
+    const ranks = window.topTavernPlayers || [];
+    const applyRank = (el, name) => {
+        if (!el) return;
+        el.classList.remove('rank-1-name', 'rank-2-name', 'rank-3-name');
+        let rIdx = ranks.indexOf(name);
+        if (rIdx === 0) el.classList.add('rank-1-name');
+        else if (rIdx === 1) el.classList.add('rank-2-name');
+        else if (rIdx === 2) el.classList.add('rank-3-name');
+    };
+    
+    // Apply to local player
+    applyRank(document.getElementById('player-name-tag'), game.player.name);
+    
+    // Apply to all remotes on the map
+    for (const id in game.remotePlayers) {
+        const rp = game.remotePlayers[id];
+        if (rp && rp.dom) {
+            const tags = rp.dom.getElementsByClassName('name-tag');
+            if (tags.length > 0) applyRank(tags[0], rp.name);
+        }
+    }
+};
+window.RARITY_COLORS = { "Starter": "#aaaaaa", "Basic": "#8B4513", "Rare": "#2196F3", "Unique": "#9c27b0", "Legendary": "#f44336", "Godly": "#e0ffff", "Divine": "#ffea00" };
+window.ITEM_TEMPLATES = { sword: { slot: 'weapon', statKey: 'attack', baseName: 'Sword', spriteName: 'sword' }, staff: { slot: 'weapon', statKey: 'magic', baseName: 'Staff', spriteName: 'staff' }, pendant: { slot: 'weapon', statKey: 'magic', baseName: 'Pendant', spriteName: 'pendant' }, gun: { slot: 'weapon', statKey: 'attack', baseName: 'Gun', spriteName: 'gun' }, dagger: { slot: 'weapon', statKey: 'attack', baseName: 'Dagger', spriteName: 'dagger' }, touchpad: { slot: 'weapon', statKey: 'magic', baseName: 'Touchpad', spriteName: 'touchpad' }, armor: { slot: 'armor', statKey: 'defense', baseName: 'Armor', spriteName: 'armor' }, leggings: { slot: 'leggings', statKey: 'hp', baseName: 'Leggings', spriteName: 'leggings' } };
+window.MapDatabase = window.MapDatabase || {}; 
+let safeMapData = { id: "town", name: "Town of Exonie", image: "town_map.png", spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
+
+// ==========================================
+// 2. CLASSES & SKILLS ENGINE
+// ==========================================
+const CLASSES = {
+    "Healer": { weapon: "pendant", aura: "green", skills: [
+        { id: 'heal1', name: "Heal", unlock: 1, cd: 20000, type: 'active', desc: "Heals all party members in range x2 of your INT." },
+        { id: 'heal2', name: "Boost", unlock: 25, type: 'passive', desc: "Makes your heal x3 of your INT." },
+        { id: 'heal3', name: "Purification", unlock: 50, cd: 100000, type: 'active', desc: "Revives dead party members globally and heals everyone." },
+        { id: 'heal4', name: "Healing Touch", unlock: 75, type: 'passive', desc: "Normal attacks heal all party members for 5% of your INT." }
+    ]},
+  "Summoner": { weapon: "staff", aura: "blue", skills: [
+        { id: 'sum1', name: "Summon Slime", unlock: 1, cd: 25000, type: 'active', desc: "Summons a permanent slime with 25% stats to fight alongside you." },
+        { id: 'sum2', name: "Duplicate", unlock: 25, type: 'passive', desc: "Summon Slime now spawns 2 slimes." },
+        { id: 'sum3', name: "Enhance!", unlock: 50, cd: 100000, type: 'active', desc: "10s: Slimes gain 100% stats. Big Boss deals 4x Damage (1800 AoE)." },
+        { id: 'sum4', name: "Big Boss", unlock: 75, type: 'passive', desc: "Summon Slime also summons a Giant White Boss Slime (5x HP) with Earthquake." }
+    ]},
+    "Ice Master": { weapon: "staff", aura: "blue", skills: [
+        { id: 'ice1', name: "Icicle Spear", unlock: 1, cd: 25000, type: 'active', desc: "Drops an icicle dealing 2x Magic Attack." },
+        { id: 'ice2', name: "Chill!", unlock: 25, type: 'passive', desc: "Your attacks have a 25% chance to freeze enemies." },
+        { id: 'ice3', name: "Icicle Storm", unlock: 50, cd: 100000, type: 'active', desc: "Drops 3 icicles on the enemy." },
+        { id: 'ice4', name: "Ice Splash", unlock: 75, type: 'passive', desc: "Your skills become AoE and hit all nearby enemies." }
+    ]},
+   "Berserker": { weapon: "sword", aura: "red", skills: [
+        { id: 'ber1', name: "Callout!", unlock: 1, cd: 14000, type: 'active', desc: "Taunts enemies and multiplies Defense by 3x for 10s." },
+        { id: 'ber2', name: "Bulk Up!", unlock: 25, type: 'passive', desc: "Increases base Defense and HP by 25%." },
+        { id: 'ber3', name: "Immortal", unlock: 50, cd: 100000, type: 'active', desc: "Your HP cannot drop below 1 for 10 seconds." },
+        { id: 'ber4', name: "I love PAIN", unlock: 75, type: 'passive', desc: "15% chance to heal a third of all incoming damage." }
+    ]},
+    "Blademaster": { weapon: "sword", aura: "red", skills: [
+        { id: 'bld1', name: "Sharpen Up!", unlock: 1, type: 'passive', desc: "Increases base Attack by 25%." },
+        { id: 'bld2', name: "Parry", unlock: 25, cd: 13000, type: 'active', desc: "70% chance to parry any attacks for 10 seconds." },
+        { id: 'bld3', name: "Mega Slash", unlock: 50, cd: 50000, type: 'active', desc: "Slashes the enemy for 5x Attack Power." },
+        { id: 'bld4', name: "Sharp Edge", unlock: 75, type: 'passive', desc: "25% chance to Bleed enemies for 15% ATK over 3 seconds." }
+    ]},
+"Sniper": { weapon: "gun", aura: "white", skills: [
+        { id: 'snp1', name: "Eagle Eye", unlock: 1, type: 'passive', desc: "Increases basic attack range by 15%." },
+        { id: 'snp2', name: "Silver Bullet", unlock: 25, cd: 5000, type: 'active', desc: "Fires a fast silver bullet dealing 2x Attack Power." },
+        { id: 'snp3', name: "Killshot", unlock: 50, cd: 50000, type: 'active', desc: "Fires a devastating bullet dealing 4x Attack Power." },
+        { id: 'snp4', name: "Dual Bullet", unlock: 75, type: 'passive', desc: "50% chance to release a double bullet on any attack." }
+    ]},
+    "Explosives Expert": { weapon: "gun", aura: "orange", skills: [
+        { id: 'exp1', name: "Molotov", unlock: 1, cd: 12000, type: 'active', desc: "Throws a firebomb dealing 100% ATK per second on the ground." },
+        { id: 'exp2', name: "Improved Oil", unlock: 25, type: 'passive', desc: "Increases Molotov ground fire duration from 3s to 10s." },
+        { id: 'exp3', name: "Go Boom!", unlock: 50, cd: 30000, type: 'active', desc: "Throws a massive bomb dealing 5x Attack Power." },
+        { id: 'exp4', name: "Big Explosion", unlock: 75, type: 'passive', desc: "Go Boom! becomes a massive AoE explosion." }
+    ]},
+"Phantom Striker": { weapon: "dagger", aura: "white", skills: [
+        { id: 'phs1', name: "Shadow Step", unlock: 1, cd: 5000, type: 'active', desc: "Blinks in the direction you are facing." },
+        { id: 'phs2', name: "Sleight of Hand", unlock: 25, type: 'passive', desc: "50% chance to hit twice in one interval." },
+        { id: 'phs3', name: "Blink Stab", unlock: 50, cd: 30000, type: 'active', desc: "Blink to the enemy and stab for 2x Attack." },
+        { id: 'phs4', name: "Craftiness", unlock: 75, type: 'passive', desc: "25% chance on normal attack to reset all skill cooldowns." }
+    ]},
+    "Ninja Assassin": { weapon: "dagger", aura: "lightning", skills: [
+        { id: 'nin1', name: "Smoke Bomb", unlock: 1, cd: 10000, type: 'active', desc: "Throws a smoke bomb. Enemies miss 75% of attacks for 10s." },
+        { id: 'nin2', name: "Agility", unlock: 25, type: 'passive', desc: "25% chance to dodge any incoming attack." },
+        { id: 'nin3', name: "Shadow Copy", unlock: 50, cd: 50000, type: 'active', desc: "Summons a 200% stat clone for 10 seconds." },
+        { id: 'nin4', name: "More Agility", unlock: 75, type: 'passive', desc: "Increases your dodge chance to 35%." }
+    ]},
+    "Tech Genius": { weapon: "touchpad", aura: "blue", skills: [
+        { id: 'tech1', name: "Gadget Drone", unlock: 1, type: 'passive', desc: "Summons an untargetable Ball Drone that attacks for 100% of your INT." },
+        { id: 'tech2', name: "Gamma Shield", unlock: 25, cd: 100000, type: 'active', desc: "Shields party and summons for 100% INT." },
+        { id: 'tech3', name: "Golem Buster", unlock: 50, cd: 100000, type: 'active', desc: "Summons a Golem Bot that taunts enemies. HP: 10x INT, DMG: 100% MATK." },
+        { id: 'tech4', name: "Advance Medicine", unlock: 75, type: 'passive', desc: "Heals shielded allies for 10% INT continuously." }
+    ]}
+};
+
+window.toggleSkillScreen = function() {
+    isSkillOpen = !isSkillOpen;
+    dom.skillScreen.style.display = isSkillOpen ? 'block' : 'none';
+    if (isSkillOpen) {
+        window.renderSkillScreen();
+        if (window.isMobileUI()) {
+            window.enableMobileWindowControls(dom.skillScreen);
+            window.bringWindowToFront(dom.skillScreen);
+            window.clampWindowToViewport(dom.skillScreen);
+        }
+    }
+}
+
+window.renderSkillScreen = function() {
+    let pClass = game.player.baseStats?.playerClass || null; 
+    let wpnType = null;
+   if (game.player.equips?.weapon?.sprite) {
+        let spriteStr = String(game.player.equips.weapon.sprite).toLowerCase();
+        if (spriteStr.includes('sword')) wpnType = 'sword';
+        else if (spriteStr.includes('staff')) wpnType = 'staff';
+        else if (spriteStr.includes('pendant')) wpnType = 'pendant';
+        else if (spriteStr.includes('gun')) wpnType = 'gun';
+        else if (spriteStr.includes('dagger')) wpnType = 'dagger';
+        else if (spriteStr.includes('touchpad')) wpnType = 'touchpad'; // 💻 ADDED TOUCHPAD
+    }
+
+    if (!pClass || !CLASSES[pClass]) {
+        document.getElementById('active-class-area').style.display = 'none'; let selArea = document.getElementById('class-selection-area'); let classList = document.getElementById('available-classes');
+        selArea.style.display = 'block'; classList.innerHTML = '';
+        if (!wpnType) { classList.innerHTML = '<p style="color:#f44336; text-align:center;">Equip a weapon to view available classes.</p>'; return; }
+        for (let c in CLASSES) {
+            if (CLASSES[c].weapon === wpnType) {
+                let btn = document.createElement('div'); btn.className = 'skill-class-card';
+                btn.innerHTML = `<h3 style="margin:0; color:#ff9800;">${c}</h3><p style="color:#aaa; font-size:13px; margin:5px 0 0 0;">Weapon: ${wpnType.charAt(0).toUpperCase() + wpnType.slice(1)}</p>`;
+                btn.onclick = () => window.chooseClass(c); classList.appendChild(btn);
+            }
+        }
+    } else {
+        document.getElementById('class-selection-area').style.display = 'none'; document.getElementById('active-class-area').style.display = 'block'; document.getElementById('active-class-name').innerText = pClass;
+        let list = document.getElementById('class-skills-list'); list.innerHTML = '';
+        CLASSES[pClass].skills.forEach(s => {
+            let unlocked = game.player.level >= s.unlock; let color = unlocked ? '#4CAF50' : '#f44336';
+            list.innerHTML += `<div class="skill-row"><div><div style="font-weight:bold; color:${color};">${s.name} ${s.type === 'passive' ? '(Passive)' : ''}</div><div class="skill-desc">${s.desc}</div></div><div style="text-align:right; font-size:12px; color:#aaa;">Lv.${s.unlock}<br>${s.cd ? (s.cd/1000)+'s CD' : ''}</div></div>`;
+        });
+    }
+}
+
+window.chooseClass = function(cName) {
+    if (!confirm(`Are you sure you want to become a ${cName}? This is permanent!`)) return;
+    if(!game.player.baseStats) game.player.baseStats = {};
+    game.player.baseStats.playerClass = cName; DatabaseManager.savePlayerData(game.player);
+    window.renderSkillScreen(); window.updateSkillMenu(); window.updateUI(); dom.log.innerText = `You are now a ${cName}!`; window.spawnSpark(game.player.x + 24, game.player.y + 48);
+}
+
+window.updateHotbarCooldowns = function() {
+    let running = false;
+    const now = Date.now();
+
+    // 1. Check Skills (Slots 1 & 2)
+    if (game.player.activeSkills) {
+        for (let i = 0; i < 2; i++) {
+            let skill = game.player.activeSkills[i];
+            if (skill) {
+                let overlay = document.getElementById(`cd-${i+1}`);
+                let txt = document.getElementById(`cdt-${i+1}`);
+                if (now < skill.cooldownReadyAt) {
+                    let remaining = skill.cooldownReadyAt - now;
+                    let pct = (remaining / skill.cd) * 100;
+                    if(overlay) overlay.style.height = pct + '%';
+                    if(txt) { txt.style.display = 'block'; txt.innerText = Math.ceil(remaining / 1000); }
+                    running = true;
+                } else {
+                    if(overlay) overlay.style.height = '0%';
+                    if(txt) txt.style.display = 'none';
+                }
+            }
+        }
+    }
+
+    // 2. Check Potion (Slot 3)
+    let potOverlay = document.getElementById('cd-3');
+    if (window.potionCooldownReadyAt && now < window.potionCooldownReadyAt) {
+        let remaining = window.potionCooldownReadyAt - now;
+        let pct = (remaining / 5000) * 100; // 5000ms = 5 seconds
+        if (potOverlay) potOverlay.style.height = pct + '%';
+        running = true;
+    } else {
+        if (potOverlay) potOverlay.style.height = '0%';
+    }
+
+    if (running) { requestAnimationFrame(window.updateHotbarCooldowns); }
+}
+
+window.updateSkillMenu = function() {
+    let pClass = game.player.baseStats?.playerClass || null; let wpnType = null;
+    if (game.player.equips?.weapon?.sprite) {
+        let spriteStr = String(game.player.equips.weapon.sprite).toLowerCase();
+        if (spriteStr.includes('sword')) wpnType = 'sword';
+        else if (spriteStr.includes('staff')) wpnType = 'staff';
+        else if (spriteStr.includes('pendant')) wpnType = 'pendant';
+        else if (spriteStr.includes('gun')) wpnType = 'gun';
+        else if (spriteStr.includes('dagger')) wpnType = 'dagger';
+        else if (spriteStr.includes('touchpad')) wpnType = 'touchpad'; // 💻 ADDED TOUCHPAD
+    }
+
+    // ⚙️ TECH GENIUS: Auto-spawn or despawn the Gadget Drone based on class!
+    if (game.player.activePets) {
+        let oldDroneIdx = game.player.activePets.findIndex(p => p.isDrone);
+        if (oldDroneIdx !== -1 && pClass !== 'Tech Genius') {
+            game.player.activePets[oldDroneIdx].dom.remove();
+            if (socket) socket.emit('syncPet', { id: game.player.activePets[oldDroneIdx].id, alive: false });
+            game.player.activePets.splice(oldDroneIdx, 1);
+        }
+        if (pClass === 'Tech Genius' && oldDroneIdx === -1) {
+            let petId = 'drone_' + game.player.id;
+            let dEl = document.createElement('div'); dEl.className = 'tech-drone';
+            dom.world.appendChild(dEl);
+            let pet = { id: petId, dom: dEl, x: game.player.x, y: game.player.y, hp: 999999, maxHp: 999999, isDrone: true };
+            game.player.activePets.push(pet);
+            if (socket) socket.emit('syncPet', { id: petId, x: pet.x, y: pet.y, alive: true, isDrone: true });
+        }
+    }
+
+    if (!pClass || !CLASSES[pClass] || CLASSES[pClass].weapon !== wpnType) { 
+    if (dom.hotbar) dom.hotbar.style.display = 'flex';
+    game.player.activeSkills = [];
+
+    const hb1 = document.getElementById('hotbar-1');
+    const hb2 = document.getElementById('hotbar-2');
+    const hb3 = document.getElementById('hotbar-3');
+
+    if (hb1) hb1.style.display = 'none';
+    if (hb2) hb2.style.display = 'none';
+    if (hb3) hb3.style.display = 'flex';
+
+    window.updatePotionHotbar();
+    return; 
+}
+    
+    let oldCDs = {};
+    if (game.player.activeSkills && game.player.activeSkills.length > 0) {
+        game.player.activeSkills.forEach(s => { oldCDs[s.id] = s.cooldownReadyAt; });
+    }
+
+    dom.hotbar.style.display = 'flex'; game.player.activeSkills = []; let activeIndex = 0;
+    
+    CLASSES[pClass].skills.forEach(s => {
+        if (s.type === 'active' && game.player.level >= s.unlock && activeIndex < 2) {
+            let savedCD = oldCDs[s.id] || 0; 
+            game.player.activeSkills.push({ id: s.id, name: s.name, cd: s.cd, cooldownReadyAt: savedCD, execute: () => window.executeSkill(s.id, pClass) });
+            document.getElementById(`hotbar-${activeIndex+1}`).style.display = 'flex'; document.getElementById(`hotbar-name-${activeIndex+1}`).innerText = s.name;
+            activeIndex++;
+        }
+    });
+
+    for (let i = activeIndex; i < 2; i++) { document.getElementById(`hotbar-${i+1}`).style.display = 'none'; }
+
+const potionSlot = document.getElementById('hotbar-3');
+if (potionSlot) potionSlot.style.display = 'flex';
+
+window.updateHotbarCooldowns();
+window.updatePotionHotbar();
+}
+
+window.executeSkill = function(skillId, className) {
+    // 🛡️ STUN FIX: Block Skill Usage
+    if (game.player.frozenUntil && Date.now() < game.player.frozenUntil) { if(dom.log) dom.log.innerText = "You are stunned!"; return; }
+    if (safeMapData.id === 'town') { if(dom.log) dom.log.innerText = "You cannot use skills in Town!"; return; }
+    
+    let skillObj = game.player.activeSkills.find(s => s.id === skillId);
+    if (!skillObj) return; 
+    
+    if (Date.now() < skillObj.cooldownReadyAt) {
+        if(dom.log) dom.log.innerText = `${skillObj.name} is on cooldown!`;
+        return;
+    }
+
+    attackCooldownActive = true;
+    setTimeout(() => { attackCooldownActive = false; }, 800); 
+
+    const mySpeed = window.getSpeed() || 0;
+    const cdrReductionMs = Math.floor(mySpeed / 200) * 1000;
+    const finalCooldown = Math.max(500, skillObj.cd - cdrReductionMs);
+    
+    skillObj.cooldownReadyAt = Date.now() + finalCooldown; 
+    if(typeof window.updateHotbarCooldowns === 'function') window.updateHotbarCooldowns();
+
+    if (socket) socket.emit('broadcastSkill', { skillId: skillId });
+
+    const aura = document.getElementById('player-aura');
+    if (aura) {
+        aura.className = `aura aura-${CLASSES[className].aura}`; 
+        aura.style.animation = 'none'; 
+        void aura.offsetWidth; 
+        aura.style.animation = 'aura-burst 0.6s ease-out forwards';
+    }
+
+    const wpnSprite = game.player.equips?.weapon?.sprite || '';
+    if (typeof window.playSFX === 'function') window.playSFX(wpnSprite);
+    if (typeof window.spawnSkillText === 'function') window.spawnSkillText(game.player.x + 24, game.player.y - 20, skillObj.name, '#00E5FF');
+
+    // 🛡️ NON-TARGETED SKILLS 
+    if (skillId === 'phs1') {
+        let step = window.facingRight ? 10 : -10;
+        let maxSteps = 18; 
+        let nx = game.player.x;
+        for (let i = 0; i < maxSteps; i++) {
+            if (window.isColliding(nx + step, game.player.y)) break; 
+            nx += step;
+        }
+        game.player.x = nx;
+        window.spawnWhiteSplash(game.player.x + 24, game.player.y + 48);
+        window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMUNE", '#00E5FF');
+        if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'walk', facingRight: window.facingRight, weaponSprite: wpnSprite });
+        return; 
+    }
+
+    if (skillId === 'tech3') {
+        if (!game.player.activePets) game.player.activePets = [];
+        let bossId = 'buster_' + Date.now();
+        let bEl = document.createElement('div'); bEl.className = 'pet-slime golem-buster';
+        bEl.innerHTML = `<div class="pet-hp-bar" style="top:-15px;"><div class="pet-hp-fill" id="pet-hp"></div></div>
+        <div class="monster-sprite-layer golem-base">
+            <div class="g-head"><div class="g-eye"></div><div class="g-eye"></div></div>
+            <div class="g-arm-l"></div><div class="g-arm-r"></div>
+            <div class="g-leg-l"></div><div class="g-leg-r"></div>
+        </div>`;
+        bEl.style.left = game.player.x + 'px'; bEl.style.top = game.player.y + 'px';
+        dom.world.appendChild(bEl);
+
+        let bossHp = (window.getTotalStat('int') || 10) * 10;
+        let busterPet = { id: bossId, dom: bEl, x: game.player.x, y: game.player.y, homeX: game.player.x, homeY: game.player.y, hp: bossHp, maxHp: bossHp, isGolemBuster: true, skillRef: skillObj };
+        game.player.activePets.push(busterPet);
+        if (socket) socket.emit('syncPet', { id: bossId, x: busterPet.x, y: busterPet.y, alive: true, isGolemBuster: true, maxHp: bossHp });
+        return;
+    }
+
+    if (skillId === 'nin3') {
+        if (!game.player.activePets) game.player.activePets = [];
+        let petId = Date.now();
+        let pEl = document.createElement('div'); pEl.className = 'pet-clone';
+        pEl.style.position = 'absolute'; pEl.style.left = game.player.x + 'px'; pEl.style.top = game.player.y + 'px';
+        pEl.style.width = '48px'; pEl.style.height = '96px';
+        pEl.style.zIndex = '50';
+        let cloneRig = dom.playerAvatarContainer.cloneNode(true);
+        cloneRig.style.filter = 'brightness(0) opacity(0.6) drop-shadow(0 0 5px #000)'; 
+        pEl.innerHTML = `<div class="pet-hp-bar" style="position:absolute; top:-10px; width:100%;"><div class="pet-hp-fill" id="pet-hp" style="width:100%; background:#4CAF50; height:100%;"></div></div>`;
+        pEl.appendChild(cloneRig);
+        dom.world.appendChild(pEl);
+        let maxPetHp = window.getMaxHp(); 
+        let pet = { id: petId, dom: pEl, x: game.player.x, y: game.player.y, hp: maxPetHp, maxHp: maxPetHp, isClone: true, skillRef: skillObj };
+        game.player.activePets.push(pet);
+        if(socket) socket.emit('syncPet', { id: petId, x: pet.x, y: pet.y, alive: true, isClone: true });
+        setTimeout(() => {
+            let idx = game.player.activePets.findIndex(p => p.id === petId);
+            if (idx !== -1) {
+                game.player.activePets[idx].dom.remove();
+                game.player.activePets.splice(idx, 1);
+                if(socket) socket.emit('syncPet', { id: petId, alive: false });
+            }
+        }, 10000);
+        return;
+    }
+if (skillId === 'sum1') {
+        if (game.player.activePets && game.player.activePets.length > 0) return;
+        window.showAura(CLASSES[className].aura); 
+        if (!game.player.activePets) game.player.activePets = [];
+        let count = game.player.level >= 25 ? 2 : 1;
+        
+        // 🟢 NORMAL SLIMES: 25% of Player HP
+        for (let i=0; i<count; i++) {
+            let petId = Date.now() + i;
+            let pEl = document.createElement('div'); pEl.className = 'pet-slime';
+            pEl.innerHTML = '<div class="pet-hp-bar"><div class="pet-hp-fill" id="pet-hp"></div></div>';
+            pEl.style.left = game.player.x + 'px'; pEl.style.top = game.player.y + 'px';
+            dom.world.appendChild(pEl);
+            let maxPetHp = Math.floor(window.getMaxHp() * 0.25);
+            let pet = { id: petId, dom: pEl, x: game.player.x, y: game.player.y, hp: maxPetHp, maxHp: maxPetHp, skillRef: game.player.activeSkills.find(s=>s.id==='sum1') };
+            game.player.activePets.push(pet);
+            if(socket) socket.emit('syncPet', { id: petId, x: pet.x, y: pet.y, alive: true });
+        }
+        
+        // ⚪ BIG BOSS SLIME: x5 Player HP!
+        if (game.player.level >= 75) {
+            let bossId = Date.now() + 99;
+            let bEl = document.createElement('div'); bEl.className = 'pet-slime';
+            bEl.innerHTML = '<div class="pet-hp-bar" style="top:-15px;"><div class="pet-hp-fill" id="pet-hp"></div></div>';
+            bEl.style.left = game.player.x + 'px'; bEl.style.top = game.player.y + 'px';
+            
+            // 🌟 BIG BOSS STYLING: White, 100x100
+            bEl.style.width = '100px';
+            bEl.style.height = '100px';
+            bEl.style.backgroundColor = '#ffffff';
+            bEl.style.border = '3px solid #ccc';
+            bEl.style.borderRadius = '50% 50% 40% 40%';
+            bEl.style.boxShadow = '0 0 20px #ffffff';
+            
+            dom.world.appendChild(bEl);
+            
+            // 🛡️ SCALES WITH PLAYER: x5 HP
+            let bossHp = window.getMaxHp() * 5; 
+            let bossPet = { id: bossId, dom: bEl, x: game.player.x, y: game.player.y, homeX: game.player.x, homeY: game.player.y, hp: bossHp, maxHp: bossHp, skillRef: game.player.activeSkills.find(s=>s.id==='sum1'), isBigBoss: true };
+            game.player.activePets.push(bossPet);
+            if(socket) socket.emit('syncPet', { id: bossId, x: bossPet.x, y: bossPet.y, alive: true, isBigBoss: true });
+        }
+        return; 
+    }
+
+    window.showAura(CLASSES[className].aura);
+    isAttacking = true; 
+    setTimeout(() => { isAttacking = false; }, 500); 
+
+    if (skillId === 'heal1') { if (socket) socket.emit('partyHeal'); return; }
+    if (skillId === 'heal3') {
+        game.player.currentHp = window.getMaxHp();
+        window.spawnDamageText(game.player.x + 24, game.player.y - 10, "FULL HEAL", '#4CAF50'); 
+        window.updateUI(); 
+        if (socket && game.party) socket.emit('partyRevive'); 
+        return;
+    }
+    if (skillId === 'sum3') { 
+        if(game.player.activePets) game.player.activePets.forEach(p => { 
+            p.enhancedUntil = Date.now() + 10000; 
+            if (p.dom) {
+                p.dom.style.filter = 'drop-shadow(0 0 10px gold) brightness(1.2)';
+                p.dom.style.transition = 'filter 0.3s ease';
+                setTimeout(() => { if (p.dom) p.dom.style.filter = 'none'; }, 10000);
+            }
+            window.spawnSpark(p.x+15, p.y+15); 
+        }); 
+        return;
+    }
+    if (skillId === 'ber1') {
+        if(socket) socket.emit('tauntMonsters', { radius: 300 });
+        game.player.tauntBuffUntil = Date.now() + 10000; 
+        window.spawnDamageText(game.player.x + 24, game.player.y - 10, "DEF x3!", '#ffeb3b'); window.spawnSpark(game.player.x + 24, game.player.y + 48);
+        return;
+    }
+    if (skillId === 'ber3') { game.player.immortalUntil = Date.now() + 10000; window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMORTAL", '#ffeb3b'); return; }
+    if (skillId === 'bld2') {
+        game.player.parryUntil = Date.now() + 10000;
+        window.spawnDamageText(game.player.x + 24, game.player.y - 10, "PARRY STANCE", '#ffeb3b');
+        if(socket) socket.emit('setParryStance');
+        return;
+    }
+    
+    // 🛡️ TARGETED SKILLS (REQUIRES A TARGET!)
+    if (skillId === 'ice1' || skillId === 'ice3' || skillId === 'bld3' || skillId.startsWith('snp') || skillId.startsWith('exp') || skillId === 'phs3' || skillId === 'nin1') {
+        let closestMob = null; let closestPlayer = null; let minD = Infinity; 
+        const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; 
+        
+        let attackRadius = (className === 'Ice Master' || className === 'Explosives Expert' || className === 'Sniper') ? 300 : 80;
+        if (className === 'Sniper') attackRadius = 345; 
+
+        // Scan Monsters
+        for(let mId in game.monsters) { 
+            let m = game.monsters[mId]; if(!m.alive) continue; 
+            let dist = Math.hypot(pCenterX - (m.x+m.width/2), pCenterY - (m.y+m.height/2)); 
+            if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
+        }
+
+        // Scan Players (Neutral Zone)
+        if (safeMapData.id === 'neutralzone') {
+            for (let rId in game.remotePlayers) {
+                let rp = game.remotePlayers[rId];
+                if (rp.isGhost || rp.isHiddenAdmin) continue; 
+                if (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id)) continue;
+
+                let dist = Math.hypot(pCenterX - (rp.x + 24), pCenterY - (rp.y + 48));
+                if (dist <= attackRadius && dist < minD) { minD = dist; closestPlayer = rp; closestMob = null; }
+            }
+        }
+        
+        const finalTarget = closestMob || closestPlayer;
+
+        if (finalTarget) {
+            let mCx = closestMob ? finalTarget.x + (finalTarget.width/2) : finalTarget.x + 24; 
+            let mCy = closestMob ? finalTarget.y + (finalTarget.height/2) : finalTarget.y + 48;
+            
+            const emitAttack = () => {
+                if(socket) {
+                    if (closestMob) socket.emit('attackMonster', { monsterId: finalTarget.id, skillId: skillId });
+                    else if (closestPlayer) socket.emit('attackPlayer', { targetId: finalTarget.id, skillId: skillId });
+                }
+            };
+            
+            if (className === 'Ice Master') {
+                let count = skillId === 'ice3' ? 3 : 1; 
+                for (let i=0; i<count; i++) {
+                    setTimeout(() => {
+                        let ice = document.createElement('div'); ice.className = 'icicle'; ice.style.left = mCx + 'px'; ice.style.top = (mCy - 100) + 'px'; dom.world.appendChild(ice);
+                        let anim = ice.animate([{ top: (mCy - 100) + 'px' }, { top: mCy + 'px' }], { duration: 300, easing: 'ease-in' });
+                        anim.onfinish = () => { ice.remove(); if (i === count - 1) emitAttack(); };
+                    }, i * 200);
+                }
+            }
+            if (skillId === 'bld3') {
+                window.spawnWhiteSplash(mCx, mCy); emitAttack();
+            }
+
+            if (skillId === 'phs3') {
+                let targetX = finalTarget.x + (mCx > pCenterX ? -40 : 40);
+                let targetY = finalTarget.y;
+                
+                if (window.isColliding(targetX, targetY)) {
+                    targetX = finalTarget.x + (mCx > pCenterX ? 40 : -40);
+                    if (window.isColliding(targetX, targetY)) {
+                        targetX = game.player.x;
+                        targetY = game.player.y;
+                    }
+                }
+                
+                game.player.x = targetX;
+                game.player.y = targetY;
+                window.spawnWhiteSplash(game.player.x + 24, game.player.y + 48);
+                if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: wpnSprite });
+                emitAttack();
+            }
+            
+            if (skillId === 'nin1') {
+                window.shootOrb(pCenterX, pCenterY - 15, mCx, mCy, '#757575');
+                setTimeout(() => {
+                    emitAttack();
+                    const smoke = document.createElement('div');
+                    smoke.style.cssText = `position:absolute; left:${mCx-40}px; top:${mCy-40}px; width:80px; height:80px; background:radial-gradient(circle, rgba(100,100,100,0.9) 0%, rgba(150,150,150,0.5) 50%, transparent 70%); border-radius:50%; z-index:40; pointer-events:none; animation: pulseText 1.5s infinite alternate;`;
+                    dom.world.appendChild(smoke);
+                    setTimeout(()=>smoke.remove(), 10000);
+                }, 400); 
+            }
+
+            if (skillId === 'snp2') {
+                window.shootOrb(pCenterX, pCenterY - 15, mCx, mCy, '#ffffff');
+                setTimeout(() => { emitAttack(); }, 200);
+            }
+            if (skillId === 'snp3') {
+                window.shootOrb(pCenterX, pCenterY - 15, mCx, mCy, '#ff0000');
+                const gameContainer = document.getElementById('game-container'); 
+                gameContainer.classList.add('screen-shake'); 
+                setTimeout(() => gameContainer.classList.remove('screen-shake'), 500); 
+                setTimeout(() => { emitAttack(); window.spawnWhiteSplash(mCx, mCy); }, 200);
+            }
+
+            if (skillId === 'exp1') {
+                window.shootOrb(pCenterX, pCenterY - 15, mCx, mCy, '#ff9800');
+                setTimeout(() => { 
+                    emitAttack();
+                    window.spawnFireAoE(mCx, mCy, game.player.level >= 25 ? 10000 : 3000);
+                }, 400);
+            }
+            if (skillId === 'exp3') {
+                window.shootOrb(pCenterX, pCenterY - 15, mCx, mCy, '#424242');
+                setTimeout(() => { 
+                    emitAttack();
+                    window.spawnWhiteSplash(mCx, mCy);
+                    const gameContainer = document.getElementById('game-container'); 
+                    gameContainer.classList.add('screen-shake'); 
+                    setTimeout(() => gameContainer.classList.remove('screen-shake'), 500); 
+                }, 500);
+            }
+        }
+    }
+};
+
+window.attemptAttack = function(silent) {
+    // 🛡️ STUN FIX: Block Basic Attacks
+    if (game.player.frozenUntil && Date.now() < game.player.frozenUntil) return;
+    if (safeMapData.id === 'town') { if (!silent && dom.log) dom.log.innerText = "You cannot attack in Town!"; return; }
+    // 🛑 ATTACKS UNLOCKED: Fight instantly
+    if (game.player.currentHp <= 0 || isInventoryOpen || window.adminMode || game.isGhost) return;
+    if (attackCooldownActive) return; 
+    
+    let closestMob = null; let closestPlayer = null; let minD = Infinity; 
+    const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; 
+    let weaponSprite = game.player.equips && game.player.equips.weapon ? game.player.equips.weapon.sprite : ''; 
+    
+    // ⚙️ TECH GENIUS: Disable Normal Attack
+    if (weaponSprite.includes('touchpad')) {
+        if (!silent && dom.log) dom.log.innerText = "Tech Geniuses use their Drones to attack! You cannot perform basic attacks.";
+        return;
+    }
+
+    const isRanged = weaponSprite.includes('staff') || weaponSprite.includes('pendant') || weaponSprite.includes('gun');
+    
+    let attackRadius = isRanged ? 250 : 80;
+    if (game.player.baseStats?.playerClass === 'Sniper') {
+        attackRadius = 287.5; 
+    }
+    
+    // Check Monsters
+    for(let mId in game.monsters) { 
+        let m = game.monsters[mId]; if(!m.alive) continue; 
+        let mCenterX = m.x + (m.width/2); let mCenterY = m.y + (m.height/2); 
+        let dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY); 
+        if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
+    }
+
+    // Check Players (ONLY in Neutral Zone)
+    if (safeMapData.id === 'neutralzone') {
+        if (window.activeTargetPlayerId && game.remotePlayers[window.activeTargetPlayerId]) {
+            let rp = game.remotePlayers[window.activeTargetPlayerId];
+            if (!rp.isGhost && !rp.isHiddenAdmin && !(game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id))) {
+                let dist = Math.hypot(pCenterX - (rp.x + 24), pCenterY - (rp.y + 48));
+                if (dist <= attackRadius) {
+                    minD = dist; closestPlayer = rp; closestMob = null;
+                }
+            }
+            window.activeTargetPlayerId = null; 
+        } else {
+            for (let rId in game.remotePlayers) {
+                let rp = game.remotePlayers[rId];
+                if (rp.isGhost || rp.isHiddenAdmin) continue; 
+                if (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id)) continue;
+
+                let rpCenterX = rp.x + 24; let rpCenterY = rp.y + 48;
+                let dist = Math.hypot(pCenterX - rpCenterX, pCenterY - rpCenterY);
+                if (dist <= attackRadius && dist < minD) { minD = dist; closestPlayer = rp; closestMob = null; }
+            }
+        }
+    }
+    
+    if (!closestMob && !closestPlayer) { if(!silent && dom.log) dom.log.innerText = "No target in range."; return; }
+    
+    isAttacking = true; attackCooldownActive = true; 
+    if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'attack', facingRight: window.facingRight, weaponSprite: weaponSprite });
+    if(typeof window.playSFX === 'function') window.playSFX(weaponSprite);
+
+    const targetCenterX = closestMob ? closestMob.x + (closestMob.width/2) : closestPlayer.x + 24;
+    const targetCenterY = closestMob ? closestMob.y + (closestMob.height/2) : closestPlayer.y + 48;
+    const targetId = closestMob ? closestMob.id : closestPlayer.id;
+    const attackEvent = closestMob ? 'attackMonster' : 'attackPlayer';
+    const payload = closestMob ? { monsterId: targetId, skillId: 'basic' } : { targetId: targetId, skillId: 'basic' };
+
+    if (weaponSprite.includes('gun')) {
+        if(typeof window.shootBullet === 'function') window.shootBullet(pCenterX, pCenterY - 15, targetCenterX, targetCenterY);
+        setTimeout(() => { if(socket) socket.emit(attackEvent, payload); }, 150); 
+    } else if (isRanged) { 
+        if(typeof window.shootOrb === 'function') window.shootOrb(pCenterX, pCenterY - 15, targetCenterX, targetCenterY); 
+        setTimeout(() => { if(socket) socket.emit(attackEvent, payload); }, 500); 
+    } else { 
+        setTimeout(() => { if(socket) socket.emit(attackEvent, payload); }, 300); 
+    }
+    setTimeout(() => { isAttacking = false; }, 500); setTimeout(() => { attackCooldownActive = false; }, 800);
+};
+function gameLoop(ts) {
+    // 🛡️ THE FIX: Keep track of animation ID to prevent Ghost Loops
+    currentAnimationId = requestAnimationFrame(gameLoop);
+
+    if (!game.isRunning) return;
+
+    // 🛡️ THE FIX: Delta Time 60 FPS Cap
+    if (!ts) ts = performance.now();
+    const elapsed = ts - lastFrameTime;
+    if (elapsed < fpsInterval) return; 
+    lastFrameTime = ts - (elapsed % fpsInterval);
+
+    if (game.player.currentHp <= 0 && !game.isGhost) { 
+        game.isGhost = true; dom.playerContainer.style.opacity = '0.5'; 
+        if(socket) socket.emit('playerDied'); 
+    }
+
+    if (game.isGhost && game.party && game.party.members && game.party.members.length === 1) {
+        if(dom.log) dom.log.innerText = "You are the last one left. Returning to Town.";
+        if(typeof window.leaveParty === 'function') window.leaveParty();
+    }
+
+   let nextX = game.player.x; let nextY = game.player.y; let isMoving = false; const moveSpeed = 5; 
+   let isFrozen = (game.player.frozenUntil && Date.now() < game.player.frozenUntil);
+   // 🛑 PARTY WAIT FIX: Allow movement while waiting on the portal! Only lock when the black loading screen drops.
+   let canInputMove = (!isChatting && !window.isTransitioning && !window.isLoading && !window.isDungeonUIOpen && !isFrozen);
+    
+    if (game.isGhost) {
+        if (!game.party || !Array.isArray(game.party.members)) { canInputMove = false; } 
+        else { let anyAlive = game.party.members.some(m => !m.isGhost && m.id !== game.player.id); if (!anyAlive) canInputMove = false; }
+    }
+
+    if (canInputMove) {
+        if (game.keys.w) { nextY -= moveSpeed; isMoving = true; }
+        if (game.keys.s) { nextY += moveSpeed; isMoving = true; }
+        if (game.keys.a) { nextX -= moveSpeed; isMoving = true; window.facingRight = false; }
+        if (game.keys.d) { nextX += moveSpeed; isMoving = true; window.facingRight = true; }
+    }
+
+    if (isMoving) {
+                let canMoveX = true; let canMoveY = true;
+                if(typeof window.isColliding === 'function') {
+                    canMoveX = !window.isColliding(nextX, game.player.y) || window.adminMode; 
+                    canMoveY = !window.isColliding(game.player.x, nextY) || window.adminMode;
+                    if (window.isColliding(game.player.x, game.player.y)) { canMoveX = true; canMoveY = true; } 
+                }
+                if (canMoveX) game.player.x = nextX; 
+                if (canMoveY) game.player.y = nextY;
+            }
+
+            // ⚙️ TECH GENIUS: Auto-Respawn Drone on Map Change!
+            if (game.player.baseStats?.playerClass === 'Tech Genius' && !game.isGhost && !window.isLoading) {
+                if (!game.player.activePets || !game.player.activePets.some(p => p.isDrone)) {
+                    if (typeof window.updateSkillMenu === 'function') window.updateSkillMenu();
+                }
+            }
+
+            // Active Pets logic
+            if (game.player.activePets && game.player.activePets.length > 0) {
+        game.player.activePets.forEach((p, idx) => {
+            let targetMob = Object.values(game.monsters).find(m => m.alive && Math.hypot(m.x-p.x, m.y-p.y) < 300);
+            let targetPlayer = null;
+            
+            // ⚔️ PET PVP: Look for non-party players if in Neutral Zone!
+            if (!targetMob && safeMapData.id === 'neutralzone') {
+                targetPlayer = Object.values(game.remotePlayers).find(rp => {
+                    if (rp.isGhost) return false;
+                    if (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id)) return false;
+                    return Math.hypot(rp.x - p.x, rp.y - p.y) < 300;
+                });
+            }
+            
+         let finalTarget = targetMob || targetPlayer;
+
+        // ⚙️ THE FIX: Drone logic is completely detached from the other pets so it never stops!
+      if (p.isDrone) {
+            let targetX = game.player.x + (window.facingRight ? -40 : 40);
+            let targetY = game.player.y - 40;
+            p.x += (targetX - p.x) * 0.15;
+            p.y += (targetY - p.y) * 0.15;
+
+            // 🛑 THE FIX: Stop shooting if the player is a ghost!
+            if (game.isGhost) return;
+
+            if (finalTarget) {
+                if (!p.lastAttack || Date.now() - p.lastAttack > 1000) {
+                    p.lastAttack = Date.now();
+                    window.shootLaser(p.x, p.y, finalTarget.x + (finalTarget.width||48)/2, finalTarget.y + (finalTarget.height||96)/2);
+                    if (socket) {
+                        if (targetMob) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'tech1' });
+                        else socket.emit('attackPlayer', { targetId: targetPlayer.id, skillId: 'tech1' });
+                    }
+                }
+            }
+        } 
+        else {
+            // Normal Slimes, Golem Buster, and Big Boss logic
+            if (finalTarget) {
+                let dist = Math.hypot(finalTarget.x - p.x, finalTarget.y - p.y);
+                let stopDist = p.isBigBoss ? 100 : (p.isGolemBuster ? 80 : 40);
+
+                if (dist > stopDist) {
+                    if (p.isBigBoss || p.isGolemBuster) {
+                        p.x += (finalTarget.x - p.x) * 0.05;
+                        p.y += (finalTarget.y - p.y) * 0.05;
+                    } else {
+                        p.x += (finalTarget.x - p.x) * 0.15;
+                        p.y += (finalTarget.y - p.y) * 0.15;
+                    }
+                } else {
+                    let atkCooldown = p.isBigBoss ? 1500 : (p.isGolemBuster ? 1500 : 1000);
+                    if (!p.lastAttack || Date.now() - p.lastAttack > atkCooldown) {
+                        p.lastAttack = Date.now();
+                        let baseScale = p.isBigBoss ? 2.5 : 1;
+                        let atkScale = p.isBigBoss ? 3.0 : 1.5;
+
+                        p.dom.style.transform = `scale(${atkScale}) translateY(-20px)`;
+                        setTimeout(() => {
+                            if (p.dom) p.dom.style.transform = `scale(${baseScale})`;
+                            if (socket) {
+                                if (targetMob) socket.emit('attackMonster', { monsterId: targetMob.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss, isGolemBuster: p.isGolemBuster });
+                                else socket.emit('attackPlayer', { targetId: targetPlayer.id, skillId: 'pet', petId: p.id, isBigBoss: p.isBigBoss, isGolemBuster: p.isGolemBuster });
+                            }
+                        }, 200);
+                    }
+                    
+                    if (p.isGolemBuster) {
+                        if (!p.lastTaunt || Date.now() - p.lastTaunt > 5000) {
+                            p.lastTaunt = Date.now();
+                            window.spawnDamageText(p.x, p.y - 40, "TAUNT!", "#ffeb3b");
+                            if (socket) socket.emit('petTaunt', { petId: p.id, radius: 300 });
+                        }
+                    }
+                }
+            } else {
+                let targetX, targetY;
+                if (p.isBigBoss || p.isGolemBuster) {
+                    targetX = p.homeX || p.x;
+                    targetY = p.homeY || p.y;
+                    p.x += (targetX - p.x) * 0.05;
+                    p.y += (targetY - p.y) * 0.05;
+                } else {
+                    targetX = game.player.x + (idx === 0 ? -40 : 40);
+                    targetY = game.player.y - 20;
+                    p.x += (targetX - p.x) * 0.15;
+                    p.y += (targetY - p.y) * 0.15;
+                }
+            }
+        }
+        
+        p.dom.style.left = p.x + 'px'; p.dom.style.top = p.y + 'px';
+            let hpBar = p.dom.querySelector('#pet-hp');
+            if (hpBar) hpBar.style.width = (p.hp / p.maxHp) * 100 + '%';
+            
+            if (p.hp <= 0) {
+                if(p.skillRef) p.skillRef.cooldownReadyAt = Date.now() + p.skillRef.cd; 
+                if(typeof window.updateHotbarCooldowns === 'function') window.updateHotbarCooldowns();
+                p.dom.remove(); game.player.activePets.splice(idx, 1);
+                if(socket) socket.emit('syncPet', { id: p.id, alive: false });
+            } else {
+                if (Math.random() < 0.05 && socket) socket.emit('syncPet', { id: p.id, x: p.x, y: p.y, alive: true });
+            }
+        });
+    }
+
+    // --- 🐾 UNIVERSAL PET LOGIC ---
+    let petOwners = [];
+    const VALID_PETS = ['fox', 'owl', 'wisp', 'egg', 'void'];
+    
+    let myPet = game.player.equips?.leggings?.aura;
+    if (VALID_PETS.includes(myPet)) {
+        petOwners.push({ id: game.player.id, targetX: game.player.x, targetY: game.player.y, facingRight: window.facingRight, type: myPet });
+        
+       // Auto Attack Logic
+        if (Date.now() - window.lastFoxAttack > 1500) {
+            let closestMob = null; let closestPlayer = null; let minD = Infinity;
+            let pCenterX = game.player.x + 24; let pCenterY = game.player.y + 48;
+            for(let mId in game.monsters) { 
+                let m = game.monsters[mId]; if(!m.alive) continue; 
+                let dist = Math.hypot(pCenterX - (m.x+m.width/2), pCenterY - (m.y+m.height/2)); 
+                if(dist <= 150 && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
+            }
+            
+            // ⚔️ FOX PVP: Look for non-party players if in Neutral Zone!
+            if (safeMapData.id === 'neutralzone') {
+                for (let rId in game.remotePlayers) {
+                    let rp = game.remotePlayers[rId];
+                    if (rp.isGhost || (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id))) continue;
+                    let dist = Math.hypot(pCenterX - (rp.x + 24), pCenterY - (rp.y + 48));
+                    if (dist <= 150 && dist < minD) { minD = dist; closestPlayer = rp; closestMob = null; }
+                }
+            }
+            
+            let finalTarget = closestMob || closestPlayer;
+            if (finalTarget && window.activeFoxes[game.player.id]) {
+                window.lastFoxAttack = Date.now();
+                let mCx = closestMob ? finalTarget.x + finalTarget.width/2 : finalTarget.x + 24; 
+                let mCy = closestMob ? finalTarget.y + finalTarget.height/2 : finalTarget.y + 48;
+                if(socket) {
+                    if (closestMob) socket.emit('attackMonster', { monsterId: finalTarget.id, skillId: 'fox_bite' });
+                    else socket.emit('attackPlayer', { targetId: finalTarget.id, skillId: 'fox_bite' });
+                }
+                window.shootFoxFire(window.activeFoxes[game.player.id].x, window.activeFoxes[game.player.id].y, mCx, mCy, myPet);
+            }
+        }
+    }
+
+    for (let rId in game.remotePlayers) {
+        let rp = game.remotePlayers[rId];
+        let rpPet = rp.spriteData?.pet;
+        if (VALID_PETS.includes(rpPet)) {
+            let rpFacingRight = rp.rig.style.transform.includes('scaleX(-1)');
+            petOwners.push({ id: rp.id, targetX: rp.x, targetY: rp.y, facingRight: rpFacingRight, type: rpPet });
+        }
+    }
+
+    let currentPetIds = new Set();
+    petOwners.forEach(owner => {
+        currentPetIds.add(owner.id);
+        let petId = 'cosmetic_pet_' + owner.id;
+        let petEl = document.getElementById(petId);
+        
+        // If pet exists but type changed, recreate it
+        if (petEl && petEl.dataset.petType !== owner.type) {
+            petEl.remove();
+            petEl = null;
+        }
+
+        if (!petEl) {
+            petEl = document.createElement('div');
+            petEl.id = petId;
+            petEl.dataset.petType = owner.type;
+            
+            if (owner.type === 'fox') {
+                petEl.className = 'pet-fox';
+                petEl.innerHTML = `<div class="tail"></div><div class="leg leg1"></div><div class="leg leg2"></div><div class="leg leg3"></div><div class="leg leg4"></div><div class="head"><div class="ear"></div></div>`;
+            } else if (owner.type === 'owl') {
+                petEl.className = 'pet-owl';
+                petEl.innerHTML = `<div class="wing wing-l"></div><div class="wing wing-r"></div><div class="eyes"><div class="eye"></div><div class="eye"></div></div><div class="beak"></div>`;
+           } else if (owner.type === 'wisp') {
+                petEl.className = 'pet-wisp';
+            } else if (owner.type === 'egg') {
+                petEl.className = 'pet-egg';
+                petEl.innerHTML = ''; /* Pure CSS, no image needed! */
+            } else if (owner.type === 'void') {
+                petEl.className = 'pet-void';
+                petEl.innerHTML = `
+                    <div class="mini-wraith">
+                        <div class="w-eye left"></div><div class="w-eye right"></div>
+                        <div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div>
+                    </div>`;
+            }
+            
+            dom.world.appendChild(petEl);
+            window.activeFoxes[owner.id] = { x: owner.targetX, y: owner.targetY };
+        }
+        
+        let pData = window.activeFoxes[owner.id];
+        // 🛡️ THE FIX: Increased offset so the pet floats significantly farther away
+        let offsetX = owner.facingRight ? -45 : 45; 
+        let targetX = owner.targetX + 24 + offsetX; 
+        
+        // Fox stays on ground. Flying pets at shoulder height!
+        let targetY = owner.targetY + (owner.type === 'fox' ? 80 : 30); 
+        
+        let dx = targetX - pData.x;
+        let dy = targetY - pData.y;
+        let dist = Math.hypot(dx, dy);
+        
+        // Physics Rubber-Banding
+        if (dist > 2) {
+            pData.x += dx * 0.15;
+            pData.y += dy * 0.15;
+            if (owner.type === 'fox') petEl.classList.add('walking'); 
+        } else {
+            if (owner.type === 'fox') petEl.classList.remove('walking'); 
+        }
+        
+        petEl.style.left = pData.x + 'px';
+        petEl.style.top = pData.y + 'px';
+        // 🛡️ THE FIX: Translate MUST come before ScaleX in CSS, otherwise the -50% shifts it into your head!
+        petEl.style.transform = owner.facingRight ? 'translate(-50%, -50%) scaleX(-1)' : 'translate(-50%, -50%) scaleX(1)';
+    });
+
+    // Cleanup unequipped pets
+    document.querySelectorAll('.pet-fox, .pet-owl, .pet-wisp, .pet-egg, .pet-void').forEach(pet => {
+        let ownerId = pet.id.replace('cosmetic_pet_', '');
+        if (!currentPetIds.has(ownerId)) {
+            pet.remove();
+            delete window.activeFoxes[ownerId];
+        }
+    });
+
+    // Teleport cooldown
+    if (game.player.teleportCooldown > 0) game.player.teleportCooldown -= 16;
+    if (game.player.teleportCooldown <= 0 && !game.isGhost) {
+        const hitX = game.player.x + 12; const hitY = game.player.y + 76; 
+        const tps = safeMapData.teleports || []; 
+        let onPortal = null;
+        for (let box of tps) { if (hitX < box.x + box.w && hitX + 24 > box.x && hitY < box.y + box.h && hitY + 20 > box.y) onPortal = box; }
+        const uiTimer = document.getElementById('portal-timer-ui'); const uiSec = document.getElementById('portal-timer-sec');
+
+       if (onPortal) { 
+// 🏪 MERCHANT INTERCEPT: Portal E
+            if (onPortal.portalId === 'E') {
+                game.player.currentPortal = null;
+                game.player.y += 15; // Bounce back safely
+                game.player.teleportCooldown = 2000;
+                
+                document.getElementById('merchant-modal').style.display = 'block';
+                return;
+            }
+           // 🗺️ MAZE GUIDE INTERCEPT: Portal F
+            if (onPortal.portalId === 'F') {
+                game.player.currentPortal = null;
+                game.player.y += 15; // Bounce back safely
+                game.player.teleportCooldown = 2000;
+                window.openMazeGuide();
+                return;
+            }
+           // 🏡 HOME FOR SALE INTERCEPT: Portal G
+            if (onPortal.portalId === 'G' && (!game.player.baseStats || !game.player.baseStats.hasHome)) {
+                game.player.currentPortal = null;
+                game.player.y += 15; // Bounce them back so they don't get stuck in the portal
+                game.player.teleportCooldown = 2000;
+                window.openHomeSaleUI();
+                return; // Stop the teleport
+            }
+           // 🧰 HOME STORAGE INTERCEPT: Portal I
+            if (onPortal.portalId === 'I') {
+                game.player.currentPortal = null;
+                game.player.y += 15; // Bounce back safely
+                game.player.teleportCooldown = 2000;
+                window.openStorageUI();
+                return;
+            }
+           // 👻 HAUNTED HOUSE INTERCEPT: Portal J
+            if (onPortal.portalId === 'J') {
+                game.player.currentPortal = null;
+                game.player.y += 15; // Bounce back safely
+                game.player.teleportCooldown = 2000;
+                window.openHauntedHouseUI();
+                return;
+            }
+          // 🏰 GUILD BASE INTERCEPT: Portal K
+            if (onPortal.portalId === 'K') {
+                game.player.currentPortal = null;
+                game.player.y += 15; 
+                game.player.teleportCooldown = 2000;
+                window.openGuildUI();
+                return;
+            }
+           // 📜 DAILY MISSIONS INTERCEPT: Portal M
+            if (onPortal.portalId === 'M') {
+                game.player.currentPortal = null;
+                game.player.y += 15; // Bounce back safely
+                game.player.teleportCooldown = 2000;
+                window.openDailyMissionsUI();
+                return;
+            }
+          // ⚔️ TAVERN INTERCEPT: Portal A
+            if (onPortal.portalId === 'A') {
+                game.player.currentPortal = null;
+                game.player.y += 15; // 🛡️ Push player backward so the modal doesn't infinitely loop
+                game.player.teleportCooldown = 2000;
+                
+               // 📅 Sync UI Reset Check dynamically before showing entries
+                const now = new Date();
+                let dayOfWeek = now.getUTCDay(); // Strict UTC Day
+                let daysSinceMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
+                
+                let lastMonday = new Date(now.getTime());
+                lastMonday.setUTCDate(now.getUTCDate() - daysSinceMonday);
+                lastMonday.setUTCHours(0, 0, 0, 0); // Strict UTC Midnight
+                const lastMondayTs = lastMonday.getTime();
+
+                if (!game.player.baseStats) game.player.baseStats = {};
+                if (!game.player.baseStats.tavernReset || game.player.baseStats.tavernReset < lastMondayTs) {
+                    game.player.baseStats.tavernEntries = 5;
+                    game.player.baseStats.tavernReset = Date.now();
+                }
+
+                document.getElementById('tavern-entries-text').innerText = `Entries: ${game.player.baseStats.tavernEntries}/5`;
+                document.getElementById('tavern-modal').style.display = 'block';
+                return;
+            }
+
+            // 🛡️ THE FIX: Ignore the portal entirely if they just teleported onto it!
+            if (game.player.currentPortal !== onPortal.portalId && game.player.currentPortal !== 'JUST_SPAWNED') { 
+                game.player.currentPortal = onPortal.portalId; 
+                game.player.portalEntryTime = Date.now(); 
+                if(uiTimer) uiTimer.style.display = 'block'; 
+            } 
+            if (game.player.portalEntryTime) {
+                let elapsed = Date.now() - game.player.portalEntryTime; let remaining = Math.max(0, 2000 - elapsed);
+                if (uiSec) uiSec.innerText = (remaining / 1000).toFixed(1);
+                if (remaining <= 0 && !game.player.isTeleporting) {
+                    game.player.isTeleporting = true; 
+                    if(uiTimer) uiTimer.style.display = 'none';
+                    if(socket) socket.emit('portalStep', { portalId: onPortal.portalId, targetMapId: onPortal.targetMapId }); 
+                }
+            }
+        } else {
+           if (game.player.currentPortal !== null) { game.player.currentPortal = null; game.player.portalEntryTime = null; game.player.isTeleporting = false; if(uiTimer) uiTimer.style.display = 'none'; if(socket) socket.emit('portalLeave'); document.getElementById('tavern-modal').style.display = 'none'; }
+        }
+    }
+    
+    dom.playerContainer.style.left = game.player.x + 'px'; 
+    dom.playerContainer.style.top = game.player.y + 'px'; 
+
+   // 🌫️ OPTIMIZED FOG OF WAR (Runs every 3 frames to save CPU)
+    window.fowFrameCount = (window.fowFrameCount || 0) + 1;
+    const fow = document.getElementById('fow-canvas');
+    if (fow && window.fowFrameCount % 3 === 0) {
+        const ctx = fow.getContext('2d', { alpha: true });
+        // 🛡️ THE FIX: Removed the low-perf check so the math ALWAYS runs and hides enemies behind walls!
+        if (safeMapData.id !== 'town' && !String(safeMapData.id).includes('home') && !String(safeMapData.id).includes('guildbase') && !game.isGhost) {
+            fow.classList.add('active');
+            ctx.clearRect(0, 0, 2000, 1333);
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.45)'; 
+            ctx.fillRect(0, 0, 2000, 1333);
+            
+            let px = game.player.x + 24; 
+            let py = game.player.y + 30; // Chest level
+            const vRad = 3000; // ENDLESS VISION!
+
+            // 1. Gather walls (Collisions) - OPTIMIZED to ignore far walls
+            let segments = [];
+            let points = [];
+            const bounds = [ {x:0, y:0}, {x:2000, y:0}, {x:2000, y:1333}, {x:0, y:1333} ];
+            points.push(...bounds);
+            for(let i=0; i<4; i++) segments.push({ a: bounds[i], b: bounds[(i+1)%4] });
+
+            if (safeMapData.collisions) {
+                safeMapData.collisions.forEach(box => {
+                    // 🛡️ OPTIMIZATION: Skip walls more than 1000px away
+                    if (Math.abs(box.x - px) > 1000 || Math.abs(box.y - py) > 1000) return;
+                    
+                    // If overlapping a wall, nudge the light out so it doesn't get trapped
+                    if (px >= box.x && px <= box.x + box.w && py >= box.y && py <= box.y + box.h) {
+                        let dBottom = Math.abs((box.y + box.h) - py);
+                        let dTop = Math.abs(py - box.y);
+                        let dLeft = Math.abs(px - box.x);
+                        let dRight = Math.abs((box.x + box.w) - px);
+                        let minD = Math.min(dBottom, dTop, dLeft, dRight);
+                        if (minD === dBottom) py = box.y + box.h + 1;
+                        else if (minD === dTop) py = box.y - 1;
+                        else if (minD === dLeft) px = box.x - 1;
+                        else if (minD === dRight) px = box.x + box.w + 1;
+                    }
+
+                    let pts = [ {x: box.x, y: box.y}, {x: box.x + box.w, y: box.y}, {x: box.x + box.w, y: box.y + box.h}, {x: box.x, y: box.y + box.h} ];
+                    points.push(...pts);
+                    for(let i=0; i<4; i++) segments.push({ a: pts[i], b: pts[(i+1)%4] });
+                });
+            }
+
+            // 2. Cast rays to all corners
+            let angles = [];
+            points.forEach(p => {
+                let angle = Math.atan2(p.y - py, p.x - px);
+                angles.push(angle - 0.0001, angle, angle + 0.0001); 
+            });
+            angles.sort((a,b) => a - b);
+
+            let intersects = [];
+            angles.forEach(angle => {
+                let dx = Math.cos(angle) * vRad, dy = Math.sin(angle) * vRad;
+                let closest = null, minDist = 1;
+                segments.forEach(seg => {
+                    let sdx = seg.b.x - seg.a.x, sdy = seg.b.y - seg.a.y;
+                    let T2 = dx * sdy - dy * sdx;
+                    if (T2 === 0) return;
+                    let t1 = ((seg.a.x - px) * sdy - (seg.a.y - py) * sdx) / T2;
+                    let u = ((seg.a.x - px) * dy - (seg.a.y - py) * dx) / T2;
+                    if (t1 > 0 && t1 <= 1 && u >= 0 && u <= 1) {
+                        if (t1 < minDist) { minDist = t1; closest = { x: px + dx * t1, y: py + dy * t1 }; }
+                    }
+                });
+                intersects.push(closest ? closest : { x: px + dx, y: py + dy });
+            });
+
+            // 3. Cut out the endless solid polygon of light
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+            
+            let visionPath = new Path2D();
+            if (intersects.length > 0) {
+                visionPath.moveTo(intersects[0].x, intersects[0].y);
+                for(let i=1; i<intersects.length; i++) {
+                    visionPath.lineTo(intersects[i].x, intersects[i].y);
+                }
+            }
+            visionPath.closePath();
+            ctx.fill(visionPath);
+
+            // 4. Check if Monsters are standing inside the light (OPTIMIZED DOM UPDATES)
+            for (let mId in game.monsters) {
+                const m = game.monsters[mId];
+                if (!m.alive) continue;
+                const mEl = document.getElementById('mob_' + mId);
+                if (!mEl) continue;
+                
+                const isVisible = ctx.isPointInPath(visionPath, m.x + (m.width/2), m.y + (m.height/2));
+                if (isVisible) {
+                    if (mEl.style.opacity !== '1') {
+                        mEl.style.opacity = '1';
+                        mEl.style.pointerEvents = 'auto';
+                    }
+                } else {
+                    if (mEl.style.opacity !== '0') {
+                        mEl.style.opacity = '0';
+                        mEl.style.pointerEvents = 'none';
+                    }
+                }
+            }
+
+            // 5. Hide Remote Players behind walls too!
+            for (let rId in game.remotePlayers) {
+                const rp = game.remotePlayers[rId];
+                if (rp && rp.dom) {
+                    const isVisible = ctx.isPointInPath(visionPath, rp.x + 24, rp.y + 48);
+                    if (isVisible) {
+                        if (rp.dom.style.opacity !== '1') {
+                            rp.dom.style.opacity = '1';
+                            rp.dom.style.pointerEvents = 'auto';
+                        }
+                    } else {
+                        if (rp.dom.style.opacity !== '0') {
+                            rp.dom.style.opacity = '0';
+                            rp.dom.style.pointerEvents = 'none';
+                        }
+                    }
+                }
+            }
+
+        } else {
+            fow.classList.remove('active'); 
+            ctx.clearRect(0, 0, 2000, 1333); 
+            // Reveal all monsters if fog is off
+            for (let mId in game.monsters) {
+                const mEl = document.getElementById('mob_' + mId);
+                if (mEl && mEl.style.opacity !== '1') {
+                    mEl.style.opacity = '1';
+                    mEl.style.pointerEvents = 'auto';
+                }
+            }
+            // Reveal all players if fog is off
+            for (let rId in game.remotePlayers) {
+                const rp = game.remotePlayers[rId];
+                if (rp && rp.dom && rp.dom.style.opacity !== '1') {
+                    rp.dom.style.opacity = '1';
+                    rp.dom.style.pointerEvents = 'auto';
+                }
+            }
+        }
+    }
+
+    let camTargetX = game.player.x; let camTargetY = game.player.y;
+    let CAMERA_ZOOM = window.innerWidth <= 950 ? 1.2 : 1.8; 
+
+    if (window.isSpectating && window.spectateTargetId && game.remotePlayers[window.spectateTargetId]) {
+        camTargetX = game.remotePlayers[window.spectateTargetId].x; camTargetY = game.remotePlayers[window.spectateTargetId].y;
+    }
+
+    const cameraX = Math.floor((window.innerWidth / 2) - (camTargetX * CAMERA_ZOOM) - (48 * CAMERA_ZOOM / 2)); 
+    const cameraY = Math.floor((window.innerHeight / 2) - (camTargetY * CAMERA_ZOOM) - (96 * CAMERA_ZOOM / 2)); 
+    dom.world.style.transform = `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${CAMERA_ZOOM})`;
+
+    if (window.isSpectating) { isMoving = false; canInputMove = false; }
+
+    if (!game.isGhost) {
+        if (autoAttackMode && !window.adminMode && !isInventoryOpen && typeof window.attemptAttack === 'function') window.attemptAttack(true);
+        if (typeof window.updateAnimationFrames === 'function') {
+            if (isAttacking) window.updateAnimationFrames('attack');
+            else if (isMoving) window.updateAnimationFrames('walk');
+            else window.updateAnimationFrames('idle');
+        }
+    }
+
+    if (attackHeld && !isInventoryOpen && !window.adminMode && !isChatting && !autoAttackMode && !game.isGhost && typeof window.attemptAttack === 'function') { window.attemptAttack(false); }
+    
+    const desiredState = isAttacking ? 'attack' : (isMoving ? 'walk' : 'idle'); 
+    const netNow = Date.now();
+    let lastNetTs = window.lastNetTs || 0; let lastSentState = window.lastSentState || 'idle';
+    if (netNow - lastNetTs >= 60 || desiredState !== lastSentState) { 
+        window.lastNetTs = netNow; window.lastSentState = desiredState; 
+        if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: desiredState, facingRight: window.facingRight, weaponSprite: game.player.equips?.weapon?.sprite || null });
+    }
+}
+// ==========================================
+// 4. MAP & SYSTEM UTILS
+// ==========================================
+window.loadMapScript = function(mapId, callback) {
+    // 🚀 SMART CACHE LEVEL 1: If we already loaded this map during this session, load it instantly from memory!
+    if (window.MapDatabase[mapId] && window.MapDatabase[mapId].collisions) {
+        return callback();
+    }
+
+    // 🚀 SMART CACHE LEVEL 2: Removed the "?v=Date.now()" development cache-buster.
+    // Steam and Android's native engines will now permanently cache this file and ONLY download it again if you update the server!
+    let scriptName = (mapId === 'town' ? 'townmap.js' : mapId + '.js');
+    
+    let script = document.createElement('script'); script.src = scriptName;
+    const fallbackMap = { id: mapId, name: mapId, image: mapId === 'town' ? 'town_map.png' : mapId + '.png', spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
+    
+    script.onload = () => { 
+        let varName = mapId === 'town' ? 'townMapData' : mapId + 'MapData'; 
+        if (typeof window[varName] !== 'undefined') window.MapDatabase[mapId] = JSON.parse(JSON.stringify(window[varName])); 
+        else window.MapDatabase[mapId] = fallbackMap; 
+        callback(); 
+    };
+    
+    script.onerror = () => { window.MapDatabase[mapId] = fallbackMap; callback(); };
+    document.head.appendChild(script);
+}
+window.resolveAsset = function(path) {
+    const renderBase = "https://exonieonline.onrender.com/"; // Your server URL
+    
+    // If we are just on a normal browser, always use Render
+    if (window.currentPlatform === 'web') return renderBase + path;
+
+    // For Steam/Android, we try the local path first.
+    // Most wrappers (Capacitor/Electron) serve local files from the root.
+    return path; 
+};
+window.preloadMapAssets = function(mapData, callback) {
+    window.isLoading = true;
+    const loaderFill = document.getElementById('loader-fill');
+    if (loaderFill) loaderFill.style.width = '10%';
+
+    const mapPath = mapData?.image ? String(mapData.image) : 'town_map.png';
+    const renderBase = "https://exonieonline.onrender.com/";
+
+    // ==========================================
+    // 🌐 WEB BROWSER MODE (Always Render / 5s Cap)
+    // ==========================================
+    if (window.currentPlatform === 'web') {
+        const mapImg = new Image();
+        let isDone = false;
+        
+        let fallback = setTimeout(() => {
+            if (!isDone) {
+                isDone = true;
+                if (loaderFill) loaderFill.style.width = '100%';
+                console.warn("Web load hit 5-second cap. Forcing entry!");
+                callback();
+                startBackgroundAudioWeb(); 
+            }
+        }, 5000);
+
+        mapImg.onload = mapImg.onerror = () => {
+            if (!isDone) {
+                isDone = true;
+                clearTimeout(fallback);
+                if (loaderFill) loaderFill.style.width = '100%';
+                callback();
+                startBackgroundAudioWeb();
+            }
+        };
+        mapImg.src = renderBase + mapPath;
+
+        function startBackgroundAudioWeb() {
+            let bgmTrack = window.routeMapMusic(mapData?.id || 'town');
+            let audioAssets = [
+                'music/slash.mp3', 'music/lightning.mp3', 'music/splash.mp3', 
+                'music/bump.mp3', `music/${bgmTrack}.mp3`
+            ];
+            
+            if (game.player.baseStats?.playerClass) {
+                let hairPrefix = window.charData?.hairStyle === 'none' ? 'none' : `hair${window.charData?.hairStyle || '1'}`;
+                let formattedClass = String(game.player.baseStats.playerClass).replace(/\s+/g, '').toLowerCase();
+                audioAssets.push(`skills/${hairPrefix}_${formattedClass}.mp3`);
+            }
+            
+            audioAssets.forEach(src => {
+                const audio = new Audio();
+                audio.preload = "auto";
+                audio.src = renderBase + src;
+                audio.load(); 
+            });
+        }
+        return; 
+    }
+
+    // ==========================================
+    // 🖥️📱 NATIVE HYBRID MODE (Local SSD + Render Fallback)
+    // ==========================================
+    try {
+        let assetsToLoad = [
+            mapPath,
+            'animation/avatar_idlefront.png', 
+            'animation/avatar_walk.png', 
+            'animation/avatar_attack.png', 
+            'animation/avatar_head.png'
+        ];
+
+        if (game.player.equips?.weapon?.sprite) {
+            let baseType = 'sword';
+            let rawLower = String(game.player.equips.weapon.sprite).toLowerCase();
+            if (rawLower.includes('staff')) baseType = 'staff';
+            else if (rawLower.includes('pendant')) baseType = 'pendant';
+            else if (rawLower.includes('gun')) baseType = 'gun';
+            else if (rawLower.includes('dagger')) baseType = 'dagger';
+            else if (rawLower.includes('touchpad')) baseType = 'touchpad';
+            
+            let rarityStr = String(game.player.equips.weapon.rarity || 'basic').toLowerCase();
+            if (rarityStr === 'starter') rarityStr = 'basic';
+            let wpn = `${rarityStr}${baseType}`;
+            assetsToLoad.push(`weapon/${wpn}.png`);
+            if (!wpn.includes('pendant')) assetsToLoad.push(`weapon/${wpn}_attack.png`);
+        }
+
+        let bgmTrack = window.routeMapMusic(mapData?.id || 'town');
+        assetsToLoad.push(
+            'music/slash.mp3', 'music/lightning.mp3', 'music/splash.mp3', 
+            'music/bump.mp3', `music/${bgmTrack}.mp3`
+        );
+        
+        if (game.player.baseStats?.playerClass) {
+            let hairPrefix = window.charData?.hairStyle === 'none' ? 'none' : `hair${window.charData?.hairStyle || '1'}`;
+            let formattedClass = String(game.player.baseStats.playerClass).replace(/\s+/g, '').toLowerCase();
+            assetsToLoad.push(`skills/${hairPrefix}_${formattedClass}.mp3`);
+        }
+
+        let loadedCount = 0;
+        let totalToLoad = assetsToLoad.length;
+
+        const checkDone = () => {
+            loadedCount++;
+            if (loaderFill) loaderFill.style.width = (loadedCount / totalToLoad) * 100 + '%';
+            if (loadedCount >= totalToLoad) callback();
+        };
+
+        if (totalToLoad === 0) {
+            callback();
+        } else {
+            assetsToLoad.forEach(originalSrc => {
+                if (originalSrc.endsWith('.mp3')) {
+                    const audio = new Audio();
+                    audio.oncanplaythrough = checkDone;
+                    audio.onerror = () => {
+                        // 🛡️ DISCREPANCY: If local missing, try Render!
+                        if (!audio.src.includes('onrender.com')) {
+                            audio.src = renderBase + originalSrc;
+                            audio.load();
+                        } else {
+                            checkDone(); // Final fallback to avoid hang
+                        }
+                    };
+                    audio.src = originalSrc; // Try local first
+                    audio.load();
+                } else {
+                    const img = new Image();
+                    img.onload = checkDone;
+                    img.onerror = () => {
+                        // 🛡️ DISCREPANCY: If local missing, try Render!
+                        if (!img.src.includes('onrender.com')) {
+                            img.src = renderBase + originalSrc;
+                        } else {
+                            checkDone(); // Final fallback
+                        }
+                    };
+                    img.src = originalSrc; // Try local first
+                }
+            });
+        }
+    } catch (e) {
+        console.error("Native Preloader Error:", e);
+        window.isLoading = false;
+        window.isTransitioning = false;
+        callback();
+    }
+};
+window.cleanupMap = function() { 
+    Object.keys(game.remotePlayers).forEach(id => window.removeRemotePlayer(id)); 
+    document.querySelectorAll('.monster-container, .pet-slime').forEach(el => el.remove()); 
+    game.monsters = {}; 
+    if (game.player.activePets) { 
+        game.player.activePets.forEach(pet => { if(pet.dom) pet.dom.remove(); }); 
+        game.player.activePets = []; 
+    } 
+    if (localBossTimer) clearInterval(localBossTimer);
+    let t = document.getElementById('world-boss-timer'); 
+    if (t) t.remove();
+
+    // 🛡️ LATENCY SHIELD: Mark the exact millisecond we wiped the map
+    window.mapLoadTimestamp = Date.now();
+}
+window.forceUnstuck = function() { 
+    if (safeMapData.id === 'trainingtavern') { if (dom.log) dom.log.innerText = "You cannot escape the Tavern!"; return; }
+    game.player.x = 960; game.player.y = 1000; 
+    if (safeMapData.id !== 'town') { 
+        if(socket) socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 }); dom.log.innerText = "Evacuating to Town..."; 
+    } else { 
+        if(socket) socket.emit('playerMoved', { x: 960, y: 1000, state: 'idle', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null }); dom.log.innerText = "Unstuck! Returned to Town center."; 
+    } 
+};
+window.showMapAnnouncement = function(mapId) { 
+    if (!mapId) return;
+    let cleanName = String(mapId).replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase()); 
+    const permName = document.getElementById('permanent-map-name'); 
+    if (permName) { permName.innerText = cleanName; permName.style.display = 'block'; } 
+    const annContainer = document.getElementById('map-announcement'); 
+    const annText = document.getElementById('map-announcement-text'); 
+    if (annContainer && annText) { annText.innerText = cleanName; annContainer.style.opacity = '1'; setTimeout(() => { annContainer.style.opacity = '0'; }, 3000); } 
+};
+window.isColliding = function(targetX, targetY) { const hitX = targetX + (game.player.width - game.player.w) / 2; const hitY = targetY + game.player.height - game.player.h; const cols = safeMapData.collisions || []; for (let box of cols) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; } return false; }
+
+window.spawnDamageText = function(x, y, amount, color) { const txt = document.createElement('div'); txt.className = 'damage-text'; txt.innerText = amount; let jitterX = (Math.random() * 40) - 20; let jitterY = (Math.random() * 20) - 10; txt.style.left = (x - 10 + jitterX) + 'px'; txt.style.top = (y + jitterY) + 'px'; txt.style.color = color; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 1000); }
+
+// 🌟 YOUR NEW FUNCTION GOES HERE 🌟
+window.spawnSkillText = function(x, y, text, color) {
+    const txt = document.createElement('div');
+    txt.className = 'damage-text'; 
+    txt.innerText = text;
+    txt.style.left = (x - 30) + 'px'; 
+    txt.style.top = y + 'px';
+    txt.style.color = color || '#00E5FF';
+    txt.style.fontWeight = 'bold';
+    txt.style.textShadow = '0 0 5px #fff, 0 0 10px ' + color;
+    txt.style.zIndex = '1000';
+    dom.world.appendChild(txt);
+    
+    const anim = txt.animate([
+        { transform: 'translateY(0px) scale(1)', opacity: 1 },
+        { transform: 'translateY(-40px) scale(1.2)', opacity: 1, offset: 0.5 },
+        { transform: 'translateY(-60px) scale(1)', opacity: 0 }
+    ], { duration: 1500, easing: 'ease-out' });
+    
+    anim.onfinish = () => txt.remove();
+};
+window.spawnSpark = function(x, y) { const spark = document.createElement('div'); spark.className = 'spark'; spark.style.left = (x + (Math.random() * 20 - 10)) + 'px'; spark.style.top = (y + (Math.random() * 20 - 10)) + 'px'; dom.world.appendChild(spark); setTimeout(() => spark.remove(), 300); }
+window.spawnWhiteSplash = function(x, y) { const splash = document.createElement('div'); splash.className = 'white-splash'; splash.style.left = x + 'px'; splash.style.top = y + 'px'; dom.world.appendChild(splash); setTimeout(() => splash.remove(), 300); }
+window.shootLaser = function(startX, startY, endX, endY) {
+    const laser = document.createElement('div');
+    const length = Math.hypot(endX - startX, endY - startY);
+    const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+    laser.style.cssText = `position:absolute; background:#00E5FF; height:4px; width:${length}px; left:${startX}px; top:${startY}px; transform-origin:0 50%; transform:rotate(${angle}deg); box-shadow:0 0 10px #00E5FF, 0 0 20px #00E5FF; z-index:100; pointer-events:none; opacity:1; transition:opacity 0.2s;`;
+    dom.world.appendChild(laser);
+    let sfx = new Audio('music/lightning.mp3');
+    sfx.volume = 0.3; sfx.play().catch(()=>{});
+    setTimeout(() => laser.style.opacity = '0', 50);
+    setTimeout(() => laser.remove(), 250);
+    window.spawnSpark(endX, endY);
+};
+
+window.shootMonsterFireball = function(startX, startY, endX, endY) {
+    const ball = document.createElement('div');
+    ball.className = 'monster-fireball';
+    ball.style.left = startX + 'px';
+    ball.style.top = startY + 'px';
+    dom.world.appendChild(ball);
+
+    const dx = endX - startX;
+    const dy = endY - startY;
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+    ball.animate([
+        { left: startX + 'px', top: startY + 'px', transform: `translate(-50%, -50%) scale(0.8) rotate(${angle}deg)` },
+        { left: endX + 'px', top: endY + 'px', transform: `translate(-50%, -50%) scale(1.15) rotate(${angle}deg)` }
+    ], {
+        duration: 400,
+        easing: 'linear'
+    }).onfinish = () => {
+        ball.remove();
+        window.spawnWhiteSplash(endX, endY);
+    };
+};
+window.shootOrb = function(startX, startY, endX, endY, color) { 
+    const orb = document.createElement('div'); 
+    orb.className = 'magic-orb'; 
+    orb.style.left = startX + 'px'; 
+    orb.style.top = startY + 'px'; 
+    if (color) { orb.style.background = color; orb.style.boxShadow = `0 0 10px ${color}`; }
+    dom.world.appendChild(orb); 
+    const animation = orb.animate([{ left: startX + 'px', top: startY + 'px' }, { left: endX + 'px', top: endY + 'px' }], { duration: 500, easing: 'ease-in' }); 
+    animation.onfinish = () => orb.remove(); 
+}
+
+window.spawnFireAoE = function(x, y, duration) {
+    const fire = document.createElement('div');
+    fire.style.position = 'absolute';
+    fire.style.left = (x - 40) + 'px';
+    fire.style.top = (y - 40) + 'px';
+    fire.style.width = '80px';
+    fire.style.height = '80px';
+    fire.style.background = 'radial-gradient(circle, rgba(255,87,34,0.8) 0%, rgba(255,152,0,0.4) 50%, transparent 70%)';
+    fire.style.borderRadius = '50%';
+    fire.style.zIndex = '40';
+    fire.style.animation = 'pulseText 0.5s infinite alternate';
+    fire.style.pointerEvents = 'none';
+    dom.world.appendChild(fire);
+    setTimeout(() => fire.remove(), duration);
+};
+window.showBubble = function(playerObj, text) { if (!playerObj || !playerObj.dom) return; const bubble = document.createElement('div'); bubble.className = 'chat-bubble'; bubble.innerText = text; playerObj.dom.appendChild(bubble); setTimeout(() => bubble.remove(), 4000); }
+
+window.activeFoxes = {};
+window.lastFoxAttack = 0;
+window.shootFoxFire = function(startX, startY, endX, endY, petType) { 
+    const orb = document.createElement('div'); orb.className = 'fox-fireball'; 
+    if (petType === 'wisp') { orb.style.background = '#87CEEB'; orb.style.boxShadow = '0 0 8px #00BFFF, 0 0 15px #ffffff'; }
+    else if (petType === 'owl') { orb.style.background = '#ffffff'; orb.style.boxShadow = '0 0 8px #ffeb3b, 0 0 15px #ffffff'; }
+    
+    orb.style.left = startX + 'px'; orb.style.top = startY + 'px'; 
+    dom.world.appendChild(orb); 
+    const animation = orb.animate([{ left: startX + 'px', top: startY + 'px' }, { left: endX + 'px', top: endY + 'px' }], { duration: 300, easing: 'linear' }); 
+    animation.onfinish = () => { orb.remove(); window.spawnSpark(endX, endY); }; 
+}
+
+window.updateAnimationFrames = function(state) {
+    // 🛡️ REVERT: ONLY read the actual cosmetic aura applied to the armor!
+    let currentAura = game.player.equips?.armor?.aura || null;
+
+    let cAuraEl = document.getElementById('player-cosmetic-aura');
+    
+    if (cAuraEl) { 
+        // Reset classes
+        cAuraEl.className = 'cosmetic-aura'; 
+        // 👇 THE FIX: Specifically apply the highest tier class
+        if (currentAura) {
+            cAuraEl.classList.add(`aura-${currentAura}`);
+        }
+    }
+    
+    if (dom.playerAvatarContainer) dom.playerAvatarContainer.style.transform = window.facingRight ? 'scaleX(-1)' : 'scaleX(1)';
+    
+    let rawWpn = game.player.equips?.weapon ? game.player.equips.weapon.sprite : null;
+    let wpn = rawWpn ? rawWpn.replace('starter', 'basic') : null; 
+    let pulseActive = (Math.floor(Date.now() / 250) % 2 === 0);
+    let bodySrc = 'animation/avatar_idlefront.png'; let isAtk = false;
+    
+    if (state === 'attack') { bodySrc = 'animation/avatar_attack.png'; isAtk = true; } else if (state === 'walk') { bodySrc = pulseActive ? 'animation/avatar_walk.png' : 'animation/avatar_idlefront.png'; }
+    
+    if (game.player.currentBodySrc !== bodySrc && dom.playerBody) { dom.playerBody.src = bodySrc; game.player.currentBodySrc = bodySrc; }
+    
+    if (wpn && dom.playerWeapon) { 
+        dom.playerWeapon.style.display = 'block'; 
+        let wpnSrc = `weapon/${wpn}${(state === 'attack' && isAtk && !wpn.includes('pendant')) ? '_attack' : ''}.png`; 
+        if (game.player.currentWeaponSrc !== wpnSrc) { dom.playerWeapon.src = wpnSrc; game.player.currentWeaponSrc = wpnSrc; } 
+        
+    // 🛡️ DYNAMIC AURA FIX: Automatically supports ANY new rarity you invent!
+        dom.playerWeapon.className = 'avatar-layer layer-weapon'; // Wipes old classes clean
+        let wRarity = game.player.equips?.weapon?.rarity;
+        if (wRarity && !['Starter', 'Basic', 'Rare', 'Unique'].includes(wRarity)) {
+            dom.playerWeapon.classList.add(`weapon-aura-${wRarity.toLowerCase()}`);
+        }
+
+    } else if (dom.playerWeapon) { 
+        dom.playerWeapon.style.display = 'none'; 
+        game.player.currentWeaponSrc = ''; 
+        dom.playerWeapon.className = 'avatar-layer layer-weapon'; // Wipes classes clean
+    }
+}
+window.showAura = function(color) { const aura = document.getElementById('player-aura'); aura.className = `aura aura-${color}`; aura.style.animation = 'none'; void aura.offsetWidth; aura.style.animation = 'aura-burst 0.6s ease-out forwards'; }
+window.lastVoiceTime = 0;
+window.playVoice = function(className) { 
+    // 🛡️ STRICT AUDIO FIX: Prevent skill voice overlap
+    let now = Date.now();
+    if (now - window.lastVoiceTime < 500) return; 
+    window.lastVoiceTime = now;
+
+    let hairPrefix = window.charData.hairStyle === 'none' ? 'none' : `hair${window.charData.hairStyle}`; 
+    let formattedClass = className.replace(/\s+/g, '').toLowerCase(); 
+    let audio = new Audio(`skills/${hairPrefix}_${formattedClass}.mp3`); 
+    audio.volume = 0.8; 
+    audio.play().catch(e => {}); 
+}
+// 🎵 THE FIX: BOSS MUSIC ENGINE
+window.bossBgmTimeout = null;
+window.revertBGM = function() {
+    let isBossMap = safeMapData.id === 'trainingtavern' || safeMapData.id === 'hauntedhouse' || String(safeMapData.id).includes('dungeon');
+    if (currentTrackName === 'bossfight' && !isBossMap) {
+        window.playBGM(window.routeMapMusic(safeMapData.id));
+    }
+};
+
+window.triggerBossBGM = function(monster) {
+    if (!monster || (monster.category !== 'floor_boss' && monster.category !== 'mini_boss')) return;
+    if (currentTrackName !== 'bossfight') {
+        window.playBGM('bossfight');
+        if (dom.log) dom.log.innerText = `⚔️ EPIC ENCOUNTER: ${monster.name} ⚔️`;
+    }
+    // Keep music alive! If 10 seconds pass with no hits, revert to normal music.
+    clearTimeout(window.bossBgmTimeout);
+    window.bossBgmTimeout = setTimeout(window.revertBGM, 10000); 
+};
+// ==========================================
+// 🎨 UNIVERSAL CUSTOM PROMPT ENGINE
+// ==========================================
+window.customPrompt = function(message, callback) {
+    const modal = document.getElementById('custom-prompt-modal');
+    const msgEl = document.getElementById('custom-prompt-msg');
+    const inputEl = document.getElementById('custom-prompt-input');
+    const btnOk = document.getElementById('custom-prompt-ok');
+    const btnCancel = document.getElementById('custom-prompt-cancel');
+
+    if (!modal) return; // Failsafe if HTML is missing
+
+    // Set up the UI
+    msgEl.innerText = message;
+    inputEl.value = '';
+    modal.style.display = 'flex';
+    inputEl.focus();
+
+    // 🛡️ THE UI LAYER FIX: Force the prompt to the absolute front so movable windows don't cover it!
+    if (typeof window.bringWindowToFront === 'function') {
+        window.bringWindowToFront(modal);
+    }
+
+    // Clean up function to prevent double-firing
+    const cleanup = () => {
+        modal.style.display = 'none';
+        btnOk.onclick = null;
+        btnCancel.onclick = null;
+        inputEl.onkeydown = null;
+    };
+
+    // OK Button Logic
+    btnOk.onclick = () => {
+        const val = inputEl.value.trim();
+        cleanup();
+        if (val) callback(val);
+    };
+
+    // Cancel Button Logic
+    btnCancel.onclick = () => {
+        cleanup();
+    };
+
+    // Pressing 'Enter' triggers OK
+    inputEl.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            btnOk.click();
+        }
+        // Pressing 'Escape' triggers Cancel
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            btnCancel.click();
+        }
+    };
+};
+// ==========================================
+// 🎵 GLOBAL AUDIO & VOLUME ENGINE
+// ==========================================
+// 1. Load saved volume, safeguard against old "50" values instead of "0.5"
+window.gameVolume = localStorage.getItem('exonie_bgm_vol') !== null ? parseFloat(localStorage.getItem('exonie_bgm_vol')) : 0.5;
+if (window.gameVolume > 1) window.gameVolume = window.gameVolume / 100;
+
+// 2. Listen for the slider being dragged (Indestructible Event Delegation)
+document.addEventListener('input', (e) => {
+    if (e.target && e.target.id === 'bgm-volume-slider') {
+        let rawVal = parseFloat(e.target.value);
+        let newVol = rawVal > 1 ? rawVal / 100 : rawVal; // Safeguard
+        
+        window.gameVolume = newVol;
+        localStorage.setItem('exonie_bgm_vol', newVol); 
+        
+        let volDisplay = document.getElementById('vol-display');
+        if (volDisplay) volDisplay.innerText = Math.round(newVol * 100) + '%';
+        
+        if (window.currentBGM) {
+            window.currentBGM.volume = newVol;
+        }
+    }
+});
+
+// 🧭 MASTER MUSIC ROUTER: Decides which song to play based on Map ID
+window.routeMapMusic = function(mapId) {
+    if (!mapId) return 'town';
+    let mId = String(mapId).toLowerCase();
+
+    // 1. Hardcoded Exceptions
+    if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon')) return 'bossfight';
+    if (mId.includes('floor')) return 'floors';
+    if (mId.includes('home')) return 'home'; 
+    if (mId.includes('guildbase')) return 'guildbase';
+
+    // 2. Dynamic Fallback! 
+    // It returns the raw Map ID (like 'test1'). The playBGM function will try to play 'test1.mp3', 
+    // and if it doesn't exist, it will safely revert to 'town.mp3'!
+    return mId;
+};
+
+// 3. The Bulletproof Play Function with Auto-Fallback
+window.playBGM = function(trackName) {
+    if (!trackName) {
+        if (window.currentBGM) window.currentBGM.pause();
+        currentTrackName = "";
+        return;
+    }
+
+    if (window.currentBGM && currentTrackName === trackName && !window.currentBGM.paused) {
+        window.currentBGM.volume = window.gameVolume; 
+        return;
+    }
+
+    if (window.currentBGM) {
+        window.currentBGM.pause();
+        window.currentBGM.currentTime = 0;
+    }
+
+    let finalUrl = `music/${trackName}.mp3`;
+    console.log(`[AUDIO] Attempting to play: ${finalUrl} (Vol: ${window.gameVolume})`);
+
+    let newAudio = new Audio(finalUrl);
+    newAudio.loop = true;
+    newAudio.volume = window.gameVolume; 
+    
+    // 🚨 THE DYNAMIC FALLBACK: If the map's custom .mp3 is missing, default to Town!
+    newAudio.onerror = function() {
+        if (trackName !== 'town') {
+            console.warn(`[AUDIO] Missing file ${finalUrl}. Falling back to town.mp3!`);
+            window.playBGM('town'); 
+        }
+    };
+
+    window.currentBGM = newAudio;
+    currentTrackName = trackName;
+    
+    newAudio.play().catch(e => {
+        console.warn("BGM Auto-play blocked by browser. Interaction required.");
+    });
+};
+window.lastSFXTime = 0;
+window.playSFX = function(weaponSprite) { 
+    // 🛡️ STRICT AUDIO FIX: Prevent sound overlap without touching combat logic
+    let now = Date.now();
+    if (now - window.lastSFXTime < 400) return; 
+    window.lastSFXTime = now;
+
+    let sfx = 'bump'; 
+    if (weaponSprite && weaponSprite.includes('staff')) sfx = 'lightning'; 
+    if (weaponSprite && weaponSprite.includes('sword')) sfx = 'slash';
+    if (weaponSprite && weaponSprite.includes('dagger')) sfx = 'slash';
+    if (weaponSprite && weaponSprite.includes('pendant')) sfx = 'splash';
+    if (weaponSprite && weaponSprite.includes('gun')) sfx = 'gunshot'; 
+    let audio = new Audio(`music/${sfx}.mp3`); 
+    audio.volume = 0.5; 
+    audio.play().catch(e => {}); 
+};
+
+// ==========================================
+// 5. INVENTORY & STATS
+// ==========================================
+window.MAX_ENHANCE_BY_RARITY = {
+    Starter: 0,
+    Basic: 10,
+    Rare: 12,
+    Unique: 14,
+    Legendary: 15,
+    Godly: 20,
+    Divine: 25
+};
+
+window.sanitizeEquippedItem = function(item, expectedSlot) {
+    if (!item || typeof item !== 'object') return null;
+    if (item.type !== expectedSlot) return null;
+
+    const clean = JSON.parse(JSON.stringify(item));
+
+    // 🛡️ REMOVED: The frontend MAX_ENHANCE clamp is gone. It just reads whatever the item has.
+    clean.enhanceLevel = Number(clean.enhanceLevel || 0);
+
+    if (!clean.fixedStat || typeof clean.fixedStat !== 'object') clean.fixedStat = {};
+    if (!clean.randomStat || typeof clean.randomStat !== 'object') clean.randomStat = {};
+
+    // 🛡️ THE MIGRATION FIX: Client-side stat conversion
+    if (clean.stats) {
+        const statMap = { atk: 'attack', matk: 'magic', def: 'defense', spd: 'speed', hp: 'hp', int: 'int', str: 'str' };
+        for (let oldKey in statMap) {
+            if (clean.stats[oldKey] && clean.stats[oldKey] > 0) {
+                let newKey = statMap[oldKey];
+                clean.randomStat[newKey] = (clean.randomStat[newKey] || 0) + clean.stats[oldKey];
+                clean.stats[oldKey] = 0;
+            }
+        }
+    }
+
+    Object.keys(clean.fixedStat).forEach(k => {
+        if (typeof clean.fixedStat[k] !== 'number' || !Number.isFinite(clean.fixedStat[k])) clean.fixedStat[k] = 0;
+    });
+
+    Object.keys(clean.randomStat).forEach(k => {
+        if (typeof clean.randomStat[k] !== 'number' || !Number.isFinite(clean.randomStat[k])) clean.randomStat[k] = 0;
+    });
+
+    return clean;
+};
+
+window.getTotalStat = function(statName) {
+    if (!game.player || !game.player.baseStats) return 0;
+
+    let base = Number(game.player.baseStats[statName] || 0);
+
+    ['weapon', 'armor', 'leggings', 'necklace', 'ring', 'earrings'].forEach(slot => {
+        const eq = window.sanitizeEquippedItem(game.player.equips?.[slot], slot);
+        if (!eq) return;
+
+        if (typeof eq.fixedStat[statName] === 'number') base += eq.fixedStat[statName];
+        if (typeof eq.randomStat[statName] === 'number') base += eq.randomStat[statName];
+    });
+
+    // 🛡️ TERMINOLOGY SYNC: Apply Class Passives to Frontend UI
+    const pClass = game.player.baseStats.playerClass;
+
+    // Berserker: Bulk Up! (Lv.25+) -> +25% Base HP and Defense
+    if (pClass === 'Berserker' && game.player.level >= 25 && (statName === 'hp' || statName === 'defense')) {
+        base += Math.floor((Number(game.player.baseStats[statName]) || 0) * 0.25);
+    }
+
+    // Blademaster: Sharpen Up! (Lv.1+) -> +25% Base Attack
+    if (pClass === 'Blademaster' && statName === 'attack') {
+        base += Math.floor((Number(game.player.baseStats.attack) || 0) * 0.25);
+    }
+
+    return Math.max(0, base);
+};
+window.getAttackPower = function() { return window.getTotalStat('attack') + Math.floor(window.getTotalStat('str') / 2); }; 
+window.getMagicAttack = function() { return window.getTotalStat('magic') + Math.floor(window.getTotalStat('int') / 2); }; 
+window.getMaxHp = function() { return window.getTotalStat('hp'); }; 
+// 🛡️ RESTORED & SECURED: Visual Sync Poke for Party UI
+window.emitVitalsIfNeeded = function(force = false) {
+    if (!game.player || !socket) return;
+    
+    const now = Date.now();
+    const level = game.player.level;
+
+    // Only "poke" the server if the level changed, or if forced (Juice/Teleport), or every 5s
+    if (force || level !== lastVitalsSent.level || now - lastVitalsTs > 5000) {
+        
+        lastVitalsSent = { level: level };
+        lastVitalsTs = now;
+        
+        // We don't even send HP anymore. The server already knows it!
+        socket.emit('playerVitals', { level: level });
+    }
+};
+window.getDefense = function() { let def = window.getTotalStat('defense'); if (game.player.tauntBuffUntil && Date.now() < game.player.tauntBuffUntil) { def *= 3; } return def; };
+window.getSpeed = function() { return window.getTotalStat('speed'); }; 
+window.getBaseStat = function(lvl) { if (lvl >= 50) { let extraTicks = Math.floor((lvl - 50) / 5); return 100 + (extraTicks * 3); } if (lvl >= 45) return 45; if (lvl >= 40) return 40; if (lvl >= 35) return 30; if (lvl >= 30) return 27; if (lvl >= 25) return 22; if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; if (lvl >= 5) return 8; return 5; }
+window.addLoot = function(item) {
+    if (!item) return;
+
+    // 🛡️ YOUR LOOT FILTER STAYS HERE: Checks the UI boxes first!
+    if (!window.acceptsLootRarity(item)) {
+        if (dom.log) dom.log.innerText = `Ignored ${item.rarity || 'Basic'} drop: ${item.name}`;
+        return;
+    }
+
+    item.quantity = item.quantity || 1;
+
+    if (item.type === 'potion' || item.type === 'material' || item.type === 'consumable') {
+        const inv = game.player.inventory || [];
+        let existingIndex = inv.findIndex(i => i && i.name === item.name);
+        if (existingIndex !== -1) {
+            game.player.inventory[existingIndex].quantity += item.quantity;
+            dom.log.innerText = `Looted: ${item.name} (x${game.player.inventory[existingIndex].quantity})!`;
+            if (isInventoryOpen) window.renderInventory();
+            
+            // 🛡️ THE FIX: Removed the hardcoded rarity block. If the filter allowed it, SAVE IT.
+            DatabaseManager.savePlayerData(game.player);
+            return;
+        }
+    }
+
+    const inv = game.player.inventory || [];
+    const emptySlot = inv.findIndex(i => i === null);
+    if (emptySlot !== -1) {
+        game.player.inventory[emptySlot] = item;
+        dom.log.innerText = `Looted: ${item.name}!`;
+        if (isInventoryOpen) window.renderInventory();
+        
+        // 🛡️ THE FIX: Removed the hardcoded rarity block. If the filter allowed it, SAVE IT.
+        DatabaseManager.savePlayerData(game.player);
+    } else {
+        dom.log.innerText = `Inventory full! Lost ${item.name}.`;
+    }
+}
+
+window.getItemTooltip = function(item) { 
+    if(!item) return ""; 
+    let nameClass = item.rarity === "Godly" ? "rarity-godly" : (item.rarity === "Divine" ? "rarity-divine-text" : "");
+    let html = `<strong class="${nameClass}" style="color:${item.color}; font-size: 13px;">${item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name}</strong><br><span style="color:#888;">Lv. ${item.level || 1} ${item.rarity || 'Normal'}</span><br>`; 
+    
+   // 💰 SELL PRICE DISPLAY (For Gold Bars and high-value loot)
+    if (item.sellPrice) {
+        html += `<span style="color:#FFD700; font-weight:bold; font-size:14px; text-shadow: 0 0 5px rgba(255,215,0,0.5);">Value: ${item.sellPrice.toLocaleString()} Gold</span><br>`;
+    }
+
+    // 🛡️ Trade/Untradeable tags
+    if ((item.rarity === 'Godly' || item.rarity === 'Divine') && item.enhanceLevel > 0) {
+        html += `<span style="color:#f44336; font-size:11px; font-weight:bold; letter-spacing:1px;">[UNTRADEABLE]</span><br>`;
+    } else if (item.type === 'aura' && (item.isSeasonal || String(item.name).includes('Easter'))) {
+        html += `<span style="color:#4CAF50; font-size:11px; font-weight:bold; letter-spacing:1px; text-shadow: 0 0 5px #4CAF50;">[TRADEABLE COSMETIC]</span><br>`;
+    }
+    html += `<br>`;
+    if(item.type === 'material') return html + `<span style="color:#aaa;"><em>${item.description}</em></span>`; 
+if(item.type === 'gem') return html + `<span style="color:#00ffff;"><em>${item.description}</em></span><br>`;
+    if(item.type === 'potion') return html + `Heals 100 HP`; 
+    if(item.type === 'consumable') return html + `<span style="color:#ffeb3b;"><em>${item.description}</em></span>`;
+
+    // 💎 THE FIX: Visual indicator for Power Gem Sockets
+    if (['necklace', 'ring', 'earrings'].includes(item.type)) {
+        let maxGems = { "Basic": 1, "Rare": 1, "Unique": 2, "Legendary": 3, "Godly": 4, "Divine": 5 }[item.rarity] || 0;
+        if (maxGems > 0) {
+            let count = item.gemCount || 0;
+            let sockets = "";
+            for(let i = 0; i < maxGems; i++) {
+                sockets += (i < count) ? "♦" : "♢";
+            }
+            html += `<span style="color:#00ffff; font-size:13px; letter-spacing:2px;">Sockets: ${sockets}</span><br>`;
+        }
+    }
+
+    if(item.fixedStat) { for(let key in item.fixedStat) html += `+${item.fixedStat[key]} ${key.toUpperCase()}<br>`; }
+    if(item.randomStat) { for(let key in item.randomStat) html += `<span style="color:#4CAF50;">+${item.randomStat[key]} ${key.toUpperCase()} (Bonus)</span><br>`; } 
+    return html; 
+}
+
+window.loadLootFilter = function() {
+    let saved = null;
+    try {
+        saved = JSON.parse(localStorage.getItem('exonie_loot_filter') || 'null');
+    } catch(e) {}
+
+    const defaults = {
+        Starter: true,
+        Basic: true,
+        Rare: true,
+        Unique: true,
+        Legendary: true,
+        Godly: true
+    };
+
+    game.player.lootFilter = Object.assign({}, defaults, saved || {});
+
+    Object.keys(defaults).forEach(rarity => {
+        const el = document.getElementById(`loot-filter-${rarity}`);
+        if (el) el.checked = !!game.player.lootFilter[rarity];
+    });
+};
+
+window.updateLootFilter = function() {
+    const rarities = ['Starter', 'Basic', 'Rare', 'Unique', 'Legendary', 'Godly'];
+    if (!game.player.lootFilter) game.player.lootFilter = {};
+
+    rarities.forEach(rarity => {
+        const el = document.getElementById(`loot-filter-${rarity}`);
+        game.player.lootFilter[rarity] = !!(el && el.checked);
+    });
+
+    localStorage.setItem('exonie_loot_filter', JSON.stringify(game.player.lootFilter));
+
+    if (socket) {
+        socket.emit('updateLootFilter', game.player.lootFilter);
+    }
+
+    if (dom.log) dom.log.innerText = "Loot filter updated.";
+};
+
+window.acceptsLootRarity = function(item) {
+    if (!item) return false;
+    const rarity = item.rarity || 'Basic';
+    if (!game.player.lootFilter) return true;
+    if (typeof game.player.lootFilter[rarity] === 'undefined') return true;
+    return !!game.player.lootFilter[rarity];
+};
+
+window.toggleInventory = function() {
+    isInventoryOpen = !isInventoryOpen;
+    if (isInventoryOpen) {
+        window.renderInventory();
+        dom.invScreen.style.display = 'block';
+        if (window.isMobileUI()) {
+            window.enableMobileWindowControls(dom.invScreen);
+            window.bringWindowToFront(dom.invScreen);
+            window.clampWindowToViewport(dom.invScreen);
+        }
+    } else {
+        dom.invScreen.style.display = 'none';
+        document.getElementById('inv-context-menu').style.display = 'none';
+    }
+}
+window.renderInventory = function() {
+    const grid = document.getElementById('inventory-grid'); if (!grid) return; grid.innerHTML = '';
+    const inv = game.player.inventory || new Array(20).fill(null);
+    for (let i = 0; i < inv.length; i++) {
+        const slot = document.createElement('div'); slot.className = 'inv-slot'; const item = inv[i];
+        
+        // 🎒 MAKE SLOT DRAGGABLE AND DROPPABLE
+        slot.draggable = true;
+        slot.ondragstart = (e) => { e.dataTransfer.setData('text/plain', i); };
+        slot.ondragover = (e) => { e.preventDefault(); };
+        slot.ondrop = (e) => { e.preventDefault(); window.swapSlots(parseInt(e.dataTransfer.getData('text/plain')), i); };
+
+        if (item) {
+            if (inTradeMode) { slot.style.border = "1px solid #2196F3"; slot.onclick = () => window.addTradeItem(i); } 
+            else if (isEnhancing) { slot.style.border = "1px dashed #ffeb3b"; slot.onclick = (e) => window.attemptEnhance(i, e); } 
+           // --- LINES BEFORE ---
+            else if (window.isStorageOpen) { 
+                slot.style.border = "1px dashed #E040FB"; 
+                slot.onclick = () => { if(socket) socket.emit('transferToStorage', i); }; 
+            } // 🧰 ADDED THIS BLOCK FOR STORAGE
+            else if (window.isApplyingAura) {
+                slot.style.border = "1px dashed #00ffff"; 
+                slot.onclick = (e) => {
+                    if (game.player.inventory[activeInvIndex]?.type === 'gem') window.attemptApplyGem(i, e);
+                    else window.attemptApplyAura(i, e);
+                }; 
+            }
+            else if (window.isApplyingForger) {
+                slot.style.border = "1px dashed #E040FB";
+                slot.onclick = (e) => window.openForgerStatSelect(i, e);
+            }
+            else { 
+                slot.style.borderBottom = `3px solid ${item.color || '#fff'}`; 
+                slot.onclick = (e) => {
+                // --- LINES AFTER ---
+                    // 🔗 SHIFT+CLICK TO LINK ITEM
+                    if (e.shiftKey) {
+                        window.linkItemToChat(i);
+                    } else {
+                        window.openItemAction(i, e);
+                    }
+                }; 
+           }
+            let nameSpan = document.createElement('span');
+            nameSpan.innerText = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name;
+            if (item.rarity === 'Divine') nameSpan.className = 'rarity-divine-text';
+            slot.appendChild(nameSpan);
+            let tip = document.createElement('div'); tip.className = 'tooltip'; tip.innerHTML = window.getItemTooltip(item); slot.appendChild(tip);
+            if (item.quantity && item.quantity > 1) { let q = document.createElement('span'); q.className = 'inv-qty'; q.innerText = 'x' + item.quantity; slot.appendChild(q); }
+        }
+        grid.appendChild(slot);
+    }
+    window.updateEquipmentDisplay();
+    window.updatePotionHotbar();
+}
+
+window.swapSlots = function(fromIndex, toIndex) {
+    if (fromIndex === toIndex || isNaN(fromIndex) || isNaN(toIndex) || fromIndex < 0 || toIndex < 0) return;
+    if (socket) socket.emit('swapInventory', { from: fromIndex, to: toIndex });
+    
+    // Optimistic UI Swap for instant feel
+    let temp = game.player.inventory[fromIndex];
+    game.player.inventory[fromIndex] = game.player.inventory[toIndex];
+    game.player.inventory[toIndex] = temp;
+    window.renderInventory();
+}
+
+window.openItemAction = function(index, e) {
+    e.stopPropagation(); activeInvIndex = index; const menu = document.getElementById('inv-context-menu'); const item = game.player.inventory[index]; if (!item) return;
+    const isPet = item.type === 'aura' && ['fox', 'owl', 'wisp', 'egg', 'void'].includes(item.auraId);
+    if (item.type === 'gem') {
+        document.getElementById('ctx-btn-equip').innerText = "Socket Gem";
+        window.isApplyingAura = true; // Reusing the aura selection border logic
+        dom.log.innerText = `Select an Accessory (Necklace, Ring, Earrings) to socket the gem!`;
+    } else {
+        document.getElementById('ctx-btn-equip').innerText = (item.type === 'potion' || item.type === 'consumable') ? "Use" : (item.type === 'material' ? "Enhance" : (item.type === 'aura' ? (isPet ? "Equip Pet" : "Apply Aura") : (item.type === 'forger' ? "Use Forger" : "Equip")));
+    }
+    document.getElementById('ctx-btn-sell').style.display = isShopping ? 'block' : 'none';
+    document.getElementById('ctx-btn-extract-aura').style.display = ((item.type === 'armor' || item.type === 'leggings') && item.aura) ? 'block' : 'none';
+    
+    // Show Split button only if there is a stack
+    document.getElementById('ctx-btn-split').style.display = (item.quantity && item.quantity > 1) ? 'block' : 'none';
+
+    menu.style.display = 'flex'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
+}
+
+window.actionSplit = function(e) { 
+    if (e) e.stopPropagation(); 
+    if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; 
+
+    let item = game.player.inventory[activeInvIndex]; 
+    let currentQty = Number(item.quantity) || 1;
+    
+    if (currentQty <= 1) {
+        if (dom.log) dom.log.innerText = "❌ Cannot split a single item.";
+        return; 
+    }
+    
+    let capturedIndex = activeInvIndex;
+    let maxSplit = currentQty - 1;
+
+    window.customPrompt(`How many to split off? (Max: ${maxSplit})`, function(val) { 
+        let amt = parseInt(val); 
+        
+        if (isNaN(amt) || amt <= 0) {
+            if (dom.log) dom.log.innerText = "❌ Invalid split amount!";
+            return;
+        }
+        
+        if (amt > maxSplit) {
+            if (dom.log) dom.log.innerText = `❌ You can only split up to ${maxSplit} items!`;
+            return;
+        }
+
+        if (socket) {
+            socket.emit('splitInventoryItem', { index: capturedIndex, amount: amt }); 
+            if (dom.log) dom.log.innerText = "⏳ Splitting stack...";
+        }
+    }); 
+    
+    document.getElementById('inv-context-menu').style.display = 'none'; 
+    activeInvIndex = -1; 
+}
+
+window.linkItemToChat = function(index) {
+    let item = game.player.inventory[index];
+    if (!item) return;
+    if (socket) socket.emit('linkItem', { item: item });
+    document.getElementById('inv-context-menu').style.display = 'none';
+}
+
+window.showLinkedItem = function(jsonStr) {
+    try {
+        let item = JSON.parse(decodeURIComponent(jsonStr));
+        dom.inspect.style.display = 'block'; 
+        dom.inspectTitle.innerText = `Linked Item Inspect`;
+        
+        let html = `<div class="inspect-equip" style="border: 2px solid ${item.color || '#fff'}; box-shadow: 0 0 15px ${item.color || '#fff'};">${window.getItemTooltip(item)}</div>`;
+        dom.inspectContent.innerHTML = html;
+        
+        if (window.isMobileUI()) {
+            window.enableMobileWindowControls(dom.inspect);
+            window.bringWindowToFront(dom.inspect);
+            window.clampWindowToViewport(dom.inspect);
+        }
+    } catch(e) { console.error("Could not parse linked item."); }
+}
+
+window.actionEquip = function(e) { 
+    if (e) e.stopPropagation(); if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; 
+    let item = game.player.inventory[activeInvIndex]; 
+    
+    if (item.type === 'material') { 
+        isEnhancing = true; dom.log.innerText = `Select equipment to enhance!`; window.renderInventory(); 
+    } else if (item.type === 'aura') { 
+        window.isApplyingAura = true; 
+        const isPet = ['fox', 'owl', 'wisp', 'egg', 'void'].includes(item.auraId);
+        dom.log.innerText = isPet ? `Select Leggings to equip your Pet!` : `Select an Armor to apply the Aura!`; 
+        window.renderInventory(); 
+    } else if (item.type === 'gem') {
+        window.isApplyingAura = true; 
+        dom.log.innerText = `Select an Accessory (Necklace, Ring, Earrings) to socket the gem!`;
+        window.renderInventory();
+    
+    // 🌟 THE FIX: Intercept the Forger and turn on the selection mode!
+    } else if (item.type === 'forger') {
+        window.isApplyingForger = true;
+        dom.log.innerText = `Select an equipment piece to reroll its stats!`;
+        window.renderInventory();
+        
+    } else { 
+        window.useItem(activeInvIndex); 
+    } 
+    document.getElementById('inv-context-menu').style.display = 'none'; 
+}
+window.attemptApplyAura = function(targetIndex, e) { 
+    e.stopPropagation(); 
+    if (socket) socket.emit('requestApplyAura', { stoneIndex: activeInvIndex, targetIndex: targetIndex }); 
+    window.isApplyingAura = false; 
+    window.renderInventory(); 
+}
+
+window.extractAura = function(e) { 
+    if (e) e.stopPropagation(); 
+    if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; 
+    if (socket) socket.emit('requestExtractAura', { targetIndex: activeInvIndex }); 
+    document.getElementById('inv-context-menu').style.display = 'none'; 
+    activeInvIndex = -1;
+}
+
+window.actionSell = function(e) { 
+    if (e) e.stopPropagation(); 
+    if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; 
+
+    let item = game.player.inventory[activeInvIndex];
+    if (!item || !item.id) {
+        dom.log.innerText = "That item cannot be sold right now.";
+        document.getElementById('inv-context-menu').style.display = 'none';
+        activeInvIndex = -1;
+        return;
+    }
+
+    if (item.type === 'aura') {
+        dom.log.innerText = "Cosmetics and pets cannot be sold!";
+        document.getElementById('inv-context-menu').style.display = 'none';
+        activeInvIndex = -1;
+        return;
+    }
+
+    if (socket) {
+        socket.emit('requestSell', { 
+            itemId: item.id,
+            index: activeInvIndex
+        });
+    }
+
+    document.getElementById('inv-context-menu').style.display = 'none'; 
+    activeInvIndex = -1;
+}
+window.actionThrow = function(e) { 
+    if (e) e.stopPropagation(); 
+    if (activeInvIndex === -1 || !game.player.inventory[activeInvIndex]) return; 
+    if (socket) socket.emit('requestThrowItem', { index: activeInvIndex }); 
+    dom.log.innerText = `Threw away item.`;
+    document.getElementById('inv-context-menu').style.display = 'none'; 
+    activeInvIndex = -1;
+}
+
+// 🛡️ THE CRISP INVENTORY FIX: Move logic to server
+window.unequipItem = function(slot) {
+    if (!game.player.equips || !game.player.equips[slot]) return;
+
+    // Optimistic UI: Makes the button feel instantly responsive
+    const eqBox = document.getElementById(`eq-${slot}-slot`);
+    if (eqBox) eqBox.innerText = "...";
+
+    // Send it to the server so the backend memory stays perfectly synced!
+    if (socket) socket.emit('requestUnequip', { slot: slot });
+};
+
+window.useRevivalJuice = function(invIndex = -1) {
+    if (!game.isGhost) {
+        dom.log.innerText = "You can only use this when you are dead!";
+        return;
+    }
+
+    let juiceIndex = invIndex;
+    if (juiceIndex === -1) {
+        juiceIndex = game.player.inventory.findIndex(i => i && i.name === "Revival Juice");
+    }
+
+    if (juiceIndex === -1) {
+        dom.log.innerText = "No Revival Juice found.";
+        return;
+    }
+
+    if (socket) {
+        socket.emit('useRevivalJuice', { invIndex: juiceIndex });
+    }
+};
+window.useItem = function(index) {
+    const item = game.player.inventory[index];
+    if (!item) return;
+
+    // 🛡️ THE FIX: Block ghosts from using items (except Revival Juice!)
+    if (game.isGhost && item.name !== "Revival Juice") {
+        if (dom.log) dom.log.innerText = "You cannot use items while dead!";
+        return;
+    }
+    
+    // ⚔️ TAVERN ANTI-CHEAT: Block Potions and Consumables
+    if (safeMapData.id === 'trainingtavern' && (item.type === 'potion' || item.type === 'consumable')) {
+        if (dom.log) dom.log.innerText = "Items are forbidden in the Training Tavern!";
+        return;
+    }
+
+    if (item.level && item.level > game.player.level) {
+        if (dom.log) dom.log.innerText = `Level ${item.level} required!`;
+        return;
+    }
+
+    if (item.type === 'potion') {
+    if (Date.now() < window.potionCooldownReadyAt) {
+        if (dom.log) dom.log.innerText = "Potion is on cooldown!";
+        return;
+    }
+
+    window.potionCooldownReadyAt = Date.now() + 5000;
+    if (typeof window.updateHotbarCooldowns === 'function') window.updateHotbarCooldowns();
+
+    // 🌟 OPTIMISTIC UI: heal locally too, so maze HP bar moves instantly
+    // 🛡️ CORRUPTION FIX: Hardcode 100 here as well!
+    const healAmount = 100;
+    const trueMaxHp = window.getMaxHp() || 100;
+    game.player.currentHp = Math.min(trueMaxHp, (game.player.currentHp || 0) + healAmount);
+
+    item.quantity = (item.quantity || 1) - 1;
+    if (item.quantity <= 0) game.player.inventory[index] = null;
+
+    if (typeof window.updateUI === 'function') window.updateUI();
+    if (typeof window.updatePotionHotbar === 'function') window.updatePotionHotbar();
+    if (typeof isInventoryOpen !== 'undefined' && isInventoryOpen && typeof window.renderInventory === 'function') window.renderInventory();
+}
+
+    // 🛡️ THE FIX: Let the server handle ALL usable items instantly!
+   // 🛡️ THE FIX: Let the server handle ALL usable items instantly!
+    if (['potion', 'consumable', 'weapon', 'armor', 'leggings', 'necklace', 'ring', 'earrings'].includes(item.type)) {
+        if (item.name === "Revival Juice") {
+            window.useRevivalJuice(index);
+       } else if (item.name === 'Name Change Ticket') {
+            window.customPrompt("Enter your new character name (Max 16 chars):", function(newName) {
+                if (newName && newName.trim().length >= 3 && newName.trim().length <= 16) {
+                    if (socket) socket.emit('requestNameChange', { index: index, newName: newName.trim() });
+                } else if (newName) {
+                    if (dom.log) dom.log.innerText = "Name must be between 3 and 16 characters.";
+                }
+            });
+        } else if (item.name === 'Appearance Reroll Ticket') {
+            document.getElementById('char-name-input').style.display = 'none'; // Hide name input
+            document.getElementById('creation-screen').classList.add('active'); // Show character editor
+            
+            // Temporarily swap the submit button's behavior
+            const createBtn = document.getElementById('creation-screen').querySelector('.btn');
+            const originalClick = createBtn.onclick;
+            
+            createBtn.onclick = function() {
+                if (socket) socket.emit('requestAppearanceChange', { index: index, charData: window.charData });
+                document.getElementById('creation-screen').classList.remove('active');
+                document.getElementById('char-name-input').style.display = 'block'; // Reset for future use
+                createBtn.onclick = originalClick; // Restore original function
+            };
+        } else {
+            if (socket) socket.emit('useInventoryItem', { index });
+        }
+        return;
+    }
+
+    if (dom.log) dom.log.innerText = "That item cannot be equipped.";
+};
+
+window.usePotionHotkey = function() {
+    if (window.isLoading || game.isGhost) {
+        if (dom.log) dom.log.innerText = "You cannot use potions right now.";
+        return;
+    }
+
+    const inv = game.player.inventory || [];
+    const potionIndex = inv.findIndex(item =>
+        item &&
+        item.type === 'potion' &&
+        item.name === 'Health Potion' &&
+        (item.quantity || 1) > 0
+    );
+
+    if (potionIndex === -1) {
+        if (dom.log) dom.log.innerText = "No Health Potions in inventory.";
+        return;
+    }
+
+    window.useItem(potionIndex);
+};
+window.attemptEnhance = function(targetIndex, e) { 
+    e.stopPropagation(); 
+    let stone = game.player.inventory[activeInvIndex]; 
+    let targetItem = game.player.inventory[targetIndex]; 
+    
+    if (!stone || !targetItem || stone.type !== 'material' || targetItem.type === 'material' || targetItem.type === 'potion' || targetItem.rarity === "Starter") { 
+        isEnhancing = false; window.renderInventory(); return; 
+    } 
+    
+    // 🛡️ THE FIX: Divine Enhancement Stones ignore the level check!
+    let isDivineMatch = (stone.rarity === 'Divine' && targetItem.rarity === 'Divine' && stone.name === 'Divine Enhancement Stone');
+    let isNormalMatch = (stone.rarity === targetItem.rarity && stone.level === targetItem.level && stone.name !== 'Divine Enhancement Stone');
+    
+    let maxEnhance = window.MAX_ENHANCE_BY_RARITY[targetItem.rarity] || 20;
+
+    if ((!isDivineMatch && !isNormalMatch) || (targetItem.enhanceLevel || 0) >= maxEnhance) { 
+        isEnhancing = false; window.renderInventory(); return; 
+    } 
+    
+    if(socket) socket.emit('requestEnhance', { stoneIndex: activeInvIndex, targetIndex: targetIndex }); 
+    isEnhancing = false; window.renderInventory(); 
+}
+window.updateEquipmentDisplay = function() { 
+    try { 
+        // 🛡️ DYNAMIC SPRITE FIX: Force weapon sprite to match rarity perfectly!
+        if (game.player.equips?.weapon?.sprite && game.player.equips?.weapon?.rarity) {
+            let w = game.player.equips.weapon;
+            let baseType = 'sword';
+            let rawLower = String(w.sprite).toLowerCase();
+            if (rawLower.includes('staff')) baseType = 'staff';
+            else if (rawLower.includes('pendant')) baseType = 'pendant';
+            else if (rawLower.includes('gun')) baseType = 'gun';
+            else if (rawLower.includes('dagger')) baseType = 'dagger';
+            else if (rawLower.includes('touchpad')) baseType = 'touchpad'; // 💻 ADDED TOUCHPAD
+            
+            let rarityStr = String(w.rarity).toLowerCase();
+            if (rarityStr === 'starter') rarityStr = 'basic';
+            
+            w.sprite = `${rarityStr}${baseType}`; // 🛡️ FIX: Forces 'divinesword', 'godlygun', etc.
+        }
+
+        const buildDisplayStr = (item) => item ? (item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name) : 'None';
+        let w = game.player.equips.weapon; let a = game.player.equips.armor; let l = game.player.equips.leggings;
+        let nk = game.player.equips.necklace; let rg = game.player.equips.ring; let er = game.player.equips.earrings;
+        
+        const setEq = (id, item) => { let el = document.getElementById(id); if(!el) return; el.innerText = buildDisplayStr(item); if(item) el.style.color = item.color; else el.style.color = ''; };
+        setEq('eq-weapon-slot', w); setEq('eq-armor-slot', a); setEq('eq-leggings-slot', l);
+        setEq('eq-necklace-slot', nk); setEq('eq-ring-slot', rg); setEq('eq-earrings-slot', er);
+
+        dom.playerArmor.style.display = 'none'; dom.playerLeggings.style.display = 'none'; 
+        const createTip = (item, boxId) => { let box = document.getElementById(boxId); if(!box) return; let tip = box.querySelector('.tooltip'); if(!tip) { tip = document.createElement('div'); tip.className = 'tooltip'; box.appendChild(tip); } if(item) tip.innerHTML = window.getItemTooltip(item); else tip.remove(); }; 
+        createTip(w, 'eq-box-weapon'); createTip(a, 'eq-box-armor'); createTip(l, 'eq-box-leggings');
+        createTip(nk, 'eq-box-necklace'); createTip(rg, 'eq-box-ring'); createTip(er, 'eq-box-earrings');
+        
+        let newMax = window.getMaxHp(); if(game.player.currentHp > newMax) game.player.currentHp = newMax; window.updateUI(); 
+    } catch(err) {} 
+}
+
+window.updateUI = function() { 
+    document.getElementById('ui-hp-text').innerText = `${game.player.currentHp} / ${window.getMaxHp()}`; 
+    document.getElementById('ui-hp-bar').style.width = (game.player.currentHp / Math.max(1, window.getMaxHp())) * 100 + '%'; 
+    document.getElementById('ui-hp-bar').style.backgroundColor = (game.player.currentHp < (window.getMaxHp()*0.3)) ? '#f44336' : '#4CAF50'; 
+    document.getElementById('ui-level-text').innerText = game.player.level; 
+    document.getElementById('ui-exp-text').innerText = `${game.player.exp} / ${game.player.maxExp}`; 
+    document.getElementById('ui-exp-bar').style.width = (game.player.exp / Math.max(1, game.player.maxExp)) * 100 + '%'; 
+    document.getElementById('ui-gold-text').innerText = game.player.gold || 0; 
+    
+    if (game.party && game.party.members) { 
+        let me = game.party.members.find(x => x.id === game.player.id); 
+        if (me) { 
+            me.currentHp = game.player.currentHp; 
+            me.maxHp = window.getMaxHp(); 
+            me.level = game.player.level; 
+            window.renderPartyUI(); 
+        }
+    } 
+    // 🏆 THE FIX: Keep the rank aura active every time the UI refreshes
+    if (typeof window.updateNameplateRanks === 'function') window.updateNameplateRanks();
+}
+window.updatePotionHotbar = function() {
+    const countEl = document.getElementById('hotbar-potion-count');
+    const slotEl = document.getElementById('hotbar-3');
+    if (!countEl || !slotEl) return;
+
+    const inv = game.player.inventory || [];
+    let totalPotions = 0;
+
+    inv.forEach(item => {
+        if (item && item.type === 'potion' && item.name === 'Health Potion') {
+            totalPotions += (item.quantity || 1);
+        }
+    });
+
+    countEl.innerText = totalPotions;
+
+    if (totalPotions > 0) {
+        slotEl.style.opacity = '1';
+        slotEl.style.borderColor = '#4CAF50';
+    } else {
+        slotEl.style.opacity = '0.6';
+        slotEl.style.borderColor = '#555';
+    }
+};
+window.toggleStats = function() { if (dom.statScreen.style.display === 'block') { dom.statScreen.style.display = 'none'; } else { document.getElementById('stat-lvl').innerText = game.player.level; document.getElementById('stat-maxhp').innerText = window.getMaxHp(); document.getElementById('stat-atk').innerText = window.getAttackPower(); document.getElementById('stat-matk').innerText = window.getMagicAttack(); document.getElementById('stat-def').innerText = window.getDefense(); document.getElementById('stat-spd').innerText = window.getSpeed(); document.getElementById('stat-str').innerText = window.getTotalStat('str'); document.getElementById('stat-int').innerText = window.getTotalStat('int'); dom.statScreen.style.display = 'block'; if (window.isMobileUI()) {
+    window.enableMobileWindowControls(dom.statScreen);
+    window.bringWindowToFront(dom.statScreen);
+    window.clampWindowToViewport(dom.statScreen);
+} } }
+window.checkLevelUp = function() { if(game.player.level >= 80) return; while(game.player.exp >= game.player.maxExp && game.player.level < 80) { game.player.exp -= game.player.maxExp; game.player.level++; game.player.maxExp += (game.player.level >= 71 ? 10000 : game.player.level >= 61 ? 7500 : game.player.level >= 51 ? 5000 : game.player.level >= 41 ? 1500 : game.player.level >= 31 ? 1000 : game.player.level >= 21 ? 750 : game.player.level >= 11 ? 500 : 100); game.player.baseStats.hp += 10; game.player.baseStats.str += 2; game.player.baseStats.int += 2; game.player.currentHp = window.getMaxHp(); const txt = document.createElement('div'); txt.className = 'level-up-text'; txt.innerText = "LEVEL UP!"; txt.style.left = (game.player.x - 20) + 'px'; txt.style.top = (game.player.y - 40) + 'px'; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 2000); } window.updateUI(); window.updateSkillMenu(); DatabaseManager.savePlayerData(game.player); }
+
+// ==========================================
+// 6. ADMIN & MAP TOOLS
+// ==========================================
+window.buildCollisionLayers = function() { const layer = document.getElementById('collision-layers'); if (!layer) return; layer.innerHTML = ''; const cols = safeMapData.collisions || []; cols.forEach(box => { const div = document.createElement('div'); div.className = 'collision-box'; div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px'; layer.appendChild(div); }); const tps = safeMapData.teleports || []; tps.forEach(box => { const div = document.createElement('div'); div.className = 'collision-box'; div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px'; if (window.adminMode) { 
+    const isSub = isNaN(parseInt(box.portalId));
+    div.style.background = isSub ? 'rgba(156, 39, 176, 0.4)' : 'rgba(0, 0, 255, 0.4)'; 
+    div.style.border = isSub ? '2px dashed #9c27b0' : '2px dashed #00f'; 
+    div.innerText = box.portalId || '?'; 
+    div.style.color = 'white'; div.style.display = 'flex'; div.style.justifyContent = 'center'; div.style.alignItems = 'center'; div.style.fontSize = '24px'; div.style.fontWeight = 'bold'; 
+}layer.appendChild(div); }); if (window.adminMode) { if (safeMapData.spawnX !== undefined) { const sm = document.createElement('div'); sm.className = 'admin-spawn-marker'; sm.style.left = safeMapData.spawnX + 'px'; sm.style.top = safeMapData.spawnY + 'px'; sm.innerText = 'S'; layer.appendChild(sm); } (safeMapData.normalSpawns || []).forEach(sp => { const sm = document.createElement('div'); sm.className = 'admin-spawn-marker'; sm.style.left = sp.x + 'px'; sm.style.top = sp.y + 'px'; sm.style.borderColor = '#0f0'; sm.innerText = 'M'; layer.appendChild(sm); }); (safeMapData.miniBossSpawns || []).forEach(sp => { const sm = document.createElement('div'); sm.className = 'admin-spawn-marker'; sm.style.left = sp.x + 'px'; sm.style.top = sp.y + 'px'; sm.style.borderColor = '#ff9800'; sm.innerText = 'MB'; layer.appendChild(sm); }); (safeMapData.floorBossSpawns || []).forEach(sp => { const sm = document.createElement('div'); sm.className = 'admin-spawn-marker'; sm.style.left = sp.x + 'px'; sm.style.top = sp.y + 'px'; sm.style.borderColor = '#9c27b0'; sm.innerText = 'FB'; layer.appendChild(sm); }); } }
+window.saveMapToServer = function() { let mapId = safeMapData.id || 'town'; let varName = mapId === 'town' ? 'townMapData' : mapId + 'MapData'; let str = `var ${varName} = ` + JSON.stringify(safeMapData, null, 4) + `;\nif(typeof window !== 'undefined') window['${varName}'] = ${varName};`; dom.adminOutput.value = str; if(socket) socket.emit('saveMapFile', { mapId: mapId, content: str }); dom.log.innerText = "Map saved to server!"; }
+dom.world.addEventListener('contextmenu', (e) => { if (window.adminMode) { e.preventDefault(); } });
+let isAdminDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
+let dragBoxElement = null;
+let isDrawingPortal = false;
+
+dom.world.addEventListener('mousedown', (e) => { 
+    if (!window.adminMode) return;
+    
+    const rect = dom.world.getBoundingClientRect(); 
+    const hitX = Math.round((e.clientX - rect.left) / CAMERA_ZOOM); 
+    const hitY = Math.round((e.clientY - rect.top) / CAMERA_ZOOM); 
+
+    // RIGHT CLICK: Delete Object
+    if (e.button === 2) { 
+        let closestDist = 40; let targetArray = null; let targetIndex = -1; 
+        const checkNearest = (arr) => { if (!arr) return; arr.forEach((item, index) => { let dist = Math.hypot(hitX - item.x, hitY - item.y); if (dist < closestDist) { closestDist = dist; targetArray = arr; targetIndex = index; } }); }; 
+        const checkInsideBox = (arr) => { if (!arr) return; arr.forEach((item, index) => { if (item.w && item.h) { if (hitX >= item.x && hitX <= item.x + item.w && hitY >= item.y && hitY <= item.y + item.h) { targetArray = arr; targetIndex = index; } } }); }; 
+        
+        checkInsideBox(safeMapData.collisions); 
+        if (targetIndex === -1) checkInsideBox(safeMapData.teleports); 
+        if (targetIndex === -1) { checkNearest(safeMapData.normalSpawns); checkNearest(safeMapData.miniBossSpawns); checkNearest(safeMapData.floorBossSpawns); } 
+        
+        if (targetIndex !== -1) { 
+            targetArray.splice(targetIndex, 1); 
+            window.buildCollisionLayers(); 
+            window.copyAdminData(); 
+            dom.log.innerText = `Deleted map object at ${hitX}, ${hitY}`; 
+        } else { 
+            dom.log.innerText = "No object here to delete."; 
+        } 
+        return; 
+    } 
+
+    // 🌟 Z / X / C MONSTER SPAWNERS 🌟
+    if (e.button === 0 && (game.keys.z || game.keys.x || game.keys.c)) {
+        const mKey = document.getElementById('admin-monster-key').value;
+        const mLvl = parseInt(document.getElementById('admin-monster-level').value) || 5;
+        const spawnData = { x: hitX, y: hitY, monsterKey: mKey, level: mLvl };
+        
+        if (game.keys.z) {
+            if (!safeMapData.normalSpawns) safeMapData.normalSpawns = [];
+            safeMapData.normalSpawns.push(spawnData);
+            dom.log.innerText = `Normal Mob (${mKey}) placed.`;
+        } else if (game.keys.x) {
+            if (!safeMapData.miniBossSpawns) safeMapData.miniBossSpawns = [];
+            safeMapData.miniBossSpawns.push(spawnData);
+            dom.log.innerText = `Mini Boss (${mKey}) placed.`;
+        } else if (game.keys.c) {
+            if (!safeMapData.floorBossSpawns) safeMapData.floorBossSpawns = [];
+            safeMapData.floorBossSpawns.push(spawnData);
+            dom.log.innerText = `Floor Boss (${mKey}) placed.`;
+        }
+        
+        window.buildCollisionLayers(); 
+        window.copyAdminData();
+        return; // Break out so it doesn't draw a box
+    }
+    
+    // LEFT CLICK + ALT: Start Drawing Box
+    if (e.button === 0 && e.altKey) { 
+        isAdminDragging = true;
+        isDrawingPortal = e.shiftKey;
+        dragStartX = hitX;
+        dragStartY = hitY;
+        
+        // Create a visual box to see while dragging
+        dragBoxElement = document.createElement('div');
+        dragBoxElement.style.position = 'absolute';
+        dragBoxElement.style.left = dragStartX + 'px';
+        dragBoxElement.style.top = dragStartY + 'px';
+        dragBoxElement.style.width = '0px';
+        dragBoxElement.style.height = '0px';
+        dragBoxElement.style.background = isDrawingPortal ? 'rgba(0, 0, 255, 0.4)' : 'rgba(255, 0, 0, 0.4)';
+        dragBoxElement.style.border = isDrawingPortal ? '2px dashed #00f' : '1px solid red';
+        dragBoxElement.style.zIndex = '1000';
+        dragBoxElement.style.pointerEvents = 'none';
+        dom.world.appendChild(dragBoxElement);
+    } 
+});
+
+window.addEventListener('mousemove', (e) => {
+    if (!isAdminDragging || !dragBoxElement) return;
+    
+    const rect = dom.world.getBoundingClientRect(); 
+    const currentX = Math.round((e.clientX - rect.left) / CAMERA_ZOOM); 
+    const currentY = Math.round((e.clientY - rect.top) / CAMERA_ZOOM); 
+    
+    // Math ensures you can drag backwards/upwards safely
+    let finalX = Math.min(dragStartX, currentX);
+    let finalY = Math.min(dragStartY, currentY);
+    let finalW = Math.abs(currentX - dragStartX);
+    let finalH = Math.abs(currentY - dragStartY);
+    
+    dragBoxElement.style.left = finalX + 'px';
+    dragBoxElement.style.top = finalY + 'px';
+    dragBoxElement.style.width = finalW + 'px';
+    dragBoxElement.style.height = finalH + 'px';
+});
+
+window.addEventListener('mouseup', (e) => {
+    if (isAdminDragging) {
+        isAdminDragging = false;
+        
+        if (dragBoxElement) {
+            dragBoxElement.remove();
+            dragBoxElement = null;
+        }
+        
+        const rect = dom.world.getBoundingClientRect(); 
+        const endX = Math.round((e.clientX - rect.left) / CAMERA_ZOOM); 
+        const endY = Math.round((e.clientY - rect.top) / CAMERA_ZOOM); 
+        
+        let finalX = Math.min(dragStartX, endX);
+        let finalY = Math.min(dragStartY, endY);
+        let finalW = Math.abs(endX - dragStartX);
+        let finalH = Math.abs(endY - dragStartY);
+
+        // Prevent accidental clicks from creating tiny invisible boxes
+        if (finalW > 15 && finalH > 15) {
+            let boxData = { x: finalX, y: finalY, w: finalW, h: finalH };
+            
+            if (isDrawingPortal) { 
+              window.customPrompt("Enter Portal ID (Number for Floors, Letter for Rooms):", (rawId) => {
+                    if (!rawId) return;
+                    window.customPrompt("Enter Target Map ID (e.g., floor1 or house1):", (tMap) => {
+                        if (!tMap) return;
+                        window.customPrompt("Enter spawn X coordinate (Default 960):", (spawnX) => {
+                            let fX = spawnX || "960";
+                            window.customPrompt("Enter spawn Y coordinate (Default 1000):", (spawnY) => {
+                                let fY = spawnY || "1000";
+                                
+                                let pId = isNaN(parseInt(rawId)) ? String(rawId).toUpperCase().charAt(0) : parseInt(rawId);
+                                boxData.portalId = pId; 
+                                boxData.targetMapId = tMap; 
+                                boxData.targetX = Number(fX);
+                                boxData.targetY = Number(fY);
+                                
+                                if (!safeMapData.teleports) safeMapData.teleports = []; 
+                                safeMapData.teleports.push(boxData); 
+                                dom.log.innerText = `Teleport ${pId} added to ${tMap}`; 
+                                window.buildCollisionLayers(); 
+                                window.copyAdminData(); 
+                            });
+                        });
+                    });
+                });
+                return; // Stop the synchronous execution since customPrompt is asynchronous
+            } else { 
+                if (!safeMapData.collisions) safeMapData.collisions = []; 
+                safeMapData.collisions.push(boxData); 
+                dom.log.innerText = "Collision added."; 
+            } 
+            window.buildCollisionLayers(); 
+            window.copyAdminData(); 
+        }
+    }
+});
+window.undoLastBox = function() { if (!window.adminMode) return; if (safeMapData.teleports?.length > 0) { safeMapData.teleports.pop(); dom.log.innerText = "Undid last teleport."; } else if (safeMapData.collisions?.length > 0) { safeMapData.collisions.pop(); dom.log.innerText = "Undid last collision."; } window.buildCollisionLayers(); window.copyAdminData(); }
+window.clearAllBoxes = function() { if (!window.adminMode || !confirm("Clear ALL boxes?")) return; safeMapData.collisions = []; safeMapData.teleports = []; safeMapData.normalSpawns = []; safeMapData.miniBossSpawns = []; safeMapData.floorBossSpawns = []; window.buildCollisionLayers(); window.copyAdminData(); dom.log.innerText = "All boxes cleared."; }
+window.copyAdminData = function() { let mapId = safeMapData.id || 'town'; let varName = mapId === 'town' ? 'townMapData' : mapId + 'MapData'; let str = `var ${varName} = ` + JSON.stringify(safeMapData, null, 4) + `;\nif(typeof window !== 'undefined') window['${varName}'] = ${varName};`; dom.adminOutput.value = str; }
+window.adminSetPlayerLevel = function() { 
+    let newLvl = parseInt(document.getElementById('admin-player-level').value) || 1; 
+    
+    // 🛡️ THE FIX: Send the request to the server. The server verifies if you are Kei!
+    if (socket) socket.emit('adminSetLevel', newLvl);
+}
+window.adminGiveCustomItem = function() { 
+    let r = document.getElementById('admin-item-rarity').value; 
+    let t = document.getElementById('admin-item-type').value; 
+    let l = parseInt(document.getElementById('admin-item-level').value) || 1; 
+    let e = parseInt(document.getElementById('admin-item-enhance').value) || 0; 
+    
+    // 🛡️ THE FIX: Request the item from the server so it gets validated and saved!
+    if (socket) socket.emit('adminSpawnItem', { rarity: r, type: t, level: l, enhanceLevel: e }); 
+}
+
+// ==========================================
+// 7. INPUTS, CHAT & SOCIAL LOGIC
+// ==========================================
+window.getPlayerById = function(id) { if (!id) return null; if (id === game.player.id) return game.player; return game.remotePlayers[id] || null; }
+window.goFullscreen = function() { if (!document.fullscreenElement && document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch(e => console.warn("Fullscreen blocked by browser until interaction.")); } };
+window.switchAuth = function(target) { document.getElementById('login-form').style.display = target === 'login' ? 'block' : 'none'; document.getElementById('register-form').style.display = target === 'register' ? 'block' : 'none'; window.playBGM('loginmenu'); };
+window.attemptLogin = function() { 
+    const u = document.getElementById('login-user').value.trim(); 
+    const p = document.getElementById('login-pass').value; 
+    if (!u || !p) return; 
+
+    // 🛡️ GENERATE OR FETCH DEVICE ID
+    let deviceId = localStorage.getItem('exonie_device_id');
+    if (!deviceId) {
+        deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('exonie_device_id', deviceId);
+    }
+
+    localStorage.setItem('exonie_user', u); 
+    localStorage.setItem('exonie_pass', p); 
+    document.getElementById('auth-screen').classList.remove('active'); 
+    document.getElementById('loading-screen').style.display = 'flex'; 
+    
+    if(socket) socket.emit('login', { username: u, password: p, deviceId: deviceId }); 
+    window.playBGM('loginmenu'); window.goFullscreen(); 
+};
+window.attemptRegister = function() { 
+    const u = document.getElementById('reg-user').value.trim(); 
+    const p = document.getElementById('reg-pass').value; 
+    if (!u || !p) return; 
+
+    // 🛡️ GENERATE OR FETCH DEVICE ID
+    let deviceId = localStorage.getItem('exonie_device_id');
+    if (!deviceId) {
+        deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('exonie_device_id', deviceId);
+    }
+
+    localStorage.setItem('exonie_user', u); 
+    localStorage.setItem('exonie_pass', p); 
+    document.getElementById('auth-screen').classList.remove('active'); 
+    document.getElementById('loading-screen').style.display = 'flex'; 
+    
+    // 🛡️ THE FIX: Send the deviceId to the server!
+    if(socket) socket.emit('register', { username: u, password: p, deviceId: deviceId }); 
+    
+    window.playBGM('loginmenu'); 
+    window.goFullscreen(); 
+};
+window.submitCharacterCreation = function() { const username = document.getElementById('char-name-input').value; document.getElementById('creation-screen').classList.remove('active'); document.getElementById('loading-text').innerText = "Forging Avatar..."; document.getElementById('loading-screen').style.display = 'flex'; window.playBGM('loginmenu'); if(socket) socket.emit('createCharacter', { username, charData: window.charData }); window.goFullscreen(); };
+window.enterGameWorld = function() { 
+    if (!game.cachedUserData) return; 
+    document.getElementById('select-screen').classList.remove('active'); 
+    document.getElementById('loading-text').innerText = "Entering Exonie..."; 
+    document.getElementById('loading-screen').style.display = 'flex'; 
+    
+    // 🛡️ UNLOCKS AUDIO: Bypasses the browser's autoplay block by linking to your click
+    let unlockAudio = new Audio(); 
+    unlockAudio.play().catch(()=>{}); 
+
+    if(socket) socket.emit('enterWorld', game.cachedUserData); 
+    window.goFullscreen(); 
+};
+window.setSkinColor = function(color, element) { window.charData.skinColor = color; document.getElementById('preview-body').style.filter = skinFilters[color]; document.getElementById('preview-head').style.filter = skinFilters[color]; document.querySelectorAll('#skin-color-group .color-swatch').forEach(s => s.classList.remove('selected')); element.classList.add('selected'); };
+window.setHairColor = function(color, element) { window.charData.hairColor = color; document.getElementById('preview-hair').style.filter = hairFilters[color]; document.querySelectorAll('#hair-color-group .color-swatch').forEach(s => s.classList.remove('selected')); element.classList.add('selected'); };
+window.setHairStyle = function(style) { window.charData.hairStyle = style; const hairLayer = document.getElementById('preview-hair'); if (style === 'none') { hairLayer.style.display = 'none'; } else { hairLayer.style.display = 'block'; hairLayer.src = `animation/avatar_hair${style}.png`; } document.querySelectorAll('#hair-button-container .btn').forEach(btn => btn.classList.remove('selected')); const activeBtn = document.getElementById(`btn-hair-${style}`); if(activeBtn) activeBtn.classList.add('selected'); };
+setTimeout(() => { let firstSkin = document.querySelector('#skin-color-group .color-swatch.selected'); let firstHair = document.querySelector('#hair-color-group .color-swatch.selected'); if (firstSkin) window.setSkinColor('flesh', firstSkin); if (firstHair) window.setHairColor('black', firstHair); }, 100);
+window.respawn = function() {
+    const deathScreen = document.getElementById('death-screen');
+    if (deathScreen) deathScreen.style.display = 'none';
+
+    // Do not revive locally here.
+    // Server must teleport to town first, then revive.
+    if (socket) socket.emit('respawnPlayer');
+};
+
+let joystickActive = false; const joyStick = document.getElementById('mobile-controls'); const joyKnob = document.getElementById('joystick-knob');
+joyStick.addEventListener('touchstart', (e) => { e.preventDefault(); e.stopPropagation(); joystickActive = true; moveJoystick(e); }, { passive: false });
+joyStick.addEventListener('touchmove', (e) => { e.preventDefault(); e.stopPropagation(); if (joystickActive) moveJoystick(e); }, { passive: false });
+joyStick.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); joystickActive = false; joyKnob.style.transform = `translate3d(-50%, -50%, 0)`; game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false; });
+function moveJoystick(e) { if (!joystickActive) return; const rect = joyStick.getBoundingClientRect(); const centerX = rect.left + rect.width / 2; const centerY = rect.top + rect.height / 2; const touch = e.touches[0]; let dx = touch.clientX - centerX; let dy = touch.clientY - centerY; const dist = Math.min(25, Math.hypot(dx, dy)); const angle = Math.atan2(dy, dx); let moveX = Math.cos(angle) * dist; let moveY = Math.sin(angle) * dist; joyKnob.style.transform = `translate3d(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px), 0)`; const normX = dx / 25; const normY = dy / 25; game.keys.w = normY < -0.3; game.keys.s = normY > 0.3; game.keys.a = normX < -0.3; game.keys.d = normX > 0.3; if (game.keys.a) window.facingRight = false; if (game.keys.d) window.facingRight = true; }
+
+let isFriendsOpen = false;
+window.toggleFriends = function() {
+    isFriendsOpen = !isFriendsOpen;
+    const el = document.getElementById('friends-screen');
+    el.style.display = isFriendsOpen ? 'block' : 'none';
+    if (isFriendsOpen) {
+        if (socket) socket.emit('getFriendsList');
+        if (window.isMobileUI()) {
+            window.enableMobileWindowControls(el);
+            window.bringWindowToFront(el);
+            window.clampWindowToViewport(el);
+        }
+    }
+};
+window.requestAddFriend = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('addFriend', { targetId: activeTargetPlayerId }); };
+window.promptDM = function(targetName) { 
+    window.customPrompt(`Send Direct Message to ${targetName}:`, function(msg) {
+        if (msg && msg.trim() !== '') { if(socket) socket.emit('sendDM', { targetId: targetName, message: msg.trim() }); } 
+    });
+};
+window.playDMSound = function() { try { const AudioContext = window.AudioContext || window.webkitAudioContext; const audioCtx = new AudioContext(); if (audioCtx.state === 'suspended') { audioCtx.resume(); } const oscillator = audioCtx.createOscillator(); const gainNode = audioCtx.createGain(); oscillator.type = 'triangle'; oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); oscillator.frequency.exponentialRampToValueAtTime(1174.66, audioCtx.currentTime + 0.1); gainNode.gain.setValueAtTime(0.7, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); oscillator.connect(gainNode); gainNode.connect(audioCtx.destination); oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.5); const chatLog = document.getElementById('chat-log'); if (chatLog) { chatLog.style.backgroundColor = 'rgba(156, 39, 176, 0.4)'; chatLog.style.transition = 'background-color 0s'; setTimeout(() => { chatLog.style.transition = 'background-color 0.5s ease'; chatLog.style.backgroundColor = 'transparent'; }, 150); } } catch (e) {} };
+window.startSpectate = function(targetId) {
+    if (!targetId || !socket) return;
+    socket.emit('requestSpectate', targetId);
+};
+
+window.stopSpectating = function() {
+    if (!socket) return;
+    socket.emit('stopSpectate');
+};
+window.openPlayerContextMenu = function(targetId, e) { if (safeMapData.id === 'neutralzone') return; activeTargetPlayerId = targetId; const menu = document.getElementById('player-context-menu'); menu.style.display = 'flex'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px'; };
+window.inspectTargetPlayer = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; const p = game.remotePlayers[activeTargetPlayerId]; if (!p) return; dom.inspect.style.display = 'block'; if (window.isMobileUI()) {
+    window.enableMobileWindowControls(dom.inspect);
+    window.bringWindowToFront(dom.inspect);
+    window.clampWindowToViewport(dom.inspect);
+} dom.inspectTitle.innerText = `Inspect: ${p.name || p.id}`; let lvl = "???"; let hp = "??? / ???"; if (game.party && game.party.members) { let pm = game.party.members.find(m => m.id === p.id); if (pm) { lvl = pm.level; hp = `${pm.currentHp} / ${pm.maxHp}`; } } let wpn = p.spriteData && p.spriteData.weapon ? p.spriteData.weapon.replace('starter', 'basic') : 'None'; let html = `<div style="font-size:14px; color:#ccc; margin-bottom:10px; text-align:center;">Level ${lvl} &nbsp; | &nbsp; HP ${hp}</div>`; html += `<div class="inspect-equip"><div style="font-weight:bold; color:#ffeb3b; margin-bottom:6px;">Weapon (Visual Cache)</div><div class="inspect-item-name" style="color:#fff;">${wpn}</div></div>`; dom.inspectContent.innerHTML = html; if(socket) socket.emit('inspectRequest', { targetId: activeTargetPlayerId }); }; 
+window.inviteTargetToParty = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('partyInvite', { targetId: activeTargetPlayerId }); dom.log.innerText = `Party invite sent to ${activeTargetPlayerId}.`; }; 
+window.requestTrade = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('tradeRequest', { targetId: activeTargetPlayerId }); dom.log.innerText = `Trade request sent to ${activeTargetPlayerId}.`; }; 
+window.closeInspect = function() { dom.inspect.style.display = 'none'; };
+window.leaveParty = function() { if(socket) socket.emit('leaveParty'); dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; game.party = null; dom.log.innerText = "You left the party."; if (safeMapData.id !== 'town') { const transScreen = document.getElementById('map-transition'); document.getElementById('transition-text').innerText = `Entering town...`; transScreen.style.display = 'flex'; setTimeout(() => { transScreen.style.opacity = '1'; }, 10); game.player.teleportCooldown = 4000; setTimeout(() => { window.loadMapScript('town', () => { safeMapData = window.MapDatabase['town']; game.player.x = safeMapData.spawnX || 960; game.player.y = safeMapData.spawnY || 1000; window.preloadMapAssets(safeMapData, () => { dom.world.style.backgroundImage = `url('${safeMapData.image}')`; window.buildCollisionLayers(); window.cleanupMap(); 
+if(socket) socket.emit('playerTeleported', { mapId: 'town', x: game.player.x, y: game.player.y, mapData: safeMapData });
+                        
+                        let isGrouped = false; // 🛑 DISABLED PARTY WAITING
+                        document.getElementById('transition-text').innerText = isGrouped ? "Waiting for team to load..." : "Loading Map...";
+                        if(socket) socket.emit('clientFinishedLoadingMap');
+
+                        // 🛡️ INDESTRUCTIBLE FAIL-SAFE: Drops the screen automatically!
+                        setTimeout(() => {
+                            if (!isGrouped || window.isLoading) {
+                                window.isLoading = false; window.isTransitioning = false; game.player.isTeleporting = false;
+                                let ls = document.getElementById('loading-screen'); if (ls) ls.style.display = 'none';
+                                let ts = document.getElementById('map-transition'); if (ts) { ts.style.opacity = '0'; setTimeout(() => ts.style.display='none', 1000); }
+                                if (typeof safeMapData !== 'undefined' && safeMapData.id) { window.playBGM(window.routeMapMusic(safeMapData.id)); try { window.showMapAnnouncement(safeMapData.id); } catch(e){} }
+                            }
+                        }, isGrouped ? 3000 : 300);
+                    }); }); }, 500); } };
+window.respondInvite = function(accept) { document.getElementById('invite-dialog').style.display = 'none'; if (pendingPartyInvite) { if(socket) socket.emit('partyInviteResponse', { fromId: pendingPartyInvite, accept }); pendingPartyInvite = null; } }; 
+window.respondTrade = function(accept) { document.getElementById('trade-dialog').style.display = 'none'; if (pendingTradeInvite) { if(socket) socket.emit('tradeInviteResponse', { fromId: pendingTradeInvite, accept }); if (accept) { tradeTarget = pendingTradeInvite; inTradeMode = true; document.getElementById('trade-target-name').innerText = tradeTarget; document.getElementById('trade-screen').style.display = 'block'; window.renderTradeSlots(); window.renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.log.innerText = "Trade declined."; } pendingTradeInvite = null; } }; 
+window.closeTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade cancelled."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); if(socket) socket.emit('tradeCancel'); }; 
+window.confirmTrade = function() { if(socket) socket.emit('requestConfirmTrade'); };
+window.addTradeItem = function(invIndex) { 
+    if (!inTradeMode) return; 
+    const item = game.player.inventory[invIndex]; 
+    if (!item) return; 
+    
+    // 🐰 THE FIX: Allow Seasonal cosmetics/pets to bypass the trade lock!
+    if (item.type === 'aura' && !item.isSeasonal && !String(item.name).includes('Easter')) { 
+        dom.log.innerText = "Normal cosmetics and pets cannot be traded!"; 
+        return; 
+    }
+    
+    // 🛡️ THE FIX: Prevent adding bound gear to trade window
+    if ((item.rarity === 'Godly' || item.rarity === 'Divine') && item.enhanceLevel > 0) {
+        dom.log.innerText = "Enhanced Godly and Divine gear cannot be traded!"; return;
+    }
+    
+    const emptyTradeSlot = tradeMyItems.findIndex(i => i === null); if (emptyTradeSlot === -1) { dom.log.innerText = "Trade offer full!"; return; } tradeMyItems[emptyTradeSlot] = item; game.player.inventory[invIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); };
+window.removeFromTrade = function(tradeIndex) { if (!inTradeMode) return; const item = tradeMyItems[tradeIndex]; if (!item) return; window.addLoot(item); tradeMyItems[tradeIndex] = null; window.renderInventory(); window.renderTradeSlots(); window.syncTrade(); }; 
+document.getElementById('trade-my-gold').addEventListener('input', (e) => { let val = parseInt(e.target.value) || 0; if (val > game.player.gold) { val = game.player.gold; e.target.value = val; } window.syncTrade(); }); 
+window.renderTradeSlots = function() { const myGrid = document.getElementById('trade-my-items'); myGrid.innerHTML = ''; const theirGrid = document.getElementById('trade-their-items'); theirGrid.innerHTML = ''; for (let i = 0; i < 3; i++) { const mySlot = document.createElement('div'); mySlot.className = 'inv-slot'; if (tradeMyItems[i]) { mySlot.style.border = `2px solid ${tradeMyItems[i].color || '#fff'}`; mySlot.innerText = tradeMyItems[i].enhanceLevel ? `${tradeMyItems[i].name} +${tradeMyItems[i].enhanceLevel}` : tradeMyItems[i].name; mySlot.onclick = () => window.removeFromTrade(i); } else { mySlot.innerText = "Empty"; mySlot.style.color = "#555"; } myGrid.appendChild(mySlot); const theirSlot = document.createElement('div'); theirSlot.className = 'inv-slot'; if (tradeTheirItems[i]) { theirSlot.style.border = `2px solid ${tradeTheirItems[i].color || '#fff'}`; theirSlot.innerText = tradeTheirItems[i].enhanceLevel ? `${tradeTheirItems[i].name} +${tradeTheirItems[i].enhanceLevel}` : tradeTheirItems[i].name; } else { theirSlot.innerText = "Empty"; theirSlot.style.color = "#555"; } theirGrid.appendChild(theirSlot); } }; 
+window.syncTrade = function() { if(socket && tradeTarget) { socket.emit('tradeSync', { gold: parseInt(document.getElementById('trade-my-gold').value) || 0, items: tradeMyItems }); } }
+window.renderPartyUI = function() { if (!game.party || !Array.isArray(game.party.members) || game.party.members.length <= 1) { dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; return; } dom.partyPanel.style.display = 'block'; let html = ''; for (const m of game.party.members) { const hpPct = (typeof m.currentHp === 'number' && typeof m.maxHp === 'number') ? Math.max(0, Math.min(100, (m.currentHp/m.maxHp)*100)) : 100; const ghostStr = m.isGhost ? ' (GHOST)' : ''; const color = m.isGhost ? '#888' : '#fff'; const barColor = m.isGhost ? '#555' : (hpPct < 30 ? '#f44336' : '#4CAF50'); html += `<div class="party-row"><div class="party-name-row"><span style="color:${color}">${m.name} (Lv.${m.level || 1})${ghostStr}</span></div><div class="party-hp-bar-bg"><div class="party-hp-bar-fill" style="width: ${hpPct}%; background: ${barColor};"></div></div></div>`; } dom.partyMembers.innerHTML = html; }
+
+// --- PERSISTENT CHAT HELPER ---
+window.addPersistentChat = function(htmlString) {
+    let box = document.getElementById('persistent-chat-content');
+    if (!box) return;
+    let line = document.createElement('div');
+    line.className = 'chat-line';
+    line.innerHTML = htmlString;
+    box.appendChild(line);
+    if (box.childNodes.length > 50) box.removeChild(box.firstChild);
+    box.parentElement.scrollTop = box.parentElement.scrollHeight;
+};
+
+const chatInputDom = document.getElementById('chat-input'); const chatContainerDom = document.getElementById('chat-input-container');
+chatInputDom.addEventListener('blur', () => { isChatting = false; chatContainerDom.style.display = 'none'; });
+
+window.addEventListener('keydown', (e) => { 
+    if (e.key === 'Enter') { 
+        if (dom.game.classList.contains('active')) { 
+            if (isChatting) { 
+                let msg = chatInputDom.value.trim(); 
+                if (msg !== '' && socket) { 
+                    if (window.adminMode && msg.startsWith('/a ')) { 
+                        socket.emit('adminBroadcast', { text: msg.substring(3) }); 
+                    } else { 
+                        // 🛡️ Standard Chat (Server will automatically route this to party chat box if you are in a party!)
+                        socket.emit('chatMessage', { text: msg }); 
+                        window.showBubble(game.player, msg); 
+                    }
+                } 
+                chatInputDom.value = ''; chatContainerDom.style.display = 'none'; chatInputDom.blur(); isChatting = false; 
+            } else { chatContainerDom.style.display = 'block'; chatInputDom.focus(); isChatting = true; game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false; } 
+        } 
+    } 
+    if (!isChatting && e.key.toLowerCase() === 'f') window.toggleFriends();
+    if (!isChatting && e.key.toLowerCase() === 'm') window.toggleMailbox();
+});
+
+function setKeyState(e, isDown) { 
+    if (typeof isChatting !== 'undefined' && isChatting) return;
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return; 
+    if (e.key === 'Tab' || e.code === 'Tab') { if (isDown) e.preventDefault(); game.keys['tab'] = isDown; return; } 
+    
+    const key = (e.code === 'KeyW' ? 'w' : e.code === 'KeyA' ? 'a' : e.code === 'KeyS' ? 's' : e.code === 'KeyD' ? 'd' : e.code === 'KeyZ' ? 'z' : e.code === 'KeyX' ? 'x' : e.code === 'KeyC' ? 'c' : (e.key || "").toLowerCase()); 
+    
+    if (isDown && key === 'b') { autoAttackMode = !autoAttackMode; if(dom.log) dom.log.innerText = `Auto-Attack: ${autoAttackMode ? 'ON' : 'OFF'}`; return; } 
+    if (game.keys.hasOwnProperty(key)) game.keys[key] = isDown; 
+    
+    if (isDown) { 
+        if (key === 'p' && typeof window.toggleStats === 'function') window.toggleStats(); 
+        if (key === 'l') window.toggleLeaderboard();
+        // 🛡️ INVENTORY KEY
+        if (key === 'i' && typeof window.toggleInventory === 'function') window.toggleInventory(); 
+        if (key === 'k' && typeof window.toggleSkillScreen === 'function') window.toggleSkillScreen(); 
+        if (key === 'j' && typeof window.openShop === 'function') window.openShop(); 
+        if (key === 'm' && typeof window.toggleMailbox === 'function') window.toggleMailbox(); 
+        if (key === 'g' && typeof window.openGuildUI === 'function') window.openGuildUI();
+        if (key === 'c' && typeof window.openRealMoneyShop === 'function') window.openRealMoneyShop();
+        if (key === 'o') {
+            if (window.isAdmin(game.player.name)) { 
+                window.adminMode = !window.adminMode; 
+                let pnl = document.getElementById('admin-panel'); if(pnl) pnl.style.display = window.adminMode ? 'block' : 'none'; 
+                dom.world.classList.toggle('admin-active', window.adminMode); 
+                if(dom.log) dom.log.innerText = window.adminMode ? "Admin Mode ON" : "Admin Mode OFF"; 
+                if(typeof window.buildCollisionLayers === 'function') window.buildCollisionLayers(); 
+            } else { 
+                if(dom.log) dom.log.innerText = "null"; 
+            } 
+        } 
+        if (key === '3') {
+            if (!window.isLoading && !window.adminMode && typeof window.usePotionHotkey === 'function') window.usePotionHotkey();
+        }
+        if (key === '1' || key === '2') {
+            if (!game.isGhost && !window.isLoading && typeof isInventoryOpen !== 'undefined' && !isInventoryOpen && typeof isSkillOpen !== 'undefined' && !isSkillOpen && !window.adminMode) {
+                let slotIndex = key === '1' ? 0 : 1; let skill = game.player.activeSkills ? game.player.activeSkills[slotIndex] : null;
+                if (skill && typeof skill.execute === 'function') skill.execute(); 
+            }
+        }
+    } 
+}
+window.addEventListener('keydown', (e) => setKeyState(e, true), { capture: true }); window.addEventListener('keyup', (e) => setKeyState(e, false), { capture: true }); window.addEventListener('blur', () => { for (const k in game.keys) game.keys[k] = false; attackHeld = false; isChatting = false; });
+window.addEventListener('blur', () => { for (const k in game.keys) game.keys[k] = false; attackHeld = false; isChatting = false; });
+window.addEventListener('mousedown', (e) => { 
+    if (e.target.classList.contains('ctx-btn')) return; 
+    if (!e.target.closest('#inv-context-menu')) document.getElementById('inv-context-menu').style.display = 'none'; 
+    if (!e.target.closest('#player-context-menu') && !e.target.closest('.entity')) document.getElementById('player-context-menu').style.display = 'none'; 
+    if (isEnhancing && !e.target.closest('#inventory-screen') && !e.target.closest('#inv-context-menu')) { isEnhancing = false; dom.log.innerText = "Enhancement mode cancelled."; window.renderInventory(); } 
+    if (window.isApplyingForger && !e.target.closest('#inventory-screen') && !e.target.closest('#inv-context-menu') && !e.target.closest('#forger-modal') && !e.target.closest('#consumables-craft-modal')) { window.isApplyingForger = false; dom.log.innerText = "Forger cancelled."; window.renderInventory(); }
+});
+document.addEventListener('wheel', function(e) { if (e.ctrlKey && !window.adminMode) { e.preventDefault(); } }, { passive: false });
+window.addEventListener('pointerup', () => { attackHeld = false; });
+dom.world.addEventListener('pointerdown', (e) => { if(!window.adminMode && e.target.id === 'world') { attackHeld = true; window.attemptAttack(false); } });
+// ==========================================
+// RESTORED SHOP & MAILBOX FUNCTIONS
+// ==========================================
+window.openShop = function() {
+    if (isShopping) { window.closeShop(); return; }
+    isShopping = true;
+    document.getElementById('shop-my-gold').innerText = game.player.gold || 0;
+    document.getElementById('shop-screen').style.display = 'block';
+    const shopEl = document.getElementById('shop-screen');
+if (window.isMobileUI()) {
+    window.enableMobileWindowControls(shopEl);
+    window.bringWindowToFront(shopEl);
+    window.clampWindowToViewport(shopEl);
+}
+    if (!isInventoryOpen && typeof window.toggleInventory === 'function') window.toggleInventory();
+    window.updatePotionPrice(); window.updateStonePrice();
+}
+window.closeShop = function() { isShopping = false; document.getElementById('shop-screen').style.display = 'none'; if (isInventoryOpen && typeof window.renderInventory === 'function') window.renderInventory(); }
+window.updatePotionPrice = function() { let qty = parseInt(document.getElementById('shop-potion-qty').value) || 1; if (qty < 1) { qty = 1; document.getElementById('shop-potion-qty').value = 1; } document.getElementById('shop-potion-buy-btn').innerText = (qty * 25) + " Gold"; }
+window.updateStonePrice = function() { let lvl = parseInt(document.getElementById('shop-stone-level').value) || 10; let rarity = document.getElementById('shop-stone-rarity').value || 'Basic'; let qty = parseInt(document.getElementById('shop-stone-qty').value) || 1; if (qty < 1) { qty = 1; document.getElementById('shop-stone-qty').value = 1; } let basePrice = lvl * 15; let rMult = { "Basic": 1, "Rare": 3, "Unique": 8, "Legendary": 20, "Godly": 50 }[rarity] || 1; let totalCost = basePrice * rMult * qty; document.getElementById('shop-stone-buy-btn').innerText = totalCost + " Gold"; }
+window.buyItem = function(type) {
+    let qty = 1;
+    let payload = { type: type };
+
+    if (type === 'potion') {
+        qty = parseInt(document.getElementById('shop-potion-qty').value) || 1;
+        payload.qty = qty;
+    } else if (type === 'stone') {
+        qty = parseInt(document.getElementById('shop-stone-qty').value) || 1;
+        payload.qty = qty;
+        payload.level = parseInt(document.getElementById('shop-stone-level').value) || 10;
+        payload.rarity = document.getElementById('shop-stone-rarity').value || 'Basic';
+    }
+
+    if (socket) socket.emit('requestPurchase', payload);
+}
+window.toggleMailbox = function() {
+    isMailboxOpen = !isMailboxOpen;
+    const el = document.getElementById('mailbox-screen');
+    el.style.display = isMailboxOpen ? 'block' : 'none';
+    if (isMailboxOpen) {
+        if (socket) socket.emit('getMail');
+        if (window.isMobileUI()) {
+            window.enableMobileWindowControls(el);
+            window.bringWindowToFront(el);
+            window.clampWindowToViewport(el);
+        }
+    }
+};
+window.claimMail = function(mailId) { if (socket) socket.emit('claimMail', mailId); };
+window.addRemotePlayer = function(pData) {
+    if (!pData || !pData.id || pData.id === game.player.id || game.remotePlayers[pData.id]) return;
+    const container = document.createElement('div'); container.className = 'entity'; container.id = 'remote_' + pData.id;
+    container.style.left = (pData.x || 0) + 'px'; container.style.top = (pData.y || 0) + 'px'; container.style.zIndex = '104'; container.style.cursor = 'pointer';
+    container.addEventListener('pointerdown', (e) => { 
+        e.stopPropagation(); e.preventDefault(); 
+        // ⚔️ NEUTRAL ZONE: Clicking a player attacks them!
+        if (safeMapData.id === 'neutralzone') {
+            if (!window.isLoading) {
+                // 🛡️ THE FIX: Tell the game EXACTLY who we are trying to shoot before firing!
+                window.activeTargetPlayerId = pData.id; 
+                window.attemptAttack(false);
+            }
+        } else {
+            // Town/Other maps: Open the menu
+            window.openPlayerContextMenu(pData.id, e); 
+        }
+    });
+    const nameTag = document.createElement('div'); nameTag.className = 'name-tag'; 
+    if (window.isAdmin(pData.name || pData.id)) {
+        nameTag.innerHTML = `<span style="color:#ff4444; font-weight:bold;">[GM]</span> ${pData.name || pData.id}`;
+    } else {
+        nameTag.innerText = pData.name || pData.id;
+    }
+    container.appendChild(nameTag);
+   const titleTag = document.createElement('div'); titleTag.className = 'title-tag'; 
+    let tHtml = `<div style="text-align: center; width: 100%;">`;
+    tHtml += (pData.spriteData && pData.spriteData.title) ? `&lt;${pData.spriteData.title}&gt;` : '';
+    if (pData.spriteData && pData.spriteData.guildName) {
+        tHtml += ((pData.spriteData && pData.spriteData.title) ? '<br>' : '') + `<span style="color:#4CAF50; font-size:13px; font-weight:900; letter-spacing:1px; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 2px 4px rgba(0,0,0,0.6);">[${pData.spriteData.guildName}]</span>`;
+    }
+    tHtml += `</div>`;
+    titleTag.innerHTML = tHtml;
+    container.appendChild(titleTag);
+    const rig = document.createElement('div'); rig.className = 'player-avatar-container avatar-rig';
+    const hair = new Image(); hair.className = 'avatar-layer layer-hair';
+    const head = new Image(); head.className = 'avatar-layer layer-head'; head.src = 'animation/avatar_head.png';
+    const body = new Image(); body.className = 'avatar-layer layer-body'; body.src = 'animation/avatar_idlefront.png';
+    const weapon = new Image(); weapon.className = 'avatar-layer layer-weapon';
+    const skin = (pData.spriteData && pData.spriteData.skin) ? pData.spriteData.skin : 'flesh';
+    const hairColor = (pData.spriteData && pData.spriteData.hair) ? pData.spriteData.hair : 'black';
+    const hairStyle = (pData.spriteData && pData.spriteData.style) ? pData.spriteData.style : '1';
+    if (hairStyle === 'none') hair.style.display = 'none'; else { hair.style.display = 'block'; hair.src = `animation/avatar_hair${hairStyle}.png`; }
+    head.style.filter = skinFilters[skin] || skinFilters['flesh']; body.style.filter = skinFilters[skin] || skinFilters['flesh']; hair.style.filter = hairFilters[hairColor] || hairFilters['black'];
+    weapon.style.display = 'none';
+  const cAura = document.createElement('div'); cAura.className = 'cosmetic-aura';
+    // 🛡️ REVERT: Only read the actual cosmetic aura, don't let weapons hijack it!
+    if (pData.spriteData && pData.spriteData.aura) cAura.classList.add(`aura-${pData.spriteData.aura}`);
+    rig.appendChild(cAura);
+    hair.style.opacity = '1'; head.style.opacity = '1'; body.style.opacity = '1'; weapon.style.opacity = '1';
+    rig.appendChild(hair); rig.appendChild(head); rig.appendChild(body); rig.appendChild(weapon); container.appendChild(rig); dom.world.appendChild(container);
+    game.remotePlayers[pData.id] = { id: pData.id, name: pData.name || pData.id, x: pData.x || 0, y: pData.y || 0, dom: container, rig: rig, body: body, weapon: weapon, currentBodySrc: '', currentWeaponSrc: '', isGhost: !!pData.isGhost, spriteData: pData.spriteData };
+    if (pData.isGhost) container.style.opacity = '0.5';
+   const wpnSprite = (pData.spriteData && pData.spriteData.weapon) ? pData.spriteData.weapon : (pData.weaponSprite || null);
+    if (wpnSprite) { 
+        const fixedWpn = wpnSprite.replace('starter', 'basic'); 
+        weapon.style.display = 'block'; 
+        weapon.src = `weapon/${fixedWpn}.png`; 
+        game.remotePlayers[pData.id].currentWeaponSrc = weapon.src; 
+        
+    // 🛡️ DYNAMIC AURA FIX: Automatically supports ANY new rarity for other players!
+       weapon.className = 'avatar-layer layer-weapon';
+       let rWpn = fixedWpn.toLowerCase();
+       ['sword', 'staff', 'pendant', 'gun', 'dagger', 'touchpad'].forEach(bt => {
+           if (rWpn.includes(bt)) {
+               let extRarity = rWpn.replace(bt, '');
+               if (extRarity && !['starter', 'basic', 'rare', 'unique'].includes(extRarity)) {
+                   weapon.classList.add(`weapon-aura-${extRarity}`);
+               }
+           }
+       });
+    }
+    
+    // 🌟 Refresh shines when someone new walks into the room!
+    window.updateNameplateRanks();
+};
+window.removeRemotePlayer = function(id) { const p = game.remotePlayers[id]; if (p && p.dom) p.dom.remove(); delete game.remotePlayers[id]; };
+
+// ==========================================
+// 8. SOCKET LISTENERS & UPDATES
+// ==========================================
+if(socket) {
+    socket.on('topTavernPlayers', (top3) => {
+        window.topTavernPlayers = top3 || [];
+        window.updateNameplateRanks();
+    });
+
+    // 🛡️ THE FIX: Global Formatter for Titles & Guilds (with White Border!)
+    window.formatTitleAndGuild = function(title, guildName) {
+        let tHtml = `<div style="text-align: center; width: 100%;">`;
+        tHtml += title ? `&lt;${title}&gt;` : '';
+        if (guildName) {
+            tHtml += (title ? '<br>' : '') + `<span style="color:#4CAF50; font-size:13px; font-weight:900; letter-spacing:1px; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 2px 4px rgba(0,0,0,0.6);">[${guildName}]</span>`;
+        }
+        tHtml += `</div>`;
+        return tHtml;
+    };
+
+    socket.on('titleUnlocked', (title) => {
+        if(document.getElementById('player-title-tag')) {
+            let gName = game.player.spriteData ? game.player.spriteData.guildName : null;
+            document.getElementById('player-title-tag').innerHTML = window.formatTitleAndGuild(title, gName);
+        }
+    });
+
+    // 🛡️ THE FIX: Instantly redraws your own nameplate when joining/leaving a guild!
+    socket.on('updateLocalGuildTag', (gName) => {
+        if (!game.player.spriteData) game.player.spriteData = {};
+        game.player.spriteData.guildName = gName;
+        if(document.getElementById('player-title-tag')) {
+            document.getElementById('player-title-tag').innerHTML = window.formatTitleAndGuild(game.player.spriteData.title, gName);
+        }
+    });
+    socket.off('authSuccess'); // Kill old listeners
+    socket.on('authSuccess', (userData) => {
+        try {
+            game.player.id = userData.character_name || "Unknown"; 
+            game.player.name = userData.character_name || "Unknown"; 
+            
+            let myNameHtml = window.isAdmin(game.player.name) ? `<span style="color:#ff4444; font-weight:bold;">[GM]</span> ${game.player.name}` : game.player.name;
+            
+            if(document.getElementById('player-name-tag')) document.getElementById('player-name-tag').innerHTML = myNameHtml; 
+            if(document.getElementById('ui-name-display')) document.getElementById('ui-name-display').innerHTML = myNameHtml;
+            
+          // 🛡️ THE FIX: Tell the client to remember the title AND Guild sent from the database!
+            game.player.title = userData.title || null;
+            if (!game.player.spriteData) game.player.spriteData = {};
+            game.player.spriteData.title = userData.title || null;
+            game.player.spriteData.guildName = userData.guild_details ? userData.guild_details.name : null;
+
+            // 🛡️ APPLY TITLE & GUILD ON LOGIN
+            if(document.getElementById('player-title-tag')) {
+                document.getElementById('player-title-tag').innerHTML = window.formatTitleAndGuild(game.player.spriteData.title, game.player.spriteData.guildName);
+            }
+
+            game.player.level = userData.level || 1; 
+            game.player.exp = userData.exp || 0; 
+            game.player.maxExp = userData.max_exp || 200;
+            game.player.gold = userData.gold || 0; 
+            game.player.baseStats = (typeof userData.base_stats === 'object' && userData.base_stats !== null) ? userData.base_stats : { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }; 
+            if (game.player.baseStats.playerClass && (!CLASSES || !CLASSES[game.player.baseStats.playerClass])) { game.player.baseStats.playerClass = null; }
+            game.player.inventory = Array.isArray(userData.inventory) ? userData.inventory : new Array(20).fill(null); 
+            // 🛡️ THE FIX: Guarantee the client initializes all 6 equip slots on login
+            const defaultEquips = { weapon: null, armor: null, leggings: null, necklace: null, ring: null, earrings: null };
+            game.player.equips = Object.assign({}, defaultEquips, userData.equips || {});
+            window.charData.skinColor = userData.skin_color || 'flesh'; 
+            window.charData.hairColor = userData.hair_color || 'black'; 
+            window.charData.hairStyle = userData.hair_style || '1'; 
+            game.player.currentHp = window.getMaxHp(); 
+           window.updateSkillMenu(); 
+window.loadLootFilter();
+if (socket) socket.emit('updateLootFilter', game.player.lootFilter);
+let targetMapId = 'town'; 
+            window.loadMapScript(targetMapId, () => {
+                safeMapData = window.MapDatabase[targetMapId] || { id: "town", name: "Town", image: "town_map.png", spawnX: 960, spawnY: 1000, collisions: [], teleports: [], normalSpawns: [], miniBossSpawns: [], floorBossSpawns: [] };
+                game.player.x = 960; game.player.y = 1000;
+              window.preloadMapAssets(safeMapData, () => {
+                    try {
+                        dom.world.style.backgroundImage = `url('${safeMapData.image}')`;
+                        game.player.dom = dom.playerContainer; 
+                        
+                        if (dom.playerBody) dom.playerBody.style.filter = skinFilters[window.charData.skinColor] || ''; 
+                        if (dom.playerHead) dom.playerHead.style.filter = skinFilters[window.charData.skinColor] || ''; 
+                        if (dom.playerHair) dom.playerHair.style.filter = hairFilters[window.charData.hairColor] || '';
+                        
+                        if (dom.playerContainer) dom.playerContainer.style.opacity = '1';
+                        if (dom.playerBody) dom.playerBody.style.opacity = '1';
+                        if (dom.playerHead) dom.playerHead.style.opacity = '1';
+                        if (dom.playerHair) dom.playerHair.style.opacity = '1';
+
+                        if (dom.playerHair) {
+                            if (window.charData.hairStyle === 'none') dom.playerHair.style.display = 'none'; 
+                            else { dom.playerHair.style.display = 'block'; dom.playerHair.src = `animation/avatar_hair${window.charData.hairStyle}.png`; }
+                        }
+
+                                               window.buildCollisionLayers();
+                        window.updateEquipmentDisplay();
+                        window.updateUI();
+                        window.renderInventory();
+                        window.emitVitalsIfNeeded(true);
+
+                        if (safeMapData.id === 'town') {
+                            document.querySelectorAll('.monster-container').forEach(el => el.remove());
+                            game.monsters = {};
+                        }
+                        
+                        socket.off('requestMapSync');
+                        socket.on('requestMapSync', (req) => {
+                            window.loadMapScript(req.mapId, () => {
+                                let mapPayload = Object.assign({}, window.MapDatabase[req.mapId], { instanceId: req.instanceId });
+                                socket.emit('syncMapData', mapPayload);
+                            });
+                        });
+                    } catch (renderErr) { console.error("Render crash caught, bypassing:", renderErr); }
+                    
+                   // 🛡️ GUARANTEE THESE RUN EVEN IF THE UI CRASHES
+                    if (document.getElementById('loading-screen')) {
+                            document.getElementById('loading-screen').style.display = 'none';
+                        }
+                        window.isLoading = false;
+                        window.isTransitioning = false;
+                        dom.game.classList.add('active');
+                    game.isRunning = true;
+                    
+                    // 🛡️ THE FIX: Show the chat box ONLY when the game is fully loaded!
+                    const pChatBox = document.getElementById('persistent-chat-box');
+                    if (pChatBox) pChatBox.style.display = 'flex';
+
+                    // 🛡️ THE FIX: Kills any "Ghost Loops" from impatient double-clicking before starting!
+                    if (currentAnimationId) cancelAnimationFrame(currentAnimationId);
+                    if (typeof gameLoop !== 'undefined') currentAnimationId = requestAnimationFrame(gameLoop);
+
+                    // 🎥 TUTORIAL CHECK: Play video OR play normal BGM
+                    if (game.player.baseStats && !game.player.baseStats.watchedTutorial) {
+                        window.playTutorialVideo();
+                    } else {
+                        // Make sure the game screen is already visible before showing Town UI + BGM
+                        setTimeout(() => {
+                            // 🎵 Fix: Use the router so login music is correct for Home/Guild
+                    window.playBGM(window.routeMapMusic(safeMapData.id));
+                            try { window.showMapAnnouncement(safeMapData.id || 'town'); } catch(e) {}
+                        }, 120);
+                    }
+
+                    // 📧 🛡️ Check for mail contents immediately on login
+                    socket.emit('getMail'); 
+                    socket.emit('requestNews');  
+                });
+            });
+        } catch (authErr) { console.error("Auth crash:", authErr); if(document.getElementById('loading-screen')) document.getElementById('loading-screen').style.display = 'none'; dom.game.classList.add('active'); }
+    });
+socket.on('mailList', (mails) => {
+        const container = document.getElementById('mail-list-container'); container.innerHTML = '';
+        
+        const unreadCount = (mails || []).length;
+        
+        // 🔔 DYNAMIC NOTIFICATION BADGE
+        let notifBadge = document.getElementById('global-mail-notif');
+        if (!notifBadge) {
+            notifBadge = document.createElement('div');
+            notifBadge.id = 'global-mail-notif';
+            notifBadge.style.position = 'absolute';
+            notifBadge.style.top = '15px';
+            notifBadge.style.right = '15px';
+            notifBadge.style.background = '#f44336';
+            notifBadge.style.color = 'white';
+            notifBadge.style.padding = '8px 15px';
+            notifBadge.style.borderRadius = '8px';
+            notifBadge.style.fontWeight = 'bold';
+            notifBadge.style.cursor = 'pointer';
+            notifBadge.style.boxShadow = '0 0 15px #f44336';
+            notifBadge.style.zIndex = '9000';
+            notifBadge.onclick = window.toggleMailbox;
+            document.getElementById('game-screen').appendChild(notifBadge);
+        }
+        
+        if (unreadCount > 0) {
+            notifBadge.innerText = `📧 ${unreadCount} Unread Mail!`;
+            notifBadge.style.display = 'block';
+        } else {
+            notifBadge.style.display = 'none';
+        }
+
+        if (unreadCount === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Your inbox is empty.</p>'; return; }
+
+        mails.forEach(mail => {
+            const row = document.createElement('div'); row.className = 'mail-row';
+            
+            let itemHtml = '';
+            if (mail.attached_item) {
+                let itemName = typeof mail.attached_item === 'object' ? mail.attached_item.name : mail.attached_item;
+                let itemQty = mail.attached_item.quantity && mail.attached_item.quantity > 1 ? `x${mail.attached_item.quantity} ` : '';
+                itemHtml = `
+                <div class="mail-item-preview" style="background:#222; border: 1px dashed #ffd700; padding: 10px; margin-bottom:10px; border-radius: 4px;">
+                    <span style="color:#aaa; font-size:12px;">Attached Loot:</span><br>
+                    <strong style="color:#ffd700; font-size:16px;">${itemQty}${itemName}</strong>
+                </div>`;
+            }
+            
+            let messageText = mail.message_text || mail.content || "System Notification";
+            
+            row.innerHTML = `
+                <div class="mail-sender" style="color:#4CAF50; border-bottom:1px solid #444; padding-bottom:5px; margin-bottom:8px;">FROM: SYSTEM</div>
+                <div class="mail-msg" style="font-size:15px; margin-bottom:15px; line-height:1.5;">${messageText}</div>
+                ${itemHtml}
+                <button class="claim-btn" id="claim-${mail.id}" onclick="window.claimMail(${mail.id})">
+                    ${mail.attached_item ? 'CLAIM ATTACHMENT' : 'MARK AS READ'}
+                </button>
+            `;
+            container.appendChild(row);
+        });
+    });
+    
+    socket.on('mailClaimSuccess', (mailId) => { 
+        const btn = document.getElementById(`claim-${mailId}`); 
+        if (btn) { btn.innerText = "CLAIMED!"; btn.disabled = true; btn.style.background = "#555"; } 
+        if(dom.log) dom.log.innerText = "Mail claimed successfully!"; 
+        if(typeof window.renderInventory === 'function') window.renderInventory(); 
+        
+        // Refresh the unread badge
+        setTimeout(() => { if(socket) socket.emit('getMail'); }, 500);
+    });
+    socket.on('purchaseSuccess', (data) => { game.player.gold = data.newGold; game.player.inventory = data.inventory; window.updateUI(); window.renderInventory(); dom.log.innerText = "Purchase successful!"; });
+    socket.on('homeBought', (newGold) => {
+        game.player.gold = newGold;
+        if (!game.player.baseStats) game.player.baseStats = {};
+        game.player.baseStats.hasHome = true;
+        
+        let modal = document.getElementById('home-sale-modal');
+        if (modal) modal.style.display = 'none';
+        
+        if (dom.log) dom.log.innerText = "🎉 Congratulations! You are now a homeowner!";
+        window.updateUI();
+        window.spawnDamageText(game.player.x + 24, game.player.y - 20, "HOME PURCHASED!", "#4CAF50");
+        
+        // Save locally to ensure immediate sync
+        DatabaseManager.savePlayerData(game.player);
+    });
+    socket.on('sellSuccess', (data) => { game.player.gold = data.newGold; game.player.inventory = data.inventory; dom.log.innerText = `Item sold for ${data.price} Gold.`; window.updateUI(); window.renderInventory(); });
+    socket.on('syncInventory', (serverInventory) => { game.player.inventory = serverInventory; window.updateEquipmentDisplay(); window.renderInventory(); });
+ // 🌟 THE FIX: The Brand New Listener so your Potions actually move the red bar!
+    socket.on('playerVitals', (data) => {
+        if (!data) return;
+        if (typeof data.currentHp === 'number') game.player.currentHp = data.currentHp;
+        if (typeof data.maxHp === 'number') game.player.maxHp = data.maxHp;
+        if (typeof data.level === 'number') game.player.level = data.level;
+        if (typeof window.updateUI === 'function') window.updateUI();
+    });
+
+    socket.on('inventoryItemUsed', (data) => {
+        if (!data) return;
+
+        if (Array.isArray(data.inventory)) game.player.inventory = data.inventory;
+        if (typeof data.currentHp === 'number') game.player.currentHp = data.currentHp;
+        
+        if (data.equips) {
+            game.player.equips = data.equips;
+            if (typeof window.updateEquipmentDisplay === 'function') window.updateEquipmentDisplay();
+            if (typeof window.updateSkillMenu === 'function') window.updateSkillMenu();
+        }
+
+        if (data.classReset) {
+            if (!game.player.baseStats) game.player.baseStats = {};
+            game.player.baseStats.playerClass = null;
+            game.player.activeSkills = [];
+            if (typeof window.updateSkillMenu === 'function') window.updateSkillMenu();
+            if (typeof isSkillOpen !== 'undefined' && isSkillOpen && typeof window.renderSkillScreen === 'function') window.renderSkillScreen();
+            window.spawnDamageText(game.player.x + 24, game.player.y - 20, "CLASS RESET", '#ffeb3b');
+            if (dom.log) dom.log.innerText = `You reset your class! Open Skills (K) to pick a new one.`;
+        } else if (data.healAmount) {
+            window.spawnDamageText(game.player.x + 24, game.player.y - 20, `+${data.healAmount} HP`, '#4CAF50');
+            if (dom.log) dom.log.innerText = `Using ${data.itemName}...`;
+        } else {
+            if (dom.log) dom.log.innerText = `${data.itemName} used.`;
+        }
+
+        if (typeof window.updateUI === 'function') window.updateUI();
+        if (typeof window.renderInventory === 'function') window.renderInventory();
+        if (typeof window.updatePotionHotbar === 'function') window.updatePotionHotbar();
+    });
+    socket.on('needsCharacterCreation', (username) => { document.getElementById('loading-screen').style.display = 'none'; document.getElementById('char-name-input').value = username; document.getElementById('creation-screen').classList.add('active'); });
+    socket.on('rareLootBroadcast', (data) => { 
+        // 🛡️ THE FIX: Restrict Announcements
+        let isMe = (data.playerName === game.player.name);
+        let isInMyParty = game.party && game.party.members && game.party.members.some(m => m.name === data.playerName);
+        let isDivine = (data.rarity === 'Divine');
+        let isExoMetal = String(data.itemName).includes('Exo Metal');
+
+        // 1. Block Exo Metals from massive screen announcements
+        if (isExoMetal) return;
+
+        // 2. Block Global Legendary/Godly (Only show if it is Me or My Party)
+        if (!isDivine && !isMe && !isInMyParty) return;
+
+        let container = document.getElementById('loot-broadcast'); 
+        if (!container) { 
+            container = document.createElement('div'); 
+            container.id = 'loot-broadcast'; 
+            container.style.position = 'fixed'; 
+            container.style.top = '25%'; 
+            container.style.left = '50%'; 
+            container.style.transform = 'translateX(-50%)'; 
+            container.style.zIndex = '2147483647'; 
+            container.style.display = 'flex'; 
+            container.style.flexDirection = 'column'; 
+            container.style.alignItems = 'center'; 
+            container.style.pointerEvents = 'none'; 
+            container.style.width = '100%'; 
+            document.body.appendChild(container); 
+        } 
+        const ann = document.createElement('div'); 
+        ann.className = 'loot-announcement'; 
+        ann.style.borderColor = data.color || '#fff'; 
+        ann.style.boxShadow = `0 0 20px ${data.color}`; 
+        // 🛡️ THE FIX: Apply Divine Sparkle to the text AND the announcement box!
+    let glowClass = data.rarity === 'Divine' ? 'rarity-divine-text' : (data.rarity === 'Godly' ? 'rarity-godly' : '');
+    
+    if (data.rarity === 'Divine') {
+        ann.style.borderColor = '#ffea00';
+        ann.style.boxShadow = '0 0 30px #ffea00, inset 0 0 20px rgba(255, 152, 0, 0.8)';
+    }
+
+   // Also perfectly hides the "Lv." text if it's a material like Divine Essence
+        let lvlText = data.level ? `Lv. ${data.level}` : '';
+        
+        ann.innerHTML = `<div style="color: #e0e0e0; font-size: 16px; margin-bottom: 5px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 2px 2px 4px #000;">${data.playerName} just got</div><div style="color: ${data.color}; font-size: 28px; font-weight: bold; -webkit-text-stroke: 1px black; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 15px ${data.color};" class="${glowClass}">${data.itemName} ${lvlText}</div>`; 
+        
+        // 🌟 THE FIX: 'prepend' puts the newest drop at the very top instead of the bottom
+        container.prepend(ann);
+
+        // 🗑️ THE FIX: Delete the element from the game after the 3-second animation finishes!
+        setTimeout(() => {
+            if (ann) ann.remove();
+        }, 3000);
+    });
+   // ==========================================
+    // 📧 EMAIL UI HANDLING
+    // ==========================================
+    let pendingVerifyUsername = "";
+
+    socket.on('requireEmailVerification', (username) => {
+        pendingVerifyUsername = username;
+        document.getElementById('loading-screen').style.display = 'none';
+        
+        let verifyScreen = document.getElementById('email-verify-screen');
+        if (!verifyScreen) {
+            verifyScreen = document.createElement('div');
+            verifyScreen.id = 'email-verify-screen';
+            verifyScreen.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999; display:flex; justify-content:center; align-items:center;';
+            
+            verifyScreen.innerHTML = `
+                <div style="background:#111; border:2px solid #2196F3; padding:30px; border-radius:8px; box-shadow:0 0 30px #2196F3; color:white; text-align:center; width: 350px; font-family:sans-serif;">
+                    <h2 style="color:#2196F3; margin-top:0;">Secure Your Account</h2>
+                    <p style="font-size:13px; color:#aaa; margin-bottom:20px;">Exonie Online now requires email verification. Max 4 characters per email.</p>
+                    
+                    <div id="email-step-1">
+                        <input type="email" id="verify-email-input" placeholder="Enter an active Email address" style="width:100%; padding:10px; margin-bottom:15px; border-radius:4px; border:1px solid #444; background:#222; color:white; box-sizing:border-box;">
+                        <button class="btn" style="width:100%; background:#2196F3; padding:12px; font-weight:bold; font-size:16px;" onclick="window.sendVerificationCode()">Send Code</button>
+                    </div>
+
+                    <div id="email-step-2" style="display:none;">
+                        <p style="font-size:12px; color:#4CAF50;">Code sent! Please check your inbox/spam.</p>
+                        <input type="text" id="verify-code-input" placeholder="Enter 6-digit code" maxlength="6" style="width:100%; padding:10px; margin-bottom:15px; border-radius:4px; border:1px solid #444; background:#222; color:white; text-align:center; font-size:20px; letter-spacing:5px; box-sizing:border-box;">
+                        <button class="btn" style="width:100%; background:#4CAF50; padding:12px; font-weight:bold; font-size:16px;" onclick="window.submitVerificationCode()">Verify & Play</button>
+                    </div>
+                    
+                    <button class="btn" style="width:100%; background:#f44336; margin-top:10px;" onclick="location.reload()">Cancel / Back to Login</button>
+                </div>
+            `;
+            document.body.appendChild(verifyScreen);
+        }
+        
+        document.getElementById('email-step-1').style.display = 'block';
+        document.getElementById('email-step-2').style.display = 'none';
+        verifyScreen.style.display = 'flex';
+    });
+
+    window.sendVerificationCode = function() {
+        const email = document.getElementById('verify-email-input').value.trim();
+        if (!email || !email.includes('@')) return alert("Please enter a valid email.");
+        
+        socket.emit('requestEmailLink', { username: pendingVerifyUsername, email: email });
+        document.getElementById('verify-email-input').disabled = true;
+    };
+
+    window.submitVerificationCode = function() {
+        const code = document.getElementById('verify-code-input').value.trim();
+        if (code.length !== 6) return alert("Code must be 6 digits.");
+        
+        socket.emit('verifyEmailCode', { username: pendingVerifyUsername, code: code });
+    };
+
+    socket.on('emailCodeSent', () => {
+        document.getElementById('email-step-1').style.display = 'none';
+        document.getElementById('email-step-2').style.display = 'block';
+    });
+
+    socket.on('emailError', (msg) => {
+        alert(msg);
+        document.getElementById('verify-email-input').disabled = false;
+    });
+
+    socket.on('emailVerifiedSuccess', (user) => {
+        document.getElementById('email-verify-screen').style.display = 'none';
+        alert("Email successfully linked! Welcome to Exonie. PLEASE REFRESH YOUR GAME");
+        
+        // Push them forward in the login pipeline
+        if (!global.playerFriends) global.playerFriends = {};
+        global.playerFriends[user.character_name] = new Set(user.friends || []);
+
+        if (!user.skin_color) socket.emit('needsCharacterCreation', user.character_name);
+        else socket.emit('characterSelect', user);
+    });
+    socket.on('authError', (msg) => {
+    alert(msg);
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('auth-screen').classList.add('active');
+});
+
+socket.on('forcedLogout', (msg) => {
+    alert(msg || 'You were logged out because this account was opened elsewhere.');
+    localStorage.removeItem('exonie_user');
+    localStorage.removeItem('exonie_pass');
+    location.reload();
+});
+    socket.on('registerSuccess', (username) => { alert("Registration successful! Please log in."); window.switchAuth('login'); document.getElementById('loading-screen').style.display = 'none'; document.getElementById('auth-screen').classList.add('active'); });
+    socket.on('characterSelect', (userData) => { document.getElementById('loading-screen').style.display = 'none'; document.getElementById('select-name-display').innerText = userData.character_name; document.getElementById('select-level-display').innerText = `Level ${userData.level || 1}`; const selBody = document.getElementById('select-body'), selHead = document.getElementById('select-head'), selHair = document.getElementById('select-hair'), selWeapon = document.getElementById('select-weapon'); selBody.style.filter = skinFilters[userData.skin_color || 'flesh']; selHead.style.filter = skinFilters[userData.skin_color || 'flesh']; if (userData.hair_style === 'none' || !userData.hair_style) selHair.style.display = 'none'; else { selHair.style.display = 'block'; selHair.src = `animation/avatar_hair${userData.hair_style}.png`; selHair.style.filter = hairFilters[userData.hair_color || 'black']; } if (userData.equips?.weapon?.sprite) { selWeapon.style.display = 'block'; selWeapon.src = `weapon/${userData.equips.weapon.sprite.replace('starter', 'basic')}.png`; } else { selWeapon.style.display = 'none'; } selBody.style.opacity = '1'; selHead.style.opacity = '1'; selHair.style.opacity = '1'; selWeapon.style.opacity = '1'; document.getElementById('select-screen').classList.add('active'); game.cachedUserData = userData; });
+    socket.on('mapPlayersList', (players) => { for (const id in game.remotePlayers) window.removeRemotePlayer(id); (players || []).forEach(p => window.addRemotePlayer(p)); });
+    socket.on('remotePlayerJoined', (p) => window.addRemotePlayer(p));
+    socket.on('remotePlayerLeft', (id) => window.removeRemotePlayer(id));
+    // 🛡️ DYNAMIC DEATH SCREEN LOGIC
+    window.renderDeathScreen = function(canRespawn) {
+        const ds = document.getElementById('death-screen');
+        if (!ds) return;
+
+        // 1. Remove the black screen so they can spectate the fight!
+        ds.style.background = 'rgba(20, 0, 0, 0.3)'; 
+        ds.style.alignItems = 'flex-end'; // Pushes the box to the bottom of the screen
+        ds.style.paddingBottom = '10%';
+
+        // 2. Make the inner box look like a clean popup
+        let container = ds.querySelector('div') || ds; 
+        if (ds.children.length > 0 && ds.children[0].tagName === 'DIV') {
+            container = ds.children[0];
+            container.style.background = 'rgba(0, 0, 0, 0.85)';
+            container.style.border = '2px solid #f44336';
+            container.style.borderRadius = '8px';
+            container.style.padding = '20px';
+            container.style.boxShadow = '0 0 20px #f44336';
+            container.style.textAlign = 'center';
+        }
+
+        // 3. Button Logic
+        const juiceBtn = document.getElementById('revive-juice-btn');
+        // Find the "Return to Town" button (any button inside that isn't the juice button)
+        const respawnBtn = Array.from(container.getElementsByTagName('button')).find(b => b.id !== 'revive-juice-btn');
+
+        let hasJuice = game.player.inventory.some(i => i && i.name === "Revival Juice");
+        let isTavern = safeMapData.id === 'trainingtavern';
+
+        // ONLY show the Juice button if they have it and they aren't in the Tavern
+        if (juiceBtn) {
+            juiceBtn.style.display = (hasJuice && !isTavern) ? 'inline-block' : 'none';
+        }
+
+        // ONLY show the Return to Town button if the server confirms a full party wipe (or solo death)
+        if (respawnBtn) {
+            respawnBtn.style.display = canRespawn ? 'inline-block' : 'none';
+        }
+
+        ds.style.display = 'flex';
+    };
+
+    socket.on('remotePlayerGhosted', (pid) => { 
+        if (pid === game.player.id) {
+            game.isGhost = true;
+            game.player.currentHp = 0;
+            dom.playerContainer.style.opacity = '0.5';
+            
+            // 🛡️ THE FIX: Check locally if we are solo so the Return to Town button shows up instantly!
+            let isGrouped = false; // 🛑 DISABLED PARTY WAITING
+            window.renderDeathScreen(!isGrouped);
+            window.updateUI();
+        } else {
+            const rp = document.getElementById('remote_' + pid); 
+            if(rp) rp.style.opacity = '0.5'; 
+            if(game.remotePlayers[pid]) game.remotePlayers[pid].isGhost = true; 
+        }
+        window.renderPartyUI(); 
+    });
+
+   // 🌟 THE FIX: Wake the client up when the server says we revived!
+    socket.on('playerRevived', (data) => {
+        if (data.id === game.player.id) {
+            game.isGhost = false; // 🛑 THIS WAS THE CULPRIT!
+            game.player.currentHp = data.currentHp;
+            dom.playerContainer.style.opacity = '1';
+            
+            const ds = document.getElementById('death-screen');
+            if (ds) ds.style.display = 'none'; // Hide the death screen
+            
+            window.updateUI();
+        } else {
+            // Un-ghost party members visually
+            const rp = document.getElementById('remote_' + data.id);
+            if (rp) rp.style.opacity = '1';
+            if (game.remotePlayers[data.id]) game.remotePlayers[data.id].isGhost = false;
+        }
+        window.renderPartyUI();
+    });
+
+    socket.on('revivalJuiceUsed', (data) => {
+        game.player.inventory = data.inventory;
+        game.player.currentHp = data.currentHp;
+        
+        game.isGhost = false; // 🛑 Clear the local ghost lock!
+        dom.playerContainer.style.opacity = '1';
+        
+        const ds = document.getElementById('death-screen');
+        if (ds) ds.style.display = 'none'; // Clear the screen
+        
+        window.updateUI();
+        if (typeof window.renderInventory === 'function') window.renderInventory();
+    });
+    socket.on('partyError', (msg) => { dom.log.innerText = msg; });
+    socket.on('partyKickedOrLeft', () => { dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; game.party = null; dom.log.innerText = "You are no longer in a party."; });
+    socket.on('chatMessage', (data) => { if (data.id === game.player.id) return; const p = game.remotePlayers[data.id]; if (p) window.showBubble(p, data.text); });
+    socket.on('friendsListUpdate', (friendsList) => { const container = document.getElementById('friends-list-container'); container.innerHTML = ''; if (!friendsList || friendsList.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Your friends list is empty.</p>'; return; } friendsList.forEach(f => { const row = document.createElement('div'); row.className = 'friend-row'; let lvlColor = f.online ? '#ffd700' : '#888'; let levelHtml = `<span style="color:${lvlColor}; font-size:12px; margin-left: 5px;">(Lv.${f.level})</span>`; let classFmt = f.pClass ? `<span style="color:#aaa; font-size:11px;">${f.pClass}</span>` : `<span style="color:#555; font-size:11px;">Novice</span>`; let mapFmt = f.online ? `<span style="color:#2196F3; font-size:11px;">[${f.mapId || 'Town'}]</span>` : ''; let spectateBtn = (window.isAdmin(game.player.name) && f.online) ? `<button class="dm-btn" style="background:#f44336; margin-bottom:5px;" onclick="window.startSpectate('${f.id}')">👁️ Spectate</button>` : ''; row.innerHTML = `<div class="friend-info" style="flex-direction:column; align-items:flex-start; gap:2px;"><div style="display:flex; align-items:center; gap:5px;"><div class="status-dot ${f.online ? 'online' : 'offline'}"></div>${f.id} ${levelHtml}</div><div style="margin-left: 17px; display:flex; gap: 8px;">${classFmt} ${mapFmt}</div></div><div style="display:flex; flex-direction:column;">${spectateBtn}<button class="dm-btn" onclick="window.promptDM('${f.id}')">DM</button></div>`; container.appendChild(row); }); });
+    socket.on('receiveDM', (data) => { 
+        let formatted = `<span style="color:#E040FB;">[DM] ${data.from}: ${data.message}</span>`;
+        window.addPersistentChat(formatted); dom.log.innerHTML = formatted; 
+        if (!data.from.startsWith('To ')) window.playDMSound(); 
+    });
+    
+    socket.on('systemMessage', (msg) => { 
+        let formatted = `<span style="color:#ffeb3b;">[System] ${msg}</span>`;
+        window.addPersistentChat(formatted); dom.log.innerHTML = formatted; 
+    });
+
+    socket.on('partyChatMessage', (data) => {
+        window.addPersistentChat(`<span style="color:#00E5FF; font-weight:bold;">[Party] ${data.from}: ${data.text}</span>`);
+    });
+socket.on('partyItemLink', (data) => {
+        let color = window.RARITY_COLORS[data.item.rarity] || '#fff';
+        let enhanceStr = data.item.enhanceLevel ? ` +${data.item.enhanceLevel}` : '';
+        let name = data.item.name + enhanceStr;
+        
+        // Safely encode the JSON so it can be passed into the onclick function via HTML
+        let safeItemJson = encodeURIComponent(JSON.stringify(data.item));
+        
+        let html = `<span style="color:#00E5FF; font-weight:bold;">[Party] ${data.from} linked: </span><span style="color:${color}; font-weight:bold; cursor:pointer; text-decoration:underline; text-shadow: 0 0 5px ${color};" onclick="window.showLinkedItem('${safeItemJson}')">[${name}]</span>`;
+        
+        window.addPersistentChat(html);
+        if (dom.log) dom.log.innerHTML = html;
+    });
+socket.on('forceTeleport', (tp) => {
+    window.isTransitioning = true; // 🛡️ NETWORK LOCK: Ignore old map data
+    game.player.teleportCooldown = 2000; 
+    game.player.isTeleporting = false;
+    // 🛡️ THE FIX: This string locks the portal under their feet until they walk away!
+    game.player.currentPortal = 'JUST_SPAWNED'; 
+    window.isDungeonUIOpen = false;
+    if (document.getElementById('dungeon-timer-ui')) document.getElementById('dungeon-timer-ui').style.display = 'none';
+
+    window.loadMapScript(tp.mapId, () => {
+        safeMapData = window.MapDatabase[tp.mapId];
+        safeMapData.id = tp.mapId;
+
+        // 🛡️ THE FIX: We MUST preload the new map assets so the images download and the loading screen hides!
+        window.preloadMapAssets(safeMapData, () => {
+            if (tp.mapId === 'town' && safeMapData.teleports && !tp.spectateTarget) {
+                const p1 = safeMapData.teleports.find(p => p.portalId === 1);
+                if (p1) {
+                    game.player.x = p1.x + (p1.w / 2) - (game.player.width / 2);
+                    game.player.y = p1.y + p1.h - game.player.height + 5;
+                } else {
+                    game.player.x = tp.x;
+                    game.player.y = tp.y;
+                }
+            } else {
+                game.player.x = tp.x;
+                game.player.y = tp.y;
+            }
+
+            window.cleanupMap();
+            dom.world.style.backgroundImage = `url('${safeMapData.image}')`;
+            window.buildCollisionLayers();
+// 🎵 DYNAMIC MUSIC SELECTOR: Routes music based on map type
+let nextTrack = 'town'; // Default
+let mId = String(tp.mapId || tp.targetMapId || 'town').toLowerCase();
+
+if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon')) {
+    nextTrack = 'bossfight';
+} else if (mId.includes('floor')) {
+    nextTrack = 'floors';
+} else if (mId.includes('home')) {
+    nextTrack = 'home'; // 🏠 Plays music/home.mp3
+} else if (mId === 'guildbase') {
+    nextTrack = 'guild'; // 🏰 Plays music/guild.mp3
+}
+
+// 🎵 Update Music using the new Router
+            window.playBGM(window.routeMapMusic(tp.mapId));
+            window.showMapAnnouncement(tp.mapId);
+
+            if (tp.spectateTarget) {
+                window.isSpectating = true;
+                window.spectateTargetId = tp.spectateTarget;
+                game.isGhost = true; 
+                dom.playerContainer.style.display = 'none';
+                document.getElementById('spectate-ui').style.display = 'block';
+                if(dom.log) dom.log.innerText = `[ADMIN] Now Spectating: ${tp.spectateTarget}`;
+            } else {
+                window.isSpectating = false;
+                window.spectateTargetId = null;
+                game.isGhost = false;
+                dom.playerContainer.style.display = 'block';
+                document.getElementById('spectate-ui').style.display = 'none';
+                dom.playerContainer.style.opacity = '1';
+
+                socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'idle', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
+               socket.emit('playerTeleported', { mapId: tp.mapId, x: game.player.x, y: game.player.y, mapData: safeMapData });
+            }
+
+            let isGrouped = false; // 🛑 DISABLED PARTY WAITING
+            document.getElementById('loading-text').innerText = isGrouped ? "Waiting for team to load..." : "Loading Map...";
+            if (socket) socket.emit('clientFinishedLoadingMap');
+
+            // 🛡️ INDESTRUCTIBLE FAIL-SAFE: Drops the screen automatically!
+            setTimeout(() => {
+                if (!isGrouped || window.isLoading) {
+                    window.isLoading = false; window.isTransitioning = false; game.player.isTeleporting = false;
+                    let ls = document.getElementById('loading-screen'); if (ls) ls.style.display = 'none';
+                    let ts = document.getElementById('map-transition'); if (ts) { ts.style.opacity = '0'; setTimeout(() => ts.style.display='none', 1000); }
+                    if (typeof safeMapData !== 'undefined' && safeMapData.id) { window.playBGM(window.routeMapMusic(safeMapData.id)); try { window.showMapAnnouncement(safeMapData.id); } catch(e){} }
+                }
+            }, isGrouped ? 3000 : 300);
+        });
+    });
+    
+    // 🛡️ SYNC FIX: Master Listener to drop the curtain when the server says everyone is ready!
+    socket.on('releaseLoadingScreen', () => {
+        window.isLoading = false;
+        window.isTransitioning = false;
+        game.player.isTeleporting = false; // 🛑 UNLOCKS MOVEMENT!
+
+        const ls = document.getElementById('loading-screen');
+        if (ls) ls.style.display = 'none';
+
+        const transScreen = document.getElementById('map-transition');
+        if (transScreen) {
+            transScreen.style.opacity = '0';
+            setTimeout(() => { transScreen.style.display = 'none'; }, 1000);
+        }
+
+        if (typeof safeMapData !== 'undefined' && safeMapData.id) {
+            window.playBGM(window.routeMapMusic(safeMapData.id));
+            try { window.showMapAnnouncement(safeMapData.id); } catch(e) {}
+        }
+    });
+});
+    socket.on('teleportApproved', (tp) => { 
+    window.isTransitioning = true; // 🛡️ NETWORK LOCK: Ignore old map data
+        let nextMapId = tp.targetMapId || 'town'; 
+        
+        // 🏰 NEW: Dungeon 1 Group Entry Logic
+        if (nextMapId === 'dungeon1') {
+            game.player.currentPortal = null;
+            window.isDungeonUIOpen = true;
+            game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false;
+
+            // 📅 Sync Dungeon UI Reset Check dynamically before showing entries
+            const now = new Date();
+            let dayOfWeek = now.getUTCDay();
+            let daysSinceMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
+            
+            let lastMonday = new Date(now.getTime());
+            lastMonday.setUTCDate(now.getUTCDate() - daysSinceMonday);
+            lastMonday.setUTCHours(0, 0, 0, 0);
+            const lastMondayTs = lastMonday.getTime();
+
+            if (!game.player.baseStats) game.player.baseStats = {};
+            if (!game.player.baseStats.dungeonReset || game.player.baseStats.dungeonReset < lastMondayTs) {
+                game.player.baseStats.dungeonEntries = 7;
+                game.player.baseStats.dungeonReset = Date.now();
+            }
+
+            if (game.party && game.party.members && game.party.members.length > 1) {
+                if (game.party.leaderId === game.player.id) {
+                    document.getElementById('dungeon-entries-text').innerText = `Weekly Entries: ${game.player.baseStats.dungeonEntries}/7`;
+                    document.getElementById('dungeon-screen').style.display = 'flex';
+                } else {
+                    document.getElementById('loading-text').innerText = "Waiting for Party Leader to select difficulty...";
+                    document.getElementById('loading-screen').style.display = 'flex';
+                }
+            } else {
+                document.getElementById('dungeon-entries-text').innerText = `Weekly Entries: ${game.player.baseStats.dungeonEntries}/7`;
+                document.getElementById('dungeon-screen').style.display = 'flex';
+            }
+            return; // Stop standard teleport
+        }
+
+        const transScreen = document.getElementById('map-transition'); 
+        document.getElementById('transition-text').innerText = `Entering ${nextMapId}...`; 
+        transScreen.style.display = 'flex'; 
+        setTimeout(() => { transScreen.style.opacity = '1'; }, 10); 
+        game.player.teleportCooldown = 4000; 
+        
+        setTimeout(() => { 
+            window.loadMapScript(nextMapId, () => { 
+                safeMapData = window.MapDatabase[nextMapId]; 
+                safeMapData.id = nextMapId; // 🛡️ CRITICAL FIX: FORCES MAP ID TO UPDATE SO MONSTERS RENDER!
+                
+                let targetId;
+                // 🛡️ THE FIX: Skip pairing math if this is a fast-travel Maze Guide jump!
+                if (tp.exactTarget) {
+                    targetId = tp.portalId;
+                } else if (typeof tp.portalId === 'number') {
+                    targetId = tp.portalId % 2 === 1 ? tp.portalId + 1 : tp.portalId - 1; 
+                } else {
+                    let code = String(tp.portalId).charCodeAt(0);
+                    let targetCode = code % 2 === 1 ? code + 1 : code - 1;
+                    targetId = String.fromCharCode(targetCode);
+                }
+                let targetPortal = safeMapData.teleports.find(p => p.portalId === targetId);
+                
+                window.preloadMapAssets(safeMapData, () => { 
+                    game.player.x = targetPortal ? (targetPortal.x + (targetPortal.w / 2) - (game.player.width / 2)) : safeMapData.spawnX; 
+                    game.player.y = targetPortal ? (targetPortal.y + targetPortal.h - game.player.height + 5) : safeMapData.spawnY; 
+                    dom.world.style.backgroundImage = `url('${safeMapData.image}')`; 
+                    window.buildCollisionLayers(); 
+                    window.cleanupMap(); 
+                    
+              if(socket) socket.emit('playerTeleported', { mapId: nextMapId, x: game.player.x, y: game.player.y, mapData: safeMapData }); 
+        
+        let isGrouped = false; // 🛑 DISABLED PARTY WAITING
+        document.getElementById('transition-text').innerText = isGrouped ? "Waiting for team to load..." : "Loading Map...";
+        if (socket) socket.emit('clientFinishedLoadingMap');
+
+        // 🛡️ INDESTRUCTIBLE FAIL-SAFE: Drops the screen automatically!
+        setTimeout(() => {
+            if (!isGrouped || window.isLoading) {
+                window.isLoading = false; window.isTransitioning = false; game.player.isTeleporting = false;
+                let ls = document.getElementById('loading-screen'); if (ls) ls.style.display = 'none';
+                let ts = document.getElementById('map-transition'); if (ts) { ts.style.opacity = '0'; setTimeout(() => ts.style.display='none', 1000); }
+                if (typeof safeMapData !== 'undefined' && safeMapData.id) { window.playBGM(window.routeMapMusic(safeMapData.id)); try { window.showMapAnnouncement(safeMapData.id); } catch(e){} }
+            }
+        }, isGrouped ? 3000 : 300);
+    }); 
+});
+        }, 500);
+});
+    socket.on('remotePlayerMoved', (data) => { if (!game.remotePlayers[data.id]) window.addRemotePlayer({ id: data.id, name: data.id, x: data.x, y: data.y, spriteData: {} }); const p = game.remotePlayers[data.id]; if (!p) return; p.x = data.x; p.y = data.y; p.dom.style.left = p.x + 'px'; p.dom.style.top = p.y + 'px'; p.rig.style.transform = data.facingRight ? 'scaleX(-1)' : 'scaleX(1)'; let pulseActive = (Math.floor(Date.now() / 250) % 2 === 0); let bodySrc = 'animation/avatar_idlefront.png'; let isAtk = false; if (data.state === 'attack') { bodySrc = 'animation/avatar_attack.png'; isAtk = true; } else if (data.state === 'walk') { bodySrc = pulseActive ? 'animation/avatar_walk.png' : 'animation/avatar_idlefront.png'; } if (p.currentBodySrc !== bodySrc) { p.body.src = bodySrc; p.currentBodySrc = bodySrc; } if (data.weaponSprite) { 
+            p.weapon.style.display = 'block'; 
+            let fixedWpn = data.weaponSprite.replace('starter', 'basic'); 
+            let wpnSrc = `weapon/${fixedWpn}${(data.state === 'attack' && isAtk && !fixedWpn.includes('pendant')) ? '_attack' : ''}.png`; 
+            if (p.currentWeaponSrc !== wpnSrc) { p.weapon.src = wpnSrc; p.currentWeaponSrc = wpnSrc; } 
+            if (!p.spriteData) p.spriteData = {}; p.spriteData.weapon = fixedWpn; 
+// 🛡️ DYNAMIC AURA FIX: Live updating for new rarities!
+           p.weapon.className = 'avatar-layer layer-weapon';
+           let rWpn = fixedWpn.toLowerCase();
+           ['sword', 'staff', 'pendant', 'gun', 'dagger'].forEach(bt => {
+               if (rWpn.includes(bt)) {
+                   let extRarity = rWpn.replace(bt, '');
+                   if (extRarity && !['starter', 'basic', 'rare', 'unique'].includes(extRarity)) {
+                       p.weapon.classList.add(`weapon-aura-${extRarity}`);
+                   }
+               }
+           });
+
+        } else { 
+            p.weapon.style.display = 'none'; p.currentWeaponSrc = ''; 
+            if (p.spriteData) p.spriteData.weapon = null; 
+            p.weapon.className = 'avatar-layer layer-weapon';
+      }
+   const cAuraEl = p.rig.querySelector('.cosmetic-aura'); 
+       if (cAuraEl) {
+           // 🛡️ REVERT: Restore the normal cosmetic aura logic
+           cAuraEl.className = data.spriteData?.aura ? `cosmetic-aura aura-${data.spriteData.aura}` : 'cosmetic-aura';
+       }
+       const titleEl = p.dom.querySelector('.title-tag');
+       if (titleEl) {
+           let tHtml = `<div style="text-align: center; width: 100%;">`;
+           tHtml += data.spriteData?.title ? `&lt;${data.spriteData.title}&gt;` : '';
+           if (data.spriteData?.guildName) {
+               tHtml += (data.spriteData?.title ? '<br>' : '') + `<span style="color:#4CAF50; font-size:13px; font-weight:900; letter-spacing:1px; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 2px 4px rgba(0,0,0,0.6);">[${data.spriteData.guildName}]</span>`;
+           }
+           tHtml += `</div>`;
+           titleEl.innerHTML = tHtml;
+       }
+        });
+    socket.on('inspectData', (data) => { 
+        if (!data) return; 
+        dom.inspect.style.display = 'block'; 
+        dom.inspectTitle.innerText = `Inspect: ${data.name || data.id || "Unknown"}`; 
+        const equips = data.equips || {}; 
+        
+        // 🛡️ THE FIX: Added Necklace, Ring, and Earrings to the Inspect Window!
+        const slots = [ 
+            { key: 'weapon', label: 'Weapon' }, 
+            { key: 'armor', label: 'Armor' }, 
+            { key: 'leggings', label: 'Leggings' },
+            { key: 'necklace', label: 'Necklace' },
+            { key: 'ring', label: 'Ring' },
+            { key: 'earrings', label: 'Earrings' }
+        ]; 
+        
+        function fmtStatBlock(item) { 
+            if (!item) return `<div class="inspect-empty">None</div>`; 
+            const rarityColor = item.color || (window.RARITY_COLORS[item.rarity] || "#fff"); 
+            const nameClass = item.rarity === "Godly" ? "rarity-godly" : (item.rarity === "Divine" ? "rarity-divine-text" : "");
+            const displayName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name; 
+            let html = `<div class="inspect-title"><div class="inspect-item-name ${nameClass}" style="color:${rarityColor};">${displayName}</div><div class="inspect-sub">Lv.${item.level || 1} ${item.rarity || "Unknown"}</div></div><div class="inspect-stat">`; 
+
+            // 💎 THE FIX: Visual indicator for Inspect Menu
+            if (['necklace', 'ring', 'earrings'].includes(item.type)) {
+                let maxGems = { "Basic": 1, "Rare": 1, "Unique": 2, "Legendary": 3, "Godly": 4, "Divine": 5 }[item.rarity] || 0;
+                if (maxGems > 0) {
+                    let count = item.gemCount || 0;
+                    let sockets = "";
+                    for(let i = 0; i < maxGems; i++) {
+                        sockets += (i < count) ? "♦" : "♢";
+                    }
+                    html += `<div style="color:#00ffff; font-size:13px; margin-bottom:4px; letter-spacing:2px;">Sockets: ${sockets}</div>`;
+                }
+            }
+
+            if (item.fixedStat) { for (const k in item.fixedStat) html += `<div><b>Fixed:</b> +${item.fixedStat[k]} ${k.toUpperCase()}</div>`; }
+            if (item.randomStat) { for (const k in item.randomStat) html += `<div><b>Random:</b> +${item.randomStat[k]} ${k.toUpperCase()}</div>`; } 
+            if (item.sprite) { html += `<div style="color:#888; margin-top:6px;">Sprite: ${item.sprite}.png</div>`; } 
+            html += `</div>`; return html; 
+        } 
+        
+        let out = `<div style="font-size:14px; color:#ccc; margin-bottom:10px; text-align:center;">Level ${data.level || 1} &nbsp; | &nbsp; HP ${data.currentHp ?? "?"} / ${data.maxHp ?? "?"}</div>`; 
+        
+        slots.forEach(s => { 
+            out += `<div class="inspect-equip"><div style="font-weight:bold; color:#ffeb3b; margin-bottom:6px;">${s.label}</div>${fmtStatBlock(equips[s.key])}</div>`; 
+        }); 
+        
+        dom.inspectContent.innerHTML = out; 
+    });
+    socket.on('partyInviteReceived', (payload) => { pendingPartyInvite = payload?.fromId || "Unknown"; document.getElementById('invite-text').innerText = `${pendingPartyInvite} invited you to a party.`; document.getElementById('invite-dialog').style.display = 'block'; });
+    socket.on('tradeInviteReceived', (payload) => { pendingTradeInvite = payload?.fromId || "Unknown"; document.getElementById('trade-text').innerText = `${pendingTradeInvite} wants to trade.`; document.getElementById('trade-dialog').style.display = 'block'; });
+      socket.on('tradeStarted', (data) => {
+    tradeTarget = data.targetId;
+    inTradeMode = true;
+    tradeMyItems = [null, null, null];
+    tradeTheirItems = [null, null, null];
+
+    document.getElementById('trade-target-name').innerText = tradeTarget;
+    document.getElementById('trade-screen').style.display = 'block';
+    const tradeEl = document.getElementById('trade-screen');
+if (window.isMobileUI()) {
+    window.enableMobileWindowControls(tradeEl);
+    window.bringWindowToFront(tradeEl);
+    window.clampWindowToViewport(tradeEl);
+}
+    document.getElementById('trade-my-gold').value = 0;
+    document.getElementById('trade-their-gold').innerText = '0';
+
+    const btn = document.getElementById('trade-confirm-btn');
+    if (btn) {
+        btn.innerText = 'Confirm Trade';
+        btn.disabled = false;
+        btn.style.background = '#2196F3';
+        btn.style.borderColor = '#2196F3';
+    }
+
+    window.renderTradeSlots();
+    window.renderInventory();
+    dom.invScreen.style.display = 'block';
+});
+        socket.on('tradeSyncReceived', (data) => {
+        document.getElementById('trade-their-gold').innerText = data.gold || 0;
+        tradeTheirItems = Array.isArray(data.items) ? data.items : [null, null, null];
+        window.renderTradeSlots();
+    });
+socket.on('tradeConfirmStatus', (data) => {
+    const btn = document.getElementById('trade-confirm-btn');
+    if (!btn) return;
+
+    if (data.meConfirmed && data.otherConfirmed) {
+        btn.innerText = 'Trading...';
+        btn.disabled = true;
+        btn.style.background = '#555';
+        btn.style.borderColor = '#555';
+        return;
+    }
+
+    if (data.meConfirmed) {
+        btn.innerText = 'Confirmed - Waiting...';
+        btn.disabled = true;
+        btn.style.background = '#4CAF50';
+        btn.style.borderColor = '#4CAF50';
+    } else {
+        btn.innerText = 'Confirm Trade';
+        btn.disabled = false;
+        btn.style.background = '#2196F3';
+        btn.style.borderColor = '#2196F3';
+    }
+});
+
+socket.on('tradeDone', (data) => {
+    inTradeMode = false;
+    tradeTarget = null;
+    tradeMyItems = [null, null, null];
+    tradeTheirItems = [null, null, null];
+
+    game.player.gold = data.newGold || 0;
+    game.player.inventory = Array.isArray(data.newInventory) ? data.newInventory : game.player.inventory;
+
+    document.getElementById('trade-my-gold').value = 0;
+    document.getElementById('trade-their-gold').innerText = '0';
+    document.getElementById('trade-screen').style.display = 'none';
+
+    const btn = document.getElementById('trade-confirm-btn');
+    if (btn) {
+        btn.innerText = 'Confirm Trade';
+        btn.disabled = false;
+        btn.style.background = '#2196F3';
+        btn.style.borderColor = '#2196F3';
+    }
+
+    window.renderTradeSlots();
+    window.renderInventory();
+    window.updateUI();
+    dom.log.innerText = 'Trade completed.';
+});
+   socket.on('tradeCancelled', () => {
+    inTradeMode = false;
+    tradeTarget = null;
+    document.getElementById('trade-screen').style.display = 'none';
+    dom.log.innerText = "The other player cancelled the trade.";
+
+    tradeMyItems.forEach(item => { if (item) window.addLoot(item); });
+    tradeMyItems = [null, null, null];
+    tradeTheirItems = [null, null, null];
+
+    document.getElementById('trade-my-gold').value = 0;
+    document.getElementById('trade-their-gold').innerText = "0";
+
+    const btn = document.getElementById('trade-confirm-btn');
+    if (btn) {
+        btn.innerText = 'Confirm Trade';
+        btn.disabled = false;
+        btn.style.background = '#2196F3';
+        btn.style.borderColor = '#2196F3';
+    }
+
+    window.renderInventory();
+    window.renderTradeSlots();
+});
+    socket.on('partyUpdate', (partyData) => { game.party = partyData || null; window.renderPartyUI(); });
+   window.justLeveledUp = false;
+
+    socket.on('receiveExp', (data) => { 
+        // 🛡️ THE UI DESYNC FIX: If the server just forced a level up, the exact leftover EXP is already calculated perfectly.
+        // We skip adding data.amount so the UI bar doesn't "double dip" and overfill visually!
+        if (window.justLeveledUp) {
+            window.justLeveledUp = false; // Consume the flag
+        } else {
+            game.player.exp += data.amount; 
+        }
+        
+        if(data.gold) game.player.gold += data.gold; 
+        dom.log.innerText = `Gained ${data.amount} EXP${data.gold ? ` & ${data.gold} Gold` : ''} from ${data.source}!`; 
+        window.updateUI(); 
+    });
+
+    socket.on('serverLevelUp', (data) => {
+        window.justLeveledUp = true; // 🛡️ Tell receiveExp to ignore its addition
+        
+        game.player.level = data.level;
+        game.player.exp = data.exp;
+        game.player.maxExp = data.maxExp;
+        game.player.baseStats = data.baseStats;
+        game.player.currentHp = data.currentHp;
+        
+        const txt = document.createElement('div'); 
+        txt.className = 'level-up-text'; 
+        txt.innerText = "LEVEL UP!"; 
+        txt.style.left = (game.player.x - 20) + 'px'; 
+        txt.style.top = (game.player.y - 40) + 'px'; 
+        dom.world.appendChild(txt); 
+        setTimeout(() => txt.remove(), 2000);
+        
+        window.updateUI(); 
+        window.updateSkillMenu();
+    });
+    socket.on('partyMemberVitals', (data) => { if (game.party && game.party.members) { let m = game.party.members.find(x => x.id === data.id); if (m) { m.currentHp = data.currentHp; m.maxHp = data.maxHp; m.level = data.level; window.renderPartyUI(); } } });
+    socket.on('remotePetSync', (data) => { 
+        let petId = `pet_${data.ownerId}_${data.petData.id}`; 
+        let petEl = document.getElementById(petId); 
+        if (data.petData.alive) { 
+            if (!petEl) { 
+                petEl = document.createElement('div'); 
+                petEl.id = petId; 
+                
+                if (data.petData.isDrone) {
+                    petEl.className = 'tech-drone';
+                } else if (data.petData.isGolemBuster) {
+                    petEl.className = 'pet-slime golem-buster';
+                    petEl.innerHTML = `<div class="pet-hp-bar" style="top:-15px;"><div class="pet-hp-fill" style="width:100%"></div></div>
+                    <div class="monster-sprite-layer golem-base">
+                        <div class="g-head"><div class="g-eye"></div><div class="g-eye"></div></div>
+                        <div class="g-arm-l"></div><div class="g-arm-r"></div>
+                        <div class="g-leg-l"></div><div class="g-leg-r"></div>
+                    </div>`;
+                } else {
+                    petEl.className = 'pet-slime'; 
+                    petEl.innerHTML = '<div class="pet-hp-bar"><div class="pet-hp-fill" style="width:100%"></div></div>'; 
+                }
+
+                // 🌟 BIG BOSS REMOTE SYNC STYLING
+                if (data.petData.isBigBoss) {
+                    petEl.style.width = '100px';
+                    petEl.style.height = '100px';
+                    petEl.style.backgroundColor = '#ffffff';
+                    petEl.style.border = '3px solid #ccc';
+                    petEl.style.borderRadius = '50% 50% 40% 40%';
+                    petEl.style.boxShadow = '0 0 20px #ffffff';
+                }
+                
+                dom.world.appendChild(petEl); 
+            } 
+            petEl.style.left = data.petData.x + 'px'; 
+            petEl.style.top = data.petData.y + 'px'; 
+        } else if (petEl) { 
+            petEl.remove(); 
+        } 
+    });
+socket.on('playerRevived', (data) => {
+    if (!data) return;
+
+    if (data.id === game.player.id) {
+        game.isGhost = false;
+        game.player.currentHp = data.currentHp || window.getMaxHp();
+        game.player.currentPortal = null;
+        game.player.portalEntryTime = null;
+        game.player.isTeleporting = false;
+
+        if (dom.playerContainer) dom.playerContainer.style.opacity = '1';
+
+        const deathScreen = document.getElementById('death-screen');
+        if (deathScreen) deathScreen.style.display = 'none';
+
+        const portalUI = document.getElementById('portal-timer-ui');
+        if (portalUI) portalUI.style.display = 'none';
+
+        window.spawnDamageText(game.player.x + 24, game.player.y, "REVIVED", "#4CAF50");
+    } else if (game.remotePlayers[data.id]) {
+        game.remotePlayers[data.id].isGhost = false;
+        game.remotePlayers[data.id].dom.style.opacity = '1';
+        window.spawnDamageText(
+            game.remotePlayers[data.id].x + 24,
+            game.remotePlayers[data.id].y,
+            "REVIVED",
+            "#4CAF50"
+        );
+    }
+
+    window.updateUI();
+    window.renderPartyUI();
+});
+
+socket.on('revivalJuiceUsed', (data) => {
+    if (!data) return;
+
+    if (Array.isArray(data.inventory)) {
+        game.player.inventory = data.inventory;
+    }
+
+    game.isGhost = false;
+    game.player.currentHp = data.currentHp || window.getMaxHp();
+    game.player.currentPortal = null;
+    game.player.portalEntryTime = null;
+    game.player.isTeleporting = false;
+
+    if (dom.playerContainer) dom.playerContainer.style.opacity = '1';
+
+    const deathScreen = document.getElementById('death-screen');
+    if (deathScreen) deathScreen.style.display = 'none';
+
+    const portalUI = document.getElementById('portal-timer-ui');
+    if (portalUI) portalUI.style.display = 'none';
+
+ window.spawnDamageText(game.player.x + 24, game.player.y, "REVIVED", "#ffeb3b");
+        dom.log.innerText = "You drank the Revival Juice and came back to life!";
+
+        window.updateUI();
+        window.renderInventory();
+        window.emitVitalsIfNeeded(true);
+
+        if (socket) {
+        socket.emit('playerMoved', {
+            x: game.player.x,
+            y: game.player.y,
+            state: 'idle',
+            facingRight: window.facingRight,
+            weaponSprite: game.player.equips?.weapon?.sprite || null
+        });
+    }
+});
+    socket.on('playerHealed', (data) => { const target = (data.id === game.player.id) ? game.player : game.remotePlayers[data.id]; if (target) { if (data.id === game.player.id) game.player.currentHp = data.currentHp; window.spawnDamageText(target.x + 24, target.y - 10, `+${data.amount}`, '#4CAF50'); } window.updateUI(); window.renderPartyUI(); });
+    socket.on('remoteSkillEffect', (data) => { 
+        const p = game.remotePlayers[data.playerId]; 
+        if (p) { 
+            const aura = p.dom.querySelector('.aura') || document.createElement('div'); 
+            aura.className = `aura aura-${data.auraColor}`; 
+            if (!p.dom.querySelector('.aura')) p.dom.querySelector('.player-avatar-container').prepend(aura); 
+            aura.style.animation = 'none'; 
+            void aura.offsetWidth; 
+            aura.style.animation = 'aura-burst 0.6s ease-out forwards'; 
+
+            // 🌟 THE FIX: Play remote player's weapon SFX and show floating text
+            if (typeof window.playSFX === 'function') window.playSFX(data.weaponSprite);
+            if (data.skillName && typeof window.spawnSkillText === 'function') {
+                window.spawnSkillText(p.x + 24, p.y - 20, data.skillName, '#00E5FF');
+            }
+        } 
+    });
+    
+  socket.on('monsterState', (monsters) => {
+        if (window.isTransitioning || window.isLoading || !Array.isArray(monsters) || safeMapData.id === 'town') return;
+        const currentIds = new Set();
+        monsters.forEach(m => {
+            currentIds.add(m.id); let mEl = document.getElementById('mob_' + m.id);
+            if (!mEl) {
+                mEl = document.createElement('div'); mEl.id = 'mob_' + m.id; mEl.className = 'entity monster-container'; mEl.style.position = 'absolute'; mEl.style.cursor = 'crosshair'; mEl.style.zIndex = '50'; mEl.style.display = 'flex'; mEl.style.justifyContent = 'center'; mEl.style.alignItems = 'flex-end';
+                
+             // 🎨 BUILD THE HTML FOR OUR CUSTOM CSS MONSTERS
+                let spriteHtml = '';
+                if (m.monsterKey.includes('golem')) {
+                    spriteHtml = `<div class="monster-sprite-layer golem-base"><div class="g-head"><div class="g-eye"></div><div class="g-eye"></div></div><div class="g-arm-l"></div><div class="g-arm-r"></div><div class="g-leg-l"></div><div class="g-leg-r"></div></div>`;
+                } else if (m.monsterKey.includes('wraith')) {
+                    spriteHtml = `<div class="monster-sprite-layer wraith-base"><div class="w-eye left"></div><div class="w-eye right"></div><div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div></div>`;
+                } else if (m.monsterKey.includes('minotaur')) {
+                    // 🐂 MINOTAUR: Exact Golem body, but with horns and an axe
+                    spriteHtml = `<div class="monster-sprite-layer minotaur-base">
+                        <div class="m-head">
+                            <div class="m-horn-l"></div><div class="m-horn-r"></div>
+                            <div class="m-eye-l"></div><div class="m-eye-r"></div>
+                            <div class="m-snout"><div class="m-ring"></div></div>
+                        </div>
+                        <div class="m-body"></div>
+                        <div class="m-arm-l"><div class="m-axe"></div></div>
+                        <div class="m-arm-r"></div>
+                        <div class="m-leg-l"></div><div class="m-leg-r"></div>
+                    </div>`;
+              } else if (m.monsterKey.includes('dragon')) {
+                    // 🐉 DRAGON: Bulletproof Geometric Skeleton (Native CSS)
+                    spriteHtml = `<div class="monster-sprite-layer dragon-base">
+                        <div class="d-wing-l"></div><div class="d-wing-r"></div>
+                        <div class="d-body"></div>
+                        <div class="d-chest"></div>
+                        <div class="d-head">
+                            <div class="d-horn-l"></div><div class="d-horn-r"></div>
+                            <div class="d-eye-l"></div><div class="d-eye-r"></div>
+                            <div class="d-snout"></div>
+                        </div>
+                        <div class="d-foot-l"></div><div class="d-foot-r"></div>
+                    </div>`;
+                } else {
+                    spriteHtml = `<div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div>`;
+                }
+                
+                mEl.innerHTML = `<div class="name-tag mob-name">${m.name} Lv.${m.level || 5}</div>${spriteHtml}<div class="monster-ui-layer" style="position:absolute; top:-20px; left:0; width:100%; pointer-events:none;"><div class="bar-container" style="height:5px; border-radius:0; margin-bottom:0;"><div class="hp-fill monster-hp-fill" style="background-color:#f44336; height:100%; width:100%;"></div></div></div>`;
+                mEl.addEventListener('pointerdown', (e) => { e.stopPropagation(); if(!window.isLoading){ window.attemptAttackTarget = m.id; window.attemptAttack(false); } });
+                dom.world.appendChild(mEl);
+            }
+            game.monsters[m.id] = m;
+            if (!m.alive) { mEl.style.display = 'none'; } else {
+                mEl.style.display = 'flex'; mEl.style.left = m.x + 'px'; mEl.style.top = m.y + 'px'; mEl.style.width = (m.width || 40) + 'px'; mEl.style.height = (m.height || 40) + 'px';
+                const hpBarFill = mEl.querySelector('.monster-hp-fill'); if(hpBarFill) hpBarFill.style.width = (m.currentHp / Math.max(1, m.maxHp)) * 100 + '%';
+                const spriteLayer = mEl.querySelector('.monster-sprite-layer'); 
+                mEl.style.setProperty('--mob-color', m.cssColor || '#9c27b0'); 
+                mEl.style.setProperty('--mob-border', m.cssBorder || '#4E342E');
+                
+                // 🛡️ THE DEFINER: This injects the exact category (e.g. 'mini_boss') into the CSS class!
+                let safeCategory = m.category || 'common_mobs';
+                
+                if (m.monsterKey.includes('golem')) {
+                    spriteLayer.className = safeCategory === 'floor_boss' ? `monster-sprite-layer golem-base boss ${safeCategory}` : `monster-sprite-layer golem-base ${safeCategory}`;
+                } else if (m.monsterKey.includes('wraith')) {
+                    spriteLayer.className = `monster-sprite-layer wraith-base ${safeCategory}`;
+                } else if (m.monsterKey.includes('minotaur')) {
+                    // Passes the category (e.g., mini_boss) directly into the class for color changing
+                    spriteLayer.className = `monster-sprite-layer minotaur-base ${m.category}`;
+                } else if (m.monsterKey.includes('dragon')) {
+                    // Passes the category directly into the class for color changing
+                    spriteLayer.className = `monster-sprite-layer dragon-base ${m.category}`;
+                } else if (m.monsterKey.includes('2')) {
+                    spriteLayer.className = 'monster-sprite-layer bat-sprite'; spriteLayer.style.background = m.cssColor; spriteLayer.style.border = 'none'; spriteLayer.style.animation = 'none'; 
+                } else if (m.monsterKey.includes('3')) { 
+                    spriteLayer.className = 'monster-sprite-layer fire-sprite'; spriteLayer.style.background = m.cssColor; spriteLayer.style.border = 'none'; spriteLayer.style.animation = 'none'; 
+                } else if (m.monsterKey.includes('1') || m.monsterKey.includes('common_mobs') || m.monsterKey.includes('mini_boss') || m.monsterKey.includes('floor_boss')) { 
+                    spriteLayer.className = 'monster-sprite-layer'; spriteLayer.style.backgroundImage = 'none'; spriteLayer.style.backgroundColor = m.cssColor || '#ff69b4'; spriteLayer.style.border = `2px solid ${m.cssBorder || '#c71585'}`; spriteLayer.style.borderRadius = '50% 50% 40% 40%'; spriteLayer.style.animation = 'slime-bounce 0.5s infinite alternate'; 
+                } else { 
+                    spriteLayer.className = 'monster-sprite-layer'; spriteLayer.style.backgroundColor = 'transparent'; spriteLayer.style.border = 'none'; spriteLayer.style.borderRadius = '0'; spriteLayer.style.backgroundImage = `url('monsters/${m.monsterKey}.png')`; spriteLayer.style.animation = 'none'; 
+                }
+            } 
+        });
+        Object.keys(game.monsters).forEach(id => { if (!currentIds.has(id)) { let staleEl = document.getElementById('mob_' + id); if (staleEl) staleEl.remove(); delete game.monsters[id]; } });
+    });
+
+// 🛡️ STUN FIX: Receive the stun from the server
+    socket.on('playerStunned', (data) => {
+        if (data.targetId === game.player.id) {
+            game.player.frozenUntil = Date.now() + data.duration;
+            window.spawnDamageText(game.player.x + 24, game.player.y - 20, "STUNNED!", "#ffeb3b");
+        }
+    });
+
+    socket.on('monsterAttack', (data) => {
+    if (window.isTransitioning || window.isLoading || !data) return;
+    const targetId = data.targetId;
+
+    let hitPet = null;
+    if (game.player.activePets) {
+        hitPet = game.player.activePets.find(p => p.id === targetId);
+    }
+
+if (hitPet) {
+        const serverAtk = Number(data.atk || 25);
+        const petDef = hitPet.isBigBoss || hitPet.isGolemBuster ? window.getDefense() : Math.floor(window.getDefense() * 0.25);
+        let actualDmg = Math.max(1, serverAtk - petDef);
+        
+       // 🛡️ ABSORB SHIELD FOR PET
+        if (hitPet.gammaShieldHp && hitPet.gammaShieldHp > 0) {
+            if (actualDmg >= hitPet.gammaShieldHp) {
+                actualDmg = 0; // 🛡️ STURDY FIX: The shield absorbs the ENTIRE hit!
+                hitPet.gammaShieldHp = 0;
+                let s = hitPet.dom.querySelector('.gamma-shield');
+                if (s) { s.style.animation = 'shatter 0.3s forwards'; setTimeout(()=>s.remove(), 300); }
+            } else {
+                hitPet.gammaShieldHp -= actualDmg;
+                actualDmg = 0;
+            }
+        }
+        
+        hitPet.hp -= actualDmg;
+        window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, actualDmg, '#ff0000');
+    } else if (targetId === game.player.id) {
+        game.player.currentHp = Math.max(0, data.newHp);
+        if (data.damage > 0) {
+            window.spawnDamageText(game.player.x + 24, game.player.y - 10, data.damage, '#f44336');
+            window.spawnSpark(game.player.x + 24, game.player.y + 48);
+        }
+        if (game.player.currentHp <= 0 && Date.now() < game.player.immortalUntil) {
+            game.player.currentHp = 1;
+            window.spawnDamageText(game.player.x + 24, game.player.y - 10, "IMMORTAL", '#ffeb3b');
+        }
+        window.updateUI();
+    } else if (game.remotePlayers[targetId]) {
+        const rp = game.remotePlayers[targetId];
+        if (data.damage > 0) {
+            window.spawnDamageText(rp.x + 24, rp.y - 10, data.damage, '#f44336');
+            window.spawnSpark(rp.x + 24, rp.y + 48);
+        }
+    }
+
+    if (!game.monsters[data.monsterId]) return;
+    const m = game.monsters[data.monsterId];
+    window.triggerBossBGM(m);
+    const mEl = document.getElementById('mob_' + m.id);
+    if (!mEl) return;
+
+    let tx = game.player.x + 24;
+    let ty = game.player.y + 48;
+    if (targetId !== game.player.id && game.remotePlayers[targetId]) {
+        tx = game.remotePlayers[targetId].x + 24;
+        ty = game.remotePlayers[targetId].y + 48;
+    }
+    if (hitPet) {
+        tx = hitPet.x + 15;
+        ty = hitPet.y + 15;
+    }
+
+    // 🐉 The Fix: Both Fire Elementals and Dragons use the Fireball animation
+    const isElemental = m.monsterKey && (String(m.monsterKey).includes('3') || String(m.monsterKey).includes('dragon'));
+    const mcx = m.x + (m.width / 2);
+    const mcy = m.y + (m.height / 2);
+
+    if (isElemental) window.shootMonsterFireball(mcx, mcy, tx, ty);
+
+    let dx = tx - mcx;
+    let dy = ty - mcy;
+    let dist = Math.hypot(dx, dy) || 1;
+    let moveX = (dx / dist) * 20;
+    let moveY = (dy / dist) * 20;
+
+    const spriteLayer = mEl.querySelector('.monster-sprite-layer');
+    if (spriteLayer) {
+        if (m.monsterKey.includes('golem')) {
+            spriteLayer.classList.add('attacking');
+            setTimeout(() => spriteLayer.classList.remove('attacking'), 200);
+        }
+        spriteLayer.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`;
+        setTimeout(() => {
+            spriteLayer.style.transform = `translate(0px, 0px) scale(1)`;
+        }, 150);
+    }
+
+    let sfxFile = 'bump';
+    if (m.monsterKey.includes('2')) sfxFile = 'lightning';
+    else if (m.monsterKey.includes('3') || m.monsterKey.includes('dragon')) sfxFile = 'splash';
+
+    let hitSound = new Audio(`music/${sfxFile}.mp3`);
+    hitSound.volume = 0.4;
+    hitSound.play().catch(e => {});
+});
+
+    socket.on('monsterSkill', (data) => { 
+        if (window.isTransitioning || window.isLoading) return;
+        // 🐂 MINOTAUR CHARGE ANIMATION
+        if (data.skillName === 'Charge') {
+            let hitSound = new Audio('music/charge.mp3');
+            hitSound.volume = 0.6;
+            hitSound.play().catch(e => {});
+
+            const mEl = document.getElementById('mob_' + data.monsterId);
+            if (mEl) {
+                // Smooth CSS translation for the duration of the dash
+                mEl.style.transition = `left ${data.duration}ms linear, top ${data.duration}ms linear`;
+                mEl.style.left = data.endX + 'px';
+                mEl.style.top = data.endY + 'px';
+                
+                // Remove the transition immediately after so standard server movement isn't laggy
+                setTimeout(() => {
+                    if (mEl) mEl.style.transition = 'none';
+                }, data.duration);
+            }
+        } 
+        else if (data.skillName === 'Earthquake') {
+            const gameContainer = document.getElementById('game-container'); 
+            gameContainer.classList.add('screen-shake'); 
+            setTimeout(() => gameContainer.classList.remove('screen-shake'), 500); 
+            
+            // 🗿 Trigger Golem Slam visual when Earthquake fires
+            const mEl = document.getElementById('mob_' + data.monsterId);
+            if (mEl) {
+                const spriteLayer = mEl.querySelector('.golem-base');
+                if (spriteLayer) {
+                    spriteLayer.classList.add('attacking');
+                    setTimeout(() => spriteLayer.classList.remove('attacking'), 300);
+                }
+            }
+
+           const ring = document.createElement('div'); 
+            ring.className = 'earthquake-ring'; 
+            ring.style.left = (data.x - data.radius) + 'px'; 
+            ring.style.top = (data.y - data.radius) + 'px'; 
+            ring.style.width = (data.radius * 2) + 'px'; 
+            ring.style.height = (data.radius * 2) + 'px'; 
+            
+            // 🛡️ THE FIX: Color the enemy boss earthquake BLUE so it stands out!
+            if (data.color === 'blue') {
+                ring.style.border = '4px solid #2196F3';
+                ring.style.boxShadow = '0 0 30px #2196F3, inset 0 0 30px #2196F3';
+            }
+            
+            document.getElementById('world').appendChild(ring); 
+            setTimeout(() => ring.remove(), 800);
+        } else if (data.skillName === 'Vanish') {
+            const poof = document.createElement('div');
+            poof.style.cssText = `position:absolute; left:${data.x}px; top:${data.y}px; width:50px; height:50px; border-radius:50%; background:rgba(156,39,176,0.8); box-shadow:0 0 30px #9c27b0; z-index:300; pointer-events:none; transition:all 0.4s ease-out; transform:translate(-50%, -50%) scale(0.5); opacity:1;`;
+            document.getElementById('world').appendChild(poof);
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    poof.style.transform = 'translate(-50%, -50%) scale(2.5)';
+                    poof.style.opacity = '0';
+                });
+            });
+            setTimeout(() => poof.remove(), 400);
+        }
+    });
+socket.on('playerHit', (data) => {
+        if (data.targetId === game.player.id) {
+            game.player.currentHp = data.newHp;
+            window.spawnDamageText(game.player.x + 24, game.player.y - 10, data.damage, '#f44336');
+            window.spawnSpark(game.player.x + 24, game.player.y + 48);
+            window.updateUI();
+        } else if (game.remotePlayers[data.targetId]) {
+            const rp = game.remotePlayers[data.targetId];
+            window.spawnDamageText(rp.x + 24, rp.y - 10, data.damage, '#f44336');
+            window.spawnSpark(rp.x + 24, rp.y + 48);
+        }
+    });
+   socket.on('monsterHit', (data) => { 
+        if (window.isTransitioning || window.isLoading || !data || !game.monsters[data.monsterId]) return;
+        const m = game.monsters[data.monsterId]; 
+        window.triggerBossBGM(m); // 🎵 TRIGGER BOSS MUSIC
+        m.currentHp = data.newHp; m.maxHp = data.maxHp || m.maxHp; 
+        const mCenterX = m.x + (m.width / 2); const mCenterY = m.y + (m.height / 2); 
+        window.spawnDamageText(mCenterX, m.y - 10, data.damage, '#fff'); 
+        if (data.isPendant) window.spawnWhiteSplash(mCenterX, mCenterY); else window.spawnSpark(mCenterX, mCenterY); 
+        
+        const mEl = document.getElementById('mob_' + m.id); 
+        if(mEl) { 
+            mEl.classList.add('hit-flash'); 
+            setTimeout(() => mEl.classList.remove('hit-flash'), 100); 
+
+            // ❄️ ICE MASTER PASSIVE VISUAL
+            if (data.didFreeze) {
+                let ice = mEl.querySelector('.ice-cube-overlay');
+                if (!ice) {
+                    ice = document.createElement('div');
+                    ice.className = 'ice-cube-overlay';
+                    mEl.appendChild(ice);
+                }
+                // Clear old timer if we chain-freeze them
+                if (mEl.freezeTimer) clearTimeout(mEl.freezeTimer);
+                mEl.freezeTimer = setTimeout(() => {
+                    if (ice) ice.remove();
+                }, 3000);
+            }
+        } 
+        window.updateUI(); 
+    });
+    socket.on('monsterDied', (data) => { if (window.isTransitioning || window.isLoading || !data || !game.monsters[data.monsterId]) return; game.monsters[data.monsterId].alive = false; const mEl = document.getElementById('mob_' + data.monsterId); if(mEl) mEl.style.display = 'none'; 
+
+// 🎵 STOP BOSS MUSIC IF IT WAS A BOSS
+        if (m.category === 'floor_boss' || m.category === 'mini_boss') {
+            window.revertBGM();
+        }
+
+window.updateUI(); });
+
+    // 🛑 Wipes old monsters off the screen during map transitions so they don't bleed into new floors!
+    socket.on('clearLocalMonsters', () => {
+        if (typeof game !== 'undefined' && game.monsters) {
+            for (let id in game.monsters) {
+                let el = document.getElementById(id) || document.getElementById('mob_' + id);
+                if (el) el.remove();
+            }
+            game.monsters = {};
+        }
+    });
+
+let localBossTimer = null;
+
+    socket.on('bossCooldownActive', (data) => {
+        // Clear any old timers if we switch rooms
+        if (localBossTimer) clearInterval(localBossTimer);
+        
+        let remaining = data.remaining;
+        
+        // Find where the boss is supposed to spawn on this map
+        let spawnX = 960, spawnY = 1000;
+        if (safeMapData.floorBossSpawns && safeMapData.floorBossSpawns.length > 0) {
+            spawnX = safeMapData.floorBossSpawns[0].x;
+            spawnY = safeMapData.floorBossSpawns[0].y;
+        }
+
+        // Create the glowing text element
+        let timerEl = document.getElementById('world-boss-timer');
+        if (!timerEl) {
+            timerEl = document.createElement('div');
+            timerEl.id = 'world-boss-timer';
+            timerEl.style.position = 'absolute';
+            timerEl.style.color = '#ff9800';
+            timerEl.style.fontWeight = 'bold';
+            timerEl.style.fontSize = '24px';
+            timerEl.style.textAlign = 'center';
+            timerEl.style.textShadow = '0 0 10px red, 2px 2px 2px black';
+            timerEl.style.transform = 'translate(-50%, -100%)';
+            timerEl.style.pointerEvents = 'none';
+            timerEl.style.zIndex = '100';
+            dom.world.appendChild(timerEl);
+        }
+        
+        timerEl.style.left = spawnX + 'px';
+        timerEl.style.top = spawnY + 'px';
+
+        // Make it tick every second!
+        localBossTimer = setInterval(() => {
+            remaining -= 1000;
+            if (remaining <= 0) {
+                clearInterval(localBossTimer);
+                timerEl.remove();
+            } else {
+                let h = Math.floor(remaining / (1000 * 60 * 60));
+                let m = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                let s = Math.floor((remaining % (1000 * 60)) / 1000);
+                timerEl.innerHTML = `⚠️ BOSS RESPAWNS IN<br>${h}h ${m}m ${s}s`;
+            }
+        }, 1000);
+    });
+    socket.on('monsterSpawned', (m) => { 
+        if (window.isTransitioning || window.isLoading || !m || safeMapData.id === 'town') return; 
+        
+        // 🛡️ THE BLEED FIX: Block delayed network packets from the old room!
+        if (Date.now() - (window.mapLoadTimestamp || 0) < 2000) return;
+
+        game.monsters[m.id] = m; 
+        const mEl = document.getElementById('mob_' + m.id); 
+        if(mEl) mEl.style.display = 'flex'; 
+    });
+    socket.on('lootDropped', (item) => { 
+        if (!item) return;
+        // 🛡️ THE FIX: Only update the text! The item is already safely handled by syncInventory.
+        let qtyStr = item.quantity > 1 ? ` (x${item.quantity})` : '';
+        if (dom && dom.log) dom.log.innerText = `Looted: ${item.name}${qtyStr}!`; 
+    });                  
+}
+// ==========================================
+// 9. PERFORMANCE, FPS & PWA
+// ==========================================
+var lastLoopTime = performance.now(); var frameCount = 0; var fpsDisplay = document.getElementById('fps-counter');
+var lowEndMode = localStorage.getItem('exonie_low_end') === 'true'; var lowFpsTimer = 0;
+
+function updateFPS() {
+    let now = performance.now(); frameCount++;
+    if (now - lastLoopTime >= 1000) {
+        let currentFps = frameCount;
+        if(fpsDisplay) { fpsDisplay.innerText = `FPS: ${currentFps}`; fpsDisplay.style.color = currentFps > 45 ? '#4CAF50' : (currentFps > 25 ? '#ffeb3b' : '#f44336'); }
+        if (!lowEndMode && currentFps < 20) { lowFpsTimer++; if (lowFpsTimer >= 5) { window.toggleLowEndMode(true); if(dom.log) dom.log.innerText = "Performance alert: Auto-Optimization enabled."; } } else { lowFpsTimer = 0; }
+        frameCount = 0; lastLoopTime = now;
+    }
+    requestAnimationFrame(updateFPS);
+}
+updateFPS();
+
+window.toggleLowEndMode = function(isAuto = false) {
+    lowEndMode = isAuto ? true : !lowEndMode; localStorage.setItem('exonie_low_end', lowEndMode); 
+    const btn = document.getElementById('low-perf-btn');
+    if (lowEndMode) { document.body.classList.add('low-perf'); if (btn) { btn.innerText = isAuto ? "Auto-Optimized: ON" : "Low-End Mode: ON"; btn.style.background = "#4CAF50"; } lowFpsTimer = 0; } 
+    else { document.body.classList.remove('low-perf'); if (btn) { btn.innerText = "Low-End Mode: OFF"; btn.style.background = "#555"; } }
+};
+
+if (lowEndMode) { document.body.classList.add('low-perf'); setTimeout(() => { const btn = document.getElementById('low-perf-btn'); if (btn) { btn.innerText = "Low-End Mode: ON"; btn.style.background = "#4CAF50"; } }, 1000); }
+
+// ==========================================
+// 🎟️ CLOSED BETA DOWNLOAD LOGIC (Google Play Redeem)
+// ==========================================
+window.addEventListener('click', (e) => { 
+    if (e.target.id === 'install-btn') { 
+        e.target.innerText = "Fetching Redeem Code...";
+        if (typeof socket !== 'undefined' && socket) {
+            socket.emit('requestBetaCode');
+        }
+    } 
+});
+
+if (typeof socket !== 'undefined' && socket) {
+    socket.on('betaCodeResult', (data) => {
+        const btn = document.getElementById('install-btn');
+        if (btn) btn.innerText = "DOWNLOAD CLOSED BETA";
+
+        // Grab the raw code from Supabase (fallback to url if server uses that key)
+        const rawCode = data.code || data.url;
+
+        if (data.success && rawCode) {
+            // 1. Detect if player is trapped in Messenger/Facebook/Instagram Webview
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            const isWebview = (ua.indexOf("FBAN") > -1) || (ua.indexOf("FBAV") > -1) || (ua.indexOf("Instagram") > -1);
+            
+            if (isWebview) {
+                const warning = document.getElementById('webview-warning');
+                if (warning) warning.style.display = 'block';
+            }
+
+            // 2. 🛡️ CONSTRUCT THE PLAY STORE URL
+            // If the server didn't already format it with 'http', build the Google Play link
+            let finalUrl = rawCode.startsWith('http') ? rawCode : 'https://play.google.com/redeem?code=' + rawCode;
+
+            // 3. Bypass Messenger popup blockers with a fake <a> tag
+            const a = document.createElement('a');
+            a.href = finalUrl;
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            // 4. Confirm success to the server so it marks is_used = TRUE
+            socket.emit('confirmCodeOpened', { codeId: data.codeId });
+        } else {
+            alert("Error: Could not retrieve the promo code. Please try again.");
+        }
+    });
+}
+
+window.newsQueue = [];
+socket.on('latestNews', (newsArray) => { if (!Array.isArray(newsArray) || newsArray.length === 0) return; window.newsQueue = newsArray; window.showNextNews(); });
+window.showNextNews = function() {
+    const modal = document.getElementById('welcome-modal');
+    if (window.newsQueue.length === 0) { if (modal) modal.style.display = 'none'; return; }
+    const currentNews = window.newsQueue.shift(); 
+    const title = document.getElementById('news-title'); const content = document.getElementById('news-content'); const btn = modal.querySelector('button');
+    if (modal && title && content) {
+        title.innerText = currentNews.title || "Announcement";
+        content.innerHTML = currentNews.content || currentNews.Content || currentNews.context || ""; 
+        if (btn) { btn.innerText = window.newsQueue.length > 0 ? "NEXT MESSAGE ➔" : "CLOSE"; }
+        modal.style.display = 'flex';
+    }
+};
+window.closeWelcomeMessage = function() { window.showNextNews(); };
+// ==========================================
+// 🏰 DUNGEON 1 & POWER GEM SYSTEM
+// ==========================================
+window.closeDungeonUI = function() {
+    const ui = document.getElementById('dungeon-screen');
+    if (ui) ui.style.display = 'none';
+    window.isDungeonUIOpen = false; // Unlock movement
+};
+
+window.startDungeon = function(difficulty) {
+    // 🛡️ EXTREME MODE LEVEL CHECK (Client-Side)
+    if (difficulty === 'Extreme' && game.player.level < 50 && !window.isAdmin(game.player.name)) {
+        if (dom.log) dom.log.innerText = "❌ You must be Level 50 to enter Extreme difficulty.";
+        return;
+    }
+
+    let currentEntries = game.player.baseStats?.dungeonEntries !== undefined ? game.player.baseStats.dungeonEntries : 7;
+    
+    if (currentEntries <= 0 && !window.isAdmin(game.player.name)) {
+        if (dom.log) dom.log.innerText = "❌ You have no Dungeon entries left this week. Resets Monday.";
+        return; 
+    }
+
+    // 🛡️ THE FIX: Optimistic UI Update. Instantly deduct visually so it says 6/7 next time!
+    if (!window.isAdmin(game.player.name)) {
+        game.player.baseStats.dungeonEntries = currentEntries - 1;
+        let entryText = document.getElementById('dungeon-entries-text');
+        if (entryText) entryText.innerText = `Weekly Entries: ${game.player.baseStats.dungeonEntries}/7`;
+    }
+
+    // Close the UI and unlock movement to teleport
+    window.closeDungeonUI();
+    
+    const returnData = { mapId: safeMapData.id, x: game.player.x, y: game.player.y + 20 };
+    if (socket) socket.emit('startDungeon', { difficulty: difficulty, returnData: returnData });
+    
+    document.getElementById('loading-text').innerText = "Entering The Cave...";
+    document.getElementById('loading-screen').style.display = 'flex';
+};
+
+window.attemptApplyGem = function(targetIndex, e) { 
+    e.stopPropagation(); 
+    if (socket) socket.emit('requestApplyGem', { gemIndex: activeInvIndex, targetIndex: targetIndex }); 
+    window.isApplyingAura = false; 
+    window.renderInventory(); 
+}
+
+if (socket) {
+    // 🛡️ THE FIX: This forces the party members to un-freeze and accept the teleport!
+    socket.on('closeDungeonUI', () => {
+        window.closeDungeonUI();
+        const ls = document.getElementById('loading-screen');
+        if (ls) ls.style.display = 'none';
+        window.isDungeonUIOpen = false;
+    });
+let dungeonTimerInt = null;
+    socket.on('dungeonTimerStart', (data) => {
+        const ui = document.getElementById('dungeon-timer-ui');
+        if (ui) ui.style.display = 'block';
+        let endTime = data.startTime + data.durationMs;
+        
+        clearInterval(dungeonTimerInt);
+        dungeonTimerInt = setInterval(() => {
+            let remaining = endTime - Date.now();
+            if (remaining <= 0) {
+                remaining = 0;
+                clearInterval(dungeonTimerInt);
+            }
+            let m = Math.floor(remaining / 60000);
+            let s = Math.floor((remaining % 60000) / 1000);
+            if (ui) ui.innerText = `⏳ ${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+        }, 1000);
+    });
+
+    socket.on('dungeonTimerStop', () => {
+        clearInterval(dungeonTimerInt);
+        const ui = document.getElementById('dungeon-timer-ui');
+        if (ui) ui.style.display = 'none';
+    });
+
+    socket.on('dungeonVictory', () => {
+        // Create a massive floating victory text
+        const vText = document.createElement('div');
+        vText.innerHTML = `
+            <h1 style="font-size:80px; margin:0; text-shadow:0 0 30px #4CAF50, 4px 4px 0 #000; letter-spacing: 5px; animation: pulseText 1s infinite alternate;">DUNGEON CLEAR!</h1>
+        `;
+        vText.style.position = 'fixed';
+        vText.style.top = '40%';
+        vText.style.left = '50%';
+        vText.style.transform = 'translate(-50%, -50%)';
+        vText.style.textAlign = 'center';
+        vText.style.color = '#4CAF50';
+        vText.style.zIndex = '9999';
+        document.body.appendChild(vText);
+        
+        // Clean it up after 4 seconds when they teleport out
+        setTimeout(() => { vText.remove(); }, 4000);
+    });
+}
+    // 🛡️ SYSTEM UTILITIES
+window.logout = function() {
+    localStorage.removeItem('exonie_user');
+    localStorage.removeItem('exonie_pass');
+    location.reload();
+};
+window.mobileWindowState = {};
+window.__topWindowZ = 6000;
+
+window.isMobileUI = function() {
+    return window.matchMedia('(pointer: coarse), (max-width: 950px)').matches;
+};
+
+window.bringWindowToFront = function(el) {
+    if (!el) return;
+    window.__topWindowZ += 1;
+    el.style.zIndex = window.__topWindowZ;
+};
+
+window.clampWindowToViewport = function(el) {
+    if (!el) return;
+    if (el.style.display === 'none') return;
+
+    const rect = el.getBoundingClientRect();
+
+    let left = parseFloat(el.dataset.left || '0');
+    let top = parseFloat(el.dataset.top || '0');
+
+    const maxLeft = Math.max(0, window.innerWidth - rect.width);
+    const maxTop = Math.max(0, window.innerHeight - rect.height);
+
+    left = Math.max(0, Math.min(left, maxLeft));
+    top = Math.max(0, Math.min(top, maxTop));
+
+    el.dataset.left = left;
+    el.dataset.top = top;
+
+    el.style.left = left + 'px';
+    el.style.top = top + 'px';
+    el.style.transform = 'none';
+};
+
+window.enableMobileWindowControls = function(el) {
+    if (!el || el.dataset.mobileWindowReady === '1') return;
+    el.dataset.mobileWindowReady = '1';
+
+    const handle = el.querySelector('.window-drag-handle');
+
+    function captureInitialPosition() {
+        if (el.dataset.positionCaptured === '1') return;
+
+        const rect = el.getBoundingClientRect();
+        el.dataset.left = rect.left;
+        el.dataset.top = rect.top;
+        el.dataset.positionCaptured = '1';
+
+        el.style.position = 'fixed';
+        el.style.right = 'auto';
+        el.style.bottom = 'auto';
+        el.style.left = rect.left + 'px';
+        el.style.top = rect.top + 'px';
+        el.style.transform = 'none';
+    }
+
+    if (!handle) {
+        setTimeout(() => {
+            captureInitialPosition();
+            window.clampWindowToViewport(el);
+        }, 50);
+        return;
+    }
+
+    let dragging = false;
+    let activePointerId = null;
+    let startX = 0;
+    let startY = 0;
+    let startLeft = 0;
+    let startTop = 0;
+
+    function startDrag(clientX, clientY, pointerId) {
+        captureInitialPosition();
+
+        dragging = true;
+        activePointerId = pointerId || null;
+        startX = clientX;
+        startY = clientY;
+        startLeft = parseFloat(el.dataset.left || '0');
+        startTop = parseFloat(el.dataset.top || '0');
+
+        window.bringWindowToFront(el);
+        el.classList.add('window-dragging');
+
+        document.body.style.userSelect = 'none';
+        document.body.style.webkitUserSelect = 'none';
+    }
+
+    function moveDrag(clientX, clientY) {
+        if (!dragging) return;
+
+        const dx = clientX - startX;
+        const dy = clientY - startY;
+
+        const nextLeft = startLeft + dx;
+        const nextTop = startTop + dy;
+
+        el.dataset.left = nextLeft;
+        el.dataset.top = nextTop;
+        el.style.left = nextLeft + 'px';
+        el.style.top = nextTop + 'px';
+        el.style.transform = 'none';
+    }
+
+    function stopDrag() {
+        if (!dragging) return;
+
+        dragging = false;
+        activePointerId = null;
+        el.classList.remove('window-dragging');
+
+        document.body.style.userSelect = '';
+        document.body.style.webkitUserSelect = '';
+
+        window.clampWindowToViewport(el);
+    }
+
+    handle.addEventListener('pointerdown', function(e) {
+        if (el.style.display === 'none') return;
+        if (e.button !== undefined && e.button !== 0) return;
+
+        startDrag(e.clientX, e.clientY, e.pointerId);
+
+        if (handle.setPointerCapture) {
+            handle.setPointerCapture(e.pointerId);
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    handle.addEventListener('pointermove', function(e) {
+        if (!dragging) return;
+        if (activePointerId !== null && e.pointerId !== activePointerId) return;
+
+        moveDrag(e.clientX, e.clientY);
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    handle.addEventListener('pointerup', function(e) {
+        stopDrag();
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    handle.addEventListener('pointercancel', function(e) {
+        stopDrag();
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    handle.addEventListener('touchstart', function(e) {
+        if (el.style.display === 'none') return;
+        const t = e.touches[0];
+        if (!t) return;
+
+        startDrag(t.clientX, t.clientY, 'touch');
+        e.preventDefault();
+        e.stopPropagation();
+    }, { passive: false });
+
+    handle.addEventListener('touchmove', function(e) {
+        if (!dragging) return;
+        const t = e.touches[0];
+        if (!t) return;
+
+        moveDrag(t.clientX, t.clientY);
+        e.preventDefault();
+        e.stopPropagation();
+    }, { passive: false });
+
+    handle.addEventListener('touchend', function(e) {
+        stopDrag();
+        e.preventDefault();
+        e.stopPropagation();
+    }, { passive: false });
+
+    handle.addEventListener('touchcancel', function(e) {
+        stopDrag();
+        e.preventDefault();
+        e.stopPropagation();
+    }, { passive: false });
+
+    el.addEventListener('pointerdown', function() {
+        window.bringWindowToFront(el);
+    });
+
+    setTimeout(() => {
+        captureInitialPosition();
+        window.clampWindowToViewport(el);
+    }, 50);
+};
+
+window.initAllMobileWindows = function() {
+    document.querySelectorAll('.movable-window').forEach(el => {
+        window.enableMobileWindowControls(el);
+    });
+};
+
+window.resetMobileWindow = function(id, x = 12, y = 70) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.dataset.left = x;
+    el.dataset.top = y;
+    el.style.position = 'fixed';
+    el.style.right = 'auto';
+    el.style.bottom = 'auto';
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.transform = 'none';
+    window.clampWindowToViewport(el);
+};
+
+window.addEventListener('resize', function() {
+    document.querySelectorAll('.movable-window').forEach(el => {
+        window.clampWindowToViewport(el);
+    });
+});
+
+// ==========================================
+// 🛡️ SYSTEM UTILITIES & MAILBOX ENGINE
+// ==========================================
+// ==========================================
+// 🏰 GUILD SYSTEM UI ENGINE
+// ==========================================
+window.openGuildUI = function() {
+    let modal = document.getElementById('guild-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'guild-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #4CAF50; padding:20px; z-index:9000; width:380px; border-radius:8px; box-shadow:0 0 30px #4CAF50; color:white; font-family:sans-serif; text-align:center;';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = '<h2 style="color:#4CAF50;">Loading Guild Data...</h2>';
+    modal.style.display = 'block';
+    
+    if (window.isMobileUI()) {
+        window.enableMobileWindowControls(modal);
+        window.bringWindowToFront(modal);
+        window.clampWindowToViewport(modal);
+    }
+    
+    if (socket) socket.emit('requestGuildData');
+};
+
+if (socket) {
+    socket.on('requestGuildUI_Refresh', () => {
+        if (document.getElementById('guild-modal')?.style.display === 'block') {
+            socket.emit('requestGuildData');
+        }
+    });
+
+    socket.on('guildDataResponse', (data) => {
+        const modal = document.getElementById('guild-modal');
+        if (!modal) return;
+
+        if (data.hasGuild) {
+            let d = data.details;
+            let myRole = data.myRole || 'Member';
+            const roleLevel = { 'Master': 4, 'Vice Master': 3, 'Captain': 2, 'Member': 1 };
+            
+            let html = `
+                <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #4CAF50;">
+                    <h2 style="margin:0; color:#4CAF50; pointer-events:none;">🏰 ${d.name} (${data.members.length}/20)</h2>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin:10px 0; font-size:13px; color:#aaa;">
+                    <span>Your Role: <strong style="color:#fff;">${myRole}</strong></span>
+                    <span>Funds: <strong style="color:#FFD700;">${(data.guildGold || 0).toLocaleString()} G</strong></span>
+                </div>
+            `;
+
+            // 📋 MEMBER LIST + KICK BUTTONS + ROLES
+            html += `<div style="background:#111; padding:10px; border:1px solid #333; height:120px; overflow-y:auto; margin-bottom:10px; text-align:left;">`;
+            data.members.forEach(m => {
+                let actionHtml = `<span>${m.role}</span>`;
+                
+                // Master can change roles
+                if (myRole === 'Master' && m.name !== game.player.name) {
+                    actionHtml = `<select onchange="socket.emit('guildUpdateRole', {targetName:'${m.name}', newRole:this.value})" style="background:#222; color:#fff; font-size:10px; padding:2px; border:1px solid #444; outline:none; cursor:pointer;">
+                        <option value="Member" ${m.role==='Member'?'selected':''}>Member</option>
+                        <option value="Captain" ${m.role==='Captain'?'selected':''}>Captain</option>
+                        <option value="Vice Master" ${m.role==='Vice Master'?'selected':''}>Vice Master</option>
+                    </select>`;
+                }
+
+                // Kick logic: Master kicks anyone except self. Vice Master kicks Captain/Member.
+                let targetLvl = roleLevel[m.role] || 1;
+                let canKick = (myRole === 'Master' && m.name !== game.player.name) || 
+                              (myRole === 'Vice Master' && targetLvl <= 2);
+
+                html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid #222;">
+                            <span style="font-size:12px; color: ${m.online ? '#fff' : '#777'};">${m.online ? '🟢' : '⚪'} ${m.name}</span>
+                            <div style="display:flex; gap:5px; align-items:center;">
+                                ${actionHtml}
+                                ${canKick ? `<button onclick="if(confirm('Kick ${m.name}?')) socket.emit('guildKick', '${m.name}')" style="background:#f44336; color:white; border:none; padding:2px 5px; font-size:9px; cursor:pointer; border-radius:3px;">KICK</button>` : ''}
+                            </div>
+                         </div>`;
+            });
+            html += `</div>`;
+
+            // 📩 APPLICANTS (Master/Vice Master only)
+            if (roleLevel[myRole] >= 3) {
+                html += `<h4 style="margin:5px 0; font-size:12px; color:#aaa; text-align:left;">Pending Applicants</h4>
+                         <div style="background:#111; padding:5px; border:1px solid #333; height:60px; overflow-y:auto; margin-bottom:10px;">`;
+                if (data.applicants && data.applicants.length > 0) {
+                    data.applicants.forEach(name => {
+                        html += `<div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:3px;">
+                                    <span>${name}</span>
+                                    <div>
+                                        <button onclick="socket.emit('guildHandleApplicant', {applicantName:'${name}', accept:true})" style="background:#4CAF50; color:white; border:none; padding:2px 6px; cursor:pointer;">✔</button>
+                                        <button onclick="socket.emit('guildHandleApplicant', {applicantName:'${name}', accept:false})" style="background:#f44336; color:white; border:none; padding:2px 6px; cursor:pointer;">✖</button>
+                                    </div>
+                                 </div>`;
+                    });
+                } else {
+                    html += `<div style="color:#444; font-size:11px; margin-top:15px; text-align:center;">No applications</div>`;
+                }
+                html += `</div>`;
+            }
+
+            // 🔘 ACTIONS
+            html += `<div style="display:flex; gap:5px; margin-bottom:5px;">
+                        <button class="btn" style="background:#2196F3; flex:1; font-size:13px; padding:8px;" onclick="window.donateGuild()">Donate Gold</button>
+                        <button class="btn" style="background:#f44336; flex:1; font-size:13px; padding:8px;" onclick="if(confirm('Are you sure you want to leave this guild?')) socket.emit('guildLeave')">Leave Guild</button>
+                     </div>`;
+            
+            if (roleLevel[myRole] >= 2) {
+                html += `<button class="btn" style="background:#311B92; width:100%; margin-bottom:5px; padding:8px;" onclick="window.customPrompt('Enter character name to invite:', function(n) { if(n && n.trim() !== '') socket.emit('guildInvitePlayer', n.trim()); })">Invite Player</button>`;
+            }
+
+            if (data.hasBase) {
+                html += `<button class="btn" style="background:#4CAF50; width:100%; margin-bottom:5px; padding:8px;" onclick="window.enterGuildBase()">Enter Guild Base</button>`;
+            } else if (myRole === 'Master') {
+                html += `<button class="btn" style="background:#FF9800; width:100%; margin-bottom:5px; padding:8px;" onclick="window.buyGuildBase()">Buy Guild Base (1,000,000 G)</button>`;
+            }
+
+            html += `<button class="btn" style="background:#555; width:100%; margin-top:5px; padding:8px;" onclick="document.getElementById('guild-modal').style.display='none'">Close</button>`;
+            modal.innerHTML = html;
+        } else {
+            let html = `
+                <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #4CAF50;">
+                    <h2 style="margin:0; color:#4CAF50; pointer-events:none;">🏰 Guild Registry</h2>
+                </div>
+                <button class="btn" style="background:#FF9800; width:100%; margin-bottom:15px; font-weight:bold; padding:12px;" onclick="window.createGuild()">Establish Guild (1M Gold)</button>
+                <h3 style="color:#aaa; font-size:14px; border-bottom:1px solid #333; padding-bottom:5px;">Open Guilds</h3>
+                <div style="background:#111; padding:10px; border:1px solid #333; border-radius:5px; height:120px; overflow-y:auto; margin-bottom:15px; text-align:left;">`;
+            
+            if (data.openGuilds && data.openGuilds.length > 0) {
+                data.openGuilds.forEach(g => {
+                    html += `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #222;">
+                                <span>${g.name} <span style="color:#aaa; font-size:11px;">(${g.members} members)</span></span>
+                                <button class="btn" style="background:#4CAF50; padding:2px 8px; font-size:11px;" onclick="window.applyToGuild('${g.name}')">Apply</button>
+                             </div>`;
+                });
+            } else {
+                html += `<div style="color:#555; text-align:center; margin-top:30px;">No open guilds found.</div>`;
+            }
+            
+            html += `</div>
+                <button class="btn" style="background:#f44336; width:100%; padding:8px;" onclick="document.getElementById('guild-modal').style.display='none'">Close</button>`;
+            
+            modal.innerHTML = html;
+        }
+    });
+}
+
+// 🌟 GUILD INVITE UI INJECTION
+if (!document.getElementById('guild-invite-dialog')) {
+    let gModal = document.createElement('div');
+    gModal.id = 'guild-invite-dialog';
+    gModal.className = 'movable-window';
+    gModal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #311B92; padding:20px; z-index:9500; width:300px; border-radius:8px; box-shadow:0 0 20px #311B92; color:white; text-align:center;';
+    gModal.innerHTML = `
+        <h3 style="color:#E040FB; margin-top:0;">Guild Invitation</h3>
+        <p id="guild-invite-text" style="font-size:14px; margin-bottom:20px;"></p>
+        <div style="display:flex; gap:10px;">
+            <button class="btn" style="background:#4CAF50; flex:1;" onclick="window.respondGuildInvite(true)">Accept</button>
+            <button class="btn" style="background:#f44336; flex:1;" onclick="window.respondGuildInvite(false)">Decline</button>
+        </div>
+    `;
+    document.body.appendChild(gModal);
+}
+
+let pendingGuildInvite = null;
+
+if (socket) {
+    socket.on('guildInviteReceived', (data) => {
+        pendingGuildInvite = data.guildName;
+        document.getElementById('guild-invite-text').innerText = `${data.from} invited you to join [${data.guildName}].`;
+        document.getElementById('guild-invite-dialog').style.display = 'block';
+    });
+}
+
+window.respondGuildInvite = function(accept) {
+    document.getElementById('guild-invite-dialog').style.display = 'none';
+    if (accept && pendingGuildInvite) {
+        socket.emit('joinGuild', pendingGuildInvite);
+    }
+    pendingGuildInvite = null;
+};
+
+window.createGuild = function() {
+    window.customPrompt("Enter a name for your new Guild:", function(name) {
+        if (name && name.trim().length > 2 && name.trim().length <= 15) {
+            socket.emit('createGuild', name.trim());
+        } else if (name) {
+            alert("Guild name must be between 3 and 15 characters.");
+        }
+    });
+};
+
+window.joinGuild = function(name) {
+    if (confirm(`Join ${name}?`)) {
+        socket.emit('joinGuild', name);
+    }
+};
+
+window.applyToGuild = function(gName) {
+    socket.emit('guildApply', gName);
+    if (dom.log) dom.log.innerText = `Application sent to ${gName}...`;
+};
+
+window.donateGuild = function() {
+    window.customPrompt("How much Gold would you like to donate to the Guild Funds?", function(amt) {
+        let parsed = parseInt(amt);
+        if (!isNaN(parsed) && parsed > 0) {
+            socket.emit('donateGuildGold', parsed);
+        }
+    });
+};
+
+window.buyGuildBase = function() {
+    if (confirm("Spend 1,000,000 Guild Funds to purchase a Guild Base? Only the Guild Leader can do this.")) {
+        if (socket) socket.emit('requestBuyGuildBase');
+        document.getElementById('guild-modal').innerHTML = '<h2 style="color:#FF9800; margin-top: 20px;">Purchasing Base...</h2>';
+    }
+};
+window.enterGuildBase = function() {
+    document.getElementById('guild-modal').style.display = 'none';
+    // Send a secure map ID that the server knows how to instance privately!
+    socket.emit('forceTeleport', { mapId: 'guildbase', x: 960, y: 1000 });
+};
+// 🗺️ MAZE GUIDE & FAST TRAVEL ENGINE
+window.openMazeGuide = function() {
+    if (game.party && game.party.members && game.party.members.length > 1) {
+        if (game.party.leaderId !== game.player.id) {
+            dom.log.innerText = "❌ Only the Party Leader can use the Maze Guide.";
+            return;
+        }
+    }
+
+    let modal = document.getElementById('maze-guide-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'maze-guide-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#222; border:2px solid #2196F3; padding:20px; z-index:9000; width:300px; border-radius:8px; box-shadow:0 0 20px #2196F3; color:white; text-align:center;';
+        document.body.appendChild(modal);
+    }
+
+    let html = '<h2 style="margin-top:0; color:#2196F3;">🗺️ Maze Guide</h2>';
+    html += '<p style="font-size:12px; color:#aaa; margin-bottom:20px;">Choose your destination.</p>';
+    
+    html += '<button class="btn" style="width:100%; margin-bottom:10px; padding:12px; font-weight:bold; font-size:16px; background:#4CAF50;" onclick="window.openFastTravelUI()"> Fast Travel</button>';
+    html += '<button class="btn" style="width:100%; margin-bottom:15px; padding:12px; font-weight:bold; font-size:16px; background:#9c27b0; box-shadow: 0 0 10px #9c27b0;" onclick="window.openMazeTrialsUI()">Maze Trials</button>';
+    
+    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('maze-guide-modal').style.display='none'">Close</button>`;
+    
+    modal.innerHTML = html;
+    modal.style.display = 'block';
+};
+
+window.openFastTravelUI = function() {
+   let maxFloor = 0;
+    let title1 = game.player.title || "";
+    let title2 = game.player.spriteData?.title || "";
+    let title3 = game.cachedUserData?.title || "";
+    let domTitle = document.getElementById('player-title-tag') ? document.getElementById('player-title-tag').innerText : "";
+    let combinedTitle = `${title1} ${title2} ${title3} ${domTitle}`.toUpperCase();
+    const match = combinedTitle.match(/FLOOR CONQUEROR (\d+)/);
+    if (match) {
+        maxFloor = parseInt(match[1]);
+    }
+
+    if (maxFloor === 0) {
+        dom.log.innerText = "❌ You haven't conquered any floors yet!";
+        return;
+    }
+
+    let modal = document.getElementById('maze-guide-modal');
+    let html = '<h2 style="margin-top:0; color:#4CAF50;">🚀 Fast Travel</h2>';
+    html += '<p style="font-size:12px; color:#aaa;">Select a conquered floor to fast-travel.</p>';
+    html += '<div style="max-height:300px; overflow-y:auto; margin-bottom:15px; padding-right:5px;">';
+    
+    for (let i = 1; i <= maxFloor; i++) {
+        html += `<button class="btn" style="width:100%; margin-bottom:5px; background:#4CAF50;" onclick="window.requestMazeTeleport(${i})">Teleport to Floor ${i}</button>`;
+    }
+    
+    html += '</div>';
+    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="window.openMazeGuide()">Back</button>`;
+    
+    modal.innerHTML = html;
+};
+
+window.openMazeTrialsUI = function() {
+    let modal = document.getElementById('maze-guide-modal');
+    let html = '<h2 style="margin-top:0; color:#E040FB;">⚔️ Maze Trials</h2>';
+    html += '<p style="font-size:12px; color:#aaa;">Challenge a Floor Boss in a private instance. 1 Entry per day.</p>';
+    html += '<div style="max-height:300px; overflow-y:auto; margin-bottom:15px; padding-right:5px;">';
+    
+    // Shows floors 1 to 7
+    for (let i = 1; i <= 7; i++) { 
+        html += `<button class="btn" style="width:100%; margin-bottom:5px; background:#9c27b0;" onclick="window.requestMazeTrial(${i})">Trial: Floor ${i}</button>`;
+    }
+    
+    html += '</div>';
+    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="window.openMazeGuide()">Back</button>`;
+    
+    modal.innerHTML = html;
+};
+
+window.requestMazeTrial = function(floorNum) {
+    document.getElementById('maze-guide-modal').style.display = 'none';
+    if (socket) socket.emit('requestMazeTrial', { targetFloor: floorNum });
+};
+
+// 🛡️ THE FIX: Added the missing Fast Travel client-side function!
+window.requestMazeTeleport = function(floorNum) {
+    document.getElementById('maze-guide-modal').style.display = 'none';
+    if (socket) socket.emit('requestMazeTeleport', { targetFloor: floorNum });
+};
+// ==========================================
+// ⚔️ TAVERN & LEADERBOARD LOGIC
+// ==========================================
+window.startTavern = function() {
+// 🛡️ LEVEL 50 LOCK
+    if (game.player.level < 50 && !window.isAdmin(game.player.name)) {
+        if (dom.log) dom.log.innerText = "❌ You must be at least Level 50 to enter the Training Tavern.";
+        document.getElementById('tavern-modal').style.display = 'none';
+        return;
+    }
+
+// 🛡️ PARTY CHECK: Strictly Solo
+    if (game.party && game.party.members && game.party.members.length > 1) {
+        if (dom.log) dom.log.innerText = "❌ Solo Challenge! You must leave your party to enter the Tavern.";
+        document.getElementById('tavern-modal').style.display = 'none';
+        return;
+    }
+    let type = document.getElementById('tavern-mob-type').value;
+    let lvl = parseInt(document.getElementById('tavern-level').value) || 10;
+    
+    // 🛡️ THE FIX: Prevent entering if out of entries to stop infinite loading screen!
+    let currentEntries = game.player.baseStats?.tavernEntries !== undefined ? game.player.baseStats.tavernEntries : 5;
+    if (currentEntries <= 0 && !window.isAdmin(game.player.name)) {
+        if (dom.log) dom.log.innerText = "❌ You have no Tavern entries left this week. Resets Monday.";
+        document.getElementById('tavern-modal').style.display = 'none';
+        return; 
+    }
+
+    // Optimistically deduct entry so it updates instantly next time you open the UI
+    if (!window.isAdmin(game.player.name)) {
+        game.player.baseStats.tavernEntries = currentEntries - 1;
+    }
+
+    if (socket) socket.emit('startTavern', { mobType: type, level: lvl });
+    
+    // 🛡️ UI FIX: Force close ALL windows instantly
+    document.getElementById('tavern-modal').style.display = 'none';
+    isInventoryOpen = false; dom.invScreen.style.display = 'none';
+    isSkillOpen = false; dom.skillScreen.style.display = 'none';
+    isShopping = false; document.getElementById('shop-screen').style.display = 'none';
+    isMailboxOpen = false; document.getElementById('mailbox-screen').style.display = 'none';
+    dom.statScreen.style.display = 'none';
+    document.getElementById('friends-screen').style.display = 'none';
+    document.getElementById('trade-screen').style.display = 'none';
+    document.getElementById('inv-context-menu').style.display = 'none';
+    document.getElementById('player-context-menu').style.display = 'none';
+
+    // 🛡️ UI FIX: Smooth fake loading bar that finishes right as the boss spawns
+    document.getElementById('loading-text').innerText = "Entering Tavern...";
+    const loaderFill = document.getElementById('loader-fill');
+    if (loaderFill) { 
+        loaderFill.style.width = '0%'; 
+        loaderFill.style.transition = 'width 0.1s linear'; 
+    }
+    document.getElementById('loading-screen').style.display = 'flex';
+    
+    let fillAmt = 0;
+    let fakeLoad = setInterval(() => {
+        fillAmt += 8; 
+        if (loaderFill) loaderFill.style.width = Math.min(100, fillAmt) + '%';
+        if (fillAmt >= 100) clearInterval(fakeLoad);
+    }, 100);
+}
+
+let tavernTimerInt = null;
+let tavernStartTs = 0;
+if (socket) {
+    socket.on('tavernTimerStart', () => {
+        // 🛡️ THE FIX: Lift the curtain and unlock the player exactly as the boss spawns!
+        document.getElementById('loading-screen').style.display = 'none';
+        window.isLoading = false;
+
+        document.getElementById('tavern-timer-ui').style.display = 'block';
+        tavernStartTs = Date.now();
+        clearInterval(tavernTimerInt);
+        tavernTimerInt = setInterval(() => {
+            let ms = Date.now() - tavernStartTs;
+            let s = Math.floor(ms / 1000);
+            let msFrac = Math.floor((ms % 1000) / 10);
+            document.getElementById('tavern-timer-ui').innerText = `${s < 10 ? '0'+s : s}:${msFrac < 10 ? '0'+msFrac : msFrac}`;
+        }, 50);
+    });
+
+    socket.on('tavernTimerStop', () => {
+        clearInterval(tavernTimerInt); // Instantly kill the timer
+        setTimeout(() => { document.getElementById('tavern-timer-ui').style.display = 'none'; }, 5000);
+    });
+
+    // 🏆 EPIC VICTORY SCREEN GENERATOR
+    socket.on('tavernVictory', (data) => {
+        clearInterval(tavernTimerInt); // Double tap the timer just in case
+        
+        // Freeze the top timer UI to the EXACT millisecond of the kill
+        let s = Math.floor(data.time / 1000);
+        let msFrac = Math.floor((data.time % 1000) / 10);
+        document.getElementById('tavern-timer-ui').innerText = `${s < 10 ? '0'+s : s}:${msFrac < 10 ? '0'+msFrac : msFrac}`;
+
+        // Create a massive floating victory text dynamically
+        const vText = document.createElement('div');
+        vText.innerHTML = `
+            <h1 style="font-size:80px; margin:0; text-shadow:0 0 30px #FFD700, 4px 4px 0 #000; letter-spacing: 5px;">VICTORY</h1>
+            <h2 style="font-size:40px; margin:0; color:#fff; text-shadow:2px 2px 0 #000;">Time: ${(data.time/1000).toFixed(2)}s</h2>
+            ${data.isNewBest ? '<h3 style="color:#4CAF50; font-size:32px; margin-top:15px; text-shadow:0 0 15px #4CAF50, 2px 2px 0 #000; animation: pulseText 1s infinite alternate;">🏆 NEW PERSONAL BEST! 🏆</h3>' : ''}
+        `;
+        vText.style.position = 'fixed';
+        vText.style.top = '40%';
+        vText.style.left = '50%';
+        vText.style.transform = 'translate(-50%, -50%)';
+        vText.style.textAlign = 'center';
+        vText.style.color = '#FFD700';
+        vText.style.zIndex = '9999';
+        document.body.appendChild(vText);
+        
+        // Clean it up after 5 seconds when they teleport out
+        setTimeout(() => { vText.remove(); }, 5000);
+    });
+
+    socket.on('updateLeaderboardUI', (data) => {
+        let html = `<div class="leaderboard-row header" style="display:flex;">
+            <div style="width:15%">Rank</div>
+            <div style="width:35%">Player</div>
+            <div style="width:30%">Target</div>
+            <div style="width:20%; text-align:right;">Time</div>
+        </div>`;
+        
+        data.forEach((row, i) => {
+            let pClass = row.player_class || 'Novice';
+            let pLvl = row.player_level || 1;
+            
+            html += `<div class="leaderboard-row" style="display:flex; align-items:center;">
+                <div style="width:15%; color:#FF9800; font-weight:bold;">#${i+1}</div>
+                <div style="width:35%; line-height:1.2;">
+                    <div style="color:#fff;">${row.character_name}</div>
+                    <div style="color:#aaa; font-size:11px;">Lv.${pLvl} ${pClass}</div>
+                </div>
+                <div style="width:30%; font-size:12px; color:#e0e0e0;">${row.mob_type.replace('_', ' ').toUpperCase()}<br>Lv. ${row.mob_level}</div>
+                <div style="width:20%; text-align:right; color:#4CAF50; font-weight:bold;">${(row.time_taken/1000).toFixed(2)}s</div>
+            </div>`;
+        });
+        document.getElementById('leaderboard-content').innerHTML = html;
+    });
+}
+window.toggleLeaderboard = function() {
+    const modal = document.getElementById('leaderboard-modal');
+    const isOpening = modal.style.display !== 'block';
+    
+    if (isOpening) {
+        if (socket) socket.emit('getTavernLeaderboard');
+        modal.style.display = 'block';
+        if (window.isMobileUI()) {
+            window.enableMobileWindowControls(modal);
+            window.bringWindowToFront(modal);
+            window.clampWindowToViewport(modal);
+        }
+    } else {
+        modal.style.display = 'none';
+    }
+};
+
+socket.on('applyGammaShield', (data) => {
+        let targetDom = null;
+        if (data.targetId === game.player.id) targetDom = dom.playerAvatarContainer;
+        else if (game.remotePlayers[data.targetId]) targetDom = game.remotePlayers[data.targetId].rig;
+        else if (data.isPet) {
+            const petEl = document.getElementById(data.targetId) || document.getElementById('pet_' + game.player.id + '_' + data.targetId);
+            if (petEl) targetDom = petEl;
+            else {
+                const localPet = game.player.activePets?.find(p => p.id === data.targetId);
+                if (localPet) targetDom = localPet.dom;
+            }
+        }
+        if (targetDom && !targetDom.querySelector('.gamma-shield')) {
+            let s = document.createElement('div'); s.className = 'gamma-shield';
+            targetDom.appendChild(s);
+        }
+        
+        // Save the shield HP for the local pet damage calculation
+        if (data.isPet) {
+            const localPet = game.player.activePets?.find(p => p.id === data.targetId);
+            if (localPet) localPet.gammaShieldHp = data.hp;
+        }
+    });
+
+    socket.on('breakGammaShield', (data) => {
+        let targetDom = null;
+        if (data.targetId === game.player.id) targetDom = dom.playerAvatarContainer;
+        else if (game.remotePlayers[data.targetId]) targetDom = game.remotePlayers[data.targetId].rig;
+        else {
+            const petEl = document.getElementById(data.targetId) || document.getElementById('pet_' + game.player.id + '_' + data.targetId);
+            if (petEl) targetDom = petEl;
+            else {
+                const localPet = game.player.activePets?.find(p => p.id === data.targetId);
+                if (localPet) targetDom = localPet.dom;
+            }
+        }
+        if (targetDom) {
+            let s = targetDom.querySelector('.gamma-shield');
+            if (s) { s.style.animation = 'shatter 0.3s forwards'; setTimeout(()=>s.remove(), 300); }
+        }
+    });
+
+    socket.on('cdReset', () => {
+        if (game.player.activeSkills) {
+            game.player.activeSkills.forEach(s => s.cooldownReadyAt = 0);
+            if (typeof window.updateHotbarCooldowns === 'function') window.updateHotbarCooldowns();
+        }
+    });
+
+    socket.on('attackEvaded', (data) => {
+        let msg = data.type === 'dodge' ? "DODGE!" : (data.type === 'parry' ? "PARRY!" : "MISS");
+        let color = data.type === 'dodge' ? "#00E5FF" : (data.type === 'parry' ? "#ffeb3b" : "#aaaaaa");
+        
+        let target = null;
+        if (data.targetId === game.player.id) target = game.player;
+        else if (game.remotePlayers[data.targetId]) target = game.remotePlayers[data.targetId];
+        else if (game.monsters[data.monsterId]) target = game.monsters[data.monsterId];
+
+        if (target) {
+            let tx = target.x + (target.width ? target.width/2 : 24);
+            let ty = target.y + (target.height ? target.height/2 : 48);
+            window.spawnDamageText(tx, ty - 10, msg, color);
+        }
+    });
+
+// ==========================================
+// 💤 AFK SCREEN LOCKER
+// ==========================================
+if (!document.getElementById('afk-lock-screen')) {
+    let afkOverlay = document.createElement('div');
+    afkOverlay.id = 'afk-lock-screen';
+    afkOverlay.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999999; flex-direction:column; justify-content:center; align-items:center; font-family:sans-serif; cursor:pointer; user-select:none; backdrop-filter: blur(5px);';
+    afkOverlay.innerHTML = `
+        <h1 style="color:#FF9800; font-size:50px; margin:0 0 10px 0; text-shadow: 0 0 30px #FF9800; letter-spacing:3px;">GAME PAUSED</h1>
+        <h2 style="color:#fff; margin:0; animation: pulseText 1.5s infinite alternate;">Click the screen to resume playing</h2>
+    `;
+    document.body.appendChild(afkOverlay);
+
+    let afkTimer = null;
+    const AFK_TIME_LIMIT = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+    window.resetAfkTimer = function(e) {
+        // If the screen is locked, wake it up and prevent the click from registering in the game
+        if (afkOverlay.style.display === 'flex') {
+            afkOverlay.style.display = 'none';
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }
+        
+        clearTimeout(afkTimer);
+        
+        afkTimer = setTimeout(() => {
+            // Only trigger the AFK screen if they are actually logged in and playing
+            if (game.isRunning && !window.isLoading && document.getElementById('loading-screen')?.style.display === 'none') {
+                afkOverlay.style.display = 'flex';
+                // Reset movement keys so they don't auto-run into a wall while AFK
+                for (const k in game.keys) game.keys[k] = false;
+                
+                // 🛑 THE FIX: Forcefully disable Auto-Attack and manual attack holds!
+                autoAttackMode = false;
+                attackHeld = false;
+                if(dom.log) dom.log.innerText = `Auto-Attack: OFF (AFK Mode)`;
+            }
+        }, AFK_TIME_LIMIT);
+    };
+
+    // Listen for literally ANY interaction to keep the game awake
+    ['mousemove', 'mousedown', 'keydown', 'touchstart', 'pointerdown', 'wheel'].forEach(evt => {
+        window.addEventListener(evt, window.resetAfkTimer, { capture: true, passive: false });
+    });
+
+    window.resetAfkTimer();
+}
+
+window.onload = () => {
+    window.loadLootFilter();
+    window.initAllMobileWindows();
+
+    // Force Auto-Login
+    let savedU = localStorage.getItem('exonie_user');
+    let savedP = localStorage.getItem('exonie_pass');
+    if (savedU && savedP) {
+        let uInput = document.getElementById('login-user');
+        let pInput = document.getElementById('login-pass');
+        if(uInput && pInput) {
+            uInput.value = savedU;
+            pInput.value = savedP;
+            if (typeof window.attemptLogin === 'function') window.attemptLogin();
+        }
+    }
+    
+   // Reveal Unstuck Button (Hidden on Mobile to save space)
+    setTimeout(() => {
+        let unstuckBtn = document.getElementById('unstuck-btn');
+        if (unstuckBtn) {
+            if (window.isMobileUI()) {
+                unstuckBtn.style.display = 'none';
+            } else {
+                unstuckBtn.style.display = 'block';
+            }
+        }
+    }, 1000);
+};
+
+// Force Logout
+window.logout = function() {
+    localStorage.removeItem('exonie_user');
+    localStorage.removeItem('exonie_pass');
+    location.reload();
+};
+
+// Dedicated 'M' Key Listener for Mailbox
+window.addEventListener('keydown', (e) => {
+    if (typeof isChatting !== 'undefined' && isChatting) return;
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+    
+    if (e.key.toLowerCase() === 'm') {
+        if (typeof window.toggleMailbox === 'function') window.toggleMailbox();
+    }
+});
+// 🎥 DYNAMIC TUTORIAL VIDEO PLAYER (CRASH-FREE VERSION)
+window.playTutorialVideo = function() {
+    // 🔇 1. Stop background music immediately
+    if (typeof currentBGM !== 'undefined' && currentBGM) {
+        currentBGM.pause();
+        currentBGM.currentTime = 0;
+    }
+    if (typeof currentTrackName !== 'undefined') {
+        currentTrackName = ""; 
+    }
+
+    let overlay = document.getElementById('tutorial-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'tutorial-overlay';
+        overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:black; z-index:99999; display:flex; flex-direction:column; justify-content:center; align-items:center;';
+        
+        // ⏳ 2. Show a loading message while downloading
+        const loadingText = document.createElement('h2');
+        loadingText.innerText = '📡 Downloading Tutorial...';
+        loadingText.style.cssText = 'color: white; font-family: sans-serif; text-shadow: 0 0 10px #2196F3;';
+        overlay.appendChild(loadingText);
+        document.body.appendChild(overlay);
+
+        // 📥 3. Fetch the ENTIRE video into local memory
+        fetch('animation/tutorial.mp4')
+            .then(response => {
+                if (!response.ok) throw new Error("Video file not found!");
+                return response.blob();
+            })
+            .then(blob => {
+                const videoUrl = URL.createObjectURL(blob); 
+                loadingText.style.display = 'none'; 
+
+                const vid = document.createElement('video');
+                vid.id = 'tutorial-video';
+                vid.src = videoUrl; 
+                vid.controls = true;
+                vid.autoplay = true;
+                vid.style.cssText = 'max-width:100%; max-height:85%; background:black; outline:none; box-shadow: 0 0 20px #2196F3; border-radius: 8px;';
+                
+                const skipBtn = document.createElement('button');
+                skipBtn.innerText = 'SKIP / CLOSE TUTORIAL';
+                skipBtn.style.cssText = 'margin-top:20px; padding:12px 24px; background:#f44336; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold; font-size:16px; box-shadow:0 0 10px red; text-transform: uppercase;';
+                
+                const closeTutorial = () => {
+                    vid.pause();
+                    vid.removeAttribute('src'); 
+                    vid.load();
+                    overlay.remove(); 
+                    
+                    // 🛡️ FIX 1: Delay the RAM wipe slightly so the browser doesn't panic and crash!
+                    setTimeout(() => { URL.revokeObjectURL(videoUrl); }, 1000);
+
+                    // 🛡️ FIX 2: Fire the Instant Save to Supabase!
+                    if (game.player.baseStats) {
+                        game.player.baseStats.watchedTutorial = true;
+                    }
+                    if (socket) {
+                        socket.emit('markTutorialWatched'); // 👈 THIS IS THE INSTANT SAVE!
+                    }
+                    
+                    setTimeout(() => {
+                        // 🛡️ FIX 3: Bulletproof string checking for the Map ID
+                        let mapIdStr = (typeof safeMapData !== 'undefined' && safeMapData.id) ? String(safeMapData.id) : 'town';
+                        let nextTrack = window.routeMapMusic(mapIdStr);
+                        
+                        window.playBGM(nextTrack);
+                        try { window.showMapAnnouncement(mapIdStr); } catch(e) {}
+                    }, 100);
+                };
+
+                vid.onended = closeTutorial; 
+                skipBtn.onclick = closeTutorial; 
+
+                overlay.appendChild(vid);
+                overlay.appendChild(skipBtn);
+                vid.play().catch(e => console.warn("Browser blocked autoplay. User must click play."));
+            })
+            .catch(err => {
+                console.error("Tutorial fetch failed:", err);
+                if (overlay) overlay.remove();
+                // 🛡️ THE SUPABASE FIX: Fire an instant, priority socket command bypassing the 600ms delay
+                    if (game.player.baseStats) {
+                        game.player.baseStats.watchedTutorial = true;
+                    }
+                    if (socket) {
+                        socket.emit('markTutorialWatched'); 
+                    }
+                    if (typeof DatabaseManager !== 'undefined') {
+                        DatabaseManager.savePlayerData(game.player); // Keep as a secondary backup
+                    }
+                
+                let mapIdStr = (typeof safeMapData !== 'undefined' && safeMapData.id) ? String(safeMapData.id) : 'town';
+                let nextTrack = mapIdStr.includes('floor') ? 'floors' : 'town';
+                window.playBGM(nextTrack);
+                try { window.showMapAnnouncement(mapIdStr); } catch(e) {}
+            });
+    }
+};
+// ==========================================
+// 💳 REAL MONEY CASH SHOP & 2FA UI
+// ==========================================
+
+window.openRealMoneyShop = function() {
+    let modal = document.getElementById('rm-shop-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'rm-shop-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#111; border:2px solid #E040FB; padding:20px; z-index:9000; width:350px; border-radius:8px; box-shadow:0 0 30px #E040FB; color:white; text-align:center; font-family:sans-serif;';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = '<h2 style="color:#E040FB;">Connecting to Server...</h2>';
+    modal.style.display = 'block';
+    
+    if (socket) socket.emit('requestShopAccess');
+};
+
+if (socket) {
+  socket.on('shopAuthState', (data) => {
+        let modal = document.getElementById('rm-shop-modal');
+        if (!modal) return;
+
+        let html = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #444; padding-bottom:10px;">
+                <h2 style="margin:0; color:#E040FB; text-shadow: 0 0 10px #E040FB;">💎 Exo Emporium</h2>
+                <div style="background:#222; padding:5px 10px; border-radius:4px; border:1px solid #E040FB;">
+                    <span style="color:#aaa; font-size:12px;">Balance:</span>
+                    <strong id="ui-gem-balance" style="color:#E040FB; font-size:16px; margin-left:5px;">${data.exoGems || 0}</strong>
+                </div>
+            </div>
+        `;
+
+        if (data.state === 'shop_open') {
+            const items = [
+                { id: 'aura_easter', name: 'Easter Aura Stone', priceGems: 15, desc: 'Tradeable Seasonal Cosmetic: A beautiful pastel aura that shifts colors.', isSeasonal: true },
+                { id: 'pet_egg', name: 'Easter Egg Pet', priceGems: 15, desc: 'Tradeable Seasonal Cosmetic: A cute floating Easter Egg that follows you.', isSeasonal: true },
+                { id: 'name_change', name: 'Name Change Ticket', priceGems: 15, desc: 'Permanently changes your character name. (Cannot be undone)' },
+                { id: 'edit_char', name: 'Appearance Reroll Ticket', priceGems: 15, desc: 'Re-open the character creator to change your hair, skin color, and style.' },
+                { id: 'pet_fox', name: 'Spirit Fox Pet', priceGems: 10, desc: 'A loyal fire-fox companion that follows you and attacks enemies.' },
+                { id: 'pet_owl', name: 'Night Owl Pet', priceGems: 10, desc: 'A mysterious owl that flies by your side.' },
+                { id: 'aura_blaze', name: 'Blaze Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a burning red flame effect.' },
+                { id: 'aura_liquid', name: 'Liquid Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a flowing water effect.' },
+                { id: 'aura_nature', name: 'Nature Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a leaf and vine effect.' },
+                { id: 'divine_pack', name: 'Divine Stone Bundle (x5)', priceGems: 10, desc: 'Contains 5 Divine Enhancement Stones. Works on any level.' },
+                { id: 'revival_pack', name: 'Revival Juice Bundle (x10)', priceGems: 5, desc: 'Contains 10 Revival Juices. Revive instantly on the spot.' }
+            ];
+
+            html += `<div style="max-height:250px; overflow-y:auto; padding-right:5px;">`;
+            items.forEach(i => {
+                let nameColor = i.isSeasonal ? '#FFD700' : '#E040FB';
+                let shadow = i.isSeasonal ? 'text-shadow: 0 0 10px #FFD700;' : '';
+                let border = i.isSeasonal ? 'border: 2px solid #FFD700; box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.15);' : 'border: 1px solid #444;';
+                let tag = i.isSeasonal ? ' <span style="font-size:11px; color:#fff;">🐰 (Seasonal)</span>' : '';
+
+                html += `<div style="background:#222; ${border} padding:10px; border-radius:6px; margin-bottom:10px; text-align:left;">
+                            <div style="color:${nameColor}; font-weight:bold; font-size:15px; ${shadow}">${i.name}${tag}</div>
+                            <div style="color:#aaa; font-size:12px; margin-bottom:8px;">${i.desc}</div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; gap:5px;">
+                                <button class="btn" style="background:#333; padding:8px 10px; font-size:14px; color:#E040FB; border-color:#9c27b0; flex:1; font-weight:bold; cursor:pointer; box-shadow: 0 0 5px #9c27b0;" onclick="window.buyWithGems('${i.id}', '${i.name}', ${i.priceGems})">💎 Buy for ${i.priceGems} Exo Gems</button>
+                            </div>
+                         </div>`;
+            });
+            html += `</div>`;
+        }
+
+        // 💳 NATIVE PLATFORM STORE BUTTONS
+        html += `
+            <div style="margin-top:15px; display:flex; flex-direction:column; gap:8px;">
+                <h3 style="color:#aaa; font-size:14px; margin: 0 0 5px 0; border-bottom:1px solid #333; padding-bottom:5px;">Get More Exo Gems</h3>
+                <div style="display:flex; gap:5px;">
+                    <button class="btn" style="background:#2196F3; flex:1; font-weight:bold; padding:10px;" onclick="window.purchaseExoGems('gem_pack_50', 5000, '50 Exo Gems')">💎 50 Gems</button>
+                    <button class="btn" style="background:#9c27b0; flex:1; font-weight:bold; padding:10px;" onclick="window.purchaseExoGems('gem_pack_15', 1500, '15 Exo Gems')">💎 15 Gems</button>
+                </div>
+                <button class="btn" style="background:#555; width:100%; margin-top:5px; padding:10px;" onclick="document.getElementById('rm-shop-modal').style.display='none'">Close</button>
+            </div>
+        `;
+        modal.innerHTML = html;
+    });
+
+  socket.on('gemPurchaseSuccess', (data) => {
+        let balEl = document.getElementById('ui-gem-balance');
+        if (balEl) balEl.innerText = data.newGems;
+        
+        // 🛡️ THE CRITICAL RAM SYNC FIX
+        if (!game.player.baseStats) game.player.baseStats = {};
+        game.player.baseStats.exoGems = data.newGems;
+        DatabaseManager.savePlayerData(game.player);
+    });
+
+   socket.on('receiptVerified', (data) => {
+        let balEl = document.getElementById('ui-gem-balance');
+        if (balEl) balEl.innerText = data.newGems;
+        
+        document.getElementById('rm-shop-modal').innerHTML = `
+            <h2 style="color:#4CAF50; margin-top: 20px;">Purchase Successful!</h2>
+            <p style="color:#fff;">Added ${data.gemsAdded} Exo Gems to your account.</p>
+            <button class="btn" style="background:#555; width:100%; margin-top:15px;" onclick="window.openRealMoneyShop()">Back to Shop</button>
+        `;
+        if (dom.log) dom.log.innerText = `Purchase Verified! Added ${data.gemsAdded} Exo Gems.`;
+
+        // 🛡️ THE CRITICAL RAM SYNC FIX: Update client memory so autosave doesn't delete the gems!
+        if (!game.player.baseStats) game.player.baseStats = {};
+        game.player.baseStats.exoGems = data.newGems;
+        DatabaseManager.savePlayerData(game.player);
+    });
+
+    socket.on('receiptFailed', (errorMsg) => {
+        alert("Purchase verification failed: " + errorMsg);
+        window.openRealMoneyShop();
+    });
+}
+
+// ==========================================
+// 💳 PLATFORM IAP ROUTER (STEAM / GOOGLE PLAY)
+// ==========================================
+window.currentPlatform = 'web';
+if (typeof process !== 'undefined' && process.versions && process.versions.electron) {
+    window.currentPlatform = 'steam'; 
+} else if (window.Capacitor || (window.cordova && window.cordova.plugins)) {
+    window.currentPlatform = 'android'; 
+}
+
+window.purchaseExoGems = async function(packageId, priceCents, description) {
+    document.getElementById('rm-shop-modal').innerHTML = '<h2 style="color:#E040FB; margin-top: 20px;">Connecting to Store...</h2>';
+
+    if (window.currentPlatform === 'steam') {
+        try {
+            // 1. Get Steam ID from Electron (Using a dummy ID as fallback for testing)
+            let steamId = (window.electronAPI && window.electronAPI.getSteamId) ? await window.electronAPI.getSteamId() : "76561197960287930";
+
+            // 2. Call the Node.js InitTxn Route
+            const response = await fetch(serverUrl + '/api/shop/init', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    steamId: steamId,
+                    itemId: packageId,
+                    amountCents: priceCents,
+                    itemDescription: description || "Exo Gems"
+                })
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                // 3. Tell Electron to open the Steam Overlay with the generated order ID
+                if (window.electronAPI) window.electronAPI.initiateSteamPurchase(data.orderId);
+                else alert("Test Mode: Open Steam Overlay for Order " + data.orderId); 
+            } else {
+                alert("Store Init Failed: " + (data.error || "Unknown Error"));
+                window.openRealMoneyShop();
+            }
+        } catch (err) {
+            alert("Store Connection Error: " + err.message);
+            window.openRealMoneyShop();
+        }
+    } 
+    else if (window.currentPlatform === 'android') {
+        if (window.CdvPurchase) {
+            try {
+                const store = window.CdvPurchase.store;
+                const product = store.get(packageId);
+                
+                if (!product) {
+                    alert("Error: The app could not find this product ID: " + packageId);
+                    window.openRealMoneyShop();
+                    return;
+                }
+
+                if (product.canPurchase) {
+                    // 🛡️ V13 Preferred Order Method
+                    const offer = product.getOffer ? product.getOffer() : null;
+                    if (offer) {
+                        offer.order().catch(err => {
+                            alert("Order failed to open: " + err);
+                            window.openRealMoneyShop();
+                        });
+                    } else {
+                        store.order(product.id).catch(err => {
+                            alert("Order fallback failed: " + err);
+                            window.openRealMoneyShop();
+                        });
+                    }
+                } else {
+                    alert("Google Play found the item, but says you cannot purchase it right now. Ensure your app is fully updated from the testing link!");
+                    window.openRealMoneyShop();
+                }
+            } catch (e) {
+                alert("Plugin error: " + e.message);
+                window.openRealMoneyShop();
+            }
+        } else {
+            alert("Store plugin not loaded!");
+            window.openRealMoneyShop();
+        }
+    } 
+    else {
+        alert("In-App Purchases are only available via the Steam or Android versions of Exonie!");
+        window.openRealMoneyShop(); 
+    }
+};
+
+// 📥 LISTENS FOR THE RECEIPT FROM THE WRAPPERS
+window.addEventListener('StorePurchaseSuccess', async (event) => {
+    const receiptData = event.detail;
+    document.getElementById('rm-shop-modal').innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Verifying Purchase...</h2>';
+    
+    if (window.currentPlatform === 'steam') {
+        // Steam uses the new HTTP Finalize route
+        try {
+            const res = await fetch(serverUrl + '/api/shop/finalize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    orderId: receiptData.receiptToken, // Electron passes the order ID back here
+                    username: game.player.id // Tell the server who gets the gems!
+                })
+            });
+            const data = await res.json();
+            if (!data.success) {
+                alert("Transaction failed: " + data.message);
+                window.openRealMoneyShop();
+            }
+            // Success logic is handled by the socket 'gemPurchaseSuccess' auto-updating the UI
+        } catch (err) {
+            alert("Error verifying purchase: " + err.message);
+            window.openRealMoneyShop();
+        }
+    } else if (socket) {
+        // Android uses the original Socket verification safely!
+        socket.emit('verifyStoreReceipt', {
+            platform: window.currentPlatform,
+            receipt: receiptData.receiptToken,
+            packageId: receiptData.packageId
+        });
+    }
+});
+
+window.buyWithGems = function(itemId, name, price) {
+    if (!confirm(`Spend ${price} Exo Gems to purchase ${name}?`)) return;
+    socket.emit('requestGemPurchase', { itemId: itemId });
+};
+// ==========================================
+// 💎 ULTIMATE MOBILE SHOP BUTTON INJECTION
+// ==========================================
+let shopRetryCount = 0;
+let shopInjectInterval = setInterval(() => {
+    const parent = document.getElementById('game-container');
+    
+    if (parent) {
+        // Only show on Mobile/Small Screens
+        if (window.isMobileUI()) {
+            if (!document.getElementById('mobile-shop-btn')) {
+                let shopBtn = document.createElement('button');
+                shopBtn.id = 'mobile-shop-btn';
+                shopBtn.innerHTML = '💎';
+                // Positioned specifically to not overlap the Trophy button
+                shopBtn.style.cssText = `
+                    position: fixed; 
+                    top: 125px; 
+                    right: 15px; 
+                    width: 45px; 
+                    height: 45px; 
+                    background: #111; 
+                    color: white; 
+                    border: 2px solid #E040FB; 
+                    border-radius: 8px; 
+                    font-size: 20px; 
+                    display: flex; 
+                    justify-content: center; 
+                    align-items: center; 
+                    z-index: 9999; 
+                    cursor: pointer; 
+                    box-shadow: 0 0 15px #E040FB;
+                `;
+
+                const handleShop = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.openRealMoneyShop();
+                };
+
+                shopBtn.onclick = handleShop;
+                shopBtn.ontouchstart = handleShop;
+                parent.appendChild(shopBtn);
+            }
+        }
+        clearInterval(shopInjectInterval);
+    }
+
+    shopRetryCount++;
+    if (shopRetryCount > 30) clearInterval(shopInjectInterval); // Stop after 30s
+}, 1000);
+// ==========================================
+// 📜 DAILY MISSIONS ENGINE
+// ==========================================
+window.openDailyMissionsUI = function() {
+    let modal = document.getElementById('daily-missions-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'daily-missions-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #FF9800; padding:20px; z-index:9000; width:350px; border-radius:8px; box-shadow:0 0 30px #FF9800; color:white; text-align:center; font-family:sans-serif;';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = '<h2 style="color:#FF9800; margin-top:0;">Loading Missions...</h2>';
+    modal.style.display = 'block';
+    
+    if (window.isMobileUI()) {
+        window.enableMobileWindowControls(modal);
+        window.bringWindowToFront(modal);
+        window.clampWindowToViewport(modal);
+    }
+    
+    if (socket) socket.emit('requestDailyMission');
+};
+
+if (socket) {
+    socket.on('dailyMissionData', (data) => {
+        const modal = document.getElementById('daily-missions-modal');
+        if (!modal) return;
+
+        let html = `
+            <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #FF9800;">
+                <h2 style="margin:0; color:#FF9800; pointer-events:none;">📜 Daily Mission</h2>
+            </div>
+        `;
+
+        if (data.active) {
+            let progressPct = Math.min(100, (data.currentKills / data.requiredKills) * 100);
+            let barColor = data.completed ? '#4CAF50' : '#2196F3';
+            
+            html += `<p style="color:#ccc; font-size:14px; margin-bottom:10px;">Difficulty: <strong style="color:#E040FB;">${data.difficulty}</strong></p>`;
+            
+            if (data.completed) {
+                html += `<div style="background:#111; padding:15px; border:1px solid #4CAF50; border-radius:8px; margin-bottom:15px;">
+                            <h3 style="color:#4CAF50; margin:0 0 10px 0;">🎉 Mission Completed!</h3>
+                            <p style="color:#FFD700; margin:0; font-weight:bold;">Reward: ${data.reward.toLocaleString()} G</p>
+                         </div>`;
+                html += `<p style="color:#888; font-size:12px;">Come back tomorrow for a new mission.</p>`;
+            } else {
+                let floorDisplay = data.difficulty === 'Beginner' ? '1-2' : (data.difficulty === 'Novice' ? '3-4' : '5-6');
+                
+                html += `<div style="background:#111; padding:15px; border:1px dashed #FF9800; border-radius:8px; margin-bottom:15px; text-align:left;">
+                            <div style="font-weight:bold; color:#fff; margin-bottom:8px;">Defeat ${data.requiredKills} ${data.targetName}s in Floor ${floorDisplay}</div>
+                            <div style="display:flex; justify-content:space-between; font-size:12px; color:#aaa; margin-bottom:5px;">
+                                <span>Progress</span>
+                                <span>${data.currentKills} / ${data.requiredKills}</span>
+                            </div>
+                            <div style="background:#222; border-radius:4px; height:10px; width:100%; overflow:hidden;">
+                                <div style="background:${barColor}; width:${progressPct}%; height:100%; transition:width 0.3s;"></div>
+                            </div>
+                            <div style="margin-top:10px; color:#FFD700; font-size:13px; font-weight:bold; text-align:right;">Reward: ${data.reward.toLocaleString()} G</div>
+                         </div>`;
+            }
+        } else {
+            html += `<p style="color:#ccc; font-size:13px; margin-bottom:15px;">Accept a daily mission to earn large amounts of Gold! You can only complete one mission per day.</p>`;
+            html += `<div style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
+                        <button class="btn" style="background:#4CAF50; padding:10px; font-weight:bold;" onclick="window.acceptDailyMission('Beginner')">Beginner (Floor 1-2) - 25,000 G</button>
+                        <button class="btn" style="background:#2196F3; padding:10px; font-weight:bold;" onclick="window.acceptDailyMission('Novice')">Novice (Floor 3-4) - 100,000 G</button>
+                        <button class="btn" style="background:#f44336; padding:10px; font-weight:bold;" onclick="window.acceptDailyMission('Expert')">Expert (Floor 5-6) - 250,000 G</button>
+                     </div>`;
+        }
+
+        html += `<button class="btn" style="background:#555; width:100%;" onclick="document.getElementById('daily-missions-modal').style.display='none'">Close</button>`;
+        modal.innerHTML = html;
+    });
+
+    socket.on('dailyMissionUpdate', (missionData) => {
+        if (game.player.baseStats) game.player.baseStats.dailyMission = missionData;
+        if (document.getElementById('daily-missions-modal')?.style.display === 'block') {
+            socket.emit('requestDailyMission'); // Refresh UI live
+        }
+    });
+}
+
+window.acceptDailyMission = function(difficulty) {
+    if (confirm(`Accept the ${difficulty} Daily Mission? You cannot change this later today.`)) {
+        if (socket) socket.emit('acceptDailyMission', difficulty);
+        document.getElementById('daily-missions-modal').innerHTML = '<h2 style="color:#FF9800; margin-top: 20px;">Processing...</h2>';
+    }
+};
+// ==========================================
+// ⚖️ AUCTION HOUSE UI LOGIC
+// ==========================================
+let ahSelectedInvIndex = -1;
+// ==========================================
+// ✨ DIVINE FORGE UI ENGINE
+// ==========================================
+window.openDivineForge = function() {
+    document.getElementById('merchant-modal').style.display = 'none';
+    
+    let modal = document.getElementById('divine-forge-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'divine-forge-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #ffea00; padding:20px; z-index:9000; width:450px; border-radius:8px; box-shadow:0 0 30px #ffea00; color:white; text-align:center;';
+        document.body.appendChild(modal);
+    }
+    
+    window.renderDivineForge();
+    modal.style.display = 'block';
+};
+let forgeSelectedIndex = -1;
+window.renderDivineForge = function() {
+    let modal = document.getElementById('divine-forge-modal');
+    
+    let html = '<h2 style="margin-top:0; color:#ffea00; text-shadow: 0 0 10px #ffea00;">✨ Divine Forge</h2>';
+    html += '<p style="font-size:12px; color:#aaa;">Select a Godly equipment to ascend it to Divine.</p>';
+    html += '<div id="forge-grid" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; max-height:160px; overflow-y:auto; margin-bottom:15px; padding:10px 5px; border:1px solid #333; background:#111; align-items:flex-start;">';
+    
+    const inv = game.player.inventory || [];
+    let hasGodly = false;
+    
+    for (let i = 0; i < inv.length; i++) {
+        if (inv[i] && inv[i].rarity === 'Godly' && ['weapon', 'armor', 'leggings', 'necklace', 'ring', 'earrings'].includes(inv[i].type)) {
+            hasGodly = true;
+            let isSelected = (forgeSelectedIndex === i);
+            let borderCol = isSelected ? '#ffea00' : '#444';
+            let bgCol = isSelected ? 'rgba(255, 234, 0, 0.2)' : '#222';
+            
+            // 🛡️ THE FIX: Removed the restrictive 'inv-slot' class and replaced it with a flexible, wide button!
+            html += `<div style="border:2px solid ${borderCol}; background:${bgCol}; cursor:pointer; padding:8px 12px; border-radius:6px; font-size:13px; font-weight:bold; color:${inv[i].color}; display:inline-block; text-align:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); transition:all 0.2s ease;" onclick="window.selectForgeItem(${i})">
+                        ${inv[i].enhanceLevel ? `${inv[i].name} +${inv[i].enhanceLevel}` : inv[i].name}
+                     </div>`;
+        }
+    }
+    
+    if (!hasGodly) html += '<p style="color:#555; width:100%; margin:10px 0;">No Godly equipment found in inventory.</p>';
+    html += '</div>';
+    
+    html += '<div id="forge-reqs" style="background:#222; padding:10px; border-radius:5px; margin-bottom:15px; min-height:80px; font-size:13px; text-align:left;">';
+    if (forgeSelectedIndex !== -1 && inv[forgeSelectedIndex]) {
+        let item = inv[forgeSelectedIndex];
+        let type = item.type;
+        let reqE = 0, reqR = 0, reqG = 0, reqB = 0, reqGold = 0;
+        
+        if (type === 'weapon') { reqE=3; reqR=1; reqG=1; reqB=1; reqGold=3000000; }
+        else if (type === 'armor' || type === 'leggings') { reqE=1; reqR=1; reqG=1; reqB=1; reqGold=1000000; }
+        else { reqE=5; reqR=2; reqG=2; reqB=2; reqGold=5000000; }
+        
+       // 🛡️ UI FIX: We actually need to count the Divine Essence, and use fuzzy matching!
+        let cE=0, cR=0, cG=0, cB=0;
+        inv.forEach(x => {
+            if (!x || !x.name) return;
+            const n = String(x.name).trim();
+            if (n.includes('Divine Essence')) cE += x.quantity || 1;
+            if (n.includes('Red Exo Metal')) cR += x.quantity || 1;
+            if (n.includes('Green Exo Metal')) cG += x.quantity || 1;
+            if (n.includes('Blue Exo Metal')) cB += x.quantity || 1;
+        });
+        
+        const col = (have, need) => have >= need ? '#4CAF50' : '#f44336';
+        const gCol = (game.player.gold >= reqGold) ? '#4CAF50' : '#f44336';
+        
+        html += `<div style="text-align:center; font-weight:bold; margin-bottom:5px; color:#fff;">Requirements to ascend ${item.name}</div>`;
+        html += `<div><span style="color:${col(cE,reqE)}">${cE}/${reqE} Divine Essence</span></div>`;
+        html += `<div><span style="color:${col(cR,reqR)}">${cR}/${reqR} Red Exo Metal</span></div>`;
+        html += `<div><span style="color:${col(cG,reqG)}">${cG}/${reqG} Green Exo Metal</span></div>`;
+        html += `<div><span style="color:${col(cB,reqB)}">${cB}/${reqB} Blue Exo Metal</span></div>`;
+        html += `<div style="margin-top:5px; font-weight:bold; color:${gCol}">${game.player.gold.toLocaleString()} / ${reqGold.toLocaleString()} Gold</div>`;
+        
+        let canCraft = (cE>=reqE && cR>=reqR && cG>=reqG && cB>=reqB && game.player.gold >= reqGold);
+        html += `</div><button class="btn" style="background:${canCraft ? '#2196F3' : '#555'}; width:100%; margin-bottom:5px;" ${canCraft ? '' : 'disabled'} onclick="window.requestDivineCraft()">Ascend to Divine</button>`;
+    } else {
+        html += '<p style="color:#aaa; text-align:center; margin-top:25px;">Select a Godly item to view requirements.</p></div>';
+    }
+    
+    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('divine-forge-modal').style.display='none'; document.getElementById('merchant-modal').style.display='block'; forgeSelectedIndex = -1;">Back</button>`;
+    
+    modal.innerHTML = html;
+};
+window.selectForgeItem = function(index) {
+    forgeSelectedIndex = index;
+    window.renderDivineForge();
+};
+
+window.requestDivineCraft = function() {
+    if (forgeSelectedIndex === -1) return;
+    socket.emit('requestCraftDivine', { baseIndex: forgeSelectedIndex });
+    document.getElementById('divine-forge-modal').innerHTML = '<h2 style="color:#ffea00; margin-top: 50px;">Forging in the Heavens...</h2>';
+};
+// Listen for Success to return to the UI
+if (socket) {
+    socket.on('craftSuccess', () => {
+        forgeSelectedIndex = -1;
+        setTimeout(() => { if (document.getElementById('divine-forge-modal').style.display === 'block') window.renderDivineForge(); }, 1500);
+    });
+}
+
+// ==========================================
+// 🪄 FORGER CRAFTING & REROLL UI
+// ==========================================
+window.isApplyingForger = false;
+
+window.openForgerStatSelect = function(targetIndex, e) {
+    e.stopPropagation();
+    let item = game.player.inventory[targetIndex];
+    let forgerItem = game.player.inventory[activeInvIndex]; 
+
+    if (!item || ['necklace', 'ring', 'earrings'].includes(item.type)) {
+        dom.log.innerText = "❌ Cannot reroll accessories!";
+        window.isApplyingForger = false; window.renderInventory(); return;
+    }
+    if (item.rarity !== forgerItem.rarity) {
+        dom.log.innerText = `❌ You need a ${item.rarity} Forger to reroll this item!`;
+        window.isApplyingForger = false; window.renderInventory(); return;
+    }
+    if (!item.randomStat || Object.keys(item.randomStat).length === 0) {
+        dom.log.innerText = "❌ This item has no sub-stats to reroll.";
+        window.isApplyingForger = false; window.renderInventory(); return;
+    }
+
+    let modal = document.getElementById('forger-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'forger-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #E040FB; padding:20px; z-index:9000; width:320px; border-radius:8px; box-shadow:0 0 30px #E040FB; color:white; text-align:center;';
+        document.body.appendChild(modal);
+    }
+    
+    let html = '<h2 style="margin-top:0; color:#E040FB;">✨ Select Sub-Stat</h2>';
+    html += `<p style="color:#aaa; font-size:12px; margin-bottom:15px;">Target: ${item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name}</p>`;
+    
+    for (let k in item.randomStat) {
+        html += `<button class="btn" style="width:100%; margin-bottom:8px; background:#333; border:1px solid #E040FB; color:#E040FB;" onclick="window.confirmForgerReroll(${targetIndex}, '${k}')">Reroll +${item.randomStat[k]} ${k.toUpperCase()}</button>`;
+    }
+    
+    html += `<button class="btn" style="background:#f44336; width:100%; margin-top:10px;" onclick="document.getElementById('forger-modal').style.display='none'; window.isApplyingForger=false; window.renderInventory();">Cancel</button>`;
+    
+    modal.innerHTML = html;
+    modal.style.display = 'block';
+};
+
+window.confirmForgerReroll = function(targetIndex, statKey) {
+    if (socket) socket.emit('requestRerollStat', { forgerIndex: activeInvIndex, targetIndex: targetIndex, statKey: statKey });
+    document.getElementById('forger-modal').innerHTML = '<h2 style="color:#E040FB; margin-top: 20px;">Rerolling...</h2>';
+};
+
+window.openConsumablesCrafting = function() {
+    document.getElementById('merchant-modal').style.display = 'none';
+    let modal = document.getElementById('consumables-craft-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'consumables-craft-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #E040FB; padding:20px; z-index:9000; width:350px; border-radius:8px; box-shadow:0 0 30px #E040FB; color:white; text-align:center; max-height: 80vh; overflow-y: auto;';
+        document.body.appendChild(modal);
+    }
+    window.renderConsumablesCrafting();
+    modal.style.display = 'block';
+};
+
+window.forgerSelectedRarity = window.forgerSelectedRarity || 'Godly';
+
+window.updateForgerRarity = function(val) {
+    window.forgerSelectedRarity = val;
+    window.renderConsumablesCrafting();
+};
+
+window.renderConsumablesCrafting = function() {
+    let modal = document.getElementById('consumables-craft-modal');
+    let selRarity = window.forgerSelectedRarity;
+    
+    let reqExo=3, reqGold=300000, reqStones=3;
+    const inv = game.player.inventory || [];
+    let cR=0, cG=0, cB=0, cStones=0;
+    inv.forEach(x => {
+        if (!x || !x.name) return;
+        const n = String(x.name).trim();
+        if (n.includes('Red Exo Metal')) cR += x.quantity || 1;
+        if (n.includes('Green Exo Metal')) cG += x.quantity || 1;
+        if (n.includes('Blue Exo Metal')) cB += x.quantity || 1;
+        if (n.includes('Refinement Stone') && (selRarity === 'Divine' || x.level >= 100) && x.rarity === selRarity) cStones += x.quantity || 1;
+    });
+    
+    const col = (have, need) => have >= need ? '#4CAF50' : '#f44336';
+    const gCol = (game.player.gold >= reqGold) ? '#4CAF50' : '#f44336';
+    let canCraftForger = (cR>=reqExo && cG>=reqExo && cB>=reqExo && cStones>=reqStones && game.player.gold >= reqGold);
+
+    let html = '<h2 style="margin-top:0; color:#E040FB; text-shadow: 0 0 10px #E040FB;">🧪 Consumables</h2>';
+    html += '<p style="font-size:12px; color:#aaa;">Craft powerful consumable items.</p>';
+    
+    // --- ITEM 1: STAT FORGER ---
+    html += '<div style="background:#222; padding:10px; border-radius:5px; margin-bottom:15px; font-size:13px; text-align:left; border: 1px solid #444;">';
+    html += `<div style="color:#E040FB; font-weight:bold; font-size:16px; margin-bottom:5px; text-align:center;">✨ Stat Forger</div>`;
+    html += '<p style="font-size:11px; color:#aaa; margin-top:0; text-align:center;">Rerolls a random sub-stat. Select rarity:</p>';
+    html += `<select onchange="window.updateForgerRarity(this.value)" style="width:100%; padding:8px; margin-bottom:10px; background:#333; color:white; border:1px solid #E040FB; border-radius:4px; outline:none;">
+        <option value="Basic" ${selRarity === 'Basic' ? 'selected' : ''}>Basic</option>
+        <option value="Rare" ${selRarity === 'Rare' ? 'selected' : ''}>Rare</option>
+        <option value="Unique" ${selRarity === 'Unique' ? 'selected' : ''}>Unique</option>
+        <option value="Legendary" ${selRarity === 'Legendary' ? 'selected' : ''}>Legendary</option>
+        <option value="Godly" ${selRarity === 'Godly' ? 'selected' : ''}>Godly</option>
+        <option value="Divine" ${selRarity === 'Divine' ? 'selected' : ''}>Divine</option>
+    </select>`;
+    html += `<div><span style="color:${col(cR,reqExo)}">${cR}/${reqExo} Red Exo Metal</span></div>`;
+    html += `<div><span style="color:${col(cG,reqExo)}">${cG}/${reqExo} Green Exo Metal</span></div>`;
+    html += `<div><span style="color:${col(cB,reqExo)}">${cB}/${reqExo} Blue Exo Metal</span></div>`;
+    html += `<div><span style="color:${col(cStones,reqStones)}">${cStones}/${reqStones} ${selRarity} Ref. Stone Lv.100</span></div>`;
+    html += `<div style="margin-top:5px; font-weight:bold; color:${gCol}">${(game.player.gold || 0).toLocaleString()} / ${reqGold.toLocaleString()} Gold</div>`;
+    html += `<button class="btn" style="background:${canCraftForger ? '#E040FB' : '#555'}; color:white; width:100%; margin-top:10px; font-weight:bold;" ${canCraftForger ? '' : 'disabled'} onclick="if(socket) socket.emit('requestCraftForger', { rarity: '${selRarity}' })">Craft ${selRarity} Forger</button>`;
+    html += '</div>';
+
+    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('consumables-craft-modal').style.display='none'; document.getElementById('merchant-modal').style.display='block';">Back</button>`;
+    modal.innerHTML = html;
+};
+
+if (socket) {
+    socket.on('craftForgerSuccess', () => {
+        setTimeout(() => { if (document.getElementById('consumables-craft-modal') && document.getElementById('consumables-craft-modal').style.display === 'block') window.renderConsumablesCrafting(); }, 100);
+    });
+    socket.on('rerollSuccess', () => {
+        let modal = document.getElementById('forger-modal');
+        if (modal) modal.style.display = 'none';
+        window.isApplyingForger = false;
+        activeInvIndex = -1;
+        window.renderInventory();
+    });
+}
+
+// 🪄 HOOK INTO THE EXISTING BLACKSMITH BUTTON
+setTimeout(() => {
+    let merchantModal = document.getElementById('merchant-modal');
+    if (merchantModal) {
+        let buttons = merchantModal.getElementsByTagName('button');
+        for (let btn of buttons) {
+            if (btn.innerText.toLowerCase().includes('blacksmith')) {
+               btn.innerText = 'Blacksmith (Divine Forge)';
+                btn.onclick = window.openDivineForge;
+                // 🛡️ UI FIX: Expanded width, block display, and added pointer cursor!
+                btn.style.cssText = 'background: linear-gradient(45deg, #ff9800, #ffea00); color: black; font-weight: bold; width: 100%; margin-bottom: 10px; box-shadow: 0 0 10px #ff9800; border: none; padding: 10px; cursor: pointer; border-radius: 4px; box-sizing: border-box; display: block;';
+                
+              // 👇 INJECT CONSUMABLES BUTTON RIGHT AFTER IT
+                if (!document.getElementById('btn-consumables-craft')) {
+                    let consBtn = document.createElement('button');
+                    consBtn.id = 'btn-consumables-craft';
+                    consBtn.className = 'btn';
+                    consBtn.innerText = 'Consumables Crafting';
+                    consBtn.style.cssText = 'background: linear-gradient(45deg, #9c27b0, #E040FB); color: white; font-weight: bold; width: 100%; margin-bottom: 10px; box-shadow: 0 0 10px #E040FB; border: none; padding: 10px; cursor: pointer; border-radius: 4px; display: block; box-sizing: border-box;';
+                    consBtn.onclick = window.openConsumablesCrafting;
+                    btn.parentNode.insertBefore(consBtn, btn.nextSibling);
+                    
+                    // 👇 INJECT COSMETICS BUTTON RIGHT AFTER CONSUMABLES
+                    if (!document.getElementById('btn-cosmetics-craft')) {
+                        let cosBtn = document.createElement('button');
+                        cosBtn.id = 'btn-cosmetics-craft';
+                        cosBtn.className = 'btn';
+                        cosBtn.innerText = 'Cosmetics Crafting (Pets)';
+                        cosBtn.style.cssText = 'background: linear-gradient(45deg, #311B92, #E040FB); color: white; font-weight: bold; width: 100%; margin-bottom: 10px; box-shadow: 0 0 10px #E040FB; border: none; padding: 10px; cursor: pointer; border-radius: 4px; display: block; box-sizing: border-box;';
+                        cosBtn.onclick = window.openCosmeticsCrafting;
+                        consBtn.parentNode.insertBefore(cosBtn, consBtn.nextSibling); // 🛡️ THE FIX: Attach it to consBtn instead of the deleted forgerBtn!
+                    }
+                }
+                break;
+            }
+        }
+    }
+}, 2000);
+
+window.openAuctionHouse = function() {
+    document.getElementById('merchant-modal').style.display = 'none';
+    document.getElementById('ah-modal').style.display = 'block';
+    window.switchAhTab('browse');
+};
+
+window.switchAhTab = function(tab) {
+    document.getElementById('ah-tab-browse').classList.remove('selected');
+    document.getElementById('ah-tab-sell').classList.remove('selected');
+    document.getElementById('ah-tab-my').classList.remove('selected');
+    
+    document.getElementById('ah-view-browse').style.display = 'none';
+    document.getElementById('ah-view-sell').style.display = 'none';
+    document.getElementById('ah-view-my').style.display = 'none';
+
+    document.getElementById(`ah-tab-${tab}`).classList.add('selected');
+    document.getElementById(`ah-view-${tab}`).style.display = 'block';
+
+    if (tab === 'browse') {
+        document.getElementById('ah-search-input').value = '';
+        document.getElementById('ah-browse-results').innerHTML = '<p style="color:#aaa; text-align:center;">Loading...</p>';
+        socket.emit('ah_search', ''); 
+    }
+    if (tab === 'sell') window.renderAhSellGrid();
+    if (tab === 'my') {
+        document.getElementById('ah-my-results').innerHTML = '<p style="color:#aaa; text-align:center;">Loading...</p>';
+        socket.emit('ah_getMyAuctions');
+    }
+};
+
+window.ahSearch = function() {
+    const query = document.getElementById('ah-search-input').value.trim();
+    document.getElementById('ah-browse-results').innerHTML = '<p style="color:#aaa; text-align:center;">Searching...</p>';
+    socket.emit('ah_search', query);
+};
+
+window.renderAhSellGrid = function() {
+    const grid = document.getElementById('ah-sell-grid');
+    grid.innerHTML = '';
+    ahSelectedInvIndex = -1;
+    document.getElementById('ah-selected-item-name').innerText = "No item selected";
+    document.getElementById('ah-selected-item-tooltip').innerHTML = ""; // Clear tooltip on refresh
+
+    const inv = game.player.inventory || [];
+    for (let i = 0; i < inv.length; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'inv-slot';
+        if (inv[i]) {
+            slot.style.borderBottom = `3px solid ${inv[i].color || '#fff'}`;
+            let displayName = inv[i].enhanceLevel ? `${inv[i].name} +${inv[i].enhanceLevel}` : inv[i].name;
+            slot.innerText = displayName;
+            
+            if (inv[i].quantity && inv[i].quantity > 1) { 
+                let q = document.createElement('span'); 
+                q.className = 'inv-qty'; q.innerText = 'x' + inv[i].quantity; 
+                slot.appendChild(q); 
+            }
+
+            slot.onclick = () => {
+                document.querySelectorAll('#ah-sell-grid .inv-slot').forEach(s => s.style.borderColor = '#444');
+                slot.style.borderColor = '#ff9800';
+                ahSelectedInvIndex = i;
+                document.getElementById('ah-selected-item-name').style.color = inv[i].color || '#fff';
+                document.getElementById('ah-selected-item-name').innerText = `Selling 1x: ${displayName}`;
+                // 🛡️ THE FIX: Render the exact item stats to the seller!
+                document.getElementById('ah-selected-item-tooltip').innerHTML = window.getItemTooltip(inv[i]);
+            };
+        }
+        grid.appendChild(slot);
+    }
+};
+
+window.ahList = function() {
+    if (ahSelectedInvIndex === -1) return dom.log.innerText = "Select an item to sell first.";
+    const item = game.player.inventory[ahSelectedInvIndex];
+    
+    // 🐰 THE FIX: Allow Seasonal cosmetics/pets to bypass the auction lock!
+    if (item && item.type === 'aura' && !item.isSeasonal && !String(item.name).includes('Easter')) {
+        return dom.log.innerText = "Normal cosmetics and pets cannot be auctioned!";
+    }
+    
+    // 🛡️ THE FIX: Prevent listing bound gear
+    if (item && (item.rarity === 'Godly' || item.rarity === 'Divine') && item.enhanceLevel > 0) {
+        return dom.log.innerText = "Enhanced Godly and Divine gear cannot be auctioned!";
+    }
+
+    const price = parseInt(document.getElementById('ah-sell-price').value);
+    if (isNaN(price) || price < 1) return dom.log.innerText = "Invalid price.";
+    
+    socket.emit('ah_list', { invIndex: ahSelectedInvIndex, price: price });
+    document.getElementById('ah-selected-item-name').innerText = "Processing...";
+};
+
+window.ahBuy = function(auctionId, price, name) {
+    if (!confirm(`Buy ${name} for ${price} Gold?`)) return;
+    socket.emit('ah_buy', { auctionId });
+};
+
+window.ahCancel = function(auctionId) {
+    if (!confirm(`Cancel this auction? The item will be returned to your inventory.`)) return;
+    socket.emit('ah_cancel', { auctionId });
+};
+
+// 📡 SOCKET LISTENERS FOR AUCTION HOUSE
+if (socket) {
+    socket.on('ah_searchResults', (results) => {
+        const box = document.getElementById('ah-browse-results');
+        if (!results || results.length === 0) {
+            box.innerHTML = '<p style="color:#aaa; text-align:center;">No items found.</p>';
+            return;
+        }
+        let html = '';
+       results.forEach(r => {
+            let item = r.item_data;
+            let dName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name;
+            let safeItemJson = encodeURIComponent(JSON.stringify(item)); // 🛡️ Safely package the data
+            
+            html += `<div class="ah-row">
+                <div class="ah-item-info">
+                    <div style="color:${item.color || '#fff'}; font-weight:bold; font-size:16px; cursor:pointer; text-decoration:underline; text-shadow: 0 0 5px ${item.color || '#fff'};" onclick="window.showLinkedItem('${safeItemJson}')" title="Click to inspect">${dName}</div>
+                    <div style="font-size:12px; color:#888;">Seller: ${r.seller_name}</div>
+                </div>
+                <div class="ah-price">${r.price} G</div>
+                <button class="btn" style="background:#4CAF50;" onclick="window.ahBuy('${r.id}', ${r.price}, '${dName.replace(/'/g, "\\'")}')">Buy</button>
+            </div>`;
+        });
+        box.innerHTML = html;
+    });
+
+    socket.on('ah_myAuctions', (data) => {
+        document.getElementById('ah-my-count').innerText = data.count;
+        const box = document.getElementById('ah-my-results');
+        if (data.count === 0) {
+            box.innerHTML = '<p style="color:#aaa; text-align:center;">You have no active auctions.</p>';
+            return;
+        }
+        let html = '';
+        data.auctions.forEach(r => {
+            let item = r.item_data;
+            let dName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name;
+            let safeItemJson = encodeURIComponent(JSON.stringify(item));
+            
+            html += `<div class="ah-row">
+                <div class="ah-item-info">
+                    <div style="color:${item.color || '#fff'}; font-weight:bold; font-size:16px; cursor:pointer; text-decoration:underline; text-shadow: 0 0 5px ${item.color || '#fff'};" onclick="window.showLinkedItem('${safeItemJson}')" title="Click to inspect">${dName}</div>
+                </div>
+                <div class="ah-price">${r.price} G</div>
+                <button class="btn" style="background:#f44336;" onclick="window.ahCancel('${r.id}')">Cancel</button>
+            </div>`;
+        });
+        box.innerHTML = html;
+    });
+
+    socket.on('ah_listSuccess', () => {
+        dom.log.innerText = "Item listed on the Auction House!";
+        window.switchAhTab('my'); // Auto-switch to see it
+    });
+}
+// ==========================================
+// ⚖️ AUCTION HOUSE: LIVE SEARCH FILTER
+// ==========================================
+setTimeout(() => {
+    let searchInput = document.getElementById('ah-search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            document.getElementById('ah-browse-results').innerHTML = '<p style="color:#aaa; text-align:center;">Searching...</p>';
+            socket.emit('ah_search', this.value.trim());
+        });
+    }
+}, 2000);
+// ==========================================
+// 🏡 PLAYER HOUSING SYSTEM
+// ==========================================
+window.openHomeSaleUI = function() {
+    let modal = document.getElementById('home-sale-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'home-sale-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #4CAF50; padding:20px; z-index:9000; width:350px; border-radius:8px; box-shadow:0 0 30px #4CAF50; color:white; text-align:center; font-family:sans-serif;';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = `
+        <h2 style="color:#4CAF50; margin-top:0; text-shadow: 0 0 10px #4CAF50;">🏡 Home For Sale!</h2>
+        <p style="color:#ccc; font-size:14px;">Purchase your own private sanctuary. Relax, store your trophies, and invite your party over!</p>
+        <div style="margin: 20px 0; padding: 15px; background: #111; border: 1px dashed #FFD700; border-radius: 8px;">
+            <span style="color:#FFD700; font-size:26px; font-weight:bold; letter-spacing:1px;">1,000,000 G</span>
+        </div>
+        <button class="btn" style="background:#4CAF50; width:100%; margin-bottom:10px; font-size:16px; font-weight:bold; padding:12px;" onclick="window.buyHome()">Purchase Deed</button>
+        <button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('home-sale-modal').style.display='none'">Maybe Later</button>
+    `;
+    modal.style.display = 'block';
+    
+    if (window.isMobileUI()) {
+        window.enableMobileWindowControls(modal);
+        window.bringWindowToFront(modal);
+        window.clampWindowToViewport(modal);
+    }
+};
+
+window.buyHome = function() {
+    if (game.player.gold < 1000000) {
+        if (dom.log) dom.log.innerText = "❌ Not enough gold to buy a home!";
+        return;
+    }
+    if (socket) socket.emit('requestBuyHome');
+    document.getElementById('home-sale-modal').innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Processing Deeds...</h2>';
+};
+// ==========================================
+// 🧰 HOME STORAGE SYSTEM
+// ==========================================
+window.openStorageUI = function() {
+    window.isStorageOpen = true;
+    if (!isInventoryOpen) window.toggleInventory();
+    if (socket) socket.emit('requestOpenStorage');
+};
+
+window.closeStorageUI = function() {
+    window.isStorageOpen = false;
+    let modal = document.getElementById('storage-modal');
+    if (modal) modal.style.display = 'none';
+    window.renderInventory(); // Reset borders
+};
+
+window.renderStorageGrid = function(storage) {
+    let modal = document.getElementById('storage-modal');
+    if (!modal) return;
+
+    // 🛡️ THE FIX: Wrapped the title in a drag handle so the window can be grabbed and moved!
+    let html = '<div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-15px -15px 15px -15px; border-radius:8px 8px 0 0; border-bottom:1px solid #E040FB;"><h2 style="color:#E040FB; margin:0; pointer-events:none;">🧰 Home Storage</h2></div>';
+    html += '<p style="font-size:12px; color:#aaa;">Click items in your Inventory to store them. Click items here to retrieve them.</p>';
+    html += '<div style="display:flex; flex-wrap:wrap; gap:5px; justify-content:center; margin-bottom:15px; background:#111; padding:10px; border-radius:5px;">';
+    
+    for (let i = 0; i < 10; i++) {
+        let item = storage[i];
+        html += `<div class="inv-slot" style="border: 2px solid ${item ? item.color || '#fff' : '#444'}; cursor: pointer; width: 60px; height: 60px;" onclick="if(socket) socket.emit('transferFromStorage', ${i})">`;
+        if (item) {
+            html += `<span style="font-size:10px;">${item.enhanceLevel ? `+${item.enhanceLevel}` : ''} ${item.name.substring(0,8)}</span>`;
+            if (item.quantity && item.quantity > 1) html += `<span class="inv-qty">x${item.quantity}</span>`;
+            html += `<div class="tooltip">${window.getItemTooltip(item)}</div>`;
+        } else {
+            html += `<span style="color:#555; font-size:10px;">Empty</span>`;
+        }
+        html += `</div>`;
+    }
+    
+    html += '</div>';
+    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="window.closeStorageUI()">Close Storage</button>`;
+    
+    modal.innerHTML = html;
+};
+
+if (socket) {
+    socket.on('openStorageUI', (storage) => {
+        let modal = document.getElementById('storage-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'storage-modal';
+            modal.className = 'movable-window';
+            modal.style.cssText = 'display:none; position:fixed; top:40%; left:30%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #E040FB; padding:15px; z-index:9000; width:340px; border-radius:8px; box-shadow:0 0 20px #E040FB; color:white; text-align:center;';
+            document.body.appendChild(modal);
+        }
+        modal.style.display = 'block';
+        window.renderStorageGrid(storage);
+        
+        // 🛡️ THE FIX: Removed the mobile-only check so it is draggable for EVERYONE!
+        window.enableMobileWindowControls(modal);
+        window.bringWindowToFront(modal);
+    });
+
+    socket.on('syncStorage', (storage) => {
+        if (window.isStorageOpen) window.renderStorageGrid(storage);
+    });
+}
+// ==========================================
+// 👻 HAUNTED HOUSE ENGINE
+// ==========================================
+window.openHauntedHouseUI = function() {
+    if (game.party && game.party.members && game.party.members.length > 1) {
+        if (dom.log) dom.log.innerText = "❌ The Haunted House is a solo challenge. Please leave your party.";
+        return;
+    }
+
+    let modal = document.getElementById('haunted-house-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'haunted-house-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #9c27b0; padding:20px; z-index:9000; width:350px; border-radius:8px; box-shadow:0 0 30px #9c27b0; color:white; text-align:center; font-family:sans-serif;';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = `
+        <h2 style="color:#E040FB; margin-top:0; text-shadow: 0 0 10px #9c27b0;">Haunted House</h2>
+        <p style="color:#ccc; font-size:13px; margin-bottom:20px;">Unlimited entries. No timers. Face the Wraith King.<br>The monster's level will be randomly rolled based on the difficulty.</p>
+        
+        <button class="btn" style="background:#4CAF50; width:100%; margin-bottom:10px; font-size:15px; font-weight:bold; padding:10px;" onclick="window.startHauntedHouse('Easy')">Easy (Lv 1-15) - 1,000 G</button>
+        <button class="btn" style="background:#FF9800; width:100%; margin-bottom:10px; font-size:15px; font-weight:bold; padding:10px;" onclick="window.startHauntedHouse('Normal')">Normal (Lv 16-30) - 10,000 G</button>
+        <button class="btn" style="background:#f44336; width:100%; margin-bottom:15px; font-size:15px; font-weight:bold; padding:10px;" onclick="window.startHauntedHouse('Hard')">Hard (Lv 31-80) - 500,000 G</button>
+        
+        <button class="btn" style="background:#555; width:100%;" onclick="document.getElementById('haunted-house-modal').style.display='none'">Close</button>
+    `;
+    modal.style.display = 'block';
+    
+    if (window.isMobileUI()) {
+        window.enableMobileWindowControls(modal);
+        window.bringWindowToFront(modal);
+        window.clampWindowToViewport(modal);
+    }
+};
+
+window.startHauntedHouse = function(diff) {
+    if (socket) socket.emit('startHauntedHouse', { difficulty: diff });
+    
+    // 1. Close the modal instantly
+    document.getElementById('haunted-house-modal').style.display = 'none';
+
+    // 2. Trigger the game's native black loading screen
+    document.getElementById('loading-text').innerText = "Entering Haunted House...";
+    const loaderFill = document.getElementById('loader-fill');
+    if (loaderFill) { 
+        loaderFill.style.width = '0%'; 
+        loaderFill.style.transition = 'width 0.1s linear'; 
+    }
+    document.getElementById('loading-screen').style.display = 'flex';
+    
+    // 3. Create a smooth fake loading bar so the screen doesn't feel dead
+    let fillAmt = 0;
+    let fakeLoad = setInterval(() => {
+        fillAmt += 15; 
+        if (loaderFill) loaderFill.style.width = Math.min(100, fillAmt) + '%';
+        if (fillAmt >= 100) clearInterval(fakeLoad);
+    }, 100);
+};
+
+if (socket) {
+    socket.on('closeHauntedUI', () => {
+        let modal = document.getElementById('haunted-house-modal');
+        if (modal) modal.style.display = 'none';
+    });
+
+    socket.on('hauntedVictory', () => {
+        const vText = document.createElement('div');
+        vText.innerHTML = `
+            <h1 style="font-size:70px; margin:0; text-shadow:0 0 30px #E040FB, 4px 4px 0 #000; letter-spacing: 5px; animation: pulseText 1s infinite alternate;">HOUSE CLEAR!</h1>
+        `;
+        vText.style.position = 'fixed';
+        vText.style.top = '40%';
+        vText.style.left = '50%';
+        vText.style.transform = 'translate(-50%, -50%)';
+        vText.style.textAlign = 'center';
+        vText.style.color = '#E040FB';
+        vText.style.zIndex = '9999';
+        document.body.appendChild(vText);
+        
+        setTimeout(() => { vText.remove(); }, 4000);
+    });
+}
+
+// ==========================================
+// 🥚 EASTER EGG PET CSS & ANIMATIONS
+// ==========================================
+const eggStyle = document.createElement('style');
+eggStyle.innerHTML = `
+   .pet-egg {
+        position: absolute;
+        /* 🌟 THE FIX: Shrunk the egg to a cuter, less intrusive size */
+        width: 22px;
+        height: 30px;
+        /* Perfect egg shape */
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        
+        /* 🌟 THE FIX: Tightened the stripes so they still show up nicely on a smaller egg */
+        background: repeating-linear-gradient(
+            45deg,
+            #FFB7B2 0px, #FFB7B2 6px,   /* Pastel Pink */
+            #B5EAD7 6px, #B5EAD7 12px,  /* Pastel Mint */
+            #FFFFB5 12px, #FFFFB5 18px, /* Pastel Yellow */
+            #C7CEEA 18px, #C7CEEA 24px  /* Pastel Periwinkle */
+        );
+        
+        /* 🌟 THE FIX: Scaled down the glow slightly so it doesn't overwhelm the small body */
+        box-shadow: 0 0 10px 3px rgba(255, 128, 171, 0.8), 
+                    0 0 18px 6px rgba(255, 193, 227, 0.6), 
+                    inset 0 0 6px rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        
+        z-index: 105; /* Kept at 105 so it stays in front of the avatar */
+        pointer-events: none;
+        transform-origin: bottom center;
+        
+        /* The requested 12s float and shake loop */
+        animation: eggFloatShake 12s linear infinite; 
+    }
+
+    @keyframes eggFloatShake {
+        /* Phase 1: 0% - 60% (7.2s) - Pure Smooth Floating */
+        0%, 20%, 40%, 60% { transform: translateY(0); }
+        10%, 30%, 50% { transform: translateY(-12px); } /* Hovering up 12px smoothly */
+
+        /* Phase 2: 60% - 70% (1.2s) - Gentle 'About to Hatch' Shake */
+        62% { transform: translateY(-6px) translateX(1px) rotate(1deg); }
+        64% { transform: translateY(-6px) translateX(-1px) rotate(-1deg); }
+        66% { transform: translateY(-6px) translateX(1px) rotate(1deg); }
+        68% { transform: translateY(-6px) translateX(-1px) rotate(-1deg); }
+        70% { transform: translateY(-6px) rotate(0); } /* Stop shaking, hovering gently */
+
+        /* Phase 3: 70% - 90% (2.4s) - Short Floating Recovery */
+        80% { transform: translateY(-12px); }
+        90% { transform: translateY(0); }
+
+        /* Phase 4: 90% - 100% (1.2s) - Violent 'Ready to Pop!' Shake */
+        91% { transform: translateX(2px) rotate(3deg); }
+        93% { transform: translateX(-2px) rotate(-3deg); }
+        95% { transform: translateX(3px) rotate(4deg); }
+        97% { transform: translateX(-3px) rotate(-4deg); }
+        99% { transform: translateX(1px) rotate(1deg); }
+        100% { transform: translate(0) rotate(0); } /* Loop back to Phase 1 */
+    }
+   /* 🐰 EASTER AURA: Supercharged Color-Shifting Glow */
+    .avatar-rig:has(.aura-easter) {
+        animation: easterColorShift 4s infinite alternate ease-in-out !important;
+    }
+
+    /* 🔥 Boosted the shadows with a 3rd layer and added brightness for intensity */
+    @keyframes easterColorShift {
+        0% { filter: drop-shadow(0 0 10px #FFB7B2) drop-shadow(0 0 20px #FFB7B2) drop-shadow(0 0 40px #FF919D) brightness(1.4); }   
+        33% { filter: drop-shadow(0 0 10px #FFFFB5) drop-shadow(0 0 20px #FFFFB5) drop-shadow(0 0 40px #FFEA00) brightness(1.4); }  
+        66% { filter: drop-shadow(0 0 10px #B5EAD7) drop-shadow(0 0 20px #B5EAD7) drop-shadow(0 0 40px #69F0AE) brightness(1.4); }  
+        100% { filter: drop-shadow(0 0 10px #C7CEEA) drop-shadow(0 0 20px #C7CEEA) drop-shadow(0 0 40px #8C9EFF) brightness(1.4); } 
+    }
+
+    .cosmetic-aura.aura-easter {
+        display: block !important;
+        position: absolute !important;
+        inset: 0 !important;
+        background: none !important;
+        box-shadow: none !important;
+        z-index: 100 !important;
+    }
+
+   /* 🐰 EASTER AURA: Bubbling Bunny Heads */
+    .cosmetic-aura.aura-easter::before,
+    .cosmetic-aura.aura-easter::after {
+        content: '';
+        position: absolute;
+        bottom: -15px; /* Start slightly higher due to smaller size */
+        background: 
+            radial-gradient(circle at 50% 65%, #FFB7B2 35%, transparent 36%), 
+            radial-gradient(circle at 25% 25%, #FFB7B2 22%, transparent 23%), 
+            radial-gradient(circle at 75% 25%, #FFB7B2 22%, transparent 23%); 
+        filter: drop-shadow(0 0 5px #FFB7B2) brightness(1.3); /* Slightly less shadow for smaller objects */
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* First Bunny: Was 24px -> Now 18px (Scaled down 25%) */
+    .cosmetic-aura.aura-easter::before {
+        left: -8px; /* Adjusted position for smaller head */
+        width: 18px;  /* <--- SHRUNKEN */
+        height: 18px; /* <--- SHRUNKEN */
+        animation: bunnyBubble 3s ease-in infinite;
+    }
+
+    /* Second Bunny: Was 18px -> Now 13px (Scaled down ~28%) */
+    .cosmetic-aura.aura-easter::after {
+        left: 22px; /* Adjusted position for smaller head */
+        width: 13px;  /* <--- SHRUNKEN */
+        height: 13px; /* <--- SHRUNKEN */
+        animation: bunnyBubble 3.5s ease-in infinite 1.5s;
+    }
+
+    /* Keep the bunnyBubble keyframes the same (scale(1.1) is now 1.1x the new, smaller size) */
+    @keyframes bunnyBubble {
+        0% { transform: translateY(0) scale(0.5); opacity: 0; }
+        20% { opacity: 0.9; transform: translateY(-20px) scale(1) translateX(-5px); }
+        50% { transform: translateY(-50px) scale(1.1) translateX(5px); }
+        80% { opacity: 0.9; transform: translateY(-80px) scale(0.9) translateX(-3px); }
+        100% { transform: translateY(-110px) scale(0.5); opacity: 0; }
+    }
+`;
+document.head.appendChild(eggStyle);
+
+// ==========================================
+// ⚙️ TECH GENIUS CSS
+// ==========================================
+const techStyle = document.createElement('style');
+techStyle.innerHTML = `
+    .tech-drone {
+        position: absolute; width: 16px; height: 16px; background: #222; border: 2px solid #00E5FF;
+        border-radius: 50%; box-shadow: 0 0 10px #00E5FF; z-index: 105;
+        animation: pulseDrone 1s infinite alternate; pointer-events: none;
+        transform: translate(-50%, -50%);
+    }
+    @keyframes pulseDrone { 0% { box-shadow: 0 0 5px #00E5FF; } 100% { box-shadow: 0 0 20px #00E5FF; } }
+    .gamma-shield {
+        position: absolute; width: 60px; height: 100px; bottom: -5px; left: 50%; transform: translateX(-50%);
+        border: 2px solid rgba(0, 229, 255, 0.8); background: linear-gradient(to top, rgba(0,229,255,0.4), transparent);
+        border-radius: 50% / 10px; box-shadow: 0 0 15px rgba(0,229,255,0.5), inset 0 0 15px rgba(0,229,255,0.5);
+        pointer-events: none; z-index: 10;
+    }
+    @keyframes shatter { 0% { opacity: 1; transform: translateX(-50%) scale(1); } 100% { opacity: 0; transform: translateX(-50%) scale(1.5); } }
+    .golem-buster .m-body, .golem-buster .m-head, .golem-buster [class*="m-arm"], .golem-buster [class*="m-leg"] {
+        background: #ffffff !important; border-color: #bbbbbb !important; box-shadow: 0 0 15px #00E5FF !important;
+    }
+`;
+document.head.appendChild(techStyle);
+
+// ==========================================
+// 👻 COSMETICS CRAFTING UI
+// ==========================================
+window.openCosmeticsCrafting = function() {
+    document.getElementById('merchant-modal').style.display = 'none';
+    let modal = document.getElementById('cosmetics-craft-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'cosmetics-craft-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#1a1a1a; border:2px solid #E040FB; padding:20px; z-index:9000; width:350px; border-radius:8px; box-shadow:0 0 30px #E040FB; color:white; text-align:center;';
+        document.body.appendChild(modal);
+    }
+    window.renderCosmeticsCrafting();
+    modal.style.display = 'block';
+};
+
+window.renderCosmeticsCrafting = function() {
+    let modal = document.getElementById('cosmetics-craft-modal');
+    const inv = game.player.inventory || [];
+    
+    let cSouls = 0;
+    inv.forEach(x => {
+        if (x && x.name === 'Soul Piece') cSouls += x.quantity || 1;
+    });
+
+    const reqSouls = 10;
+    let canCraft = cSouls >= reqSouls;
+    let col = canCraft ? '#4CAF50' : '#f44336';
+
+    let html = '<h2 style="margin-top:0; color:#E040FB; text-shadow: 0 0 10px #E040FB;">👻 Cosmetics Crafting</h2>';
+    html += '<p style="font-size:12px; color:#aaa;">Exchange boss materials for rare pets and cosmetics.</p>';
+
+    html += '<div style="background:#222; padding:15px; border-radius:5px; margin-bottom:15px; font-size:14px; text-align:left; border: 1px solid #444;">';
+    html += `<div style="color:#E040FB; font-weight:bold; font-size:16px; margin-bottom:10px;">Void Pet <span style="color:#aaa; font-size:12px;">(Godly)</span></div>`;
+    html += `<div><span style="color:${col}">${cSouls}/${reqSouls} Soul Pieces</span></div>`;
+    html += '</div>';
+
+    html += `<button class="btn" style="background:${canCraft ? '#E040FB' : '#555'}; color:white; width:100%; margin-bottom:5px; font-weight:bold;" ${canCraft ? '' : 'disabled'} onclick="if(socket) socket.emit('requestCraftVoidPet')">Craft Void Pet</button>`;
+    html += `<button class="btn" style="background:#f44336; width:100%;" onclick="document.getElementById('cosmetics-craft-modal').style.display='none'; document.getElementById('merchant-modal').style.display='block';">Back</button>`;
+    modal.innerHTML = html;
+};
+
+if (socket) {
+    socket.on('craftVoidSuccess', () => {
+        setTimeout(() => { if (document.getElementById('cosmetics-craft-modal') && document.getElementById('cosmetics-craft-modal').style.display === 'block') window.renderCosmeticsCrafting(); }, 100);
+    });
+}
+// ==========================================
+// 👻 VOID PET CSS
+// ==========================================
+const voidStyle = document.createElement('style');
+voidStyle.innerHTML = `
+    .pet-void {
+        position: absolute;
+        width: 35px; height: 35px;
+        z-index: 105; pointer-events: none;
+        transform-origin: center center;
+    }
+    .pet-void .mini-wraith {
+        width: 100%; height: 100%;
+        background: linear-gradient(45deg, #4A148C, #000000);
+        border: 2px solid #311B92;
+        border-radius: 50% 50% 40% 40%;
+        position: relative;
+        box-shadow: 0 0 15px #311B92;
+        /* 👻 THE FIX: Replaced float with the new vanish/fade animation */
+        animation: voidFadeFloat 6s ease-in-out infinite;
+    }
+    .pet-void .w-eye {
+        position: absolute; width: 6px; height: 6px;
+        background: #ffffff;
+        border-radius: 50%; top: 12px;
+        box-shadow: 0 0 8px #ffffff;
+    }
+    .pet-void .w-eye.left { left: 8px; }
+    .pet-void .w-eye.right { right: 8px; }
+    .pet-void .w-particles { 
+        position: absolute; bottom: -8px; width: 100%; 
+        display: flex; justify-content: space-around; 
+    }
+    .pet-void .w-p { 
+        width: 6px; height: 12px; background: #311B92; 
+        border-radius: 50%; opacity: 0.6; 
+        animation: wraithTail 1s infinite alternate; 
+    }
+    .pet-void .w-p:nth-child(2) { animation-delay: 0.2s; }
+    .pet-void .w-p:nth-child(3) { animation-delay: 0.4s; }
+    .pet-void .w-p:nth-child(4) { animation-delay: 0.6s; }
+    
+    @keyframes wraithTail { 0% { transform: translateY(0); opacity: 0.8; } 100% { transform: translateY(8px); opacity: 0.1; } }
+
+    /* 👻 THE VANISHING ANIMATION */
+    @keyframes voidFadeFloat {
+        0%   { transform: translateY(0); opacity: 1; }
+        20%  { transform: translateY(-10px); opacity: 1; }
+        40%  { transform: translateY(0); opacity: 1; }
+        45%  { transform: translateY(-5px); opacity: 0; } /* Poof out */
+        65%  { transform: translateY(-15px); opacity: 0; } /* Move while invisible */
+        70%  { transform: translateY(-10px); opacity: 1; } /* Poof in */
+        85%  { transform: translateY(0); opacity: 1; }
+        100% { transform: translateY(0); opacity: 1; }
+    }
+`;
+document.head.appendChild(voidStyle);
+// ==========================================
+// 💳 ANDROID STORE INITIALIZATION
+// ==========================================
+document.addEventListener('deviceready', () => {
+    if (window.CdvPurchase) {
+        const { store, ProductType, Platform } = window.CdvPurchase;
+
+     store.register([{
+    id: 'gem_pack_50', 
+    type: ProductType.CONSUMABLE,
+    platform: Platform.GOOGLE_PLAY,
+}, {
+    id: 'gem_pack_15', 
+    type: ProductType.CONSUMABLE,
+    platform: Platform.GOOGLE_PLAY,
+}]);
+
+      // When a purchase is successful, trigger the "Handshake" to the server
+        store.when().approved((transaction) => {
+            console.log("Purchase Approved! Verifying with server...");
+            
+            // 🛡️ CORDOVA V13 BULLETPROOF TOKEN FIX
+            let correctPackageId = transaction.productId || (transaction.products && transaction.products.length > 0 ? transaction.products[0].id : "gem_pack_50");
+            let correctToken = transaction.purchaseToken || (transaction.nativePurchase && transaction.nativePurchase.purchaseToken) || transaction.id || "test_token";
+
+            window.dispatchEvent(new CustomEvent('StorePurchaseSuccess', {
+                detail: {
+                    receiptToken: correctToken,
+                    packageId: correctPackageId
+                }
+            }));
+
+            transaction.finish();
+        });
+
+        store.error((err) => {
+            alert("Google Play Error: " + err.message);
+            window.openRealMoneyShop(); // Un-freeze the UI
+        });
+
+        store.initialize([Platform.GOOGLE_PLAY]);
+        
+        // 🛑 THE FIX: Force the app to fetch the products from Google Play!
+        store.update(); 
+    }
+}, false);
