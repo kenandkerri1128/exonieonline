@@ -3092,7 +3092,7 @@ socket.on('saveData', async (playerData) => {
                     }
                 }
 
-                socket.emit('systemMessage', '-');
+                socket.emit('systemMessage', 'Teleporting to a safe place..');
                 socket.emit('forceTeleport', { mapId: p.mapId, x: safeX, y: safeY });
                 return; 
             }
