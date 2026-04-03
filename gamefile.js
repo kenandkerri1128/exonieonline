@@ -1,4 +1,26 @@
 // ==========================================
+// 🚨 EMERGENCY MOBILE APP FIX (NO REBUILD NEEDED)
+// ==========================================
+if (!window.__exonie_cleaned) {
+    window.__exonie_cleaned = true;
+
+    // 1. DELETE THE GHOST LEFT SCREEN (Kills the duplicates causing the split screen)
+    const duplicateContainers = document.querySelectorAll('#game-container');
+    for (let i = 1; i < duplicateContainers.length; i++) {
+        duplicateContainers[i].remove();
+    }
+
+    const duplicateLandings = document.querySelectorAll('#web-landing-page');
+    for (let i = 1; i < duplicateLandings.length; i++) {
+        duplicateLandings[i].remove();
+    }
+
+    // 2. FIX TROPHY & DIAMOND BUTTON OVERLAP (Pushes them left to 140px)
+    const cssFix = document.createElement('style');
+    cssFix.innerHTML = `#mobile-rank-btn, #mobile-cash-btn { right: 140px !important; }`;
+    document.head.appendChild(cssFix);
+}
+// ==========================================
 // 🛡️ ANTI-MULTI-BOXING: TAB LOCK
 // ==========================================
 const exonieChannel = new BroadcastChannel('exonie_game_instance');
