@@ -7110,7 +7110,26 @@ window.openHauntedHouseUI = function() {
 
 window.startHauntedHouse = function(diff) {
     if (socket) socket.emit('startHauntedHouse', { difficulty: diff });
-    document.getElementById('haunted-house-modal').innerHTML = '<h2 style="color:#E040FB; margin-top: 20px;">Paying the Toll...</h2>';
+    
+    // 1. Close the modal instantly
+    document.getElementById('haunted-house-modal').style.display = 'none';
+
+    // 2. Trigger the game's native black loading screen
+    document.getElementById('loading-text').innerText = "Entering Haunted House...";
+    const loaderFill = document.getElementById('loader-fill');
+    if (loaderFill) { 
+        loaderFill.style.width = '0%'; 
+        loaderFill.style.transition = 'width 0.1s linear'; 
+    }
+    document.getElementById('loading-screen').style.display = 'flex';
+    
+    // 3. Create a smooth fake loading bar so the screen doesn't feel dead
+    let fillAmt = 0;
+    let fakeLoad = setInterval(() => {
+        fillAmt += 15; 
+        if (loaderFill) loaderFill.style.width = Math.min(100, fillAmt) + '%';
+        if (fillAmt >= 100) clearInterval(fakeLoad);
+    }, 100);
 };
 
 if (socket) {
