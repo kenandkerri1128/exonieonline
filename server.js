@@ -16,8 +16,6 @@ const STEAM_APP_ID = 'YOUR_STEAM_APP_ID_HERE';
 const express = require('express');
 const activeLogins = new Set(); // Tracks currently logged-in usernames
 const activeEmailSessions = {}; // 🛡️ Tracks which emails are currently online
-const ipConnections = {}; // 🛡️ NEW: Tracks active IP addresses
-const deviceConnections = {}; // 🛡️ Tracks active devices
 const emailConnections = {}; // 🛡️ Tracks email multi-boxing
 const http = require('http');
 const { Server } = require('socket.io');
@@ -2621,23 +2619,15 @@ socket.on('login', async (data) => {
             return socket.emit('requireEmailVerification', username);
         }
 
-        // 2. 🛡️ CONNECTION CAPS (2 IP, 1 Device, 2 Email) - Admins bypass
+      // 2. 🛡️ CONNECTION CAPS (4 Email) - Admins bypass
         // x-forwarded-for helps get the real IP if your game is hosted behind a proxy like Render or Cloudflare
         const clientIp = socket.handshake.headers['x-forwarded-for']?.split(',')[0] || socket.handshake.address;
         const safeDeviceId = data.deviceId || 'unknown_device';
         
        if (!isAdmin(username)) {
-            if ((ipConnections[clientIp] || 0) >= 2) {
-                console.log(`[SECURITY] Blocked ${username} - IP Cap Reached for ${clientIp}`);
-                return socket.emit('authError', 'Connection Limit: Max 2 accounts per network.');
-            }
-            if (safeDeviceId !== 'unknown_device' && (deviceConnections[safeDeviceId] || 0) >= 1) {
-                console.log(`[SECURITY] Blocked ${username} - Device Cap Reached for ${safeDeviceId}`);
-                return socket.emit('authError', 'Connection Limit: Max 1 account per device.');
-            }
-            if (user.email && (emailConnections[user.email] || 0) >= 2) {
+            if (user.email && (emailConnections[user.email] || 0) >= 4) {
                 console.log(`[SECURITY] Blocked ${username} - Email Cap Reached for ${user.email}`);
-                return socket.emit('authError', 'Connection Limit: Max 2 accounts per email.');
+                return socket.emit('authError', 'Connection Limit: Max 4 accounts per email.');
             }
         }
         // 3. THE ULTIMATE KICK ENGINE: Checks Username Only (Since Email is now capped at 2)
@@ -2719,12 +2709,8 @@ socket.on('login', async (data) => {
         socket.clientIp = clientIp; // Save the IP to the socket for cleanup
         socket.deviceId = data.deviceId || 'unknown_device'; // 🛡️ Store Device ID in memory to block alt parties!
         
-        // Add +1 to the connection tallies (unless they are an admin)
+      // Add +1 to the connection tallies (unless they are an admin)
         if (!isAdmin(username)) {
-            ipConnections[clientIp] = (ipConnections[clientIp] || 0) + 1;
-            if (socket.deviceId !== 'unknown_device') {
-                deviceConnections[socket.deviceId] = (deviceConnections[socket.deviceId] || 0) + 1;
-            }
             if (user.email) {
                 emailConnections[user.email] = (emailConnections[user.email] || 0) + 1;
             }
@@ -4896,26 +4882,11 @@ socket.on('requestConfirmTrade', () => {
                 if (mSid) {
                     const mSocket = io.sockets.sockets.get(mSid);
                     if (mSocket) {
-                        // 1. Device check (Strict Max 1)
-                        if (mSocket.deviceId && mSocket.deviceId === socket.deviceId && socket.deviceId !== 'unknown_device') {
-                            isSpamAlt = true;
-                            failReason = "Max 1 account per device allowed in a party";
-                            break;
-                        }
-                        // 2. Email check (Strict Max 1)
+                        // 1. Email check (Strict Max 1 per email in a party)
                         if (mSocket.email && mSocket.email === socket.email) {
                             isSpamAlt = true;
                             failReason = "Max 1 account per email allowed in a party";
                             break;
-                        }
-                        // 3. IP check (Max 2 allowed, so block if this makes 3)
-                        if (mSocket.clientIp && mSocket.clientIp === socket.clientIp) {
-                            ipMatchCount++;
-                            if (ipMatchCount > 2) {
-                                isSpamAlt = true;
-                                failReason = "Max 2 players per Wi-Fi/IP allowed in a party";
-                                break;
-                            }
                         }
                     }
                 }
@@ -7917,15 +7888,7 @@ socket.on('startDungeon', async (data) => {
        if (socket.username) { activeLogins.delete(socket.username); }
         if (socket.email && activeEmailSessions[socket.email] === socket.id) { delete activeEmailSessions[socket.email]; }
         
-        // 🛡️ Free up the connection slots when they disconnect
-        if (socket.clientIp && ipConnections[socket.clientIp]) {
-            ipConnections[socket.clientIp]--;
-            if (ipConnections[socket.clientIp] <= 0) delete ipConnections[socket.clientIp];
-        }
-        if (socket.deviceId && socket.deviceId !== 'unknown_device' && deviceConnections[socket.deviceId]) {
-            deviceConnections[socket.deviceId]--;
-            if (deviceConnections[socket.deviceId] <= 0) delete deviceConnections[socket.deviceId];
-        }
+       // 🛡️ Free up the connection slots when they disconnect
         if (socket.email && emailConnections[socket.email]) {
             emailConnections[socket.email]--;
             if (emailConnections[socket.email] <= 0) delete emailConnections[socket.email];
