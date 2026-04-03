@@ -3092,7 +3092,7 @@ socket.on('saveData', async (playerData) => {
                     }
                 }
 
-                socket.emit('systemMessage', '❌ Invalid Movement Detected. Returning to map entrance.');
+                socket.emit('systemMessage', '-');
                 socket.emit('forceTeleport', { mapId: p.mapId, x: safeX, y: safeY });
                 return; 
             }
