@@ -5006,43 +5006,51 @@ window.toggleLowEndMode = function(isAuto = false) {
 if (lowEndMode) { document.body.classList.add('low-perf'); setTimeout(() => { const btn = document.getElementById('low-perf-btn'); if (btn) { btn.innerText = "Low-End Mode: ON"; btn.style.background = "#4CAF50"; } }, 1000); }
 
 // ==========================================
-// 🎟️ CLOSED BETA DOWNLOAD LOGIC
+// 🎟️ CLOSED BETA DOWNLOAD LOGIC (Google Play Redeem)
 // ==========================================
-// Force the download button to always show up on the login screen
-document.addEventListener('DOMContentLoaded', () => {
-    const installBtn = document.getElementById('install-btn');
-    if (installBtn) {
-        installBtn.style.display = 'block';
-        installBtn.innerText = 'Download Closed Beta';
-        installBtn.style.background = '#E040FB'; 
-        installBtn.style.borderColor = '#9c27b0';
-        installBtn.style.boxShadow = '0 0 15px #E040FB';
-    }
-});
-
 window.addEventListener('click', (e) => { 
     if (e.target.id === 'install-btn') { 
-        e.target.innerText = "Fetching Code...";
-        if (typeof socket !== 'undefined' && socket) socket.emit('requestBetaCode');
+        e.target.innerText = "Fetching Redeem Code...";
+        if (typeof socket !== 'undefined' && socket) {
+            socket.emit('requestBetaCode');
+        }
     } 
 });
 
 if (typeof socket !== 'undefined' && socket) {
     socket.on('betaCodeResult', (data) => {
         const btn = document.getElementById('install-btn');
-        if (btn) btn.innerText = "Download Closed Beta";
+        if (btn) btn.innerText = "DOWNLOAD CLOSED BETA";
 
-        if (data.success && data.url) {
-            // 1. Attempt to physically open the Play Store link
-            let openedWindow = window.open(data.url, '_blank');
+        // Grab the raw code from Supabase (fallback to url if server uses that key)
+        const rawCode = data.code || data.url;
+
+        if (data.success && rawCode) {
+            // 1. Detect if player is trapped in Messenger/Facebook/Instagram Webview
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            const isWebview = (ua.indexOf("FBAN") > -1) || (ua.indexOf("FBAV") > -1) || (ua.indexOf("Instagram") > -1);
             
-            // 2. CHECK: Did the browser actually open the tab? (Checks for popup blockers)
-            if (openedWindow || (typeof window.cordova !== 'undefined')) {
-                // IT OPENED! Tell the server to officially tag the code as TRUE
-                socket.emit('confirmCodeOpened', { codeId: data.codeId });
-            } else {
-                alert("❌ Popup blocker prevented the Play Store from opening. Please allow popups and click again!");
+            if (isWebview) {
+                const warning = document.getElementById('webview-warning');
+                if (warning) warning.style.display = 'block';
             }
+
+            // 2. 🛡️ CONSTRUCT THE PLAY STORE URL
+            // If the server didn't already format it with 'http', build the Google Play link
+            let finalUrl = rawCode.startsWith('http') ? rawCode : 'https://play.google.com/redeem?code=' + rawCode;
+
+            // 3. Bypass Messenger popup blockers with a fake <a> tag
+            const a = document.createElement('a');
+            a.href = finalUrl;
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            // 4. Confirm success to the server so it marks is_used = TRUE
+            socket.emit('confirmCodeOpened', { codeId: data.codeId });
+        } else {
+            alert("Error: Could not retrieve the promo code. Please try again.");
         }
     });
 }
