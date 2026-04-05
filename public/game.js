@@ -1415,14 +1415,22 @@ function gameLoop(ts) {
                 window.openGuildUI();
                 return;
             }
-           // 📜 DAILY MISSIONS INTERCEPT: Portal M
-            if (onPortal.portalId === 'M') {
-                game.player.currentPortal = null;
-                game.player.y += 15; // Bounce back safely
-                game.player.teleportCooldown = 2000;
-                window.openDailyMissionsUI();
-                return;
-            }
+          // 📜 DAILY MISSIONS INTERCEPT: Portal M
+            if (onPortal.portalId === 'M') {
+                game.player.currentPortal = null;
+                game.player.y += 15; // Bounce back safely
+                game.player.teleportCooldown = 2000;
+                window.openDailyMissionsUI();
+                return;
+            }
+            // 🦇 DUNGEON 2 INTERCEPT: Portal N
+            if (onPortal.portalId === 'N') {
+                game.player.currentPortal = null;
+                game.player.y += 15; // Bounce back safely
+                game.player.teleportCooldown = 2000;
+                window.openDungeon2UI();
+                return;
+            }
           // ⚔️ TAVERN INTERCEPT: Portal A
             if (onPortal.portalId === 'A') {
                 game.player.currentPortal = null;
@@ -6013,7 +6021,63 @@ if (!document.getElementById('afk-lock-screen')) {
 
     window.resetAfkTimer();
 }
+// ==========================================
+// 🦇 DUNGEON 2: ANCIENT CAVE UI
+// ==========================================
+window.openDungeon2UI = function() {
+    let modal = document.getElementById('dungeon2-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'dungeon2-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#111; border:2px solid #9c27b0; padding:20px; z-index:9000; width:350px; border-radius:8px; box-shadow:0 0 30px #9c27b0; color:white; text-align:center; font-family:sans-serif;';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = `
+        <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #9c27b0;">
+            <h2 style="margin:0; color:#E040FB; pointer-events:none;">🦇 Ancient Cave</h2>
+        </div>
+        <p style="color:#ccc; font-size:13px; margin-bottom:15px;">A 3-stage gauntlet. Defeat the floor bosses to advance. Revival Juice is strictly forbidden here!</p>
+        <p id="d2-entries-text" style="color:#ff9800; font-weight:bold; margin-bottom:15px;">Checking Entries...</p>
+        
+        <button class="btn" style="background:#4CAF50; width:100%; margin-bottom:10px; font-size:14px; font-weight:bold; padding:10px;" onclick="window.startDungeon2('Normal')">Normal Mode</button>
+        <button class="btn" style="background:#FF9800; width:100%; margin-bottom:10px; font-size:14px; font-weight:bold; padding:10px;" onclick="window.startDungeon2('Hard')">Hard Mode</button>
+        <button class="btn" style="background:#f44336; width:100%; margin-bottom:15px; font-size:14px; font-weight:bold; padding:10px;" onclick="window.startDungeon2('Extreme')">Extreme Mode</button>
+        
+        <button class="btn" style="background:#555; width:100%;" onclick="document.getElementById('dungeon2-modal').style.display='none'">Close</button>
+    `;
+    modal.style.display = 'block';
+    
+    if (window.isMobileUI()) {
+        window.enableMobileWindowControls(modal);
+        window.bringWindowToFront(modal);
+        window.clampWindowToViewport(modal);
+    }
 
+    if (game.player.baseStats) {
+        document.getElementById('d2-entries-text').innerText = `Weekly Entries: ${game.player.baseStats.dungeonEntries || 7}/7`;
+    }
+};
+
+window.startDungeon2 = function(difficulty) {
+    if (difficulty === 'Extreme' && game.player.level < 50 && !window.isAdmin(game.player.name)) {
+        if (dom.log) dom.log.innerText = "❌ You must be Level 50 to enter Extreme difficulty.";
+        return;
+    }
+
+    let currentEntries = game.player.baseStats?.dungeonEntries !== undefined ? game.player.baseStats.dungeonEntries : 7;
+    if (currentEntries <= 0 && !window.isAdmin(game.player.name)) {
+        if (dom.log) dom.log.innerText = "❌ You have no Dungeon entries left this week.";
+        return; 
+    }
+
+    document.getElementById('dungeon2-modal').style.display = 'none';
+    if (socket) socket.emit('startDungeon2', { difficulty: difficulty });
+    
+    document.getElementById('loading-text').innerText = "Entering Ancient Cave...";
+    document.getElementById('loading-screen').style.display = 'flex';
+};
 window.onload = () => {
     window.loadLootFilter();
     window.initAllMobileWindows();
