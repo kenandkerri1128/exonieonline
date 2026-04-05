@@ -7390,8 +7390,10 @@ socket.on('startDungeon', async (data) => {
         const pcx = p.x + 24; const pcy = p.y + 48; 
         const tcx = target.x + 24; const tcy = target.y + 48;
         
+        const world = worlds[p.instanceId]; // 🛡️ THE FIX: Define the world before checking it!
+
         let dist = Math.hypot(pcx - tcx, pcy - tcy);
-        if (payload.skillId === 'pet' && world.pets && world.pets[payload.petId]) {
+        if (payload.skillId === 'pet' && world && world.pets && world.pets[payload.petId]) {
             const pet = world.pets[payload.petId];
             dist = Math.hypot(pet.x - tcx, pet.y - tcy);
         }
