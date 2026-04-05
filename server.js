@@ -387,8 +387,10 @@ app.use((req, res, next) => {
 // Caches images and audio in the player's browser for 1 day
 app.use(express.static(path.join(__dirname, 'public')));
 
-const onlinePlayers = {}; 
+const onlinePlayers = {}; 
 const parties = {}; 
+const raids = {}; // 🛡️ NEW: Tracks Raid Teams
+const partyRaid = {}; // 🛡️ NEW: Maps Party ID to Raid ID
 global.guilds = {}; // 🛡️ GLOBAL GUILD MEMORY
 // 🛡️ GLOBAL ADMIN LIST
 // Add any usernames here that should have full GM powers!
@@ -398,6 +400,17 @@ function isAdmin(username) {
     return ADMINS.includes(username); 
 }
 const playerParty = {};    
+
+// Helper to easily grab all 8 players across the 2 merged parties
+function getRaidMembers(raidId) {
+    let members = [];
+    if (raids[raidId]) {
+        for (let pId of raids[raidId].parties) {
+            if (parties[pId]) members.push(...Array.from(parties[pId].members));
+        }
+    }
+    return members;
+} 
 
 // 🏆 GLOBAL TAVERN RANKINGS
 global.topTavernPlayers = [];
@@ -1062,16 +1075,37 @@ function checkPartyLoadStatus(pid) {
 }
 
 function removeFromParty(playerId) {
-    const pid = playerParty[playerId]; if (!pid) return; const party = parties[pid]; if (!party) { delete playerParty[playerId]; return; }
-    party.members.delete(playerId); delete playerParty[playerId];
-    if (party.leaderId === playerId) { const next = party.members.values().next().value; party.leaderId = next || null; }
-    if (!party.leaderId || party.members.size <= 1) { 
+    const pid = playerParty[playerId]; if (!pid) return; const party = parties[pid]; if (!party) { delete playerParty[playerId]; return; }
+    party.members.delete(playerId); delete playerParty[playerId];
+    if (party.leaderId === playerId) { const next = party.members.values().next().value; party.leaderId = next || null; }
+    
+    if (!party.leaderId || party.members.size <= 1) { 
+        // 🛡️ RAID CHECK: Remove party from raid if it disbands or drops below 2
+        const rid = partyRaid[pid];
+        if (rid && raids[rid]) {
+            raids[rid].parties.delete(pid);
+            delete partyRaid[pid];
+            // Disband raid entirely if only 1 party is left
+            if (raids[rid].parties.size <= 1) {
+                for (const remPid of raids[rid].parties) {
+                    delete partyRaid[remPid];
+                    const lSid = findSocketIdByPlayerId(parties[remPid].leaderId);
+                    if (lSid) io.to(lSid).emit('raidUpdate', { active: false });
+                    for (const mId of parties[remPid].members) {
+                        const s = findSocketIdByPlayerId(mId);
+                        if(s) io.to(s).emit('systemMessage', '⚠️ Raid Team disbanded because a merged party dropped below 2 members.');
+                    }
+                }
+                delete raids[rid];
+            }
+        }
+
         checkPartyLoadStatus(pid); // Safety check for remaining solo player
         for (const rem of party.members) { delete playerParty[rem]; const sid = findSocketIdByPlayerId(rem); if (sid) io.to(sid).emit('partyKickedOrLeft'); } 
         delete parties[pid]; 
         return; 
     }
-    emitPartyUpdate(pid);
+    emitPartyUpdate(pid);
     checkPartyLoadStatus(pid); // Trigger the check in case the slow loader was the one who left
 }
 
@@ -1080,6 +1114,7 @@ function getInstanceId(playerId, mapId) {
     if (mapId === 'town' || mapId === 'neutralzone') return mapId; 
     const p = getPlayerById(playerId);
     const partyId = playerParty[playerId];
+    const raidId = partyId ? partyRaid[partyId] : null; // 🛡️ RAID ROUTING
     
     // 🏰 GUILD BASE ROUTING (Private to the Guild!)
     if (mapId === 'guildbase') {
@@ -1089,12 +1124,12 @@ function getInstanceId(playerId, mapId) {
         return 'town'; // Fallback if they try to glitch in without a guild
     }
     
-    // ⚔️ Route to a private Maze Trial instance if the flag is active
+ // ⚔️ Route to a private Maze Trial instance if the flag is active
     if (p && p.isMazeTrial) {
-        return partyId ? `mazetrial_${mapId}_${partyId}` : `mazetrial_${mapId}_solo_${playerId}`;
+        return raidId ? `mazetrial_${mapId}_raid_${raidId}` : (partyId ? `mazetrial_${mapId}_${partyId}` : `mazetrial_${mapId}_solo_${playerId}`);
     }
     
-    return partyId ? `${mapId}_${partyId}` : `${mapId}_solo_${playerId}`; 
+    return raidId ? `${mapId}_raid_${raidId}` : (partyId ? `${mapId}_${partyId}` : `${mapId}_solo_${playerId}`); 
 }
 
 const worlds = {}; 
@@ -3678,17 +3713,28 @@ socket.on('syncPet', (data) => {
                         }).eq('character_name', targetPlayer.id).then(()=>{});
                     };
 
-                    if (pid && parties[pid]) {
-                        for (const memberId of parties[pid].members) {
+                    // 🛡️ THE RAID FIX: Share Loot/EXP with the entire Raid Team!
+                    const rid = pid ? partyRaid[pid] : null;
+
+                    if (rid && raids[rid]) {
+                        const allMembers = getRaidMembers(rid);
+                        for (const memberId of allMembers) {
                             const mp = getPlayerById(memberId);
                             const msid = findSocketIdByPlayerId(memberId);
-                            processRewards(mp, msid);
+                            processRewards(mp, msid);
                             if (mp && msid) processMissionKill(mp, m.originalKey || m.monsterKey, msid);
-                        }
-                    } else {
-                        processRewards(p, socket.id);
+                        }
+                    } else if (pid && parties[pid]) {
+                        for (const memberId of parties[pid].members) {
+                            const mp = getPlayerById(memberId);
+                            const msid = findSocketIdByPlayerId(memberId);
+                            processRewards(mp, msid);
+                            if (mp && msid) processMissionKill(mp, m.originalKey || m.monsterKey, msid);
+                        }
+                    } else {
+                        processRewards(p, socket.id);
                         processMissionKill(p, m.originalKey || m.monsterKey, socket.id);
-                    }
+                    }
 
                     // ⚔️ TAVERN WIN CONDITION & LOOT (Strict Map Check)
                     if (p.mapId === 'trainingtavern' && m.id === p.tavernTargetId) {
@@ -4901,10 +4947,100 @@ socket.on('requestConfirmTrade', () => {
             removeFromParty(me.id); 
         }
 
-        // Add to the new party
-        parties[pid].members.add(me.id); 
-        playerParty[me.id] = pid; 
-        emitPartyUpdate(pid);
+       // ==========================================
+    // ⚔️ RAID TEAM LOGIC
+    // ==========================================
+    socket.on('raidInvite', ({ targetId }) => {
+        const me = onlinePlayers[socket.id];
+        if (!me || !targetId) return;
+
+        const myPid = playerParty[me.id];
+        if (!myPid || parties[myPid].leaderId !== me.id) return socket.emit('partyError', '❌ You must be a Party Leader to merge parties.');
+        
+        const targetPid = playerParty[targetId];
+        if (!targetPid) return socket.emit('partyError', '❌ Target is not in a party.');
+        if (parties[targetPid].leaderId !== targetId) return socket.emit('partyError', '❌ Target must be the Party Leader of their team.');
+
+        if (parties[myPid].members.size < 2) return socket.emit('partyError', '❌ Your party must have at least 2 members to form a raid.');
+        if (parties[targetPid].members.size < 2) return socket.emit('partyError', '❌ Target party must have at least 2 members to form a raid.');
+
+        if (partyRaid[myPid]) return socket.emit('partyError', '❌ You are already in a Raid.');
+        if (partyRaid[targetPid]) return socket.emit('partyError', '❌ Target is already in a Raid.');
+
+        const targetSid = findSocketIdByPlayerId(targetId);
+        if (!targetSid) return socket.emit('partyError', '❌ Target is not online.');
+        
+        io.to(targetSid).emit('raidInviteReceived', { fromId: me.id });
+    });
+
+    socket.on('raidInviteResponse', ({ fromId, accept }) => {
+        const me = onlinePlayers[socket.id];
+        if (!me || !fromId) return;
+
+        const fromSid = findSocketIdByPlayerId(fromId);
+        if (!fromSid) return;
+
+        if (!accept) {
+            io.to(fromSid).emit('partyError', `❌ ${me.id} declined your Raid merge request.`);
+            return;
+        }
+
+        const myPid = playerParty[me.id];
+        const targetPid = playerParty[fromId];
+
+        if (!myPid || !targetPid || partyRaid[myPid] || partyRaid[targetPid] || parties[myPid].members.size < 2 || parties[targetPid].members.size < 2) {
+            return socket.emit('partyError', '❌ Raid merge failed. One of the parties is invalid or already in a raid.');
+        }
+
+        const raidId = `raid_${Date.now()}_${Math.floor(Math.random() * 9999)}`;
+        raids[raidId] = { id: raidId, parties: new Set([myPid, targetPid]) };
+        partyRaid[myPid] = raidId;
+        partyRaid[targetPid] = raidId;
+
+        const allMembers = getRaidMembers(raidId);
+        for (const mId of allMembers) {
+            const sid = findSocketIdByPlayerId(mId);
+            if (sid) {
+                io.to(sid).emit('systemMessage', `<span style="color:#ffeb3b; font-weight:bold;">⚔️ Your party has merged into a Raid Team!</span>`);
+                const mp = getPlayerById(mId);
+                // 🛡️ Force everyone to re-instance seamlessly so they instantly see the other party
+                if (mp && mp.mapId !== 'town' && mp.mapId !== 'neutralzone') {
+                    io.to(sid).emit('forceTeleport', { mapId: mp.mapId, x: mp.x, y: mp.y });
+                }
+            }
+        }
+        
+        socket.emit('raidUpdate', { active: true });
+        io.to(fromSid).emit('raidUpdate', { active: true });
+    });
+
+    socket.on('leaveRaid', () => {
+        const me = onlinePlayers[socket.id];
+        const pid = playerParty[me.id];
+        if (!pid || !partyRaid[pid]) return;
+        const rid = partyRaid[pid];
+        const raid = raids[rid];
+        
+        if (parties[pid].leaderId !== me.id) return socket.emit('partyError', '❌ Only the Party Leader can disband the Raid.');
+
+        const allMembers = getRaidMembers(rid);
+        for (const pId of raid.parties) {
+            delete partyRaid[pId];
+            const leaderSid = findSocketIdByPlayerId(parties[pId].leaderId);
+            if (leaderSid) io.to(leaderSid).emit('raidUpdate', { active: false });
+        }
+        delete raids[rid];
+
+        for (const mId of allMembers) {
+            const sid = findSocketIdByPlayerId(mId);
+            if (sid) {
+                io.to(sid).emit('systemMessage', `⚠️ <span style="color:#ff9800; font-weight:bold;">The Raid Team has been disbanded.</span>`);
+                const mp = getPlayerById(mId);
+                if (mp && mp.mapId !== 'town' && mp.mapId !== 'neutralzone') {
+                    io.to(sid).emit('forceTeleport', { mapId: mp.mapId, x: mp.x, y: mp.y });
+                }
+            }
+        }
     });
    // ✅ GLOBAL ADMIN BROADCAST
     socket.on('adminBroadcast', (data) => {
@@ -6783,6 +6919,10 @@ socket.on('requestSell', async (data) => {
         const targetPortalId = targetFloor * 2;
 
         const pid = playerParty[p.id];
+        if (pid && partyRaid[pid]) {
+            return socket.emit('systemMessage', "❌ You cannot enter Maze Trials while in a Raid Team.");
+        }
+
         let playersToEnter = [p];
 
         if (pid && parties[pid]) {
@@ -6980,10 +7120,63 @@ socket.on('startDungeon', async (data) => {
         setTimeout(() => { if (onlinePlayers[socket.id]) onlinePlayers[socket.id].isStartingInstance = false; }, 3000);
 
         const pid = playerParty[p.id];
+        const rid = pid ? partyRaid[pid] : null;
         let playersToEnter = [p];
 
-        // 1. Party Logic & Entry Verification
-        if (pid && parties[pid]) {
+        // 1. Party & Raid Logic & Entry Verification
+        if (rid && raids[rid]) {
+            // 🛡️ RAID MODE ENTRY
+            if (parties[pid].leaderId !== p.id && !isAdmin(p.id)) {
+                return socket.emit('systemMessage', "❌ Only a Party Leader can start a Raid Dungeon.");
+            }
+            playersToEnter = [];
+            const allMembers = getRaidMembers(rid);
+            for (const memberId of allMembers) {
+                const mp = getPlayerById(memberId);
+                if (!mp) {
+                    io.to(p.instanceId).emit('closeDungeonUI');
+                    return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
+                }
+                if (mp.isGhost) {
+                    io.to(p.instanceId).emit('closeDungeonUI');
+                    return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
+                }
+                if (mp.instanceId !== p.instanceId) {
+                    io.to(p.instanceId).emit('closeDungeonUI');
+                    return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
+                }
+                
+                const now = new Date();
+                let dayOfWeek = now.getUTCDay();
+                let daysSinceMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
+                let lastMonday = new Date(now.getTime());
+                lastMonday.setUTCDate(now.getUTCDate() - daysSinceMonday);
+                lastMonday.setUTCHours(0, 0, 0, 0);
+                const lastMondayTs = lastMonday.getTime();
+
+                if (!mp.baseStats.dungeonReset || mp.baseStats.dungeonReset < lastMondayTs) {
+                    mp.baseStats.dungeonEntries = 7;
+                    mp.baseStats.dungeonReset = Date.now();
+                }
+
+                if (mp.baseStats.dungeonEntries <= 0 && !isAdmin(mp.id)) {
+                    for (const mId of allMembers) {
+                        const msid = findSocketIdByPlayerId(mId);
+                        if (msid) io.to(msid).emit('closeDungeonUI');
+                    }
+                    return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} has no Dungeon entries left.`);
+                }
+                
+                if (data.difficulty === 'Extreme' && mp.level < 50 && !isAdmin(mp.id)) {
+                    for (const mId of allMembers) {
+                        const msid = findSocketIdByPlayerId(mId);
+                        if (msid) io.to(msid).emit('closeDungeonUI');
+                    }
+                    return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
+                }
+                playersToEnter.push(mp);
+            }
+        } else if (pid && parties[pid]) {
             const party = parties[pid];
             
             // Only the leader can start the dungeon for the group
