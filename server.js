@@ -596,6 +596,7 @@ function sanitizeBaseStats(baseStats) {
     safe.watchedTutorial = baseStats ? !!baseStats.watchedTutorial : false;
     safe.tavernEntries = (baseStats && typeof baseStats.tavernEntries === 'number') ? baseStats.tavernEntries : 5;
     safe.dungeonEntries = (baseStats && typeof baseStats.dungeonEntries === 'number') ? baseStats.dungeonEntries : 7;
+    safe.dungeon2Entries = (baseStats && typeof baseStats.dungeon2Entries === 'number') ? baseStats.dungeon2Entries : 7;
     safe.dungeonReset = baseStats ? baseStats.dungeonReset : 0;
     
  // 💎 PREMIUM CURRENCY & PATREON TRACKING
@@ -6416,6 +6417,26 @@ socket.on('adminSpawnItem', async (data) => {
             socket.emit('systemMessage', "Inventory full!");
         }
     });
+    // 👑 ADMIN: RESET ALL DUNGEON ENTRIES
+    socket.on('adminResetDungeons', async (targetName) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !isAdmin(p.id)) return;
+
+        const target = getPlayerById(targetName);
+        if (target && target.baseStats) {
+            target.baseStats.dungeonEntries = 7;
+            target.baseStats.dungeon2Entries = 7;
+            
+            await supabase.from('Exonians').update({ base_stats: target.baseStats }).eq('character_name', target.id);
+            
+            socket.emit('systemMessage', `[Admin] Reset D1 & D2 entries to 7/7 for ${target.name}.`);
+            const targetSid = findSocketIdByPlayerId(target.id);
+            if (targetSid) io.to(targetSid).emit('systemMessage', '✨ The Gods have restored your Dungeon entries!');
+        } else {
+            socket.emit('systemMessage', "❌ Player not online or not found.");
+        }
+    });
+
     // 🛡️ PERMANENT ADMIN LEVEL SETTER
     socket.on('adminSetLevel', async (level) => {
         const p = onlinePlayers[socket.id];
@@ -8163,87 +8184,115 @@ socket.on('startDungeon', async (data) => {
         socket.emit('craftVoidSuccess');
     });
 
-    socket.on('startDungeon2', async (data) => {
-        const p = onlinePlayers[socket.id];
-        if (!p || p.isGhost) return;
+   socket.on('startDungeon2', async (data) => {
+    const p = onlinePlayers[socket.id];
+    if (!p || p.isGhost) return;
 
-        if (p.isStartingInstance) return;
-        p.isStartingInstance = true;
-        setTimeout(() => { if (onlinePlayers[socket.id]) onlinePlayers[socket.id].isStartingInstance = false; }, 3000);
+    if (p.isStartingInstance) return;
+    p.isStartingInstance = true;
+    setTimeout(() => { if (onlinePlayers[socket.id]) onlinePlayers[socket.id].isStartingInstance = false; }, 3000);
 
-        const pid = playerParty[p.id];
-        const rid = pid ? partyRaid[pid] : null;
-        let playersToEnter = [p];
+    const pid = playerParty[p.id];
+    const rid = pid ? partyRaid[pid] : null;
+    let playersToEnter = [p];
 
-        // 1. Party & Raid Logic & Entry Verification
-        if (rid && raids[rid]) {
-            if (raids[rid].leaderId !== p.id && !isAdmin(p.id)) {
-                return socket.emit('systemMessage', "❌ Only the Raid Leader can start the Ancient Cave.");
+    // 1. Party & Raid Logic & Entry Verification
+    if (rid && raids[rid]) {
+        if (raids[rid].leaderId !== p.id && !isAdmin(p.id)) {
+            return socket.emit('systemMessage', "❌ Only the Raid Leader can start the Ancient Cave.");
+        }
+        playersToEnter = [];
+        const allMembers = getRaidMembers(rid);
+        for (const memberId of allMembers) {
+            const mp = getPlayerById(memberId);
+            if (!mp) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
+            if (mp.isGhost) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
+            if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
+            
+            if (data.difficulty === 'Extreme' && mp.level < 50 && !isAdmin(mp.id)) {
+                return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
             }
-            playersToEnter = [];
-            const allMembers = getRaidMembers(rid);
-            for (const memberId of allMembers) {
-                const mp = getPlayerById(memberId);
-                if (!mp) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
-                if (mp.isGhost) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
-                if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
-                
-                if (data.difficulty === 'Extreme' && mp.level < 50 && !isAdmin(mp.id)) {
-                    return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
-                }
-                playersToEnter.push(mp);
+            playersToEnter.push(mp);
+        }
+    } else if (pid && parties[pid]) {
+        const party = parties[pid];
+        if (party.leaderId !== p.id && !isAdmin(p.id)) {
+            return socket.emit('systemMessage', "❌ Only the Party Leader can start the Ancient Cave.");
+        }
+        playersToEnter = [];
+        for (const memberId of party.members) {
+            const mp = getPlayerById(memberId);
+            if (!mp) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
+            if (mp.isGhost) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
+            if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
+            
+            if (data.difficulty === 'Extreme' && mp.level < 50 && !isAdmin(mp.id)) {
+                return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
             }
-        } else if (pid && parties[pid]) {
-            const party = parties[pid];
-            if (party.leaderId !== p.id && !isAdmin(p.id)) {
-                return socket.emit('systemMessage', "❌ Only the Party Leader can start the Ancient Cave.");
-            }
-            playersToEnter = [];
-            for (const memberId of party.members) {
-                const mp = getPlayerById(memberId);
-                if (!mp) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
-                if (mp.isGhost) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
-                if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
-                
-                if (data.difficulty === 'Extreme' && mp.level < 50 && !isAdmin(mp.id)) {
-                    return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
-                }
-                playersToEnter.push(mp);
-            }
-        } else {
-            if (data.difficulty === 'Extreme' && p.level < 50 && !isAdmin(p.id)) {
-                return socket.emit('systemMessage', '❌ You must be Level 50 to enter Extreme mode.');
-            }
+            playersToEnter.push(mp);
+        }
+    } else {
+        if (data.difficulty === 'Extreme' && p.level < 50 && !isAdmin(p.id)) {
+            return socket.emit('systemMessage', '❌ You must be Level 50 to enter Extreme mode.');
+        }
+    }
+
+    // 🛡️ D2 ENTRY VERIFICATION & WEEKLY RESET
+    for (let mp of playersToEnter) {
+        const now = new Date();
+        let dayOfWeek = now.getUTCDay();
+        let daysSinceMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
+        let lastMonday = new Date(now.getTime());
+        lastMonday.setUTCDate(now.getUTCDate() - daysSinceMonday);
+        lastMonday.setUTCHours(0, 0, 0, 0);
+        const lastMondayTs = lastMonday.getTime();
+
+        if (!mp.baseStats.dungeonReset || mp.baseStats.dungeonReset < lastMondayTs) {
+            mp.baseStats.dungeonEntries = 7;
+            mp.baseStats.dungeon2Entries = 7; // Syncs both pools
+            mp.baseStats.dungeonReset = Date.now();
+            await supabase.from('Exonians').update({ base_stats: mp.baseStats }).eq('character_name', mp.id);
         }
 
-        // Deduct Entries securely
-        playersToEnter.forEach(mp => {
-            if (!isAdmin(mp.id) && mp.baseStats) {
-                mp.baseStats.dungeonEntries = Math.max(0, (mp.baseStats.dungeonEntries || 7) - 1);
-                supabase.from('Exonians').update({ base_stats: mp.baseStats }).eq('character_name', mp.id).then(()=>{});
-            }
-        });
+        if (mp.baseStats.dungeon2Entries <= 0 && !isAdmin(mp.id)) {
+            playersToEnter.forEach(teammate => {
+                const msid = findSocketIdByPlayerId(teammate.id);
+                if (msid) io.to(msid).emit('closeDungeonUI');
+            });
+            return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} has no Ancient Cave entries left this week.`);
+        }
+    }
 
-        const targetMapId = 'dungeon2a';
-        const newInstId = getInstanceId(p.id, targetMapId);
-
-        playersToEnter.forEach(mp => {
-            mp.d2Difficulty = data.difficulty; // 🌟 SERVER REMEMBERS THE DIFFICULTY FOR STAGES B AND C!
-            mp.teleportGrace = Date.now() + 4000; 
-            mp.expectedMapId = targetMapId;
-            mp.isLoadingMap = true;
-            mp.isWaitingForTeam = true;
+    // 🛡️ DEDUCT D2 ENTRIES SECURELY
+    playersToEnter.forEach(mp => {
+        if (!isAdmin(mp.id) && mp.baseStats) {
+            mp.baseStats.dungeon2Entries = Math.max(0, (mp.baseStats.dungeon2Entries || 7) - 1);
+            supabase.from('Exonians').update({ base_stats: mp.baseStats }).eq('character_name', mp.id).then(()=>{});
+            
             const msid = findSocketIdByPlayerId(mp.id);
-            if (msid) {
-                io.to(msid).emit('closeDungeonUI'); 
-                io.to(msid).emit('forceTeleport', { mapId: targetMapId, x: 960, y: 1000 });
-                io.to(msid).emit('systemMessage', `Entering Ancient Cave (${data.difficulty})...`);
-            }
-        });
-
-        initiateDungeon2Stage(newInstId, targetMapId, data.difficulty);
+            if (msid) io.to(msid).emit('systemMessage', `🎟️ Ancient Cave Entry used. Remaining: ${mp.baseStats.dungeon2Entries}/7`);
+        }
     });
 
+    const targetMapId = 'dungeon2a';
+    const newInstId = getInstanceId(p.id, targetMapId);
+
+    playersToEnter.forEach(mp => {
+        mp.d2Difficulty = data.difficulty; // 🌟 SERVER REMEMBERS THE DIFFICULTY FOR STAGES B AND C!
+        mp.teleportGrace = Date.now() + 4000; 
+        mp.expectedMapId = targetMapId;
+        mp.isLoadingMap = true;
+        mp.isWaitingForTeam = true;
+        const msid = findSocketIdByPlayerId(mp.id);
+        if (msid) {
+            io.to(msid).emit('closeDungeonUI'); 
+            io.to(msid).emit('forceTeleport', { mapId: targetMapId, x: 960, y: 1000 });
+            io.to(msid).emit('systemMessage', `Entering Ancient Cave (${data.difficulty})...`);
+        }
+    });
+
+    initiateDungeon2Stage(newInstId, targetMapId, data.difficulty);
+});
    socket.on('disconnect', async () => {
        if (socket.username) { activeLogins.delete(socket.username); }
         if (socket.email && activeEmailSessions[socket.email] === socket.id) { delete activeEmailSessions[socket.email]; }
