@@ -7123,7 +7123,8 @@ window.renderStorageGrid = function(storage) {
     html += '<p style="font-size:12px; color:#aaa;">Click items in your Inventory to store them. Click items here to retrieve them.</p>';
     html += '<div style="display:flex; flex-wrap:wrap; gap:5px; justify-content:center; margin-bottom:15px; background:#111; padding:10px; border-radius:5px;">';
     
-    for (let i = 0; i < 10; i++) {
+    // 🛡️ THE FIX: Loop 15 times to render the new 3rd row!
+    for (let i = 0; i < 15; i++) {
         let item = storage[i];
         html += `<div class="inv-slot" style="border: 2px solid ${item ? item.color || '#fff' : '#444'}; cursor: pointer; width: 60px; height: 60px;" onclick="if(socket) socket.emit('transferFromStorage', ${i})">`;
         if (item) {
