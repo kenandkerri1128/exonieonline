@@ -4996,8 +4996,9 @@ socket.on('requestConfirmTrade', () => {
             return socket.emit('partyError', '❌ Raid merge failed. One of the parties is invalid or already in a raid.');
         }
 
-        const raidId = `raid_${Date.now()}_${Math.floor(Math.random() * 9999)}`;
-        raids[raidId] = { id: raidId, parties: new Set([myPid, targetPid]) };
+       const raidId = `raid_${Date.now()}_${Math.floor(Math.random() * 9999)}`;
+        // 👑 THE FIX: The person who sent the invite (fromId) becomes the Raid Leader
+        raids[raidId] = { id: raidId, leaderId: fromId, parties: new Set([myPid, targetPid]) };
         partyRaid[myPid] = raidId;
         partyRaid[targetPid] = raidId;
 
@@ -5005,7 +5006,8 @@ socket.on('requestConfirmTrade', () => {
         for (const mId of allMembers) {
             const sid = findSocketIdByPlayerId(mId);
             if (sid) {
-                io.to(sid).emit('systemMessage', `<span style="color:#ffeb3b; font-weight:bold;">⚔️ Your party has merged into a Raid Team!</span>`);
+                let roleMsg = (mId === fromId) ? "You are the Raid Leader." : `${fromId} is the Raid Leader.`;
+                io.to(sid).emit('systemMessage', `<span style="color:#ffeb3b; font-weight:bold;">⚔️ Your party has merged into a Raid Team! ${roleMsg}</span>`);
                 const mp = getPlayerById(mId);
                 // 🛡️ Force everyone to re-instance seamlessly so they instantly see the other party
                 if (mp && mp.mapId !== 'town' && mp.mapId !== 'neutralzone') {
@@ -5025,7 +5027,8 @@ socket.on('requestConfirmTrade', () => {
         const rid = partyRaid[pid];
         const raid = raids[rid];
         
-        if (parties[pid].leaderId !== me.id) return socket.emit('partyError', '❌ Only the Party Leader can disband the Raid.');
+        // 👑 THE FIX: Only the Raid Leader can disband the entire raid
+        if (raid.leaderId !== me.id) return socket.emit('partyError', '❌ Only the Raid Leader can disband the Raid.');
 
         const allMembers = getRaidMembers(rid);
         for (const pId of raid.parties) {
@@ -6851,8 +6854,50 @@ socket.on('requestSell', async (data) => {
         };
 
         const pid = playerParty[p.id];
+        const rid = pid ? partyRaid[pid] : null; // 🌟 RAID CHECK
         
-        if (pid && parties[pid]) {
+        if (rid && raids[rid]) {
+            // --- RAID MODE ---
+            if (raids[rid].leaderId !== p.id) {
+                return socket.emit('systemMessage', "❌ Only the Raid Leader can use the Maze Guide.");
+            }
+
+            let allEligible = true;
+            let ineligibleName = "";
+            
+            const allMembers = getRaidMembers(rid);
+            for (const memberId of allMembers) {
+                const mp = getPlayerById(memberId);
+                if (!mp) {
+                    allEligible = false; ineligibleName = memberId + " (Offline)"; break;
+                }
+                if (mp.instanceId !== p.instanceId) {
+                    allEligible = false; ineligibleName = mp.name + " (Not in same map)"; break;
+                }
+                if (mp.isGhost) {
+                    allEligible = false; ineligibleName = mp.name + " (Dead)"; break;
+                }
+                if (getMaxFloor(mp) < targetFloor) {
+                    allEligible = false; ineligibleName = mp.name; break;
+                }
+            }
+
+            if (!allEligible) {
+                socket.emit('systemMessage', `❌ Cannot teleport: ${ineligibleName} has not conquered Floor ${targetFloor} yet.`);
+                return;
+            }
+
+            // Everyone passed! Sync the teleport to the entire raid
+            for (const memberId of allMembers) {
+                const msid = findSocketIdByPlayerId(memberId);
+                const mp = getPlayerById(memberId);
+                if (msid && mp) {
+                    mp.isLoadingMap = true;
+                    mp.isWaitingForTeam = true;
+                    io.to(msid).emit('teleportApproved', { portalId: targetPortalId, targetMapId: targetMapId, exactTarget: true });
+                }
+            }
+        } else if (pid && parties[pid]) {
             // --- PARTY MODE ---
             const party = parties[pid];
             
@@ -7129,9 +7174,9 @@ socket.on('startDungeon', async (data) => {
 
         // 1. Party & Raid Logic & Entry Verification
         if (rid && raids[rid]) {
-            // 🛡️ RAID MODE ENTRY
-            if (parties[pid].leaderId !== p.id && !isAdmin(p.id)) {
-                return socket.emit('systemMessage', "❌ Only a Party Leader can start a Raid Dungeon.");
+            // 🛡️ RAID MODE ENTRY: Check Raid Leader
+            if (raids[rid].leaderId !== p.id && !isAdmin(p.id)) {
+                return socket.emit('systemMessage', "❌ Only the Raid Leader can start a Raid Dungeon.");
             }
             playersToEnter = [];
             const allMembers = getRaidMembers(rid);
