@@ -134,28 +134,39 @@
 </select>
 
 <select id="admin-item-type" style="margin-bottom: 10px; width: 100%; padding: 5px;">
-    <option value="sword">Sword</option>
-    <option value="staff">Staff</option>
-    <option value="pendant">Pendant</option>
-    <option value="gun">Gun</option>
-    <option value="dagger">Dagger</option>
-    <option value="armor">Armor</option>
-    <option value="leggings">Leggings</option>
-    <option value="necklace">Necklace</option>
-    <option value="ring">Ring</option>
-    <option value="earrings">Earrings</option>
-    <option value="aura_lightning">Lightning Aura</option>
-    <option value="aura_blaze">Blaze Aura</option>
-    <option value="aura_liquid">Liquid Aura</option>
-    <option value="aura_nature">Nature Aura</option>
-    <option value="aura_fox">Spirit Fox Pet</option>
-    <option value="aura_owl">Night Owl Pet</option>
-    <option value="aura_egg">Easter Egg Pet</option>
-    <option value="aura_wisp">Sky Wisp Pet</option>
-    <option value="aura_divine">Aura: Royal Divine</option>
-    <option value="aura_easter">Easter Aura</option>
-    <option value="aura_void">Void Pet</option>
-</select><button class="btn selected" onclick="window.adminGiveCustomItem()">Spawn</button></div></div><p style="font-size:14px;color:#aaa;margin-bottom:5px"><b>Alt+Drag</b>: Block |<span style="color:#0f0"><b>Shift+Alt+Drag</b>: Portal</span></p><div class="admin-tool-row" style="margin-bottom:5px"><span style="color:#ff9800;font-weight:700;font-size:12px">Z/X/C+Click:</span>
+    <option value="sword">Sword</option>
+    <option value="staff">Staff</option>
+    <option value="pendant">Pendant</option>
+    <option value="gun">Gun</option>
+    <option value="dagger">Dagger</option>
+    <option value="touchpad">Touchpad</option>
+    <option value="armor">Armor</option>
+    <option value="leggings">Leggings</option>
+    <option value="necklace">Necklace</option>
+    <option value="ring">Ring</option>
+    <option value="earrings">Earrings</option>
+    <option value="aura_lightning">Lightning Aura</option>
+    <option value="aura_blaze">Blaze Aura</option>
+    <option value="aura_liquid">Liquid Aura</option>
+    <option value="aura_nature">Nature Aura</option>
+    <option value="aura_fox">Spirit Fox Pet</option>
+    <option value="aura_owl">Night Owl Pet</option>
+    <option value="aura_egg">Easter Egg Pet</option>
+    <option value="aura_wisp">Sky Wisp Pet</option>
+    <option value="aura_divine">Aura: Royal Divine</option>
+    <option value="aura_easter">Easter Aura</option>
+    <option value="aura_void">Void Pet</option>
+</select><button class="btn selected" onclick="window.adminGiveCustomItem()">Spawn</button></div></div>
+
+<div class="panel-section" style="padding:10px; border-color:#E040FB;">
+    <h4 style="color:#E040FB">Raid Control</h4>
+    <div class="admin-tool-row">
+        <input type="text" id="admin-target-reset" placeholder="Player Name" style="width:120px; background:#222; color:#fff; border:1px solid #555; margin:0;">
+        <button class="btn" style="background:#E040FB; border-color:#E040FB; font-size:11px;" onclick="if(socket) socket.emit('adminResetDungeons', document.getElementById('admin-target-reset').value)">Reset Dungeons</button>
+    </div>
+</div>
+
+<p style="font-size:14px;color:#aaa;margin-bottom:5px"><b>Alt+Drag</b>: Block |<span style="color:#0f0"><b>Shift+Alt+Drag</b>: Portal</span></p><div class="admin-tool-row" style="margin-bottom:5px"><span style="color:#ff9800;font-weight:700;font-size:12px">Z/X/C+Click:</span>
     <select id="admin-monster-key">
         <option value="common_mobs1">Slime (1)</option><option value="mini_boss1">Orc Slime (1)</option>
         <option value="floor_boss1">Dragon Slime (1)</option><option value="common_mobs2">Shadow Bat (2)</option><option value="mini_boss2">Vampire Bat (2)</option><option value="floor_boss2">Bloodwing Terror (2)</option><option value="common_mobs3">Fire Sprite (3)</option><option value="mini_boss3">Inferno Core (3)</option><option value="floor_boss3">Astral Blaze (3)</option><option value="common_golem">Stone Golem (4)</option><option value="mini_boss_golem">Obsidian Behemoth (4)</option><option value="floor_boss_golem">Titan of the Deep (4)</option><option value="common_wraith">Spectral Wraith</option>
