@@ -8386,7 +8386,7 @@ function initiateDungeon2Stage(instId, mapId, difficulty) {
     if (mapId === 'dungeon2b') { bossKey = 'floor_boss_minotaur'; mobKey = 'common_minotaur'; }
     if (mapId === 'dungeon2c') { bossKey = 'floor_boss_dragon'; mobKey = 'common_dragon'; }
 
-    setTimeout(() => {
+   setTimeout(() => {
         if (!worlds[instId]) worlds[instId] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
         worlds[instId].monsters = {}; 
 
@@ -8439,85 +8439,5 @@ function initiateDungeon2Stage(instId, mapId, difficulty) {
     }, 2000); // Give players 2 seconds to load before spawning
 }
 
-socket.on('startDungeon2', async (data) => {
-    const p = onlinePlayers[socket.id];
-    if (!p || p.isGhost) return;
-
-    if (p.isStartingInstance) return;
-    p.isStartingInstance = true;
-    setTimeout(() => { if (onlinePlayers[socket.id]) onlinePlayers[socket.id].isStartingInstance = false; }, 3000);
-
-    const pid = playerParty[p.id];
-    const rid = pid ? partyRaid[pid] : null;
-    let playersToEnter = [p];
-
-    // 1. Party & Raid Logic & Entry Verification
-    if (rid && raids[rid]) {
-        if (raids[rid].leaderId !== p.id && !isAdmin(p.id)) {
-            return socket.emit('systemMessage', "❌ Only the Raid Leader can start the Ancient Cave.");
-        }
-        playersToEnter = [];
-        const allMembers = getRaidMembers(rid);
-        for (const memberId of allMembers) {
-            const mp = getPlayerById(memberId);
-            if (!mp) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
-            if (mp.isGhost) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
-            if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
-            
-            if (data.difficulty === 'Extreme' && mp.level < 50 && !isAdmin(mp.id)) {
-                return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
-            }
-            playersToEnter.push(mp);
-        }
-    } else if (pid && parties[pid]) {
-        const party = parties[pid];
-        if (party.leaderId !== p.id && !isAdmin(p.id)) {
-            return socket.emit('systemMessage', "❌ Only the Party Leader can start the Ancient Cave.");
-        }
-        playersToEnter = [];
-        for (const memberId of party.members) {
-            const mp = getPlayerById(memberId);
-            if (!mp) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
-            if (mp.isGhost) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
-            if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
-            
-            if (data.difficulty === 'Extreme' && mp.level < 50 && !isAdmin(mp.id)) {
-                return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
-            }
-            playersToEnter.push(mp);
-        }
-    } else {
-        if (data.difficulty === 'Extreme' && p.level < 50 && !isAdmin(p.id)) {
-            return socket.emit('systemMessage', '❌ You must be Level 50 to enter Extreme mode.');
-        }
-    }
-
-    // Deduct Entries securely
-    playersToEnter.forEach(mp => {
-        if (!isAdmin(mp.id) && mp.baseStats) {
-            mp.baseStats.dungeonEntries = Math.max(0, (mp.baseStats.dungeonEntries || 7) - 1);
-            supabase.from('Exonians').update({ base_stats: mp.baseStats }).eq('character_name', mp.id).then(()=>{});
-        }
-    });
-
-    const targetMapId = 'dungeon2a';
-    const newInstId = getInstanceId(p.id, targetMapId);
-
-    playersToEnter.forEach(mp => {
-        mp.d2Difficulty = data.difficulty; // 🌟 SERVER REMEMBERS THE DIFFICULTY FOR STAGES B AND C!
-        mp.teleportGrace = Date.now() + 4000; 
-        mp.expectedMapId = targetMapId;
-        mp.isLoadingMap = true;
-        mp.isWaitingForTeam = true;
-        const msid = findSocketIdByPlayerId(mp.id);
-        if (msid) {
-            io.to(msid).emit('closeDungeonUI'); 
-            io.to(msid).emit('forceTeleport', { mapId: targetMapId, x: 960, y: 1000 });
-            io.to(msid).emit('systemMessage', `Entering Ancient Cave (${data.difficulty})...`);
-        }
-    });
-
-    initiateDungeon2Stage(newInstId, targetMapId, data.difficulty);
-});
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, "0.0.0.0", () => console.log(`Exonie server running on port ${PORT} (0.0.0.0)`));
