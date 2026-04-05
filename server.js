@@ -8155,7 +8155,89 @@ socket.on('startDungeon', async (data) => {
         socket.emit('systemMessage', '👻 Successfully crafted the Void Pet!');
         socket.emit('craftVoidSuccess');
     });
-   socket.on('disconnect', async () => {
+
+    socket.on('startDungeon2', async (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || p.isGhost) return;
+
+        if (p.isStartingInstance) return;
+        p.isStartingInstance = true;
+        setTimeout(() => { if (onlinePlayers[socket.id]) onlinePlayers[socket.id].isStartingInstance = false; }, 3000);
+
+        const pid = playerParty[p.id];
+        const rid = pid ? partyRaid[pid] : null;
+        let playersToEnter = [p];
+
+        // 1. Party & Raid Logic & Entry Verification
+        if (rid && raids[rid]) {
+            if (raids[rid].leaderId !== p.id && !isAdmin(p.id)) {
+                return socket.emit('systemMessage', "❌ Only the Raid Leader can start the Ancient Cave.");
+            }
+            playersToEnter = [];
+            const allMembers = getRaidMembers(rid);
+            for (const memberId of allMembers) {
+                const mp = getPlayerById(memberId);
+                if (!mp) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
+                if (mp.isGhost) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
+                if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
+                
+                if (data.difficulty === 'Extreme' && mp.level < 50 && !isAdmin(mp.id)) {
+                    return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
+                }
+                playersToEnter.push(mp);
+            }
+        } else if (pid && parties[pid]) {
+            const party = parties[pid];
+            if (party.leaderId !== p.id && !isAdmin(p.id)) {
+                return socket.emit('systemMessage', "❌ Only the Party Leader can start the Ancient Cave.");
+            }
+            playersToEnter = [];
+            for (const memberId of party.members) {
+                const mp = getPlayerById(memberId);
+                if (!mp) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
+                if (mp.isGhost) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
+                if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
+                
+                if (data.difficulty === 'Extreme' && mp.level < 50 && !isAdmin(mp.id)) {
+                    return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
+                }
+                playersToEnter.push(mp);
+            }
+        } else {
+            if (data.difficulty === 'Extreme' && p.level < 50 && !isAdmin(p.id)) {
+                return socket.emit('systemMessage', '❌ You must be Level 50 to enter Extreme mode.');
+            }
+        }
+
+        // Deduct Entries securely
+        playersToEnter.forEach(mp => {
+            if (!isAdmin(mp.id) && mp.baseStats) {
+                mp.baseStats.dungeonEntries = Math.max(0, (mp.baseStats.dungeonEntries || 7) - 1);
+                supabase.from('Exonians').update({ base_stats: mp.baseStats }).eq('character_name', mp.id).then(()=>{});
+            }
+        });
+
+        const targetMapId = 'dungeon2a';
+        const newInstId = getInstanceId(p.id, targetMapId);
+
+        playersToEnter.forEach(mp => {
+            mp.d2Difficulty = data.difficulty; // 🌟 SERVER REMEMBERS THE DIFFICULTY FOR STAGES B AND C!
+            mp.teleportGrace = Date.now() + 4000; 
+            mp.expectedMapId = targetMapId;
+            mp.isLoadingMap = true;
+            mp.isWaitingForTeam = true;
+            const msid = findSocketIdByPlayerId(mp.id);
+            if (msid) {
+                io.to(msid).emit('closeDungeonUI'); 
+                io.to(msid).emit('forceTeleport', { mapId: targetMapId, x: 960, y: 1000 });
+                io.to(msid).emit('systemMessage', `Entering Ancient Cave (${data.difficulty})...`);
+            }
+        });
+
+        initiateDungeon2Stage(newInstId, targetMapId, data.difficulty);
+    });
+
+   socket.on('disconnect', async () => {
        if (socket.username) { activeLogins.delete(socket.username); }
         if (socket.email && activeEmailSessions[socket.email] === socket.id) { delete activeEmailSessions[socket.email]; }
         
