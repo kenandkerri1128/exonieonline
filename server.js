@@ -783,6 +783,16 @@ function generateHauntedLoot(mLevel) {
     }
 }
 function generateDungeonLoot(m) {
+    // 🛡️ DUNGEON 2 ADDS DROP NOTHING
+    if (m.isDungeon2Add) return null;
+
+    // 🌟 DUNGEON 2 BIG GOLD BAR (15% Drop from any Dungeon 2 Floor Boss)
+    if (m.category === 'floor_boss' && m.instanceId && m.instanceId.includes('dungeon2')) {
+        if (Math.random() < 0.15) {
+            return { id: Date.now() + Math.random(), name: "Big Gold Bar", type: "material", rarity: "Godly", color: "#e0ffff", sellPrice: 100000, description: "A heavy bar of pure gold. Sell for 100,000 Gold.", quantity: 1 };
+        }
+    }
+
     // 🌟 EXTREME DUNGEON EXO METALS (Lv 75+)
     if (m.level >= 75) {
         let metalRoll = Math.random();
@@ -3514,6 +3524,34 @@ socket.on('syncPet', (data) => {
                     }
                     io.to(p.instanceId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
 
+                    // 🦇 DUNGEON 2 WIN CONDITION & STAGE PROGRESSION
+                    if (String(p.mapId).startsWith('dungeon2') && m.category === 'floor_boss') {
+                        // Instantly kill all spawned adds in the room
+                        if (worlds[p.instanceId]) {
+                            if (worlds[p.instanceId].d2Interval) clearInterval(worlds[p.instanceId].d2Interval);
+                            for (let addId in worlds[p.instanceId].monsters) {
+                                let addMob = worlds[p.instanceId].monsters[addId];
+                                if (addMob.alive && addMob.id !== m.id) {
+                                    addMob.alive = false;
+                                    io.to(p.instanceId).emit('monsterDied', { monsterId: addMob.id, killerId: null });
+                                }
+                            }
+                        }
+
+                        if (p.mapId === 'dungeon2a') {
+                            io.to(p.instanceId).emit('systemMessage', `<span style="color:#ffea00; font-size:24px; font-weight:bold; text-shadow: 0 0 10px #9c27b0;">STAGE CLEARED! Descending to the next level...</span>`);
+                            setTimeout(() => teleportRaidToNext(p.instanceId, 'dungeon2b'), 4000);
+                        } else if (p.mapId === 'dungeon2b') {
+                            io.to(p.instanceId).emit('systemMessage', `<span style="color:#ffea00; font-size:24px; font-weight:bold; text-shadow: 0 0 10px #9c27b0;">STAGE CLEARED! The final lair awaits...</span>`);
+                            setTimeout(() => teleportRaidToNext(p.instanceId, 'dungeon2c'), 4000);
+                        } else if (p.mapId === 'dungeon2c') {
+                            if (worlds[p.instanceId] && worlds[p.instanceId].failTimer) clearInterval(worlds[p.instanceId].failTimer);
+                            io.to(p.instanceId).emit('dungeonTimerStop');
+                            io.to(p.instanceId).emit('dungeonVictory');
+                            setTimeout(() => teleportRaidToNext(p.instanceId, 'town'), 5000);
+                        }
+                    }
+
                     // 🏰 DUNGEON 1 WIN CONDITION & AUTO-KICK
                     if (p.mapId === 'dungeon1') {
                         const activeMobs = Object.values(worlds[p.instanceId].monsters).filter(mob => mob.alive).length;
@@ -6204,9 +6242,9 @@ socket.on('useRevivalJuice', async (data) => {
     if (!p) return;
     if (!p.isGhost) return;
     
-    // ⚔️ TAVERN ANTI-CHEAT: Block Revival Juice in Tavern
-    if (p.mapId === 'trainingtavern') {
-        return socket.emit('systemMessage', '❌ Revival is forbidden in the Training Tavern!');
+  // ⚔️ TAVERN & DUNGEON 2 ANTI-CHEAT: Block Revival Juice
+    if (p.mapId === 'trainingtavern' || String(p.mapId).startsWith('dungeon2')) {
+        return socket.emit('systemMessage', '❌ Revival Juice is forbidden here! Only a Healer can save you.');
     }
 
     const inv = Array.isArray(p.inventory) ? p.inventory : [];
@@ -8284,5 +8322,202 @@ setInterval(() => {
         }
     }
 }, 1000);
+// ==========================================
+// 🦇 DUNGEON 2 ENGINE (ANCIENT CAVE)
+// ==========================================
+function teleportRaidToNext(instId, nextMapId) {
+    const playersInRoom = playersInInstance(instId);
+    if (playersInRoom.length === 0) return;
+
+    let diff = playersInRoom[0].d2Difficulty || 'Normal';
+    let newInstId = getInstanceId(playersInRoom[0].id, nextMapId);
+
+    playersInRoom.forEach(roomPlayer => {
+        const pSocket = io.sockets.sockets.get(roomPlayer.socketId);
+        if (!pSocket) return;
+
+        roomPlayer.mapId = nextMapId;
+        roomPlayer.x = 960; 
+        roomPlayer.y = 1000;
+        roomPlayer.instanceId = newInstId;
+        roomPlayer.currentPortal = null;
+
+        pSocket.leave(instId);
+        pSocket.join(newInstId);
+
+        if (nextMapId === 'town') {
+            io.to(roomPlayer.socketId).emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
+            roomPlayer.d2Difficulty = null;
+        } else {
+            roomPlayer.expectedMapId = nextMapId;
+            roomPlayer.isLoadingMap = true;
+            roomPlayer.isWaitingForTeam = true;
+            io.to(roomPlayer.socketId).emit('closeDungeonUI');
+            io.to(roomPlayer.socketId).emit('forceTeleport', { mapId: nextMapId, x: 960, y: 1000 });
+            io.to(roomPlayer.socketId).emit('systemMessage', `Entering ${nextMapId}...`);
+        }
+    });
+
+    if (nextMapId !== 'town') {
+        initiateDungeon2Stage(newInstId, nextMapId, diff);
+    }
+    
+    if (worlds[instId]) {
+        if (worlds[instId].d2Interval) clearInterval(worlds[instId].d2Interval);
+        delete worlds[instId];
+    }
+}
+
+function initiateDungeon2Stage(instId, mapId, difficulty) {
+    let mobLvl = 150, bossLvl = 150;
+    if (difficulty === 'Normal') {
+        mobLvl = (mapId === 'dungeon2c') ? 250 : 150;
+        bossLvl = (mapId === 'dungeon2c') ? 250 : 150;
+    } else if (difficulty === 'Hard') {
+        mobLvl = (mapId === 'dungeon2c') ? 350 : 250;
+        bossLvl = (mapId === 'dungeon2c') ? 350 : 250;
+    } else if (difficulty === 'Extreme') {
+        mobLvl = (mapId === 'dungeon2c') ? 700 : 400;
+        bossLvl = (mapId === 'dungeon2c') ? 700 : 400;
+    }
+
+    let bossKey = 'floor_boss_wraith';
+    let mobKey = 'common_wraith';
+    if (mapId === 'dungeon2b') { bossKey = 'floor_boss_minotaur'; mobKey = 'common_minotaur'; }
+    if (mapId === 'dungeon2c') { bossKey = 'floor_boss_dragon'; mobKey = 'common_dragon'; }
+
+    setTimeout(() => {
+        if (!worlds[instId]) worlds[instId] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
+        worlds[instId].monsters = {}; 
+
+        // Spawn Floor Boss
+        const bossId = `d2_boss_${Date.now()}`;
+        const bossMob = spawnMonster(instId, bossId, bossKey, { spawnArea: { minX: 960, minY: 400 }, level: bossLvl });
+        worlds[instId].monsters[bossId] = bossMob;
+        io.to(instId).emit('monsterSpawned', serializeMonster(bossMob));
+
+        // Spawner for Common Mobs (2 every 10 seconds)
+        let spawnCount = 0;
+        worlds[instId].d2Interval = setInterval(() => {
+            if (!worlds[instId] || !worlds[instId].monsters[bossId] || !worlds[instId].monsters[bossId].alive) {
+                clearInterval(worlds[instId].d2Interval);
+                return;
+            }
+            
+            for(let i=0; i<2; i++) {
+                let cmId = `d2_mob_${spawnCount++}_${Date.now()}`;
+                let xOffset = (Math.random() * 400) - 200; // Spread them out
+                let cm = spawnMonster(instId, cmId, mobKey, { spawnArea: { minX: 960 + xOffset, minY: 600 }, level: mobLvl });
+                
+                cm.isDungeon2Add = true; // Flags it to drop NO loot
+                cm.goldYield = 0;
+                
+                worlds[instId].monsters[cmId] = cm;
+                io.to(instId).emit('monsterSpawned', serializeMonster(cm));
+            }
+        }, 10000);
+        
+        // Timer for Extreme Mode
+        if (difficulty === 'Extreme') {
+            const playersInRoom = playersInInstance(instId);
+            playersInRoom.forEach(mp => {
+                const msid = findSocketIdByPlayerId(mp.id);
+                if (msid) {
+                    io.to(msid).emit('systemMessage', `<span style="color:#ff9800; font-weight:bold;">⏳ EXTREME MODE: You have 20 minutes to clear this stage!</span>`);
+                    io.to(msid).emit('dungeonTimerStart', { durationMs: 20 * 60 * 1000, startTime: Date.now() });
+                }
+            });
+            worlds[instId].failTimer = setTimeout(() => {
+                if (worlds[instId]) {
+                    io.to(instId).emit('dungeonTimerStop');
+                    io.to(instId).emit('systemMessage', "⏳ Time is up! You failed the Ancient Cave.");
+                    teleportRaidToNext(instId, 'town');
+                }
+            }, 20 * 60 * 1000); // 20 Minutes
+        }
+
+    }, 2000); // Give players 2 seconds to load before spawning
+}
+
+socket.on('startDungeon2', async (data) => {
+    const p = onlinePlayers[socket.id];
+    if (!p || p.isGhost) return;
+
+    if (p.isStartingInstance) return;
+    p.isStartingInstance = true;
+    setTimeout(() => { if (onlinePlayers[socket.id]) onlinePlayers[socket.id].isStartingInstance = false; }, 3000);
+
+    const pid = playerParty[p.id];
+    const rid = pid ? partyRaid[pid] : null;
+    let playersToEnter = [p];
+
+    // 1. Party & Raid Logic & Entry Verification
+    if (rid && raids[rid]) {
+        if (raids[rid].leaderId !== p.id && !isAdmin(p.id)) {
+            return socket.emit('systemMessage', "❌ Only the Raid Leader can start the Ancient Cave.");
+        }
+        playersToEnter = [];
+        const allMembers = getRaidMembers(rid);
+        for (const memberId of allMembers) {
+            const mp = getPlayerById(memberId);
+            if (!mp) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
+            if (mp.isGhost) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
+            if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
+            
+            if (data.difficulty === 'Extreme' && mp.level < 50 && !isAdmin(mp.id)) {
+                return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
+            }
+            playersToEnter.push(mp);
+        }
+    } else if (pid && parties[pid]) {
+        const party = parties[pid];
+        if (party.leaderId !== p.id && !isAdmin(p.id)) {
+            return socket.emit('systemMessage', "❌ Only the Party Leader can start the Ancient Cave.");
+        }
+        playersToEnter = [];
+        for (const memberId of party.members) {
+            const mp = getPlayerById(memberId);
+            if (!mp) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
+            if (mp.isGhost) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
+            if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
+            
+            if (data.difficulty === 'Extreme' && mp.level < 50 && !isAdmin(mp.id)) {
+                return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
+            }
+            playersToEnter.push(mp);
+        }
+    } else {
+        if (data.difficulty === 'Extreme' && p.level < 50 && !isAdmin(p.id)) {
+            return socket.emit('systemMessage', '❌ You must be Level 50 to enter Extreme mode.');
+        }
+    }
+
+    // Deduct Entries securely
+    playersToEnter.forEach(mp => {
+        if (!isAdmin(mp.id) && mp.baseStats) {
+            mp.baseStats.dungeonEntries = Math.max(0, (mp.baseStats.dungeonEntries || 7) - 1);
+            supabase.from('Exonians').update({ base_stats: mp.baseStats }).eq('character_name', mp.id).then(()=>{});
+        }
+    });
+
+    const targetMapId = 'dungeon2a';
+    const newInstId = getInstanceId(p.id, targetMapId);
+
+    playersToEnter.forEach(mp => {
+        mp.d2Difficulty = data.difficulty; // 🌟 SERVER REMEMBERS THE DIFFICULTY FOR STAGES B AND C!
+        mp.teleportGrace = Date.now() + 4000; 
+        mp.expectedMapId = targetMapId;
+        mp.isLoadingMap = true;
+        mp.isWaitingForTeam = true;
+        const msid = findSocketIdByPlayerId(mp.id);
+        if (msid) {
+            io.to(msid).emit('closeDungeonUI'); 
+            io.to(msid).emit('forceTeleport', { mapId: targetMapId, x: 960, y: 1000 });
+            io.to(msid).emit('systemMessage', `Entering Ancient Cave (${data.difficulty})...`);
+        }
+    });
+
+    initiateDungeon2Stage(newInstId, targetMapId, data.difficulty);
+});
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, "0.0.0.0", () => console.log(`Exonie server running on port ${PORT} (0.0.0.0)`));
