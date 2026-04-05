@@ -587,7 +587,12 @@ function sanitizeBaseStats(baseStats) {
     safe.title = safe.title || null; // 🛡️ Ensure title is kept!
     safe.gotWisp = baseStats ? !!baseStats.gotWisp : false;
     safe.hasHome = baseStats ? !!baseStats.hasHome : false; // 🏡 ADD THIS LINE!
-    safe.homeStorage = (baseStats && Array.isArray(baseStats.homeStorage)) ? baseStats.homeStorage.slice(0, 10) : new Array(10).fill(null);
+    
+    // 🧰 THE FIX: Safely migrate old 10-slot storages to the new 15-slot size!
+    let hStorage = (baseStats && Array.isArray(baseStats.homeStorage)) ? baseStats.homeStorage.slice(0, 15) : [];
+    while (hStorage.length < 15) hStorage.push(null);
+    safe.homeStorage = hStorage;
+    
     safe.watchedTutorial = baseStats ? !!baseStats.watchedTutorial : false;
     safe.tavernEntries = (baseStats && typeof baseStats.tavernEntries === 'number') ? baseStats.tavernEntries : 5;
     safe.dungeonEntries = (baseStats && typeof baseStats.dungeonEntries === 'number') ? baseStats.dungeonEntries : 7;
@@ -8060,20 +8065,22 @@ socket.on('startDungeon', async (data) => {
             socket.emit('receiptFailed', "Verification Error: " + errorMsg);
         }
     });
-    // ==========================================
+   // ==========================================
     // 🧰 HOME STORAGE ENGINE
     // ==========================================
     socket.on('requestOpenStorage', () => {
         const p = onlinePlayers[socket.id];
         if (!p) return;
-        if (!p.baseStats.homeStorage) p.baseStats.homeStorage = new Array(10).fill(null);
+        if (!p.baseStats.homeStorage) p.baseStats.homeStorage = [];
+        while (p.baseStats.homeStorage.length < 15) p.baseStats.homeStorage.push(null); // 🛡️ Upgrade to 15 slots
         socket.emit('openStorageUI', p.baseStats.homeStorage);
     });
 
     socket.on('transferToStorage', (invIndex) => {
         const p = onlinePlayers[socket.id];
         if (!p || !p.inventory[invIndex]) return;
-        if (!p.baseStats.homeStorage) p.baseStats.homeStorage = new Array(10).fill(null);
+        if (!p.baseStats.homeStorage) p.baseStats.homeStorage = [];
+        while (p.baseStats.homeStorage.length < 15) p.baseStats.homeStorage.push(null); // 🛡️ Upgrade to 15 slots
         
         const emptySlot = p.baseStats.homeStorage.findIndex(i => i === null);
         if (emptySlot === -1) return socket.emit('systemMessage', '❌ Storage is full!');
