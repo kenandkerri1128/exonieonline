@@ -4,7 +4,7 @@
 
         #mobile-rank-btn, #mobile-cash-btn { 
             display: none; 
-            position: absolute; 
+            positio<script>n: absolute; 
             right: 140px; 
             width: 40px; 
             height: 40px; 
@@ -241,9 +241,18 @@
         </div>
     </div>
 
-    <script>
+   <script>
         // PLATFORM ROUTER & TRACKER
         let isApp = false;
+        let isTestEnv = false;
+        
+        // 1. DETECT TEST ENVIRONMENT
+        if (typeof window !== 'undefined' && window.location) {
+            const host = window.location.hostname;
+            if (host.includes('testexonie') || host === 'localhost' || host === '127.0.0.1') {
+                isTestEnv = true;
+            }
+        }
         
         if (navigator.userAgent.toLowerCase().indexOf(' electron/') > -1) {
             window.currentPlatform = 'steam';
@@ -255,8 +264,9 @@
             window.currentPlatform = 'web';
         }
 
-        if (!isApp) {
-            // WEB MODE: Hide game, show landing page
+        // 2. THE LOCK: Only fire if it is a Web Browser AND NOT a Test Server
+        if (!isApp && !isTestEnv) {
+            // 🛑 PRODUCTION WEB MODE: Hide game, show landing page
             document.getElementById('game-container').style.display = 'none';
             document.getElementById('web-landing-page').style.display = 'flex';
 
@@ -291,14 +301,15 @@
                 }
             });
         } else {
-            // APP MODE: Hide old download button & Load Live Game from Render
+            // 🚀 APP OR TEST MODE: Load the game directly!
             let oldDownloadBtn = document.getElementById('install-btn');
             if (oldDownloadBtn && oldDownloadBtn.parentElement) {
                 oldDownloadBtn.parentElement.style.display = 'none';
             }
 
             const script = document.createElement('script');
-            script.src = "https://exonieonline.onrender.com/game.js?v=" + Date.now(); 
+            // If testing on web, load local game.js. If native app, pull from live server.
+            script.src = isTestEnv ? "game.js?v=" + Date.now() : "https://exonieonline.onrender.com/game.js?v=" + Date.now(); 
             document.head.appendChild(script);
         }
     </script><div id="welcome-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:9999;justify-content:center;align-items:center"><div style="background:#1e1e1e;border:3px solid #4caf50;border-radius:10px;width:90%;max-width:500px;padding:30px;position:relative;box-shadow:0 0 30px rgba(76,175,80,.4);text-align:center"><h1 id="news-title" style="color:#4caf50;margin-top:0;font-size:32px;letter-spacing:2px">Loading...</h1><div id="news-content" style="color:#e0e0e0;font-size:18px;line-height:1.6;margin:20px 0;max-height:300px;overflow-y:auto;text-align:left;padding-right:10px">Please wait, fetching latest news...</div><button class="btn btn-large" style="width:200px;margin-top:10px" onclick="window.closeWelcomeMessage()">CLOSE</button></div></div><div id="custom-prompt-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center;">
