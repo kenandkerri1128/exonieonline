@@ -316,6 +316,16 @@ var floor9MapData = {
             "targetMapId": "floor8",
             "targetX": 960,
             "targetY": 1000
+        },
+        {
+            "x": 1799,
+            "y": 697,
+            "w": 58,
+            "h": 115,
+            "portalId": "N",
+            "targetMapId": "dungeon2a",
+            "targetX": 960,
+            "targetY": 1000
         }
     ],
     "normalSpawns": [
