@@ -2146,6 +2146,7 @@ window.routeMapMusic = function(mapId) {
     let mId = String(mapId).toLowerCase();
 
     // 1. Hardcoded Exceptions
+    if (mId.includes('dungeon2')) return 'bossfight2'; // 🎵 DUNGEON 2 UNIQUE BGM
     if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon')) return 'bossfight';
     if (mId.includes('floor')) return 'floors';
     if (mId.includes('home')) return 'home'; 
