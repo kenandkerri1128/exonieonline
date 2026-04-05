@@ -8478,7 +8478,7 @@ function initiateDungeon2Stage(instId, mapId, difficulty) {
         worlds[instId].monsters[bossId] = bossMob;
         io.to(instId).emit('monsterSpawned', serializeMonster(bossMob));
 
-        // Spawner for Common Mobs (2 every 10 seconds)
+       // Spawner for Common Mobs (Max 2 alive, respawns 10s after both die)
         let spawnCount = 0;
         worlds[instId].d2Interval = setInterval(() => {
             if (!worlds[instId] || !worlds[instId].monsters[bossId] || !worlds[instId].monsters[bossId].alive) {
@@ -8486,16 +8486,27 @@ function initiateDungeon2Stage(instId, mapId, difficulty) {
                 return;
             }
             
-            for(let i=0; i<2; i++) {
-                let cmId = `d2_mob_${spawnCount++}_${Date.now()}`;
-                let xOffset = (Math.random() * 400) - 200; // Spread them out
-                let cm = spawnMonster(instId, cmId, mobKey, { spawnArea: { minX: 960 + xOffset, minY: 600 }, level: mobLvl });
-                
-                cm.isDungeon2Add = true; // Flags it to drop NO loot
-                cm.goldYield = 0;
-                
-                worlds[instId].monsters[cmId] = cm;
-                io.to(instId).emit('monsterSpawned', serializeMonster(cm));
+            // 🛡️ THE FIX: Count how many adds are currently alive
+            let aliveAdds = 0;
+            for (let mId in worlds[instId].monsters) {
+                if (worlds[instId].monsters[mId].isDungeon2Add && worlds[instId].monsters[mId].alive) {
+                    aliveAdds++;
+                }
+            }
+
+            // Only spawn if the previous wave is completely dead
+            if (aliveAdds === 0) {
+                for(let i=0; i<2; i++) {
+                    let cmId = `d2_mob_${spawnCount++}_${Date.now()}`;
+                    let xOffset = (Math.random() * 400) - 200; // Spread them out
+                    let cm = spawnMonster(instId, cmId, mobKey, { spawnArea: { minX: 960 + xOffset, minY: 600 }, level: mobLvl });
+                    
+                    cm.isDungeon2Add = true; // Flags it to drop NO loot
+                    cm.goldYield = 0;
+                    
+                    worlds[instId].monsters[cmId] = cm;
+                    io.to(instId).emit('monsterSpawned', serializeMonster(cm));
+                }
             }
         }, 10000);
         
