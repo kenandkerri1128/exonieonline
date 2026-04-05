@@ -3048,7 +3048,7 @@ socket.on('saveData', async (playerData) => {
             p.isLoadingMap = false;
         }
 
-        // 🛡️ SERVER-SIDE ANTI-WALLHACK
+       // 🛡️ SERVER-SIDE ANTI-WALLHACK
         const world = worlds[p.instanceId];
         // 🌟 THE FIX: If they just teleported, ignore wallhacks for 4 seconds so they don't bounce!
         if (world && world.collisions && !p.isGhost && (!p.teleportGrace || Date.now() > p.teleportGrace)) {
@@ -3061,27 +3061,18 @@ socket.on('saveData', async (playerData) => {
                 }
             }
             if (isHacking && !isAdmin(p.id)) {
-                let safeX = world.spawnX || 960;
-                let safeY = world.spawnY || 1000;
+                // 🛡️ THE FIX: Teleport to the last safe position instead of the map entrance!
+                let safeX = p.lastSafeX !== undefined ? p.lastSafeX : (world.spawnX || 960);
+                let safeY = p.lastSafeY !== undefined ? p.lastSafeY : (world.spawnY || 1000);
 
-                // 🛡️ FLOOR ENTRANCE LOGIC: Find the exact portal!
-                const floorMatch = p.mapId.match(/floor(\d+)/i);
-                if (floorMatch && world.teleports) {
-                    const floorNum = parseInt(floorMatch[1]);
-                    const entranceId = floorNum * 2; // Floor 1 = Portal 2, etc.
-                    const entrancePortal = world.teleports.find(t => t.portalId === entranceId);
-                    
-                    if (entrancePortal) {
-                        // Calculate exact drop point (center X, bottom Y)
-                        safeX = entrancePortal.x + (entrancePortal.w / 2) - 24; 
-                        safeY = entrancePortal.y + entrancePortal.h - 96 + 5;   
-                    }
-                }
-
-                socket.emit('systemMessage', 'Teleporting to a safe place..');
-                socket.emit('forceTeleport', { mapId: p.mapId, x: safeX, y: safeY });
-                return; 
-            }
+                socket.emit('systemMessage', 'Teleporting to a safe place....');
+                socket.emit('forceTeleport', { mapId: p.mapId, x: safeX, y: safeY });
+                return; 
+            } else {
+                // 🛡️ Track the last safe position continuously
+                p.lastSafeX = data.x;
+                p.lastSafeY = data.y;
+            }
         }
 
         // 🛡️ THE ANIMATION FIX: Throttle 'attack' state broadcasts
