@@ -4946,7 +4946,11 @@ socket.on('requestConfirmTrade', () => {
         if (playerParty[me.id] && playerParty[me.id] !== pid) { 
             removeFromParty(me.id); 
         }
-
+// Add to the new party
+        parties[pid].members.add(me.id); 
+        playerParty[me.id] = pid; 
+        emitPartyUpdate(pid);
+    });
        // ==========================================
     // ⚔️ RAID TEAM LOGIC
     // ==========================================
