@@ -786,10 +786,10 @@ function generateDungeonLoot(m) {
     // 🛡️ DUNGEON 2 ADDS DROP NOTHING
     if (m.isDungeon2Add) return null;
 
-    // 🌟 DUNGEON 2 BIG GOLD BAR (15% Drop from any Dungeon 2 Floor Boss)
+    // 🌟 DUNGEON 2 HUGE NUGGET (15% Drop from any Dungeon 2 Floor Boss)
     if (m.category === 'floor_boss' && m.instanceId && m.instanceId.includes('dungeon2')) {
         if (Math.random() < 0.15) {
-            return { id: Date.now() + Math.random(), name: "Big Gold Bar", type: "material", rarity: "Godly", color: "#e0ffff", sellPrice: 100000, description: "A heavy bar of pure gold. Sell for 100,000 Gold.", quantity: 1 };
+            return { id: Date.now() + Math.random(), name: "Huge Nugget", type: "material", rarity: "Divine", color: "#ffea00", sellPrice: 500000, description: "A massive chunk of pure gold. Sell for 500,000 Gold.", quantity: 1 };
         }
     }
 
