@@ -1,6 +1,6 @@
 var dungeon2aMapData = {
     "id": "dungeon2a",
-    "name": "dungeon2a",
+    "name": "Ancient Cave A",
     "image": "dungeon2a.png",
     "spawnX": 960,
     "spawnY": 1000,
