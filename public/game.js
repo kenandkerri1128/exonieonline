@@ -15,9 +15,12 @@ if (!window.__exonie_cleaned) {
         duplicateLandings[i].remove();
     }
 
-    // 2. FIX TROPHY & DIAMOND BUTTON OVERLAP (Pushes them left to 140px)
+    // 2. FIX TROPHY BUTTONS & SHRINK LOADING TEXT
     const cssFix = document.createElement('style');
-    cssFix.innerHTML = `#mobile-rank-btn, #mobile-cash-btn { right: 140px !important; }`;
+    cssFix.innerHTML = `
+        #mobile-rank-btn, #mobile-cash-btn { right: 140px !important; }
+        .loader-title { font-size: 20px !important; letter-spacing: 1px !important; text-shadow: 0 2px 5px #000 !important; margin-bottom: 5px !important; }
+    `;
     document.head.appendChild(cssFix);
 }
 // ==========================================
@@ -5105,9 +5108,7 @@ if (socket) {
     // 🛡️ THE FIX: This forces the party members to un-freeze and accept the teleport!
     socket.on('closeDungeonUI', () => {
         window.closeDungeonUI();
-        const ls = document.getElementById('loading-screen');
-        if (ls) ls.style.display = 'none';
-        window.isDungeonUIOpen = false;
+        window.isDungeonUIOpen = false; // 🛑 REMOVED the code that was instantly deleting the loading screen!
     });
 let dungeonTimerInt = null;
     socket.on('dungeonTimerStart', (data) => {
