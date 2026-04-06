@@ -878,23 +878,27 @@ if (skillId === 'sum1') {
         if (className === 'Sniper') attackRadius = 345; 
 
         // Scan Monsters
-        for(let mId in game.monsters) { 
-            let m = game.monsters[mId]; if(!m.alive) continue; 
-            let dist = Math.hypot(pCenterX - (m.x+m.width/2), pCenterY - (m.y+m.height/2)); 
-            if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
-        }
+        for(let mId in game.monsters) { 
+            let m = game.monsters[mId]; if(!m.alive) continue; 
+            let mEl = document.getElementById('mob_' + mId);
+            if (mEl && mEl.style.opacity === '0') continue; // 🛡️ THE FOG FIX: Cannot target hidden monsters!
 
-        // Scan Players (Neutral Zone)
-        if (safeMapData.id === 'neutralzone') {
-            for (let rId in game.remotePlayers) {
-                let rp = game.remotePlayers[rId];
-                if (rp.isGhost || rp.isHiddenAdmin) continue; 
-                if (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id)) continue;
+            let dist = Math.hypot(pCenterX - (m.x+m.width/2), pCenterY - (m.y+m.height/2)); 
+            if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
+        }
 
-                let dist = Math.hypot(pCenterX - (rp.x + 24), pCenterY - (rp.y + 48));
-                if (dist <= attackRadius && dist < minD) { minD = dist; closestPlayer = rp; closestMob = null; }
-            }
-        }
+        // Scan Players (Neutral Zone)
+        if (safeMapData.id === 'neutralzone') {
+            for (let rId in game.remotePlayers) {
+                let rp = game.remotePlayers[rId];
+                if (rp.isGhost || rp.isHiddenAdmin) continue; 
+                if (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id)) continue;
+                if (rp.dom && rp.dom.style.opacity === '0') continue; // 🛡️ THE FOG FIX: Cannot target hidden players!
+
+                let dist = Math.hypot(pCenterX - (rp.x + 24), pCenterY - (rp.y + 48));
+                if (dist <= attackRadius && dist < minD) { minD = dist; closestPlayer = rp; closestMob = null; }
+            }
+        }
         
         const finalTarget = closestMob || closestPlayer;
 
@@ -1012,36 +1016,43 @@ window.attemptAttack = function(silent) {
     }
     
     // Check Monsters
-    for(let mId in game.monsters) { 
-        let m = game.monsters[mId]; if(!m.alive) continue; 
-        let mCenterX = m.x + (m.width/2); let mCenterY = m.y + (m.height/2); 
-        let dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY); 
-        if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
-    }
+    for(let mId in game.monsters) { 
+        let m = game.monsters[mId]; if(!m.alive) continue; 
+        let mEl = document.getElementById('mob_' + mId);
+        if (mEl && mEl.style.opacity === '0') continue; // 🛡️ THE FOG FIX: Cannot auto-attack hidden monsters!
 
-    // Check Players (ONLY in Neutral Zone)
-    if (safeMapData.id === 'neutralzone') {
-        if (window.activeTargetPlayerId && game.remotePlayers[window.activeTargetPlayerId]) {
-            let rp = game.remotePlayers[window.activeTargetPlayerId];
-            if (!rp.isGhost && !rp.isHiddenAdmin && !(game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id))) {
-                let dist = Math.hypot(pCenterX - (rp.x + 24), pCenterY - (rp.y + 48));
-                if (dist <= attackRadius) {
-                    minD = dist; closestPlayer = rp; closestMob = null;
-                }
-            }
-            window.activeTargetPlayerId = null; 
-        } else {
-            for (let rId in game.remotePlayers) {
-                let rp = game.remotePlayers[rId];
-                if (rp.isGhost || rp.isHiddenAdmin) continue; 
-                if (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id)) continue;
+        let mCenterX = m.x + (m.width/2); let mCenterY = m.y + (m.height/2); 
+        let dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY); 
+        if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
+    }
 
-                let rpCenterX = rp.x + 24; let rpCenterY = rp.y + 48;
-                let dist = Math.hypot(pCenterX - rpCenterX, pCenterY - rpCenterY);
-                if (dist <= attackRadius && dist < minD) { minD = dist; closestPlayer = rp; closestMob = null; }
-            }
-        }
-    }
+    // Check Players (ONLY in Neutral Zone)
+    if (safeMapData.id === 'neutralzone') {
+        if (window.activeTargetPlayerId && game.remotePlayers[window.activeTargetPlayerId]) {
+            let rp = game.remotePlayers[window.activeTargetPlayerId];
+            if (!rp.isGhost && !rp.isHiddenAdmin && !(game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id))) {
+                // If clicking them, we assume they are visible, but let's be safe
+                if (rp.dom && rp.dom.style.opacity !== '0') {
+                    let dist = Math.hypot(pCenterX - (rp.x + 24), pCenterY - (rp.y + 48));
+                    if (dist <= attackRadius) {
+                        minD = dist; closestPlayer = rp; closestMob = null;
+                    }
+                }
+            }
+            window.activeTargetPlayerId = null; 
+        } else {
+            for (let rId in game.remotePlayers) {
+                let rp = game.remotePlayers[rId];
+                if (rp.isGhost || rp.isHiddenAdmin) continue; 
+                if (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id)) continue;
+                if (rp.dom && rp.dom.style.opacity === '0') continue; // 🛡️ THE FOG FIX
+
+                let rpCenterX = rp.x + 24; let rpCenterY = rp.y + 48;
+                let dist = Math.hypot(pCenterX - rpCenterX, pCenterY - rpCenterY);
+                if (dist <= attackRadius && dist < minD) { minD = dist; closestPlayer = rp; closestMob = null; }
+            }
+        }
+    }
     
     if (!closestMob && !closestPlayer) { if(!silent && dom.log) dom.log.innerText = "No target in range."; return; }
     
@@ -1124,19 +1135,25 @@ function gameLoop(ts) {
             }
 
             // Active Pets logic
-            if (game.player.activePets && game.player.activePets.length > 0) {
-        game.player.activePets.forEach((p, idx) => {
-            let targetMob = Object.values(game.monsters).find(m => m.alive && Math.hypot(m.x-p.x, m.y-p.y) < 300);
-            let targetPlayer = null;
-            
-            // ⚔️ PET PVP: Look for non-party players if in Neutral Zone!
-            if (!targetMob && safeMapData.id === 'neutralzone') {
-                targetPlayer = Object.values(game.remotePlayers).find(rp => {
-                    if (rp.isGhost) return false;
-                    if (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id)) return false;
-                    return Math.hypot(rp.x - p.x, rp.y - p.y) < 300;
-                });
-            }
+            if (game.player.activePets && game.player.activePets.length > 0) {
+        game.player.activePets.forEach((p, idx) => {
+            let targetMob = Object.values(game.monsters).find(m => {
+                if (!m.alive) return false;
+                let mEl = document.getElementById('mob_' + m.id);
+                if (mEl && mEl.style.opacity === '0') return false; // 🛡️ THE FOG FIX: Pets won't attack the dark
+                return Math.hypot(m.x-p.x, m.y-p.y) < 300;
+            });
+            let targetPlayer = null;
+            
+            // ⚔️ PET PVP: Look for non-party players if in Neutral Zone!
+            if (!targetMob && safeMapData.id === 'neutralzone') {
+                targetPlayer = Object.values(game.remotePlayers).find(rp => {
+                    if (rp.isGhost) return false;
+                    if (rp.dom && rp.dom.style.opacity === '0') return false; // 🛡️ THE FOG FIX
+                    if (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id)) return false;
+                    return Math.hypot(rp.x - p.x, rp.y - p.y) < 300;
+                });
+            }
             
          let finalTarget = targetMob || targetPlayer;
 
@@ -1240,24 +1257,29 @@ function gameLoop(ts) {
         petOwners.push({ id: game.player.id, targetX: game.player.x, targetY: game.player.y, facingRight: window.facingRight, type: myPet });
         
        // Auto Attack Logic
-        if (Date.now() - window.lastFoxAttack > 1500) {
-            let closestMob = null; let closestPlayer = null; let minD = Infinity;
-            let pCenterX = game.player.x + 24; let pCenterY = game.player.y + 48;
-            for(let mId in game.monsters) { 
-                let m = game.monsters[mId]; if(!m.alive) continue; 
-                let dist = Math.hypot(pCenterX - (m.x+m.width/2), pCenterY - (m.y+m.height/2)); 
-                if(dist <= 150 && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
-            }
-            
-            // ⚔️ FOX PVP: Look for non-party players if in Neutral Zone!
-            if (safeMapData.id === 'neutralzone') {
-                for (let rId in game.remotePlayers) {
-                    let rp = game.remotePlayers[rId];
-                    if (rp.isGhost || (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id))) continue;
-                    let dist = Math.hypot(pCenterX - (rp.x + 24), pCenterY - (rp.y + 48));
-                    if (dist <= 150 && dist < minD) { minD = dist; closestPlayer = rp; closestMob = null; }
-                }
-            }
+        if (Date.now() - window.lastFoxAttack > 1500) {
+            let closestMob = null; let closestPlayer = null; let minD = Infinity;
+            let pCenterX = game.player.x + 24; let pCenterY = game.player.y + 48;
+            for(let mId in game.monsters) { 
+                let m = game.monsters[mId]; if(!m.alive) continue; 
+                let mEl = document.getElementById('mob_' + m.id);
+                if (mEl && mEl.style.opacity === '0') continue; // 🛡️ THE FOG FIX: Fox won't bite the dark
+
+                let dist = Math.hypot(pCenterX - (m.x+m.width/2), pCenterY - (m.y+m.height/2)); 
+                if(dist <= 150 && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
+            }
+            
+            // ⚔️ FOX PVP: Look for non-party players if in Neutral Zone!
+            if (safeMapData.id === 'neutralzone') {
+                for (let rId in game.remotePlayers) {
+                    let rp = game.remotePlayers[rId];
+                    if (rp.isGhost || (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id))) continue;
+                    if (rp.dom && rp.dom.style.opacity === '0') continue; // 🛡️ THE FOG FIX
+
+                    let dist = Math.hypot(pCenterX - (rp.x + 24), pCenterY - (rp.y + 48));
+                    if (dist <= 150 && dist < minD) { minD = dist; closestPlayer = rp; closestMob = null; }
+                }
+            }
             
             let finalTarget = closestMob || closestPlayer;
             if (finalTarget && window.activeFoxes[game.player.id]) {
