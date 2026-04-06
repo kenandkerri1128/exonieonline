@@ -8489,10 +8489,10 @@ function teleportRaidToNext(instId, nextMapId) {
 }
 
 function initiateDungeon2Stage(instId, mapId, difficulty) {
-        let mobLvl = 250, bossLvl = 250;
+        let mobLvl = 150, bossLvl = 250;
         if (difficulty === 'Normal') {
-            mobLvl = (mapId === 'dungeon2c') ? 450 : 250;
-            bossLvl = (mapId === 'dungeon2c') ? 450 : 250;
+            mobLvl = (mapId === 'dungeon2c') ? 450 : 150;
+            bossLvl = (mapId === 'dungeon2c') ? 450 : 150;
         } else if (difficulty === 'Hard') {
             mobLvl = (mapId === 'dungeon2c') ? 750 : 450;
             bossLvl = (mapId === 'dungeon2c') ? 750 : 450;
