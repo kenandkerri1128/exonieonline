@@ -5243,54 +5243,62 @@ socket.on('requestConfirmTrade', () => {
         socket.emit('clearLocalMonsters');
 
        //🛑 WIPE THE SERVER ROOM (If Solo): Force it to rebuild from the fresh spawners!
-        // 🛡️ THE FIX: Exclude Town and Neutral Zone so they don't get wiped!
-        if (!playerParty[p.id] && worlds[p.instanceId] && p.instanceId !== 'town' && p.instanceId !== 'neutralzone') {
+        // 🛡️ THE FIX: Never wipe Town, Neutral Zone, or ANY pre-staged instanced map (Dungeons, Taverns, etc)
+        const isInstancedMap = String(p.instanceId).includes('dungeon') || String(p.instanceId).includes('hauntedhouse') || String(p.instanceId).includes('tavern') || String(p.instanceId).includes('mazetrial');
+        if (!playerParty[p.id] && worlds[p.instanceId] && p.instanceId !== 'town' && p.instanceId !== 'neutralzone' && !isInstancedMap) {
             delete worlds[p.instanceId];
         }
+        
         // Request the fresh spawners ONLY after the new map is fully loaded
         socket.emit('requestMapSync', { mapId: data.mapId, instanceId: p.instanceId });
 
-      if (!p.isHiddenAdmin) {
-            socket.to(p.instanceId).emit('remotePlayerJoined', {
-                id: p.id,
-                name: p.name,
-                mapId: p.mapId,
-                instanceId: p.instanceId,
-                x: p.x,
-                y: p.y,
-                spriteData: p.spriteData,
-                isGhost: p.isGhost
-            });
+        // 🌟 INSTANT TAVERN INJECTION 🌟 (No more setTimeout)
+        if (p.mapId === 'trainingtavern' && p.pendingTavernBoss) {
+            if (!worlds[p.instanceId]) worlds[p.instanceId] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
+            worlds[p.instanceId].monsters = {}; 
+            
+            const mKey = p.pendingTavernBoss.mobType === 'floor_boss' ? 'floor_boss1' : (p.pendingTavernBoss.mobType === 'mini_boss' ? 'mini_boss1' : 'common_mobs1');
+            const newMob = spawnMonster(p.instanceId, 't_mob_1', mKey, { spawnArea: { minX: 989, minY: 394 }, level: p.pendingTavernBoss.level });
+            
+            worlds[p.instanceId].monsters['t_mob_1'] = newMob;
+            p.tavernTargetId = 't_mob_1';
+            p.tavernStartTime = Date.now();
+            
+            socket.emit('tavernTimerStart');
+            p.pendingTavernBoss = null;
+        }
+
+        // 👻 INSTANT HAUNTED HOUSE INJECTION 👻 (No more setTimeout)
+        if (p.mapId === 'hauntedhouse' && p.pendingHauntedBoss) {
+            if (!worlds[p.instanceId]) worlds[p.instanceId] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
+            worlds[p.instanceId].monsters = {}; 
+            
+            const mobId = `hh_boss_${Date.now()}`;
+            const newMob = spawnMonster(p.instanceId, mobId, 'floor_boss_wraith', { spawnArea: { minX: 960, minY: 400 }, level: p.pendingHauntedBoss.level });
+            
+            worlds[p.instanceId].monsters[mobId] = newMob;
+            p.pendingHauntedBoss = null; 
+        }
+
+        if (!p.isHiddenAdmin) {
+            socket.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
         }
 
         const playersInInst = Object.values(onlinePlayers).filter(
             remote => remote.instanceId === p.instanceId && remote.id !== p.id && !remote.isHiddenAdmin
         );
 
-        socket.emit('mapPlayersList', playersInInst.map(pp => ({
-            id: pp.id,
-            name: pp.name,
-            mapId: pp.mapId,
-            x: pp.x,
-            y: pp.y,
-            spriteData: pp.spriteData,
-            isGhost: pp.isGhost
-        })));
+        socket.emit('mapPlayersList', playersInInst.map(pp => ({ id: pp.id, name: pp.name, mapId: pp.mapId, x: pp.x, y: pp.y, spriteData: pp.spriteData, isGhost: pp.isGhost })));
 
-        // Send monster list immediately so the client renders them right away
+        // 🛡️ THE BULLETPROOF HANDSHAKE: Send the monsters directly from RAM. 
+        // Because we removed the setTimeouts, the bosses are already here patiently waiting for the player!
         if (worlds[p.instanceId]) {
-            socket.emit(
-                'monsterState',
-                Object.values(worlds[p.instanceId].monsters).map(serializeMonster)
-            );
+            socket.emit('monsterState', Object.values(worlds[p.instanceId].monsters).map(serializeMonster));
         }
 
-        supabase
-            .from('Exonians')
-            .update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y })
-            .eq('character_name', currentUser)
-            .then(() => {});
-     // 🛡️ VISUAL MAP TIMER & OLD ZIP FALLBACK
+        supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', currentUser).then(() => {});
+
+        // 🛡️ VISUAL MAP TIMER & OLD ZIP FALLBACK
         let queryBossId = p.mapId === 'neutralzone' ? 'neutralzone_boss' : p.mapId;
         supabase.from('boss_timers').select('last_death_time').eq('boss_id', queryBossId).single().then(({data: timer}) => {
             if (timer) {
@@ -5301,64 +5309,20 @@ socket.on('requestConfirmTrade', () => {
                     remaining = getBossCountdown(timer.last_death_time);
                 }
                 
-                // 🛡️ MAZE TRIAL FIX: Ignore world timers if in a private Maze Trial
                 if (remaining > 0 && !p.isMazeTrial) {
-                    // Send the UI timer to new clients
                     socket.emit('bossCooldownActive', { remaining });
-                    
-                    // Send a chat message fallback for old ZIP clients so they know what's happening
                     let remMins = Math.ceil(remaining / 60000);
                     let remHours = (remMins / 60).toFixed(1);
                     let timeText = remMins > 120 ? `${remHours} hours` : `${remMins} minutes`;
                     socket.emit('systemMessage', `⏳ <span style="color:#aaa;">The boss of this area is dead. It will return in ${timeText}.</span>`);
                 }
             } else if (p.mapId === 'neutralzone') {
-                // 🌟 THE FIX: If there's no timer in the DB, AND the boss isn't alive in RAM, spawn it!
                 let boss = worlds['neutralzone']?.monsters['neutral_boss_1'];
                 if (!boss || !boss.alive) {
                     spawnNeutralBoss();
                 }
             }
         });
-       // 🌟 THE TAVERN INJECTION 🌟
-        if (p.mapId === 'trainingtavern' && p.pendingTavernBoss) {
-            setTimeout(() => {
-                // 🛡️ THE PING FIX: Force create the room if lag prevented it!
-                if (!worlds[p.instanceId]) worlds[p.instanceId] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
-                worlds[p.instanceId].monsters = {}; 
-                
-                if (!p || !p.pendingTavernBoss) return;
-                const mKey = p.pendingTavernBoss.mobType === 'floor_boss' ? 'floor_boss1' : (p.pendingTavernBoss.mobType === 'mini_boss' ? 'mini_boss1' : 'common_mobs1');
-                const newMob = spawnMonster(p.instanceId, 't_mob_1', mKey, { spawnArea: { minX: 989, minY: 394 }, level: p.pendingTavernBoss.level });
-                
-                worlds[p.instanceId].monsters['t_mob_1'] = newMob;
-                p.tavernTargetId = 't_mob_1';
-                p.tavernStartTime = Date.now();
-                
-                io.to(p.instanceId).emit('monsterSpawned', serializeMonster(newMob));
-                io.to(p.instanceId).emit('tavernTimerStart');
-                p.pendingTavernBoss = null;
-            }, 1000);
-        }
-
-        // 👻 THE HAUNTED HOUSE INJECTION 👻
-        if (p.mapId === 'hauntedhouse' && p.pendingHauntedBoss) {
-            // 🛑 THE FIX: Increased delay from 1000ms to 3500ms so the client finishes loading first!
-            setTimeout(() => {
-                if (!worlds[p.instanceId]) worlds[p.instanceId] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
-                worlds[p.instanceId].monsters = {}; 
-                
-                if (!p || !p.pendingHauntedBoss) return;
-                
-                const mobId = `hh_boss_${Date.now()}`;
-                const newMob = spawnMonster(p.instanceId, mobId, 'floor_boss_wraith', { spawnArea: { minX: 960, minY: 400 }, level: p.pendingHauntedBoss.level });
-                
-                worlds[p.instanceId].monsters[mobId] = newMob;
-                io.to(p.instanceId).emit('monsterSpawned', serializeMonster(newMob));
-                
-                p.pendingHauntedBoss = null; 
-            }, 3500); 
-        }
     });
 
    socket.on('respawnPlayer', () => {
@@ -7430,60 +7394,55 @@ socket.on('startDungeon', async (data) => {
             }
         });
 
-        // Wait 1 second for everyone to load, then populate the room
-        setTimeout(() => {
-            if (!worlds[newInstId]) worlds[newInstId] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
-            worlds[newInstId].monsters = {}; 
+       // 🛡️ THE FIX: No more setTimeout! Build the room in RAM instantly.
+        if (!worlds[newInstId]) worlds[newInstId] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
+        worlds[newInstId].monsters = {}; 
 
-            const spawns = [
-                { key: 'floor_boss1', x: 960, y: 400 },
-                { key: 'mini_boss1', x: 700, y: 550 },
-                { key: 'common_mobs1', x: 1220, y: 550 },
-                { key: 'common_mobs1', x: 800, y: 750 },
-                { key: 'common_mobs1', x: 1120, y: 750 }
-            ];
+        const spawns = [
+            { key: 'floor_boss1', x: 960, y: 400 },
+            { key: 'mini_boss1', x: 700, y: 550 },
+            { key: 'common_mobs1', x: 1220, y: 550 },
+            { key: 'common_mobs1', x: 800, y: 750 },
+            { key: 'common_mobs1', x: 1120, y: 750 }
+        ];
 
-            spawns.forEach((sp, i) => {
-                // ⚙️ EXTREME STAT FIX: You can easily edit '75' below to make them harder/easier!
-                let finalLevel = dLevel;
-                if (data.difficulty === 'Extreme') finalLevel = 75;
+        spawns.forEach((sp, i) => {
+            let finalLevel = dLevel;
+            if (data.difficulty === 'Extreme') finalLevel = 75;
 
-                const mobId = `d1_mob_${i}`;
-                const newMob = spawnMonster(newInstId, mobId, sp.key, { spawnArea: { minX: sp.x, minY: sp.y }, level: finalLevel });
-                worlds[newInstId].monsters[mobId] = newMob;
-                io.to(newInstId).emit('monsterSpawned', serializeMonster(newMob));
+            const mobId = `d1_mob_${i}`;
+            const newMob = spawnMonster(newInstId, mobId, sp.key, { spawnArea: { minX: sp.x, minY: sp.y }, level: finalLevel });
+            worlds[newInstId].monsters[mobId] = newMob;
+            io.to(newInstId).emit('monsterSpawned', serializeMonster(newMob));
+        });
+
+        // ⏳ EXTREME MODE 20-MINUTE TIMER
+        if (data.difficulty === 'Extreme') {
+            playersToEnter.forEach(mp => {
+                const msid = findSocketIdByPlayerId(mp.id);
+                if (msid) {
+                    io.to(msid).emit('systemMessage', `<span style="color:#ff9800; font-weight:bold;">⏳ EXTREME MODE: You have exactly 20 minutes to clear this dungeon!</span>`);
+                    io.to(msid).emit('dungeonTimerStart', { durationMs: 20 * 60 * 1000, startTime: Date.now() });
+                }
             });
-
-          // ⏳ EXTREME MODE 20-MINUTE TIMER
-            if (data.difficulty === 'Extreme') {
-                // 🛡️ THE FIX: Send the timer directly to the players' personal socket IDs!
-                // This guarantees they receive the timer even if they are stuck on a loading screen.
-                playersToEnter.forEach(mp => {
-                    const msid = findSocketIdByPlayerId(mp.id);
-                    if (msid) {
-                        io.to(msid).emit('systemMessage', `<span style="color:#ff9800; font-weight:bold;">⏳ EXTREME MODE: You have exactly 20 minutes to clear this dungeon!</span>`);
-                        io.to(msid).emit('dungeonTimerStart', { durationMs: 20 * 60 * 1000, startTime: Date.now() });
-                    }
-                });
-                
-                worlds[newInstId].failTimer = setTimeout(() => {
-                    if (worlds[newInstId]) {
-                        io.to(newInstId).emit('dungeonTimerStop');
-                        io.to(newInstId).emit('systemMessage', "⏳ Time is up! You failed to clear the Extreme Dungeon.");
-                        const playersInRoom = playersInInstance(newInstId);
-                        playersInRoom.forEach(roomPlayer => {
-                            roomPlayer.mapId = 'town';
-                            roomPlayer.x = 960; roomPlayer.y = 1000;
-                            roomPlayer.instanceId = getInstanceId(roomPlayer.id, 'town');
-                            const rsid = findSocketIdByPlayerId(roomPlayer.id);
-                            if (rsid) io.to(rsid).emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
-                            roomPlayer.dungeonReturnData = null; 
-                        });
-                        delete worlds[newInstId]; // Wipe the room to clean memory
-                    }
-                }, 20 * 60 * 1000); // 20 Minutes
-            }
-        }, 1000);
+            
+            worlds[newInstId].failTimer = setTimeout(() => {
+                if (worlds[newInstId]) {
+                    io.to(newInstId).emit('dungeonTimerStop');
+                    io.to(newInstId).emit('systemMessage', "⏳ Time is up! You failed to clear the Extreme Dungeon.");
+                    const playersInRoom = playersInInstance(newInstId);
+                    playersInRoom.forEach(roomPlayer => {
+                        roomPlayer.mapId = 'town';
+                        roomPlayer.x = 960; roomPlayer.y = 1000;
+                        roomPlayer.instanceId = getInstanceId(roomPlayer.id, 'town');
+                        const rsid = findSocketIdByPlayerId(roomPlayer.id);
+                        if (rsid) io.to(rsid).emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
+                        roomPlayer.dungeonReturnData = null; 
+                    });
+                    delete worlds[newInstId]; 
+                }
+            }, 20 * 60 * 1000); 
+        }
     });
     socket.on('getTavernLeaderboard', async () => {
         // 🛡️ THE FIX: Fetch up to 1000 records so we don't miss the high-level bosses
@@ -8528,24 +8487,24 @@ function teleportRaidToNext(instId, nextMapId) {
 }
 
 function initiateDungeon2Stage(instId, mapId, difficulty) {
-    let mobLvl = 150, bossLvl = 150;
-    if (difficulty === 'Normal') {
-        mobLvl = (mapId === 'dungeon2c') ? 250 : 150;
-        bossLvl = (mapId === 'dungeon2c') ? 250 : 150;
-    } else if (difficulty === 'Hard') {
-        mobLvl = (mapId === 'dungeon2c') ? 350 : 250;
-        bossLvl = (mapId === 'dungeon2c') ? 350 : 250;
-    } else if (difficulty === 'Extreme') {
-        mobLvl = (mapId === 'dungeon2c') ? 700 : 400;
-        bossLvl = (mapId === 'dungeon2c') ? 700 : 400;
-    }
+        let mobLvl = 150, bossLvl = 150;
+        if (difficulty === 'Normal') {
+            mobLvl = (mapId === 'dungeon2c') ? 250 : 150;
+            bossLvl = (mapId === 'dungeon2c') ? 250 : 150;
+        } else if (difficulty === 'Hard') {
+            mobLvl = (mapId === 'dungeon2c') ? 350 : 250;
+            bossLvl = (mapId === 'dungeon2c') ? 350 : 250;
+        } else if (difficulty === 'Extreme') {
+            mobLvl = (mapId === 'dungeon2c') ? 700 : 400;
+            bossLvl = (mapId === 'dungeon2c') ? 700 : 400;
+        }
 
-    let bossKey = 'floor_boss_wraith';
-    let mobKey = 'common_wraith';
-    if (mapId === 'dungeon2b') { bossKey = 'floor_boss_minotaur'; mobKey = 'common_minotaur'; }
-    if (mapId === 'dungeon2c') { bossKey = 'floor_boss_dragon'; mobKey = 'common_dragon'; }
+        let bossKey = 'floor_boss_wraith';
+        let mobKey = 'common_wraith';
+        if (mapId === 'dungeon2b') { bossKey = 'floor_boss_minotaur'; mobKey = 'common_minotaur'; }
+        if (mapId === 'dungeon2c') { bossKey = 'floor_boss_dragon'; mobKey = 'common_dragon'; }
 
-   setTimeout(() => {
+        // 🛡️ THE FIX: Removed the timeout wrapper. Build the room instantly in server RAM!
         if (!worlds[instId]) worlds[instId] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
         worlds[instId].monsters = {}; 
 
@@ -8555,7 +8514,7 @@ function initiateDungeon2Stage(instId, mapId, difficulty) {
         worlds[instId].monsters[bossId] = bossMob;
         io.to(instId).emit('monsterSpawned', serializeMonster(bossMob));
 
-       // Spawner for Common Mobs (Max 2 alive, respawns 10s after both die)
+        // Spawner for Common Mobs (Max 2 alive, respawns 10s after both die)
         let spawnCount = 0;
         worlds[instId].d2Interval = setInterval(() => {
             if (!worlds[instId] || !worlds[instId].monsters[bossId] || !worlds[instId].monsters[bossId].alive) {
@@ -8563,7 +8522,6 @@ function initiateDungeon2Stage(instId, mapId, difficulty) {
                 return;
             }
             
-            // 🛡️ THE FIX: Count how many adds are currently alive
             let aliveAdds = 0;
             for (let mId in worlds[instId].monsters) {
                 if (worlds[instId].monsters[mId].isDungeon2Add && worlds[instId].monsters[mId].alive) {
@@ -8571,14 +8529,13 @@ function initiateDungeon2Stage(instId, mapId, difficulty) {
                 }
             }
 
-            // Only spawn if the previous wave is completely dead
             if (aliveAdds === 0) {
                 for(let i=0; i<2; i++) {
                     let cmId = `d2_mob_${spawnCount++}_${Date.now()}`;
-                    let xOffset = (Math.random() * 400) - 200; // Spread them out
+                    let xOffset = (Math.random() * 400) - 200; 
                     let cm = spawnMonster(instId, cmId, mobKey, { spawnArea: { minX: 960 + xOffset, minY: 600 }, level: mobLvl });
                     
-                    cm.isDungeon2Add = true; // Flags it to drop NO loot
+                    cm.isDungeon2Add = true; 
                     cm.goldYield = 0;
                     
                     worlds[instId].monsters[cmId] = cm;
@@ -8603,11 +8560,9 @@ function initiateDungeon2Stage(instId, mapId, difficulty) {
                     io.to(instId).emit('systemMessage', "⏳ Time is up! You failed the Ancient Cave.");
                     teleportRaidToNext(instId, 'town');
                 }
-            }, 20 * 60 * 1000); // 20 Minutes
-        }
-
-    }, 2000); // Give players 2 seconds to load before spawning
-}
+            }, 20 * 60 * 1000);
+       }, 2000); // Give players 2 seconds to load before spawning
+    }
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, "0.0.0.0", () => console.log(`Exonie server running on port ${PORT} (0.0.0.0)`));
