@@ -8516,11 +8516,12 @@ function initiateDungeon2Stage(instId, mapId, difficulty) {
         worlds[instId].monsters[bossId] = bossMob;
         io.to(instId).emit('monsterSpawned', serializeMonster(bossMob));
 
-        // Spawner for Common Mobs (Max 2 alive, respawns 10s after both die)
+     // Spawner for Common Mobs (Max 2 alive, respawns 10s after both die)
         let spawnCount = 0;
-        worlds[instId].d2Interval = setInterval(() => {
+        let d2TimerId; // 🛡️ THE FIX: Capture the timer ID locally!
+        worlds[instId].d2Interval = d2TimerId = setInterval(() => {
             if (!worlds[instId] || !worlds[instId].monsters[bossId] || !worlds[instId].monsters[bossId].alive) {
-                clearInterval(worlds[instId].d2Interval);
+                clearInterval(d2TimerId); // 🛡️ Safely kills itself even if the room was deleted!
                 return;
             }
             
