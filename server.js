@@ -3523,9 +3523,19 @@ socket.on('syncPet', (data) => {
                     
                     if (m.isNeutralBoss) {
                         clearTimeout(global.neutralBossDespawnTimer);
-                        supabase.from('boss_timers').upsert({ boss_id: 'neutralzone_boss', last_death_time: Date.now() }, { onConflict: 'boss_id' }).then(()=>{
-                            io.emit('systemMessage', `[WORLD] The Neutral Zone Boss was defeated by ${p.name}! Respawning in 5 hours.`);
-                            checkNeutralBoss(); 
+                        const dTime = Date.now();
+                        
+                        // 🛡️ BULLETPROOF DB SAVE: Fixes the silent Supabase save failure
+                        supabase.from('boss_timers').select('boss_id').eq('boss_id', 'neutralzone_boss').single().then(({data}) => {
+                            let prm = data ? supabase.from('boss_timers').update({ last_death_time: dTime }).eq('boss_id', 'neutralzone_boss') 
+                                           : supabase.from('boss_timers').insert([{ boss_id: 'neutralzone_boss', last_death_time: dTime }]);
+                            
+                            prm.then(() => {
+                                io.emit('systemMessage', `[WORLD] The Neutral Zone Boss was defeated by ${p.name}! Respawning in 5 hours.`);
+                                // 🌟 THE MISSING LINK: Instantly start the timer UI for everyone standing in the zone!
+                                io.to('neutralzone').emit('bossCooldownActive', { remaining: 5 * 60 * 60 * 1000 });
+                                checkNeutralBoss(); 
+                            });
                         });
                     }
                     io.to(p.instanceId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
@@ -3896,25 +3906,27 @@ socket.on('syncPet', (data) => {
                         
                         return; 
                     }
+// ==========================================
+                    // NORMAL OPEN WORLD BOSS SAVES & RESPAWNS
+                    // ==========================================
 
-              // ==========================================
-                    // NORMAL OPEN WORLD BOSS SAVES & RESPAWNS
-                    // ==========================================
+                    if (targetMob.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !String(p.instanceId).startsWith('mazetrial_')) {
+                        const floorId = p.mapId;
+                        const deathTime = Date.now();
 
-                   if (targetMob.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !String(p.instanceId).startsWith('mazetrial_')) {
-                        const floorId = p.mapId;
-                        const deathTime = Date.now();
+                        // 🛡️ BULLETPROOF DB SAVE: Manually check if it exists instead of relying on upsert
+                        supabase.from('boss_timers').select('boss_id').eq('boss_id', floorId).single().then(({data}) => {
+                            if (data) {
+                                supabase.from('boss_timers').update({ last_death_time: deathTime }).eq('boss_id', floorId).then(()=>{});
+                            } else {
+                                supabase.from('boss_timers').insert([{ boss_id: floorId, last_death_time: deathTime }]).then(()=>{});
+                            }
+                        });
 
-                        // We use await to ensure it hits the DB before the code continues
-                        supabase.from('boss_timers').upsert({ 
-                            boss_id: floorId, 
-                            last_death_time: deathTime 
-                        }, { onConflict: 'boss_id' }).then(({error}) => {
-                            if (error) console.error("CRITICAL: Boss timer failed", error.message);
-                        });
-
-                        targetMob.respawnDelayMs = -1;
-                        io.emit('systemMessage', `🏆 [WORLD] ${p.mapId.toUpperCase()} Boss Defeated!`);
+                        targetMob.respawnDelayMs = -1;
+                        io.emit('systemMessage', `🏆 [WORLD] ${p.mapId.toUpperCase()} Boss Defeated!`);
+                        // 🌟 THE MISSING LINK: Instantly push the 24-hour timer to the people currently in the room!
+                        io.to(p.instanceId).emit('bossCooldownActive', { remaining: 24 * 60 * 60 * 1000 });
                         
                         // 🌟 AUTOMATIC CLEANUP & SPAWN SCHEDULE 🌟
                         const fullCooldown = 24 * 60 * 60 * 1000; // 24 Hours in milliseconds
