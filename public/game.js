@@ -6004,20 +6004,31 @@ window.openDungeon2UI = function() {
     }
 
     if (game.player.baseStats) {
-        document.getElementById('d2-entries-text').innerText = `Weekly Entries: ${game.player.baseStats.dungeonEntries || 7}/7`;
+        // 🛡️ THE FIX: Look at dungeon2Entries instead of D1's variable!
+        let d2Tickets = game.player.baseStats.dungeon2Entries !== undefined ? game.player.baseStats.dungeon2Entries : 7;
+        document.getElementById('d2-entries-text').innerText = `Weekly Entries: ${d2Tickets}/7`;
     }
 };
 
 window.startDungeon2 = function(difficulty) {
+    // 🛡️ THE FIX: Extreme Mode now requires Level 50!
     if (difficulty === 'Extreme' && game.player.level < 50 && !window.isAdmin(game.player.name)) {
         if (dom.log) dom.log.innerText = "❌ You must be Level 50 to enter Extreme difficulty.";
         return;
     }
 
-    let currentEntries = game.player.baseStats?.dungeonEntries !== undefined ? game.player.baseStats.dungeonEntries : 7;
+    // 🛡️ THE FIX: Check dungeon2Entries instead of D1 entries!
+    let currentEntries = game.player.baseStats?.dungeon2Entries !== undefined ? game.player.baseStats.dungeon2Entries : 7;
     if (currentEntries <= 0 && !window.isAdmin(game.player.name)) {
-        if (dom.log) dom.log.innerText = "❌ You have no Dungeon entries left this week.";
+        if (dom.log) dom.log.innerText = "❌ You have no Ancient Cave entries left this week.";
         return; 
+    }
+
+    // 🛡️ OPTIMISTIC UI: Deduct the ticket locally so the UI updates instantly!
+    if (!window.isAdmin(game.player.name)) {
+        game.player.baseStats.dungeon2Entries = currentEntries - 1;
+        let entryText = document.getElementById('d2-entries-text');
+        if (entryText) entryText.innerText = `Weekly Entries: ${game.player.baseStats.dungeon2Entries}/7`;
     }
 
     document.getElementById('dungeon2-modal').style.display = 'none';
