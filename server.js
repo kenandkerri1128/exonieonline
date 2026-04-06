@@ -8489,16 +8489,16 @@ function teleportRaidToNext(instId, nextMapId) {
 }
 
 function initiateDungeon2Stage(instId, mapId, difficulty) {
-        let mobLvl = 150, bossLvl = 150;
+        let mobLvl = 250, bossLvl = 250;
         if (difficulty === 'Normal') {
-            mobLvl = (mapId === 'dungeon2c') ? 250 : 150;
-            bossLvl = (mapId === 'dungeon2c') ? 250 : 150;
+            mobLvl = (mapId === 'dungeon2c') ? 450 : 250;
+            bossLvl = (mapId === 'dungeon2c') ? 450 : 250;
         } else if (difficulty === 'Hard') {
-            mobLvl = (mapId === 'dungeon2c') ? 350 : 250;
-            bossLvl = (mapId === 'dungeon2c') ? 350 : 250;
+            mobLvl = (mapId === 'dungeon2c') ? 750 : 450;
+            bossLvl = (mapId === 'dungeon2c') ? 750 : 450;
         } else if (difficulty === 'Extreme') {
-            mobLvl = (mapId === 'dungeon2c') ? 700 : 400;
-            bossLvl = (mapId === 'dungeon2c') ? 700 : 400;
+            mobLvl = (mapId === 'dungeon2c') ? 1000 : 750;
+            bossLvl = (mapId === 'dungeon2c') ? 1000 : 750;
         }
 
         let bossKey = 'floor_boss_wraith';
