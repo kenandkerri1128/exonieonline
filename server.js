@@ -5290,7 +5290,7 @@ socket.on('requestConfirmTrade', () => {
             .update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y })
             .eq('character_name', currentUser)
             .then(() => {});
-     // 🛡️ VISUAL MAP TIMER: Send cooldown to the client
+     // 🛡️ VISUAL MAP TIMER & OLD ZIP FALLBACK
         let queryBossId = p.mapId === 'neutralzone' ? 'neutralzone_boss' : p.mapId;
         supabase.from('boss_timers').select('last_death_time').eq('boss_id', queryBossId).single().then(({data: timer}) => {
             if (timer) {
@@ -5302,7 +5302,16 @@ socket.on('requestConfirmTrade', () => {
                 }
                 
                 // 🛡️ MAZE TRIAL FIX: Ignore world timers if in a private Maze Trial
-                if (remaining > 0 && !p.isMazeTrial) socket.emit('bossCooldownActive', { remaining });
+                if (remaining > 0 && !p.isMazeTrial) {
+                    // Send the UI timer to new clients
+                    socket.emit('bossCooldownActive', { remaining });
+                    
+                    // Send a chat message fallback for old ZIP clients so they know what's happening
+                    let remMins = Math.ceil(remaining / 60000);
+                    let remHours = (remMins / 60).toFixed(1);
+                    let timeText = remMins > 120 ? `${remHours} hours` : `${remMins} minutes`;
+                    socket.emit('systemMessage', `⏳ <span style="color:#aaa;">The boss of this area is dead. It will return in ${timeText}.</span>`);
+                }
             } else if (p.mapId === 'neutralzone') {
                 // 🌟 THE FIX: If there's no timer in the DB, AND the boss isn't alive in RAM, spawn it!
                 let boss = worlds['neutralzone']?.monsters['neutral_boss_1'];
