@@ -1704,61 +1704,9 @@ window.preloadMapAssets = function(mapData, callback) {
     if (loaderFill) loaderFill.style.width = '10%';
 
     const mapPath = mapData?.image ? String(mapData.image) : 'town_map.png';
-    const renderBase = "https://exonieonline.onrender.com/";
 
     // ==========================================
-    // 🌐 WEB BROWSER MODE (Always Render / 5s Cap)
-    // ==========================================
-    if (window.currentPlatform === 'web') {
-        const mapImg = new Image();
-        let isDone = false;
-        
-        let fallback = setTimeout(() => {
-            if (!isDone) {
-                isDone = true;
-                if (loaderFill) loaderFill.style.width = '100%';
-                console.warn("Web load hit 5-second cap. Forcing entry!");
-                callback();
-                startBackgroundAudioWeb(); 
-            }
-        }, 5000);
-
-        mapImg.onload = mapImg.onerror = () => {
-            if (!isDone) {
-                isDone = true;
-                clearTimeout(fallback);
-                if (loaderFill) loaderFill.style.width = '100%';
-                callback();
-                startBackgroundAudioWeb();
-            }
-        };
-        mapImg.src = renderBase + mapPath;
-
-        function startBackgroundAudioWeb() {
-            let bgmTrack = window.routeMapMusic(mapData?.id || 'town');
-            let audioAssets = [
-                'music/slash.mp3', 'music/lightning.mp3', 'music/splash.mp3', 
-                'music/bump.mp3', `music/${bgmTrack}.mp3`
-            ];
-            
-            if (game.player.baseStats?.playerClass) {
-                let hairPrefix = window.charData?.hairStyle === 'none' ? 'none' : `hair${window.charData?.hairStyle || '1'}`;
-                let formattedClass = String(game.player.baseStats.playerClass).replace(/\s+/g, '').toLowerCase();
-                audioAssets.push(`skills/${hairPrefix}_${formattedClass}.mp3`);
-            }
-            
-            audioAssets.forEach(src => {
-                const audio = new Audio();
-                audio.preload = "auto";
-                audio.src = renderBase + src;
-                audio.load(); 
-            });
-        }
-        return; 
-    }
-
-    // ==========================================
-    // 🖥️📱 NATIVE HYBRID MODE (Local SSD + Render Fallback)
+    // 🖥️📱 100% FULLY NATIVE MODE (0-Second Loads)
     // ==========================================
     try {
         let assetsToLoad = [
@@ -1813,29 +1761,16 @@ window.preloadMapAssets = function(mapData, callback) {
                 if (originalSrc.endsWith('.mp3')) {
                     const audio = new Audio();
                     audio.oncanplaythrough = checkDone;
-                    audio.onerror = () => {
-                        // 🛡️ DISCREPANCY: If local missing, try Render!
-                        if (!audio.src.includes('onrender.com')) {
-                            audio.src = renderBase + originalSrc;
-                            audio.load();
-                        } else {
-                            checkDone(); // Final fallback to avoid hang
-                        }
-                    };
-                    audio.src = originalSrc; // Try local first
+                    // 🛡️ FULLY NATIVE FIX: If a sound is missing locally, skip it instantly.
+                    audio.onerror = checkDone; 
+                    audio.src = originalSrc; 
                     audio.load();
                 } else {
                     const img = new Image();
                     img.onload = checkDone;
-                    img.onerror = () => {
-                        // 🛡️ DISCREPANCY: If local missing, try Render!
-                        if (!img.src.includes('onrender.com')) {
-                            img.src = renderBase + originalSrc;
-                        } else {
-                            checkDone(); // Final fallback
-                        }
-                    };
-                    img.src = originalSrc; // Try local first
+                    // 🛡️ FULLY NATIVE FIX: If an image is missing locally, skip it instantly.
+                    img.onerror = checkDone; 
+                    img.src = originalSrc; 
                 }
             });
         }
