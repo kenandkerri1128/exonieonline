@@ -8563,7 +8563,7 @@ function initiateDungeon2Stage(instId, mapId, difficulty) {
                     teleportRaidToNext(instId, 'town');
                 }
             }, 20 * 60 * 1000);
-       }, 2000); // Give players 2 seconds to load before spawning
+       }
     }
 
 const PORT = process.env.PORT || 3000;
