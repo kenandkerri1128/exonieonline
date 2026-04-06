@@ -6040,22 +6040,9 @@ window.startDungeon2 = function(difficulty) {
 };
 window.onload = () => {
     window.loadLootFilter();
-    window.initAllMobileWindows();
-
-    // Force Auto-Login
-    let savedU = localStorage.getItem('exonie_user');
-    let savedP = localStorage.getItem('exonie_pass');
-    if (savedU && savedP) {
-        let uInput = document.getElementById('login-user');
-        let pInput = document.getElementById('login-pass');
-        if(uInput && pInput) {
-            uInput.value = savedU;
-            pInput.value = savedP;
-            if (typeof window.attemptLogin === 'function') window.attemptLogin();
-        }
-    }
-    
-   // Reveal Unstuck Button (Hidden on Mobile to save space)
+    window.initAllMobileWindows();
+    
+   // Reveal Unstuck Button (Hidden on Mobile to save space)
     setTimeout(() => {
         let unstuckBtn = document.getElementById('unstuck-btn');
         if (unstuckBtn) {
