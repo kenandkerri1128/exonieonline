@@ -3238,12 +3238,13 @@ const chatInputDom = document.getElementById('chat-input'); const chatContainerD
 chatInputDom.addEventListener('blur', () => { isChatting = false; chatContainerDom.style.display = 'none'; });
 
 window.addEventListener('keydown', (e) => {
-    // 🛡️ THE FIX: If the player is typing in a box, let them type!
-    if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
-        return; 
-    }
-    if (e.key === 'Enter') { 
-        if (dom.game.classList.contains('active')) { 
+    // 🛡️ THE FIX: If the player is typing in a box, let them type!
+    // 💬 CHAT FIX: Do NOT block the 'Enter' key, otherwise chat breaks!
+    if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+        if (e.key !== 'Enter') return; 
+    }
+    if (e.key === 'Enter') { 
+        if (dom.game.classList.contains('active')) {
             if (isChatting) { 
                 let msg = chatInputDom.value.trim(); 
                 if (msg !== '' && socket) { 
