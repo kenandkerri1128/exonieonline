@@ -1575,7 +1575,8 @@ if ((m.category === "mini_boss" || m.category === "floor_boss") && m.alive) {
 
                 const players = playersInInstance(instId);
                 players.forEach(p => {
-                    if (p.isGhost || p.isHiddenAdmin || p.mapId === 'town' || p.untargetableUntil > now) return;
+                    // 🛡️ THE FIX: Add 'p.isWaitingForTeam' to make them immune to AoE while loading
+                    if (p.isGhost || p.isHiddenAdmin || p.mapId === 'town' || p.untargetableUntil > now || p.isWaitingForTeam) return;
 
                     const pDist = Math.hypot((p.x + 24) - mcx, (p.y + 48) - mcy);
                     if (pDist <= aoeRadius) {
@@ -1687,7 +1688,8 @@ if ((m.category === "mini_boss" || m.category === "floor_boss") && m.alive) {
                     // Check if any players got run over by the charge!
                     const players = playersInInstance(instId);
                     players.forEach(p => {
-                        if (p.isGhost || p.isHiddenAdmin || p.mapId === 'town' || p.untargetableUntil > now) return;
+                        // 🛡️ THE FIX: Add 'p.isWaitingForTeam' to make them immune to being trampled while loading
+                        if (p.isGhost || p.isHiddenAdmin || p.mapId === 'town' || p.untargetableUntil > now || p.isWaitingForTeam) return;
                         const px = p.x + 24; const py = p.y + 48;
                         
                         if (px >= minX && px <= maxX && py >= minY && py <= maxY) {
