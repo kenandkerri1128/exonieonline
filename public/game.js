@@ -3302,7 +3302,11 @@ window.addPersistentChat = function(htmlString) {
 const chatInputDom = document.getElementById('chat-input'); const chatContainerDom = document.getElementById('chat-input-container');
 chatInputDom.addEventListener('blur', () => { isChatting = false; chatContainerDom.style.display = 'none'; });
 
-window.addEventListener('keydown', (e) => { 
+window.addEventListener('keydown', (e) => {
+    // 🛡️ THE FIX: If the player is typing in a box, let them type!
+    if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+        return; 
+    }
     if (e.key === 'Enter') { 
         if (dom.game.classList.contains('active')) { 
             if (isChatting) { 
@@ -3921,10 +3925,17 @@ socket.on('mailList', (mails) => {
         if (!user.skin_color) socket.emit('needsCharacterCreation', user.character_name);
         else socket.emit('characterSelect', user);
     });
-    socket.on('authError', (msg) => {
-    alert(msg);
+   socket.on('authError', (msg) => {
+    // Show the error message
+    if (dom.log) dom.log.innerText = msg;
+    else alert(msg);
+    
+    // 🛡️ THE FIX: Force the inputs to wake back up!
+    document.getElementById('login-user').disabled = false;
+    document.getElementById('login-pass').disabled = false;
+    
+    // Optional: Hide loading screens just in case it got stuck
     document.getElementById('loading-screen').style.display = 'none';
-    document.getElementById('auth-screen').classList.add('active');
 });
 
 socket.on('forcedLogout', (msg) => {
@@ -6116,8 +6127,11 @@ window.logout = function() {
     location.reload();
 };
 
-// Dedicated 'M' Key Listener for Mailbox
 window.addEventListener('keydown', (e) => {
+    // 🛡️ THE FIX: If the player is typing in a box, let them type!
+    if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+        return; 
+    }
     if (typeof isChatting !== 'undefined' && isChatting) return;
     if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
     
