@@ -6315,7 +6315,8 @@ if (socket) {
 // 💳 PLATFORM IAP ROUTER (STEAM / GOOGLE PLAY)
 // ==========================================
 window.currentPlatform = 'web';
-if (typeof process !== 'undefined' && process.versions && process.versions.electron) {
+// 🛡️ THE FIX: Safer Electron detection that bypasses Context Isolation limits
+if (navigator.userAgent.toLowerCase().includes(' electron/') || (typeof process !== 'undefined' && process.versions && process.versions.electron)) {
     window.currentPlatform = 'steam'; 
 } else if (window.Capacitor || (window.cordova && window.cordova.plugins)) {
     window.currentPlatform = 'android'; 
