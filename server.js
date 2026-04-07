@@ -280,7 +280,6 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         if (itemId === 'gem_pack_15') numericItemId = 15;
         if (itemId === 'gem_pack_50') numericItemId = 50;
 
-        // 🛡️ THE FIX: Build the URLSearchParams object
         const params = new URLSearchParams({
             key: apiKey,
             orderid: numericOrderId,
@@ -295,13 +294,19 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
             'description[0]': itemDescription
         });
 
-        // 🛡️ THE CRITICAL FIX: Pass the `params` object DIRECTLY to Axios.
-        // DO NOT use .toString(). Axios will auto-detect the object, calculate 
-        // the exact Content-Length, and disable chunked encoding to bypass Steam's firewall!
-        // We also append ?key= to the URL so Steam's router authenticates it instantly.
+        // 🛡️ THE FIX: Convert to string and manually supply Content-Length.
+        // Steam's firewall strictly rejects 'Transfer-Encoding: chunked', 
+        // which Axios sometimes defaults to if Content-Length isn't explicitly defined.
+        const formData = params.toString();
         const response = await axios.post(
-            `https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/?key=${apiKey}`, 
-            params
+            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/', 
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Length': Buffer.byteLength(formData)
+                }
+            }
         );
 
         if (response.data && response.data.response && response.data.response.result === 'OK') {
@@ -347,10 +352,17 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
             appid: appId
         });
 
-        // 🛡️ THE CRITICAL FIX: Pass `params` directly!
+        // 🛡️ THE FIX: Convert to string and explicitly declare Content-Length
+        const formData = params.toString();
         const response = await axios.post(
-            `https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/?key=${apiKey}`, 
-            params
+            'https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/', 
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Length': Buffer.byteLength(formData)
+                }
+            }
         );
 
         if (response.data && response.data.response && response.data.response.result === 'OK') {
