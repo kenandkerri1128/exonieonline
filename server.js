@@ -270,9 +270,14 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
 app.post('/api/shop/init', express.json(), async (req, res) => {
     const { steamId, itemId, amountCents, itemDescription } = req.body; 
 
+    // 🛡️ Fast-fail if the game client didn't send a valid Steam ID
+    if (!steamId) {
+        return res.json({ success: false, error: "Missing Steam ID from game client." });
+    }
+
     try {
-        const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
-        const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
+        const apiKey = process.env.STEAM_WEB_API_KEY || '4F9B94B4338DF119CB6EE7AEBD89F0C0';
+        const appId = process.env.STEAM_APP_ID || '4579730';
 
         const numericOrderId = Math.floor(Math.random() * 1000000000000).toString(); 
         
@@ -291,8 +296,9 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         params.append('steamid', String(steamId)); 
         params.append('appid', appId);
         params.append('itemcount', '1');
-        params.append('language', 'en'); // 🛡️ Lowercase 'en' is required
+        params.append('language', 'EN'); 
         params.append('currency', 'USD');
+        params.append('usersession', 'client'); // 🛡️ CRITICAL FIX: Steam strictly requires this parameter!
         params.append('itemid[0]', String(numericItemId));
         params.append('qty[0]', '1');
         params.append('amount[0]', String(finalAmount));
@@ -314,10 +320,14 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
             res.json({ success: false, error: response.data?.response?.error?.errordesc || "Rejected by Steam." });
         }
     } catch (error) {
-        // 🛡️ THE FIX: This now extracts the EXACT reason Steam returned a 400 error so you see it in-game
+        // 🛡️ THE FIX: Deep extraction so the game shows you the exact Steam error instead of just "400"
         let exactError = error.message;
-        if (error.response?.data?.response?.error) {
-            exactError = error.response.data.response.error.errordesc;
+        if (error.response && error.response.data) {
+            if (error.response.data.response?.error?.errordesc) {
+                exactError = error.response.data.response.error.errordesc;
+            } else {
+                exactError = JSON.stringify(error.response.data);
+            }
         }
         res.json({ success: false, error: exactError });
     }
