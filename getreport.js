@@ -8,7 +8,7 @@ async function fetchSteamReport() {
 
         console.log('⏳ Fetching Steam Microtransaction Report...');
 
-        // Convert to strict RFC 3339 format without milliseconds
+        // 🛡️ THE FIX: Steam strictly requires RFC 3339 format without milliseconds
         const date24hAgo = new Date(Date.now() - 86400000);
         const rfcTime = date24hAgo.toISOString().split('.')[0] + 'Z'; 
 
@@ -16,7 +16,7 @@ async function fetchSteamReport() {
         params.append('key', apiKey);
         params.append('appid', appId);
         params.append('time', rfcTime);
-        params.append('type', 'all');
+        params.append('type', 'GAMESALES'); // 🛡️ THE FIX: Must be exactly 'GAMESALES'
 
         const formData = params.toString();
         const response = await axios.get(`https://partner.steam-api.com/ISteamMicroTxn/GetReport/v2/?${formData}`);
@@ -30,6 +30,7 @@ async function fetchSteamReport() {
         }
     } catch (error) {
         console.error('\n❌ Failed to connect:', error.message);
+        if (error.response) console.error('Steam Response:', error.response.data);
     }
 }
 
