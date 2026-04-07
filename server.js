@@ -280,15 +280,22 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         if (itemId === 'gem_pack_15') numericItemId = 15;
         if (itemId === 'gem_pack_50') numericItemId = 50;
 
-       const params = new URLSearchParams({
-    key: apiKey,
-    orderid: numericOrderId,
+       const isWebPurchase = false; // true only if you are sending the player to a browser/web page
+const userIp =
+    req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+    req.socket.remoteAddress ||
+    '';
+
+const params = new URLSearchParams({
+    key: String(apiKey),
+    orderid: String(numericOrderId),
     steamid: String(steamId),
     appid: String(appId),
     itemcount: '1',
     language: 'en',
     currency: 'USD',
-    usersession: 'client',
+    usersession: isWebPurchase ? 'web' : 'client',
+    ...(isWebPurchase ? { ipaddress: userIp } : {}),
     'itemid[0]': String(numericItemId),
     'qty[0]': '1',
     'amount[0]': String(amountCents),
@@ -300,7 +307,7 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         // which Axios sometimes defaults to if Content-Length isn't explicitly defined.
         const formData = params.toString();
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/', 
+            'https://partner.steam-api.com/ISteamMicroTxnSandbox/InitTxn/v3/', 
             formData,
             {
                 headers: {
@@ -356,7 +363,7 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
         // 🛡️ THE FIX: Convert to string and explicitly declare Content-Length
         const formData = params.toString();
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/', 
+            'https://partner.steam-api.com/ISteamMicroTxnSandbox/FinalizeTxn/v2/', 
             formData,
             {
                 headers: {
