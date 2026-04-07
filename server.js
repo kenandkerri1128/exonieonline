@@ -280,19 +280,20 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         if (itemId === 'gem_pack_15') numericItemId = 15;
         if (itemId === 'gem_pack_50') numericItemId = 50;
 
-        const params = new URLSearchParams({
-            key: apiKey,
-            orderid: numericOrderId,
-            steamid: steamId,
-            appid: appId,
-            itemcount: 1,
-            language: 'en',
-            currency: 'USD',
-            'itemid[0]': numericItemId,
-            'qty[0]': 1,
-            'amount[0]': amountCents,
-            'description[0]': itemDescription
-        });
+       const params = new URLSearchParams({
+    key: apiKey,
+    orderid: numericOrderId,
+    steamid: String(steamId),
+    appid: String(appId),
+    itemcount: '1',
+    language: 'en',
+    currency: 'USD',
+    usersession: 'client',
+    'itemid[0]': String(numericItemId),
+    'qty[0]': '1',
+    'amount[0]': String(amountCents),
+    'description[0]': String(itemDescription || 'Exo Gems')
+});
 
         // 🛡️ THE FIX: Convert to string and manually supply Content-Length.
         // Steam's firewall strictly rejects 'Transfer-Encoding: chunked', 
