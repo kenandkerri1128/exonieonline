@@ -270,7 +270,10 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
 app.post('/api/shop/init', express.json(), async (req, res) => {
     const { steamId, itemId, amountCents, itemDescription } = req.body; 
 
-    if (!steamId) return res.json({ success: false, error: "Missing Steam ID." });
+    // 🛡️ THE FIX: Steam strictly requires a 17-digit SteamID64. If your game client sends an internal ID, it throws the HTML error.
+    if (!steamId || String(steamId).length !== 17) {
+        return res.json({ success: false, error: "Invalid Steam ID. Must be a 17-digit SteamID64." });
+    }
 
     try {
         const apiKey = process.env.STEAM_WEB_API_KEY || '4F9B94B4338DF119CB6EE7AEBD89F0C0';
@@ -288,12 +291,12 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         if (itemId === 'gem_pack_50') numericItemId = 50;
 
         const params = new URLSearchParams();
-        params.append('key', apiKey); // 🛡️ MOVED KEY BACK TO BODY
+        params.append('key', apiKey); // 🛡️ KEY ONLY IN BODY
         params.append('orderid', numericOrderId);
         params.append('steamid', String(steamId)); 
         params.append('appid', appId);
         params.append('itemcount', '1');
-        params.append('language', 'EN'); 
+        params.append('language', 'en'); 
         params.append('currency', 'USD');
         params.append('usersession', 'client'); 
         params.append('itemid[0]', String(numericItemId));
@@ -303,7 +306,7 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
 
         const formData = params.toString();
         
-        // 🛡️ THE FIX: Removed ?key= from the URL to stop the HTML routing error
+        // 🛡️ THE FIX: Removed duplicate ?key= from the URL.
         const response = await axios.post(
             'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/', 
             formData,
@@ -320,11 +323,8 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         }
     } catch (error) {
         let exactError = error.message;
-        if (error.response?.data?.response?.error?.errordesc) {
-            exactError = error.response.data.response.error.errordesc;
-        } else if (error.response?.data) {
-            exactError = JSON.stringify(error.response.data);
-        }
+        if (error.response?.data?.response?.error?.errordesc) exactError = error.response.data.response.error.errordesc;
+        else if (error.response?.data) exactError = JSON.stringify(error.response.data);
         res.json({ success: false, error: exactError });
     }
 });
@@ -336,13 +336,13 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
         const appId = process.env.STEAM_APP_ID || '4579730';
 
         const params = new URLSearchParams();
-        params.append('key', apiKey); // 🛡️ MOVED KEY BACK TO BODY
+        params.append('key', apiKey); // 🛡️ KEY ONLY IN BODY
         params.append('orderid', orderId);
         params.append('appid', appId);
 
         const formData = params.toString();
         
-        // 🛡️ THE FIX: Removed ?key= from the URL to stop the HTML routing error
+        // 🛡️ THE FIX: Removed duplicate ?key= from the URL.
         const response = await axios.post(
             'https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/', 
             formData,
@@ -377,11 +377,8 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
         }
     } catch (error) {
         let exactError = error.message;
-        if (error.response?.data?.response?.error?.errordesc) {
-            exactError = error.response.data.response.error.errordesc;
-        } else if (error.response?.data) {
-            exactError = JSON.stringify(error.response.data);
-        }
+        if (error.response?.data?.response?.error?.errordesc) exactError = error.response.data.response.error.errordesc;
+        else if (error.response?.data) exactError = JSON.stringify(error.response.data);
         res.json({ success: false, error: exactError });
     }
 });
