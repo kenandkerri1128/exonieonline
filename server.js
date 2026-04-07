@@ -289,7 +289,7 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
 
         // 🛡️ THE FIX: Force Axios to format the request exactly how Steam demands it
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/', 
+            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3', 
             params.toString(),
             { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
@@ -333,7 +333,7 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
 
         // 🛡️ THE FIX: Force Axios to format the request exactly how Steam demands it
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/', 
+            'https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2', 
             params.toString(),
             { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
