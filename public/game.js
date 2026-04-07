@@ -6323,22 +6323,52 @@ if (navigator.userAgent.toLowerCase().includes(' electron/') || (typeof process 
     window.currentPlatform = 'android'; 
 }
 
+window.verifySteamPurchase = async function(orderId) {
+    let modal = document.getElementById('rm-shop-modal');
+    if (modal) modal.innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Verifying Purchase...</h2><p style="color:#ccc; font-size:12px;">Checking with Steam servers...</p>';
+    
+    try {
+        const res = await fetch(serverUrl + '/api/shop/finalize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                orderId: orderId,
+                username: game.player.id
+            })
+        });
+        const data = await res.json();
+        
+        if (!data.success) {
+            alert("Transaction failed or not yet authorized: " + (data.error || data.message));
+            window.openRealMoneyShop();
+        } else {
+            // Success! The server will socket 'gemPurchaseSuccess' to update your balance.
+            if (modal) modal.innerHTML = `
+                <h2 style="color:#4CAF50; margin-top: 20px;">Purchase Successful!</h2>
+                <p style="color:#fff;">Your Exo Gems have been added.</p>
+                <button class="btn" style="background:#555; width:100%; margin-top:15px; padding:10px;" onclick="window.openRealMoneyShop()">Back to Shop</button>
+            `;
+        }
+    } catch (err) {
+        alert("Error verifying purchase: " + err.message);
+        window.openRealMoneyShop();
+    }
+};
+
 window.purchaseExoGems = async function(packageId, priceCents, description) {
     let modal = document.getElementById('rm-shop-modal');
     if (modal) modal.innerHTML = '<h2 style="color:#E040FB; margin-top: 20px;">Connecting to Store...</h2>';
 
-    // 🛡️ THE ANTI-FREEZE FIX: Gracefully closes the window if an error happens
     const abortPurchase = (msg) => {
         alert(msg);
         if (modal) modal.style.display = 'none'; 
-        if (socket) socket.emit('requestShopAccess'); // Refreshes the UI safely
+        if (socket) socket.emit('requestShopAccess'); 
     };
 
     if (window.currentPlatform === 'steam') {
         try {
             let steamId = null;
             
-            // 1. Fetch the safely stringified ID from main.js
             if (window.electronAPI && window.electronAPI.getSteamId) {
                 let raw = await window.electronAPI.getSteamId();
                 if (raw) {
@@ -6350,10 +6380,9 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
             }
 
             if (!steamId) {
-                return abortPurchase("Steam Error: Could not extract a valid 17-digit Steam ID. Please ensure Steam is running.");
+                return abortPurchase("Steam Error: Could not extract a valid 17-digit Steam ID.");
             }
 
-            // 2. Call the Node.js InitTxn Route
             const response = await fetch(serverUrl + '/api/shop/init', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -6368,10 +6397,16 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
             const data = await response.json();
             
             if (data.success) {
-                // 3. Open the Steam Overlay
                 if (window.electronAPI && window.electronAPI.initiateSteamPurchase) {
                     window.electronAPI.initiateSteamPurchase(data.orderId);
-                    if (modal) modal.innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Please authorize in the Steam Overlay!</h2>';
+                    
+                    // 🛡️ THE BULLETPROOF FALLBACK: Added a manual "Verify" button!
+                    if (modal) modal.innerHTML = `
+                        <h2 style="color:#4CAF50; margin-top: 20px;">Please authorize in the Steam Overlay!</h2>
+                        <p style="color:#ccc; font-size:12px; margin-bottom:15px;">Waiting for Steam...</p>
+                        <button class="btn" style="background:#2196F3; width:100%; margin-bottom:10px; padding:10px; font-weight:bold;" onclick="window.verifySteamPurchase('${data.orderId}')">I Authorized the Purchase</button>
+                        <button class="btn" style="background:#f44336; width:100%; padding:10px;" onclick="window.openRealMoneyShop()">Cancel</button>
+                    `;
                 } else {
                     abortPurchase("Overlay Error: initiateSteamPurchase missing from preload.js.");
                 }
@@ -6389,9 +6424,7 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
                 const store = window.CdvPurchase.store;
                 const product = store.get(packageId);
                 
-                if (!product) {
-                    return abortPurchase("Error: The app could not find this product ID: " + packageId);
-                }
+                if (!product) return abortPurchase("Error: The app could not find this product ID: " + packageId);
 
                 if (product.canPurchase) {
                     const offer = product.getOffer ? product.getOffer() : null;
