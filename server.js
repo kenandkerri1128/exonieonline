@@ -310,9 +310,14 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
             let errorText = response.data.response?.error?.errordesc || "Transaction rejected by Steam.";
             res.json({ success: false, error: errorText });
         }
-    } catch (error) {
-        console.error("Server error during InitTxn:", error);
-        res.json({ success: false, error: "Internal server error connecting to Steam." });
+ } catch (error) {
+        console.error("Server error during InitTxn:", error.response ? error.response.data : error.message);
+        // 🛡️ THE FIX: Axios throws on 400 Bad Request. We need to extract Steam's actual complaint!
+        let errorText = "Internal server error connecting to Steam.";
+        if (error.response?.data?.response?.error?.errordesc) {
+            errorText = error.response.data.response.error.errordesc;
+        }
+        res.json({ success: false, error: errorText });
     }
 });
 
@@ -367,9 +372,13 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
             let errorText = response.data.response?.error?.errordesc || "Finalization rejected by Steam.";
             res.json({ success: false, error: errorText });
         }
-    } catch (error) {
-        console.error("Server error during FinalizeTxn:", error);
-        res.json({ success: false, error: "Internal server error connecting to Steam." });
+  } catch (error) {
+        console.error("Server error during FinalizeTxn:", error.response ? error.response.data : error.message);
+        let errorText = "Internal server error connecting to Steam.";
+        if (error.response?.data?.response?.error?.errordesc) {
+            errorText = error.response.data.response.error.errordesc;
+        }
+        res.json({ success: false, error: errorText });
     }
 });
 
