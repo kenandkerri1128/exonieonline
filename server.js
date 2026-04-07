@@ -270,9 +270,9 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
 app.post('/api/shop/init', express.json(), async (req, res) => {
     const { steamId, itemId, amountCents, itemDescription } = req.body; 
 
-    // 🛡️ THE FIX: Steam strictly requires a 17-digit SteamID64. If your game client sends an internal ID, it throws the HTML error.
-    if (!steamId || String(steamId).length !== 17) {
-        return res.json({ success: false, error: "Invalid Steam ID. Must be a 17-digit SteamID64." });
+    // 🛡️ THE FIX: Server catches bad IDs instantly before Steam's firewall throws HTML errors
+    if (!steamId || String(steamId).length < 17) {
+        return res.json({ success: false, error: "Invalid Steam ID. Must be a 17-digit string." });
     }
 
     try {
@@ -291,7 +291,7 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         if (itemId === 'gem_pack_50') numericItemId = 50;
 
         const params = new URLSearchParams();
-        params.append('key', apiKey); // 🛡️ KEY ONLY IN BODY
+        params.append('key', apiKey);
         params.append('orderid', numericOrderId);
         params.append('steamid', String(steamId)); 
         params.append('appid', appId);
@@ -304,13 +304,11 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         params.append('amount[0]', String(finalAmount));
         params.append('description[0]', itemDescription || 'Exo Gems');
 
-        const formData = params.toString();
-        
-        // 🛡️ THE FIX: Removed duplicate ?key= from the URL.
+        // 🛡️ THE FIX: Let Axios natively serialize the URLSearchParams. 
+        // This guarantees perfect application/x-www-form-urlencoded headers and stops WAF blocks.
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/', 
-            formData,
-            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3', 
+            params
         );
 
         if (response.data?.response?.result === 'OK') {
@@ -323,8 +321,11 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         }
     } catch (error) {
         let exactError = error.message;
-        if (error.response?.data?.response?.error?.errordesc) exactError = error.response.data.response.error.errordesc;
-        else if (error.response?.data) exactError = JSON.stringify(error.response.data);
+        if (error.response?.data?.response?.error?.errordesc) {
+            exactError = error.response.data.response.error.errordesc;
+        } else if (error.response?.data) {
+            exactError = JSON.stringify(error.response.data);
+        }
         res.json({ success: false, error: exactError });
     }
 });
