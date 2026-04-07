@@ -298,7 +298,7 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         // 🛡️ THE CRITICAL FIX: Steam's firewall rejects 'Transfer-Encoding: chunked'.
         // We force Content-Length and use application/x-www-form-urlencoded.
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/', 
+            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3', 
             formData,
             {
                 headers: {
@@ -345,7 +345,7 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
         const formData = params.toString();
 
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/', 
+            'https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2', 
             formData,
             {
                 headers: {
