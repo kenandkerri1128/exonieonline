@@ -271,43 +271,34 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
     const { steamId, itemId, amountCents, itemDescription } = req.body; 
 
     try {
-        const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
-        const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
-
+        const apiKey = process.env.STEAM_WEB_API_KEY || '4F9B94B4338DF119CB6EE7AEBD89F0C0';
+        const appId = process.env.STEAM_APP_ID || '4579730';
         const numericOrderId = Date.now().toString(); 
         
         let numericItemId = 100;
         if (itemId === 'gem_pack_15') numericItemId = 15;
         if (itemId === 'gem_pack_50') numericItemId = 50;
 
-       const isWebPurchase = false; // true only if you are sending the player to a browser/web page
-const userIp =
-    req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
-    req.socket.remoteAddress ||
-    '';
+        const params = new URLSearchParams({
+            key: apiKey,
+            orderid: numericOrderId,
+            steamid: steamId,
+            appid: appId,
+            itemcount: 1,
+            language: 'en',
+            currency: 'USD',
+            'itemid[0]': numericItemId,
+            'qty[0]': 1,
+            'amount[0]': amountCents,
+            'description[0]': itemDescription
+        });
 
-const params = new URLSearchParams({
-    key: String(apiKey),
-    orderid: String(numericOrderId),
-    steamid: String(steamId),
-    appid: String(appId),
-    itemcount: '1',
-    language: 'en',
-    currency: 'USD',
-    usersession: isWebPurchase ? 'web' : 'client',
-    ...(isWebPurchase ? { ipaddress: userIp } : {}),
-    'itemid[0]': String(numericItemId),
-    'qty[0]': '1',
-    'amount[0]': String(amountCents),
-    'description[0]': String(itemDescription || 'Exo Gems')
-});
-
-        // 🛡️ THE FIX: Convert to string and manually supply Content-Length.
-        // Steam's firewall strictly rejects 'Transfer-Encoding: chunked', 
-        // which Axios sometimes defaults to if Content-Length isn't explicitly defined.
         const formData = params.toString();
+
+        // 🛡️ THE CRITICAL FIX: Steam's firewall rejects 'Transfer-Encoding: chunked'.
+        // We force Content-Length and use application/x-www-form-urlencoded.
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxnSandbox/InitTxn/v3/', 
+            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/', 
             formData,
             {
                 headers: {
@@ -317,7 +308,7 @@ const params = new URLSearchParams({
             }
         );
 
-        if (response.data && response.data.response && response.data.response.result === 'OK') {
+        if (response.data?.response?.result === 'OK') {
             await supabase.from('Pending_Orders').insert([{
                 order_id: numericOrderId,
                 steam_id: steamId,
@@ -326,24 +317,15 @@ const params = new URLSearchParams({
                 status: 'PENDING'
             }]);
             
+            console.log(`✅ [Steam] Transaction Initialized: ${numericOrderId}`);
             res.json({ success: true, orderId: numericOrderId });
         } else {
-            console.error("Steam InitTxn Error:", response.data);
-            let errorText = response.data?.response?.error?.errordesc || "Transaction rejected by Steam.";
-            res.json({ success: false, error: errorText });
+            console.error("❌ Steam Init Error:", response.data);
+            res.json({ success: false, error: response.data?.response?.error?.errordesc || "Steam rejected the request." });
         }
     } catch (error) {
-        console.error("Server error during InitTxn:", error.message);
-        let errorText = error.message; 
-        
-        if (error.response && error.response.data) {
-            if (typeof error.response.data === 'string') {
-                errorText = error.response.data.replace(/<[^>]*>?/gm, ''); 
-            } else {
-                errorText = JSON.stringify(error.response.data);
-            }
-        }
-        res.json({ success: false, error: "Steam API Error: " + errorText });
+        console.error("❌ InitTxn Server Error:", error.message);
+        res.json({ success: false, error: "Steam API Communication Failure" });
     }
 });
 
@@ -351,8 +333,8 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
     const { orderId, username } = req.body; 
 
     try {
-        const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
-        const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
+        const apiKey = process.env.STEAM_WEB_API_KEY || '4F9B94B4338DF119CB6EE7AEBD89F0C0';
+        const appId = process.env.STEAM_APP_ID || '4579730';
 
         const params = new URLSearchParams({
             key: apiKey,
@@ -360,10 +342,10 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
             appid: appId
         });
 
-        // 🛡️ THE FIX: Convert to string and explicitly declare Content-Length
         const formData = params.toString();
+
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxnSandbox/FinalizeTxn/v2/', 
+            'https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/', 
             formData,
             {
                 headers: {
@@ -373,19 +355,21 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
             }
         );
 
-        if (response.data && response.data.response && response.data.response.result === 'OK') {
+        if (response.data?.response?.result === 'OK') {
+            // 1. Find the order in our database
             const { data: order } = await supabase.from('Pending_Orders').select('*').eq('order_id', orderId).single();
             
             if (!order || order.status !== 'PENDING') {
                  return res.json({ success: false, error: "Order not found or already processed." });
             }
 
+            // 2. Determine Gem Reward
             let gemsToGive = 0;
             if (order.item_id === 'gem_pack_15') gemsToGive = 15;
             if (order.item_id === 'gem_pack_50') gemsToGive = 50;
 
+            // 3. Grant Gems to Player
             const { data: user } = await supabase.from('Exonians').select('base_stats').eq('character_name', username).single();
-            
             if (user) {
                 let safeStats = user.base_stats || {};
                 safeStats.exoGems = (safeStats.exoGems || 0) + gemsToGive;
@@ -396,29 +380,20 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
                 if (tsid && onlinePlayers[tsid]) {
                     onlinePlayers[tsid].baseStats.exoGems = safeStats.exoGems;
                     io.to(tsid).emit('gemPurchaseSuccess', { newGems: safeStats.exoGems });
-                    io.to(tsid).emit('systemMessage', `💎 Transaction Complete! Received ${gemsToGive} Exo Gems.`);
+                    io.to(tsid).emit('systemMessage', `💎 Steam Purchase Successful! You received ${gemsToGive} Exo Gems.`);
                 }
             }
 
+            // 4. Close the Order
             await supabase.from('Pending_Orders').update({ status: 'COMPLETED' }).eq('order_id', orderId);
-            res.json({ success: true, message: "Exo Gems added to account!" });
+            res.json({ success: true });
         } else {
-            console.error("Steam FinalizeTxn Error:", response.data);
-            let errorText = response.data?.response?.error?.errordesc || "Finalization rejected by Steam.";
-            res.json({ success: false, error: errorText });
+            console.error("❌ Steam Finalize Error:", response.data);
+            res.json({ success: false, error: "Steam could not finalize payment." });
         }
     } catch (error) {
-        console.error("Server error during FinalizeTxn:", error.message);
-        let errorText = error.message; 
-        
-        if (error.response && error.response.data) {
-            if (typeof error.response.data === 'string') {
-                errorText = error.response.data.replace(/<[^>]*>?/gm, ''); 
-            } else {
-                errorText = JSON.stringify(error.response.data);
-            }
-        }
-        res.json({ success: false, error: "Steam API Error: " + errorText });
+        console.error("❌ FinalizeTxn Server Error:", error.message);
+        res.json({ success: false, error: "Server error during finalization." });
     }
 });
 const server = http.createServer(app);
