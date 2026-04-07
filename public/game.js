@@ -1100,10 +1100,25 @@ function gameLoop(ts) {
         if(typeof window.leaveParty === 'function') window.leaveParty();
     }
 
-   let nextX = game.player.x; let nextY = game.player.y; let isMoving = false; const moveSpeed = 5; 
+   // 🛡️ THE DELTA TIME FIX: Normalizes movement so 30Hz, 60Hz, and 120Hz phones move at the EXACT same speed.
+   const now = performance.now();
+   const delta = (now - (window.lastPhysTs || now)) / 16.666; 
+   window.lastPhysTs = now;
+
+   let nextX = game.player.x; 
+   let nextY = game.player.y; 
+   let isMoving = false; 
+   
+   // Apply delta to move speed (Capped at 2.5x to prevent teleporting through walls on extremely laggy phones)
+   const moveSpeed = 5 * Math.min(delta, 2.5); 
+
    let isFrozen = (game.player.frozenUntil && Date.now() < game.player.frozenUntil);
+   
+   // 🛑 SPAWN LOCK: Prevents hyper-fast phones from instantly walking into exit portals before collisions load!
+   let isSpawning = (Date.now() - (window.mapLoadTimestamp || 0) < 600);
+
    // 🛑 PARTY WAIT FIX: Allow movement while waiting on the portal! Only lock when the black loading screen drops.
-   let canInputMove = (!isChatting && !window.isTransitioning && !window.isLoading && !window.isDungeonUIOpen && !isFrozen);
+   let canInputMove = (!isChatting && !window.isTransitioning && !window.isLoading && !window.isDungeonUIOpen && !isFrozen && !isSpawning);
     
     if (game.isGhost) {
         if (!game.party || !Array.isArray(game.party.members)) { canInputMove = false; } 
