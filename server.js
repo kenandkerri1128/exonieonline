@@ -271,8 +271,8 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
     const { steamId, itemId, amountCents, itemDescription } = req.body; 
 
     try {
-        const apiKey = process.env.STEAM_WEB_API_KEY || '4F9B94B4338DF119CB6EE7AEBD89F0C0';
-        const appId = process.env.STEAM_APP_ID || '4579730';
+        const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
+        const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
 
         const numericOrderId = Math.floor(Math.random() * 1000000000000).toString(); 
         
@@ -285,14 +285,13 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         }
         if (itemId === 'gem_pack_50') numericItemId = 50;
 
-        // Force strictly stringified parameters
         const params = new URLSearchParams();
         params.append('key', apiKey);
         params.append('orderid', numericOrderId);
-        params.append('steamid', String(steamId));
+        params.append('steamid', String(steamId)); 
         params.append('appid', appId);
         params.append('itemcount', '1');
-        params.append('language', 'EN');
+        params.append('language', 'en'); // 🛡️ Lowercase 'en' is required
         params.append('currency', 'USD');
         params.append('itemid[0]', String(numericItemId));
         params.append('qty[0]', '1');
@@ -301,9 +300,9 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
 
         const formData = params.toString();
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3', 
+            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/', 
             formData,
-            { headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': Buffer.byteLength(formData) } }
+            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
 
         if (response.data?.response?.result === 'OK') {
@@ -315,7 +314,12 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
             res.json({ success: false, error: response.data?.response?.error?.errordesc || "Rejected by Steam." });
         }
     } catch (error) {
-        res.json({ success: false, error: "Steam API Error: " + error.message });
+        // 🛡️ THE FIX: This now extracts the EXACT reason Steam returned a 400 error so you see it in-game
+        let exactError = error.message;
+        if (error.response?.data?.response?.error) {
+            exactError = error.response.data.response.error.errordesc;
+        }
+        res.json({ success: false, error: exactError });
     }
 });
 
@@ -326,13 +330,16 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
         const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
         const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
 
-        const params = new URLSearchParams({ key: apiKey, orderid: orderId, appid: appId });
-        const formData = params.toString();
+        const params = new URLSearchParams();
+        params.append('key', apiKey);
+        params.append('orderid', orderId);
+        params.append('appid', appId);
 
+        const formData = params.toString();
         const response = await axios.post(
             'https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/', 
             formData,
-            { headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': Buffer.byteLength(formData) } }
+            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
 
         if (response.data?.response?.result === 'OK') {
@@ -362,17 +369,18 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
             res.json({ success: false, error: response.data?.response?.error?.errordesc || "Finalization rejected." });
         }
     } catch (error) {
-        res.json({ success: false, error: "Steam API Error: " + error.message });
+        let exactError = error.message;
+        if (error.response?.data?.response?.error) exactError = error.response.data.response.error.errordesc;
+        res.json({ success: false, error: exactError });
     }
 });
 
 // 📊 STEAM RECONCILIATION (Required for Review)
 app.get('/api/admin/steam-report', async (req, res) => {
     try {
-        const apiKey = process.env.STEAM_WEB_API_KEY || '4F9B94B4338DF119CB6EE7AEBD89F0C0';
-        const appId = process.env.STEAM_APP_ID || '4579730';
+        const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
+        const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
 
-        // Steam requires RFC 3339 format, dropping milliseconds
         const date24hAgo = new Date(Date.now() - 86400000);
         const rfcTime = date24hAgo.toISOString().split('.')[0] + 'Z'; 
 
@@ -380,7 +388,7 @@ app.get('/api/admin/steam-report', async (req, res) => {
         params.append('key', apiKey);
         params.append('appid', appId);
         params.append('time', rfcTime);
-        params.append('type', 'all');
+        params.append('type', 'GAMESALES');
 
         const formData = params.toString();
         const response = await axios.get(`https://partner.steam-api.com/ISteamMicroTxn/GetReport/v2/?${formData}`);
