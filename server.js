@@ -310,14 +310,14 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
             let errorText = response.data.response?.error?.errordesc || "Transaction rejected by Steam.";
             res.json({ success: false, error: errorText });
         }
- } catch (error) {
-        console.error("Server error during InitTxn:", error.response ? error.response.data : error.message);
-        // 🛡️ THE FIX: Axios throws on 400 Bad Request. We need to extract Steam's actual complaint!
-        let errorText = "Internal server error connecting to Steam.";
-        if (error.response?.data?.response?.error?.errordesc) {
-            errorText = error.response.data.response.error.errordesc;
+} catch (error) {
+        console.error("Server error during InitTxn:", error);
+        // 🛡️ THE DIAGNOSTIC FIX: Dump the exact system crash to the game screen!
+        let errorText = error.message; 
+        if (error.response && error.response.data) {
+            errorText = JSON.stringify(error.response.data);
         }
-        res.json({ success: false, error: errorText });
+        res.json({ success: false, error: "CRASH: " + errorText });
     }
 });
 
@@ -372,13 +372,13 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
             let errorText = response.data.response?.error?.errordesc || "Finalization rejected by Steam.";
             res.json({ success: false, error: errorText });
         }
-  } catch (error) {
-        console.error("Server error during FinalizeTxn:", error.response ? error.response.data : error.message);
-        let errorText = "Internal server error connecting to Steam.";
-        if (error.response?.data?.response?.error?.errordesc) {
-            errorText = error.response.data.response.error.errordesc;
+ } catch (error) {
+        console.error("Server error during FinalizeTxn:", error);
+        let errorText = error.message; 
+        if (error.response && error.response.data) {
+            errorText = JSON.stringify(error.response.data);
         }
-        res.json({ success: false, error: errorText });
+        res.json({ success: false, error: "CRASH: " + errorText });
     }
 });
 
