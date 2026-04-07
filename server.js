@@ -271,12 +271,19 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
     const { steamId, itemId, amountCents, itemDescription } = req.body; 
 
     try {
-        const apiKey = process.env.STEAM_WEB_API_KEY || '4F9B94B4338DF119CB6EE7AEBD89F0C0';
-        const appId = process.env.STEAM_APP_ID || '4579730';
-        const numericOrderId = Date.now().toString(); 
+        const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
+        const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
+
+        // 🛡️ Steam prefers 12-digit numeric IDs
+        const numericOrderId = Math.floor(Math.random() * 1000000000000).toString(); 
         
         let numericItemId = 100;
-        if (itemId === 'gem_pack_15') numericItemId = 15;
+        let finalAmount = amountCents;
+
+        if (itemId === 'gem_pack_15') {
+            numericItemId = 15;
+            finalAmount = 100; // ⚠️ FORCED TO $1.00 FOR STEAM REVIEW
+        }
         if (itemId === 'gem_pack_50') numericItemId = 50;
 
         const params = new URLSearchParams({
@@ -289,43 +296,27 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
             currency: 'USD',
             'itemid[0]': numericItemId,
             'qty[0]': 1,
-            'amount[0]': amountCents,
+            'amount[0]': finalAmount,
             'description[0]': itemDescription
         });
 
         const formData = params.toString();
-
-        // 🛡️ THE CRITICAL FIX: Steam's firewall rejects 'Transfer-Encoding: chunked'.
-        // We force Content-Length and use application/x-www-form-urlencoded.
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3', 
+            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/', 
             formData,
-            {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Content-Length': Buffer.byteLength(formData)
-                }
-            }
+            { headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': Buffer.byteLength(formData) } }
         );
 
         if (response.data?.response?.result === 'OK') {
             await supabase.from('Pending_Orders').insert([{
-                order_id: numericOrderId,
-                steam_id: steamId,
-                item_id: itemId, 
-                amount_cents: amountCents,
-                status: 'PENDING'
+                order_id: numericOrderId, steam_id: steamId, item_id: itemId, amount_cents: finalAmount, status: 'PENDING'
             }]);
-            
-            console.log(`✅ [Steam] Transaction Initialized: ${numericOrderId}`);
             res.json({ success: true, orderId: numericOrderId });
         } else {
-            console.error("❌ Steam Init Error:", response.data);
-            res.json({ success: false, error: response.data?.response?.error?.errordesc || "Steam rejected the request." });
+            res.json({ success: false, error: response.data?.response?.error?.errordesc || "Rejected by Steam." });
         }
     } catch (error) {
-        console.error("❌ InitTxn Server Error:", error.message);
-        res.json({ success: false, error: "Steam API Communication Failure" });
+        res.json({ success: false, error: "Steam API Error: " + error.message });
     }
 });
 
@@ -333,67 +324,66 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
     const { orderId, username } = req.body; 
 
     try {
-        const apiKey = process.env.STEAM_WEB_API_KEY || '4F9B94B4338DF119CB6EE7AEBD89F0C0';
-        const appId = process.env.STEAM_APP_ID || '4579730';
+        const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
+        const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
 
-        const params = new URLSearchParams({
-            key: apiKey,
-            orderid: orderId,
-            appid: appId
-        });
-
+        const params = new URLSearchParams({ key: apiKey, orderid: orderId, appid: appId });
         const formData = params.toString();
 
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2', 
+            'https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/', 
             formData,
-            {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Content-Length': Buffer.byteLength(formData)
-                }
-            }
+            { headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': Buffer.byteLength(formData) } }
         );
 
         if (response.data?.response?.result === 'OK') {
-            // 1. Find the order in our database
             const { data: order } = await supabase.from('Pending_Orders').select('*').eq('order_id', orderId).single();
-            
-            if (!order || order.status !== 'PENDING') {
-                 return res.json({ success: false, error: "Order not found or already processed." });
-            }
+            if (!order || order.status !== 'PENDING') return res.json({ success: false, error: "Order not found." });
 
-            // 2. Determine Gem Reward
             let gemsToGive = 0;
             if (order.item_id === 'gem_pack_15') gemsToGive = 15;
             if (order.item_id === 'gem_pack_50') gemsToGive = 50;
 
-            // 3. Grant Gems to Player
             const { data: user } = await supabase.from('Exonians').select('base_stats').eq('character_name', username).single();
             if (user) {
                 let safeStats = user.base_stats || {};
                 safeStats.exoGems = (safeStats.exoGems || 0) + gemsToGive;
-                
                 await supabase.from('Exonians').update({ base_stats: safeStats }).eq('character_name', username);
                 
                 const tsid = findSocketIdByPlayerId(username);
                 if (tsid && onlinePlayers[tsid]) {
                     onlinePlayers[tsid].baseStats.exoGems = safeStats.exoGems;
                     io.to(tsid).emit('gemPurchaseSuccess', { newGems: safeStats.exoGems });
-                    io.to(tsid).emit('systemMessage', `💎 Steam Purchase Successful! You received ${gemsToGive} Exo Gems.`);
+                    io.to(tsid).emit('systemMessage', `💎 Steam Purchase Complete! Received ${gemsToGive} Exo Gems.`);
                 }
             }
-
-            // 4. Close the Order
             await supabase.from('Pending_Orders').update({ status: 'COMPLETED' }).eq('order_id', orderId);
             res.json({ success: true });
         } else {
-            console.error("❌ Steam Finalize Error:", response.data);
-            res.json({ success: false, error: "Steam could not finalize payment." });
+            res.json({ success: false, error: response.data?.response?.error?.errordesc || "Finalization rejected." });
         }
     } catch (error) {
-        console.error("❌ FinalizeTxn Server Error:", error.message);
-        res.json({ success: false, error: "Server error during finalization." });
+        res.json({ success: false, error: "Steam API Error: " + error.message });
+    }
+});
+
+// 📊 STEAM RECONCILIATION (Required for Review)
+app.get('/api/admin/steam-report', async (req, res) => {
+    try {
+        const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
+        const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
+
+        const params = new URLSearchParams({
+            key: apiKey,
+            appid: appId,
+            time: Math.floor(Date.now() / 1000) - 86400, // Last 24 hours
+            type: 'all'
+        });
+
+        const response = await axios.get(`https://partner.steam-api.com/ISteamMicroTxn/GetReport/v2/?${params.toString()}`);
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 const server = http.createServer(app);
