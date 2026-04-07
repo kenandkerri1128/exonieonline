@@ -6331,30 +6331,33 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
             let steamId = (window.electronAPI && window.electronAPI.getSteamId) ? await window.electronAPI.getSteamId() : "76561197960287930";
 
             // 2. Call the Node.js InitTxn Route
-            const response = await fetch(serverUrl + '/api/shop/init', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    steamId: steamId,
-                    itemId: packageId,
-                    amountCents: priceCents,
-                    itemDescription: description || "Exo Gems"
-                })
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                // 3. Tell Electron to open the Steam Overlay with the generated order ID
-                if (window.electronAPI) window.electronAPI.initiateSteamPurchase(data.orderId);
-                else alert("Test Mode: Open Steam Overlay for Order " + data.orderId); 
-            } else {
-                alert("Store Init Failed: " + (data.error || "Unknown Error"));
-                window.openRealMoneyShop();
-            }
-        } catch (err) {
-            alert("Store Connection Error: " + err.message);
-            window.openRealMoneyShop();
-        }
+            const response = await fetch(serverUrl + '/api/shop/init', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    steamId: steamId,
+                    username: game.player.id, // 🛡️ THE FIX: Tell the backend exactly who gets the gems!
+                    itemId: packageId,
+                    amountCents: priceCents,
+                    itemDescription: description || "Exo Gems"
+                })
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                // 3. Tell Electron to open the Steam Overlay with the generated order ID
+                if (window.electronAPI && window.electronAPI.initiateSteamPurchase) {
+                    window.electronAPI.initiateSteamPurchase(data.orderId);
+                } else {
+                    alert("Test Mode: Open Steam Overlay for Order " + data.orderId); 
+                    window.openRealMoneyShop();
+                }
+            } else {
+                // 🛡️ THE FIX: Safely unpack the real error message from the backend!
+                let errorMsg = data.error || data.message || JSON.stringify(data);
+                alert("Store Init Failed: " + errorMsg);
+                window.openRealMoneyShop();
+            }
     } 
     else if (window.currentPlatform === 'android') {
         if (window.CdvPurchase) {
@@ -6400,6 +6403,20 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
         window.openRealMoneyShop(); 
     }
 };
+
+// 🛡️ ANTI-SOFT-LOCK: Unfreeze the UI if the player closes the Steam Overlay without buying
+if (window.electronAPI && window.electronAPI.onMicroTxnAuthorizationResponse) {
+    window.electronAPI.onMicroTxnAuthorizationResponse((authorized, orderId) => {
+        if (!authorized) {
+            // The player hit "Cancel" in the Steam Overlay
+            let modal = document.getElementById('rm-shop-modal');
+            if (modal) modal.style.display = 'none';
+            
+            if (dom.log) dom.log.innerText = "Purchase cancelled.";
+            window.openRealMoneyShop(); // Refreshes the UI to the normal shop state
+        }
+    });
+}
 
 // 📥 LISTENS FOR THE RECEIPT FROM THE WRAPPERS
 window.addEventListener('StorePurchaseSuccess', async (event) => {
