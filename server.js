@@ -274,36 +274,39 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
         const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
 
-        // 🛡️ THE FIX: Steam STRICTLY requires orderid and itemid to be pure numbers!
-        // Sending letters like "EXO-" or "gem_pack" crashes their API router.
-        const numericOrderId = Date.now().toString() + Math.floor(Math.random() * 1000);
-        const numericItemId = itemId === 'gem_pack_50' ? 50 : (itemId === 'gem_pack_15' ? 15 : 100);
+        // 🛡️ THE NUMERIC FIX: Steam requires orderid to be a pure number
+        const numericOrderId = Date.now().toString(); 
+        
+        // 🛡️ THE NUMERIC FIX: Steam requires itemid to be a pure number (32-bit int)
+        let numericItemId = 100;
+        if (itemId === 'gem_pack_15') numericItemId = 15;
+        if (itemId === 'gem_pack_50') numericItemId = 50;
 
         const params = new URLSearchParams();
         params.append('key', String(apiKey));
-        params.append('orderid', numericOrderId); // PURE NUMBER
-        params.append('steamid', String(steamId)); // PURE NUMBER
+        params.append('orderid', numericOrderId);
+        params.append('steamid', String(steamId));
         params.append('appid', String(appId));
         params.append('itemcount', '1');
-        params.append('language', 'EN');
+        params.append('language', 'en');
         params.append('currency', 'USD');
-        params.append('itemid[0]', String(numericItemId)); // PURE NUMBER
+        params.append('itemid[0]', String(numericItemId));
         params.append('qty[0]', '1');
         params.append('amount[0]', String(amountCents));
         params.append('description[0]', String(itemDescription));
 
-        // Using Sandbox endpoint as required for unreleased games
+        // 🛡️ THE FIX: Production endpoint, NO trailing slash
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxnSandbox/InitTxn/v3/', 
+            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3', 
             params.toString(),
             { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
 
         if (response.data && response.data.response && response.data.response.result === 'OK') {
             await supabase.from('Pending_Orders').insert([{
-                order_id: numericOrderId, // Must save the numeric one so Finalize matches!
+                order_id: numericOrderId, // Save the numeric ID so FinalizeTxn matches!
                 steam_id: steamId,
-                item_id: itemId, // We can safely leave 'gem_pack_50' in your DB so your reward logic works!
+                item_id: itemId, // Keep the string version here for your game's logic
                 amount_cents: amountCents,
                 status: 'PENDING'
             }]);
@@ -318,7 +321,6 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         console.error("Server error during InitTxn:", error.message);
         let errorText = error.message; 
         
-        // 🛡️ Safely read Steam's HTML rejection without crashing Node
         if (error.response && error.response.data) {
             if (typeof error.response.data === 'string') {
                 errorText = error.response.data.replace(/<[^>]*>?/gm, ''); 
@@ -342,8 +344,9 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
         params.append('orderid', String(orderId));
         params.append('appid', String(appId));
 
+        // 🛡️ THE FIX: Production endpoint, NO trailing slash
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxnSandbox/FinalizeTxn/v2/', 
+            'https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2', 
             params.toString(),
             { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
@@ -396,7 +399,6 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
         res.json({ success: false, error: "Steam API Error: " + errorText });
     }
 });
-
 const server = http.createServer(app);
 const io = new Server(server, {
    cors: {
