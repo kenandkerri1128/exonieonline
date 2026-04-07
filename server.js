@@ -269,43 +269,46 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
 // ==========================================
 app.post('/api/shop/init', express.json(), async (req, res) => {
     const { steamId, itemId, amountCents, itemDescription } = req.body; 
-    const orderId = 'EXO-' + Date.now(); 
 
     try {
         const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
         const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
 
-        // 1. Build strict URL parameters, forcing everything to Strings
+        // 🛡️ THE FIX: Steam STRICTLY requires orderid and itemid to be pure numbers!
+        // Sending letters like "EXO-" or "gem_pack" crashes their API router.
+        const numericOrderId = Date.now().toString() + Math.floor(Math.random() * 1000);
+        const numericItemId = itemId === 'gem_pack_50' ? 50 : (itemId === 'gem_pack_15' ? 15 : 100);
+
         const params = new URLSearchParams();
         params.append('key', String(apiKey));
-        params.append('orderid', String(orderId));
-        params.append('steamid', String(steamId));
+        params.append('orderid', numericOrderId); // PURE NUMBER
+        params.append('steamid', String(steamId)); // PURE NUMBER
         params.append('appid', String(appId));
         params.append('itemcount', '1');
         params.append('language', 'EN');
         params.append('currency', 'USD');
-        params.append('itemid[0]', String(itemId));
+        params.append('itemid[0]', String(numericItemId)); // PURE NUMBER
         params.append('qty[0]', '1');
         params.append('amount[0]', String(amountCents));
         params.append('description[0]', String(itemDescription));
 
-        // 2. Safely post using Axios. NO TRAILING SLASH ON URL!
+        // Using Sandbox endpoint as required for unreleased games
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxnSandbox/InitTxn/v3', 
+            'https://partner.steam-api.com/ISteamMicroTxnSandbox/InitTxn/v3/', 
             params.toString(),
             { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
 
         if (response.data && response.data.response && response.data.response.result === 'OK') {
             await supabase.from('Pending_Orders').insert([{
-                order_id: orderId,
+                order_id: numericOrderId, // Must save the numeric one so Finalize matches!
                 steam_id: steamId,
-                item_id: itemId,
+                item_id: itemId, // We can safely leave 'gem_pack_50' in your DB so your reward logic works!
                 amount_cents: amountCents,
                 status: 'PENDING'
             }]);
             
-            res.json({ success: true, orderId: orderId });
+            res.json({ success: true, orderId: numericOrderId });
         } else {
             console.error("Steam InitTxn Error:", response.data);
             let errorText = response.data?.response?.error?.errordesc || "Transaction rejected by Steam.";
@@ -315,10 +318,10 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         console.error("Server error during InitTxn:", error.message);
         let errorText = error.message; 
         
-        // 🛡️ THE CRASH FIX: Safely read Steam's HTML or JSON rejection without crashing Node!
+        // 🛡️ Safely read Steam's HTML rejection without crashing Node
         if (error.response && error.response.data) {
             if (typeof error.response.data === 'string') {
-                errorText = error.response.data.replace(/<[^>]*>?/gm, ''); // Strips HTML tags so it's readable
+                errorText = error.response.data.replace(/<[^>]*>?/gm, ''); 
             } else {
                 errorText = JSON.stringify(error.response.data);
             }
@@ -339,9 +342,8 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
         params.append('orderid', String(orderId));
         params.append('appid', String(appId));
 
-        // NO TRAILING SLASH ON URL!
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxnSandbox/FinalizeTxn/v2', 
+            'https://partner.steam-api.com/ISteamMicroTxnSandbox/FinalizeTxn/v2/', 
             params.toString(),
             { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
