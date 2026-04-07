@@ -271,10 +271,9 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
     const { steamId, itemId, amountCents, itemDescription } = req.body; 
 
     try {
-        const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
-        const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
+        const apiKey = process.env.STEAM_WEB_API_KEY || '4F9B94B4338DF119CB6EE7AEBD89F0C0';
+        const appId = process.env.STEAM_APP_ID || '4579730';
 
-        // 🛡️ Steam prefers 12-digit numeric IDs
         const numericOrderId = Math.floor(Math.random() * 1000000000000).toString(); 
         
         let numericItemId = 100;
@@ -282,34 +281,34 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
 
         if (itemId === 'gem_pack_15') {
             numericItemId = 15;
-            finalAmount = 100; // ⚠️ FORCED TO $1.00 FOR STEAM REVIEW
+            finalAmount = 100; // Forced $1.00 for Steam Review
         }
         if (itemId === 'gem_pack_50') numericItemId = 50;
 
-        const params = new URLSearchParams({
-            key: apiKey,
-            orderid: numericOrderId,
-            steamid: steamId,
-            appid: appId,
-            itemcount: 1,
-            language: 'en',
-            currency: 'USD',
-            'itemid[0]': numericItemId,
-            'qty[0]': 1,
-            'amount[0]': finalAmount,
-            'description[0]': itemDescription
-        });
+        // Force strictly stringified parameters
+        const params = new URLSearchParams();
+        params.append('key', apiKey);
+        params.append('orderid', numericOrderId);
+        params.append('steamid', String(steamId));
+        params.append('appid', appId);
+        params.append('itemcount', '1');
+        params.append('language', 'EN');
+        params.append('currency', 'USD');
+        params.append('itemid[0]', String(numericItemId));
+        params.append('qty[0]', '1');
+        params.append('amount[0]', String(finalAmount));
+        params.append('description[0]', itemDescription || 'Exo Gems');
 
         const formData = params.toString();
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/', 
+            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3', 
             formData,
             { headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': Buffer.byteLength(formData) } }
         );
 
         if (response.data?.response?.result === 'OK') {
             await supabase.from('Pending_Orders').insert([{
-                order_id: numericOrderId, steam_id: steamId, item_id: itemId, amount_cents: finalAmount, status: 'PENDING'
+                order_id: numericOrderId, steam_id: String(steamId), item_id: itemId, amount_cents: finalAmount, status: 'PENDING'
             }]);
             res.json({ success: true, orderId: numericOrderId });
         } else {
@@ -370,17 +369,22 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
 // 📊 STEAM RECONCILIATION (Required for Review)
 app.get('/api/admin/steam-report', async (req, res) => {
     try {
-        const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
-        const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
+        const apiKey = process.env.STEAM_WEB_API_KEY || '4F9B94B4338DF119CB6EE7AEBD89F0C0';
+        const appId = process.env.STEAM_APP_ID || '4579730';
 
-        const params = new URLSearchParams({
-            key: apiKey,
-            appid: appId,
-            time: Math.floor(Date.now() / 1000) - 86400, // Last 24 hours
-            type: 'all'
-        });
+        // Steam requires RFC 3339 format, dropping milliseconds
+        const date24hAgo = new Date(Date.now() - 86400000);
+        const rfcTime = date24hAgo.toISOString().split('.')[0] + 'Z'; 
 
-        const response = await axios.get(`https://partner.steam-api.com/ISteamMicroTxn/GetReport/v2/?${params.toString()}`);
+        const params = new URLSearchParams();
+        params.append('key', apiKey);
+        params.append('appid', appId);
+        params.append('time', rfcTime);
+        params.append('type', 'all');
+
+        const formData = params.toString();
+        const response = await axios.get(`https://partner.steam-api.com/ISteamMicroTxn/GetReport/v2/?${formData}`);
+        
         res.json(response.data);
     } catch (error) {
         res.status(500).json({ error: error.message });
