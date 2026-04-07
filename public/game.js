@@ -6324,50 +6324,36 @@ if (navigator.userAgent.toLowerCase().includes(' electron/') || (typeof process 
 }
 
 window.purchaseExoGems = async function(packageId, priceCents, description) {
-    document.getElementById('rm-shop-modal').innerHTML = '<h2 style="color:#E040FB; margin-top: 20px;">Connecting to Store...</h2>';
+    let modal = document.getElementById('rm-shop-modal');
+    if (modal) modal.innerHTML = '<h2 style="color:#E040FB; margin-top: 20px;">Connecting to Store...</h2>';
+
+    // 🛡️ THE ANTI-FREEZE FIX: Gracefully closes the window if an error happens
+    const abortPurchase = (msg) => {
+        alert(msg);
+        if (modal) modal.style.display = 'none'; 
+        if (socket) socket.emit('requestShopAccess'); // Refreshes the UI safely
+    };
 
     if (window.currentPlatform === 'steam') {
         try {
             let steamId = null;
             
-            // 🕵️ UNIVERSAL STEAM ID SNIFFER: Hunts down the ID no matter what wrapper you use
-            
-            // 1. Try standard window.electronAPI (Electron IPC)
+            // 1. Fetch the safely stringified ID from main.js
             if (window.electronAPI && window.electronAPI.getSteamId) {
                 let raw = await window.electronAPI.getSteamId();
-                steamId = typeof raw === 'object' ? (raw.steamId64 || raw.accountId || raw.steamId || raw.id) : raw;
-            }
-            // 2. Try window.greenworks (NW.js or injected Electron)
-            else if (window.greenworks && window.greenworks.getSteamId) {
-                steamId = window.greenworks.getSteamId().accountId;
-            }
-            // 3. Try NodeJS require('greenworks')
-            else if (typeof require !== 'undefined') {
-                try {
-                    let gw = require('greenworks');
-                    if (gw && gw.getSteamId) steamId = gw.getSteamId().accountId;
-                } catch(e) {}
-            }
-            // 4. Try steamworks.js
-            else if (window.steamworks && window.steamworks.client && window.steamworks.client.localplayer) {
-                steamId = window.steamworks.client.localplayer.getSteamId().steamId64;
+                if (raw) {
+                    let cleaned = String(raw).replace(/\D/g, ''); 
+                    if (cleaned.length >= 17 && cleaned.startsWith('7')) {
+                        steamId = cleaned.substring(0, 17);
+                    }
+                }
             }
 
-            // Clean the result to ensure it's strictly a 17-digit number
-            if (steamId) {
-                let cleaned = String(steamId).replace(/\D/g, ''); 
-                if (cleaned.length >= 17) steamId = cleaned.substring(0, 17);
-                else steamId = null;
-            }
-
-            // 🛑 The Ultimate Failsafe: If the wrapper is completely missing
             if (!steamId) {
-                alert("Steam Bridge Error: game.js cannot see your Steam account. You need to pass the Steam ID from your wrapper (main.js or preload.js) to the frontend.");
-                window.openRealMoneyShop();
-                return;
+                return abortPurchase("Steam Error: Could not extract a valid 17-digit Steam ID. Please ensure Steam is running.");
             }
 
-            // 3. Call the Node.js InitTxn Route
+            // 2. Call the Node.js InitTxn Route
             const response = await fetch(serverUrl + '/api/shop/init', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -6382,21 +6368,19 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
             const data = await response.json();
             
             if (data.success) {
-                // 4. Open the Steam Overlay
+                // 3. Open the Steam Overlay
                 if (window.electronAPI && window.electronAPI.initiateSteamPurchase) {
                     window.electronAPI.initiateSteamPurchase(data.orderId);
+                    if (modal) modal.innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Please authorize in the Steam Overlay!</h2>';
                 } else {
-                    alert("Purchase Initiated! Please authorize it in your Steam Overlay."); 
+                    abortPurchase("Overlay Error: initiateSteamPurchase missing from preload.js.");
                 }
-                window.openRealMoneyShop();
             } else {
                 let errorMsg = data.error || data.message || JSON.stringify(data);
-                alert("Store Init Failed: " + errorMsg);
-                window.openRealMoneyShop();
+                abortPurchase("Store Init Failed: " + errorMsg);
             }
         } catch (err) {
-            alert("Store Connection Error: " + err.message);
-            window.openRealMoneyShop();
+            abortPurchase("Store Connection Error: " + err.message);
         }
     } 
     else if (window.currentPlatform === 'android') {
@@ -6406,41 +6390,28 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
                 const product = store.get(packageId);
                 
                 if (!product) {
-                    alert("Error: The app could not find this product ID: " + packageId);
-                    window.openRealMoneyShop();
-                    return;
+                    return abortPurchase("Error: The app could not find this product ID: " + packageId);
                 }
 
                 if (product.canPurchase) {
-                    // 🛡️ V13 Preferred Order Method
                     const offer = product.getOffer ? product.getOffer() : null;
                     if (offer) {
-                        offer.order().catch(err => {
-                            alert("Order failed to open: " + err);
-                            window.openRealMoneyShop();
-                        });
+                        offer.order().catch(err => abortPurchase("Order failed to open: " + err));
                     } else {
-                        store.order(product.id).catch(err => {
-                            alert("Order fallback failed: " + err);
-                            window.openRealMoneyShop();
-                        });
+                        store.order(product.id).catch(err => abortPurchase("Order fallback failed: " + err));
                     }
                 } else {
-                    alert("Google Play found the item, but says you cannot purchase it right now. Ensure your app is fully updated from the testing link!");
-                    window.openRealMoneyShop();
+                    abortPurchase("Google Play says you cannot purchase this item right now.");
                 }
             } catch (e) {
-                alert("Plugin error: " + e.message);
-                window.openRealMoneyShop();
+                abortPurchase("Plugin error: " + e.message);
             }
         } else {
-            alert("Store plugin not loaded!");
-            window.openRealMoneyShop();
+            abortPurchase("Store plugin not loaded!");
         }
     } 
     else {
-        alert("In-App Purchases are only available via the Steam or Android versions of Exonie!");
-        window.openRealMoneyShop(); 
+        abortPurchase("In-App Purchases are only available via the Steam or Android versions of Exonie!");
     }
 };
 
