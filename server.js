@@ -270,10 +270,16 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
 app.post('/api/shop/init', express.json(), async (req, res) => {
     const { steamId, itemId, amountCents, itemDescription } = req.body; 
 
-    // 🛡️ THE FIX: Server catches bad IDs instantly before Steam's firewall throws HTML errors
-    if (!steamId || String(steamId).length < 17) {
-        return res.json({ success: false, error: "Invalid Steam ID. Must be a 17-digit string." });
+    // 🛡️ INDESTRUCTIBLE SERVER-SIDE CLEANER
+    // Strips out object brackets, spaces, or letters.
+    let cleanSteamId = String(steamId).replace(/\D/g, ''); 
+    if (cleanSteamId.length < 17) {
+        return res.json({ 
+            success: false, 
+            error: `Invalid Steam ID format received by server: ${JSON.stringify(steamId)}` 
+        });
     }
+    cleanSteamId = cleanSteamId.substring(0, 17); // Lock it to exactly 17 digits
 
     try {
         const apiKey = process.env.STEAM_WEB_API_KEY || '4F9B94B4338DF119CB6EE7AEBD89F0C0';
@@ -293,7 +299,7 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         const params = new URLSearchParams();
         params.append('key', apiKey);
         params.append('orderid', numericOrderId);
-        params.append('steamid', String(steamId)); 
+        params.append('steamid', cleanSteamId); // 🛡️ Using the sanitized ID
         params.append('appid', appId);
         params.append('itemcount', '1');
         params.append('language', 'en'); 
@@ -304,16 +310,17 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         params.append('amount[0]', String(finalAmount));
         params.append('description[0]', itemDescription || 'Exo Gems');
 
-        // 🛡️ THE FIX: Let Axios natively serialize the URLSearchParams. 
-        // This guarantees perfect application/x-www-form-urlencoded headers and stops WAF blocks.
+        const formData = params.toString();
+        
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3', 
-            params
+            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/', 
+            formData,
+            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
 
         if (response.data?.response?.result === 'OK') {
             await supabase.from('Pending_Orders').insert([{
-                order_id: numericOrderId, steam_id: String(steamId), item_id: itemId, amount_cents: finalAmount, status: 'PENDING'
+                order_id: numericOrderId, steam_id: cleanSteamId, item_id: itemId, amount_cents: finalAmount, status: 'PENDING'
             }]);
             res.json({ success: true, orderId: numericOrderId });
         } else {
