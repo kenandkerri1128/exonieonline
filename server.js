@@ -270,10 +270,7 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
 app.post('/api/shop/init', express.json(), async (req, res) => {
     const { steamId, itemId, amountCents, itemDescription } = req.body; 
 
-    // 🛡️ Fast-fail if the game client didn't send a valid Steam ID
-    if (!steamId) {
-        return res.json({ success: false, error: "Missing Steam ID from game client." });
-    }
+    if (!steamId) return res.json({ success: false, error: "Missing Steam ID." });
 
     try {
         const apiKey = process.env.STEAM_WEB_API_KEY || '4F9B94B4338DF119CB6EE7AEBD89F0C0';
@@ -291,22 +288,23 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         if (itemId === 'gem_pack_50') numericItemId = 50;
 
         const params = new URLSearchParams();
-        params.append('key', apiKey);
         params.append('orderid', numericOrderId);
         params.append('steamid', String(steamId)); 
         params.append('appid', appId);
         params.append('itemcount', '1');
-        params.append('language', 'EN'); 
+        params.append('language', 'en'); 
         params.append('currency', 'USD');
-        params.append('usersession', 'client'); // 🛡️ CRITICAL FIX: Steam strictly requires this parameter!
+        params.append('usersession', 'client'); 
         params.append('itemid[0]', String(numericItemId));
         params.append('qty[0]', '1');
         params.append('amount[0]', String(finalAmount));
         params.append('description[0]', itemDescription || 'Exo Gems');
 
         const formData = params.toString();
+        
+        // 🛡️ THE FIX: The apiKey MUST be in the URL query string, or the Steam Firewall drops the request!
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/', 
+            `https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/?key=${apiKey}`, 
             formData,
             { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
@@ -320,14 +318,11 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
             res.json({ success: false, error: response.data?.response?.error?.errordesc || "Rejected by Steam." });
         }
     } catch (error) {
-        // 🛡️ THE FIX: Deep extraction so the game shows you the exact Steam error instead of just "400"
         let exactError = error.message;
-        if (error.response && error.response.data) {
-            if (error.response.data.response?.error?.errordesc) {
-                exactError = error.response.data.response.error.errordesc;
-            } else {
-                exactError = JSON.stringify(error.response.data);
-            }
+        if (error.response?.data?.response?.error?.errordesc) {
+            exactError = error.response.data.response.error.errordesc;
+        } else if (error.response?.data) {
+            exactError = JSON.stringify(error.response.data);
         }
         res.json({ success: false, error: exactError });
     }
@@ -337,17 +332,18 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
     const { orderId, username } = req.body; 
 
     try {
-        const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
-        const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
+        const apiKey = process.env.STEAM_WEB_API_KEY || '4F9B94B4338DF119CB6EE7AEBD89F0C0';
+        const appId = process.env.STEAM_APP_ID || '4579730';
 
         const params = new URLSearchParams();
-        params.append('key', apiKey);
         params.append('orderid', orderId);
         params.append('appid', appId);
 
         const formData = params.toString();
+        
+        // 🛡️ THE FIX: apiKey in the URL here as well!
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/', 
+            `https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/?key=${apiKey}`, 
             formData,
             { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
@@ -380,7 +376,7 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
         }
     } catch (error) {
         let exactError = error.message;
-        if (error.response?.data?.response?.error) exactError = error.response.data.response.error.errordesc;
+        if (error.response?.data?.response?.error?.errordesc) exactError = error.response.data.response.error.errordesc;
         res.json({ success: false, error: exactError });
     }
 });
