@@ -6330,22 +6330,39 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
         try {
             let steamId = null;
             
-            // 1. Get REAL raw data from Electron Wrapper (NO MORE DUMMY IDs)
+            // 🕵️ UNIVERSAL STEAM ID SNIFFER: Hunts down the ID no matter what wrapper you use
+            
+            // 1. Try standard window.electronAPI (Electron IPC)
             if (window.electronAPI && window.electronAPI.getSteamId) {
-                let rawSteam = await window.electronAPI.getSteamId();
-                let extracted = rawSteam;
-                if (typeof rawSteam === 'object' && rawSteam !== null) {
-                    extracted = rawSteam.steamId64 || rawSteam.steamId || rawSteam.steamid || rawSteam.id;
-                }
-                let cleaned = String(extracted).replace(/\D/g, ''); 
-                if (cleaned.length >= 17 && cleaned.startsWith('7')) {
-                    steamId = cleaned.substring(0, 17);
-                }
+                let raw = await window.electronAPI.getSteamId();
+                steamId = typeof raw === 'object' ? (raw.steamId64 || raw.accountId || raw.steamId || raw.id) : raw;
+            }
+            // 2. Try window.greenworks (NW.js or injected Electron)
+            else if (window.greenworks && window.greenworks.getSteamId) {
+                steamId = window.greenworks.getSteamId().accountId;
+            }
+            // 3. Try NodeJS require('greenworks')
+            else if (typeof require !== 'undefined') {
+                try {
+                    let gw = require('greenworks');
+                    if (gw && gw.getSteamId) steamId = gw.getSteamId().accountId;
+                } catch(e) {}
+            }
+            // 4. Try steamworks.js
+            else if (window.steamworks && window.steamworks.client && window.steamworks.client.localplayer) {
+                steamId = window.steamworks.client.localplayer.getSteamId().steamId64;
             }
 
-            // 2. Block if we don't have a real 17-digit SteamID
+            // Clean the result to ensure it's strictly a 17-digit number
+            if (steamId) {
+                let cleaned = String(steamId).replace(/\D/g, ''); 
+                if (cleaned.length >= 17) steamId = cleaned.substring(0, 17);
+                else steamId = null;
+            }
+
+            // 🛑 The Ultimate Failsafe: If the wrapper is completely missing
             if (!steamId) {
-                alert("Steam Error: Could not detect your real Steam ID. You must launch the game through Steam to make purchases.");
+                alert("Steam Bridge Error: game.js cannot see your Steam account. You need to pass the Steam ID from your wrapper (main.js or preload.js) to the frontend.");
                 window.openRealMoneyShop();
                 return;
             }
@@ -6365,13 +6382,13 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
             const data = await response.json();
             
             if (data.success) {
-                // 4. Tell Electron to open the Steam Overlay
+                // 4. Open the Steam Overlay
                 if (window.electronAPI && window.electronAPI.initiateSteamPurchase) {
                     window.electronAPI.initiateSteamPurchase(data.orderId);
                 } else {
-                    alert("Overlay Error: initiateSteamPurchase is missing from your wrapper."); 
-                    window.openRealMoneyShop();
+                    alert("Purchase Initiated! Please authorize it in your Steam Overlay."); 
                 }
+                window.openRealMoneyShop();
             } else {
                 let errorMsg = data.error || data.message || JSON.stringify(data);
                 alert("Store Init Failed: " + errorMsg);
@@ -6395,6 +6412,7 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
                 }
 
                 if (product.canPurchase) {
+                    // 🛡️ V13 Preferred Order Method
                     const offer = product.getOffer ? product.getOffer() : null;
                     if (offer) {
                         offer.order().catch(err => {
@@ -6408,7 +6426,7 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
                         });
                     }
                 } else {
-                    alert("Google Play says you cannot purchase this item right now.");
+                    alert("Google Play found the item, but says you cannot purchase it right now. Ensure your app is fully updated from the testing link!");
                     window.openRealMoneyShop();
                 }
             } catch (e) {
