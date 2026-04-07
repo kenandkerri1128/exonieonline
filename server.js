@@ -11,8 +11,8 @@ const googleAuth = new google.auth.GoogleAuth({
 });
 const playDeveloper = google.androidpublisher({ version: 'v3', auth: googleAuth });
 
-const STEAM_WEB_API_KEY = 'YOUR_STEAM_WEB_API_KEY_HERE'; 
-const STEAM_APP_ID = 'YOUR_STEAM_APP_ID_HERE';
+const STEAM_WEB_API_KEY = '4F9B94B4338DF119CB6EE7AEBD89F0C0'; 
+const STEAM_APP_ID = '4579730';
 const express = require('express');
 const activeLogins = new Set(); // Tracks currently logged-in usernames
 const activeEmailSessions = {}; // 🛡️ Tracks which emails are currently online
@@ -266,7 +266,7 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
 });
 
 // ==========================================
-// 🔵 STEAM MICROTRANSACTIONS (Exo Gems)
+// 🔵  MICROTRANSACTIONS (Exo Gems)
 // ==========================================
 app.post('/api/shop/init', express.json(), async (req, res) => {
     const { steamId, itemId, amountCents, itemDescription } = req.body; 
