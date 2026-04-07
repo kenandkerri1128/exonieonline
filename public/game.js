@@ -6415,16 +6415,47 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
     }
 };
 
-// 🛡️ ANTI-SOFT-LOCK: Unfreeze the UI if the player closes the Steam Overlay without buying
+// 🛡️ ANTI-SOFT-LOCK & STEAM FINALIZATION
 if (window.electronAPI && window.electronAPI.onMicroTxnAuthorizationResponse) {
-    window.electronAPI.onMicroTxnAuthorizationResponse((authorized, orderId) => {
+    window.electronAPI.onMicroTxnAuthorizationResponse(async (authorized, orderId) => {
+        let modal = document.getElementById('rm-shop-modal');
+        
+        // 1. User clicked "Cancel" in the overlay
         if (!authorized) {
-            // The player hit "Cancel" in the Steam Overlay
-            let modal = document.getElementById('rm-shop-modal');
             if (modal) modal.style.display = 'none';
+            if (typeof dom !== 'undefined' && dom.log) dom.log.innerText = "Purchase cancelled.";
+            window.openRealMoneyShop(); 
+            return;
+        }
+
+        // 2. 🛡️ THE FIX: User authorized the purchase! Tell the server to finalize it and give the gems.
+        if (modal) modal.innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Verifying Purchase...</h2><p style="color:#ccc; font-size:12px;">Do not close the game.</p>';
+        
+        try {
+            const res = await fetch(serverUrl + '/api/shop/finalize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    orderId: orderId,
+                    username: game.player.id
+                })
+            });
+            const data = await res.json();
             
-            if (dom.log) dom.log.innerText = "Purchase cancelled.";
-            window.openRealMoneyShop(); // Refreshes the UI to the normal shop state
+            if (!data.success) {
+                alert("Transaction failed: " + (data.error || data.message));
+                window.openRealMoneyShop();
+            } else {
+                // Success! The server will socket 'gemPurchaseSuccess' to update your balance.
+                if (modal) modal.innerHTML = `
+                    <h2 style="color:#4CAF50; margin-top: 20px;">Purchase Successful!</h2>
+                    <p style="color:#fff;">Your Exo Gems have been added.</p>
+                    <button class="btn" style="background:#555; width:100%; margin-top:15px;" onclick="window.openRealMoneyShop()">Back to Shop</button>
+                `;
+            }
+        } catch (err) {
+            alert("Error verifying purchase: " + err.message);
+            window.openRealMoneyShop();
         }
     });
 }
