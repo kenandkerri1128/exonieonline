@@ -6328,25 +6328,29 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
 
     if (window.currentPlatform === 'steam') {
         try {
-            // 1. Get raw data from Electron Wrapper
-            let rawSteam = (window.electronAPI && window.electronAPI.getSteamId) ? await window.electronAPI.getSteamId() : "76561197960287930";
+            let steamId = null;
             
-            // 🛡️ INDESTRUCTIBLE ID EXTRACTOR: Safely rips the 17-digit number out of objects, arrays, or BigInts
-            let steamId = "76561197960287930"; // Guaranteed Fallback for Reviewer
-            try {
+            // 1. Get REAL raw data from Electron Wrapper (NO MORE DUMMY IDs)
+            if (window.electronAPI && window.electronAPI.getSteamId) {
+                let rawSteam = await window.electronAPI.getSteamId();
                 let extracted = rawSteam;
                 if (typeof rawSteam === 'object' && rawSteam !== null) {
-                    extracted = rawSteam.steamId64 || rawSteam.steamId || rawSteam.steamid || rawSteam.id || JSON.stringify(rawSteam);
+                    extracted = rawSteam.steamId64 || rawSteam.steamId || rawSteam.steamid || rawSteam.id;
                 }
-                let cleaned = String(extracted).replace(/\D/g, ''); // Strip everything except numbers
+                let cleaned = String(extracted).replace(/\D/g, ''); 
                 if (cleaned.length >= 17 && cleaned.startsWith('7')) {
                     steamId = cleaned.substring(0, 17);
-                } else {
-                    console.warn("Wrapper returned weird ID, using fallback. Raw:", rawSteam);
                 }
-            } catch (e) { console.error("ID Parse Error:", e); }
+            }
 
-            // 2. Call the Node.js InitTxn Route
+            // 2. Block if we don't have a real 17-digit SteamID
+            if (!steamId) {
+                alert("Steam Error: Could not detect your real Steam ID. You must launch the game through Steam to make purchases.");
+                window.openRealMoneyShop();
+                return;
+            }
+
+            // 3. Call the Node.js InitTxn Route
             const response = await fetch(serverUrl + '/api/shop/init', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -6361,11 +6365,11 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
             const data = await response.json();
             
             if (data.success) {
-                // 3. Tell Electron to open the Steam Overlay
+                // 4. Tell Electron to open the Steam Overlay
                 if (window.electronAPI && window.electronAPI.initiateSteamPurchase) {
                     window.electronAPI.initiateSteamPurchase(data.orderId);
                 } else {
-                    alert("Test Mode: Open Steam Overlay for Order " + data.orderId); 
+                    alert("Overlay Error: initiateSteamPurchase is missing from your wrapper."); 
                     window.openRealMoneyShop();
                 }
             } else {
