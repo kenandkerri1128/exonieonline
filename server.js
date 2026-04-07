@@ -288,11 +288,12 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         if (itemId === 'gem_pack_50') numericItemId = 50;
 
         const params = new URLSearchParams();
+        params.append('key', apiKey); // 🛡️ MOVED KEY BACK TO BODY
         params.append('orderid', numericOrderId);
         params.append('steamid', String(steamId)); 
         params.append('appid', appId);
         params.append('itemcount', '1');
-        params.append('language', 'en'); 
+        params.append('language', 'EN'); 
         params.append('currency', 'USD');
         params.append('usersession', 'client'); 
         params.append('itemid[0]', String(numericItemId));
@@ -302,9 +303,9 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
 
         const formData = params.toString();
         
-        // 🛡️ THE FIX: The apiKey MUST be in the URL query string, or the Steam Firewall drops the request!
+        // 🛡️ THE FIX: Removed ?key= from the URL to stop the HTML routing error
         const response = await axios.post(
-            `https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/?key=${apiKey}`, 
+            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/', 
             formData,
             { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
@@ -327,7 +328,6 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         res.json({ success: false, error: exactError });
     }
 });
-
 app.post('/api/shop/finalize', express.json(), async (req, res) => {
     const { orderId, username } = req.body; 
 
@@ -336,14 +336,15 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
         const appId = process.env.STEAM_APP_ID || '4579730';
 
         const params = new URLSearchParams();
+        params.append('key', apiKey); // 🛡️ MOVED KEY BACK TO BODY
         params.append('orderid', orderId);
         params.append('appid', appId);
 
         const formData = params.toString();
         
-        // 🛡️ THE FIX: apiKey in the URL here as well!
+        // 🛡️ THE FIX: Removed ?key= from the URL to stop the HTML routing error
         const response = await axios.post(
-            `https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/?key=${apiKey}`, 
+            'https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/', 
             formData,
             { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
@@ -376,7 +377,11 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
         }
     } catch (error) {
         let exactError = error.message;
-        if (error.response?.data?.response?.error?.errordesc) exactError = error.response.data.response.error.errordesc;
+        if (error.response?.data?.response?.error?.errordesc) {
+            exactError = error.response.data.response.error.errordesc;
+        } else if (error.response?.data) {
+            exactError = JSON.stringify(error.response.data);
+        }
         res.json({ success: false, error: exactError });
     }
 });
