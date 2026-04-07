@@ -68,7 +68,8 @@ socket.on('reconnect_attempt', () => {
 let currentShopItem = null; // 🛡️ GLOBAL TRACKER FOR THE SHOP
 window.isProcessingShop = false; // Anti-Spam Lock
 let isMailboxOpen = false, isChatting = false, isInventoryOpen = false, isSkillOpen = false, isShopping = false, localBossTimer = null, isEnhancing = false, isApplyingAura = false;
-window.isStorageOpen = false; // <-- ADD THIS
+window.isStorageOpen = false; 
+window.isApplyingForger = false;
 let activeInvIndex = -1, attackCooldownActive = false, isAttacking = false, attackHeld = false, autoAttackMode = false;
 let lastNetTs = 0, lastSentState = 'idle', pendingPartyInvite = null, pendingTradeInvite = null, inTradeMode = false, tradeTarget = null;
 let tradeMyItems = [null,null,null], tradeTheirItems = [null,null,null], lastVitalsSent = {hp:null,maxHp:null,level:null}, lastVitalsTs = 0;
@@ -6354,10 +6355,14 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
                 }
             } else {
                 // 🛡️ THE FIX: Safely unpack the real error message from the backend!
-                let errorMsg = data.error || data.message || JSON.stringify(data);
-                alert("Store Init Failed: " + errorMsg);
-                window.openRealMoneyShop();
-            }
+              let errorMsg = data.error || data.message || JSON.stringify(data);
+                alert("Store Init Failed: " + errorMsg);
+                window.openRealMoneyShop();
+            }
+        } catch (err) {
+            alert("Store Connection Error: " + err.message);
+            window.openRealMoneyShop();
+        }
     } 
     else if (window.currentPlatform === 'android') {
         if (window.CdvPurchase) {
