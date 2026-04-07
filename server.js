@@ -274,39 +274,41 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
         const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
 
-        // 🛡️ THE NUMERIC FIX: Steam requires orderid to be a pure number
         const numericOrderId = Date.now().toString(); 
         
-        // 🛡️ THE NUMERIC FIX: Steam requires itemid to be a pure number (32-bit int)
         let numericItemId = 100;
         if (itemId === 'gem_pack_15') numericItemId = 15;
         if (itemId === 'gem_pack_50') numericItemId = 50;
 
-        const params = new URLSearchParams();
-        params.append('key', String(apiKey));
-        params.append('orderid', numericOrderId);
-        params.append('steamid', String(steamId));
-        params.append('appid', String(appId));
-        params.append('itemcount', '1');
-        params.append('language', 'en');
-        params.append('currency', 'USD');
-        params.append('itemid[0]', String(numericItemId));
-        params.append('qty[0]', '1');
-        params.append('amount[0]', String(amountCents));
-        params.append('description[0]', String(itemDescription));
+        // 🛡️ THE FIX: Build the URLSearchParams object
+        const params = new URLSearchParams({
+            key: apiKey,
+            orderid: numericOrderId,
+            steamid: steamId,
+            appid: appId,
+            itemcount: 1,
+            language: 'en',
+            currency: 'USD',
+            'itemid[0]': numericItemId,
+            'qty[0]': 1,
+            'amount[0]': amountCents,
+            'description[0]': itemDescription
+        });
 
-        // 🛡️ THE FIX: Production endpoint, NO trailing slash
+        // 🛡️ THE CRITICAL FIX: Pass the `params` object DIRECTLY to Axios.
+        // DO NOT use .toString(). Axios will auto-detect the object, calculate 
+        // the exact Content-Length, and disable chunked encoding to bypass Steam's firewall!
+        // We also append ?key= to the URL so Steam's router authenticates it instantly.
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3', 
-            params.toString(),
-            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+            `https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/?key=${apiKey}`, 
+            params
         );
 
         if (response.data && response.data.response && response.data.response.result === 'OK') {
             await supabase.from('Pending_Orders').insert([{
-                order_id: numericOrderId, // Save the numeric ID so FinalizeTxn matches!
+                order_id: numericOrderId,
                 steam_id: steamId,
-                item_id: itemId, // Keep the string version here for your game's logic
+                item_id: itemId, 
                 amount_cents: amountCents,
                 status: 'PENDING'
             }]);
@@ -339,16 +341,16 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
         const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
         const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
 
-        const params = new URLSearchParams();
-        params.append('key', String(apiKey));
-        params.append('orderid', String(orderId));
-        params.append('appid', String(appId));
+        const params = new URLSearchParams({
+            key: apiKey,
+            orderid: orderId,
+            appid: appId
+        });
 
-        // 🛡️ THE FIX: Production endpoint, NO trailing slash
+        // 🛡️ THE CRITICAL FIX: Pass `params` directly!
         const response = await axios.post(
-            'https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2', 
-            params.toString(),
-            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+            `https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/?key=${apiKey}`, 
+            params
         );
 
         if (response.data && response.data.response && response.data.response.result === 'OK') {
