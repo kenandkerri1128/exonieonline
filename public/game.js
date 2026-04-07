@@ -6324,20 +6324,29 @@ if (navigator.userAgent.toLowerCase().includes(' electron/') || (typeof process 
 }
 
 window.purchaseExoGems = async function(packageId, priceCents, description) {
-    document.getElementById('rm-shop-modal').innerHTML = '<h2 style="color:#E040FB; margin-top: 20px;">Connecting to Store...</h2>';
+    document.getElementById('rm-shop-modal').innerHTML = '<h2 style="color:#E040FB; margin-top: 20px;">Connecting to Store...</h2>';
 
-    if (window.currentPlatform === 'steam') {
-        try {
-            // 1. Get Steam ID from Electron (Using a dummy ID as fallback for testing)
-            let steamId = (window.electronAPI && window.electronAPI.getSteamId) ? await window.electronAPI.getSteamId() : "76561197960287930";
+    if (window.currentPlatform === 'steam') {
+        try {
+            // 1. Get Steam ID from Electron
+            let rawSteam = (window.electronAPI && window.electronAPI.getSteamId) ? await window.electronAPI.getSteamId() : "76561197960287930";
+            
+            // 🛡️ THE FIX: Extract the 17-digit string safely. Some wrappers return an object!
+            let steamId = typeof rawSteam === 'object' ? (rawSteam.steamId || rawSteam.steamid || rawSteam.accountId) : String(rawSteam);
 
-            // 2. Call the Node.js InitTxn Route
+            if (!steamId || steamId === '[object Object]') {
+                alert("Store Init Failed: Steam wrapper returned an invalid ID object.");
+                window.openRealMoneyShop();
+                return;
+            }
+
+            // 2. Call the Node.js InitTxn Route
             const response = await fetch(serverUrl + '/api/shop/init', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     steamId: steamId,
-                    username: game.player.id, // 🛡️ THE FIX: Tell the backend exactly who gets the gems!
+                    username: game.player.id, 
                     itemId: packageId,
                     amountCents: priceCents,
                     itemDescription: description || "Exo Gems"
@@ -6346,7 +6355,7 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
             const data = await response.json();
             
             if (data.success) {
-                // 3. Tell Electron to open the Steam Overlay with the generated order ID
+                // 3. Tell Electron to open the Steam Overlay
                 if (window.electronAPI && window.electronAPI.initiateSteamPurchase) {
                     window.electronAPI.initiateSteamPurchase(data.orderId);
                 } else {
@@ -6354,17 +6363,16 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
                     window.openRealMoneyShop();
                 }
             } else {
-                // 🛡️ THE FIX: Safely unpack the real error message from the backend!
-              let errorMsg = data.error || data.message || JSON.stringify(data);
-                alert("Store Init Failed: " + errorMsg);
-                window.openRealMoneyShop();
-            }
-        } catch (err) {
-            alert("Store Connection Error: " + err.message);
-            window.openRealMoneyShop();
-        }
-    } 
-    else if (window.currentPlatform === 'android') {
+                let errorMsg = data.error || data.message || JSON.stringify(data);
+                alert("Store Init Failed: " + errorMsg);
+                window.openRealMoneyShop();
+            }
+        } catch (err) {
+            alert("Store Connection Error: " + err.message);
+            window.openRealMoneyShop();
+        }
+    } 
+    else if (window.currentPlatform === 'android') {
         if (window.CdvPurchase) {
             try {
                 const store = window.CdvPurchase.store;
@@ -6377,7 +6385,6 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
                 }
 
                 if (product.canPurchase) {
-                    // 🛡️ V13 Preferred Order Method
                     const offer = product.getOffer ? product.getOffer() : null;
                     if (offer) {
                         offer.order().catch(err => {
@@ -6391,7 +6398,7 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
                         });
                     }
                 } else {
-                    alert("Google Play found the item, but says you cannot purchase it right now. Ensure your app is fully updated from the testing link!");
+                    alert("Google Play says you cannot purchase this item right now.");
                     window.openRealMoneyShop();
                 }
             } catch (e) {
