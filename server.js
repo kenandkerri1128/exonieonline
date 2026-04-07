@@ -275,11 +275,9 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
         const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
 
-        // 🛡️ THE FIX 1: Use Sandbox + Put the Key directly in the URL so Steam's router doesn't crash!
-        const steamUrl = `https://partner.steam-api.com/ISteamMicroTxnSandbox/InitTxn/v3/?key=${apiKey}`;
-
-        // 🛡️ THE FIX 2: Use URLSearchParams cleanly so Axios formats it perfectly
+        // 1. Build strict URL parameters EXACTLY as Steam requires
         const params = new URLSearchParams();
+        params.append('key', apiKey);
         params.append('orderid', orderId);
         params.append('steamid', steamId);
         params.append('appid', appId);
@@ -291,9 +289,22 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         params.append('amount[0]', amountCents);
         params.append('description[0]', itemDescription);
 
-        const response = await axios.post(steamUrl, params);
+        // 2. Convert to a raw string
+        const dataString = params.toString();
 
-        if (response.data.response.result === 'OK') {
+        // 3. Send using native fetch to guarantee perfect formatting
+        const response = await fetch('https://partner.steam-api.com/ISteamMicroTxnSandbox/InitTxn/v3/', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(dataString)
+            },
+            body: dataString
+        });
+
+        const steamData = await response.json();
+
+        if (steamData.response && steamData.response.result === 'OK') {
             await supabase.from('Pending_Orders').insert([{
                 order_id: orderId,
                 steam_id: steamId,
@@ -304,17 +315,13 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
             
             res.json({ success: true, orderId: orderId });
         } else {
-            console.error("Steam InitTxn Error:", response.data);
-            let errorText = response.data.response?.error?.errordesc || "Transaction rejected by Steam.";
+            console.error("Steam InitTxn Error:", steamData);
+            let errorText = steamData.response?.error?.errordesc || "Transaction rejected by Steam.";
             res.json({ success: false, error: errorText });
         }
     } catch (error) {
         console.error("Server error during InitTxn:", error);
-        let errorText = error.message; 
-        if (error.response && error.response.data) {
-            errorText = JSON.stringify(error.response.data);
-        }
-        res.json({ success: false, error: "CRASH: " + errorText });
+        res.json({ success: false, error: "CRASH: " + error.message });
     }
 });
 
@@ -325,16 +332,25 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
         const apiKey = process.env.STEAM_WEB_API_KEY || STEAM_WEB_API_KEY;
         const appId = process.env.STEAM_APP_ID || STEAM_APP_ID;
 
-        // 🛡️ THE FIX 1: Use Sandbox + Put the Key directly in the URL!
-        const steamUrl = `https://partner.steam-api.com/ISteamMicroTxnSandbox/FinalizeTxn/v2/?key=${apiKey}`;
-
         const params = new URLSearchParams();
+        params.append('key', apiKey);
         params.append('orderid', orderId);
         params.append('appid', appId);
 
-        const response = await axios.post(steamUrl, params);
+        const dataString = params.toString();
 
-        if (response.data.response.result === 'OK') {
+        const response = await fetch('https://partner.steam-api.com/ISteamMicroTxnSandbox/FinalizeTxn/v2/', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(dataString)
+            },
+            body: dataString
+        });
+
+        const steamData = await response.json();
+
+        if (steamData.response && steamData.response.result === 'OK') {
             const { data: order } = await supabase.from('Pending_Orders').select('*').eq('order_id', orderId).single();
             
             if (!order || order.status !== 'PENDING') {
@@ -364,17 +380,13 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
             await supabase.from('Pending_Orders').update({ status: 'COMPLETED' }).eq('order_id', orderId);
             res.json({ success: true, message: "Exo Gems added to account!" });
         } else {
-            console.error("Steam FinalizeTxn Error:", response.data);
-            let errorText = response.data.response?.error?.errordesc || "Finalization rejected by Steam.";
+            console.error("Steam FinalizeTxn Error:", steamData);
+            let errorText = steamData.response?.error?.errordesc || "Finalization rejected by Steam.";
             res.json({ success: false, error: errorText });
         }
     } catch (error) {
         console.error("Server error during FinalizeTxn:", error);
-        let errorText = error.message; 
-        if (error.response && error.response.data) {
-            errorText = JSON.stringify(error.response.data);
-        }
-        res.json({ success: false, error: "CRASH: " + errorText });
+        res.json({ success: false, error: "CRASH: " + error.message });
     }
 });
 
