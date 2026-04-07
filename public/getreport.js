@@ -1,7 +1,7 @@
 // Run this via command line: node getreport.js
 const fetch = require('node-fetch'); // or use native fetch if Node 18+
 
-const STEAM_API_KEY = "PASTE_YOUR_STEAMWORKS_WEB_API_KEY_HERE";
+const STEAM_API_KEY = "4F9B94B4338DF119CB6EE7AEBD89F0C0";
 const APP_ID = "4579730";
 
 async function getSteamReport() {
