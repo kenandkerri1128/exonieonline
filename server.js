@@ -287,7 +287,12 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
             'description[0]': itemDescription 
         });
 
-        const response = await axios.post('https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/', params);
+        // 🛡️ THE FIX: Force Axios to format the request exactly how Steam demands it
+        const response = await axios.post(
+            'https://partner.steam-api.com/ISteamMicroTxn/InitTxn/v3/', 
+            params.toString(),
+            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+        );
 
         if (response.data.response.result === 'OK') {
             await supabase.from('Pending_Orders').insert([{
@@ -301,11 +306,13 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
             res.json({ success: true, orderId: orderId });
         } else {
             console.error("Steam InitTxn Error:", response.data);
-            res.status(400).json({ success: false, error: response.data.response });
+            // 🛡️ THE FIX: Dig the exact error string out of Steam's messy response object
+            let errorText = response.data.response?.error?.errordesc || "Transaction rejected by Steam.";
+            res.json({ success: false, error: errorText });
         }
     } catch (error) {
         console.error("Server error during InitTxn:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        res.json({ success: false, error: "Internal server error connecting to Steam." });
     }
 });
 
@@ -319,13 +326,18 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
             orderid: orderId
         });
 
-        const response = await axios.post('https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/', params);
+        // 🛡️ THE FIX: Force Axios to format the request exactly how Steam demands it
+        const response = await axios.post(
+            'https://partner.steam-api.com/ISteamMicroTxn/FinalizeTxn/v2/', 
+            params.toString(),
+            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+        );
 
         if (response.data.response.result === 'OK') {
             const { data: order } = await supabase.from('Pending_Orders').select('*').eq('order_id', orderId).single();
             
             if (!order || order.status !== 'PENDING') {
-                 return res.status(400).json({ success: false, message: "Order not found or already processed." });
+                 return res.json({ success: false, error: "Order not found or already processed." });
             }
 
             let gemsToGive = 0;
@@ -352,11 +364,12 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
             res.json({ success: true, message: "Exo Gems added to account!" });
         } else {
             console.error("Steam FinalizeTxn Error:", response.data);
-            res.status(400).json({ success: false, error: response.data.response });
+            let errorText = response.data.response?.error?.errordesc || "Finalization rejected by Steam.";
+            res.json({ success: false, error: errorText });
         }
     } catch (error) {
         console.error("Server error during FinalizeTxn:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        res.json({ success: false, error: "Internal server error connecting to Steam." });
     }
 });
 
