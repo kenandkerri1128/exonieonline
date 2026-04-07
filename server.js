@@ -290,11 +290,15 @@ app.post('/api/shop/init', express.json(), async (req, res) => {
         let numericItemId = 100;
         let finalAmount = amountCents;
 
+        // 🛡️ SECURE PRICING: Server overrides client values to prevent spoofing
         if (itemId === 'gem_pack_15') {
             numericItemId = 15;
-            finalAmount = 100; // Forced $1.00 for Steam Review
+            finalAmount = 1500; // $15.00
         }
-        if (itemId === 'gem_pack_50') numericItemId = 50;
+        if (itemId === 'gem_pack_50') {
+            numericItemId = 50;
+            finalAmount = 5000; // $50.00
+        }
 
         const params = new URLSearchParams();
         params.append('key', apiKey);
