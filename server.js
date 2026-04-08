@@ -3573,7 +3573,7 @@ socket.on('syncPet', (data) => {
 
                     io.to(p.instanceId).emit('monsterHit', { monsterId: targetMob.id, attackerId: p.id, damage: dmg, newHp: targetMob.currentHp, maxHp: targetMob.maxHp, isPendant: isPendant, didFreeze: didFreeze });
 
-                let m = targetMob; // 🛡️ THE FIX: Forces the death check to use the exact mob hit by the AoE blast!
+                const m = targetMob; // 🛡️ THE FIX: Forces the death check to use the exact mob hit by the AoE blast!
                 if (m.currentHp <= 0 && m.alive) { // 🛡️ FIX 2: Prevents double-drops if hit again while at 0 HP
                     m.alive = false;
                     m.targetId = null;
