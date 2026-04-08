@@ -2541,6 +2541,10 @@ socket.on('broadcastSkill', (data) => {
 
    socket.on('portalStep', (data) => {
         const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return;
+        
+        // 🛡️ MOBILE RAM FIX: Prevents the phone from stacking 20 map loads if they wiggle on the portal!
+        if (p.isLoadingMap || (p.teleportGrace && Date.now() < p.teleportGrace)) return;
+
         p.currentPortal = data.portalId;
         
         // 🛡️ MAZE TRIAL BLOCKER: Prevent teleporting to other floors!
@@ -3145,8 +3149,11 @@ socket.on('saveData', async (playerData) => {
         if (!p) return;
 
         p.isLoadingMap = false;
-        p.isWaitingForTeam = false; // 🛑 INSTANTLY UNLOCKS THIS PLAYER FOR MONSTER AGGRO
-        socket.emit('releaseLoadingScreen'); // 🛑 INSTANTLY DROPS THEIR SCREEN
+        p.isWaitingForTeam = false; 
+        socket.emit('releaseLoadingScreen'); 
+        
+        // 🛡️ MOBILE FIX: Re-sync monsters now that the phone is actually ready to render them!
+        if (worlds[p.instanceId]) socket.emit('monsterState', Object.values(worlds[p.instanceId].monsters).map(serializeMonster));
     });
  socket.on('playerMoved', (data) => {
         if (!onlinePlayers[socket.id]) return; 
@@ -3167,7 +3174,8 @@ socket.on('saveData', async (playerData) => {
             const hitY = data.y + 76; 
             let isHacking = false;
             for (let box of world.collisions) {
-                if (hitX < box.x + box.w && hitX + 24 > box.x && hitY < box.y + box.h && hitY + 20 > box.y) {
+                // 🛡️ MOBILE LATENCY FIX: Added a 5-pixel buffer so laggy joysticks don't trigger wall rubberbanding
+                if (hitX < box.x + box.w - 5 && hitX + 24 > box.x + 5 && hitY < box.y + box.h - 5 && hitY + 20 > box.y + 5) {
                     isHacking = true; break;
                 }
             }
@@ -6943,6 +6951,9 @@ socket.on('requestSell', async (data) => {
     socket.on('requestMazeTeleport', (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || p.isGhost) return;
+        
+        // 🛡️ MOBILE RAM FIX: Prevents mashing the UI button from freezing the phone!
+        if (p.isLoadingMap || (p.teleportGrace && Date.now() < p.teleportGrace)) return;
         
         const targetFloor = parseInt(data.targetFloor);
         if (isNaN(targetFloor) || targetFloor < 1) return;
