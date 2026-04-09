@@ -5461,20 +5461,44 @@ if (socket) {
         const modal = document.getElementById('guild-modal');
         if (!modal) return;
 
-        if (data.hasGuild) {
+       if (data.hasGuild) {
             let d = data.details;
             let myRole = data.myRole || 'Member';
             const roleLevel = { 'Master': 4, 'Vice Master': 3, 'Captain': 2, 'Member': 1 };
             
+            // 🧮 DYNAMIC GUILD MATH
+            let currentLevel = data.guildLevel || 0;
+            let statBoost = currentLevel * 2;
+            let expBoost = currentLevel * 2;
+            let maxMembers = 20 + (currentLevel * 5);
+            
             let html = `
                 <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #4CAF50;">
-                    <h2 style="margin:0; color:#4CAF50; pointer-events:none;">🏰 ${d.name} (${data.members.length}/20)</h2>
+                    <h2 style="margin:0; color:#4CAF50; pointer-events:none; display:flex; justify-content:space-between; align-items:center;">
+                        <span>🏰 ${d.name} <span style="font-size:14px; color:#FFD700;">(Lv. ${currentLevel})</span></span>
+                        <span style="font-size:12px; color:#aaa;">${data.members.length}/${maxMembers}</span>
+                    </h2>
                 </div>
+                
                 <div style="display:flex; justify-content:space-between; margin:10px 0; font-size:13px; color:#aaa;">
-                    <span>Your Role: <strong style="color:#fff;">${myRole}</strong></span>
+                    <span>Role: <strong style="color:#fff;">${myRole}</strong></span>
                     <span>Funds: <strong style="color:#FFD700;">${(data.guildGold || 0).toLocaleString()} G</strong></span>
                 </div>
+
+                <div style="display:flex; justify-content:space-around; margin-bottom: 10px; font-size:12px; background: #111; padding: 6px; border-radius: 4px; border: 1px solid #333;">
+                    <span>⚔️ Stats: <strong style="color:#4CAF50;">+${statBoost}%</strong></span>
+                    <span>✨ EXP: <strong style="color:#2196F3;">+${expBoost}%</strong></span>
+                </div>
             `;
+
+            // 👑 LEVEL UP BUTTON (Master Only)
+            if (myRole === 'Master') {
+                if (currentLevel < 10) {
+                    html += `<button onclick="socket.emit('requestGuildLevelUp')" style="width:100%; padding:8px; margin-bottom:10px; background:linear-gradient(45deg, #FF9800, #FF5722); color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">⬆️ Level Up Guild (1,000,000 G)</button>`;
+                } else {
+                    html += `<div style="text-align:center; color:#FFD700; margin-bottom:10px; font-weight:bold; font-size:12px;">⭐ GUILD MAX LEVEL REACHED ⭐</div>`;
+                }
+            }
 
             // 📋 MEMBER LIST + KICK BUTTONS + ROLES
             html += `<div style="background:#111; padding:10px; border:1px solid #333; height:120px; overflow-y:auto; margin-bottom:10px; text-align:left;">`;
