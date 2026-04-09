@@ -8551,22 +8551,24 @@ function spawnBattlefieldBoss() {
 
 // 🌟 SERVER BOOT LOGIC
 async function initBattlefieldEngine() {
-    const { data: timer } = await supabase.from('boss_timers').select('last_death_time').eq('boss_id', 'battlefield_boss').single();
-    
-    if (timer) {
-        // A future timer exists in the database! Resume it.
-        const remaining = parseInt(timer.last_death_time) - Date.now();
-        if (remaining > 0) {
-            console.log(`[BATTLEFIELD] Resuming DB timer. Assault in ${(remaining / 3600000).toFixed(2)} hours.`);
-            global.bfBossSpawnTimer = setTimeout(spawnBattlefieldBoss, remaining);
+    try {
+        // 🛡️ THE FIX: Use .maybeSingle() so Supabase doesn't crash if the timer row doesn't exist yet!
+        const { data: timer, error } = await supabase.from('boss_timers').select('last_death_time').eq('boss_id', 'battlefield_boss').maybeSingle();
+        
+        if (timer) {
+            const remaining = parseInt(timer.last_death_time) - Date.now();
+            if (remaining > 0) {
+                console.log(`[BATTLEFIELD] Resuming DB timer. Assault in ${(remaining / 3600000).toFixed(2)} hours.`);
+                global.bfBossSpawnTimer = setTimeout(spawnBattlefieldBoss, remaining);
+            } else {
+                spawnBattlefieldBoss();
+            }
         } else {
-            // Timer expired while server was offline
-            spawnBattlefieldBoss();
+            console.log(`[BATTLEFIELD] No DB timer. Spawning boss in 15 seconds...`);
+            global.bfBossSpawnTimer = setTimeout(spawnBattlefieldBoss, 15000);
         }
-    } else {
-        // No timer means the boss was alive when the server crashed, or it's a fresh server!
-        console.log(`[BATTLEFIELD] No DB timer. Spawning boss in 15 seconds...`);
-        global.bfBossSpawnTimer = setTimeout(spawnBattlefieldBoss, 15000);
+    } catch (err) {
+        console.error("[BATTLEFIELD INIT ERROR]", err.message);
     }
 }
 
