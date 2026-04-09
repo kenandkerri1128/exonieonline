@@ -756,6 +756,32 @@ function generatePowerGem(level, rarity) {
         description: `+${statVal} ${rStat.toUpperCase()}.`
     };
 }
+function generateBattlefieldLoot() {
+    let roll = Math.random();
+    if (roll < 0.90) return null; // 90% Nothing
+    
+    if (roll < 0.99) {
+        // 9% Huge Nugget
+        return { id: Date.now() + Math.random(), name: "Huge Nugget", type: "material", rarity: "Divine", color: "#ffea00", sellPrice: 500000, description: "A massive chunk of pure gold. Sell for 500,000 Gold.", quantity: 1 };
+    } else {
+        // 1% Random Lv 150 Divine
+        const equipKeys = ['sword', 'staff', 'pendant', 'gun', 'dagger', 'touchpad', 'armor', 'leggings'];
+        const typeKey = equipKeys[Math.floor(Math.random() * equipKeys.length)];
+        const template = ITEM_TEMPLATES[typeKey];
+        let item = { id: Date.now() + Math.random(), name: `Divine ${template.baseName}`, type: template.slot, sprite: `divine${template.spriteName}`, level: 150, rarity: "Divine", color: "#ffea00", fixedStat: {}, randomStat: {}, enhanceLevel: 0, quantity: 1 };
+        
+        let statVal = (getBaseStat(150) + 12) * 2;
+        if (typeKey === 'gun' || typeKey === 'pendant') statVal = Math.floor(statVal / 2); 
+        item.fixedStat[template.statKey] = statVal;
+        
+        let availableStats = [...STAT_TYPES]; 
+        for (let i = 0; i < 4; i++) {
+            let rIdx = Math.floor(Math.random() * availableStats.length);
+            item.randomStat[availableStats.splice(rIdx, 1)[0]] = Math.floor(Math.random() * getBaseStat(150)) + 1;
+        }
+        return item;
+    }
+}
 function generateHauntedLoot(mLevel) {
     if (Math.random() < 0.5) return null; // 50% chance of NO DROP
 
@@ -1184,8 +1210,8 @@ function removeFromParty(playerId) {
 }
 
 function getInstanceId(playerId, mapId) {
-    // 🛡️ THE FIX: Neutral Zone is now a public instance for everyone!
-    if (mapId === 'town' || mapId === 'neutralzone') return mapId; 
+    // 🛡️ THE FIX: Battlefield added to public instances
+    if (mapId === 'town' || mapId === 'neutralzone' || mapId === 'battlefield') return mapId; 
     const p = getPlayerById(playerId);
     const partyId = playerParty[playerId];
     const raidId = partyId ? partyRaid[partyId] : null; // 🛡️ RAID ROUTING
@@ -1422,8 +1448,8 @@ function serializeMonster(m) {
 }
 
 function checkAndResetInstance(instId) {
-    // 🛡️ THE FIX: Never delete Town or Neutral Zone from memory!
-    if (!worlds[instId] || instId === 'town' || instId === 'neutralzone') return;
+    // 🛡️ THE FIX: Never delete Town, Neutral Zone, or Battlefield from memory!
+    if (!worlds[instId] || instId === 'town' || instId === 'neutralzone' || instId === 'battlefield') return;
 
     // Check if there are any REAL players left (ignoring invisible admins)
     const activePlayers = playersInInstance(instId).filter(p => !p.isHiddenAdmin);
@@ -2546,6 +2572,16 @@ socket.on('broadcastSkill', (data) => {
         if (p.isLoadingMap || (p.teleportGrace && Date.now() < p.teleportGrace)) return;
 
         p.currentPortal = data.portalId;
+        
+        // 🛡️ BATTLEFIELD BLOCKER: Cannot enter if the boss isn't spawned yet!
+        if (data.targetMapId === 'battlefield') {
+            const bfWorld = worlds['battlefield'];
+            const boss = bfWorld ? bfWorld.monsters['battlefield_boss_1'] : null;
+            if (!boss || !boss.alive) {
+                p.currentPortal = null;
+                return socket.emit('systemMessage', '❌ No threat outside the castle yet.');
+            }
+        }
         
         // 🛡️ MAZE TRIAL BLOCKER: Prevent teleporting to other floors!
         if (p.isMazeTrial && data.targetMapId !== 'town') {
@@ -3736,9 +3772,11 @@ socket.on('syncPet', (data) => {
 
                         if (targetPlayer.mapId !== 'trainingtavern') {
                             
-                            // 💎 DYNAMIC LOOT ROUTING
-                            let drop = null;
-                            if (targetPlayer.mapId === 'hauntedhouse') {
+                           // 💎 DYNAMIC LOOT ROUTING
+                                    let drop = null;
+                                    if (targetPlayer.mapId === 'battlefield') {
+                                        drop = generateBattlefieldLoot();
+                                    } else if (targetPlayer.mapId === 'hauntedhouse') {
                                 drop = generateHauntedLoot(m.level);
                             } else if (String(targetPlayer.mapId).startsWith('dungeon')) {
                                 drop = generateDungeonLoot(m);
