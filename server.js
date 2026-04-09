@@ -4031,11 +4031,12 @@ socket.on('syncPet', (data) => {
                         
                         return; 
                     }
-// ==========================================
+                    // ==========================================
                     // NORMAL OPEN WORLD BOSS SAVES & RESPAWNS
                     // ==========================================
 
-                    if (targetMob.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !String(p.instanceId).startsWith('mazetrial_')) {
+                    // 🛡️ THE FIX: Added neutralzone and battlefield to the ignore list so they don't double-save!
+                    if (targetMob.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && p.mapId !== 'neutralzone' && p.mapId !== 'battlefield' && !String(p.instanceId).startsWith('mazetrial_')) {
                         const floorId = p.mapId;
                         const deathTime = Date.now();
 
