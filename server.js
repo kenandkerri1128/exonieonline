@@ -3101,6 +3101,17 @@ socket.on('login', async (data) => {
         spriteData: p.spriteData,
         isGhost: p.isGhost
     })));
+
+    // ⚔️ BATTLEFIELD LOGIN NOTIFICATION
+    // This checks if the boss is already alive and alerts the player as they log in.
+    const bfWorld = worlds['battlefield'];
+    const bfBoss = bfWorld ? bfWorld.monsters['battlefield_boss_1'] : null;
+    if (bfBoss && bfBoss.alive) {
+        // Wait 3 seconds so the message appears after their map finishes loading
+        setTimeout(() => {
+            socket.emit('systemMessage', `⚠️ <span style="color:#ff4444; font-weight:bold;">[WORLD] A Level ${bfBoss.level} ${bfBoss.name} is assaulting the Castle! Enter the Battle Field to defend!</span>`);
+        }, 3000);
+    }
 });
 
 socket.on('saveData', async (playerData) => {
