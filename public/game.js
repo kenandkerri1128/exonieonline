@@ -3378,7 +3378,6 @@ if (window.isMobileUI()) {
     window.bringWindowToFront(shopEl);
     window.clampWindowToViewport(shopEl);
 }
-    if (!isInventoryOpen && typeof window.toggleInventory === 'function') window.toggleInventory();
     window.updatePotionPrice(); window.updateStonePrice();
 }
 window.closeShop = function() { isShopping = false; document.getElementById('shop-screen').style.display = 'none'; if (isInventoryOpen && typeof window.renderInventory === 'function') window.renderInventory(); }
@@ -5445,6 +5444,12 @@ window.addEventListener('resize', function() {
 // ==========================================
 window.openGuildUI = function() {
     let modal = document.getElementById('guild-modal');
+
+    // 🛡️ THE TOGGLE FIX: If it's already open, close it and stop!
+    if (modal && modal.style.display === 'block') {
+        modal.style.display = 'none';
+        return;
+    }
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'guild-modal';
@@ -6259,6 +6264,12 @@ window.playTutorialVideo = function() {
 
 window.openRealMoneyShop = function() {
     let modal = document.getElementById('rm-shop-modal');
+
+    // 🛡️ THE TOGGLE FIX: If it's already open, close it and stop!
+    if (modal && modal.style.display === 'block') {
+        modal.style.display = 'none';
+        return;
+    }
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'rm-shop-modal';
