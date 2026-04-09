@@ -3892,12 +3892,22 @@ socket.on('syncPet', (data) => {
                         }).eq('character_name', targetPlayer.id).then(()=>{});
                     };
 
-                    // 🛡️ THE RAID FIX: Share Loot/EXP with the entire Raid Team!
-                    const rid = pid ? partyRaid[pid] : null;
-
-                    if (rid && raids[rid]) {
-                        const allMembers = getRaidMembers(rid);
-                        for (const memberId of allMembers) {
+                  // 🛡️ THE BATTLEFIELD FIX: Everyone who dealt damage gets loot!
+                    if (targetMob.isBattlefieldBoss) {
+                        const assailants = Object.keys(targetMob.threatTable);
+                        for (const aId of assailants) {
+                            const ap = getPlayerById(aId);
+                            const asid = findSocketIdByPlayerId(aId);
+                            if (ap && asid) {
+                                processRewards(ap, asid);
+                                processMissionKill(ap, targetMob.originalKey || targetMob.monsterKey, asid);
+                            }
+                        }
+                    } 
+                    // Standard Party/Raid logic for all other bosses
+                    else if (pid && partyRaid[pid] && raids[partyRaid[pid]]) {
+                        const rid = partyRaid[pid];
+                        for (const memberId of getRaidMembers(rid)) {
                             const mp = getPlayerById(memberId);
                             const msid = findSocketIdByPlayerId(memberId);
                             processRewards(mp, msid);
