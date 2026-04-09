@@ -5368,10 +5368,10 @@ socket.on('requestConfirmTrade', () => {
         // 🛑 THE KILLSWITCH: Tell the client to visually destroy all old monsters!
         socket.emit('clearLocalMonsters');
 
-       //🛑 WIPE THE SERVER ROOM (If Solo): Force it to rebuild from the fresh spawners!
-        // 🛡️ THE FIX: Never wipe Town, Neutral Zone, or ANY pre-staged instanced map (Dungeons, Taverns, etc)
+      //🛑 WIPE THE SERVER ROOM (If Solo): Force it to rebuild from the fresh spawners!
+        // 🛡️ THE FIX: Never wipe Town, Neutral Zone, Battlefield, or ANY pre-staged instanced map (Dungeons, Taverns, etc)
         const isInstancedMap = String(p.instanceId).includes('dungeon') || String(p.instanceId).includes('hauntedhouse') || String(p.instanceId).includes('tavern') || String(p.instanceId).includes('mazetrial');
-        if (!playerParty[p.id] && worlds[p.instanceId] && p.instanceId !== 'town' && p.instanceId !== 'neutralzone' && !isInstancedMap) {
+        if (!playerParty[p.id] && worlds[p.instanceId] && p.instanceId !== 'town' && p.instanceId !== 'neutralzone' && p.instanceId !== 'battlefield' && !isInstancedMap) {
             delete worlds[p.instanceId];
         }
         
@@ -8533,7 +8533,7 @@ function spawnBattlefieldBoss() {
     // 🛡️ THE FIX: This tells the screens of players already inside the map to draw the boss!
     io.to('battlefield').emit('monsterSpawned', serializeMonster(newBoss));
 
-    io.emit('systemMessage', `⚠️ <span style="color:#ff4444; font-weight:bold;">[WORLD] A Level ${randomLevel} ${newBoss.name} is assaulting the Castle! Enter the Battle Field (Portal O) to defend!</span>`);
+    io.emit('systemMessage', `⚠️ <span style="color:#ff4444; font-weight:bold;">[WORLD] A Level ${randomLevel} ${newBoss.name} is assaulting the Castle! Enter the Battle Field to defend!</span>`);
 
     clearTimeout(global.bfBossDespawnTimer);
     global.bfBossDespawnTimer = setTimeout(() => {
