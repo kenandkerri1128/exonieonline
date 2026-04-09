@@ -2568,8 +2568,8 @@ socket.on('broadcastSkill', (data) => {
    socket.on('portalStep', (data) => {
         const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return;
         
-        // 🛡️ MOBILE RAM FIX: Prevents the phone from stacking 20 map loads if they wiggle on the portal!
-        if (p.isLoadingMap || (p.teleportGrace && Date.now() < p.teleportGrace)) return;
+        // 🛑 DEAD PORTAL FIX: Removed teleportGrace so portals aren't locked for 4 seconds after spawning!
+        if (p.isLoadingMap) return;
 
        // 🛡️ BATTLEFIELD BLOCKER: Checks if boss is alive BEFORE letting them use the portal
         if (data.targetMapId === 'battlefield') {
@@ -3192,15 +3192,13 @@ socket.on('saveData', async (playerData) => {
         if (worlds[p.instanceId]) socket.emit('monsterState', Object.values(worlds[p.instanceId].monsters).map(serializeMonster));
     });
  socket.on('playerMoved', (data) => {
-        if (!onlinePlayers[socket.id]) return; 
-        const p = onlinePlayers[socket.id]; 
+        if (!onlinePlayers[socket.id]) return; 
+        const p = onlinePlayers[socket.id]; 
 
-        // 🛡️ THE ULTIMATE AI WAKE-UP FIX: If the player is moving, they are fully loaded!
-        // This permanently clears the "waiting" flag so monsters instantly aggro again.
-        if (p.isWaitingForTeam || p.isLoadingMap) {
-            p.isWaitingForTeam = false;
-            p.isLoadingMap = false;
-        }
+        // 🛑 INSTANCE KICK FIX: Ignore joystick inputs while teleporting so Dungeon coordinates aren't checked against Town walls!
+        if (p.isLoadingMap) return;
+
+        if (p.isWaitingForTeam) p.isWaitingForTeam = false;
 
        // 🛡️ SERVER-SIDE ANTI-WALLHACK
         const world = worlds[p.instanceId];
@@ -3658,7 +3656,6 @@ socket.on('syncPet', (data) => {
                                 }, 5000);
                             
                         });
-                    }
                     io.to(p.instanceId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
 
                     // 🦇 DUNGEON 2 WIN CONDITION & STAGE PROGRESSION
@@ -7006,8 +7003,8 @@ socket.on('requestSell', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || p.isGhost) return;
         
-        // 🛡️ MOBILE RAM FIX: Prevents mashing the UI button from freezing the phone!
-        if (p.isLoadingMap || (p.teleportGrace && Date.now() < p.teleportGrace)) return;
+        // 🛑 UI KICK FIX: Removed teleportGrace so players can actually use the menu!
+        if (p.isLoadingMap) return;
         
         const targetFloor = parseInt(data.targetFloor);
         if (isNaN(targetFloor) || targetFloor < 1) return;
