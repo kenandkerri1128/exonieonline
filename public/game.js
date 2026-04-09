@@ -4095,30 +4095,32 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
     nextTrack = 'home'; // 🏠 Plays music/home.mp3
 } else if (mId === 'guildbase') {
     nextTrack = 'guild'; // 🏰 Plays music/guild.mp3
+} else if (mId === 'battlefield') {
+    nextTrack = 'battlefield'; // ⚔️ Plays music/battlefield.mp3
 }
 
 // 🎵 Update Music using the new Router
-            window.playBGM(window.routeMapMusic(tp.mapId));
-            window.showMapAnnouncement(tp.mapId);
+window.playBGM(window.routeMapMusic ? window.routeMapMusic(tp.mapId) : nextTrack);
+window.showMapAnnouncement(tp.mapId);
 
-            if (tp.spectateTarget) {
-                window.isSpectating = true;
-                window.spectateTargetId = tp.spectateTarget;
-                game.isGhost = true; 
-                dom.playerContainer.style.display = 'none';
-                document.getElementById('spectate-ui').style.display = 'block';
-                if(dom.log) dom.log.innerText = `[ADMIN] Now Spectating: ${tp.spectateTarget}`;
-            } else {
-                window.isSpectating = false;
-                window.spectateTargetId = null;
-                game.isGhost = false;
-                dom.playerContainer.style.display = 'block';
-                document.getElementById('spectate-ui').style.display = 'none';
-                dom.playerContainer.style.opacity = '1';
+if (tp.spectateTarget) {
+    window.isSpectating = true;
+    window.spectateTargetId = tp.spectateTarget;
+    game.isGhost = true; 
+    dom.playerContainer.style.display = 'none';
+    document.getElementById('spectate-ui').style.display = 'block';
+    if(dom.log) dom.log.innerText = `[ADMIN] Now Spectating: ${tp.spectateTarget}`;
+} else {
+    window.isSpectating = false;
+    window.spectateTargetId = null;
+    game.isGhost = false;
+    dom.playerContainer.style.display = 'block';
+    document.getElementById('spectate-ui').style.display = 'none';
+    dom.playerContainer.style.opacity = '1';
 
-                socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'idle', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
-               socket.emit('playerTeleported', { mapId: tp.mapId, x: game.player.x, y: game.player.y, mapData: safeMapData });
-            }
+    socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: 'idle', facingRight: window.facingRight, weaponSprite: game.player.equips.weapon?.sprite || null });
+    socket.emit('playerTeleported', { mapId: tp.mapId, x: game.player.x, y: game.player.y, mapData: safeMapData });
+}
 
             let isGrouped = false; // 🛑 DISABLED PARTY WAITING
             document.getElementById('loading-text').innerText = isGrouped ? "Waiting for team to load..." : "Loading Map...";
