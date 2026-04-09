@@ -3208,7 +3208,6 @@ socket.on('saveData', async (playerData) => {
         if (p.isWaitingForTeam) p.isWaitingForTeam = false;
 
        // 🛡️ SERVER-SIDE ANTI-WALLHACK
-        const world = worlds[p.instanceId];
         // 🌟 THE FIX: If they just teleported, ignore wallhacks for 4 seconds so they don't bounce!
         if (world && world.collisions && !p.isGhost && (!p.teleportGrace || Date.now() > p.teleportGrace)) {
             const hitX = data.x + 12; 
