@@ -231,6 +231,12 @@ var townMapData = {
             "h": 167
         },
         {
+            "x": 934,
+            "y": 1113,
+            "w": 225,
+            "h": 145
+        },
+        {
             "x": 1072,
             "y": 1080,
             "w": 95,
@@ -771,6 +777,12 @@ var townMapData = {
             "h": 51
         },
         {
+            "x": 917,
+            "y": 1110,
+            "w": 25,
+            "h": 156
+        },
+        {
             "x": 108,
             "y": 67,
             "w": 48,
@@ -907,18 +919,6 @@ var townMapData = {
             "y": 642,
             "w": 38,
             "h": 29
-        },
-        {
-            "x": 925,
-            "y": 1128,
-            "w": 267,
-            "h": 140
-        },
-        {
-            "x": 871,
-            "y": 1127,
-            "w": 55,
-            "h": 130
         }
     ],
     "teleports": [
@@ -1007,16 +1007,6 @@ var townMapData = {
             "h": 21,
             "portalId": "M",
             "targetMapId": "town",
-            "targetX": 960,
-            "targetY": 1000
-        },
-        {
-            "x": 924,
-            "y": 1104,
-            "w": 144,
-            "h": 21,
-            "portalId": "O",
-            "targetMapId": "battlefield",
             "targetX": 960,
             "targetY": 1000
         }
