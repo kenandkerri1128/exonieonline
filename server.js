@@ -452,7 +452,7 @@ const partyRaid = {}; // 🛡️ NEW: Maps Party ID to Raid ID
 global.guilds = {}; // 🛡️ GLOBAL GUILD MEMORY
 // 🛡️ GLOBAL ADMIN LIST
 // Add any usernames here that should have full GM powers!
-const ADMINS = ['Kei', 'Jubs4DaWin', 'TesterName'];
+const ADMINS = ['Kei', 'Jubs4DaWin', 'BigBoss'];
 
 function isAdmin(username) { 
     return ADMINS.includes(username); 
