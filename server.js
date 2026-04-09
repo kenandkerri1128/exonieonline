@@ -3646,7 +3646,7 @@ socket.on('syncPet', (data) => {
                                 io.to('neutralzone').emit('bossCooldownActive', { remaining: 5 * 60 * 60 * 1000 });
                             checkNeutralBoss(); 
                                     });
-
+                            });
                             // 🏰 BATTLEFIELD BOSS DEATH & AUTO-KICK
                             } else if (targetMob.isBattlefieldBoss) {
                                 clearTimeout(global.bfBossDespawnTimer);
