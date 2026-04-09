@@ -82,7 +82,7 @@ let lastFrameTime = 0;
 const fpsInterval = 1000 / 60; // Caps the game at 60 FPS so 144Hz monitors aren't twice as fast!
 
 // 👑 GLOBAL ADMIN LIST (Keep this matched with server.js!)
-window.ADMINS = ['Kei', 'Jubs4DaWin', 'TesterName'];
+window.ADMINS = ['Kei', 'Jubs4DaWin', 'BigBoss'];
 window.isAdmin = function(name) { return window.ADMINS.includes(name); };
 
 window.facingRight = false; window.isLoading = false; window.isDungeonUIOpen = false;
