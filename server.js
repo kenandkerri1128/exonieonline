@@ -3186,7 +3186,8 @@ socket.on('saveData', async (playerData) => {
 
         p.isLoadingMap = false;
         p.isWaitingForTeam = false; 
-        socket.emit('releaseLoadingScreen'); 
+        p.frozenUntil = 0; // 🟢 UNFREEZE: The phone confirms it has collision boxes!
+        socket.emit('releaseLoadingScreen');
         
         // 🛡️ MOBILE FIX: Re-sync monsters now that the phone is actually ready to render them!
         if (worlds[p.instanceId]) socket.emit('monsterState', Object.values(worlds[p.instanceId].monsters).map(serializeMonster));
@@ -3195,8 +3196,14 @@ socket.on('saveData', async (playerData) => {
         if (!onlinePlayers[socket.id]) return; 
         const p = onlinePlayers[socket.id]; 
 
-        // 🛑 INSTANCE KICK FIX: Ignore joystick inputs while teleporting so Dungeon coordinates aren't checked against Town walls!
-        if (p.isLoadingMap) return;
+        // 🛑 THE BULLETPROOF LOCK: Zero movement allowed until loading is completely finished
+        if (p.isLoadingMap || (p.frozenUntil && Date.now() < p.frozenUntil)) return;
+        
+        const world = worlds[p.instanceId];
+        const isInstance = String(p.mapId).includes('dungeon') || p.mapId === 'hauntedhouse' || p.mapId === 'trainingtavern';
+        
+        // 🛑 COLLISION PRIORITY: If it's an instance and collisions aren't loaded yet, drop the movement packet!
+        if (world && (!world.collisions || world.collisions.length === 0) && isInstance) return; 
 
         if (p.isWaitingForTeam) p.isWaitingForTeam = false;
 
@@ -5353,8 +5360,9 @@ socket.on('requestConfirmTrade', () => {
         p.y = data.y;
         p.currentPortal = null;
         p.instanceId = getInstanceId(p.id, data.mapId);
-        p.teleportGrace = Date.now() + 4000; // 🌟 Reset their immunity timer when they land
-        p.untargetableUntil = Date.now() + 3000; // 🛡️ 3-Second Spawn Protection (Invincible & Untargetable)
+        p.teleportGrace = Date.now() + 4000; 
+        p.untargetableUntil = Date.now() + 3000; 
+        p.frozenUntil = Date.now() + 3000; // 🛑 HARD FREEZE: Locks player on server for exactly 3 seconds maximum
         socket.join(p.instanceId);
 
         checkAndResetInstance(oldInstId);
