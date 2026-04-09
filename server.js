@@ -8495,12 +8495,12 @@ async function scheduleBattlefieldBoss() {
     const minMs = 1 * 60 * 60 * 1000; // 1 hour
     const maxMs = 48 * 60 * 60 * 1000; // 48 hours
     const delay = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
-    const nextSpawnTs = Date.now() + delay; // 🌟 The exact time it should spawn next
+    const nextSpawnTs = Date.now() + delay; 
     
     console.log(`[BATTLEFIELD] Next assault in ${(delay / 3600000).toFixed(2)} hours.`);
     
-    // 🛡️ SAVE TO SUPABASE: Store the future spawn timestamp so the server remembers it on reboot!
-    await supabase.from('boss_timers').select('boss_id').eq('boss_id', 'battlefield_boss').single().then(({data}) => {
+    // 🛡️ THE FIX: Changed .single() to .maybeSingle() so it doesn't crash when saving!
+    await supabase.from('boss_timers').select('boss_id').eq('boss_id', 'battlefield_boss').maybeSingle().then(({data}) => {
         if (data) supabase.from('boss_timers').update({ last_death_time: nextSpawnTs }).eq('boss_id', 'battlefield_boss').then(()=>{});
         else supabase.from('boss_timers').insert([{ boss_id: 'battlefield_boss', last_death_time: nextSpawnTs }]).then(()=>{});
     });
@@ -8515,14 +8515,12 @@ function spawnBattlefieldBoss() {
     const bossId = 'battlefield_boss_1';
     if (worlds['battlefield'].monsters[bossId] && worlds['battlefield'].monsters[bossId].alive) return;
 
-    // 🛡️ WIPE DB LOCK: Tells the database the boss is currently ALIVE
     supabase.from('boss_timers').delete().eq('boss_id', 'battlefield_boss').then(()=>{});
 
     const bosses = ['floor_boss_wraith', 'floor_boss_minotaur', 'floor_boss_dragon'];
     const randomKey = bosses[Math.floor(Math.random() * bosses.length)];
-    const randomLevel = Math.floor(Math.random() * (1000 - 500 + 1)) + 500; // Lv 500 to 1000
+    const randomLevel = Math.floor(Math.random() * (1000 - 500 + 1)) + 500; 
 
-    // 🌟 THE FIX: Updated coordinates to 1001, 574
     const cfg = { spawnArea: { minX: 1001, maxX: 1001, minY: 574, maxY: 574 }, level: randomLevel };
     const newBoss = spawnMonster('battlefield', bossId, randomKey, cfg);
     
@@ -8530,7 +8528,6 @@ function spawnBattlefieldBoss() {
     newBoss.respawnDelayMs = -1; 
     worlds['battlefield'].monsters[bossId] = newBoss;
 
-    // 🛡️ THE FIX: This tells the screens of players already inside the map to draw the boss!
     io.to('battlefield').emit('monsterSpawned', serializeMonster(newBoss));
 
     io.emit('systemMessage', `⚠️ <span style="color:#ff4444; font-weight:bold;">[WORLD] A Level ${randomLevel} ${newBoss.name} is assaulting the Castle! Enter the Battle Field to defend!</span>`);
@@ -8550,13 +8547,11 @@ function spawnBattlefieldBoss() {
             });
             scheduleBattlefieldBoss();
         }
-    }, 7 * 24 * 60 * 60 * 1000); // 1 Week Despawn
+    }, 7 * 24 * 60 * 60 * 1000); 
 }
 
-// 🌟 SERVER BOOT LOGIC
 async function initBattlefieldEngine() {
     try {
-        // 🛡️ THE FIX: Use .maybeSingle() so Supabase doesn't crash if the timer row doesn't exist yet!
         const { data: timer, error } = await supabase.from('boss_timers').select('last_death_time').eq('boss_id', 'battlefield_boss').maybeSingle();
         
         if (timer) {
@@ -8568,8 +8563,9 @@ async function initBattlefieldEngine() {
                 spawnBattlefieldBoss();
             }
         } else {
-            console.log(`[BATTLEFIELD] No DB timer. Spawning boss in 15 seconds...`);
-            global.bfBossSpawnTimer = setTimeout(spawnBattlefieldBoss, 15000);
+            // 🛡️ THE FIX: Changed from 15000 to 2000 so it spawns almost instantly on boot!
+            console.log(`[BATTLEFIELD] No DB timer. Spawning boss in 2 seconds...`);
+            global.bfBossSpawnTimer = setTimeout(spawnBattlefieldBoss, 2000);
         }
     } catch (err) {
         console.error("[BATTLEFIELD INIT ERROR]", err.message);
@@ -8577,7 +8573,7 @@ async function initBattlefieldEngine() {
 }
 
 // Start engine on boot
-setTimeout(initBattlefieldEngine, 5000);
+setTimeout(initBattlefieldEngine, 1000);
 // ==========================================
 // ⚔️ NEUTRAL ZONE BOSS ENGINE
 // ==========================================
