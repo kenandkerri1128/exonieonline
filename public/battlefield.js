@@ -106,6 +106,12 @@ var battlefieldMapData = {
             "y": 1311,
             "w": 535,
             "h": 24
+        },
+        {
+            "x": -2,
+            "y": 1,
+            "w": 2007,
+            "h": 187
         }
     ],
     "teleports": [
