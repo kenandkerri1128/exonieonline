@@ -5072,6 +5072,7 @@ socket.on('requestGuildLevelUp', async () => {
                 
                 io.to(targetSid).emit('playerVitals', { currentHp: memberPlayer.currentHp, maxHp: memberPlayer.maxHp, level: memberPlayer.level });
                 io.to(targetSid).emit('requestGuildUI_Refresh');
+                io.to(targetSid).emit('syncGuildDetails', memberPlayer.guild_details);
             }
         });
     });
