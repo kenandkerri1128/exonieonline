@@ -83,9 +83,9 @@ app.post('/paypal-webhook', express.json(), async (req, res) => {
                 const tsid = findSocketIdByPlayerId(playerName);
                 if (tsid) {
                     io.to(tsid).emit('getMail'); 
-                    io.to(tsid).emit('systemMessage', "🎉 Your PayPal purchase has arrived! Check your Mailbox (M).");
+                    io.to(tsid).emit('systemMessage', "Your PayPal purchase has arrived! Check your Mailbox (M).");
                 }
-                console.log(`🎁 [PayPal] Delivered ${deliveryItem.name} to ${playerName}`);
+                console.log(`[PayPal] Delivered ${deliveryItem.name} to ${playerName}`);
             }
         }
     } catch (err) { 
@@ -225,7 +225,7 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
                 
                 await supabase.from('System_Mail').insert([
                     { recipient_name: playerName, message_text: "👑 Welcome to the Royal Tier! Here is your exclusive Divine Aura Stone.", attached_item: JSON.stringify(divineAura), is_claimed: false },
-                    { recipient_name: playerName, message_text: "💰 Royal Stipend: Here is your 1,000,000 Gold!", attached_item: JSON.stringify(royalGoldSack), is_claimed: false }
+                    { recipient_name: playerName, message_text: "Royal Stipend: Here is your 1,000,000 Gold!", attached_item: JSON.stringify(royalGoldSack), is_claimed: false }
                 ]);
             }
             await supabase.from('Exonians').update({ base_stats: safeStats }).eq('character_name', playerName);
@@ -244,12 +244,12 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
                 // 💰 Monthly 100k Gold for $10+ Tiers
                 if (isTier10) {
                     const goldPouch = { id: Date.now() + Math.random(), name: "Supporter Gold Pouch", type: 'consumable', rarity: 'Unique', color: '#FFD700', description: "A pouch of Patreon gold. Use to receive 100,000 Gold instantly.", quantity: 1 };
-                    await supabase.from('System_Mail').insert([{ recipient_name: playerName, message_text: "🎁 Patreon Monthly Reward: Here is your 100,000 Gold!", attached_item: JSON.stringify(goldPouch), is_claimed: false }]);
+                    await supabase.from('System_Mail').insert([{ recipient_name: playerName, message_text: "Patreon Monthly Reward: Here is your 100,000 Gold!", attached_item: JSON.stringify(goldPouch), is_claimed: false }]);
                 }
 
                 if (isRoyalTier) {
                     const royalGoldSack = { id: Date.now() + Math.random(), name: "Royal Gold Sack", type: 'consumable', rarity: 'Divine', color: '#FFD700', description: "A heavy sack of Royal Patreon Gold. Use to receive 1,000,000 Gold instantly.", quantity: 1 };
-                    await supabase.from('System_Mail').insert([{ recipient_name: playerName, message_text: "💰 Royal Stipend: Here is your 1,000,000 Gold!", attached_item: JSON.stringify(royalGoldSack), is_claimed: false }]);
+                    await supabase.from('System_Mail').insert([{ recipient_name: playerName, message_text: "Royal Stipend: Here is your 1,000,000 Gold!", attached_item: JSON.stringify(royalGoldSack), is_claimed: false }]);
                 }
                 await supabase.from('Exonians').update({ base_stats: safeStats }).eq('character_name', playerName);
             }
@@ -722,7 +722,7 @@ function processMissionKill(p, monsterKey, targetSid) {
             p.gold += p.baseStats.dailyMission.reward;
             
             if (targetSid) {
-                io.to(targetSid).emit('systemMessage', `🎉 MISSION COMPLETE: You defeated all targets and earned ${p.baseStats.dailyMission.reward.toLocaleString()} Gold!`);
+                io.to(targetSid).emit('systemMessage', `MISSION COMPLETE: You defeated all targets and earned ${p.baseStats.dailyMission.reward.toLocaleString()} Gold!`);
                 // Sync Gold UI
                 io.to(targetSid).emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
             }
@@ -1380,6 +1380,14 @@ if (baseStats.playerClass === 'Berserker' && (statName === 'hp' || statName === 
 
     if (baseStats.playerClass === 'Blademaster' && statName === 'attack') {
         base += Math.floor(base * 0.25);
+    }
+
+    // 🛡️ GUILD STAT BOOST: +2% per guild level across ALL stats!
+    if (p && p.guild_details && p.guild_details.name) {
+        const guild = global.guilds[p.guild_details.name];
+        if (guild && guild.level > 0) {
+            base += Math.floor(base * (guild.level * 0.02));
+        }
     }
 
     return base;
@@ -2995,7 +3003,7 @@ socket.on('login', async (data) => {
             attached_item: JSON.stringify(wispItem),
             is_claimed: false
         }]).then(() => {
-            setTimeout(() => { socket.emit('systemMessage', `<span style="color:#87CEEB; font-weight:bold;">🎉 LEVEL 50 REWARD: You have new mail! Check your Mailbox (M).</span>`); }, 3000);
+            setTimeout(() => { socket.emit('systemMessage', `<span style="color:#87CEEB; font-weight:bold;">LEVEL 50 REWARD: You have new mail! Check your Mailbox (M).</span>`); }, 3000);
         });
     }
     const trueMaxHp = getServerTotalStat({
@@ -3659,7 +3667,7 @@ socket.on('syncPet', (data) => {
                     // 🏰 BATTLEFIELD BOSS DEATH & AUTO-KICK
                     } else if (m.isBattlefieldBoss) {
                         clearTimeout(global.bfBossDespawnTimer);
-                        io.emit('systemMessage', `🏆 [WORLD] The Castle was defended! ${p.name} delivered the final blow!`);
+                        io.emit('systemMessage', `[WORLD] The Castle was defended! ${p.name} delivered the final blow!`);
                         
                         setTimeout(() => {
                             const playersInRoom = playersInInstance('battlefield');
@@ -3760,7 +3768,17 @@ socket.on('syncPet', (data) => {
                         // 🛡️ ANTI-AFK EXPLOIT: Only give rewards if they are actually in the boss room!
                         if (targetPlayer.instanceId !== p.instanceId) return;
 
-                        targetPlayer.exp += expAmount;
+                        let finalExp = expAmount;
+                        
+                        // 🛡️ GUILD EXP BOOST: +2% per guild level
+                        if (targetPlayer.guild_details && targetPlayer.guild_details.name) {
+                            const guild = global.guilds[targetPlayer.guild_details.name];
+                            if (guild && guild.level > 0) {
+                                finalExp += Math.floor(expAmount * (guild.level * 0.02));
+                            }
+                        }
+
+                        targetPlayer.exp += finalExp;
                         targetPlayer.gold += goldAmount;
 
                         let leveledUp = false;
@@ -3794,7 +3812,7 @@ socket.on('syncPet', (data) => {
                                     attached_item: JSON.stringify(wispItem),
                                     is_claimed: false
                                 }]).then(() => {
-                                    if (targetSid) io.to(targetSid).emit('systemMessage', `<span style="color:#87CEEB; font-weight:bold;">🎉 LEVEL 50 REWARD: A reward has been sent to your Mailbox (M)!</span>`);
+                                    if (targetSid) io.to(targetSid).emit('systemMessage', `<span style="color:#87CEEB; font-weight:bold;">LEVEL 50 REWARD: A reward has been sent to your Mailbox (M)!</span>`);
                                 });
                             }
                         }
@@ -4071,7 +4089,7 @@ socket.on('syncPet', (data) => {
                         });
 
                         targetMob.respawnDelayMs = -1;
-                        io.emit('systemMessage', `🏆 [WORLD] ${p.mapId.toUpperCase()} Boss Defeated!`);
+                        io.emit('systemMessage', `[WORLD] ${p.mapId.toUpperCase()} Boss Defeated!`);
                         // 🌟 THE MISSING LINK: Instantly push the 24-hour timer to the people currently in the room!
                         io.to(p.instanceId).emit('bossCooldownActive', { remaining: 24 * 60 * 60 * 1000 });
                         
@@ -4608,7 +4626,7 @@ socket.on('requestConfirmTrade', () => {
             }).eq('character_name', p.id).then(()=>{});
 
             socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
-            socket.emit('systemMessage', `💰 You opened the ${item.name} and received ${goldToAdd.toLocaleString()} Gold!`);
+            socket.emit('systemMessage', `You opened the ${item.name} and received ${goldToAdd.toLocaleString()} Gold!`);
             return;
         }
 
@@ -4691,6 +4709,7 @@ socket.on('requestConfirmTrade', () => {
                 let payload = { 
                     name: g.name, 
                     gold: g.gold, 
+                    level: g.level || 0,
                     members: Array.from(g.members), 
                     roles: g.roles, 
                     applicants: g.applicants, 
@@ -4719,6 +4738,7 @@ socket.on('requestConfirmTrade', () => {
                     global.guilds[g.name] = {
                         name: g.name,
                         gold: g.gold || 0,
+                        level: g.level || 0,
                         members: new Set(g.members || []),
                         roles: g.roles || {},
                         applicants: g.applicants || [],
@@ -4764,7 +4784,7 @@ socket.on('requestConfirmTrade', () => {
             });
 
             socket.emit('guildDataResponse', { 
-                hasGuild: true, details: p.guild_details, guildGold: guild.gold, members: memberList, 
+                hasGuild: true, details: p.guild_details, guildGold: guild.gold, guildLevel: guild.level || 0, members: memberList, 
                 applicants: guild.applicants || [], hasBase: !!guild.hasBase, myRole: guild.roles[p.id]
             });
         } else {
@@ -4780,13 +4800,13 @@ socket.on('requestConfirmTrade', () => {
         if (global.guilds[guildName]) return socket.emit('systemMessage', "❌ A guild name already exists.");
         
         p.gold -= 1000000;
-        p.guild_details = { name: guildName, role: 'Master', guildGold: 0 };
-        global.guilds[guildName] = { name: guildName, gold: 0, members: new Set([p.id]), roles: { [p.id]: 'Master' }, applicants: [], hasBase: false };
+        p.guild_details = { name: guildName, role: 'Master', guildGold: 0, level: 0 };
+        global.guilds[guildName] = { name: guildName, gold: 0, level: 0, members: new Set([p.id]), roles: { [p.id]: 'Master' }, applicants: [], hasBase: false };
         p.spriteData.guildName = guildName;
 
         await supabase.from('Exonians').update({ gold: p.gold, guild_details: p.guild_details }).eq('character_name', p.id);
         
-        socket.emit('systemMessage', `🎉 Guild Established: ${guildName}!`);
+        socket.emit('systemMessage', `Guild Established: ${guildName}!`);
         socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
         socket.emit('updateLocalGuildTag', guildName); 
         io.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
@@ -4801,8 +4821,8 @@ socket.on('requestConfirmTrade', () => {
         
         const guild = global.guilds[guildName];
         if (!guild) return socket.emit('systemMessage', "❌ That guild does not exist.");
-        if (guild.members.size >= 20) return socket.emit('systemMessage', "❌ Guild is full (20/20).");
-
+        const maxMembers = 20 + ((guild.level || 0) * 5);
+        if (guild.members.size >= maxMembers) return socket.emit('systemMessage', `❌ Guild is full (${guild.members.size}/${maxMembers}).`);
         guild.members.add(p.id);
         if (!guild.roles) guild.roles = {};
         guild.roles[p.id] = 'Member';
@@ -4812,7 +4832,7 @@ socket.on('requestConfirmTrade', () => {
 
         await supabase.from('Exonians').update({ guild_details: p.guild_details }).eq('character_name', p.id);
         
-        socket.emit('systemMessage', `🎉 You joined ${guildName}!`);
+        socket.emit('systemMessage', `You joined ${guildName}!`);
         socket.emit('updateLocalGuildTag', guildName); 
         io.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
         
@@ -4861,7 +4881,8 @@ socket.on('requestConfirmTrade', () => {
         guild.applicants = (guild.applicants || []).filter(a => a !== applicantName);
 
         if (accept) {
-            if (guild.members.size >= 20) return socket.emit('systemMessage', "❌ Guild is full (20/20).");
+            const maxMembers = 20 + ((guild.level || 0) * 5);
+            if (guild.members.size >= maxMembers) return socket.emit('systemMessage', `❌ Guild is full (${guild.members.size}/${maxMembers}).`);
             guild.members.add(applicantName);
             if (!guild.roles) guild.roles = {};
             guild.roles[applicantName] = 'Member';
@@ -4873,7 +4894,7 @@ socket.on('requestConfirmTrade', () => {
                 tp.spriteData.guildName = guild.name;
                 await supabase.from('Exonians').update({ guild_details: tp.guild_details }).eq('character_name', applicantName);
                 
-                io.to(targetSocketId).emit('systemMessage', `🎉 You were accepted into ${guild.name}!`);
+                io.to(targetSocketId).emit('systemMessage', `You were accepted into ${guild.name}!`);
                 io.to(targetSocketId).emit('updateLocalGuildTag', guild.name); 
                 io.emit('remotePlayerMoved', { id: tp.id, x: tp.x, y: tp.y, state: 'idle', facingRight: false, weaponSprite: tp.spriteData.weapon, spriteData: tp.spriteData });
             } else {
@@ -4929,7 +4950,7 @@ socket.on('requestConfirmTrade', () => {
             io.emit('remotePlayerMoved', { id: tp.id, x: tp.x, y: tp.y, state: 'idle', facingRight: false, weaponSprite: tp.spriteData.weapon, spriteData: tp.spriteData });
         }
         
-        socket.emit('systemMessage', `👢 Kicked ${targetName} from the guild.`);
+        socket.emit('systemMessage', `Kicked ${targetName} from the guild.`);
         saveGuildsToDB(); 
         
         guild.members.forEach(memberId => {
@@ -4951,7 +4972,7 @@ socket.on('requestConfirmTrade', () => {
 
         await supabase.from('Exonians').update({ guild_details: null }).eq('character_name', p.id);
         
-        socket.emit('systemMessage', "🚪 You have left the guild.");
+        socket.emit('systemMessage', "You have left the guild.");
         socket.emit('updateLocalGuildTag', null); 
         socket.emit('requestGuildUI_Refresh');
         io.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
@@ -4989,7 +5010,7 @@ socket.on('requestConfirmTrade', () => {
 
             saveGuildsToDB(); 
 
-            socket.emit('systemMessage', "🎉 SUCCESS! Your Guild Base is now open!");
+            socket.emit('systemMessage', "SUCCESS! Your Guild Base is now open!");
 
             guild.members.forEach(memberId => {
                 let memberSocketId = Object.keys(onlinePlayers).find(sid => onlinePlayers[sid].id === memberId);
@@ -4999,7 +5020,61 @@ socket.on('requestConfirmTrade', () => {
             socket.emit('systemMessage', "❌ A server error occurred during purchase.");
         }
     });
+socket.on('requestGuildLevelUp', async () => {
+        const p = onlinePlayers[socket.id]; 
+        if (!p || !p.guild_details) return;
+        
+        let gName = p.guild_details.name;
+        if (!global.guilds[gName]) return;
+        const guild = global.guilds[gName];
 
+        if (guild.roles[p.id] !== 'Master') {
+            return socket.emit('systemMessage', "❌ Only the Guild Master can level up the guild.");
+        }
+
+        guild.level = guild.level || 0;
+        if (guild.level >= 10) {
+            return socket.emit('systemMessage', "❌ Your guild is already at the maximum level (10).");
+        }
+
+        const cost = 1000000;
+        if ((guild.gold || 0) < cost) {
+            return socket.emit('systemMessage', `❌ Insufficient Guild Funds! You need ${cost.toLocaleString()} G in the guild bank.`);
+        }
+
+        // Deduct from Guild Bank, Increase Level
+        guild.gold -= cost;
+        guild.level += 1;
+
+        p.guild_details.guildGold = guild.gold;
+        p.guild_details.level = guild.level;
+
+        await supabase.from('Exonians').update({ guild_details: p.guild_details }).eq('character_name', p.id);
+        
+        socket.emit('systemMessage', `SUCCESS! Your Guild reached Level ${guild.level}!`);
+        io.emit('systemMessage', `[WORLD] The guild <${guild.name}> has reached Level ${guild.level}!`);
+        
+        saveGuildsToDB();
+        
+        // Refresh UI and Max HP for all online members instantly
+        guild.members.forEach(memberId => {
+            const targetSid = Object.keys(onlinePlayers).find(sid => onlinePlayers[sid].id === memberId);
+            if (targetSid && onlinePlayers[targetSid]) {
+                const memberPlayer = onlinePlayers[targetSid];
+                
+                if (memberPlayer.guild_details) {
+                    memberPlayer.guild_details.level = guild.level;
+                    memberPlayer.guild_details.guildGold = guild.gold;
+                }
+
+                const trueMaxHp = getServerTotalStat(memberPlayer, 'hp') || 100;
+                memberPlayer.maxHp = trueMaxHp;
+                
+                io.to(targetSid).emit('playerVitals', { currentHp: memberPlayer.currentHp, maxHp: memberPlayer.maxHp, level: memberPlayer.level });
+                io.to(targetSid).emit('requestGuildUI_Refresh');
+            }
+        });
+    });
     socket.on('donateGuildGold', async (amount) => {
         const p = onlinePlayers[socket.id]; if (!p || !p.guild_details) return;
         let donateAmt = parseInt(amount);
@@ -5015,7 +5090,7 @@ socket.on('requestConfirmTrade', () => {
         
         await supabase.from('Exonians').update({ gold: p.gold, guild_details: p.guild_details }).eq('character_name', p.id);
         socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
-        socket.emit('systemMessage', `💰 You donated ${donateAmt.toLocaleString()} Gold to the guild!`);
+        socket.emit('systemMessage', `You donated ${donateAmt.toLocaleString()} Gold to the guild!`);
         
         saveGuildsToDB();
         global.guilds[gName].members.forEach(memberId => {
@@ -6382,7 +6457,7 @@ socket.on('requestRerollStat', async (data) => {
                 .eq('character_name', p.id);
                 
             socket.emit('homeBought', p.gold);
-            socket.emit('systemMessage', '🎉 You successfully bought a Home for 1,000,000 Gold!');
+            socket.emit('systemMessage', 'You successfully bought a Home for 1,000,000 Gold!');
         } catch (err) {
             console.error('Home Buy Error:', err);
             socket.emit('systemMessage', '❌ Server error while purchasing home.');
@@ -6931,7 +7006,7 @@ const AURA_DATA = {
                 if (sellerSid && onlinePlayers[sellerSid]) {
                     onlinePlayers[sellerSid].gold += auc.price;
                     io.to(sellerSid).emit('purchaseSuccess', { newGold: onlinePlayers[sellerSid].gold, inventory: onlinePlayers[sellerSid].inventory });
-                    io.to(sellerSid).emit('systemMessage', `💰 Auction Sold: ${auc.item_name} for ${auc.price} Gold!`);
+                    io.to(sellerSid).emit('systemMessage', `Auction Sold: ${auc.item_name} for ${auc.price} Gold!`);
                 }
             }
 
