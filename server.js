@@ -5010,7 +5010,19 @@ socket.on('requestConfirmTrade', () => {
         if (p.lastChatTime && now - p.lastChatTime < 500) return; 
         p.lastChatTime = now;
 
-        let safeText = String(data.text).slice(0, 120); 
+       let safeText = String(data.text).slice(0, 120); 
+
+        // 👑 ADMIN COMMAND: Manually force the Battlefield Boss to spawn
+        if (isAdmin(p.id) && safeText.trim() === '/spawnbf') {
+            if (typeof spawnBattlefieldBoss === 'function') spawnBattlefieldBoss();
+            return;
+        }
+
+        // 👑 ADMIN COMMAND: Manually force the Neutral Zone Boss to spawn
+        if (isAdmin(p.id) && safeText.trim() === '/spawnnz') {
+            if (typeof spawnNeutralBoss === 'function') spawnNeutralBoss();
+            return;
+        }
         
         let displayName = p.id;
         if (isAdmin(p.id)) {
