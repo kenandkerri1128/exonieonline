@@ -3634,34 +3634,33 @@ socket.on('syncPet', (data) => {
                         clearTimeout(global.neutralBossDespawnTimer);
                         const dTime = Date.now();
                         
-                        // 🛡️ BULLETPROOF DB SAVE: Fixes the silent Supabase save failure
                         supabase.from('boss_timers').select('boss_id').eq('boss_id', 'neutralzone_boss').single().then(({data}) => {
                             let prm = data ? supabase.from('boss_timers').update({ last_death_time: dTime }).eq('boss_id', 'neutralzone_boss') 
                                            : supabase.from('boss_timers').insert([{ boss_id: 'neutralzone_boss', last_death_time: dTime }]);
                             
                             prm.then(() => {
                                 io.emit('systemMessage', `[WORLD] The Neutral Zone Boss was defeated by ${p.name}! Respawning in 5 hours.`);
-                                // 🌟 THE MISSING LINK: Instantly start the timer UI for everyone standing in the zone!
                                 io.to('neutralzone').emit('bossCooldownActive', { remaining: 5 * 60 * 60 * 1000 });
-                            checkNeutralBoss(); 
-                                    });
+                                checkNeutralBoss(); 
                             });
-                            // 🏰 BATTLEFIELD BOSS DEATH & AUTO-KICK
-                            } else if (targetMob.isBattlefieldBoss) {
-                                clearTimeout(global.bfBossDespawnTimer);
-                                io.emit('systemMessage', `🏆 [WORLD] The Castle was defended! ${p.name} delivered the final blow!`);
-                                
-                                setTimeout(() => {
-                                    const playersInRoom = playersInInstance('battlefield');
-                                    playersInRoom.forEach(rp => {
-                                        rp.mapId = 'town'; rp.x = 960; rp.y = 1000; rp.instanceId = 'town';
-                                        const rsid = findSocketIdByPlayerId(rp.id);
-                                        if (rsid) io.to(rsid).emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
-                                    });
-                                    scheduleBattlefieldBoss();
-                                }, 5000);
-                            
                         });
+                        
+                    // 🏰 BATTLEFIELD BOSS DEATH & AUTO-KICK
+                    } else if (m.isBattlefieldBoss) {
+                        clearTimeout(global.bfBossDespawnTimer);
+                        io.emit('systemMessage', `🏆 [WORLD] The Castle was defended! ${p.name} delivered the final blow!`);
+                        
+                        setTimeout(() => {
+                            const playersInRoom = playersInInstance('battlefield');
+                            playersInRoom.forEach(rp => {
+                                rp.mapId = 'town'; rp.x = 960; rp.y = 1000; rp.instanceId = 'town';
+                                const rsid = findSocketIdByPlayerId(rp.id);
+                                if (rsid) io.to(rsid).emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
+                            });
+                            scheduleBattlefieldBoss();
+                        }, 5000);
+                    }
+
                     io.to(p.instanceId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
 
                     // 🦇 DUNGEON 2 WIN CONDITION & STAGE PROGRESSION
