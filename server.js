@@ -8491,12 +8491,20 @@ async function runDatabaseCleanup() {
 global.bfBossDespawnTimer = null;
 global.bfBossSpawnTimer = null;
 
-function scheduleBattlefieldBoss() {
+async function scheduleBattlefieldBoss() {
     const minMs = 1 * 60 * 60 * 1000; // 1 hour
     const maxMs = 48 * 60 * 60 * 1000; // 48 hours
     const delay = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
+    const nextSpawnTs = Date.now() + delay; // 🌟 The exact time it should spawn next
     
-    console.log(`[BATTLEFIELD] Next assault in ${delay / 3600000} hours.`);
+    console.log(`[BATTLEFIELD] Next assault in ${(delay / 3600000).toFixed(2)} hours.`);
+    
+    // 🛡️ SAVE TO SUPABASE: Store the future spawn timestamp so the server remembers it on reboot!
+    await supabase.from('boss_timers').select('boss_id').eq('boss_id', 'battlefield_boss').single().then(({data}) => {
+        if (data) supabase.from('boss_timers').update({ last_death_time: nextSpawnTs }).eq('boss_id', 'battlefield_boss').then(()=>{});
+        else supabase.from('boss_timers').insert([{ boss_id: 'battlefield_boss', last_death_time: nextSpawnTs }]).then(()=>{});
+    });
+
     clearTimeout(global.bfBossSpawnTimer);
     global.bfBossSpawnTimer = setTimeout(spawnBattlefieldBoss, delay);
 }
@@ -8506,6 +8514,9 @@ function spawnBattlefieldBoss() {
     
     const bossId = 'battlefield_boss_1';
     if (worlds['battlefield'].monsters[bossId] && worlds['battlefield'].monsters[bossId].alive) return;
+
+    // 🛡️ WIPE DB LOCK: Tells the database the boss is currently ALIVE
+    supabase.from('boss_timers').delete().eq('boss_id', 'battlefield_boss').then(()=>{});
 
     const bosses = ['floor_boss_wraith', 'floor_boss_minotaur', 'floor_boss_dragon'];
     const randomKey = bosses[Math.floor(Math.random() * bosses.length)];
@@ -8538,8 +8549,29 @@ function spawnBattlefieldBoss() {
     }, 7 * 24 * 60 * 60 * 1000); // 1 Week Despawn
 }
 
+// 🌟 SERVER BOOT LOGIC
+async function initBattlefieldEngine() {
+    const { data: timer } = await supabase.from('boss_timers').select('last_death_time').eq('boss_id', 'battlefield_boss').single();
+    
+    if (timer) {
+        // A future timer exists in the database! Resume it.
+        const remaining = parseInt(timer.last_death_time) - Date.now();
+        if (remaining > 0) {
+            console.log(`[BATTLEFIELD] Resuming DB timer. Assault in ${(remaining / 3600000).toFixed(2)} hours.`);
+            global.bfBossSpawnTimer = setTimeout(spawnBattlefieldBoss, remaining);
+        } else {
+            // Timer expired while server was offline
+            spawnBattlefieldBoss();
+        }
+    } else {
+        // No timer means the boss was alive when the server crashed, or it's a fresh server!
+        console.log(`[BATTLEFIELD] No DB timer. Spawning boss in 15 seconds...`);
+        global.bfBossSpawnTimer = setTimeout(spawnBattlefieldBoss, 15000);
+    }
+}
+
 // Start engine on boot
-setTimeout(scheduleBattlefieldBoss, 15000);
+setTimeout(initBattlefieldEngine, 5000);
 // ==========================================
 // ⚔️ NEUTRAL ZONE BOSS ENGINE
 // ==========================================
