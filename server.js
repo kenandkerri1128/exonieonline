@@ -5051,9 +5051,6 @@ socket.on('requestGuildLevelUp', async () => {
 
         await supabase.from('Exonians').update({ guild_details: p.guild_details }).eq('character_name', p.id);
         
-        socket.emit('systemMessage', `SUCCESS! Your Guild reached Level ${guild.level}!`);
-        io.emit('systemMessage', `[WORLD] The guild <${guild.name}> has reached Level ${guild.level}!`);
-        
         saveGuildsToDB();
         
         // Refresh UI and Max HP for all online members instantly
@@ -5073,6 +5070,9 @@ socket.on('requestGuildLevelUp', async () => {
                 io.to(targetSid).emit('playerVitals', { currentHp: memberPlayer.currentHp, maxHp: memberPlayer.maxHp, level: memberPlayer.level });
                 io.to(targetSid).emit('requestGuildUI_Refresh');
                 io.to(targetSid).emit('syncGuildDetails', memberPlayer.guild_details);
+                
+                // 📢 THE FIX: Only announce the level up to the online members of this specific guild!
+                io.to(targetSid).emit('systemMessage', `Your guild <${guild.name}> has reached Level ${guild.level}!`);
             }
         });
     });
