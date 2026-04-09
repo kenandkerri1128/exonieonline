@@ -2571,9 +2571,7 @@ socket.on('broadcastSkill', (data) => {
         // 🛡️ MOBILE RAM FIX: Prevents the phone from stacking 20 map loads if they wiggle on the portal!
         if (p.isLoadingMap || (p.teleportGrace && Date.now() < p.teleportGrace)) return;
 
-        p.currentPortal = data.portalId;
-        
-        // 🛡️ BATTLEFIELD BLOCKER: Cannot enter if the boss isn't spawned yet!
+       // 🛡️ BATTLEFIELD BLOCKER: Checks if boss is alive BEFORE letting them use the portal
         if (data.targetMapId === 'battlefield') {
             const bfWorld = worlds['battlefield'];
             const boss = bfWorld ? bfWorld.monsters['battlefield_boss_1'] : null;
@@ -2582,6 +2580,8 @@ socket.on('broadcastSkill', (data) => {
                 return socket.emit('systemMessage', '❌ No threat outside the castle yet.');
             }
         }
+        
+        p.currentPortal = data.portalId;
         
         // 🛡️ MAZE TRIAL BLOCKER: Prevent teleporting to other floors!
         if (p.isMazeTrial && data.targetMapId !== 'town') {
@@ -3639,8 +3639,24 @@ socket.on('syncPet', (data) => {
                                 io.emit('systemMessage', `[WORLD] The Neutral Zone Boss was defeated by ${p.name}! Respawning in 5 hours.`);
                                 // 🌟 THE MISSING LINK: Instantly start the timer UI for everyone standing in the zone!
                                 io.to('neutralzone').emit('bossCooldownActive', { remaining: 5 * 60 * 60 * 1000 });
-                                checkNeutralBoss(); 
-                            });
+                            checkNeutralBoss(); 
+                                    });
+
+                            // 🏰 BATTLEFIELD BOSS DEATH & AUTO-KICK
+                            } else if (targetMob.isBattlefieldBoss) {
+                                clearTimeout(global.bfBossDespawnTimer);
+                                io.emit('systemMessage', `🏆 [WORLD] The Castle was defended! ${p.name} delivered the final blow!`);
+                                
+                                setTimeout(() => {
+                                    const playersInRoom = playersInInstance('battlefield');
+                                    playersInRoom.forEach(rp => {
+                                        rp.mapId = 'town'; rp.x = 960; rp.y = 1000; rp.instanceId = 'town';
+                                        const rsid = findSocketIdByPlayerId(rp.id);
+                                        if (rsid) io.to(rsid).emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
+                                    });
+                                    scheduleBattlefieldBoss();
+                                }, 5000);
+                            
                         });
                     }
                     io.to(p.instanceId).emit('monsterDied', { monsterId: m.id, killerId: p.id });
@@ -8466,6 +8482,61 @@ async function runDatabaseCleanup() {
         console.error("[CLEANUP ERROR] Failed to run database sweep:", e.message);
     }
 }
+// ==========================================
+// 🏰 BATTLEFIELD CO-OP BOSS ENGINE
+// ==========================================
+global.bfBossDespawnTimer = null;
+global.bfBossSpawnTimer = null;
+
+function scheduleBattlefieldBoss() {
+    const minMs = 1 * 60 * 60 * 1000; // 1 hour
+    const maxMs = 48 * 60 * 60 * 1000; // 48 hours
+    const delay = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
+    
+    console.log(`[BATTLEFIELD] Next assault in ${delay / 3600000} hours.`);
+    clearTimeout(global.bfBossSpawnTimer);
+    global.bfBossSpawnTimer = setTimeout(spawnBattlefieldBoss, delay);
+}
+
+function spawnBattlefieldBoss() {
+    if (!worlds['battlefield']) worlds['battlefield'] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
+    
+    const bossId = 'battlefield_boss_1';
+    if (worlds['battlefield'].monsters[bossId] && worlds['battlefield'].monsters[bossId].alive) return;
+
+    const bosses = ['floor_boss_wraith', 'floor_boss_minotaur', 'floor_boss_dragon'];
+    const randomKey = bosses[Math.floor(Math.random() * bosses.length)];
+    const randomLevel = Math.floor(Math.random() * (1000 - 500 + 1)) + 500; // Lv 500 to 1000
+
+    const cfg = { spawnArea: { minX: 960, maxX: 960, minY: 1000, maxY: 1000 }, level: randomLevel };
+    const newBoss = spawnMonster('battlefield', bossId, randomKey, cfg);
+    
+    newBoss.isBattlefieldBoss = true; 
+    newBoss.respawnDelayMs = -1; // Handled by engine, not auto-respawn
+    worlds['battlefield'].monsters[bossId] = newBoss;
+
+    io.emit('systemMessage', `⚠️ <span style="color:#ff4444; font-weight:bold;">[WORLD] A Level ${randomLevel} ${newBoss.name} is assaulting the Castle! Enter the Battle Field to defend!</span>`);
+
+    clearTimeout(global.bfBossDespawnTimer);
+    global.bfBossDespawnTimer = setTimeout(() => {
+        if (worlds['battlefield'] && worlds['battlefield'].monsters[bossId] && worlds['battlefield'].monsters[bossId].alive) {
+            worlds['battlefield'].monsters[bossId].alive = false;
+            io.to('battlefield').emit('monsterDied', { monsterId: bossId, killerId: null });
+            io.emit('systemMessage', `💨 The Battlefield threat has retreated after 1 week.`);
+            
+            const playersInRoom = playersInInstance('battlefield');
+            playersInRoom.forEach(rp => {
+                rp.mapId = 'town'; rp.x = 960; rp.y = 1000; rp.instanceId = 'town';
+                const rsid = findSocketIdByPlayerId(rp.id);
+                if (rsid) io.to(rsid).emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
+            });
+            scheduleBattlefieldBoss();
+        }
+    }, 7 * 24 * 60 * 60 * 1000); // 1 Week Despawn
+}
+
+// Start engine on boot
+setTimeout(scheduleBattlefieldBoss, 15000);
 // ==========================================
 // ⚔️ NEUTRAL ZONE BOSS ENGINE
 // ==========================================
