@@ -8522,14 +8522,18 @@ function spawnBattlefieldBoss() {
     const randomKey = bosses[Math.floor(Math.random() * bosses.length)];
     const randomLevel = Math.floor(Math.random() * (1000 - 500 + 1)) + 500; // Lv 500 to 1000
 
-    const cfg = { spawnArea: { minX: 960, maxX: 960, minY: 1000, maxY: 1000 }, level: randomLevel };
+    // 🌟 THE FIX: Updated coordinates to 1001, 574
+    const cfg = { spawnArea: { minX: 1001, maxX: 1001, minY: 574, maxY: 574 }, level: randomLevel };
     const newBoss = spawnMonster('battlefield', bossId, randomKey, cfg);
     
     newBoss.isBattlefieldBoss = true; 
-    newBoss.respawnDelayMs = -1; // Handled by engine, not auto-respawn
+    newBoss.respawnDelayMs = -1; 
     worlds['battlefield'].monsters[bossId] = newBoss;
 
-    io.emit('systemMessage', `⚠️ <span style="color:#ff4444; font-weight:bold;">[WORLD] A Level ${randomLevel} ${newBoss.name} is assaulting the Castle! Enter the Battle Field to defend!</span>`);
+    // 🛡️ THE FIX: This tells the screens of players already inside the map to draw the boss!
+    io.to('battlefield').emit('monsterSpawned', serializeMonster(newBoss));
+
+    io.emit('systemMessage', `⚠️ <span style="color:#ff4444; font-weight:bold;">[WORLD] A Level ${randomLevel} ${newBoss.name} is assaulting the Castle! Enter the Battle Field (Portal O) to defend!</span>`);
 
     clearTimeout(global.bfBossDespawnTimer);
     global.bfBossDespawnTimer = setTimeout(() => {
