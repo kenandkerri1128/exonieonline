@@ -2262,11 +2262,16 @@ window.getTotalStat = function(statName) {
     }
 
     // Blademaster: Sharpen Up! (Lv.1+) -> +25% Base Attack
-    if (pClass === 'Blademaster' && statName === 'attack') {
-        base += Math.floor((Number(game.player.baseStats.attack) || 0) * 0.25);
-    }
+    if (pClass === 'Blademaster' && statName === 'attack') {
+        base += Math.floor((Number(game.player.baseStats.attack) || 0) * 0.25);
+    }
 
-    return Math.max(0, base);
+    // 🛡️ DYNAMIC UI GUILD BOOST: Applies +2% per level to ALL frontend stats instantly!
+    if (game.player && game.player.guild_details && game.player.guild_details.level > 0) {
+        base += Math.floor(base * (game.player.guild_details.level * 0.02));
+    }
+
+    return Math.max(0, base);
 };
 window.getAttackPower = function() { return window.getTotalStat('attack') + Math.floor(window.getTotalStat('str') / 2); }; 
 window.getMagicAttack = function() { return window.getTotalStat('magic') + Math.floor(window.getTotalStat('int') / 2); }; 
@@ -3729,6 +3734,16 @@ socket.on('mailList', (mails) => {
     });
     socket.on('sellSuccess', (data) => { game.player.gold = data.newGold; game.player.inventory = data.inventory; dom.log.innerText = `Item sold for ${data.price} Gold.`; window.updateUI(); window.renderInventory(); });
     socket.on('syncInventory', (serverInventory) => { game.player.inventory = serverInventory; window.updateEquipmentDisplay(); window.renderInventory(); });
+    
+    // 🛡️ DYNAMIC GUILD SYNC: Updates your local player data the exact moment the guild levels up!
+    socket.on('syncGuildDetails', (details) => {
+        if (game.player) {
+            game.player.guild_details = details;
+            if (typeof window.updateUI === 'function') window.updateUI();
+            // Note: If you have a specific function that draws your Stats Profile page, call it here too!
+        }
+    });
+
  // 🌟 THE FIX: The Brand New Listener so your Potions actually move the red bar!
     socket.on('playerVitals', (data) => {
         if (!data) return;
