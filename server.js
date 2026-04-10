@@ -8233,12 +8233,13 @@ socket.on('startDungeon', async (data) => {
     // ==========================================
     // 💳 SECURE STORE RECEIPT VERIFICATION
     // ==========================================
-   socket.on('verifyStoreReceipt', async (data) => {
+  socket.on('verifyStoreReceipt', async (data) => {
         if (!socket.username) return;
 
         const { platform, receipt, packageId } = data;
         let isValid = false;
         let gemsToAward = 0;
+        let googleResponse = null;
 
         // Map your Store Package IDs to exactly how many gems they grant
         if (packageId === 'gem_pack_50') gemsToAward = 50;
@@ -8248,39 +8249,25 @@ socket.on('startDungeon', async (data) => {
         try {
             if (platform === 'android') {
                 // 🟢 GOOGLE PLAY VERIFICATION API
-                // 🛡️ THE FIX 1: Uses 'playApi' which we set up with the Render Env Variables!
-                const response = await playApi.purchases.products.get({
+                googleResponse = await playApi.purchases.products.get({
                     packageName: GOOGLE_PACKAGE_NAME,
                     productId: packageId,
                     token: receipt
                 });
 
                 // purchaseState 0 means the purchase was successfully completed and paid for!
-                if (response.data.purchaseState === 0) {
+                if (googleResponse.data.purchaseState === 0) {
                     isValid = true;
-                    
-                    // 🛡️ THE FIX 2 (ANTI-REFUND): Acknowledge the purchase so Google doesn't auto-refund in 3 days!
-                    if (response.data.acknowledgementState === 0) {
-                        await playApi.purchases.products.acknowledge({
-                            packageName: GOOGLE_PACKAGE_NAME,
-                            productId: packageId,
-                            token: receipt
-                        });
-                        console.log(`[STORE] Acknowledged ${packageId} for ${socket.username}`);
-                    }
+                } else {
+                    throw new Error("Google Play returned purchase as unverified or canceled.");
                 }
-                else throw new Error("Google Play returned purchase as unverified or canceled.");
             } 
             else if (platform === 'steam') {
-                // 🔵 STEAMWORKS VERIFICATION API (DEPRECATED)
-                // Steam purchases are now securely handled by the HTTP Webhooks:
-                // /api/shop/init and /api/shop/finalize
                 throw new Error("Steam transactions route through HTTP Webhooks, not Sockets.");
             }
 
-            // 💎 IF THE STORE SAYS IT'S REAL, GRANT THE GEMS
+            // 💎 IF THE STORE SAYS IT'S REAL, GRANT THE GEMS FIRST!
             if (isValid) {
-                // 1. Fetch current user stats from Exonians table
                 const { data: user, error } = await supabase
                     .from('Exonians')
                     .select('base_stats')
@@ -8298,7 +8285,7 @@ socket.on('startDungeon', async (data) => {
                     onlinePlayers[socket.id].baseStats.exoGems = newGems;
                 }
 
-                // 2. Update Supabase
+                // Update Supabase
                 safeStats.exoGems = newGems;
                 const { error: updateError } = await supabase
                     .from('Exonians')
@@ -8307,18 +8294,30 @@ socket.on('startDungeon', async (data) => {
 
                 if (updateError) throw new Error("Database update failed.");
 
-                // 3. Notify the client to update their UI
+                // Notify the client to update their UI
                 socket.emit('receiptVerified', { newGems: newGems, gemsAdded: gemsToAward });
-                
                 console.log(`[STORE] Awarded ${gemsToAward} gems to ${socket.username}. New Balance: ${newGems}`);
+
+                // 🛡️ THE FIX: Safely attempt to acknowledge AFTER gems are granted
+                if (platform === 'android' && googleResponse && googleResponse.data.acknowledgementState === 0) {
+                    try {
+                        await playApi.purchases.products.acknowledge({
+                            packageName: GOOGLE_PACKAGE_NAME,
+                            productId: packageId,
+                            token: receipt
+                        });
+                        console.log(`[STORE] Server acknowledged ${packageId} for ${socket.username}`);
+                    } catch (ackErr) {
+                        console.log(`[STORE] Acknowledge skipped (likely consumed by phone): ${ackErr.message}`);
+                    }
+                }
             }
 
         } catch (err) {
             console.error('[STORE ERROR]', err.message);
-            // 🛡️ THE FIX 3: Updated error messages to reflect the new Render Environment Variables setup
             let errorMsg = err.message || "Unknown error";
             if (errorMsg.includes("invalid_grant") || errorMsg.includes("JWT")) {
-                errorMsg = "Server Environment Variables are misconfigured (Invalid JWT Signature). Check the Render Private Key formatting.";
+                errorMsg = "Server Environment Variables are misconfigured (Invalid JWT Signature).";
             }
             socket.emit('receiptFailed', "Verification Error: " + errorMsg);
         }
