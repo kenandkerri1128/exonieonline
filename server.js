@@ -2,14 +2,18 @@ require('dotenv').config();
 const { google } = require('googleapis');
 
 // ==========================================
-// 💳 STORE CREDENTIALS (TO BE FILLED LATER)
+// 💳 STORE CREDENTIALS (RENDER ENV VARIABLES)
 // ==========================================
 const GOOGLE_PACKAGE_NAME = 'com.xeniegaming.exonie'; // Android App ID
-const googleAuth = new google.auth.GoogleAuth({
-    keyFile: './google-service-account.json', 
+
+// 🛡️ THE FIX: Safely reads the keys from Render and fixes the \n formatting bug!
+const authClient = new google.auth.JWT({
+    email: process.env.GOOGLE_CLIENT_EMAIL,
+    key: process.env.GOOGLE_PRIVATE_KEY ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined,
     scopes: ['https://www.googleapis.com/auth/androidpublisher']
 });
-const playDeveloper = google.androidpublisher({ version: 'v3', auth: googleAuth });
+
+const playApi = google.androidpublisher({ version: 'v3', auth: authClient });
 
 const STEAM_WEB_API_KEY = '4F9B94B4338DF119CB6EE7AEBD89F0C0'; 
 const STEAM_APP_ID = '4579730';
@@ -8229,7 +8233,7 @@ socket.on('startDungeon', async (data) => {
     // ==========================================
     // 💳 SECURE STORE RECEIPT VERIFICATION
     // ==========================================
-    socket.on('verifyStoreReceipt', async (data) => {
+   socket.on('verifyStoreReceipt', async (data) => {
         if (!socket.username) return;
 
         const { platform, receipt, packageId } = data;
@@ -8241,16 +8245,30 @@ socket.on('startDungeon', async (data) => {
         else if (packageId === 'gem_pack_15') gemsToAward = 15;
         else return socket.emit('receiptFailed', "Invalid package ID.");
 
-       try {
+        try {
             if (platform === 'android') {
                 // 🟢 GOOGLE PLAY VERIFICATION API
-                const response = await playDeveloper.purchases.products.get({
+                // 🛡️ THE FIX 1: Uses 'playApi' which we set up with the Render Env Variables!
+                const response = await playApi.purchases.products.get({
                     packageName: GOOGLE_PACKAGE_NAME,
                     productId: packageId,
                     token: receipt
                 });
 
-                if (response.data.purchaseState === 0) isValid = true;
+                // purchaseState 0 means the purchase was successfully completed and paid for!
+                if (response.data.purchaseState === 0) {
+                    isValid = true;
+                    
+                    // 🛡️ THE FIX 2 (ANTI-REFUND): Acknowledge the purchase so Google doesn't auto-refund in 3 days!
+                    if (response.data.acknowledgementState === 0) {
+                        await playApi.purchases.products.acknowledge({
+                            packageName: GOOGLE_PACKAGE_NAME,
+                            productId: packageId,
+                            token: receipt
+                        });
+                        console.log(`[STORE] Acknowledged ${packageId} for ${socket.username}`);
+                    }
+                }
                 else throw new Error("Google Play returned purchase as unverified or canceled.");
             } 
             else if (platform === 'steam') {
@@ -8296,15 +8314,15 @@ socket.on('startDungeon', async (data) => {
             }
 
         } catch (err) {
-            console.error('[STORE ERROR]', err.message);
-            // 🛡️ THE FIX: Send the exact server error so you know if Google Auth is failing!
+            console.error('[STORE ERROR]', err.message);
+            // 🛡️ THE FIX 3: Updated error messages to reflect the new Render Environment Variables setup
             let errorMsg = err.message || "Unknown error";
-            if (errorMsg.includes("ENOENT") || errorMsg.includes("keyFile")) {
-                errorMsg = "Server is missing the google-service-account.json file! Purchases cannot be verified.";
+            if (errorMsg.includes("invalid_grant") || errorMsg.includes("JWT")) {
+                errorMsg = "Server Environment Variables are misconfigured (Invalid JWT Signature). Check the Render Private Key formatting.";
             }
-            socket.emit('receiptFailed', "Verification Error: " + errorMsg);
-        }
-    });
+            socket.emit('receiptFailed', "Verification Error: " + errorMsg);
+        }
+    });
    // ==========================================
     // 🧰 HOME STORAGE ENGINE
     // ==========================================
