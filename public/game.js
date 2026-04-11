@@ -3553,6 +3553,10 @@ if(socket) {
             game.player.maxExp = userData.max_exp || 200;
             game.player.gold = userData.gold || 0; 
             game.player.baseStats = (typeof userData.base_stats === 'object' && userData.base_stats !== null) ? userData.base_stats : { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }; 
+            
+            // 🛡️ THE UI FIX: Accept the fully buffed stats from the server so the frontend matches!
+            game.player.totalStats = userData.totalStats || game.player.baseStats;
+
             if (game.player.baseStats.playerClass && (!CLASSES || !CLASSES[game.player.baseStats.playerClass])) { game.player.baseStats.playerClass = null; }
             game.player.inventory = Array.isArray(userData.inventory) ? userData.inventory : new Array(20).fill(null); 
             // 🛡️ THE FIX: Guarantee the client initializes all 6 equip slots on login
@@ -3561,8 +3565,8 @@ if(socket) {
             window.charData.skinColor = userData.skin_color || 'flesh'; 
             window.charData.hairColor = userData.hair_color || 'black'; 
             window.charData.hairStyle = userData.hair_style || '1'; 
-            game.player.currentHp = window.getMaxHp(); 
-           window.updateSkillMenu(); 
+            game.player.currentHp = userData.currentHp || window.getMaxHp(); 
+           window.updateSkillMenu();
 window.loadLootFilter();
 if (socket) socket.emit('updateLootFilter', game.player.lootFilter);
 let targetMapId = 'town'; 
