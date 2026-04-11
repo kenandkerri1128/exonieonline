@@ -3774,11 +3774,13 @@ socket.on('syncPet', (data) => {
 
                         let finalExp = expAmount;
                         
-                        // 🛡️ GUILD EXP BOOST: +2% per guild level
-                        if (targetPlayer.guild_details && targetPlayer.guild_details.name) {
-                            const guild = global.guilds[targetPlayer.guild_details.name];
-                            if (guild && guild.level > 0) {
-                                finalExp += Math.floor(expAmount * (guild.level * 0.02));
+                       // 🛡️ GUILD EXP BOOST: +2% per guild level
+                        // Checks the player's saved guild details directly so it survives server restarts
+                        if (targetPlayer.guild_details && targetPlayer.guild_details.level) {
+                            let gLevel = parseInt(targetPlayer.guild_details.level) || 0;
+                            if (gLevel > 0) {
+                                let bonusExp = Math.floor(expAmount * (gLevel * 0.02));
+                                finalExp += bonusExp;
                             }
                         }
 
