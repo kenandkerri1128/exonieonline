@@ -3,7 +3,6 @@
   "appName": "Exonie",
   "webDir": "www",
   "server": {
-    "url": "https://exonieonline.onrender.com",
     "cleartext": true
   }
 }
