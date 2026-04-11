@@ -3555,13 +3555,17 @@ if(socket) {
             game.player.exp = userData.exp || 0; 
             game.player.maxExp = userData.max_exp || 200;
             game.player.gold = userData.gold || 0; 
+            
+            // 🛡️ THE MISSING LINK: Save the guild details to the client's RAM!
+            game.player.guild_details = userData.guild_details || null;
+
             game.player.baseStats = (typeof userData.base_stats === 'object' && userData.base_stats !== null) ? userData.base_stats : { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }; 
             
             // 🛡️ THE UI FIX: Accept the fully buffed stats from the server so the frontend matches!
             game.player.totalStats = userData.totalStats || game.player.baseStats;
 
             if (game.player.baseStats.playerClass && (!CLASSES || !CLASSES[game.player.baseStats.playerClass])) { game.player.baseStats.playerClass = null; }
-            game.player.inventory = Array.isArray(userData.inventory) ? userData.inventory : new Array(20).fill(null); 
+            game.player.inventory = Array.isArray(userData.inventory) ? userData.inventory : new Array(20).fill(null);
             // 🛡️ THE FIX: Guarantee the client initializes all 6 equip slots on login
             const defaultEquips = { weapon: null, armor: null, leggings: null, necklace: null, ring: null, earrings: null };
             game.player.equips = Object.assign({}, defaultEquips, userData.equips || {});
