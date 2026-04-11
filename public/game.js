@@ -3537,11 +3537,14 @@ if(socket) {
             if(document.getElementById('player-name-tag')) document.getElementById('player-name-tag').innerHTML = myNameHtml; 
             if(document.getElementById('ui-name-display')) document.getElementById('ui-name-display').innerHTML = myNameHtml;
             
-          // 🛡️ THE FIX: Tell the client to remember the title AND Guild sent from the database!
+         // 🛡️ THE FIX: Tell the client to remember the title AND Guild sent from the database!
             game.player.title = userData.title || null;
             if (!game.player.spriteData) game.player.spriteData = {};
             game.player.spriteData.title = userData.title || null;
             game.player.spriteData.guildName = userData.guild_details ? userData.guild_details.name : null;
+
+            // 🛡️ THE MISSING LINK: We MUST save the actual guild object so the frontend stat math knows your guild level!
+            game.player.guild_details = userData.guild_details || null;
 
             // 🛡️ APPLY TITLE & GUILD ON LOGIN
             if(document.getElementById('player-title-tag')) {
