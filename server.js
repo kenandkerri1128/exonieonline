@@ -3983,9 +3983,10 @@ socket.on('syncPet', (data) => {
                             }
                         }
 
-                        if (targetSid) {
-                            io.to(targetSid).emit('receiveExp', { amount: expAmount, gold: goldAmount, source: m.name });
-                            io.to(targetSid).emit('syncInventory', targetPlayer.inventory);
+                       if (targetSid) {
+                                // 🛡️ THE EXP FIX: Send 'finalExp' to the UI, not the naked 'expAmount'!
+                                io.to(targetSid).emit('receiveExp', { amount: finalExp, gold: goldAmount, source: m.name });
+                                io.to(targetSid).emit('syncInventory', targetPlayer.inventory);
                         }
                         
                         // 🛡️ CRITICAL FIX: Ensure Title actually saves to the Database!
