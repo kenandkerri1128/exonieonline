@@ -690,6 +690,59 @@ function getBaseStat(lvl) {
     if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; 
     if (lvl >= 5) return 8; return 5; 
 }
+// 🛡️ THE FIX: Master Stat Recalculator
+// This runs every single time a player logs in or refreshes
+function recalculatePlayerStats(player) {
+    if (!player || !player.baseStats) return;
+
+    // 1. Start with their naked, permanent base stats from Supabase
+    let finalMaxHp = player.baseStats.hp || 100;
+    let finalStr = player.baseStats.str || 0;
+    let finalInt = player.baseStats.int || 0;
+    let finalAtk = player.baseStats.atk || 0;
+    let finalDef = player.baseStats.def || 0;
+    let finalSpd = player.baseStats.spd || 0;
+
+    // 2. Add GUILD BUFFS (Calculated fresh every login!)
+    if (player.guild_details && player.guild_details.level) {
+        let gLevel = parseInt(player.guild_details.level) || 0;
+        if (gLevel > 0) {
+            // Adjust these numbers based on exactly what your guild buffs give!
+            // Example: +10 HP and +2 ATK/DEF per guild level
+            finalMaxHp += (gLevel * 10);
+            finalAtk += (gLevel * 2);
+            finalDef += (gLevel * 2);
+            // (Add any other guild stat boosts here)
+        }
+    }
+
+    // 3. Add EQUIPMENT BUFFS (If you have them)
+    if (player.inventory) {
+        const equippedItems = player.inventory.filter(item => item && item.isEquipped);
+        for (const item of equippedItems) {
+            if (item.stats) {
+                if (item.stats.hp) finalMaxHp += item.stats.hp;
+                if (item.stats.atk) finalAtk += item.stats.atk;
+                if (item.stats.def) finalDef += item.stats.def;
+                if (item.stats.str) finalStr += item.stats.str;
+                if (item.stats.int) finalInt += item.stats.int;
+            }
+        }
+    }
+
+    // 4. Save the final calculated totals back into the player's active RAM profile
+    player.maxHp = finalMaxHp;
+    player.totalStr = finalStr;
+    player.totalInt = finalInt;
+    player.totalAtk = finalAtk;
+    player.totalDef = finalDef;
+    player.totalSpd = finalSpd;
+
+    // Ensure their current HP doesn't magically exceed their newly calculated Max HP
+    if (player.currentHp > player.maxHp) {
+        player.currentHp = player.maxHp;
+    }
+}
 // 🛡️ NEW: BOSS COUNTDOWN HELPER
 function getBossCountdown(lastDeathTime) {
     const now = Date.now();
@@ -3018,7 +3071,7 @@ socket.on('login', async (data) => {
 
     currentUser = safeUser.character_name;
 
-    onlinePlayers[socket.id] = {
+   onlinePlayers[socket.id] = {
         socketId: socket.id,
         id: safeUser.character_name,
         name: safeUser.character_name,
@@ -3065,6 +3118,9 @@ socket.on('login', async (data) => {
         lastTokenRefill: Date.now(),
         skillCooldowns: {}
     };
+
+    // 🛡️ STEP 2 FIX: Recalculate stats immediately after building the player profile!
+    recalculatePlayerStats(onlinePlayers[socket.id]);
 
     await supabase
         .from('Exonians')
