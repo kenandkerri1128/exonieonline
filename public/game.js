@@ -3537,11 +3537,14 @@ if(socket) {
             if(document.getElementById('player-name-tag')) document.getElementById('player-name-tag').innerHTML = myNameHtml; 
             if(document.getElementById('ui-name-display')) document.getElementById('ui-name-display').innerHTML = myNameHtml;
             
-          // 🛡️ THE FIX: Tell the client to remember the title AND Guild sent from the database!
+         // 🛡️ THE FIX: Tell the client to remember the title AND Guild sent from the database!
             game.player.title = userData.title || null;
             if (!game.player.spriteData) game.player.spriteData = {};
             game.player.spriteData.title = userData.title || null;
             game.player.spriteData.guildName = userData.guild_details ? userData.guild_details.name : null;
+
+            // 🛡️ THE MISSING LINK: We MUST save the actual guild object so the frontend stat math knows your guild level!
+            game.player.guild_details = userData.guild_details || null;
 
             // 🛡️ APPLY TITLE & GUILD ON LOGIN
             if(document.getElementById('player-title-tag')) {
@@ -3553,6 +3556,10 @@ if(socket) {
             game.player.maxExp = userData.max_exp || 200;
             game.player.gold = userData.gold || 0; 
             game.player.baseStats = (typeof userData.base_stats === 'object' && userData.base_stats !== null) ? userData.base_stats : { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }; 
+            
+            // 🛡️ THE UI FIX: Accept the fully buffed stats from the server so the frontend matches!
+            game.player.totalStats = userData.totalStats || game.player.baseStats;
+
             if (game.player.baseStats.playerClass && (!CLASSES || !CLASSES[game.player.baseStats.playerClass])) { game.player.baseStats.playerClass = null; }
             game.player.inventory = Array.isArray(userData.inventory) ? userData.inventory : new Array(20).fill(null); 
             // 🛡️ THE FIX: Guarantee the client initializes all 6 equip slots on login
@@ -3561,8 +3568,8 @@ if(socket) {
             window.charData.skinColor = userData.skin_color || 'flesh'; 
             window.charData.hairColor = userData.hair_color || 'black'; 
             window.charData.hairStyle = userData.hair_style || '1'; 
-            game.player.currentHp = window.getMaxHp(); 
-           window.updateSkillMenu(); 
+            game.player.currentHp = userData.currentHp || window.getMaxHp(); 
+           window.updateSkillMenu();
 window.loadLootFilter();
 if (socket) socket.emit('updateLootFilter', game.player.lootFilter);
 let targetMapId = 'town'; 
