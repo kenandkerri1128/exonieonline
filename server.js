@@ -3071,56 +3071,67 @@ socket.on('login', async (data) => {
 
     currentUser = safeUser.character_name;
 
-   onlinePlayers[socket.id] = {
-        socketId: socket.id,
-        id: safeUser.character_name,
-        name: safeUser.character_name,
-        mapId: mapId,
-        instanceId: instId,
-        isGhost: false,
-        currentPortal: null,
-        x: 960,
-        y: 1000,
-        level: safeUser.level || 1,
-        exp: safeUser.exp || 0,                 // 🛡️ THE FIX: Load EXP into server RAM
-        maxExp: safeUser.max_exp || 200,        // 🛡️ THE FIX: Load Max EXP into server RAM
-        currentHp: clamp(safeUser.current_hp || trueMaxHp, 0, trueMaxHp),
-        maxHp: trueMaxHp,
-        tradeTarget: null,
-        inventory: safeUser.inventory,
-        equips: safeUser.equips,
-        baseStats: safeUser.base_stats,
-        gold: safeUser.gold || 0,
-        title: safeUser.title || null,
-        guild_details: safeUser.guild_details || null, // 🛡️ Attach Guild to Player Object
-      spriteData: {
-            skin: safeUser.skin_color,
-            hair: safeUser.hair_color,
-            style: safeUser.hair_style,
-            weapon: safeUser.equips.weapon?.sprite || null,
-            aura: safeUser.equips.armor?.aura || null,
-            pet: safeUser.equips.leggings?.aura || null,
+  onlinePlayers[socket.id] = {
+            socketId: socket.id,
+            id: safeUser.character_name,
+            name: safeUser.character_name,
+            mapId: mapId,
+            instanceId: instId,
+            isGhost: false,
+            currentPortal: null,
+            x: 960,
+            y: 1000,
+            level: safeUser.level || 1,
+            exp: safeUser.exp || 0,
+            maxExp: safeUser.max_exp || 200,
+            tradeTarget: null,
+            inventory: safeUser.inventory,
+            equips: safeUser.equips,
+            baseStats: safeUser.base_stats,
+            gold: safeUser.gold || 0,
             title: safeUser.title || null,
-            isAdmin: isAdmin(safeUser.character_name), // 👑 THE FIX: Tells the client to render the GM tag!
-            guildName: safeUser.guild_details ? safeUser.guild_details.name : null // 🛡️ Adds the Guild tag!
-        },
-        lootFilter: {
-            Starter: true,
-            Basic: true,
-            Rare: true,
-            Unique: true,
-            Legendary: true,
-            Godly: true
-        },
-        untargetableUntil: 0,
-        tauntBuffUntil: 0,
-        attackTokens: 3,
-        lastTokenRefill: Date.now(),
-        skillCooldowns: {}
-    };
+            guild_details: safeUser.guild_details || null,
+            spriteData: {
+                skin: safeUser.skin_color,
+                hair: safeUser.hair_color,
+                style: safeUser.hair_style,
+                weapon: safeUser.equips.weapon?.sprite || null,
+                aura: safeUser.equips.armor?.aura || null,
+                pet: safeUser.equips.leggings?.aura || null,
+                title: safeUser.title || null,
+                isAdmin: isAdmin(safeUser.character_name),
+                guildName: safeUser.guild_details ? safeUser.guild_details.name : null
+            },
+            lootFilter: {
+                Starter: true,
+                Basic: true,
+                Rare: true,
+                Unique: true,
+                Legendary: true,
+                Godly: true
+            },
+            untargetableUntil: 0,
+            tauntBuffUntil: 0,
+            attackTokens: 3,
+            lastTokenRefill: Date.now(),
+            skillCooldowns: {}
+        };
 
-    // 🛡️ STEP 2 FIX: Recalculate stats immediately after building the player profile!
-    recalculatePlayerStats(onlinePlayers[socket.id]);
+        // 🛡️ THE UI FIX: Calculate the true totals immediately!
+        let playerRef = onlinePlayers[socket.id];
+        
+        playerRef.totalStats = {
+            hp: getServerTotalStat(playerRef, 'hp'),
+            atk: getServerTotalStat(playerRef, 'atk'),
+            def: getServerTotalStat(playerRef, 'def'),
+            str: getServerTotalStat(playerRef, 'str'),
+            int: getServerTotalStat(playerRef, 'int'),
+            spd: getServerTotalStat(playerRef, 'spd')
+        };
+        
+        // 🛡️ Fix the HP logic so it uses the buffed total, not the naked base!
+        playerRef.maxHp = playerRef.totalStats.hp;
+        playerRef.currentHp = clamp(safeUser.current_hp || playerRef.maxHp, 0, playerRef.maxHp);
 
     await supabase
         .from('Exonians')
@@ -3830,15 +3841,19 @@ socket.on('syncPet', (data) => {
 
                         let finalExp = expAmount;
                         
-                       // 🛡️ GUILD EXP BOOST: +2% per guild level
-                        // Checks the player's saved guild details directly so it survives server restarts
-                        if (targetPlayer.guild_details && targetPlayer.guild_details.level) {
-                            let gLevel = parseInt(targetPlayer.guild_details.level) || 0;
+                       // 🛡️ GUILD EXP BOOST: +2% per guild level (FIXED)
+                        let bonusExp = 0;
+                        if (targetPlayer.guild_details && targetPlayer.guild_details.name) {
+                            // Try to get level from DB, fallback to global server RAM if missing
+                            let gLevel = parseInt(targetPlayer.guild_details.level) || 
+                                         (global.guilds[targetPlayer.guild_details.name] ? global.guilds[targetPlayer.guild_details.name].level : 0);
+                            
                             if (gLevel > 0) {
-                                let bonusExp = Math.floor(expAmount * (gLevel * 0.02));
-                                finalExp += bonusExp;
+                                // Math.ceil ensures you ALWAYS get at least +1 bonus EXP, no matter how small!
+                                bonusExp = Math.ceil(expAmount * (gLevel * 0.02)); 
                             }
                         }
+                        finalExp += bonusExp;
 
                         targetPlayer.exp += finalExp;
                         targetPlayer.gold += goldAmount;
