@@ -690,6 +690,59 @@ function getBaseStat(lvl) {
     if (lvl >= 20) return 20; if (lvl >= 15) return 15; if (lvl >= 10) return 12; 
     if (lvl >= 5) return 8; return 5; 
 }
+// 🛡️ THE FIX: Master Stat Recalculator
+// This runs every single time a player logs in or refreshes
+function recalculatePlayerStats(player) {
+    if (!player || !player.baseStats) return;
+
+    // 1. Start with their naked, permanent base stats from Supabase
+    let finalMaxHp = player.baseStats.hp || 100;
+    let finalStr = player.baseStats.str || 0;
+    let finalInt = player.baseStats.int || 0;
+    let finalAtk = player.baseStats.atk || 0;
+    let finalDef = player.baseStats.def || 0;
+    let finalSpd = player.baseStats.spd || 0;
+
+    // 2. Add GUILD BUFFS (Calculated fresh every login!)
+    if (player.guild_details && player.guild_details.level) {
+        let gLevel = parseInt(player.guild_details.level) || 0;
+        if (gLevel > 0) {
+            // Adjust these numbers based on exactly what your guild buffs give!
+            // Example: +10 HP and +2 ATK/DEF per guild level
+            finalMaxHp += (gLevel * 10);
+            finalAtk += (gLevel * 2);
+            finalDef += (gLevel * 2);
+            // (Add any other guild stat boosts here)
+        }
+    }
+
+    // 3. Add EQUIPMENT BUFFS (If you have them)
+    if (player.inventory) {
+        const equippedItems = player.inventory.filter(item => item && item.isEquipped);
+        for (const item of equippedItems) {
+            if (item.stats) {
+                if (item.stats.hp) finalMaxHp += item.stats.hp;
+                if (item.stats.atk) finalAtk += item.stats.atk;
+                if (item.stats.def) finalDef += item.stats.def;
+                if (item.stats.str) finalStr += item.stats.str;
+                if (item.stats.int) finalInt += item.stats.int;
+            }
+        }
+    }
+
+    // 4. Save the final calculated totals back into the player's active RAM profile
+    player.maxHp = finalMaxHp;
+    player.totalStr = finalStr;
+    player.totalInt = finalInt;
+    player.totalAtk = finalAtk;
+    player.totalDef = finalDef;
+    player.totalSpd = finalSpd;
+
+    // Ensure their current HP doesn't magically exceed their newly calculated Max HP
+    if (player.currentHp > player.maxHp) {
+        player.currentHp = player.maxHp;
+    }
+}
 // 🛡️ NEW: BOSS COUNTDOWN HELPER
 function getBossCountdown(lastDeathTime) {
     const now = Date.now();
@@ -3018,53 +3071,67 @@ socket.on('login', async (data) => {
 
     currentUser = safeUser.character_name;
 
-    onlinePlayers[socket.id] = {
-        socketId: socket.id,
-        id: safeUser.character_name,
-        name: safeUser.character_name,
-        mapId: mapId,
-        instanceId: instId,
-        isGhost: false,
-        currentPortal: null,
-        x: 960,
-        y: 1000,
-        level: safeUser.level || 1,
-        exp: safeUser.exp || 0,                 // 🛡️ THE FIX: Load EXP into server RAM
-        maxExp: safeUser.max_exp || 200,        // 🛡️ THE FIX: Load Max EXP into server RAM
-        currentHp: clamp(safeUser.current_hp || trueMaxHp, 0, trueMaxHp),
-        maxHp: trueMaxHp,
-        tradeTarget: null,
-        inventory: safeUser.inventory,
-        equips: safeUser.equips,
-        baseStats: safeUser.base_stats,
-        gold: safeUser.gold || 0,
-        title: safeUser.title || null,
-        guild_details: safeUser.guild_details || null, // 🛡️ Attach Guild to Player Object
-      spriteData: {
-            skin: safeUser.skin_color,
-            hair: safeUser.hair_color,
-            style: safeUser.hair_style,
-            weapon: safeUser.equips.weapon?.sprite || null,
-            aura: safeUser.equips.armor?.aura || null,
-            pet: safeUser.equips.leggings?.aura || null,
+  onlinePlayers[socket.id] = {
+            socketId: socket.id,
+            id: safeUser.character_name,
+            name: safeUser.character_name,
+            mapId: mapId,
+            instanceId: instId,
+            isGhost: false,
+            currentPortal: null,
+            x: 960,
+            y: 1000,
+            level: safeUser.level || 1,
+            exp: safeUser.exp || 0,
+            maxExp: safeUser.max_exp || 200,
+            tradeTarget: null,
+            inventory: safeUser.inventory,
+            equips: safeUser.equips,
+            baseStats: safeUser.base_stats,
+            gold: safeUser.gold || 0,
             title: safeUser.title || null,
-            isAdmin: isAdmin(safeUser.character_name), // 👑 THE FIX: Tells the client to render the GM tag!
-            guildName: safeUser.guild_details ? safeUser.guild_details.name : null // 🛡️ Adds the Guild tag!
-        },
-        lootFilter: {
-            Starter: true,
-            Basic: true,
-            Rare: true,
-            Unique: true,
-            Legendary: true,
-            Godly: true
-        },
-        untargetableUntil: 0,
-        tauntBuffUntil: 0,
-        attackTokens: 3,
-        lastTokenRefill: Date.now(),
-        skillCooldowns: {}
-    };
+            guild_details: safeUser.guild_details || null,
+            spriteData: {
+                skin: safeUser.skin_color,
+                hair: safeUser.hair_color,
+                style: safeUser.hair_style,
+                weapon: safeUser.equips.weapon?.sprite || null,
+                aura: safeUser.equips.armor?.aura || null,
+                pet: safeUser.equips.leggings?.aura || null,
+                title: safeUser.title || null,
+                isAdmin: isAdmin(safeUser.character_name),
+                guildName: safeUser.guild_details ? safeUser.guild_details.name : null
+            },
+            lootFilter: {
+                Starter: true,
+                Basic: true,
+                Rare: true,
+                Unique: true,
+                Legendary: true,
+                Godly: true
+            },
+            untargetableUntil: 0,
+            tauntBuffUntil: 0,
+            attackTokens: 3,
+            lastTokenRefill: Date.now(),
+            skillCooldowns: {}
+        };
+
+        // 🛡️ THE UI FIX: Calculate the true totals immediately!
+        let playerRef = onlinePlayers[socket.id];
+        
+        playerRef.totalStats = {
+            hp: getServerTotalStat(playerRef, 'hp'),
+            atk: getServerTotalStat(playerRef, 'atk'),
+            def: getServerTotalStat(playerRef, 'def'),
+            str: getServerTotalStat(playerRef, 'str'),
+            int: getServerTotalStat(playerRef, 'int'),
+            spd: getServerTotalStat(playerRef, 'spd')
+        };
+        
+        // 🛡️ Fix the HP logic so it uses the buffed total, not the naked base!
+        playerRef.maxHp = playerRef.totalStats.hp;
+        playerRef.currentHp = clamp(safeUser.current_hp || playerRef.maxHp, 0, playerRef.maxHp);
 
     await supabase
         .from('Exonians')
@@ -3774,13 +3841,19 @@ socket.on('syncPet', (data) => {
 
                         let finalExp = expAmount;
                         
-                        // 🛡️ GUILD EXP BOOST: +2% per guild level
+                       // 🛡️ GUILD EXP BOOST: +2% per guild level (FIXED)
+                        let bonusExp = 0;
                         if (targetPlayer.guild_details && targetPlayer.guild_details.name) {
-                            const guild = global.guilds[targetPlayer.guild_details.name];
-                            if (guild && guild.level > 0) {
-                                finalExp += Math.floor(expAmount * (guild.level * 0.02));
+                            // Try to get level from DB, fallback to global server RAM if missing
+                            let gLevel = parseInt(targetPlayer.guild_details.level) || 
+                                         (global.guilds[targetPlayer.guild_details.name] ? global.guilds[targetPlayer.guild_details.name].level : 0);
+                            
+                            if (gLevel > 0) {
+                                // Math.ceil ensures you ALWAYS get at least +1 bonus EXP, no matter how small!
+                                bonusExp = Math.ceil(expAmount * (gLevel * 0.02)); 
                             }
                         }
+                        finalExp += bonusExp;
 
                         targetPlayer.exp += finalExp;
                         targetPlayer.gold += goldAmount;
