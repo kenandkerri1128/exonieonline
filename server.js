@@ -3090,7 +3090,10 @@ socket.on('login', async (data) => {
             baseStats: safeUser.base_stats,
             gold: safeUser.gold || 0,
             title: safeUser.title || null,
-            guild_details: safeUser.guild_details || null,
+            // 🛡️ THE FIX: Inject the real Guild Level from the server's global RAM!
+        guild_details: (safeUser.guild_details && safeUser.guild_details.name && global.guilds && global.guilds[safeUser.guild_details.name]) 
+            ? { name: safeUser.guild_details.name, level: global.guilds[safeUser.guild_details.name].level } 
+            : (safeUser.guild_details || null),
             spriteData: {
                 skin: safeUser.skin_color,
                 hair: safeUser.hair_color,
