@@ -48,8 +48,10 @@ if (typeof window !== 'undefined' && window.location) {
     const host = window.location.hostname;
     if (host.includes('testexonie')) {
         serverUrl = 'https://testexonie.onrender.com'; // Route to the Render test backend
-    } else if (host === 'localhost' || host === '127.0.0.1') {
-        serverUrl = 'http://localhost:3000'; // Route to your local PC backend if testing locally
+    } else if ((host === 'localhost' || host === '127.0.0.1') && window.currentPlatform === 'web') {
+        // 🛑 CAPACITOR FIX: Only use port 3000 if we are actually on a PC Web Browser!
+        // Capacitor uses 'localhost' on the phone, so we ignore it and default to the Live Server.
+        serverUrl = 'http://localhost:3000'; 
     }
 }
 const socket = io(serverUrl, {
