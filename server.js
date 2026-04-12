@@ -1301,6 +1301,17 @@ function ensureWorldFromMapData(instanceId, mapData) {
         
         if (isFallback && instanceId !== 'town' && !instanceId.includes('home')) {
             console.log(`[ANTI-LAG] Rejected empty map payload for ${instanceId}`);
+            // 🛡️ THE FIX: Request a retry after 2 seconds so the client can send real map data
+            const retryPlayerId = Object.values(onlinePlayers).find(pl => pl.instanceId === instanceId);
+            if (retryPlayerId) {
+                const retrySid = findSocketIdByPlayerId(retryPlayerId.id);
+                if (retrySid) {
+                    setTimeout(() => {
+                        const rawMapId = instanceId.split('_')[0];
+                        io.to(retrySid).emit('requestMapSync', { mapId: rawMapId, instanceId: instanceId });
+                    }, 2000);
+                }
+            }
             return null; // Force the server to wait for a healthy connection to build the room!
         }
 
@@ -2815,18 +2826,26 @@ socket.on('login', async (data) => {
             return socket.emit('authError', 'Invalid username or password.');
         }
 
-        const { data: user, error } = await supabase
-            .from('Exonians')
-            .select('*')
-            .eq('character_name', username)
-            .eq('password', password)
-            .single();
+        let user = null;
+        try {
+            const { data, error: dbErr } = await supabase
+                .from('Exonians')
+                .select('*')
+                .eq('character_name', username)
+                .eq('password', password)
+                .maybeSingle();
 
-       if (error || !user) {
-            console.error(
-                `[LOGIN FAILED] Invalid credentials for ${username}. Error:`,
-                error?.message || 'No user found'
-            );
+            if (dbErr) {
+                console.error(`[LOGIN FAILED] DB error for ${username}:`, dbErr.message);
+                return socket.emit('authError', 'Invalid username or password.');
+            }
+            user = data;
+        } catch (coercionErr) {
+            console.error(`[LOGIN CRASH] JSON coercion for ${username}:`, coercionErr);
+            return socket.emit('authError', 'Server Error. Please try again.');
+        }
+
+        if (!user) {
             return socket.emit('authError', 'Invalid username or password.');
         }
 
@@ -5612,6 +5631,13 @@ socket.on('requestGuildLevelUp', async () => {
         if (worlds[p.instanceId]) {
             socket.emit('monsterState', Object.values(worlds[p.instanceId].monsters).map(serializeMonster));
         }
+        // 🛡️ LATE SPAWN CATCH: Re-emit monster state after async DB checks complete
+        const lateInstId = p.instanceId;
+        setTimeout(() => {
+            if (worlds[lateInstId]) {
+                socket.emit('monsterState', Object.values(worlds[lateInstId].monsters).map(serializeMonster));
+            }
+        }, 3000);
 
         supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', currentUser).then(() => {});
 
