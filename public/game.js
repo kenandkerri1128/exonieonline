@@ -1113,8 +1113,8 @@ function gameLoop(ts) {
    let nextY = game.player.y; 
    let isMoving = false; 
    
-   // Apply delta to move speed (Capped at 2.5x to prevent teleporting through walls on extremely laggy phones)
-   const moveSpeed = 5 * Math.min(delta, 2.5); 
+   // 🚀 ANTI-TUNNEL: No cap needed anymore — sub-stepping handles any delta safely
+   const moveSpeed = 5 * delta; 
 
    let isFrozen = (game.player.frozenUntil && Date.now() < game.player.frozenUntil);
    
@@ -1129,23 +1129,29 @@ function gameLoop(ts) {
         else { let anyAlive = game.party.members.some(m => !m.isGhost && m.id !== game.player.id); if (!anyAlive) canInputMove = false; }
     }
 
+    // 🛡️ ANTI-TUNNEL: Calculate desired velocity BEFORE applying it
+    let velX = 0, velY = 0;
     if (canInputMove) {
-        if (game.keys.w) { nextY -= moveSpeed; isMoving = true; }
-        if (game.keys.s) { nextY += moveSpeed; isMoving = true; }
-        if (game.keys.a) { nextX -= moveSpeed; isMoving = true; window.facingRight = false; }
-        if (game.keys.d) { nextX += moveSpeed; isMoving = true; window.facingRight = true; }
+        if (game.keys.w) { velY -= moveSpeed; isMoving = true; }
+        if (game.keys.s) { velY += moveSpeed; isMoving = true; }
+        if (game.keys.a) { velX -= moveSpeed; isMoving = true; window.facingRight = false; }
+        if (game.keys.d) { velX += moveSpeed; isMoving = true; window.facingRight = true; }
     }
 
     if (isMoving) {
-                let canMoveX = true; let canMoveY = true;
-                if(typeof window.isColliding === 'function') {
-                    canMoveX = !window.isColliding(nextX, game.player.y) || window.adminMode; 
-                    canMoveY = !window.isColliding(game.player.x, nextY) || window.adminMode;
-                    if (window.isColliding(game.player.x, game.player.y)) { canMoveX = true; canMoveY = true; } 
-                }
-                if (canMoveX) game.player.x = nextX; 
-                if (canMoveY) game.player.y = nextY;
-            }
+        if (window.adminMode) {
+            // Admin mode: skip collision entirely
+            game.player.x += velX;
+            game.player.y += velY;
+        } else if (typeof window._moveWithCollision === 'function') {
+            // 🚀 THE NEW ANTI-TUNNEL MOVEMENT ENGINE
+            window._moveWithCollision(velX, velY);
+        } else {
+            // Fallback: old-style check (should never happen)
+            game.player.x += velX;
+            game.player.y += velY;
+        }
+    }
 
             // ⚙️ TECH GENIUS: Auto-Respawn Drone on Map Change!
             if (game.player.baseStats?.playerClass === 'Tech Genius' && !game.isGhost && !window.isLoading) {
@@ -1870,7 +1876,156 @@ window.showMapAnnouncement = function(mapId) {
     const annText = document.getElementById('map-announcement-text'); 
     if (annContainer && annText) { annText.innerText = cleanName; annContainer.style.opacity = '1'; setTimeout(() => { annContainer.style.opacity = '0'; }, 3000); } 
 };
-window.isColliding = function(targetX, targetY) { const hitX = targetX + (game.player.width - game.player.w) / 2; const hitY = targetY + game.player.height - game.player.h; const cols = safeMapData.collisions || []; for (let box of cols) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; } return false; }
+// ==========================================
+// 🛡️ ANTI-TUNNEL COLLISION ENGINE
+// ==========================================
+// Math Explanation:
+// The old system checked if the player's FINAL position overlapped a wall.
+// If a lag spike made moveSpeed = 12.5px but the wall was only 10px thick,
+// the final position was PAST the wall — no overlap detected — player clips through.
+//
+// The new system uses "Sub-Stepped Swept AABB":
+// 1. VELOCITY VECTOR: We know the player wants to move (velX, velY) pixels this frame.
+// 2. SUB-STEPPING: We divide that vector into steps of max 4px each (half the thinnest
+//    possible wall). Even at delta=5.0 (extreme lag), a 25px move becomes 7 tiny steps.
+// 3. SWEPT CHECK: At each sub-step, we test X and Y independently (axis separation).
+//    If X movement hits a wall, we CLAMP X to the wall's edge and stop X motion.
+//    Same for Y. This means diagonal movement slides along walls naturally.
+// 4. EDGE CLAMPING: Instead of just stopping, we calculate the exact pixel where the
+//    player's hitbox touches the wall and place them there. No 1px gaps, no jitter.
+//
+// Performance: On a normal 60fps frame (delta=1), moveSpeed=5px which is already
+// under the 4px step size, so it runs as a SINGLE step — same cost as the old system.
+// Sub-stepping only activates during actual lag spikes.
+// ==========================================
+
+// 🛡️ Original isColliding — preserved for portals, skills, and external callers
+window.isColliding = function(targetX, targetY) { 
+    const hitX = targetX + (game.player.width - game.player.w) / 2; 
+    const hitY = targetY + game.player.height - game.player.h; 
+    const cols = safeMapData.collisions || []; 
+    for (let i = 0; i < cols.length; i++) { 
+        const box = cols[i];
+        if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; 
+    } 
+    return false; 
+}
+
+// 🛡️ SWEPT AABB: Check a hitbox at (px, py) against a single wall box.
+// Returns the largest safe "time" (0 to 1) along the velocity vector before collision.
+// If no collision, returns 1.0 (full movement is safe).
+window._sweepAABB = function(px, py, pw, ph, velX, velY, box) {
+    // No movement? No sweep needed.
+    if (velX === 0 && velY === 0) return 1.0;
+
+    let tEnterX = -Infinity, tLeaveX = Infinity;
+    let tEnterY = -Infinity, tLeaveY = Infinity;
+
+    // X axis
+    if (velX !== 0) {
+        tEnterX = ((velX > 0) ? (box.x - (px + pw)) : (box.x + box.w - px)) / velX;
+        tLeaveX = ((velX > 0) ? (box.x + box.w - px) : (box.x - (px + pw))) / velX;
+    } else {
+        // Not moving on X: check static overlap
+        if (px + pw <= box.x || px >= box.x + box.w) return 1.0; // No X overlap, can never collide
+    }
+
+    // Y axis
+    if (velY !== 0) {
+        tEnterY = ((velY > 0) ? (box.y - (py + ph)) : (box.y + box.h - py)) / velY;
+        tLeaveY = ((velY > 0) ? (box.y + box.h - py) : (box.y - (py + ph))) / velY;
+    } else {
+        if (py + ph <= box.y || py >= box.y + box.h) return 1.0;
+    }
+
+    let tEnter = Math.max(tEnterX, tEnterY);
+    let tLeave = Math.min(tLeaveX, tLeaveY);
+
+    // No collision if: entry after exit, or collision is behind us, or collision is past the move
+    if (tEnter > tLeave || tLeave <= 0 || tEnter >= 1.0) return 1.0;
+
+    return Math.max(0, tEnter);
+};
+
+// 🚀 THE ANTI-TUNNEL MOVEMENT ENGINE
+// Called every frame instead of the old canMoveX/canMoveY check.
+window._moveWithCollision = function(velX, velY) {
+    const p = game.player;
+    const cols = safeMapData.collisions || [];
+
+    // 🛡️ STUCK ESCAPE HATCH: If the player is already inside a wall, let them move freely to escape
+    if (window.isColliding(p.x, p.y)) {
+        p.x += velX;
+        p.y += velY;
+        return;
+    }
+
+    // 🚀 SUB-STEPPING: Divide the movement into safe chunks of max 4px
+    // 4px = half the minimum wall thickness (player.w = 24, walls vary 8-32px)
+    const MAX_STEP = 4;
+    const totalDist = Math.sqrt(velX * velX + velY * velY);
+    
+    // If total movement is tiny (normal 60fps frame), skip sub-stepping entirely
+    if (totalDist <= MAX_STEP) {
+        // Single-step: Use swept AABB for precision even on small moves
+        window._resolveStep(velX, velY, cols);
+        return;
+    }
+
+    // Divide into sub-steps
+    const numSteps = Math.ceil(totalDist / MAX_STEP);
+    const stepVelX = velX / numSteps;
+    const stepVelY = velY / numSteps;
+
+    for (let i = 0; i < numSteps; i++) {
+        window._resolveStep(stepVelX, stepVelY, cols);
+    }
+};
+
+// 🛡️ RESOLVE A SINGLE SUB-STEP: Axis-separated swept collision with edge clamping
+window._resolveStep = function(svx, svy, cols) {
+    const p = game.player;
+    // Calculate the foot hitbox origin from the player's sprite position
+    const offsetX = (p.width - p.w) / 2;  // Horizontal centering offset
+    const offsetY = p.height - p.h;        // Vertical foot offset
+
+    // === X AXIS ===
+    if (svx !== 0) {
+        let hitX = p.x + offsetX;
+        let hitY = p.y + offsetY;
+        let bestT = 1.0;
+
+        for (let i = 0; i < cols.length; i++) {
+            const t = window._sweepAABB(hitX, hitY, p.w, p.h, svx, 0, cols[i]);
+            if (t < bestT) bestT = t;
+        }
+
+        if (bestT < 1.0) {
+            // 📌 EDGE CLAMP: Move to the exact wall edge, then nudge 0.1px back to prevent overlap
+            p.x += svx * bestT - Math.sign(svx) * 0.1;
+        } else {
+            p.x += svx;
+        }
+    }
+
+    // === Y AXIS === (uses the UPDATED X position from above)
+    if (svy !== 0) {
+        let hitX = p.x + offsetX;
+        let hitY = p.y + offsetY;
+        let bestT = 1.0;
+
+        for (let i = 0; i < cols.length; i++) {
+            const t = window._sweepAABB(hitX, hitY, p.w, p.h, 0, svy, cols[i]);
+            if (t < bestT) bestT = t;
+        }
+
+        if (bestT < 1.0) {
+            p.y += svy * bestT - Math.sign(svy) * 0.1;
+        } else {
+            p.y += svy;
+        }
+    }
+};
 
 window.spawnDamageText = function(x, y, amount, color) { 
     // 🚀 DOM CAP: Max 30 damage texts on screen to prevent mobile lag
