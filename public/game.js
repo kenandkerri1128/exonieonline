@@ -5452,7 +5452,18 @@ window.closeWelcomeMessage = function() { window.showNextNews(); };
 window.closeDungeonUI = function() {
     const ui = document.getElementById('dungeon-screen');
     if (ui) ui.style.display = 'none';
+    
+    let ls = document.getElementById('loading-screen');
+    if (ls) ls.style.display = 'none';
+    
     window.isDungeonUIOpen = false; // Unlock movement
+    window.isLoading = false;
+    window.isTransitioning = false;
+    
+    if (game && game.player) {
+        game.player.isTeleporting = false;
+        game.player.currentPortal = 'JUST_SPAWNED'; 
+    }
 };
 
 window.startDungeon = function(difficulty) {
@@ -7696,6 +7707,13 @@ if (socket) {
     socket.on('closeHauntedUI', () => {
         let modal = document.getElementById('haunted-house-modal');
         if (modal) modal.style.display = 'none';
+        let ls = document.getElementById('loading-screen');
+        if (ls) ls.style.display = 'none';
+        window.isLoading = false;
+        window.isTransitioning = false;
+        if (game && game.player) {
+            game.player.isTeleporting = false;
+        }
     });
 
     socket.on('hauntedVictory', () => {
