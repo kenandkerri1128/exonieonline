@@ -1,9 +1,14 @@
 {
   "appId": "com.xeniegaming.exonie",
   "appName": "Exonie",
-  "webDir": "www",
+  "webDir": "public",
   "server": {
-    "url": "https://exonieonline.onrender.com",
-    "cleartext": true
+    "cleartext": true,
+    "allowNavigation": ["exonieonline.onrender.com", "testexonie.onrender.com"],
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "webContentsDebuggingEnabled": false
   }
 }
