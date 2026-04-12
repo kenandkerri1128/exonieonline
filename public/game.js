@@ -49,9 +49,11 @@ if (typeof window !== 'undefined' && window.location) {
     if (host.includes('testexonie')) {
         serverUrl = 'https://testexonie.onrender.com'; // Route to the Render test backend
     } else if ((host === 'localhost' || host === '127.0.0.1') && window.currentPlatform === 'web') {
-        // 🛑 CAPACITOR FIX: Only use port 3000 if we are actually on a PC Web Browser!
-        // Capacitor uses 'localhost' on the phone, so we ignore it and default to the Live Server.
-        serverUrl = 'http://localhost:3000'; 
+        // 🛑 CAPACITOR FIX: Only use localhost:3000 if we are CERTAIN we're on a PC browser
+        // Check for Capacitor indicators to avoid false positives on mobile
+        if (!window.Capacitor && !navigator.userAgent.includes('Capacitor')) {
+            serverUrl = 'http://localhost:3000'; 
+        }
     }
 }
 const socket = io(serverUrl, {
@@ -1117,7 +1119,7 @@ function gameLoop(ts) {
    let isFrozen = (game.player.frozenUntil && Date.now() < game.player.frozenUntil);
    
    // 🛑 SPAWN LOCK: Prevents hyper-fast phones from instantly walking into exit portals before collisions load!
-   let isSpawning = (Date.now() - (window.mapLoadTimestamp || 0) < 600);
+   let isSpawning = (Date.now() - (window.mapLoadTimestamp || 0) < 1500);
 
    // 🛑 PARTY WAIT FIX: Allow movement while waiting on the portal! Only lock when the black loading screen drops.
    let canInputMove = (!isChatting && !window.isTransitioning && !window.isLoading && !window.isDungeonUIOpen && !isFrozen && !isSpawning);
@@ -1524,10 +1526,10 @@ function gameLoop(ts) {
     dom.playerContainer.style.left = game.player.x + 'px'; 
     dom.playerContainer.style.top = game.player.y + 'px'; 
 
-   // 🌫️ OPTIMIZED FOG OF WAR (Runs every 3 frames to save CPU)
+   // 🌫️ OPTIMIZED FOG OF WAR (Runs every 6 frames to save CPU on mobile)
     window.fowFrameCount = (window.fowFrameCount || 0) + 1;
     const fow = document.getElementById('fow-canvas');
-    if (fow && window.fowFrameCount % 3 === 0) {
+    if (fow && window.fowFrameCount % 6 === 0) {
         const ctx = fow.getContext('2d', { alpha: true });
         // 🛡️ THE FIX: Removed the low-perf check so the math ALWAYS runs and hides enemies behind walls!
         if (safeMapData.id !== 'town' && !String(safeMapData.id).includes('home') && !String(safeMapData.id).includes('guildbase') && !game.isGhost) {
@@ -1700,7 +1702,8 @@ function gameLoop(ts) {
     const desiredState = isAttacking ? 'attack' : (isMoving ? 'walk' : 'idle'); 
     const netNow = Date.now();
     let lastNetTs = window.lastNetTs || 0; let lastSentState = window.lastSentState || 'idle';
-    if (netNow - lastNetTs >= 60 || desiredState !== lastSentState) { 
+    // 🚀 MOBILE FIX: Throttled from 60ms to 100ms (~10 updates/sec) to halve network traffic on cellular
+    if (netNow - lastNetTs >= 100 || desiredState !== lastSentState) { 
         window.lastNetTs = netNow; window.lastSentState = desiredState; 
         if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: desiredState, facingRight: window.facingRight, weaponSprite: game.player.equips?.weapon?.sprite || null });
     }
@@ -1838,6 +1841,16 @@ window.cleanupMap = function() {
 
     // 🛡️ LATENCY SHIELD: Mark the exact millisecond we wiped the map
     window.mapLoadTimestamp = Date.now();
+
+    // 🛡️ SPAWN SAFETY: Nudge player out of walls if they spawned inside one
+    if (typeof window.isColliding === 'function' && window.isColliding(game.player.x, game.player.y)) {
+        for (let nudge = 10; nudge <= 100; nudge += 10) {
+            if (!window.isColliding(game.player.x, game.player.y - nudge)) { game.player.y -= nudge; break; }
+            if (!window.isColliding(game.player.x, game.player.y + nudge)) { game.player.y += nudge; break; }
+            if (!window.isColliding(game.player.x - nudge, game.player.y)) { game.player.x -= nudge; break; }
+            if (!window.isColliding(game.player.x + nudge, game.player.y)) { game.player.x += nudge; break; }
+        }
+    }
 }
 window.forceUnstuck = function() { 
     if (safeMapData.id === 'trainingtavern') { if (dom.log) dom.log.innerText = "You cannot escape the Tavern!"; return; }
@@ -1859,7 +1872,12 @@ window.showMapAnnouncement = function(mapId) {
 };
 window.isColliding = function(targetX, targetY) { const hitX = targetX + (game.player.width - game.player.w) / 2; const hitY = targetY + game.player.height - game.player.h; const cols = safeMapData.collisions || []; for (let box of cols) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; } return false; }
 
-window.spawnDamageText = function(x, y, amount, color) { const txt = document.createElement('div'); txt.className = 'damage-text'; txt.innerText = amount; let jitterX = (Math.random() * 40) - 20; let jitterY = (Math.random() * 20) - 10; txt.style.left = (x - 10 + jitterX) + 'px'; txt.style.top = (y + jitterY) + 'px'; txt.style.color = color; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 1000); }
+window.spawnDamageText = function(x, y, amount, color) { 
+    // 🚀 DOM CAP: Max 30 damage texts on screen to prevent mobile lag
+    const existing = dom.world.querySelectorAll('.damage-text');
+    if (existing.length > 30) existing[0].remove();
+    const txt = document.createElement('div'); txt.className = 'damage-text'; txt.innerText = amount; let jitterX = (Math.random() * 40) - 20; let jitterY = (Math.random() * 20) - 10; txt.style.left = (x - 10 + jitterX) + 'px'; txt.style.top = (y + jitterY) + 'px'; txt.style.color = color; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 1000); 
+}
 
 // 🌟 YOUR NEW FUNCTION GOES HERE 🌟
 window.spawnSkillText = function(x, y, text, color) {
@@ -1882,15 +1900,26 @@ window.spawnSkillText = function(x, y, text, color) {
     
     anim.onfinish = () => txt.remove();
 };
-window.spawnSpark = function(x, y) { const spark = document.createElement('div'); spark.className = 'spark'; spark.style.left = (x + (Math.random() * 20 - 10)) + 'px'; spark.style.top = (y + (Math.random() * 20 - 10)) + 'px'; dom.world.appendChild(spark); setTimeout(() => spark.remove(), 300); }
-window.spawnWhiteSplash = function(x, y) { const splash = document.createElement('div'); splash.className = 'white-splash'; splash.style.left = x + 'px'; splash.style.top = y + 'px'; dom.world.appendChild(splash); setTimeout(() => splash.remove(), 300); }
+window.spawnSpark = function(x, y) { 
+    // 🚀 DOM CAP: Max 20 sparks on screen to prevent mobile lag
+    const existing = dom.world.querySelectorAll('.spark');
+    if (existing.length > 20) existing[0].remove();
+    const spark = document.createElement('div'); spark.className = 'spark'; spark.style.left = (x + (Math.random() * 20 - 10)) + 'px'; spark.style.top = (y + (Math.random() * 20 - 10)) + 'px'; dom.world.appendChild(spark); setTimeout(() => spark.remove(), 300); 
+}
+window.spawnWhiteSplash = function(x, y) { 
+    // 🚀 DOM CAP: Max 15 splashes on screen to prevent mobile lag
+    const existing = dom.world.querySelectorAll('.white-splash');
+    if (existing.length > 15) existing[0].remove();
+    const splash = document.createElement('div'); splash.className = 'white-splash'; splash.style.left = x + 'px'; splash.style.top = y + 'px'; dom.world.appendChild(splash); setTimeout(() => splash.remove(), 300); 
+}
 window.shootLaser = function(startX, startY, endX, endY) {
     const laser = document.createElement('div');
     const length = Math.hypot(endX - startX, endY - startY);
     const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
     laser.style.cssText = `position:absolute; background:#00E5FF; height:4px; width:${length}px; left:${startX}px; top:${startY}px; transform-origin:0 50%; transform:rotate(${angle}deg); box-shadow:0 0 10px #00E5FF, 0 0 20px #00E5FF; z-index:100; pointer-events:none; opacity:1; transition:opacity 0.2s;`;
     dom.world.appendChild(laser);
-    let sfx = new Audio('music/lightning.mp3');
+    // 🚀 AUDIO POOL: Reuses pooled Audio instead of creating new Audio() every shot
+    let sfx = window._getSFX('lightning');
     sfx.volume = 0.3; sfx.play().catch(()=>{});
     setTimeout(() => laser.style.opacity = '0', 50);
     setTimeout(() => laser.remove(), 250);
@@ -2177,6 +2206,24 @@ window.playBGM = function(trackName) {
     });
 };
 window.lastSFXTime = 0;
+// 🚀 AUDIO POOL: Reuses 3 Audio objects per sound instead of creating new ones every attack
+window._sfxPool = {};
+window._getSFX = function(name) {
+    if (!window._sfxPool[name]) {
+        window._sfxPool[name] = [];
+        for (let i = 0; i < 3; i++) {
+            let a = new Audio(`music/${name}.mp3`);
+            a.volume = 0.5;
+            window._sfxPool[name].push(a);
+        }
+        window._sfxPool[name]._idx = 0;
+    }
+    let pool = window._sfxPool[name];
+    let audio = pool[pool._idx % pool.length];
+    pool._idx++;
+    audio.currentTime = 0;
+    return audio;
+};
 window.playSFX = function(weaponSprite) { 
     // 🛡️ STRICT AUDIO FIX: Prevent sound overlap without touching combat logic
     let now = Date.now();
@@ -2189,8 +2236,7 @@ window.playSFX = function(weaponSprite) {
     if (weaponSprite && weaponSprite.includes('dagger')) sfx = 'slash';
     if (weaponSprite && weaponSprite.includes('pendant')) sfx = 'splash';
     if (weaponSprite && weaponSprite.includes('gun')) sfx = 'gunshot'; 
-    let audio = new Audio(`music/${sfx}.mp3`); 
-    audio.volume = 0.5; 
+    let audio = window._getSFX(sfx);
     audio.play().catch(e => {}); 
 };
 
@@ -4237,6 +4283,9 @@ if (tp.spectateTarget) {
             window.loadMapScript(nextMapId, () => { 
                 safeMapData = window.MapDatabase[nextMapId]; 
                 safeMapData.id = nextMapId; // 🛡️ CRITICAL FIX: FORCES MAP ID TO UPDATE SO MONSTERS RENDER!
+                // 🛡️ THE FIX: Lock the portal under the player's feet so they don't bounce back out!
+                game.player.currentPortal = 'JUST_SPAWNED';
+                game.player.teleportCooldown = 4000;
                 
                 let targetId;
                 // 🛡️ THE FIX: Skip pairing math if this is a fast-travel Maze Guide jump!
