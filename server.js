@@ -152,7 +152,7 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
         let gemsToGive = Math.floor(amountCents / 100); 
         if (isRoyalTier) gemsToGive = 50;
 
-        const { data: user } = await supabase.from('Exonians').select('character_name, inventory, equips, base_stats').eq('email', patronEmail).single();
+        const { data: user } = await supabase.from('Exonians').select('character_name, inventory, equips, base_stats').eq('email', patronEmail).maybeSingle();
         if (!user) return res.status(200).send('User not found');
         const playerName = user.character_name;
 
@@ -366,14 +366,14 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
         );
 
         if (response.data?.response?.result === 'OK') {
-            const { data: order } = await supabase.from('Pending_Orders').select('*').eq('order_id', orderId).single();
+            const { data: order } = await supabase.from('Pending_Orders').select('*').eq('order_id', orderId).maybeSingle();
             if (!order || order.status !== 'PENDING') return res.json({ success: false, error: "Order not found." });
 
             let gemsToGive = 0;
             if (order.item_id === 'gem_pack_15') gemsToGive = 15;
             if (order.item_id === 'gem_pack_50') gemsToGive = 50;
 
-            const { data: user } = await supabase.from('Exonians').select('base_stats').eq('character_name', username).single();
+            const { data: user } = await supabase.from('Exonians').select('base_stats').eq('character_name', username).maybeSingle();
             if (user) {
                 let safeStats = user.base_stats || {};
                 safeStats.exoGems = (safeStats.exoGems || 0) + gemsToGive;
@@ -439,6 +439,23 @@ const io = new Server(server, {
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY; 
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+// ==========================================
+// 🛡️ STALE PLAYER CLEANUP: Kicks zombie sessions every 60 seconds
+// ==========================================
+setInterval(() => {
+    const now = Date.now();
+    for (const sid of Object.keys(onlinePlayers)) {
+        const p = onlinePlayers[sid];
+        if (p._lastActivity && (now - p._lastActivity > 120000)) {
+            console.log(`[STALE CLEANUP] Removing zombie session: ${p.id}`);
+            activeLogins.delete(p.id);
+            delete onlinePlayers[sid];
+            const s = io.sockets.sockets.get(sid);
+            if (s) s.disconnect(true);
+        }
+    }
+}, 60000);
 
 // 🛡️ THE BOUNCER (Currently DISABLED so normal PC Browsers can play)
 app.use((req, res, next) => {
@@ -1301,6 +1318,17 @@ function ensureWorldFromMapData(instanceId, mapData) {
         
         if (isFallback && instanceId !== 'town' && !instanceId.includes('home')) {
             console.log(`[ANTI-LAG] Rejected empty map payload for ${instanceId}`);
+            // 🛡️ THE FIX: Request a retry after 2 seconds so the client can send real map data
+            const retryPlayerId = Object.values(onlinePlayers).find(pl => pl.instanceId === instanceId);
+            if (retryPlayerId) {
+                const retrySid = findSocketIdByPlayerId(retryPlayerId.id);
+                if (retrySid) {
+                    setTimeout(() => {
+                        const rawMapId = instanceId.split('_')[0];
+                        io.to(retrySid).emit('requestMapSync', { mapId: rawMapId, instanceId: instanceId });
+                    }, 2000);
+                }
+            }
             return null; // Force the server to wait for a healthy connection to build the room!
         }
 
@@ -2153,7 +2181,7 @@ socket.on('requestBetaCode', async () => {
             .from('Promo_Codes')
             .select('id, code')
             .eq('claimed_by_ip', clientIp)
-            .single();
+            .maybeSingle();
 
         if (existingClaim) {
             return socket.emit('betaCodeResult', { 
@@ -2169,7 +2197,7 @@ socket.on('requestBetaCode', async () => {
             .select('*')
             .eq('is_used', false)
             .limit(1)
-            .single();
+            .maybeSingle();
 
         if (error || !availableCode) {
             return socket.emit('betaCodeResult', { success: false, message: 'Closed Beta is currently full!' });
@@ -2786,7 +2814,7 @@ socket.on('broadcastSkill', (data) => {
       // 🔓 MOBILE FIX: Removed IP and Device limits for character creation.
         // Players can create accounts freely, but Login and Party connection limits will still prevent multi-boxing abuse.
 
-        const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', username).single();
+        const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', username).maybeSingle();
         if (existingUser) return socket.emit('authError', 'Username is already taken!');
 
         // 🛡️ THE FIX: Save BOTH the IP and Device ID to track them
@@ -2815,18 +2843,26 @@ socket.on('login', async (data) => {
             return socket.emit('authError', 'Invalid username or password.');
         }
 
-        const { data: user, error } = await supabase
-            .from('Exonians')
-            .select('*')
-            .eq('character_name', username)
-            .eq('password', password)
-            .single();
+        let user = null;
+        try {
+            const { data, error: dbErr } = await supabase
+                .from('Exonians')
+                .select('*')
+                .eq('character_name', username)
+                .eq('password', password)
+                .maybeSingle();
 
-       if (error || !user) {
-            console.error(
-                `[LOGIN FAILED] Invalid credentials for ${username}. Error:`,
-                error?.message || 'No user found'
-            );
+            if (dbErr) {
+                console.error(`[LOGIN FAILED] DB error for ${username}:`, dbErr.message);
+                return socket.emit('authError', 'Invalid username or password.');
+            }
+            user = data;
+        } catch (coercionErr) {
+            console.error(`[LOGIN CRASH] JSON coercion for ${username}:`, coercionErr);
+            return socket.emit('authError', 'Server Error. Please try again.');
+        }
+
+        if (!user) {
             return socket.emit('authError', 'Invalid username or password.');
         }
 
@@ -3073,6 +3109,7 @@ socket.on('login', async (data) => {
 
   onlinePlayers[socket.id] = {
             socketId: socket.id,
+            _lastActivity: Date.now(), // 🛡️ STALE CLEANUP: Initial activity stamp
             id: safeUser.character_name,
             name: safeUser.character_name,
             mapId: mapId,
@@ -3288,6 +3325,7 @@ socket.on('saveData', async (playerData) => {
  socket.on('playerMoved', (data) => {
         if (!onlinePlayers[socket.id]) return; 
         const p = onlinePlayers[socket.id]; 
+        p._lastActivity = Date.now(); // 🛡️ STALE CLEANUP: Mark player as active
 
         // 🛑 THE BULLETPROOF LOCK: Zero movement allowed until loading is completely finished
         if (p.isLoadingMap || (p.frozenUntil && Date.now() < p.frozenUntil)) return;
@@ -5612,6 +5650,13 @@ socket.on('requestGuildLevelUp', async () => {
         if (worlds[p.instanceId]) {
             socket.emit('monsterState', Object.values(worlds[p.instanceId].monsters).map(serializeMonster));
         }
+        // 🛡️ LATE SPAWN CATCH: Re-emit monster state after async DB checks complete
+        const lateInstId = p.instanceId;
+        setTimeout(() => {
+            if (worlds[lateInstId]) {
+                socket.emit('monsterState', Object.values(worlds[lateInstId].monsters).map(serializeMonster));
+            }
+        }, 3000);
 
         supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', currentUser).then(() => {});
 
@@ -6352,7 +6397,7 @@ socket.on('requestRerollStat', async (data) => {
         if (newName.length < 3 || newName.length > 16) return socket.emit('systemMessage', "❌ Name must be 3-16 characters.");
 
         // Check if name is taken
-        const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', newName).single();
+        const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', newName).maybeSingle();
         if (existingUser) return socket.emit('systemMessage', "❌ That name is already taken!");
 
         // Deduct ticket
