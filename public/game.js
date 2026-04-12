@@ -1,4 +1,36 @@
 // ==========================================
+// 📱 FORCE LANDSCAPE FULLSCREEN ON MOBILE
+// ==========================================
+if (!window.__exonie_landscape_init) {
+    window.__exonie_landscape_init = true;
+    
+    // 🚀 Attempt fullscreen + landscape lock on first user interaction
+    const forceLandscapeFullscreen = () => {
+        const doc = document.documentElement;
+        
+        // 1. Request Fullscreen (requires user gesture)
+        if (doc.requestFullscreen) doc.requestFullscreen().catch(() => {});
+        else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen(); // Safari/iOS
+        else if (doc.msRequestFullscreen) doc.msRequestFullscreen();
+        
+        // 2. Lock to Landscape (Android Chrome, Capacitor WebView)
+        if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('landscape').catch(() => {});
+        }
+    };
+
+    // Fire on first touch/click (browsers require a user gesture for fullscreen)
+    const triggerEvents = ['touchstart', 'click', 'pointerdown'];
+    const onFirstInteraction = () => {
+        forceLandscapeFullscreen();
+        triggerEvents.forEach(evt => document.removeEventListener(evt, onFirstInteraction, true));
+    };
+    triggerEvents.forEach(evt => document.addEventListener(evt, onFirstInteraction, { capture: true, once: true }));
+
+    // Also fire on Capacitor's deviceready for native builds
+    document.addEventListener('deviceready', forceLandscapeFullscreen, { once: true });
+}
+// ==========================================
 // 🚨 EMERGENCY MOBILE APP FIX (NO REBUILD NEEDED)
 // ==========================================
 if (!window.__exonie_cleaned) {
@@ -48,8 +80,12 @@ if (typeof window !== 'undefined' && window.location) {
     const host = window.location.hostname;
     if (host.includes('testexonie')) {
         serverUrl = 'https://testexonie.onrender.com'; // Route to the Render test backend
-    } else if (host === 'localhost' || host === '127.0.0.1') {
-        serverUrl = 'http://localhost:3000'; // Route to your local PC backend if testing locally
+    } else if ((host === 'localhost' || host === '127.0.0.1') && window.currentPlatform === 'web') {
+        // 🛑 CAPACITOR FIX: Only use localhost:3000 if we are CERTAIN we're on a PC browser
+        // Check for Capacitor indicators to avoid false positives on mobile
+        if (!window.Capacitor && !navigator.userAgent.includes('Capacitor')) {
+            serverUrl = 'http://localhost:3000'; 
+        }
     }
 }
 const socket = io(serverUrl, {
@@ -697,7 +733,12 @@ window.executeSkill = function(skillId, className) {
     if (!skillObj) return; 
     
     if (Date.now() < skillObj.cooldownReadyAt) {
-        if(dom.log) dom.log.innerText = `${skillObj.name} is on cooldown!`;
+        // 🎮 INPUT BUFFER: Queue the skill for up to 300ms so it fires the instant CD ends
+        if (skillObj.cooldownReadyAt - Date.now() < 300) {
+            setTimeout(() => window.executeSkill(skillId, className), skillObj.cooldownReadyAt - Date.now());
+        } else {
+            if(dom.log) dom.log.innerText = `${skillObj.name} is on cooldown!`;
+        }
         return;
     }
 
@@ -1109,13 +1150,13 @@ function gameLoop(ts) {
    let nextY = game.player.y; 
    let isMoving = false; 
    
-   // Apply delta to move speed (Capped at 2.5x to prevent teleporting through walls on extremely laggy phones)
-   const moveSpeed = 5 * Math.min(delta, 2.5); 
+   // 🚀 ANTI-TUNNEL: No cap needed anymore — sub-stepping handles any delta safely
+   const moveSpeed = 5 * delta; 
 
    let isFrozen = (game.player.frozenUntil && Date.now() < game.player.frozenUntil);
    
    // 🛑 SPAWN LOCK: Prevents hyper-fast phones from instantly walking into exit portals before collisions load!
-   let isSpawning = (Date.now() - (window.mapLoadTimestamp || 0) < 600);
+   let isSpawning = (Date.now() - (window.mapLoadTimestamp || 0) < 1500);
 
    // 🛑 PARTY WAIT FIX: Allow movement while waiting on the portal! Only lock when the black loading screen drops.
    let canInputMove = (!isChatting && !window.isTransitioning && !window.isLoading && !window.isDungeonUIOpen && !isFrozen && !isSpawning);
@@ -1125,23 +1166,29 @@ function gameLoop(ts) {
         else { let anyAlive = game.party.members.some(m => !m.isGhost && m.id !== game.player.id); if (!anyAlive) canInputMove = false; }
     }
 
+    // 🛡️ ANTI-TUNNEL: Calculate desired velocity BEFORE applying it
+    let velX = 0, velY = 0;
     if (canInputMove) {
-        if (game.keys.w) { nextY -= moveSpeed; isMoving = true; }
-        if (game.keys.s) { nextY += moveSpeed; isMoving = true; }
-        if (game.keys.a) { nextX -= moveSpeed; isMoving = true; window.facingRight = false; }
-        if (game.keys.d) { nextX += moveSpeed; isMoving = true; window.facingRight = true; }
+        if (game.keys.w) { velY -= moveSpeed; isMoving = true; }
+        if (game.keys.s) { velY += moveSpeed; isMoving = true; }
+        if (game.keys.a) { velX -= moveSpeed; isMoving = true; window.facingRight = false; }
+        if (game.keys.d) { velX += moveSpeed; isMoving = true; window.facingRight = true; }
     }
 
     if (isMoving) {
-                let canMoveX = true; let canMoveY = true;
-                if(typeof window.isColliding === 'function') {
-                    canMoveX = !window.isColliding(nextX, game.player.y) || window.adminMode; 
-                    canMoveY = !window.isColliding(game.player.x, nextY) || window.adminMode;
-                    if (window.isColliding(game.player.x, game.player.y)) { canMoveX = true; canMoveY = true; } 
-                }
-                if (canMoveX) game.player.x = nextX; 
-                if (canMoveY) game.player.y = nextY;
-            }
+        if (window.adminMode) {
+            // Admin mode: skip collision entirely
+            game.player.x += velX;
+            game.player.y += velY;
+        } else if (typeof window._moveWithCollision === 'function') {
+            // 🚀 THE NEW ANTI-TUNNEL MOVEMENT ENGINE
+            window._moveWithCollision(velX, velY);
+        } else {
+            // Fallback: old-style check (should never happen)
+            game.player.x += velX;
+            game.player.y += velY;
+        }
+    }
 
             // ⚙️ TECH GENIUS: Auto-Respawn Drone on Map Change!
             if (game.player.baseStats?.playerClass === 'Tech Genius' && !game.isGhost && !window.isLoading) {
@@ -1522,10 +1569,10 @@ function gameLoop(ts) {
     dom.playerContainer.style.left = game.player.x + 'px'; 
     dom.playerContainer.style.top = game.player.y + 'px'; 
 
-   // 🌫️ OPTIMIZED FOG OF WAR (Runs every 3 frames to save CPU)
+   // 🌫️ OPTIMIZED FOG OF WAR (Runs every 6 frames to save CPU on mobile)
     window.fowFrameCount = (window.fowFrameCount || 0) + 1;
     const fow = document.getElementById('fow-canvas');
-    if (fow && window.fowFrameCount % 3 === 0) {
+    if (fow && window.fowFrameCount % 6 === 0) {
         const ctx = fow.getContext('2d', { alpha: true });
         // 🛡️ THE FIX: Removed the low-perf check so the math ALWAYS runs and hides enemies behind walls!
         if (safeMapData.id !== 'town' && !String(safeMapData.id).includes('home') && !String(safeMapData.id).includes('guildbase') && !game.isGhost) {
@@ -1698,7 +1745,8 @@ function gameLoop(ts) {
     const desiredState = isAttacking ? 'attack' : (isMoving ? 'walk' : 'idle'); 
     const netNow = Date.now();
     let lastNetTs = window.lastNetTs || 0; let lastSentState = window.lastSentState || 'idle';
-    if (netNow - lastNetTs >= 60 || desiredState !== lastSentState) { 
+    // 🚀 MOBILE FIX: Throttled from 60ms to 100ms (~10 updates/sec) to halve network traffic on cellular
+    if (netNow - lastNetTs >= 100 || desiredState !== lastSentState) { 
         window.lastNetTs = netNow; window.lastSentState = desiredState; 
         if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: desiredState, facingRight: window.facingRight, weaponSprite: game.player.equips?.weapon?.sprite || null });
     }
@@ -1724,6 +1772,8 @@ window.loadMapScript = function(mapId, callback) {
         if (typeof window[varName] !== 'undefined') window.MapDatabase[mapId] = JSON.parse(JSON.stringify(window[varName])); 
         else window.MapDatabase[mapId] = fallbackMap; 
         callback(); 
+        // 🚀 PREDICTIVE PRELOAD: Silently load adjacent maps while idle
+        if (typeof window.prefetchAdjacentMaps === 'function') window.prefetchAdjacentMaps(mapId);
     };
     
     script.onerror = () => { window.MapDatabase[mapId] = fallbackMap; callback(); };
@@ -1738,6 +1788,57 @@ window.resolveAsset = function(path) {
     // For Steam/Android, we try the local path first.
     // Most wrappers (Capacitor/Electron) serve local files from the root.
     return path; 
+};
+// ==========================================
+// 🚀 PREDICTIVE MAP PREFETCHING
+// ==========================================
+window._preloadedScripts = {};
+window.prefetchMapScript = function(mapId) {
+    if (window.MapDatabase[mapId] || window._preloadedScripts[mapId]) return;
+    let scriptName = (mapId === 'town' ? 'townmap.js' : mapId + '.js');
+    let imgName = (mapId === 'town' ? 'town_map.png' : mapId + '.png');
+    
+    // Prefetch Script
+    let sLink = document.createElement('link');
+    sLink.rel = 'prefetch'; sLink.href = scriptName; sLink.as = 'script';
+    document.head.appendChild(sLink);
+    
+    // Prefetch Image
+    let iLink = document.createElement('link');
+    iLink.rel = 'prefetch'; iLink.href = imgName; iLink.as = 'image';
+    document.head.appendChild(iLink);
+
+    window._preloadedScripts[mapId] = true;
+};
+window.prefetchAdjacentMaps = function(currentMapId) {
+    const floors = ['floor1','floor2','floor3','floor4','floor5','floor6','floor7','floor8','floor9','floor10'];
+    const idx = floors.indexOf(currentMapId);
+    if (idx !== -1) {
+        if (idx + 1 < floors.length) window.prefetchMapScript(floors[idx + 1]);
+        if (idx + 2 < floors.length) window.prefetchMapScript(floors[idx + 2]);
+        if (idx - 1 >= 0) window.prefetchMapScript(floors[idx - 1]);
+    }
+    window.prefetchMapScript('town');
+};
+// ==========================================
+// 🎬 SCREEN SHAKE ON DAMAGE
+// ==========================================
+window.screenShake = function(intensity, durationMs) {
+    if (document.body.classList.contains('low-perf')) return;
+    const el = document.getElementById('game-screen');
+    if (!el || el._shaking) return;
+    el._shaking = true;
+    const start = performance.now();
+    function shake(now) {
+        let elapsed = now - start;
+        if (elapsed > durationMs) { el.style.transform = ''; el._shaking = false; return; }
+        let decay = 1 - (elapsed / durationMs);
+        let offX = (Math.random() - 0.5) * intensity * decay;
+        let offY = (Math.random() - 0.5) * intensity * decay;
+        el.style.transform = `translate(${offX}px, ${offY}px)`;
+        requestAnimationFrame(shake);
+    }
+    requestAnimationFrame(shake);
 };
 window.preloadMapAssets = function(mapData, callback) {
     window.isLoading = true;
@@ -1831,11 +1932,27 @@ window.cleanupMap = function() {
         game.player.activePets = []; 
     } 
     if (localBossTimer) clearInterval(localBossTimer);
+    // u{1F6E1}uFE0F INTERVAL LEAK FIX: Kill orphaned dungeon & tavern timers on map change
+    if (typeof dungeonTimerInt !== 'undefined' && dungeonTimerInt) { clearInterval(dungeonTimerInt); dungeonTimerInt = null; }
+    if (typeof tavernTimerInt !== 'undefined' && tavernTimerInt) { clearInterval(tavernTimerInt); tavernTimerInt = null; }
     let t = document.getElementById('world-boss-timer'); 
     if (t) t.remove();
+    // u{1F6E1}uFE0F TIMER UI CLEANUP: Hide leftover timer UIs from previous map
+    let dtUI = document.getElementById('dungeon-timer-ui'); if (dtUI) dtUI.style.display = 'none';
+    let ttUI = document.getElementById('tavern-timer-ui'); if (ttUI) ttUI.style.display = 'none';
 
     // 🛡️ LATENCY SHIELD: Mark the exact millisecond we wiped the map
     window.mapLoadTimestamp = Date.now();
+
+    // 🛡️ SPAWN SAFETY: Nudge player out of walls if they spawned inside one
+    if (typeof window.isColliding === 'function' && window.isColliding(game.player.x, game.player.y)) {
+        for (let nudge = 10; nudge <= 100; nudge += 10) {
+            if (!window.isColliding(game.player.x, game.player.y - nudge)) { game.player.y -= nudge; break; }
+            if (!window.isColliding(game.player.x, game.player.y + nudge)) { game.player.y += nudge; break; }
+            if (!window.isColliding(game.player.x - nudge, game.player.y)) { game.player.x -= nudge; break; }
+            if (!window.isColliding(game.player.x + nudge, game.player.y)) { game.player.x += nudge; break; }
+        }
+    }
 }
 window.forceUnstuck = function() { 
     if (safeMapData.id === 'trainingtavern') { if (dom.log) dom.log.innerText = "You cannot escape the Tavern!"; return; }
@@ -1855,9 +1972,163 @@ window.showMapAnnouncement = function(mapId) {
     const annText = document.getElementById('map-announcement-text'); 
     if (annContainer && annText) { annText.innerText = cleanName; annContainer.style.opacity = '1'; setTimeout(() => { annContainer.style.opacity = '0'; }, 3000); } 
 };
-window.isColliding = function(targetX, targetY) { const hitX = targetX + (game.player.width - game.player.w) / 2; const hitY = targetY + game.player.height - game.player.h; const cols = safeMapData.collisions || []; for (let box of cols) { if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; } return false; }
+// ==========================================
+// 🛡️ ANTI-TUNNEL COLLISION ENGINE
+// ==========================================
+// Math Explanation:
+// The old system checked if the player's FINAL position overlapped a wall.
+// If a lag spike made moveSpeed = 12.5px but the wall was only 10px thick,
+// the final position was PAST the wall — no overlap detected — player clips through.
+//
+// The new system uses "Sub-Stepped Swept AABB":
+// 1. VELOCITY VECTOR: We know the player wants to move (velX, velY) pixels this frame.
+// 2. SUB-STEPPING: We divide that vector into steps of max 4px each (half the thinnest
+//    possible wall). Even at delta=5.0 (extreme lag), a 25px move becomes 7 tiny steps.
+// 3. SWEPT CHECK: At each sub-step, we test X and Y independently (axis separation).
+//    If X movement hits a wall, we CLAMP X to the wall's edge and stop X motion.
+//    Same for Y. This means diagonal movement slides along walls naturally.
+// 4. EDGE CLAMPING: Instead of just stopping, we calculate the exact pixel where the
+//    player's hitbox touches the wall and place them there. No 1px gaps, no jitter.
+//
+// Performance: On a normal 60fps frame (delta=1), moveSpeed=5px which is already
+// under the 4px step size, so it runs as a SINGLE step — same cost as the old system.
+// Sub-stepping only activates during actual lag spikes.
+// ==========================================
 
-window.spawnDamageText = function(x, y, amount, color) { const txt = document.createElement('div'); txt.className = 'damage-text'; txt.innerText = amount; let jitterX = (Math.random() * 40) - 20; let jitterY = (Math.random() * 20) - 10; txt.style.left = (x - 10 + jitterX) + 'px'; txt.style.top = (y + jitterY) + 'px'; txt.style.color = color; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 1000); }
+// 🛡️ Original isColliding — preserved for portals, skills, and external callers
+window.isColliding = function(targetX, targetY) { 
+    const hitX = targetX + (game.player.width - game.player.w) / 2; 
+    const hitY = targetY + game.player.height - game.player.h; 
+    const cols = safeMapData.collisions || []; 
+    for (let i = 0; i < cols.length; i++) { 
+        const box = cols[i];
+        if (hitX < box.x + box.w && hitX + game.player.w > box.x && hitY < box.y + box.h && hitY + game.player.h > box.y) return true; 
+    } 
+    return false; 
+}
+
+// 🛡️ SWEPT AABB: Check a hitbox at (px, py) against a single wall box.
+// Returns the largest safe "time" (0 to 1) along the velocity vector before collision.
+// If no collision, returns 1.0 (full movement is safe).
+window._sweepAABB = function(px, py, pw, ph, velX, velY, box) {
+    // No movement? No sweep needed.
+    if (velX === 0 && velY === 0) return 1.0;
+
+    let tEnterX = -Infinity, tLeaveX = Infinity;
+    let tEnterY = -Infinity, tLeaveY = Infinity;
+
+    // X axis
+    if (velX !== 0) {
+        tEnterX = ((velX > 0) ? (box.x - (px + pw)) : (box.x + box.w - px)) / velX;
+        tLeaveX = ((velX > 0) ? (box.x + box.w - px) : (box.x - (px + pw))) / velX;
+    } else {
+        // Not moving on X: check static overlap
+        if (px + pw <= box.x || px >= box.x + box.w) return 1.0; // No X overlap, can never collide
+    }
+
+    // Y axis
+    if (velY !== 0) {
+        tEnterY = ((velY > 0) ? (box.y - (py + ph)) : (box.y + box.h - py)) / velY;
+        tLeaveY = ((velY > 0) ? (box.y + box.h - py) : (box.y - (py + ph))) / velY;
+    } else {
+        if (py + ph <= box.y || py >= box.y + box.h) return 1.0;
+    }
+
+    let tEnter = Math.max(tEnterX, tEnterY);
+    let tLeave = Math.min(tLeaveX, tLeaveY);
+
+    // No collision if: entry after exit, or collision is behind us, or collision is past the move
+    if (tEnter > tLeave || tLeave <= 0 || tEnter >= 1.0) return 1.0;
+
+    return Math.max(0, tEnter);
+};
+
+// 🚀 THE ANTI-TUNNEL MOVEMENT ENGINE
+// Called every frame instead of the old canMoveX/canMoveY check.
+window._moveWithCollision = function(velX, velY) {
+    const p = game.player;
+    const cols = safeMapData.collisions || [];
+
+    // 🛡️ STUCK ESCAPE HATCH: If the player is already inside a wall, let them move freely to escape
+    if (window.isColliding(p.x, p.y)) {
+        p.x += velX;
+        p.y += velY;
+        return;
+    }
+
+    // 🚀 SUB-STEPPING: Divide the movement into safe chunks of max 4px
+    // 4px = half the minimum wall thickness (player.w = 24, walls vary 8-32px)
+    const MAX_STEP = 4;
+    const totalDist = Math.sqrt(velX * velX + velY * velY);
+    
+    // If total movement is tiny (normal 60fps frame), skip sub-stepping entirely
+    if (totalDist <= MAX_STEP) {
+        // Single-step: Use swept AABB for precision even on small moves
+        window._resolveStep(velX, velY, cols);
+        return;
+    }
+
+    // Divide into sub-steps
+    const numSteps = Math.ceil(totalDist / MAX_STEP);
+    const stepVelX = velX / numSteps;
+    const stepVelY = velY / numSteps;
+
+    for (let i = 0; i < numSteps; i++) {
+        window._resolveStep(stepVelX, stepVelY, cols);
+    }
+};
+
+// 🛡️ RESOLVE A SINGLE SUB-STEP: Axis-separated swept collision with edge clamping
+window._resolveStep = function(svx, svy, cols) {
+    const p = game.player;
+    // Calculate the foot hitbox origin from the player's sprite position
+    const offsetX = (p.width - p.w) / 2;  // Horizontal centering offset
+    const offsetY = p.height - p.h;        // Vertical foot offset
+
+    // === X AXIS ===
+    if (svx !== 0) {
+        let hitX = p.x + offsetX;
+        let hitY = p.y + offsetY;
+        let bestT = 1.0;
+
+        for (let i = 0; i < cols.length; i++) {
+            const t = window._sweepAABB(hitX, hitY, p.w, p.h, svx, 0, cols[i]);
+            if (t < bestT) bestT = t;
+        }
+
+        if (bestT < 1.0) {
+            // 📌 EDGE CLAMP: Move to the exact wall edge, then nudge 0.1px back to prevent overlap
+            p.x += svx * bestT - Math.sign(svx) * 0.1;
+        } else {
+            p.x += svx;
+        }
+    }
+
+    // === Y AXIS === (uses the UPDATED X position from above)
+    if (svy !== 0) {
+        let hitX = p.x + offsetX;
+        let hitY = p.y + offsetY;
+        let bestT = 1.0;
+
+        for (let i = 0; i < cols.length; i++) {
+            const t = window._sweepAABB(hitX, hitY, p.w, p.h, 0, svy, cols[i]);
+            if (t < bestT) bestT = t;
+        }
+
+        if (bestT < 1.0) {
+            p.y += svy * bestT - Math.sign(svy) * 0.1;
+        } else {
+            p.y += svy;
+        }
+    }
+};
+
+window.spawnDamageText = function(x, y, amount, color) { 
+    // 🚀 DOM CAP: Max 30 damage texts on screen to prevent mobile lag
+    const existing = dom.world.querySelectorAll('.damage-text');
+    if (existing.length > 30) existing[0].remove();
+    const txt = document.createElement('div'); txt.className = 'damage-text'; txt.innerText = amount; let jitterX = (Math.random() * 40) - 20; let jitterY = (Math.random() * 20) - 10; txt.style.left = (x - 10 + jitterX) + 'px'; txt.style.top = (y + jitterY) + 'px'; txt.style.color = color; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 1000); 
+}
 
 // 🌟 YOUR NEW FUNCTION GOES HERE 🌟
 window.spawnSkillText = function(x, y, text, color) {
@@ -1880,15 +2151,26 @@ window.spawnSkillText = function(x, y, text, color) {
     
     anim.onfinish = () => txt.remove();
 };
-window.spawnSpark = function(x, y) { const spark = document.createElement('div'); spark.className = 'spark'; spark.style.left = (x + (Math.random() * 20 - 10)) + 'px'; spark.style.top = (y + (Math.random() * 20 - 10)) + 'px'; dom.world.appendChild(spark); setTimeout(() => spark.remove(), 300); }
-window.spawnWhiteSplash = function(x, y) { const splash = document.createElement('div'); splash.className = 'white-splash'; splash.style.left = x + 'px'; splash.style.top = y + 'px'; dom.world.appendChild(splash); setTimeout(() => splash.remove(), 300); }
+window.spawnSpark = function(x, y) { 
+    // 🚀 DOM CAP: Max 20 sparks on screen to prevent mobile lag
+    const existing = dom.world.querySelectorAll('.spark');
+    if (existing.length > 20) existing[0].remove();
+    const spark = document.createElement('div'); spark.className = 'spark'; spark.style.left = (x + (Math.random() * 20 - 10)) + 'px'; spark.style.top = (y + (Math.random() * 20 - 10)) + 'px'; dom.world.appendChild(spark); setTimeout(() => spark.remove(), 300); 
+}
+window.spawnWhiteSplash = function(x, y) { 
+    // 🚀 DOM CAP: Max 15 splashes on screen to prevent mobile lag
+    const existing = dom.world.querySelectorAll('.white-splash');
+    if (existing.length > 15) existing[0].remove();
+    const splash = document.createElement('div'); splash.className = 'white-splash'; splash.style.left = x + 'px'; splash.style.top = y + 'px'; dom.world.appendChild(splash); setTimeout(() => splash.remove(), 300); 
+}
 window.shootLaser = function(startX, startY, endX, endY) {
     const laser = document.createElement('div');
     const length = Math.hypot(endX - startX, endY - startY);
     const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
     laser.style.cssText = `position:absolute; background:#00E5FF; height:4px; width:${length}px; left:${startX}px; top:${startY}px; transform-origin:0 50%; transform:rotate(${angle}deg); box-shadow:0 0 10px #00E5FF, 0 0 20px #00E5FF; z-index:100; pointer-events:none; opacity:1; transition:opacity 0.2s;`;
     dom.world.appendChild(laser);
-    let sfx = new Audio('music/lightning.mp3');
+    // 🚀 AUDIO POOL: Reuses pooled Audio instead of creating new Audio() every shot
+    let sfx = window._getSFX('lightning');
     sfx.volume = 0.3; sfx.play().catch(()=>{});
     setTimeout(() => laser.style.opacity = '0', 50);
     setTimeout(() => laser.remove(), 250);
@@ -2175,6 +2457,24 @@ window.playBGM = function(trackName) {
     });
 };
 window.lastSFXTime = 0;
+// 🚀 AUDIO POOL: Reuses 3 Audio objects per sound instead of creating new ones every attack
+window._sfxPool = {};
+window._getSFX = function(name) {
+    if (!window._sfxPool[name]) {
+        window._sfxPool[name] = [];
+        for (let i = 0; i < 3; i++) {
+            let a = new Audio(`music/${name}.mp3`);
+            a.volume = 0.5;
+            window._sfxPool[name].push(a);
+        }
+        window._sfxPool[name]._idx = 0;
+    }
+    let pool = window._sfxPool[name];
+    let audio = pool[pool._idx % pool.length];
+    pool._idx++;
+    audio.currentTime = 0;
+    return audio;
+};
 window.playSFX = function(weaponSprite) { 
     // 🛡️ STRICT AUDIO FIX: Prevent sound overlap without touching combat logic
     let now = Date.now();
@@ -2187,8 +2487,7 @@ window.playSFX = function(weaponSprite) {
     if (weaponSprite && weaponSprite.includes('dagger')) sfx = 'slash';
     if (weaponSprite && weaponSprite.includes('pendant')) sfx = 'splash';
     if (weaponSprite && weaponSprite.includes('gun')) sfx = 'gunshot'; 
-    let audio = new Audio(`music/${sfx}.mp3`); 
-    audio.volume = 0.5; 
+    let audio = window._getSFX(sfx);
     audio.play().catch(e => {}); 
 };
 
@@ -4235,6 +4534,9 @@ if (tp.spectateTarget) {
             window.loadMapScript(nextMapId, () => { 
                 safeMapData = window.MapDatabase[nextMapId]; 
                 safeMapData.id = nextMapId; // 🛡️ CRITICAL FIX: FORCES MAP ID TO UPDATE SO MONSTERS RENDER!
+                // 🛡️ THE FIX: Lock the portal under the player's feet so they don't bounce back out!
+                game.player.currentPortal = 'JUST_SPAWNED';
+                game.player.teleportCooldown = 4000;
                 
                 let targetId;
                 // 🛡️ THE FIX: Skip pairing math if this is a fast-travel Maze Guide jump!
@@ -4653,6 +4955,14 @@ socket.on('revivalJuiceUsed', (data) => {
         monsters.forEach(m => {
             currentIds.add(m.id); let mEl = document.getElementById('mob_' + m.id);
             if (!mEl) {
+                // 🚀 MONSTER POOL: Try to reuse a hidden element of the same type before creating new DOM
+                const pooled = dom.world.querySelector(`.monster-container[data-pooled="true"][data-monsterkey="${m.monsterKey}"]`);
+                if (pooled) {
+                    mEl = pooled;
+                    mEl.id = 'mob_' + m.id;
+                    mEl.dataset.pooled = '';
+                    mEl.style.display = 'flex';
+                } else {
                 mEl = document.createElement('div'); mEl.id = 'mob_' + m.id; mEl.className = 'entity monster-container'; mEl.style.position = 'absolute'; mEl.style.cursor = 'crosshair'; mEl.style.zIndex = '50'; mEl.style.display = 'flex'; mEl.style.justifyContent = 'center'; mEl.style.alignItems = 'flex-end';
                 
              // 🎨 BUILD THE HTML FOR OUR CUSTOM CSS MONSTERS
@@ -4692,8 +5002,10 @@ socket.on('revivalJuiceUsed', (data) => {
                 }
                 
                 mEl.innerHTML = `<div class="name-tag mob-name">${m.name} Lv.${m.level || 5}</div>${spriteHtml}<div class="monster-ui-layer" style="position:absolute; top:-20px; left:0; width:100%; pointer-events:none;"><div class="bar-container" style="height:5px; border-radius:0; margin-bottom:0;"><div class="hp-fill monster-hp-fill" style="background-color:#f44336; height:100%; width:100%;"></div></div></div>`;
+                mEl.dataset.monsterkey = m.monsterKey;
                 mEl.addEventListener('pointerdown', (e) => { e.stopPropagation(); if(!window.isLoading){ window.attemptAttackTarget = m.id; window.attemptAttack(false); } });
                 dom.world.appendChild(mEl);
+                } // End of pool-miss branch
             }
             game.monsters[m.id] = m;
             if (!m.alive) { mEl.style.display = 'none'; } else {
@@ -4727,7 +5039,8 @@ socket.on('revivalJuiceUsed', (data) => {
                 }
             } 
         });
-        Object.keys(game.monsters).forEach(id => { if (!currentIds.has(id)) { let staleEl = document.getElementById('mob_' + id); if (staleEl) staleEl.remove(); delete game.monsters[id]; } });
+        // 🚀 MONSTER POOL: Hide dead monsters instead of removing them (saves GC pressure)
+        Object.keys(game.monsters).forEach(id => { if (!currentIds.has(id)) { let staleEl = document.getElementById('mob_' + id); if (staleEl) { staleEl.style.display = 'none'; staleEl.dataset.pooled = 'true'; staleEl.id = ''; } delete game.monsters[id]; } });
     });
 
 // 🛡️ STUN FIX: Receive the stun from the server
@@ -4772,6 +5085,9 @@ if (hitPet) {
         if (data.damage > 0) {
             window.spawnDamageText(game.player.x + 24, game.player.y - 10, data.damage, '#f44336');
             window.spawnSpark(game.player.x + 24, game.player.y + 48);
+            // 🎬 SCREEN SHAKE: Intensity scales with damage percentage
+            let dmgPct = data.damage / (window.getMaxHp() || 1);
+            if (dmgPct > 0.05) window.screenShake(Math.min(8, dmgPct * 30), 200);
         }
         if (game.player.currentHp <= 0 && Date.now() < game.player.immortalUntil) {
             game.player.currentHp = 1;
@@ -4906,6 +5222,9 @@ socket.on('playerHit', (data) => {
             game.player.currentHp = data.newHp;
             window.spawnDamageText(game.player.x + 24, game.player.y - 10, data.damage, '#f44336');
             window.spawnSpark(game.player.x + 24, game.player.y + 48);
+            // 🎬 SCREEN SHAKE: PvP hit feedback
+            let dmgPct = data.damage / (window.getMaxHp() || 1);
+            if (dmgPct > 0.05) window.screenShake(Math.min(8, dmgPct * 30), 200);
             window.updateUI();
         } else if (game.remotePlayers[data.targetId]) {
             const rp = game.remotePlayers[data.targetId];
@@ -4919,7 +5238,12 @@ socket.on('playerHit', (data) => {
         window.triggerBossBGM(m); // 🎵 TRIGGER BOSS MUSIC
         m.currentHp = data.newHp; m.maxHp = data.maxHp || m.maxHp; 
         const mCenterX = m.x + (m.width / 2); const mCenterY = m.y + (m.height / 2); 
-        window.spawnDamageText(mCenterX, m.y - 10, data.damage, '#fff'); 
+        // 🎨 DAMAGE TYPE COLORS: White=normal, Cyan=magic, Gold=crit, Red=bleed
+        let dmgColor = '#fff';
+        if (data.isCritical) dmgColor = '#FFD700';
+        else if (data.isPendant) dmgColor = '#00E5FF';
+        else if (data.isBleed) dmgColor = '#f44336';
+        window.spawnDamageText(mCenterX, m.y - 10, data.isCritical ? data.damage + '!' : data.damage, dmgColor); 
         if (data.isPendant) window.spawnWhiteSplash(mCenterX, mCenterY); else window.spawnSpark(mCenterX, mCenterY); 
         
         const mEl = document.getElementById('mob_' + m.id); 
