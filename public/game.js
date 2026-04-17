@@ -3823,7 +3823,15 @@ if(socket) {
     // 🛡️ THE FIX: Global Formatter for Titles & Guilds (with White Border!)
     window.formatTitleAndGuild = function(title, guildName) {
         let tHtml = `<div style="text-align: center; width: 100%;">`;
-        tHtml += title ? `&lt;${title}&gt;` : '';
+        // DYNAMIC TITLE TIER: Color-code title based on prefix
+        let titleColor = '#e0e0e0';
+        if (title) {
+            const tUp = title.toUpperCase();
+            if (tUp.startsWith('FLOOR MASTER')) titleColor = '#ff4444';
+            else if (tUp.startsWith('FLOOR DOMINATOR')) titleColor = '#E040FB';
+            else if (tUp.startsWith('FLOOR CONQUEROR')) titleColor = '#ffd700';
+        }
+        tHtml += title ? `<span style="color:${titleColor}">&lt;${title}&gt;</span>` : '';
         if (guildName) {
             tHtml += (title ? '<br>' : '') + `<span style="color:#4CAF50; font-size:13px; font-weight:900; letter-spacing:1px; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 2px 4px rgba(0,0,0,0.6);">[${guildName}]</span>`;
         }
@@ -6095,7 +6103,7 @@ window.openFastTravelUI = function() {
     let title3 = game.cachedUserData?.title || "";
     let domTitle = document.getElementById('player-title-tag') ? document.getElementById('player-title-tag').innerText : "";
     let combinedTitle = `${title1} ${title2} ${title3} ${domTitle}`.toUpperCase();
-    const match = combinedTitle.match(/FLOOR CONQUEROR (\d+)/);
+    const match = combinedTitle.match(/(?:FLOOR CONQUEROR|FLOOR DOMINATOR|FLOOR MASTER)\s+(\d+)/);
     if (match) {
         maxFloor = parseInt(match[1]);
     }
