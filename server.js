@@ -185,7 +185,7 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
                     if (onlinePlayers[tsid].spriteData?.aura === 'divine') onlinePlayers[tsid].spriteData.aura = null;
                     io.to(tsid).emit('syncInventory', inv);
                     io.to(tsid).emit('inventoryItemUsed', { inventory: inv, equips: eqs });
-                    io.to(tsid).emit('systemMessage', "🚨 Your Patreon Royal Tier has expired. The Aura of the Divine has been removed.");
+                    io.to(tsid).emit('systemMessage', "Your Patreon Royal Tier has expired. The Aura of the Divine has been removed.");
                     const p = onlinePlayers[tsid];
                     io.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
                 }
@@ -212,14 +212,14 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
         if (eventType === 'members:pledge:create') {
             safeStats.lastChargeDate = event?.data?.attributes?.last_charge_date || new Date().toISOString();
             await supabase.from('System_Mail').insert([
-                { recipient_name: playerName, message_text: `💎 Thank you for subscribing! Here are your ${gemsToGive} Exo Gems.`, attached_item: JSON.stringify(exoGemsBundle), is_claimed: false }
+                { recipient_name: playerName, message_text: `Thank you for subscribing! Here are your ${gemsToGive} Exo Gems.`, attached_item: JSON.stringify(exoGemsBundle), is_claimed: false }
             ]);
             
            // 💰 $10 REWARD: 100k Gold Pouch
             if (isTier10) {
                 const goldPouch = { id: Date.now() + Math.random(), name: "Supporter Gold Pouch", type: 'consumable', rarity: 'Unique', color: '#FFD700', description: "A pouch of Patreon gold. Use to receive 100,000 Gold instantly.", quantity: 1 };
                 await supabase.from('System_Mail').insert([
-                    { recipient_name: playerName, message_text: "🎁 Patreon Reward: Here is your monthly 100,000 Gold!", attached_item: JSON.stringify(goldPouch), is_claimed: false }
+                    { recipient_name: playerName, message_text: "Patreon Reward: Here is your monthly 100,000 Gold!", attached_item: JSON.stringify(goldPouch), is_claimed: false }
                 ]);
             }
             
@@ -228,7 +228,7 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
                 const royalGoldSack = { id: Date.now() + Math.random(), name: "Royal Gold Sack", type: 'consumable', rarity: 'Divine', color: '#FFD700', description: "A heavy sack of Royal Patreon Gold. Use to receive 1,000,000 Gold instantly.", quantity: 1 };
                 
                 await supabase.from('System_Mail').insert([
-                    { recipient_name: playerName, message_text: "👑 Welcome to the Royal Tier! Here is your exclusive Divine Aura Stone.", attached_item: JSON.stringify(divineAura), is_claimed: false },
+                    { recipient_name: playerName, message_text: "Welcome to the Royal Tier! Here is your exclusive Divine Aura Stone.", attached_item: JSON.stringify(divineAura), is_claimed: false },
                     { recipient_name: playerName, message_text: "Royal Stipend: Here is your 1,000,000 Gold!", attached_item: JSON.stringify(royalGoldSack), is_claimed: false }
                 ]);
             }
@@ -243,7 +243,7 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
            if (chargeStatus === 'Paid' && safeStats.lastChargeDate !== chargeDate) {
                 safeStats.lastChargeDate = chargeDate; 
 
-                await supabase.from('System_Mail').insert([{ recipient_name: playerName, message_text: `💎 Your monthly Patreon renewal is here! Enjoy your ${gemsToGive} Exo Gems.`, attached_item: JSON.stringify(exoGemsBundle), is_claimed: false }]);
+                await supabase.from('System_Mail').insert([{ recipient_name: playerName, message_text: `Your monthly Patreon renewal is here! Enjoy your ${gemsToGive} Exo Gems.`, attached_item: JSON.stringify(exoGemsBundle), is_claimed: false }]);
                 
                 // 💰 Monthly 100k Gold for $10+ Tiers
                 if (isTier10) {
@@ -262,7 +262,7 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
         const tsid = findSocketIdByPlayerId(playerName);
         if (tsid) {
             io.to(tsid).emit('getMail'); 
-            io.to(tsid).emit('systemMessage', "👑 A Patreon Delivery has arrived in your Mailbox (M)!");
+            io.to(tsid).emit('systemMessage', "A Patreon Delivery has arrived in your Mailbox (M)!");
         }
 
     } catch (err) { console.error("Webhook Error:", err.message); }
@@ -383,7 +383,7 @@ app.post('/api/shop/finalize', express.json(), async (req, res) => {
                 if (tsid && onlinePlayers[tsid]) {
                     onlinePlayers[tsid].baseStats.exoGems = safeStats.exoGems;
                     io.to(tsid).emit('gemPurchaseSuccess', { newGems: safeStats.exoGems });
-                    io.to(tsid).emit('systemMessage', `💎 Steam Purchase Complete! Received ${gemsToGive} Exo Gems.`);
+                    io.to(tsid).emit('systemMessage', `Steam Purchase Complete! Received ${gemsToGive} Exo Gems.`);
                 }
             }
             await supabase.from('Pending_Orders').update({ status: 'COMPLETED' }).eq('order_id', orderId);
@@ -1267,7 +1267,7 @@ function removeFromParty(playerId) {
                     if (lSid) io.to(lSid).emit('raidUpdate', { active: false });
                     for (const mId of parties[remPid].members) {
                         const s = findSocketIdByPlayerId(mId);
-                        if(s) io.to(s).emit('systemMessage', '⚠️ Raid Team disbanded because a merged party dropped below 2 members.');
+                        if(s) io.to(s).emit('systemMessage', 'Raid Team disbanded because a merged party dropped below 2 members.');
                     }
                 }
                 delete raids[rid];
@@ -1384,7 +1384,7 @@ function ensureWorldFromMapData(instanceId, mapData) {
                                     io.to(instanceId).emit('monsterSpawned', serializeMonster(newBoss));
                                     
                                     // 🛑 THE FIX: Add the announcement back, but ONLY for Floor Bosses!
-                                    io.emit('systemMessage', `⚠️ The ${rawMapId.toUpperCase()} Boss has respawned!`);
+                                    io.emit('systemMessage', `The ${rawMapId.toUpperCase()} Boss has respawned!`);
                                 }
                             }, remaining);
                             
@@ -2111,7 +2111,23 @@ io.use((socket, next) => {
     return next(); 
 });
 io.on('connection', (socket) => {
-    let currentUser = null; 
+  try {
+    // HANDSHAKE VALIDATION: Reject malformed connections before any logic runs
+    const _hQuery = socket.handshake.query || {};
+    if (_hQuery.Q) {
+        try { JSON.parse(_hQuery.Q); } catch (_parseErr) {
+            console.error('[HANDSHAKE] Malformed query.Q from ' + socket.id + ':', _parseErr.message);
+            socket.disconnect(true);
+            return;
+        }
+    }
+    if (_hQuery.playerId && (typeof _hQuery.playerId !== 'string' || _hQuery.playerId.length > 50)) {
+        console.error('[HANDSHAKE] Invalid playerId from ' + socket.id);
+        socket.disconnect(true);
+        return;
+    }
+
+    let currentUser = null; 
 // ✅ BACKEND FRIENDS & DM LOGIC
     // Note: For now, friendships are stored in-memory. 
     // If the server restarts, players will need to re-add friends.
@@ -2474,7 +2490,7 @@ socket.on('confirmCodeOpened', async (data) => {
         // 🛡️ THE NERF: Max 5 uses per instance
         p.purificationUses = p.purificationUses || 0;
         if (p.purificationUses >= 5) {
-            socket.emit('systemMessage', "❌ You have exhausted your Purification miracles for this zone (Max 5/5).");
+            socket.emit('systemMessage', "You have exhausted your Purification miracles for this zone (Max 5/5).");
             return; // Stops the skill from casting!
         }
 
@@ -2485,7 +2501,7 @@ socket.on('confirmCodeOpened', async (data) => {
 
         // 🛡️ Increment uses and notify the Healer
         p.purificationUses++;
-        socket.emit('systemMessage', `✨ Purification used (${p.purificationUses}/5 for this run).`);
+        socket.emit('systemMessage', `Purification used (${p.purificationUses}/5 for this run).`);
 
         // 🛡️ FULL HEAL SELF (The Healer)
         const myMaxHp = getServerTotalStat(p, 'hp') || 100;
@@ -2670,7 +2686,7 @@ socket.on('broadcastSkill', (data) => {
             const boss = bfWorld ? bfWorld.monsters['battlefield_boss_1'] : null;
             if (!boss || !boss.alive) {
                 p.currentPortal = null;
-                return socket.emit('systemMessage', '❌ No threat outside the castle yet.');
+                return socket.emit('systemMessage', 'No threat outside the castle yet.');
             }
         }
         
@@ -2679,7 +2695,7 @@ socket.on('broadcastSkill', (data) => {
         // 🛡️ MAZE TRIAL BLOCKER: Prevent teleporting to other floors!
         if (p.isMazeTrial && data.targetMapId !== 'town') {
             p.currentPortal = null;
-            return socket.emit('systemMessage', '❌ You are in a Maze Trial! You can only teleport back to Town.');
+            return socket.emit('systemMessage', 'You are in a Maze Trial! You can only teleport back to Town.');
         }
 
         const pid = playerParty[p.id];
@@ -2689,7 +2705,7 @@ socket.on('broadcastSkill', (data) => {
             const leaderId = pid ? parties[pid].leaderId : p.id;
             const leader = getPlayerById(leaderId);
             if (!leader || !leader.baseStats?.hasHome) {
-                return socket.emit('systemMessage', '❌ The Party Leader does not own a home!');
+                return socket.emit('systemMessage', 'The Party Leader does not own a home!');
             }
         }
 
@@ -4079,7 +4095,7 @@ socket.on('syncPet', (data) => {
                         
                         // 🛑 1. Instantly stop the timer directly on the killer's client
                         socket.emit('tavernTimerStop');
-                        socket.emit('systemMessage', `🏁 Tavern Cleared in ${(timeTaken/1000).toFixed(2)}s!`);
+                        socket.emit('systemMessage', `Tavern Cleared in ${(timeTaken/1000).toFixed(2)}s!`);
                         
                         // 🏆 2. Database Record Engine (Strict Personal Best Hierarchy)
                         (async () => {
@@ -4230,7 +4246,7 @@ socket.on('syncPet', (data) => {
                                 io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
                                 //🛑 THE FIX: Restrict to Floor Boss and use the clean map name!
                                 if (targetMob.category === "floor_boss") {
-                                    io.emit('systemMessage', `⚠️ The ${p.mapId.toUpperCase()} Boss has respawned!`);
+                                    io.emit('systemMessage', `The ${p.mapId.toUpperCase()} Boss has respawned!`);
                                 }
                             }
                         }, fullCooldown);
@@ -4639,7 +4655,7 @@ socket.on('requestConfirmTrade', () => {
         // ⚔️ TAVERN ANTI-CHEAT: Block potions and consumables on the server
         const invTest = p.inventory[data?.index];
         if (invTest && p.mapId === 'trainingtavern' && (invTest.type === 'potion' || invTest.type === 'consumable')) {
-            return socket.emit('systemMessage', '❌ Items are strictly forbidden in the Training Tavern!');
+            return socket.emit('systemMessage', 'Items are strictly forbidden in the Training Tavern!');
         }
 
         p.inventory = sanitizeInventory(p.inventory);
@@ -4726,7 +4742,7 @@ socket.on('requestConfirmTrade', () => {
 
             socket.emit('syncInventory', p.inventory);
             socket.emit('gemPurchaseSuccess', { newGems: p.baseStats.exoGems });
-            socket.emit('systemMessage', `💎 You cracked open the bundle and received ${gemsGained} Exo Gems!`);
+            socket.emit('systemMessage', `You cracked open the bundle and received ${gemsGained} Exo Gems!`);
             return;
         }
 
@@ -4914,9 +4930,9 @@ socket.on('requestConfirmTrade', () => {
 
     socket.on('createGuild', async (guildName) => {
         const p = onlinePlayers[socket.id]; if (!p || !guildName) return;
-        if (p.guild_details) return socket.emit('systemMessage', "❌ You are already in a guild!");
-        if (p.gold < 1000000) return socket.emit('systemMessage', "❌ You need 1,000,000 Gold to create a guild.");
-        if (global.guilds[guildName]) return socket.emit('systemMessage', "❌ A guild name already exists.");
+        if (p.guild_details) return socket.emit('systemMessage', "You are already in a guild!");
+        if (p.gold < 1000000) return socket.emit('systemMessage', "You need 1,000,000 Gold to create a guild.");
+        if (global.guilds[guildName]) return socket.emit('systemMessage', "A guild name already exists.");
         
         p.gold -= 1000000;
         p.guild_details = { name: guildName, role: 'Master', guildGold: 0, level: 0 };
@@ -4936,12 +4952,12 @@ socket.on('requestConfirmTrade', () => {
 
     socket.on('joinGuild', async (guildName) => {
         const p = onlinePlayers[socket.id]; if (!p || !guildName) return;
-        if (p.guild_details) return socket.emit('systemMessage', "❌ You are already in a guild!");
+        if (p.guild_details) return socket.emit('systemMessage', "You are already in a guild!");
         
         const guild = global.guilds[guildName];
-        if (!guild) return socket.emit('systemMessage', "❌ That guild does not exist.");
+        if (!guild) return socket.emit('systemMessage', "That guild does not exist.");
         const maxMembers = 20 + ((guild.level || 0) * 5);
-        if (guild.members.size >= maxMembers) return socket.emit('systemMessage', `❌ Guild is full (${guild.members.size}/${maxMembers}).`);
+        if (guild.members.size >= maxMembers) return socket.emit('systemMessage', `Guild is full (${guild.members.size}/${maxMembers}).`);
         guild.members.add(p.id);
         if (!guild.roles) guild.roles = {};
         guild.roles[p.id] = 'Member';
@@ -4968,7 +4984,7 @@ socket.on('requestConfirmTrade', () => {
         if (guild.applicants.includes(p.id)) return socket.emit('systemMessage', "Already applied.");
         
         guild.applicants.push(p.id);
-        socket.emit('systemMessage', `📩 Application sent to ${guildName}!`);
+        socket.emit('systemMessage', `Application sent to ${guildName}!`);
         saveGuildsToDB(); 
         
         guild.members.forEach(memberId => {
@@ -4981,14 +4997,14 @@ socket.on('requestConfirmTrade', () => {
         const p = onlinePlayers[socket.id]; if (!p || !p.guild_details) return;
         const guild = global.guilds[p.guild_details.name];
         
-        if (!hasGuildPerm(guild.roles[p.id], 'invite')) return socket.emit('systemMessage', "❌ You do not have permission to invite players.");
+        if (!hasGuildPerm(guild.roles[p.id], 'invite')) return socket.emit('systemMessage', "You do not have permission to invite players.");
 
         const targetSocketId = Object.keys(onlinePlayers).find(sid => onlinePlayers[sid].id === targetName);
         if (targetSocketId) {
             io.to(targetSocketId).emit('guildInviteReceived', { from: p.id, guildName: p.guild_details.name });
-            socket.emit('systemMessage', `📩 Invite sent to ${targetName}.`);
+            socket.emit('systemMessage', `Invite sent to ${targetName}.`);
         } else {
-            socket.emit('systemMessage', "❌ Player is not online.");
+            socket.emit('systemMessage', "Player is not online.");
         }
     });
 
@@ -5001,7 +5017,7 @@ socket.on('requestConfirmTrade', () => {
 
         if (accept) {
             const maxMembers = 20 + ((guild.level || 0) * 5);
-            if (guild.members.size >= maxMembers) return socket.emit('systemMessage', `❌ Guild is full (${guild.members.size}/${maxMembers}).`);
+            if (guild.members.size >= maxMembers) return socket.emit('systemMessage', `Guild is full (${guild.members.size}/${maxMembers}).`);
             guild.members.add(applicantName);
             if (!guild.roles) guild.roles = {};
             guild.roles[applicantName] = 'Member';
@@ -5019,7 +5035,7 @@ socket.on('requestConfirmTrade', () => {
             } else {
                 await supabase.from('Exonians').update({ guild_details: { name: guild.name, role: 'Member', guildGold: guild.gold } }).eq('character_name', applicantName);
             }
-            socket.emit('systemMessage', `✅ ${applicantName} joined the guild.`);
+            socket.emit('systemMessage', `${applicantName} joined the guild.`);
         }
         
         saveGuildsToDB(); 
@@ -5034,7 +5050,7 @@ socket.on('requestConfirmTrade', () => {
         const guild = global.guilds[p.guild_details.name];
         
         if (guild.roles[p.id] !== 'Master') return;
-        if (targetName === p.id) return socket.emit('systemMessage', "❌ Cannot change your own role here.");
+        if (targetName === p.id) return socket.emit('systemMessage', "Cannot change your own role here.");
 
         guild.roles[targetName] = newRole;
         saveGuildsToDB(); 
@@ -5050,7 +5066,7 @@ socket.on('requestConfirmTrade', () => {
         const guild = global.guilds[p.guild_details.name];
         
         if (!hasGuildPerm(guild.roles[p.id], 'kick', guild.roles[targetName] || 'Member')) {
-            return socket.emit('systemMessage', "❌ No permission to kick this player.");
+            return socket.emit('systemMessage', "No permission to kick this player.");
         }
 
         guild.members.delete(targetName);
@@ -5063,7 +5079,7 @@ socket.on('requestConfirmTrade', () => {
             let tp = onlinePlayers[targetSid];
             tp.guild_details = null;
             tp.spriteData.guildName = null;
-            io.to(targetSid).emit('systemMessage', `⚠️ You were kicked from the guild.`);
+            io.to(targetSid).emit('systemMessage', `You were kicked from the guild.`);
             io.to(targetSid).emit('updateLocalGuildTag', null); 
             io.to(targetSid).emit('requestGuildUI_Refresh');
             io.emit('remotePlayerMoved', { id: tp.id, x: tp.x, y: tp.y, state: 'idle', facingRight: false, weaponSprite: tp.spriteData.weapon, spriteData: tp.spriteData });
@@ -5082,7 +5098,7 @@ socket.on('requestConfirmTrade', () => {
         const p = onlinePlayers[socket.id]; if (!p || !p.guild_details) return;
         const guild = global.guilds[p.guild_details.name];
         
-        if (guild.roles[p.id] === 'Master') return socket.emit('systemMessage', "❌ Masters cannot leave. Demote yourself to another role or transfer leadership first!");
+        if (guild.roles[p.id] === 'Master') return socket.emit('systemMessage', "Masters cannot leave. Demote yourself to another role or transfer leadership first!");
 
         guild.members.delete(p.id);
         delete guild.roles[p.id];
@@ -5113,15 +5129,15 @@ socket.on('requestConfirmTrade', () => {
             if (!guild) return;
 
             if (guild.roles[p.id] !== 'Master') {
-                return socket.emit('systemMessage', "❌ Only the Guild Master can purchase the Base.");
+                return socket.emit('systemMessage', "Only the Guild Master can purchase the Base.");
             }
 
             if (guild.hasBase) {
-                return socket.emit('systemMessage', "❌ Your guild already owns a base.");
+                return socket.emit('systemMessage', "Your guild already owns a base.");
             }
 
             if ((guild.gold || 0) < 1000000) {
-                return socket.emit('systemMessage', `❌ Insufficient Funds! Guild needs ${ (1000000 - guild.gold).toLocaleString() } G more.`);
+                return socket.emit('systemMessage', `Insufficient Funds! Guild needs ${ (1000000 - guild.gold).toLocaleString() } G more.`);
             }
 
             guild.gold -= 1000000;
@@ -5136,7 +5152,7 @@ socket.on('requestConfirmTrade', () => {
                 if (memberSocketId) io.to(memberSocketId).emit('requestGuildUI_Refresh');
             });
         } catch (err) {
-            socket.emit('systemMessage', "❌ A server error occurred during purchase.");
+            socket.emit('systemMessage', "A server error occurred during purchase.");
         }
     });
 socket.on('requestGuildLevelUp', async () => {
@@ -5148,17 +5164,17 @@ socket.on('requestGuildLevelUp', async () => {
         const guild = global.guilds[gName];
 
         if (guild.roles[p.id] !== 'Master') {
-            return socket.emit('systemMessage', "❌ Only the Guild Master can level up the guild.");
+            return socket.emit('systemMessage', "Only the Guild Master can level up the guild.");
         }
 
         guild.level = guild.level || 0;
         if (guild.level >= 10) {
-            return socket.emit('systemMessage', "❌ Your guild is already at the maximum level (10).");
+            return socket.emit('systemMessage', "Your guild is already at the maximum level (10).");
         }
 
         const cost = 1000000;
         if ((guild.gold || 0) < cost) {
-            return socket.emit('systemMessage', `❌ Insufficient Guild Funds! You need ${cost.toLocaleString()} G in the guild bank.`);
+            return socket.emit('systemMessage', `Insufficient Guild Funds! You need ${cost.toLocaleString()} G in the guild bank.`);
         }
 
         // Deduct from Guild Bank, Increase Level
@@ -5199,7 +5215,7 @@ socket.on('requestGuildLevelUp', async () => {
         const p = onlinePlayers[socket.id]; if (!p || !p.guild_details) return;
         let donateAmt = parseInt(amount);
         if (isNaN(donateAmt) || donateAmt <= 0) return;
-        if (p.gold < donateAmt) return socket.emit('systemMessage', "❌ Not enough gold to donate.");
+        if (p.gold < donateAmt) return socket.emit('systemMessage', "Not enough gold to donate.");
         
         let gName = p.guild_details.name;
         if (!global.guilds[gName]) return;
@@ -5309,8 +5325,8 @@ socket.on('requestGuildLevelUp', async () => {
 
         // 🛡️ THE FIX: Hard cap the party size at exactly 4 players!
         if (pid && parties[pid] && parties[pid].members.size >= 4) {
-            socket.emit('systemMessage', '❌ That party is already full (Max 4 players).');
-            io.to(fromSid).emit('systemMessage', `❌ ${me.id} tried to join, but your party is full!`);
+            socket.emit('systemMessage', 'That party is already full (Max 4 players).');
+            io.to(fromSid).emit('systemMessage', `${me.id} tried to join, but your party is full!`);
             return; // Stops them from being added
         }
 
@@ -5341,8 +5357,8 @@ socket.on('requestGuildLevelUp', async () => {
         }
 
         if (isSpamAlt) {
-            socket.emit('systemMessage', `❌ You cannot join party: ${failReason}.`);
-            io.to(fromSid).emit('systemMessage', `❌ ${me.id} cannot join due to multi-boxing limits (${failReason}).`);
+            socket.emit('systemMessage', `You cannot join party: ${failReason}.`);
+            io.to(fromSid).emit('systemMessage', `${me.id} cannot join due to multi-boxing limits (${failReason}).`);
             return;
         }
 
@@ -5489,12 +5505,12 @@ socket.on('requestGuildLevelUp', async () => {
         
         // ⚔️ TAVERN ANTI-CHEAT: Block Escaping
         if (p.mapId === 'trainingtavern' && !isAdmin(p.id)) {
-            socket.emit('systemMessage', "❌ You cannot use Unstuck to escape the Training Tavern.");
+            socket.emit('systemMessage', "You cannot use Unstuck to escape the Training Tavern.");
             return; 
         }
         
        if (playerParty[p.id] && !isAdmin(p.id)) {
-            socket.emit('systemMessage', "❌ You cannot use Unstuck while in a party. Please leave the party first.");
+            socket.emit('systemMessage', "You cannot use Unstuck while in a party. Please leave the party first.");
             return; // 🛑 Stops the teleport completely!
         }
 
@@ -5548,7 +5564,7 @@ socket.on('requestGuildLevelUp', async () => {
         if (data.mapId === 'neutralzone' && p.baseStats?.neutralLockout) {
             if (Date.now() < p.baseStats.neutralLockout) {
                 const remainingMins = Math.ceil((p.baseStats.neutralLockout - Date.now()) / 60000);
-                socket.emit('systemMessage', `❌ You cannot enter the Neutral Zone for ${remainingMins} more minutes after your recent defeat.`);
+                socket.emit('systemMessage', `You cannot enter the Neutral Zone for ${remainingMins} more minutes after your recent defeat.`);
                 return socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
             }
         }
@@ -5707,7 +5723,7 @@ socket.on('requestGuildLevelUp', async () => {
         
         // If the party hasn't wiped yet, block the respawn!
         if (!allDead) {
-            socket.emit('systemMessage', "❌ You cannot respawn to town while your party is still fighting!");
+            socket.emit('systemMessage', "You cannot respawn to town while your party is still fighting!");
             return; // 🛑 Stops the teleport!
         }
     }
@@ -5857,7 +5873,7 @@ socket.on('playerDied', () => {
     
     // ⚔️ TAVERN FAILURE CONDITION
     if (p.instanceId.startsWith('tavern_')) {
-        socket.emit('systemMessage', '💀 You have fallen! Tavern challenge failed.');
+        socket.emit('systemMessage', 'You have fallen! Tavern challenge failed.');
         socket.emit('tavernTimerStop'); // 🛑 THIS INSTANTLY KILLS THE TIMER UI
         
         // Auto-kick back to town as a ghost after 4 seconds to look at their failure
@@ -5996,7 +6012,7 @@ socket.on('playerDied', () => {
 
     // 🛡️ ANTI-CHEAT: Block enhancing if an Aura or Pet is attached!
      if (targetItem.aura) {
-    socket.emit('systemMessage', '❌ You must extract the Aura or Pet before enhancing this item!');
+    socket.emit('systemMessage', 'You must extract the Aura or Pet before enhancing this item!');
     socket.emit('syncInventory', p.inventory);
          return;
         }
@@ -6018,7 +6034,7 @@ socket.on('playerDied', () => {
     let isNormalMatch = (stone.rarity === targetItem.rarity && stone.level === targetItem.level && stone.name !== 'Divine Enhancement Stone');
 
     if (!isDivineMatch && !isNormalMatch) {
-        socket.emit('systemMessage', '❌ Invalid enhancement stone for this item.');
+        socket.emit('systemMessage', 'Invalid enhancement stone for this item.');
         socket.emit('syncInventory', p.inventory);
         return;
     }
@@ -6095,7 +6111,7 @@ socket.on('playerDied', () => {
         const baseItem = inv[data.baseIndex];
 
         if (!baseItem || baseItem.rarity !== 'Godly') {
-            return socket.emit('systemMessage', '❌ You need a Godly equipment base to ascend to Divine.');
+            return socket.emit('systemMessage', 'You need a Godly equipment base to ascend to Divine.');
         }
 
         // Determine requirements based on item type
@@ -6107,9 +6123,9 @@ socket.on('playerDied', () => {
         if (isWeapon) { reqEssence = 3; reqRed = 1; reqGreen = 1; reqBlue = 1; reqGold = 3000000; }
         else if (isArmor) { reqEssence = 1; reqRed = 1; reqGreen = 1; reqBlue = 1; reqGold = 1000000; }
         else if (isAcc) { reqEssence = 5; reqRed = 2; reqGreen = 2; reqBlue = 2; reqGold = 5000000; }
-        else return socket.emit('systemMessage', '❌ Invalid item type for Divine crafting.');
+        else return socket.emit('systemMessage', 'Invalid item type for Divine crafting.');
 
-        if (p.gold < reqGold) return socket.emit('systemMessage', `❌ You need ${reqGold.toLocaleString()} Gold to craft this.`);
+        if (p.gold < reqGold) return socket.emit('systemMessage', `You need ${reqGold.toLocaleString()} Gold to craft this.`);
 
        // 🛡️ THE FLEXIBLE CHECKER: Counts materials even if they are "old" versions
         let countEssence = 0, countRed = 0, countGreen = 0, countBlue = 0;
@@ -6123,7 +6139,7 @@ socket.on('playerDied', () => {
         });
 
         if (countEssence < reqEssence || countRed < reqRed || countGreen < reqGreen || countBlue < reqBlue) {
-            return socket.emit('systemMessage', '❌ You do not have the required materials.');
+            return socket.emit('systemMessage', 'You do not have the required materials.');
         }
 
         // 🛡️ THE FLEXIBLE DEDUCTOR: Removes materials using fuzzy matching
@@ -6196,7 +6212,7 @@ socket.on('playerDied', () => {
         await supabase.from('Exonians').update({ inventory: p.inventory, gold: p.gold }).eq('character_name', p.id);
         socket.emit('syncInventory', p.inventory);
         socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory }); // Reusing this event to update the gold UI safely
-        socket.emit('systemMessage', `✨ Successfully forged ${baseItem.name}!`);
+        socket.emit('systemMessage', `Successfully forged ${baseItem.name}!`);
         socket.emit('craftSuccess');
 
         // --- LINES BEFORE ---
@@ -6217,9 +6233,9 @@ socket.on('playerDied', () => {
 
         const targetRarity = data?.rarity || 'Godly';
         const validRarities = ['Basic', 'Rare', 'Unique', 'Legendary', 'Godly', 'Divine'];
-        if (!validRarities.includes(targetRarity)) return socket.emit('systemMessage', '❌ Invalid rarity selected.');
+        if (!validRarities.includes(targetRarity)) return socket.emit('systemMessage', 'Invalid rarity selected.');
 
-        if (p.gold < 300000) return socket.emit('systemMessage', '❌ Not enough gold to craft a Forger.');
+        if (p.gold < 300000) return socket.emit('systemMessage', 'Not enough gold to craft a Forger.');
 
         const inv = p.inventory;
         const forgerName = `${targetRarity} Stat Forger`;
@@ -6227,7 +6243,7 @@ socket.on('playerDied', () => {
         let emptyIdx = inv.findIndex(i => i === null);
         
         if (forgerIdx === -1 && emptyIdx === -1) {
-            return socket.emit('systemMessage', '❌ Inventory is full!');
+            return socket.emit('systemMessage', 'Inventory is full!');
         }
 
         // 🛡️ THE FIX: Make ALL material checks flexible to support old items
@@ -6245,7 +6261,7 @@ socket.on('playerDied', () => {
         });
 
         if (countRed < 3 || countGreen < 3 || countBlue < 3 || countStones < 3) {
-            return socket.emit('systemMessage', '❌ You lack the required materials.');
+            return socket.emit('systemMessage', 'You lack the required materials.');
         }
 
         // 🛡️ THE FIX: Flexible deduct function to handle the fuzzy matching for all items
@@ -6297,7 +6313,7 @@ socket.on('playerDied', () => {
         
         socket.emit('syncInventory', p.inventory);
         socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
-        socket.emit('systemMessage', `✨ Successfully crafted a ${forgerName}!`);
+        socket.emit('systemMessage', `Successfully crafted a ${forgerName}!`);
         socket.emit('craftForgerSuccess');
     });
 socket.on('requestRerollStat', async (data) => {
@@ -6377,7 +6393,7 @@ socket.on('requestRerollStat', async (data) => {
         try {
             await supabase.from('Exonians').update({ skin_color: skinColor, hair_color: hairColor, hair_style: hairStyle, inventory: p.inventory }).eq('character_name', p.id);
             socket.emit('syncInventory', p.inventory);
-            socket.emit('systemMessage', "✨ Appearance successfully changed!");
+            socket.emit('systemMessage', "Appearance successfully changed!");
             const moveData = { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData };
             socket.emit('remotePlayerMoved', moveData);
             socket.to(p.instanceId).emit('remotePlayerMoved', moveData);
@@ -6394,11 +6410,11 @@ socket.on('requestRerollStat', async (data) => {
         if (!item || item.name !== 'Name Change Ticket') return;
 
         const newName = data.newName.trim();
-        if (newName.length < 3 || newName.length > 16) return socket.emit('systemMessage', "❌ Name must be 3-16 characters.");
+        if (newName.length < 3 || newName.length > 16) return socket.emit('systemMessage', "Name must be 3-16 characters.");
 
         // Check if name is taken
         const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', newName).maybeSingle();
-        if (existingUser) return socket.emit('systemMessage', "❌ That name is already taken!");
+        if (existingUser) return socket.emit('systemMessage', "That name is already taken!");
 
         // Deduct ticket
         item.quantity = (item.quantity || 1) - 1;
@@ -6421,11 +6437,11 @@ socket.on('requestRerollStat', async (data) => {
                 emitPartyUpdate(pid);
             }
 
-            io.emit('systemMessage', `✨ [World] ${oldName} has changed their name to ${newName}!`);
+            io.emit('systemMessage', `[World] ${oldName} has changed their name to ${newName}!`);
             socket.emit('authSuccess', { ...p, character_name: newName, base_stats: p.baseStats, equips: p.equips });
             io.to(p.instanceId).emit('remotePlayerLeft', oldName);
             io.to(p.instanceId).emit('remotePlayerJoined', { id: p.id, name: p.name, mapId: p.mapId, instanceId: p.instanceId, x: p.x, y: p.y, spriteData: p.spriteData, isGhost: p.isGhost });
-        } catch(e) { socket.emit('systemMessage', "❌ Failed to change name. DB Error."); }
+        } catch(e) { socket.emit('systemMessage', "Failed to change name. DB Error."); }
     });
 // 🛡️ SECURE GOLD SHOP: Server now generates items, not the client!
     socket.on('requestPurchase', async (data) => {
@@ -6449,7 +6465,7 @@ socket.on('requestRerollStat', async (data) => {
         }
 
         if (!item || p.gold < cost) {
-            return socket.emit('systemMessage', "❌ Purchase Failed: Invalid item or insufficient gold.");
+            return socket.emit('systemMessage', "Purchase Failed: Invalid item or insufficient gold.");
         }
 
         const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
@@ -6507,7 +6523,7 @@ socket.on('requestRerollStat', async (data) => {
 
         // Check if player already has an active mission for today
         if (p.baseStats.dailyMission && p.baseStats.dailyMission.active && p.baseStats.dailyMission.lastReset >= resetTs) {
-            return socket.emit('systemMessage', "❌ You already have an active mission today.");
+            return socket.emit('systemMessage', "You already have an active mission today.");
         }
 
         // 50/50 Coin Flip for type
@@ -6556,7 +6572,7 @@ socket.on('requestRerollStat', async (data) => {
         
         // Sync to Client
         socket.emit('dailyMissionData', p.baseStats.dailyMission);
-        socket.emit('systemMessage', `📜 Mission Accepted: Defeat ${requiredKills} ${targetName}s!`);
+        socket.emit('systemMessage', `Mission Accepted: Defeat ${requiredKills} ${targetName}s!`);
     });
     // 🏡 REAL ESTATE ENGINE: Buy a Home
     socket.on('requestBuyHome', async () => {
@@ -6566,11 +6582,11 @@ socket.on('requestRerollStat', async (data) => {
         const HOME_PRICE = 1000000;
 
         if (p.gold < HOME_PRICE) {
-            return socket.emit('systemMessage', '❌ Not enough gold to buy a home.');
+            return socket.emit('systemMessage', 'Not enough gold to buy a home.');
         }
 
         if (p.baseStats && p.baseStats.hasHome) {
-            return socket.emit('systemMessage', '❌ You already own a home!');
+            return socket.emit('systemMessage', 'You already own a home!');
         }
 
         // Deduct Gold and Grant Deed
@@ -6587,7 +6603,7 @@ socket.on('requestRerollStat', async (data) => {
             socket.emit('systemMessage', 'You successfully bought a Home for 1,000,000 Gold!');
         } catch (err) {
             console.error('Home Buy Error:', err);
-            socket.emit('systemMessage', '❌ Server error while purchasing home.');
+            socket.emit('systemMessage', 'Server error while purchasing home.');
         }
     });
 socket.on('useRevivalJuice', async (data) => {
@@ -6597,7 +6613,7 @@ socket.on('useRevivalJuice', async (data) => {
     
   // ⚔️ TAVERN & DUNGEON 2 ANTI-CHEAT: Block Revival Juice
     if (p.mapId === 'trainingtavern' || String(p.mapId).startsWith('dungeon2')) {
-        return socket.emit('systemMessage', '❌ Revival Juice is forbidden here! Only a Healer can save you.');
+        return socket.emit('systemMessage', 'Revival Juice is forbidden here! Only a Healer can save you.');
     }
 
     const inv = Array.isArray(p.inventory) ? p.inventory : [];
@@ -6672,7 +6688,7 @@ socket.on('useRevivalJuice', async (data) => {
         if (itemToThrow) {
             // 🛡️ ANTI-CHEAT: Block throwing if an Aura or Pet is attached!
             if (itemToThrow.aura) {
-                return socket.emit('systemMessage', '❌ You must extract the Aura or Pet before throwing this item away!');
+                return socket.emit('systemMessage', 'You must extract the Aura or Pet before throwing this item away!');
             }
             
             inv[data.index] = null;
@@ -6778,9 +6794,9 @@ socket.on('adminSpawnItem', async (data) => {
             
             socket.emit('systemMessage', `[Admin] Reset D1 & D2 entries to 7/7 for ${target.name}.`);
             const targetSid = findSocketIdByPlayerId(target.id);
-            if (targetSid) io.to(targetSid).emit('systemMessage', '✨ The Gods have restored your Dungeon entries!');
+            if (targetSid) io.to(targetSid).emit('systemMessage', 'The Gods have restored your Dungeon entries!');
         } else {
-            socket.emit('systemMessage', "❌ Player not online or not found.");
+            socket.emit('systemMessage', "Player not online or not found.");
         }
     });
 
@@ -6885,14 +6901,14 @@ socket.on('adminSpawnItem', async (data) => {
         
         // Ensure it's an accessory
         if (!['necklace', 'ring', 'earrings'].includes(targetAcc.type)) {
-            return socket.emit('systemMessage', `❌ Power Gems can only be applied to Accessories (Necklace, Ring, Earrings)!`);
+            return socket.emit('systemMessage', `Power Gems can only be applied to Accessories (Necklace, Ring, Earrings)!`);
         }
         // 🛡️ NEW FIX: Limit Gem sockets based on Accessory Rarity
         const maxGems = { "Basic": 1, "Rare": 1, "Unique": 2, "Legendary": 3, "Godly": 4, "Divine": 5 }[targetAcc.rarity] || 1;
         targetAcc.gemCount = targetAcc.gemCount || 0;
 
         if (targetAcc.gemCount >= maxGems) {
-            return socket.emit('systemMessage', `❌ This ${targetAcc.rarity} accessory has reached its maximum of ${maxGems} socket(s)!`);
+            return socket.emit('systemMessage', `This ${targetAcc.rarity} accessory has reached its maximum of ${maxGems} socket(s)!`);
         }
 
         // Apply the gem's stats
@@ -6909,7 +6925,7 @@ socket.on('adminSpawnItem', async (data) => {
         if (gem.quantity <= 0) p.inventory[data.gemIndex] = null;
 
         socket.emit('syncInventory', p.inventory);
-        socket.emit('systemMessage', `💎 Successfully embedded ${gem.name} into your ${targetAcc.name}!`);
+        socket.emit('systemMessage', `Successfully embedded ${gem.name} into your ${targetAcc.name}!`);
         supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(()=>{});
     });
     // 🛡️ SECURE AURA EXTRACTION (Optimized)
@@ -6996,7 +7012,7 @@ const AURA_DATA = {
         if (!p || typeof data.invIndex !== 'number' || !data.price || data.price < 1) return;
 
         // 🛡️ ANTI-SPAM LOCK: Prevents the 5-item bypass exploit!
-        if (p.isListingAH) return socket.emit('systemMessage', "⏳ Processing... please wait.");
+        if (p.isListingAH) return socket.emit('systemMessage', "Processing... please wait.");
         p.isListingAH = true;
 
         try {
@@ -7004,7 +7020,7 @@ const AURA_DATA = {
             const { count, error } = await supabase.from('Auction_House').select('*', { count: 'exact', head: true }).eq('seller_name', p.id);
             if (count >= 5) {
                 p.isListingAH = false; // Release lock
-                return socket.emit('systemMessage', "❌ You can only have 5 items on the Auction House at once.");
+                return socket.emit('systemMessage', "You can only have 5 items on the Auction House at once.");
             }
 
             const inv = Array.isArray(p.inventory) ? p.inventory : [];
@@ -7014,13 +7030,13 @@ const AURA_DATA = {
           // 🛡️ ANTI-CHEAT: Block server from auctioning NORMAL cosmetics/pets
             if ((originalItem.type === 'aura' || originalItem.aura) && !originalItem.isSeasonal && !String(originalItem.name).includes('Easter')) {
                 p.isListingAH = false;
-                return socket.emit('systemMessage', "❌ Normal cosmetics, pets, and enchanted gear cannot be auctioned. Extract it first!");
+                return socket.emit('systemMessage', "Normal cosmetics, pets, and enchanted gear cannot be auctioned. Extract it first!");
             }
 
             // 🛡️ THE FIX: Block server from auctioning bound high-tier gear
             if ((originalItem.rarity === 'Godly' || originalItem.rarity === 'Divine') && originalItem.enhanceLevel > 0) {
                 p.isListingAH = false;
-                return socket.emit('systemMessage', "❌ Enhanced Godly and Divine equipment cannot be auctioned.");
+                return socket.emit('systemMessage', "Enhanced Godly and Divine equipment cannot be auctioned.");
             }
 
             // 2. Create the exact item data to save (Force quantity to 1)
@@ -7065,7 +7081,7 @@ const AURA_DATA = {
             // Give item back
             const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
             const emptySlot = inv.findIndex(i => i === null);
-            if (emptySlot === -1) return socket.emit('systemMessage', "❌ Inventory full! Cannot cancel auction.");
+            if (emptySlot === -1) return socket.emit('systemMessage', "Inventory full! Cannot cancel auction.");
 
             inv[emptySlot] = auc.item_data;
             p.inventory = inv;
@@ -7090,10 +7106,10 @@ const AURA_DATA = {
         try {
             // 1. Get the auction
             const { data: auc } = await supabase.from('Auction_House').select('*').eq('id', data.auctionId).single();
-            if (!auc) return socket.emit('systemMessage', "❌ This item has already been sold or cancelled.");
+            if (!auc) return socket.emit('systemMessage', "This item has already been sold or cancelled.");
 
             // 2. Check Buyer Gold
-            if (p.gold < auc.price) return socket.emit('systemMessage', "❌ Not enough gold.");
+            if (p.gold < auc.price) return socket.emit('systemMessage', "Not enough gold.");
 
             // 3. Check Buyer Inventory
             const inv = Array.isArray(p.inventory) ? p.inventory : new Array(20).fill(null);
@@ -7110,7 +7126,7 @@ const AURA_DATA = {
             }
             if (!added) {
                 const emptySlot = inv.findIndex(i => i === null);
-                if (emptySlot === -1) return socket.emit('systemMessage', "❌ Inventory full!");
+                if (emptySlot === -1) return socket.emit('systemMessage', "Inventory full!");
                 inv[emptySlot] = boughtItem;
             }
 
@@ -7146,7 +7162,7 @@ const AURA_DATA = {
 
             // 8. Tell Buyer Success
             socket.emit('purchaseSuccess', { newGold: p.gold, inventory: p.inventory });
-            socket.emit('systemMessage', `🛒 Successfully purchased ${auc.item_name} for ${auc.price} Gold!`);
+            socket.emit('systemMessage', `Successfully purchased ${auc.item_name} for ${auc.price} Gold!`);
             
             // Refresh Browse Tab
             let q = supabase.from('Auction_House').select('*').order('created_at', { ascending: false }).limit(50);
@@ -7194,7 +7210,7 @@ socket.on('requestSell', async (data) => {
 
     // 🛡️ ANTI-CHEAT: Block server from selling cosmetics/pets AND enchanted gear
     if (serverItem.type === 'aura' || serverItem.aura) {
-        return socket.emit('systemMessage', '❌ Cosmetics, Pets, and enchanted gear cannot be sold. Extract it first!');
+        return socket.emit('systemMessage', 'Cosmetics, Pets, and enchanted gear cannot be sold. Extract it first!');
     }
 
     let sellPrice = 0;
@@ -7273,7 +7289,7 @@ socket.on('requestSell', async (data) => {
         if (rid && raids[rid]) {
             // --- RAID MODE ---
             if (raids[rid].leaderId !== p.id) {
-                return socket.emit('systemMessage', "❌ Only the Raid Leader can use the Maze Guide.");
+                return socket.emit('systemMessage', "Only the Raid Leader can use the Maze Guide.");
             }
 
             let allEligible = true;
@@ -7297,7 +7313,7 @@ socket.on('requestSell', async (data) => {
             }
 
             if (!allEligible) {
-                socket.emit('systemMessage', `❌ Cannot teleport: ${ineligibleName} has not conquered Floor ${targetFloor} yet.`);
+                socket.emit('systemMessage', `Cannot teleport: ${ineligibleName} has not conquered Floor ${targetFloor} yet.`);
                 return;
             }
 
@@ -7316,7 +7332,7 @@ socket.on('requestSell', async (data) => {
             const party = parties[pid];
             
             if (party.leaderId !== p.id) {
-                return socket.emit('systemMessage', "❌ Only the Party Leader can use the Maze Guide.");
+                return socket.emit('systemMessage', "Only the Party Leader can use the Maze Guide.");
             }
 
             let allEligible = true;
@@ -7340,7 +7356,7 @@ socket.on('requestSell', async (data) => {
             }
 
             if (!allEligible) {
-                socket.emit('systemMessage', `❌ Cannot teleport: ${ineligibleName} has not conquered Floor ${targetFloor} yet.`);
+                socket.emit('systemMessage', `Cannot teleport: ${ineligibleName} has not conquered Floor ${targetFloor} yet.`);
                 return;
             }
 
@@ -7357,7 +7373,7 @@ socket.on('requestSell', async (data) => {
         } else {
             // --- SOLO MODE ---
             if (getMaxFloor(p) < targetFloor) {
-                return socket.emit('systemMessage', `❌ You have not conquered Floor ${targetFloor} yet.`);
+                return socket.emit('systemMessage', `You have not conquered Floor ${targetFloor} yet.`);
             }
             // Authorized!
             p.isLoadingMap = true;
@@ -7383,7 +7399,7 @@ socket.on('requestSell', async (data) => {
 
         const pid = playerParty[p.id];
         if (pid && partyRaid[pid]) {
-            return socket.emit('systemMessage', "❌ You cannot enter Maze Trials while in a Raid Team.");
+            return socket.emit('systemMessage', "You cannot enter Maze Trials while in a Raid Team.");
         }
 
         let playersToEnter = [p];
@@ -7391,15 +7407,15 @@ socket.on('requestSell', async (data) => {
         if (pid && parties[pid]) {
             const party = parties[pid];
             if (party.leaderId !== p.id && !isAdmin(p.id)) {
-                return socket.emit('systemMessage', "❌ Only the Party Leader can start a Maze Trial.");
+                return socket.emit('systemMessage', "Only the Party Leader can start a Maze Trial.");
             }
 
             playersToEnter = [];
             for (const memberId of party.members) {
                 const mp = getPlayerById(memberId);
-                if (!mp) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
-                if (mp.isGhost) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
-                if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
+                if (!mp) return socket.emit('systemMessage', `Cannot start: ${memberId} is offline.`);
+                if (mp.isGhost) return socket.emit('systemMessage', `Cannot start: ${memberId} is dead.`);
+                if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `Cannot start: ${memberId} is not in the same map.`);
                 
                 const now = new Date();
                 let todayMidnight = new Date();
@@ -7412,7 +7428,7 @@ socket.on('requestSell', async (data) => {
                 }
 
                 if (mp.baseStats.mazeTrialEntries <= 0 && !isAdmin(mp.id)) {
-                    return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} has already done a Maze Trial today.`);
+                    return socket.emit('systemMessage', `Cannot start: ${mp.name} has already done a Maze Trial today.`);
                 }
                 playersToEnter.push(mp);
             }
@@ -7428,7 +7444,7 @@ socket.on('requestSell', async (data) => {
             }
 
             if (p.baseStats.mazeTrialEntries <= 0 && !isAdmin(p.id)) {
-                return socket.emit('systemMessage', '❌ You have already done a Maze Trial today. Resets at midnight UTC.');
+                return socket.emit('systemMessage', 'You have already done a Maze Trial today. Resets at midnight UTC.');
             }
         }
 
@@ -7456,7 +7472,7 @@ socket.on('requestSell', async (data) => {
                     }
                 }
                 
-                if (msid) io.to(msid).emit('systemMessage', `🎟️ Maze Trial Entry used (Account-Wide). Remaining today: 0`);
+                if (msid) io.to(msid).emit('systemMessage', `Maze Trial Entry used (Account-Wide). Remaining today: 0`);
             }
             mp.isMazeTrial = true; // 🛡️ Set the instancing flag
         });
@@ -7487,12 +7503,12 @@ socket.on('requestSell', async (data) => {
 
       // 🛡️ LEVEL 50 LOCK
         if (p.level < 50 && !isAdmin(p.id)) {
-            return socket.emit('systemMessage', "❌ You must be at least Level 50 to enter the Training Tavern.");
+            return socket.emit('systemMessage', "You must be at least Level 50 to enter the Training Tavern.");
         }
 
        // 🛡️ SERVER-SIDE PARTY BLOCK
         if (playerParty[p.id] && !isAdmin(p.id)) {
-            return socket.emit('systemMessage', "❌ Access Denied: Leave your party to enter the solo challenge.");
+            return socket.emit('systemMessage', "Access Denied: Leave your party to enter the solo challenge.");
         }
 
         // 📅 STRICT UTC WEEKLY MONDAY RESET (8:00 AM PHT)
@@ -7512,7 +7528,7 @@ socket.on('requestSell', async (data) => {
         }
 
         if (p.baseStats.tavernEntries <= 0 && !isAdmin(p.id)) {
-            return socket.emit('systemMessage', '❌ You have no Tavern entries left this week. Resets Monday at 12:00 AM.');
+            return socket.emit('systemMessage', 'You have no Tavern entries left this week. Resets Monday at 12:00 AM.');
         }
 
         p.baseStats.tavernEntries--;
@@ -7540,7 +7556,7 @@ socket.on('requestSell', async (data) => {
         setTimeout(() => { if (onlinePlayers[socket.id]) onlinePlayers[socket.id].isStartingInstance = false; }, 3000);
 
         if (playerParty[p.id] && !isAdmin(p.id)) {
-            return socket.emit('systemMessage', "❌ The Haunted House is a solo-only challenge. Please leave your party.");
+            return socket.emit('systemMessage', "The Haunted House is a solo-only challenge. Please leave your party.");
         }
 
         let cost = 0; let minLvl = 1; let maxLvl = 15;
@@ -7550,7 +7566,7 @@ socket.on('requestSell', async (data) => {
 
         if (p.gold < cost) {
             socket.emit('closeHauntedUI');
-            return socket.emit('systemMessage', `❌ Not enough gold! You need ${cost.toLocaleString()} G.`);
+            return socket.emit('systemMessage', `Not enough gold! You need ${cost.toLocaleString()} G.`);
         }
 
         p.gold -= cost;
@@ -7568,7 +7584,7 @@ socket.on('requestSell', async (data) => {
         p.isLoadingMap = true;
         p.isWaitingForTeam = true;
         socket.emit('forceTeleport', { mapId: targetMapId, x: 960, y: 1000 });
-        socket.emit('systemMessage', `👻 Entering Haunted House (${data.difficulty})... Boss Level: ${randomLevel}`);
+        socket.emit('systemMessage', `Entering Haunted House (${data.difficulty})... Boss Level: ${randomLevel}`);
 
         // 🌟 THE FIX: Store the boss securely in memory, wait for teleport to finish!
         p.pendingHauntedBoss = { level: randomLevel };
@@ -7590,7 +7606,7 @@ socket.on('startDungeon', async (data) => {
         if (rid && raids[rid]) {
             // 🛡️ RAID MODE ENTRY: Check Raid Leader
             if (raids[rid].leaderId !== p.id && !isAdmin(p.id)) {
-                return socket.emit('systemMessage', "❌ Only the Raid Leader can start a Raid Dungeon.");
+                return socket.emit('systemMessage', "Only the Raid Leader can start a Raid Dungeon.");
             }
             playersToEnter = [];
             const allMembers = getRaidMembers(rid);
@@ -7598,15 +7614,15 @@ socket.on('startDungeon', async (data) => {
                 const mp = getPlayerById(memberId);
                 if (!mp) {
                     io.to(p.instanceId).emit('closeDungeonUI');
-                    return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
+                    return socket.emit('systemMessage', `Cannot start: ${memberId} is offline.`);
                 }
                 if (mp.isGhost) {
                     io.to(p.instanceId).emit('closeDungeonUI');
-                    return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
+                    return socket.emit('systemMessage', `Cannot start: ${memberId} is dead.`);
                 }
                 if (mp.instanceId !== p.instanceId) {
                     io.to(p.instanceId).emit('closeDungeonUI');
-                    return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
+                    return socket.emit('systemMessage', `Cannot start: ${memberId} is not in the same map.`);
                 }
                 
                 const now = new Date();
@@ -7627,7 +7643,7 @@ socket.on('startDungeon', async (data) => {
                         const msid = findSocketIdByPlayerId(mId);
                         if (msid) io.to(msid).emit('closeDungeonUI');
                     }
-                    return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} has no Dungeon entries left.`);
+                    return socket.emit('systemMessage', `Cannot start: ${mp.name} has no Dungeon entries left.`);
                 }
                 
                 if (data.difficulty === 'Extreme' && mp.level < 50 && !isAdmin(mp.id)) {
@@ -7635,7 +7651,7 @@ socket.on('startDungeon', async (data) => {
                         const msid = findSocketIdByPlayerId(mId);
                         if (msid) io.to(msid).emit('closeDungeonUI');
                     }
-                    return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
+                    return socket.emit('systemMessage', `Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
                 }
                 playersToEnter.push(mp);
             }
@@ -7644,7 +7660,7 @@ socket.on('startDungeon', async (data) => {
             
             // Only the leader can start the dungeon for the group
             if (party.leaderId !== p.id && !isAdmin(p.id)) {
-                return socket.emit('systemMessage', "❌ Only the Party Leader can start the dungeon.");
+                return socket.emit('systemMessage', "Only the Party Leader can start the dungeon.");
             }
             
             // Gather all members and strictly verify them
@@ -7653,15 +7669,15 @@ socket.on('startDungeon', async (data) => {
                 const mp = getPlayerById(memberId);
                 if (!mp) {
                     io.to(p.instanceId).emit('closeDungeonUI');
-                    return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
+                    return socket.emit('systemMessage', `Cannot start: ${memberId} is offline.`);
                 }
                 if (mp.isGhost) {
                     io.to(p.instanceId).emit('closeDungeonUI');
-                    return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
+                    return socket.emit('systemMessage', `Cannot start: ${memberId} is dead.`);
                 }
                 if (mp.instanceId !== p.instanceId) {
                     io.to(p.instanceId).emit('closeDungeonUI');
-                    return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
+                    return socket.emit('systemMessage', `Cannot start: ${memberId} is not in the same map.`);
                 }
                 
            const now = new Date();
@@ -7683,7 +7699,7 @@ socket.on('startDungeon', async (data) => {
                         const msid = findSocketIdByPlayerId(mId);
                         if (msid) io.to(msid).emit('closeDungeonUI');
                     }
-                    return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} has no Dungeon entries left this week.`);
+                    return socket.emit('systemMessage', `Cannot start: ${mp.name} has no Dungeon entries left this week.`);
                 }
                 
                 // 🛡️ EXTREME PARTY CHECK: Everyone must be 50!
@@ -7692,7 +7708,7 @@ socket.on('startDungeon', async (data) => {
                         const msid = findSocketIdByPlayerId(mId);
                         if (msid) io.to(msid).emit('closeDungeonUI');
                     }
-                    return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
+                    return socket.emit('systemMessage', `Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
                 }
                 
                 playersToEnter.push(mp);
@@ -7714,11 +7730,11 @@ socket.on('startDungeon', async (data) => {
 
             if (p.baseStats.dungeonEntries <= 0 && !isAdmin(p.id)) {
                 socket.emit('closeDungeonUI');
-                return socket.emit('systemMessage', '❌ You have no Dungeon entries left this week.');
+                return socket.emit('systemMessage', 'You have no Dungeon entries left this week.');
             }
             if (data.difficulty === 'Extreme' && p.level < 50 && !isAdmin(p.id)) {
                 socket.emit('closeDungeonUI');
-                return socket.emit('systemMessage', '❌ You must be Level 50 to enter Extreme mode.');
+                return socket.emit('systemMessage', 'You must be Level 50 to enter Extreme mode.');
             }
         }
 
@@ -7731,7 +7747,7 @@ socket.on('startDungeon', async (data) => {
                 // 🎟️ THE UI FIX: Tell the player instantly how many entries they have left!
                 const msid = findSocketIdByPlayerId(mp.id);
                 if (msid) {
-                    io.to(msid).emit('systemMessage', `🎟️ Dungeon Entry used. Remaining: ${mp.baseStats.dungeonEntries}/7`);
+                    io.to(msid).emit('systemMessage', `Dungeon Entry used. Remaining: ${mp.baseStats.dungeonEntries}/7`);
                 }
             }
         });
@@ -7794,7 +7810,7 @@ socket.on('startDungeon', async (data) => {
             worlds[newInstId].failTimer = setTimeout(() => {
                 if (worlds[newInstId]) {
                     io.to(newInstId).emit('dungeonTimerStop');
-                    io.to(newInstId).emit('systemMessage', "⏳ Time is up! You failed to clear the Extreme Dungeon.");
+                    io.to(newInstId).emit('systemMessage', "Time is up! You failed to clear the Extreme Dungeon.");
                     const playersInRoom = playersInInstance(newInstId);
                     playersInRoom.forEach(roomPlayer => {
                         roomPlayer.mapId = 'town';
@@ -8240,7 +8256,7 @@ socket.on('startDungeon', async (data) => {
         const p = onlinePlayers[socket.id];
         if (!p || !data.itemId) return;
 
-        socket.emit('systemMessage', '⏳ Connecting to PayPal... please wait.');
+        socket.emit('systemMessage', 'Connecting to PayPal... please wait.');
 
        const MASTER_CATALOG = {
             'aura_easter': { priceGems: 15, item: { name: "Easter Aura Stone", type: 'aura', auraId: 'easter', rarity: 'Divine', color: '#FFB7B2', description: "Click to apply to an Armor. Purely cosmetic.", quantity: 1 } },
@@ -8257,7 +8273,7 @@ socket.on('startDungeon', async (data) => {
         };
 
         const item = MASTER_CATALOG[data.itemId];
-        if (!item) return socket.emit('systemMessage', "❌ Security Error: Item not in catalog.");
+        if (!item) return socket.emit('systemMessage', "Security Error: Item not in catalog.");
 
         try {
             const isLive = true; 
@@ -8287,10 +8303,10 @@ socket.on('startDungeon', async (data) => {
             
             const checkoutUrl = orderReq.data.links.find(link => link.rel === 'approve').href;
             socket.emit('checkoutState', { state: 'approved', url: checkoutUrl });
-            socket.emit('systemMessage', "✅ Secure PayPal link generated!");
+            socket.emit('systemMessage', "Secure PayPal link generated!");
 
         } catch (err) {
-            socket.emit('systemMessage', `❌ Payment API Error. Check server console.`);
+            socket.emit('systemMessage', `Payment API Error. Check server console.`);
         }
     });
 
@@ -8314,7 +8330,7 @@ socket.on('startDungeon', async (data) => {
         };
 
         const catalogItem = MASTER_CATALOG[data.itemId];
-        if (!catalogItem) return socket.emit('systemMessage', "❌ Item not found in catalog.");
+        if (!catalogItem) return socket.emit('systemMessage', "Item not found in catalog.");
 
         if (!p.baseStats) p.baseStats = {};
         if ((p.baseStats.exoGems || 0) < catalogItem.priceGems) {
@@ -8336,7 +8352,7 @@ socket.on('startDungeon', async (data) => {
 
         if (!added) {
             const emptySlot = inv.findIndex(i => i === null);
-            if (emptySlot === -1) return socket.emit('systemMessage', "❌ Inventory full! Clear space first.");
+            if (emptySlot === -1) return socket.emit('systemMessage', "Inventory full! Clear space first.");
             inv[emptySlot] = deliveryItem;
         }
 
@@ -8347,9 +8363,9 @@ socket.on('startDungeon', async (data) => {
             await supabase.from('Exonians').update({ inventory: p.inventory, base_stats: p.baseStats }).eq('character_name', p.id);
             socket.emit('syncInventory', p.inventory);
             socket.emit('gemPurchaseSuccess', { newGems: p.baseStats.exoGems });
-            socket.emit('systemMessage', `💎 Successfully purchased ${deliveryItem.name}!`);
+            socket.emit('systemMessage', `Successfully purchased ${deliveryItem.name}!`);
         } catch (e) {
-            socket.emit('systemMessage', "❌ Transaction failed. Server error.");
+            socket.emit('systemMessage', "Transaction failed. Server error.");
         }
     });
     // ==========================================
@@ -8462,7 +8478,7 @@ socket.on('startDungeon', async (data) => {
         while (p.baseStats.homeStorage.length < 15) p.baseStats.homeStorage.push(null); // 🛡️ Upgrade to 15 slots
         
         const emptySlot = p.baseStats.homeStorage.findIndex(i => i === null);
-        if (emptySlot === -1) return socket.emit('systemMessage', '❌ Storage is full!');
+        if (emptySlot === -1) return socket.emit('systemMessage', 'Storage is full!');
         
         p.baseStats.homeStorage[emptySlot] = p.inventory[invIndex];
         p.inventory[invIndex] = null;
@@ -8476,7 +8492,7 @@ socket.on('startDungeon', async (data) => {
         if (!p || !p.baseStats.homeStorage || !p.baseStats.homeStorage[storageIndex]) return;
         
         const emptySlot = p.inventory.findIndex(i => i === null);
-        if (emptySlot === -1) return socket.emit('systemMessage', '❌ Inventory is full!');
+        if (emptySlot === -1) return socket.emit('systemMessage', 'Inventory is full!');
         
         p.inventory[emptySlot] = p.baseStats.homeStorage[storageIndex];
         p.baseStats.homeStorage[storageIndex] = null;
@@ -8499,10 +8515,10 @@ socket.on('startDungeon', async (data) => {
             if (i && i.name === 'Soul Piece') soulPieceCount += (i.quantity || 1);
         });
 
-        if (soulPieceCount < 10) return socket.emit('systemMessage', '❌ You need 10 Soul Pieces.');
+        if (soulPieceCount < 10) return socket.emit('systemMessage', 'You need 10 Soul Pieces.');
 
         let emptyIdx = inv.findIndex(i => i === null);
-        if (emptyIdx === -1) return socket.emit('systemMessage', '❌ Inventory full! Clear a slot for your pet.');
+        if (emptyIdx === -1) return socket.emit('systemMessage', 'Inventory full! Clear a slot for your pet.');
 
         // Deduct 10 Soul Pieces flexibly across stacks
         let amtToDeduct = 10;
@@ -8538,7 +8554,7 @@ socket.on('startDungeon', async (data) => {
 
         await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
         socket.emit('syncInventory', p.inventory);
-        socket.emit('systemMessage', '👻 Successfully crafted the Void Pet!');
+        socket.emit('systemMessage', 'Successfully crafted the Void Pet!');
         socket.emit('craftVoidSuccess');
     });
 
@@ -8557,41 +8573,41 @@ socket.on('startDungeon', async (data) => {
     // 1. Party & Raid Logic & Entry Verification
     if (rid && raids[rid]) {
         if (raids[rid].leaderId !== p.id && !isAdmin(p.id)) {
-            return socket.emit('systemMessage', "❌ Only the Raid Leader can start the Ancient Cave.");
+            return socket.emit('systemMessage', "Only the Raid Leader can start the Ancient Cave.");
         }
         playersToEnter = [];
         const allMembers = getRaidMembers(rid);
         for (const memberId of allMembers) {
             const mp = getPlayerById(memberId);
-            if (!mp) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
-            if (mp.isGhost) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
-            if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
+            if (!mp) return socket.emit('systemMessage', `Cannot start: ${memberId} is offline.`);
+            if (mp.isGhost) return socket.emit('systemMessage', `Cannot start: ${memberId} is dead.`);
+            if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `Cannot start: ${memberId} is not in the same map.`);
             
             if (data.difficulty === 'Extreme' && mp.level < 50 && !isAdmin(mp.id)) {
-                return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
+                return socket.emit('systemMessage', `Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
             }
             playersToEnter.push(mp);
         }
     } else if (pid && parties[pid]) {
         const party = parties[pid];
         if (party.leaderId !== p.id && !isAdmin(p.id)) {
-            return socket.emit('systemMessage', "❌ Only the Party Leader can start the Ancient Cave.");
+            return socket.emit('systemMessage', "Only the Party Leader can start the Ancient Cave.");
         }
         playersToEnter = [];
         for (const memberId of party.members) {
             const mp = getPlayerById(memberId);
-            if (!mp) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is offline.`);
-            if (mp.isGhost) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is dead.`);
-            if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `❌ Cannot start: ${memberId} is not in the same map.`);
+            if (!mp) return socket.emit('systemMessage', `Cannot start: ${memberId} is offline.`);
+            if (mp.isGhost) return socket.emit('systemMessage', `Cannot start: ${memberId} is dead.`);
+            if (mp.instanceId !== p.instanceId) return socket.emit('systemMessage', `Cannot start: ${memberId} is not in the same map.`);
             
             if (data.difficulty === 'Extreme' && mp.level < 50 && !isAdmin(mp.id)) {
-                return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
+                return socket.emit('systemMessage', `Cannot start: ${mp.name} must be Level 50 for Extreme mode.`);
             }
             playersToEnter.push(mp);
         }
     } else {
         if (data.difficulty === 'Extreme' && p.level < 50 && !isAdmin(p.id)) {
-            return socket.emit('systemMessage', '❌ You must be Level 50 to enter Extreme mode.');
+            return socket.emit('systemMessage', 'You must be Level 50 to enter Extreme mode.');
         }
     }
 
@@ -8617,7 +8633,7 @@ socket.on('startDungeon', async (data) => {
                 const msid = findSocketIdByPlayerId(teammate.id);
                 if (msid) io.to(msid).emit('closeDungeonUI');
             });
-            return socket.emit('systemMessage', `❌ Cannot start: ${mp.name} has no Ancient Cave entries left this week.`);
+            return socket.emit('systemMessage', `Cannot start: ${mp.name} has no Ancient Cave entries left this week.`);
         }
     }
 
@@ -8628,7 +8644,7 @@ socket.on('startDungeon', async (data) => {
             supabase.from('Exonians').update({ base_stats: mp.baseStats }).eq('character_name', mp.id).then(()=>{});
             
             const msid = findSocketIdByPlayerId(mp.id);
-            if (msid) io.to(msid).emit('systemMessage', `🎟️ Ancient Cave Entry used. Remaining: ${mp.baseStats.dungeon2Entries}/7`);
+            if (msid) io.to(msid).emit('systemMessage', `Ancient Cave Entry used. Remaining: ${mp.baseStats.dungeon2Entries}/7`);
         }
     });
 
@@ -8693,6 +8709,10 @@ socket.on('startDungeon', async (data) => {
             checkAndResetInstance(oldInstId); 
         }
     });
+  } catch (_connectionErr) {
+      console.error('[CONNECTION CRASH] Unhandled error for socket ' + socket.id + ':', _connectionErr);
+      try { socket.disconnect(true); } catch(_e) {}
+  }
 });
 // ==========================================
 // 🧹 AUTOMATIC DATABASE CLEANUP ENGINE
@@ -8786,7 +8806,7 @@ function spawnBattlefieldBoss() {
         if (worlds['battlefield'] && worlds['battlefield'].monsters[bossId] && worlds['battlefield'].monsters[bossId].alive) {
             worlds['battlefield'].monsters[bossId].alive = false;
             io.to('battlefield').emit('monsterDied', { monsterId: bossId, killerId: null });
-            io.emit('systemMessage', `💨 The Battlefield threat has retreated after 1 week.`);
+            io.emit('systemMessage', `The Battlefield threat has retreated after 1 week.`);
             
             const playersInRoom = playersInInstance('battlefield');
             playersInRoom.forEach(rp => {
@@ -8871,14 +8891,14 @@ function spawnNeutralBoss() {
     worlds['neutralzone'].monsters[bossId] = newBoss;
 
     io.to('neutralzone').emit('monsterSpawned', serializeMonster(newBoss));
-    io.emit('systemMessage', `⚠️ A Level ${randomLevel} ${newBoss.name} has appeared in the Neutral Zone!`);
+    io.emit('systemMessage', `A Level ${randomLevel} ${newBoss.name} has appeared in the Neutral Zone!`);
 
     clearTimeout(global.neutralBossDespawnTimer);
     global.neutralBossDespawnTimer = setTimeout(async () => {
         if (worlds['neutralzone'] && worlds['neutralzone'].monsters[bossId] && worlds['neutralzone'].monsters[bossId].alive) {
             worlds['neutralzone'].monsters[bossId].alive = false;
             io.to('neutralzone').emit('monsterDied', { monsterId: bossId, killerId: null });
-            io.emit('systemMessage', `💨 The Neutral Zone boss has despawned after 12 hours.`);
+            io.emit('systemMessage', `The Neutral Zone boss has despawned after 12 hours.`);
             await supabase.from('boss_timers').upsert({ boss_id: 'neutralzone_boss', last_death_time: Date.now() }, { onConflict: 'boss_id' });
             checkNeutralBoss();
         }
@@ -9025,7 +9045,7 @@ function initiateDungeon2Stage(instId, mapId, difficulty) {
             worlds[instId].failTimer = setTimeout(() => {
                 if (worlds[instId]) {
                     io.to(instId).emit('dungeonTimerStop');
-                    io.to(instId).emit('systemMessage', "⏳ Time is up! You failed the Ancient Cave.");
+                    io.to(instId).emit('systemMessage', "Time is up! You failed the Ancient Cave.");
                     teleportRaidToNext(instId, 'town');
                 }
             }, 20 * 60 * 1000);
