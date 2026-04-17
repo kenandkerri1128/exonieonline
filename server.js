@@ -3834,6 +3834,35 @@ socket.on('syncPet', (data) => {
                             if (worlds[p.instanceId] && worlds[p.instanceId].failTimer) clearInterval(worlds[p.instanceId].failTimer);
                             io.to(p.instanceId).emit('dungeonTimerStop');
                             io.to(p.instanceId).emit('dungeonVictory');
+
+                            // DYNAMIC TITLE TIER: Save highest Dungeon 2 difficulty cleared
+                            const d2Diff = p.d2Difficulty || 'Normal';
+                            const diffRank = { 'Normal': 0, 'Hard': 1, 'Extreme': 2 };
+                            const allD2Players = playersInInstance(p.instanceId);
+                            allD2Players.forEach(d2p => {
+                                if (!d2p.baseStats) d2p.baseStats = {};
+                                const currentRank = diffRank[d2p.baseStats.d2HighestDifficulty] || 0;
+                                const newRank = diffRank[d2Diff] || 0;
+                                if (newRank > currentRank) {
+                                    d2p.baseStats.d2HighestDifficulty = d2Diff;
+                                    // Immediately recalculate their title prefix
+                                    const titlePrefix = d2Diff === 'Extreme' ? 'FLOOR MASTER' : (d2Diff === 'Hard' ? 'FLOOR DOMINATOR' : 'FLOOR CONQUEROR');
+                                    const existingT = String(d2p.title || '').toUpperCase();
+                                    const floorMatch = existingT.match(/(?:FLOOR CONQUEROR|FLOOR DOMINATOR|FLOOR MASTER)\s+(\d+)/);
+                                    if (floorMatch) {
+                                        const floorNum = floorMatch[1];
+                                        const updatedTitle = titlePrefix + ' ' + floorNum;
+                                        d2p.title = updatedTitle;
+                                        d2p.baseStats.title = updatedTitle;
+                                        if (!d2p.spriteData) d2p.spriteData = {};
+                                        d2p.spriteData.title = updatedTitle;
+                                        const d2sid = findSocketIdByPlayerId(d2p.id);
+                                        if (d2sid) io.to(d2sid).emit('titleUnlocked', updatedTitle);
+                                    }
+                                    supabase.from('Exonians').update({ base_stats: d2p.baseStats }).eq('character_name', d2p.id).then(()=>{});
+                                }
+                            });
+
                             setTimeout(() => teleportRaidToNext(p.instanceId, 'town'), 5000);
                         }
                     }
@@ -3996,23 +4025,29 @@ socket.on('syncPet', (data) => {
                                     
                                     const existingTitle = targetPlayer.title ? String(targetPlayer.title).toUpperCase() : ""; 
                                     
-                                    if (existingTitle && existingTitle.startsWith('FLOOR CONQUEROR')) {
-                                        const parts = existingTitle.split(' ');
-                                        currentHighestFloor = parseInt(parts[2]) || 0;
+                                    if (existingTitle && (existingTitle.startsWith('FLOOR CONQUEROR') || existingTitle.startsWith('FLOOR DOMINATOR') || existingTitle.startsWith('FLOOR MASTER'))) {
+                                        const flMatch = existingTitle.match(/(?:FLOOR CONQUEROR|FLOOR DOMINATOR|FLOOR MASTER)\s+(\d+)/);
+                                        currentHighestFloor = flMatch ? parseInt(flMatch[1]) : 0;
                                     } else if (existingTitle && existingTitle.length > 0) {
                                         // 🛡️ They have a special title (like GM). Do not overwrite it!
                                         hasCustomTitle = true;
                                     }
                                     
                                     if (!hasCustomTitle && killedFloorNum > currentHighestFloor) {
-                                        const newTitle = `FLOOR CONQUEROR ${killedFloorNum}`;
+                                        // DYNAMIC TITLE TIER: Use prefix based on highest Dungeon 2 difficulty cleared
+                                        const d2Best = targetPlayer.baseStats?.d2HighestDifficulty || 'Normal';
+                                        const titlePrefix = d2Best === 'Extreme' ? 'FLOOR MASTER' : (d2Best === 'Hard' ? 'FLOOR DOMINATOR' : 'FLOOR CONQUEROR');
+                                        const newTitle = titlePrefix + ' ' + killedFloorNum;
                                         targetPlayer.title = newTitle; 
                                         if (!targetPlayer.baseStats) targetPlayer.baseStats = {};
                                         targetPlayer.baseStats.title = newTitle; // 🛡️ THE FIX: Syncs to RAM so it doesn't rollback on disconnect!
                                         if (!targetPlayer.spriteData) targetPlayer.spriteData = {};
                                         targetPlayer.spriteData.title = newTitle;
                                         if (targetSid) io.to(targetSid).emit('titleUnlocked', newTitle);
-                                        io.emit('systemMessage', `<span style="color:#ffd700; font-weight:bold; text-shadow: 0 0 5px #ff9800;">🏆 [WORLD] ${targetPlayer.name || targetPlayer.id} has conquered Floor ${killedFloorNum} and earned the title &lt;${newTitle}&gt;!</span>`);
+                                        // DYNAMIC TITLE TIER: Color-code the announcement based on prefix
+                                        const tierColor = titlePrefix === 'FLOOR MASTER' ? '#ff4444' : (titlePrefix === 'FLOOR DOMINATOR' ? '#E040FB' : '#ffd700');
+                                        const tierGlow = titlePrefix === 'FLOOR MASTER' ? '#ff0000' : (titlePrefix === 'FLOOR DOMINATOR' ? '#9c27b0' : '#ff9800');
+                                        io.emit('systemMessage', `<span style="color:${tierColor}; font-weight:bold; text-shadow: 0 0 5px ${tierGlow};">🏆 [WORLD] ${targetPlayer.name || targetPlayer.id} has conquered Floor ${killedFloorNum} and earned the title &lt;${newTitle}&gt;!</span>`);
                                     }
                                 }
                             }
@@ -7277,7 +7312,7 @@ socket.on('requestSell', async (data) => {
             // 🛡️ THE FIX: Check every possible place the title might be saved, and ignore case sensitivity!
             let titleString = (playerObj?.title || playerObj?.spriteData?.title || playerObj?.baseStats?.title || "").toUpperCase();
             
-            const match = titleString.match(/FLOOR CONQUEROR (\d+)/);
+            const match = titleString.match(/(?:FLOOR CONQUEROR|FLOOR DOMINATOR|FLOOR MASTER)\s+(\d+)/);
             if (match) maxF = parseInt(match[1]);
             
             return maxF;
