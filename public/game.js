@@ -2311,7 +2311,7 @@ window.triggerBossBGM = function(monster) {
     if (!monster || (monster.category !== 'floor_boss' && monster.category !== 'mini_boss')) return;
     if (currentTrackName !== 'bossfight') {
         window.playBGM('bossfight');
-        if (dom.log) dom.log.innerText = `⚔️ EPIC ENCOUNTER: ${monster.name} ⚔️`;
+        if (dom.log) dom.log.innerText = `EPIC ENCOUNTER: ${monster.name} `;
     }
     // Keep music alive! If 10 seconds pass with no hits, revert to normal music.
     clearTimeout(window.bossBgmTimeout);
@@ -2395,6 +2395,25 @@ document.addEventListener('input', (e) => {
         if (window.currentBGM) {
             window.currentBGM.volume = newVol;
         }
+    }
+    // SETTINGS MENU: Master Volume Slider (controls BGM + SFX)
+    if (e.target && e.target.id === 'settings-volume-slider') {
+        let rawVal = parseFloat(e.target.value);
+        let newVol = rawVal > 1 ? rawVal / 100 : rawVal;
+        
+        window.gameVolume = newVol;
+        localStorage.setItem('exonie_bgm_vol', newVol);
+        
+        // Sync old slider if it exists
+        let oldSlider = document.getElementById('bgm-volume-slider');
+        if (oldSlider) oldSlider.value = newVol;
+        let oldDisplay = document.getElementById('vol-display');
+        if (oldDisplay) oldDisplay.innerText = Math.round(newVol * 100) + '%';
+        
+        let settingsDisplay = document.getElementById('settings-vol-display');
+        if (settingsDisplay) settingsDisplay.innerText = Math.round(newVol * 100) + '%';
+        
+        if (window.currentBGM) window.currentBGM.volume = newVol;
     }
 });
 
@@ -2832,7 +2851,7 @@ window.actionSplit = function(e) {
     let currentQty = Number(item.quantity) || 1;
     
     if (currentQty <= 1) {
-        if (dom.log) dom.log.innerText = "❌ Cannot split a single item.";
+        if (dom.log) dom.log.innerText = "Cannot split a single item.";
         return; 
     }
     
@@ -2843,18 +2862,18 @@ window.actionSplit = function(e) {
         let amt = parseInt(val); 
         
         if (isNaN(amt) || amt <= 0) {
-            if (dom.log) dom.log.innerText = "❌ Invalid split amount!";
+            if (dom.log) dom.log.innerText = "Invalid split amount!";
             return;
         }
         
         if (amt > maxSplit) {
-            if (dom.log) dom.log.innerText = `❌ You can only split up to ${maxSplit} items!`;
+            if (dom.log) dom.log.innerText = `You can only split up to ${maxSplit} items!`;
             return;
         }
 
         if (socket) {
             socket.emit('splitInventoryItem', { index: capturedIndex, amount: amt }); 
-            if (dom.log) dom.log.innerText = "⏳ Splitting stack...";
+            if (dom.log) dom.log.innerText = "Splitting stack...";
         }
     }); 
     
@@ -3586,8 +3605,10 @@ window.addEventListener('keydown', (e) => {
     // 🛡️ THE FIX: If the player is typing in a box, let them type!
     // 💬 CHAT FIX: Do NOT block the 'Enter' key, otherwise chat breaks!
     if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
-        if (e.key !== 'Enter') return; 
+        if (e.key !== 'Enter' && e.key !== 'Escape') return; 
     }
+    // SETTINGS MENU: ESC key toggles settings on desktop
+    if (e.key === 'Escape') { e.preventDefault(); window.toggleSettingsMenu(); return; }
     if (e.key === 'Enter') { 
         if (dom.game.classList.contains('active')) {
             if (isChatting) { 
@@ -3980,7 +4001,7 @@ socket.on('mailList', (mails) => {
         }
         
         if (unreadCount > 0) {
-            notifBadge.innerText = `📧 ${unreadCount} Unread Mail!`;
+            notifBadge.innerText = `${unreadCount} Unread Mail!`;
             notifBadge.style.display = 'block';
         } else {
             notifBadge.style.display = 'none';
@@ -4034,7 +4055,7 @@ socket.on('mailList', (mails) => {
         let modal = document.getElementById('home-sale-modal');
         if (modal) modal.style.display = 'none';
         
-        if (dom.log) dom.log.innerText = "🎉 Congratulations! You are now a homeowner!";
+        if (dom.log) dom.log.innerText = "Congratulations! You are now a homeowner!";
         window.updateUI();
         window.spawnDamageText(game.player.x + 24, game.player.y - 20, "HOME PURCHASED!", "#4CAF50");
         
@@ -5333,7 +5354,7 @@ let localBossTimer = null;
                 let h = Math.floor(remaining / (1000 * 60 * 60));
                 let m = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
                 let s = Math.floor((remaining % (1000 * 60)) / 1000);
-                timerEl.innerHTML = `⚠️ BOSS RESPAWNS IN<br>${h}h ${m}m ${s}s`;
+                timerEl.innerHTML = `BOSS RESPAWNS IN<br>${h}h ${m}m ${s}s`;
             }
         }, 1000);
     });
@@ -5365,7 +5386,7 @@ function updateFPS() {
     if (now - lastLoopTime >= 1000) {
         let currentFps = frameCount;
         if(fpsDisplay) { fpsDisplay.innerText = `FPS: ${currentFps}`; fpsDisplay.style.color = currentFps > 45 ? '#4CAF50' : (currentFps > 25 ? '#ffeb3b' : '#f44336'); }
-        if (!lowEndMode && currentFps < 20) { lowFpsTimer++; if (lowFpsTimer >= 5) { window.toggleLowEndMode(true); if(dom.log) dom.log.innerText = "Performance alert: Auto-Optimization enabled."; } } else { lowFpsTimer = 0; }
+        if (!lowEndMode && currentFps < 25) { lowFpsTimer++; if (lowFpsTimer >= 5) { window.toggleLowEndMode(true); if(dom.log) dom.log.innerText = "Performance alert: High Quality Mode disabled automatically."; } } else { lowFpsTimer = 0; }
         frameCount = 0; lastLoopTime = now;
     }
     requestAnimationFrame(updateFPS);
@@ -5441,7 +5462,7 @@ window.showNextNews = function() {
     if (modal && title && content) {
         title.innerText = currentNews.title || "Announcement";
         content.innerHTML = currentNews.content || currentNews.Content || currentNews.context || ""; 
-        if (btn) { btn.innerText = window.newsQueue.length > 0 ? "NEXT MESSAGE ➔" : "CLOSE"; }
+        if (btn) { btn.innerText = window.newsQueue.length > 0 ? "NEXT MESSAGE " : "CLOSE"; }
         modal.style.display = 'flex';
     }
 };
@@ -5469,14 +5490,14 @@ window.closeDungeonUI = function() {
 window.startDungeon = function(difficulty) {
     // 🛡️ EXTREME MODE LEVEL CHECK (Client-Side)
     if (difficulty === 'Extreme' && game.player.level < 50 && !window.isAdmin(game.player.name)) {
-        if (dom.log) dom.log.innerText = "❌ You must be Level 50 to enter Extreme difficulty.";
+        if (dom.log) dom.log.innerText = "You must be Level 50 to enter Extreme difficulty.";
         return;
     }
 
     let currentEntries = game.player.baseStats?.dungeonEntries !== undefined ? game.player.baseStats.dungeonEntries : 7;
     
     if (currentEntries <= 0 && !window.isAdmin(game.player.name)) {
-        if (dom.log) dom.log.innerText = "❌ You have no Dungeon entries left this week. Resets Monday.";
+        if (dom.log) dom.log.innerText = "You have no Dungeon entries left this week. Resets Monday.";
         return; 
     }
 
@@ -6041,7 +6062,7 @@ window.enterGuildBase = function() {
 window.openMazeGuide = function() {
     if (game.party && game.party.members && game.party.members.length > 1) {
         if (game.party.leaderId !== game.player.id) {
-            dom.log.innerText = "❌ Only the Party Leader can use the Maze Guide.";
+            dom.log.innerText = "Only the Party Leader can use the Maze Guide.";
             return;
         }
     }
@@ -6080,7 +6101,7 @@ window.openFastTravelUI = function() {
     }
 
     if (maxFloor === 0) {
-        dom.log.innerText = "❌ You haven't conquered any floors yet!";
+        dom.log.innerText = "You haven't conquered any floors yet!";
         return;
     }
 
@@ -6132,14 +6153,14 @@ window.requestMazeTeleport = function(floorNum) {
 window.startTavern = function() {
 // 🛡️ LEVEL 50 LOCK
     if (game.player.level < 50 && !window.isAdmin(game.player.name)) {
-        if (dom.log) dom.log.innerText = "❌ You must be at least Level 50 to enter the Training Tavern.";
+        if (dom.log) dom.log.innerText = "You must be at least Level 50 to enter the Training Tavern.";
         document.getElementById('tavern-modal').style.display = 'none';
         return;
     }
 
 // 🛡️ PARTY CHECK: Strictly Solo
     if (game.party && game.party.members && game.party.members.length > 1) {
-        if (dom.log) dom.log.innerText = "❌ Solo Challenge! You must leave your party to enter the Tavern.";
+        if (dom.log) dom.log.innerText = "Solo Challenge! You must leave your party to enter the Tavern.";
         document.getElementById('tavern-modal').style.display = 'none';
         return;
     }
@@ -6149,7 +6170,7 @@ window.startTavern = function() {
     // 🛡️ THE FIX: Prevent entering if out of entries to stop infinite loading screen!
     let currentEntries = game.player.baseStats?.tavernEntries !== undefined ? game.player.baseStats.tavernEntries : 5;
     if (currentEntries <= 0 && !window.isAdmin(game.player.name)) {
-        if (dom.log) dom.log.innerText = "❌ You have no Tavern entries left this week. Resets Monday.";
+        if (dom.log) dom.log.innerText = "You have no Tavern entries left this week. Resets Monday.";
         document.getElementById('tavern-modal').style.display = 'none';
         return; 
     }
@@ -6444,14 +6465,14 @@ window.openDungeon2UI = function() {
 window.startDungeon2 = function(difficulty) {
     // 🛡️ THE FIX: Extreme Mode now requires Level 50!
     if (difficulty === 'Extreme' && game.player.level < 50 && !window.isAdmin(game.player.name)) {
-        if (dom.log) dom.log.innerText = "❌ You must be Level 50 to enter Extreme difficulty.";
+        if (dom.log) dom.log.innerText = "You must be Level 50 to enter Extreme difficulty.";
         return;
     }
 
     // 🛡️ THE FIX: Check dungeon2Entries instead of D1 entries!
     let currentEntries = game.player.baseStats?.dungeon2Entries !== undefined ? game.player.baseStats.dungeon2Entries : 7;
     if (currentEntries <= 0 && !window.isAdmin(game.player.name)) {
-        if (dom.log) dom.log.innerText = "❌ You have no Ancient Cave entries left this week.";
+        if (dom.log) dom.log.innerText = "You have no Ancient Cave entries left this week.";
         return; 
     }
 
@@ -6523,7 +6544,7 @@ window.playTutorialVideo = function() {
         
         // ⏳ 2. Show a loading message while downloading
         const loadingText = document.createElement('h2');
-        loadingText.innerText = '📡 Downloading Tutorial...';
+        loadingText.innerText = 'Downloading Tutorial...';
         loadingText.style.cssText = 'color: white; font-family: sans-serif; text-shadow: 0 0 10px #2196F3;';
         overlay.appendChild(loadingText);
         document.body.appendChild(overlay);
@@ -6959,7 +6980,7 @@ let shopInjectInterval = setInterval(() => {
             if (!document.getElementById('mobile-shop-btn')) {
                 let shopBtn = document.createElement('button');
                 shopBtn.id = 'mobile-shop-btn';
-                shopBtn.innerHTML = '💎';
+                shopBtn.innerHTML = '';
                 // Positioned specifically to not overlap the Trophy button
                 shopBtn.style.cssText = `
                     position: fixed; 
@@ -7207,15 +7228,15 @@ window.openForgerStatSelect = function(targetIndex, e) {
     let forgerItem = game.player.inventory[activeInvIndex]; 
 
     if (!item || ['necklace', 'ring', 'earrings'].includes(item.type)) {
-        dom.log.innerText = "❌ Cannot reroll accessories!";
+        dom.log.innerText = "Cannot reroll accessories!";
         window.isApplyingForger = false; window.renderInventory(); return;
     }
     if (item.rarity !== forgerItem.rarity) {
-        dom.log.innerText = `❌ You need a ${item.rarity} Forger to reroll this item!`;
+        dom.log.innerText = `You need a ${item.rarity} Forger to reroll this item!`;
         window.isApplyingForger = false; window.renderInventory(); return;
     }
     if (!item.randomStat || Object.keys(item.randomStat).length === 0) {
-        dom.log.innerText = "❌ This item has no sub-stats to reroll.";
+        dom.log.innerText = "This item has no sub-stats to reroll.";
         window.isApplyingForger = false; window.renderInventory(); return;
     }
 
@@ -7569,7 +7590,7 @@ window.openHomeSaleUI = function() {
 
 window.buyHome = function() {
     if (game.player.gold < 1000000) {
-        if (dom.log) dom.log.innerText = "❌ Not enough gold to buy a home!";
+        if (dom.log) dom.log.innerText = "Not enough gold to buy a home!";
         return;
     }
     if (socket) socket.emit('requestBuyHome');
@@ -7647,7 +7668,7 @@ if (socket) {
 // ==========================================
 window.openHauntedHouseUI = function() {
     if (game.party && game.party.members && game.party.members.length > 1) {
-        if (dom.log) dom.log.innerText = "❌ The Haunted House is a solo challenge. Please leave your party.";
+        if (dom.log) dom.log.innerText = "The Haunted House is a solo challenge. Please leave your party.";
         return;
     }
 
@@ -8034,3 +8055,129 @@ document.addEventListener('deviceready', () => {
         store.update(); 
     }
 }, false);
+
+// ==========================================
+// UNIFIED SETTINGS MENU
+// ==========================================
+window.isSettingsOpen = false;
+
+window.toggleSettingsMenu = function() {
+    const menu = document.getElementById('settings-menu');
+    if (!menu) return;
+    
+    window.isSettingsOpen = !window.isSettingsOpen;
+    menu.style.display = window.isSettingsOpen ? 'flex' : 'none';
+    
+    if (window.isSettingsOpen) {
+        // Sync volume slider with current volume
+        const slider = document.getElementById('settings-volume-slider');
+        const display = document.getElementById('settings-vol-display');
+        if (slider) slider.value = window.gameVolume || 0.5;
+        if (display) display.innerText = Math.round((window.gameVolume || 0.5) * 100) + '%';
+        
+        // Sync HQ button
+        const hqBtn = document.getElementById('settings-hq-btn');
+        const isHQ = !document.body.classList.contains('low-perf');
+        if (hqBtn) {
+            hqBtn.innerText = isHQ ? 'High Quality: ON' : 'High Quality: OFF';
+            hqBtn.style.background = isHQ ? '#4CAF50' : '#555';
+        }
+        
+        // Sync fullscreen button
+        const fsBtn = document.getElementById('settings-fullscreen-btn');
+        if (fsBtn) {
+            const isFS = !!document.fullscreenElement;
+            fsBtn.innerText = isFS ? 'Full Screen: ON' : 'Full Screen: OFF';
+            fsBtn.style.background = isFS ? '#4CAF50' : '#333';
+        }
+    }
+};
+
+// Full Screen Toggle (PC Only)
+window.toggleFullScreen = function() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(function(){});
+    } else {
+        document.exitFullscreen().catch(function(){});
+    }
+    setTimeout(function() {
+        const fsBtn = document.getElementById('settings-fullscreen-btn');
+        if (fsBtn) {
+            const isFS = !!document.fullscreenElement;
+            fsBtn.innerText = isFS ? 'Full Screen: ON' : 'Full Screen: OFF';
+            fsBtn.style.background = isFS ? '#4CAF50' : '#333';
+        }
+    }, 500);
+};
+
+// High Quality Mode Toggle (wraps existing toggleLowEndMode)
+window.toggleHighQuality = function() {
+    window.toggleLowEndMode();
+    const hqBtn = document.getElementById('settings-hq-btn');
+    const isHQ = !document.body.classList.contains('low-perf');
+    if (hqBtn) {
+        hqBtn.innerText = isHQ ? 'High Quality: ON' : 'High Quality: OFF';
+        hqBtn.style.background = isHQ ? '#4CAF50' : '#555';
+    }
+};
+
+// Watch Tutorial — Plays tutorial.mp4 and mutes BGM
+window.playTutorialVideo = function() {
+    window.toggleSettingsMenu(); // Close settings first
+    const overlay = document.getElementById('tutorial-overlay');
+    const video = document.getElementById('tutorial-video');
+    if (overlay) overlay.style.display = 'flex';
+    if (video) { video.currentTime = 0; video.play().catch(function(){}); }
+    // Mute BGM during tutorial playback
+    if (window.currentBGM) window.currentBGM.volume = 0;
+    
+    // Auto-restore when video ends
+    if (video) {
+        video.onended = function() { window.closeTutorialVideo(); };
+    }
+};
+
+window.closeTutorialVideo = function() {
+    const overlay = document.getElementById('tutorial-overlay');
+    const video = document.getElementById('tutorial-video');
+    if (video) { video.pause(); video.currentTime = 0; video.onended = null; }
+    if (overlay) overlay.style.display = 'none';
+    // Restore BGM volume
+    if (window.currentBGM) window.currentBGM.volume = window.gameVolume || 0.5;
+};
+
+// Close Game — Show confirmation, then disconnect and return to auth screen
+window.confirmCloseGame = function() {
+    const modal = document.getElementById('close-game-confirm');
+    if (modal) modal.style.display = 'flex';
+};
+
+window.executeCloseGame = function() {
+    // Close settings menu
+    const settingsMenu = document.getElementById('settings-menu');
+    if (settingsMenu) settingsMenu.style.display = 'none';
+    window.isSettingsOpen = false;
+    
+    // Disconnect socket
+    if (typeof socket !== 'undefined' && socket) socket.disconnect();
+    
+    // Stop all audio
+    if (window.currentBGM) { window.currentBGM.pause(); window.currentBGM.currentTime = 0; }
+    
+    // Return to auth screen (stays inside the game)
+    const gameScreen = document.getElementById('game-screen');
+    const authScreen = document.getElementById('auth-screen');
+    const confirmModal = document.getElementById('close-game-confirm');
+    
+    if (gameScreen) gameScreen.classList.remove('active');
+    if (authScreen) authScreen.classList.add('active');
+    if (confirmModal) confirmModal.style.display = 'none';
+    
+    // Reset HUD state
+    const hudElements = ['inventory-screen', 'stat-screen', 'skill-screen', 'friends-screen', 
+                         'shop-screen', 'mailbox-screen', 'trade-screen', 'inspect-screen'];
+    hudElements.forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+};
