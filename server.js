@@ -149,45 +149,53 @@ app.post('/patreon-webhook', express.text({ type: 'application/json' }), async (
         // 👉 DYNAMIC GEMS: $1 = 1 Gem. If Royal Tier, hardcode to 50! 
 
         // 👉 DYNAMIC GEMS: $1 = 1 Gem. If Royal Tier, hardcode to 50!
-        let gemsToGive = Math.floor(amountCents / 100); 
+        let gemsToGive = Math.floor(amountCents / 100);
         if (isRoyalTier) gemsToGive = 50;
 
-        const { data: user } = await supabase.from('Exonians').select('character_name, inventory, equips, base_stats').eq('email', patronEmail).maybeSingle();
-        if (!user) return res.status(200).send('User not found');
+        // 🛡️ THE FIX: Fetch ALL characters on this email, then pick the highest-level one for rewards.
+        // This prevents .maybeSingle() from erroring when an email has 2-4 characters.
+        const { data: allChars } = await supabase.from('Exonians').select('character_name, level, inventory, equips, base_stats').eq('email', patronEmail);
+        if (!allChars || allChars.length === 0) return res.status(200).send('User not found');
+
+        // 🏆 Rewards go to the HIGHEST LEVEL character only (prevents alt gem duplication)
+        const user = allChars.sort((a, b) => (b.level || 1) - (a.level || 1))[0];
         const playerName = user.character_name;
 
-        // ❌ THE SCRUBBER: Removes Royal Aura if they downgrade or cancel
+        // ❌ THE SCRUBBER: Removes Royal Aura from ALL characters on this email if they downgrade or cancel
         if (eventType === 'members:pledge:delete' || (!isRoyalTier && eventType === 'members:pledge:update')) {
-            let inv = Array.isArray(user.inventory) ? user.inventory : [];
-            let eqs = typeof user.equips === 'object' ? user.equips : {};
-            let itemsModified = false;
+            for (const charUser of allChars) {
+                let inv = Array.isArray(charUser.inventory) ? charUser.inventory : [];
+                let eqs = typeof charUser.equips === 'object' ? charUser.equips : {};
+                let itemsModified = false;
 
-            for (let i = 0; i < inv.length; i++) {
-                if (inv[i] && (inv[i].auraId === 'divine' || inv[i].aura === 'divine' || inv[i].name.includes('Divine Aura Stone'))) {
-                    inv[i] = null; itemsModified = true;
+                for (let i = 0; i < inv.length; i++) {
+                    if (inv[i] && (inv[i].auraId === 'divine' || inv[i].aura === 'divine' || inv[i].name.includes('Divine Aura Stone'))) {
+                        inv[i] = null; itemsModified = true;
+                    }
                 }
-            }
 
-            for (let key in eqs) {
-                if (eqs[key] && eqs[key].aura === 'divine') {
-                    delete eqs[key].aura;
-                    if (eqs[key].originalName) { eqs[key].name = eqs[key].originalName; delete eqs[key].originalName; } 
-                    else { eqs[key].name = eqs[key].name.replace('Divine ', ''); }
-                    itemsModified = true;
+                for (let key in eqs) {
+                    if (eqs[key] && eqs[key].aura === 'divine') {
+                        delete eqs[key].aura;
+                        if (eqs[key].originalName) { eqs[key].name = eqs[key].originalName; delete eqs[key].originalName; } 
+                        else { eqs[key].name = eqs[key].name.replace('Divine ', ''); }
+                        itemsModified = true;
+                    }
                 }
-            }
 
-            if (itemsModified) {
-                await supabase.from('Exonians').update({ inventory: inv, equips: eqs }).eq('character_name', playerName);
-                const tsid = findSocketIdByPlayerId(playerName);
-                if (tsid && onlinePlayers[tsid]) {
-                    onlinePlayers[tsid].inventory = inv; onlinePlayers[tsid].equips = eqs;
-                    if (onlinePlayers[tsid].spriteData?.aura === 'divine') onlinePlayers[tsid].spriteData.aura = null;
-                    io.to(tsid).emit('syncInventory', inv);
-                    io.to(tsid).emit('inventoryItemUsed', { inventory: inv, equips: eqs });
-                    io.to(tsid).emit('systemMessage', "Your Patreon Royal Tier has expired. The Aura of the Divine has been removed.");
-                    const p = onlinePlayers[tsid];
-                    io.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
+                if (itemsModified) {
+                    const charName = charUser.character_name;
+                    await supabase.from('Exonians').update({ inventory: inv, equips: eqs }).eq('character_name', charName);
+                    const tsid = findSocketIdByPlayerId(charName);
+                    if (tsid && onlinePlayers[tsid]) {
+                        onlinePlayers[tsid].inventory = inv; onlinePlayers[tsid].equips = eqs;
+                        if (onlinePlayers[tsid].spriteData?.aura === 'divine') onlinePlayers[tsid].spriteData.aura = null;
+                        io.to(tsid).emit('syncInventory', inv);
+                        io.to(tsid).emit('inventoryItemUsed', { inventory: inv, equips: eqs });
+                        io.to(tsid).emit('systemMessage', "Your Patreon Royal Tier has expired. The Aura of the Divine has been removed.");
+                        const p = onlinePlayers[tsid];
+                        io.emit('remotePlayerMoved', { id: p.id, x: p.x, y: p.y, state: 'idle', facingRight: false, weaponSprite: p.spriteData.weapon, spriteData: p.spriteData });
+                    }
                 }
             }
             if (eventType === 'members:pledge:delete') return res.status(200).send('Downgrade processed');
