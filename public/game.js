@@ -103,6 +103,7 @@ socket.on('reconnect_attempt', () => {
 });
 let currentShopItem = null; // 🛡️ GLOBAL TRACKER FOR THE SHOP
 window.isProcessingShop = false; // Anti-Spam Lock
+let activeChatTab = 'local';
 let isMailboxOpen = false, isChatting = false, isInventoryOpen = false, isSkillOpen = false, isShopping = false, localBossTimer = null, isEnhancing = false, isApplyingAura = false;
 window.isStorageOpen = false; 
 window.isApplyingForger = false;
@@ -3596,6 +3597,53 @@ window.addPersistentChat = function(htmlString) {
     box.appendChild(line);
     if (box.childNodes.length > 50) box.removeChild(box.firstChild);
     box.parentElement.scrollTop = box.parentElement.scrollHeight;
+    // Show unread dot if Local tab is not active
+    if (activeChatTab !== 'local') {
+        let dot = document.getElementById('unread-dot-local');
+        if (dot) dot.classList.add('visible');
+    }
+};
+
+// --- WORLD CHAT HELPER ---
+window.addWorldChat = function(htmlString) {
+    let box = document.getElementById('world-chat-content');
+    if (!box) return;
+    let line = document.createElement('div');
+    line.className = 'chat-line';
+    line.innerHTML = htmlString;
+    box.appendChild(line);
+    if (box.childNodes.length > 80) box.removeChild(box.firstChild);
+    box.parentElement.scrollTop = box.parentElement.scrollHeight;
+    // Show unread dot if World tab is not active
+    if (activeChatTab !== 'world') {
+        let dot = document.getElementById('unread-dot-world');
+        if (dot) dot.classList.add('visible');
+    }
+};
+
+// --- CHAT TAB SWITCH ---
+window.switchChatTab = function(tab) {
+    activeChatTab = tab;
+    let localPane = document.getElementById('chat-tab-content-local');
+    let worldPane = document.getElementById('chat-tab-content-world');
+    let localTab = document.getElementById('chat-tab-local');
+    let worldTab = document.getElementById('chat-tab-world');
+    if (tab === 'local') {
+        localPane.style.display = 'flex'; localPane.classList.add('active');
+        worldPane.style.display = 'none'; worldPane.classList.remove('active');
+        localTab.classList.add('active'); worldTab.classList.remove('active');
+        let dot = document.getElementById('unread-dot-local');
+        if (dot) dot.classList.remove('visible');
+    } else {
+        worldPane.style.display = 'flex'; worldPane.classList.add('active');
+        localPane.style.display = 'none'; localPane.classList.remove('active');
+        worldTab.classList.add('active'); localTab.classList.remove('active');
+        let dot = document.getElementById('unread-dot-world');
+        if (dot) dot.classList.remove('visible');
+    }
+    // Auto-scroll to bottom of the newly active pane
+    let activeContent = tab === 'local' ? localPane : worldPane;
+    activeContent.scrollTop = activeContent.scrollHeight;
 };
 
 const chatInputDom = document.getElementById('chat-input'); const chatContainerDom = document.getElementById('chat-input-container');
@@ -3618,8 +3666,12 @@ window.addEventListener('keydown', (e) => {
                         socket.emit('adminBroadcast', { text: msg.substring(3) }); 
                     } else { 
                         // 🛡️ Standard Chat (Server will automatically route this to party chat box if you are in a party!)
-                        socket.emit('chatMessage', { text: msg }); 
-                        window.showBubble(game.player, msg); 
+                        if (activeChatTab === 'world') {
+                            socket.emit('worldChatMessage', { text: msg });
+                        } else {
+                            socket.emit('chatMessage', { text: msg }); 
+                            window.showBubble(game.player, msg);
+                        } 
                     }
                 } 
                 chatInputDom.value = ''; chatContainerDom.style.display = 'none'; chatInputDom.blur(); isChatting = false; 
@@ -4376,6 +4428,10 @@ socket.on('forcedLogout', (msg) => {
     socket.on('partyError', (msg) => { dom.log.innerText = msg; });
     socket.on('partyKickedOrLeft', () => { dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; game.party = null; dom.log.innerText = "You are no longer in a party."; });
     socket.on('chatMessage', (data) => { if (data.id === game.player.id) return; const p = game.remotePlayers[data.id]; if (p) window.showBubble(p, data.text); });
+    socket.on('worldChatMessage', (data) => {
+        let formatted = '<span style="color:#ff9800;"><b>[W]</b> ' + data.id + ': ' + data.text + '</span>';
+        window.addWorldChat(formatted);
+    });
     socket.on('friendsListUpdate', (friendsList) => { const container = document.getElementById('friends-list-container'); container.innerHTML = ''; if (!friendsList || friendsList.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Your friends list is empty.</p>'; return; } friendsList.forEach(f => { const row = document.createElement('div'); row.className = 'friend-row'; let lvlColor = f.online ? '#ffd700' : '#888'; let levelHtml = `<span style="color:${lvlColor}; font-size:12px; margin-left: 5px;">(Lv.${f.level})</span>`; let classFmt = f.pClass ? `<span style="color:#aaa; font-size:11px;">${f.pClass}</span>` : `<span style="color:#555; font-size:11px;">Novice</span>`; let mapFmt = f.online ? `<span style="color:#2196F3; font-size:11px;">[${f.mapId || 'Town'}]</span>` : ''; let spectateBtn = (window.isAdmin(game.player.name) && f.online) ? `<button class="dm-btn" style="background:#f44336; margin-bottom:5px;" onclick="window.startSpectate('${f.id}')">👁️ Spectate</button>` : ''; row.innerHTML = `<div class="friend-info" style="flex-direction:column; align-items:flex-start; gap:2px;"><div style="display:flex; align-items:center; gap:5px;"><div class="status-dot ${f.online ? 'online' : 'offline'}"></div>${f.id} ${levelHtml}</div><div style="margin-left: 17px; display:flex; gap: 8px;">${classFmt} ${mapFmt}</div></div><div style="display:flex; flex-direction:column;">${spectateBtn}<button class="dm-btn" onclick="window.promptDM('${f.id}')">DM</button></div>`; container.appendChild(row); }); });
     socket.on('receiveDM', (data) => { 
         let formatted = `<span style="color:#E040FB;">[DM] ${data.from}: ${data.message}</span>`;
