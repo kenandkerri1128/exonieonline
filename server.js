@@ -5285,6 +5285,11 @@ socket.on('requestGuildLevelUp', async () => {
         if (p.lastChatTime && now - p.lastChatTime < 500) return; 
         p.lastChatTime = now;
 
+        // LOCAL CHAT QUOTA: 20 messages per minute
+        if (!p.localChatWindowStart || now - p.localChatWindowStart > 60000) { p.localChatWindowStart = now; p.localChatCount = 0; }
+        p.localChatCount = (p.localChatCount || 0) + 1;
+        if (p.localChatCount > 20) { socket.emit('systemMessage', 'You are chatting too fast in local chat. Please slow down.'); return; }
+
        let safeText = String(data.text).slice(0, 120); 
 
         // 👑 ADMIN COMMAND: Manually force the Battlefield Boss to spawn
@@ -5336,7 +5341,43 @@ socket.on('requestGuildLevelUp', async () => {
             }
         }
     });
-    socket.on('partyInvite', ({ targetId }) => { 
+
+    // ==========================================
+    // WORLD CHAT (Global cross-map chat)
+    // ==========================================
+    socket.on('worldChatMessage', (data) => {
+        const p = onlinePlayers[socket.id];
+        if (!p || !data.text) return;
+
+        const now = Date.now();
+
+        // WORLD CHAT COOLDOWN: 3 seconds between messages
+        if (p.lastWorldChatTime && now - p.lastWorldChatTime < 3000) {
+            socket.emit('systemMessage', 'World Chat has a 3-second cooldown between messages.');
+            return;
+        }
+        p.lastWorldChatTime = now;
+
+        // WORLD CHAT QUOTA: 10 messages per minute
+        if (!p.worldChatWindowStart || now - p.worldChatWindowStart > 60000) { p.worldChatWindowStart = now; p.worldChatCount = 0; }
+        p.worldChatCount = (p.worldChatCount || 0) + 1;
+        if (p.worldChatCount > 10) {
+            socket.emit('systemMessage', 'You have reached the World Chat limit (10 messages per minute). Please wait.');
+            return;
+        }
+
+        let safeText = String(data.text).slice(0, 120);
+
+        let displayName = p.id;
+        if (isAdmin(p.id)) {
+            displayName = '<span style="color:#ff4444; font-weight:bold;">[GM]</span> ' + p.id;
+        }
+
+        // Broadcast to ALL connected players regardless of map
+        io.emit('worldChatMessage', { id: displayName, text: safeText });
+    });
+
+    socket.on('partyInvite', ({ targetId }) => { 
         const me = onlinePlayers[socket.id]; 
         if (!me || !targetId) return; 
         
