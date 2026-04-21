@@ -1445,6 +1445,25 @@ function gameLoop(ts) {
         }
     });
 
+    // 🌀 PORTAL PROXIMITY ANIMATION: Light up portals when the player gets near
+    const portalZones = document.querySelectorAll('.portal-zone');
+    const playerCenterX = game.player.x + 24; const playerCenterY = game.player.y + 48;
+    portalZones.forEach(pz => {
+        const pLeft = parseInt(pz.style.left) || 0;
+        const pTop = parseInt(pz.style.top) || 0;
+        const pW = parseInt(pz.style.width) || 0;
+        const pH = parseInt(pz.style.height) || 0;
+        const portalCenterX = pLeft + pW / 2;
+        const portalCenterY = pTop + pH / 2;
+        const dist = Math.hypot(playerCenterX - portalCenterX, playerCenterY - portalCenterY);
+        const activationRange = Math.max(120, Math.max(pW, pH) * 0.8);
+        if (dist < activationRange) {
+            if (!pz.classList.contains('portal-active')) pz.classList.add('portal-active');
+        } else {
+            if (pz.classList.contains('portal-active')) pz.classList.remove('portal-active');
+        }
+    });
+
     // Teleport cooldown
     if (game.player.teleportCooldown > 0) game.player.teleportCooldown -= 16;
     if (game.player.teleportCooldown <= 0 && !game.isGhost) {
@@ -3232,7 +3251,13 @@ window.checkLevelUp = function() { if(game.player.level >= 150) return; while(ga
 // ==========================================
 // 6. ADMIN & MAP TOOLS
 // ==========================================
-window.buildCollisionLayers = function() { const layer = document.getElementById('collision-layers'); if (!layer) return; layer.innerHTML = ''; const cols = safeMapData.collisions || []; cols.forEach(box => { const div = document.createElement('div'); div.className = 'collision-box'; div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px'; layer.appendChild(div); }); const tps = safeMapData.teleports || []; tps.forEach(box => { const div = document.createElement('div'); div.className = 'collision-box'; div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px'; if (window.adminMode) { 
+window.buildCollisionLayers = function() { const layer = document.getElementById('collision-layers'); if (!layer) return; layer.innerHTML = ''; const cols = safeMapData.collisions || []; cols.forEach(box => { const div = document.createElement('div'); div.className = 'collision-box'; div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px'; layer.appendChild(div); }); const tps = safeMapData.teleports || []; tps.forEach(box => { const div = document.createElement('div'); div.className = 'collision-box portal-zone'; div.setAttribute('data-portal-id', box.portalId || ''); div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px';
+    // 🌀 PORTAL FLUID ANIMATION LAYERS (Invisible until player proximity triggers portal-active)
+    let pFluid = document.createElement('div'); pFluid.className = 'portal-fluid'; div.appendChild(pFluid);
+    let pInner = document.createElement('div'); pInner.className = 'portal-fluid-inner'; div.appendChild(pInner);
+    let pShimmer = document.createElement('div'); pShimmer.className = 'portal-shimmer'; div.appendChild(pShimmer);
+    for (let pi = 0; pi < 4; pi++) { let pp = document.createElement('div'); pp.className = 'portal-particle'; div.appendChild(pp); }
+    if (window.adminMode) { 
     const isSub = isNaN(parseInt(box.portalId));
     div.style.background = isSub ? 'rgba(156, 39, 176, 0.4)' : 'rgba(0, 0, 255, 0.4)'; 
     div.style.border = isSub ? '2px dashed #9c27b0' : '2px dashed #00f'; 
@@ -4442,6 +4467,26 @@ socket.on('forcedLogout', (msg) => {
     socket.on('systemMessage', (msg) => { 
         let formatted = `<span style="color:#ffeb3b;">[System] ${msg}</span>`;
         window.addPersistentChat(formatted); dom.log.innerHTML = formatted; 
+
+        // 🌐 WORLD CHAT MIRROR: If this is a world-level announcement, also show it in the World chat tab!
+        let msgUpper = String(msg).toUpperCase();
+        let isWorldAnnouncement = (
+            msgUpper.includes('[WORLD]') ||
+            msgUpper.includes('[SERVER ANNOUNCEMENT]') ||
+            msgUpper.includes('[PVP]') ||
+            msgUpper.includes('BOSS HAS RESPAWNED') ||
+            msgUpper.includes('BOSS DEFEATED') ||
+            msgUpper.includes('HAS APPEARED IN') ||
+            msgUpper.includes('HAS DESPAWNED') ||
+            msgUpper.includes('HAS RETREATED') ||
+            msgUpper.includes('HAS CHANGED THEIR NAME') ||
+            msgUpper.includes('HAS CONQUERED FLOOR') ||
+            msgUpper.includes('WAS DEFEATED BY') ||
+            msgUpper.includes('WAS DEFENDED')
+        );
+        if (isWorldAnnouncement) {
+            window.addWorldChat(formatted);
+        }
     });
 
     socket.on('partyChatMessage', (data) => {
