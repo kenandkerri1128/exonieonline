@@ -6534,7 +6534,8 @@ if (!document.getElementById('afk-lock-screen')) {
     document.body.appendChild(afkOverlay);
 
     let afkTimer = null;
-    const AFK_TIME_LIMIT = 5 * 60 * 1000; // 5 minutes in milliseconds
+    const AFK_TIME_LIMIT = 2147483647; // AFK disabled for farming
+
 
     window.resetAfkTimer = function(e) {
         // If the screen is locked, wake it up and prevent the click from registering in the game
