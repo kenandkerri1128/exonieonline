@@ -6247,6 +6247,33 @@ window.openMazeTrialsUI = function() {
 };
 
 window.requestMazeTrial = function(floorNum) {
+    // 🛡️ LEVEL GATE: Warn solo players level 45 and below
+    const isSolo = !game.party || !game.party.members || game.party.members.length <= 1;
+    const isLowLevel = game.player.level <= 45;
+
+    if (isSolo && isLowLevel && !window.isAdmin(game.player.name)) {
+        // Show warning confirmation instead of entering directly
+        let modal = document.getElementById('maze-guide-modal');
+        let html = '<h2 style="margin-top:0; color:#ff9800; text-shadow: 0 0 10px rgba(255,152,0,0.5);">Warning</h2>';
+        html += '<div style="background:rgba(255,152,0,0.1); border:1px solid #ff9800; border-radius:6px; padding:15px; margin-bottom:20px;">';
+        html += `<p style="font-size:14px; color:#ffcc80; line-height:1.6; margin:0;">The Maze Trial is <b style="color:#f44336;">extremely difficult</b> for solo players at your current level (<b style="color:#ffeb3b;">Lv.${game.player.level}</b>).</p>`;
+        html += '<p style="font-size:14px; color:#ffcc80; line-height:1.6; margin:10px 0 0 0;">You will most likely <b style="color:#f44336;">not be able to finish it</b>, wasting your <b style="color:#E040FB;">daily entry</b>.</p>';
+        html += '</div>';
+        html += '<p style="font-size:13px; color:#aaa; margin-bottom:15px;">Consider forming a party or leveling up first.</p>';
+        html += `<div style="display:flex; gap:10px;">`;
+        html += `<button class="btn" style="flex:1; background:#f44336; padding:12px; font-weight:bold;" onclick="window.openMazeTrialsUI()">Go Back</button>`;
+        html += `<button class="btn" style="flex:1; background:#ff9800; padding:12px; font-weight:bold; color:#000;" onclick="window.confirmMazeTrial(${floorNum})">Enter Anyway</button>`;
+        html += `</div>`;
+        modal.innerHTML = html;
+        return;
+    }
+
+    document.getElementById('maze-guide-modal').style.display = 'none';
+    if (socket) socket.emit('requestMazeTrial', { targetFloor: floorNum });
+};
+
+// 🛡️ MAZE TRIAL: Confirmed entry after warning
+window.confirmMazeTrial = function(floorNum) {
     document.getElementById('maze-guide-modal').style.display = 'none';
     if (socket) socket.emit('requestMazeTrial', { targetFloor: floorNum });
 };
