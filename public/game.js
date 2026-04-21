@@ -1910,11 +1910,15 @@ window.preloadMapAssets = function(mapData, callback) {
         let loadedCount = 0;
         let totalToLoad = assetsToLoad.length;
 
+        let callbackFired = false;
+        const fireCallback = () => { if (!callbackFired) { callbackFired = true; callback(); } };
         const checkDone = () => {
             loadedCount++;
             if (loaderFill) loaderFill.style.width = (loadedCount / totalToLoad) * 100 + '%';
-            if (loadedCount >= totalToLoad) callback();
+            if (loadedCount >= totalToLoad) fireCallback();
         };
+        // 🛡️ SAFETY NET: Force-proceed after 3s so players are never stuck on a black screen
+        setTimeout(fireCallback, 3000);
 
         if (totalToLoad === 0) {
             callback();
@@ -2191,7 +2195,7 @@ window.shootLaser = function(startX, startY, endX, endY) {
     dom.world.appendChild(laser);
     // 🚀 AUDIO POOL: Reuses pooled Audio instead of creating new Audio() every shot
     let sfx = window._getSFX('lightning');
-    sfx.volume = 0.3; sfx.play().catch(()=>{});
+    sfx.volume = (window.gameVolume != null ? window.gameVolume : 0.5) * 0.6; sfx.play().catch(()=>{});
     setTimeout(() => laser.style.opacity = '0', 50);
     setTimeout(() => laser.remove(), 250);
     window.spawnSpark(endX, endY);
@@ -2315,7 +2319,7 @@ window.playVoice = function(className) {
     let hairPrefix = window.charData.hairStyle === 'none' ? 'none' : `hair${window.charData.hairStyle}`; 
     let formattedClass = className.replace(/\s+/g, '').toLowerCase(); 
     let audio = new Audio(`skills/${hairPrefix}_${formattedClass}.mp3`); 
-    audio.volume = 0.8; 
+    audio.volume = (window.gameVolume != null ? window.gameVolume : 0.5); 
     audio.play().catch(e => {}); 
 }
 // 🎵 THE FIX: BOSS MUSIC ENGINE
@@ -2434,6 +2438,14 @@ document.addEventListener('input', (e) => {
         if (settingsDisplay) settingsDisplay.innerText = Math.round(newVol * 100) + '%';
         
         if (window.currentBGM) window.currentBGM.volume = newVol;
+        
+        // 🔊 MASTER VOLUME FIX: Also push volume to ALL cached SFX pool audio objects
+        if (window._sfxPool) {
+            Object.keys(window._sfxPool).forEach(key => {
+                let pool = window._sfxPool[key];
+                if (Array.isArray(pool)) pool.forEach(a => { a.volume = newVol; });
+            });
+        }
     }
 });
 
@@ -2503,7 +2515,7 @@ window._getSFX = function(name) {
         window._sfxPool[name] = [];
         for (let i = 0; i < 3; i++) {
             let a = new Audio(`music/${name}.mp3`);
-            a.volume = 0.5;
+            a.volume = (window.gameVolume != null ? window.gameVolume : 0.5);
             window._sfxPool[name].push(a);
         }
         window._sfxPool[name]._idx = 0;
@@ -2527,6 +2539,7 @@ window.playSFX = function(weaponSprite) {
     if (weaponSprite && weaponSprite.includes('pendant')) sfx = 'splash';
     if (weaponSprite && weaponSprite.includes('gun')) sfx = 'gunshot'; 
     let audio = window._getSFX(sfx);
+    audio.volume = (window.gameVolume != null ? window.gameVolume : 0.5);
     audio.play().catch(e => {}); 
 };
 
@@ -3545,7 +3558,7 @@ window.promptDM = function(targetName) {
         if (msg && msg.trim() !== '') { if(socket) socket.emit('sendDM', { targetId: targetName, message: msg.trim() }); } 
     });
 };
-window.playDMSound = function() { try { const AudioContext = window.AudioContext || window.webkitAudioContext; const audioCtx = new AudioContext(); if (audioCtx.state === 'suspended') { audioCtx.resume(); } const oscillator = audioCtx.createOscillator(); const gainNode = audioCtx.createGain(); oscillator.type = 'triangle'; oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); oscillator.frequency.exponentialRampToValueAtTime(1174.66, audioCtx.currentTime + 0.1); gainNode.gain.setValueAtTime(0.7, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); oscillator.connect(gainNode); gainNode.connect(audioCtx.destination); oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.5); const chatLog = document.getElementById('chat-log'); if (chatLog) { chatLog.style.backgroundColor = 'rgba(156, 39, 176, 0.4)'; chatLog.style.transition = 'background-color 0s'; setTimeout(() => { chatLog.style.transition = 'background-color 0.5s ease'; chatLog.style.backgroundColor = 'transparent'; }, 150); } } catch (e) {} };
+window.playDMSound = function() { try { const AudioContext = window.AudioContext || window.webkitAudioContext; const audioCtx = new AudioContext(); if (audioCtx.state === 'suspended') { audioCtx.resume(); } const oscillator = audioCtx.createOscillator(); const gainNode = audioCtx.createGain(); oscillator.type = 'triangle'; oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); oscillator.frequency.exponentialRampToValueAtTime(1174.66, audioCtx.currentTime + 0.1); gainNode.gain.setValueAtTime((window.gameVolume != null ? window.gameVolume : 0.5) * 0.7, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); oscillator.connect(gainNode); gainNode.connect(audioCtx.destination); oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.5); const chatLog = document.getElementById('chat-log'); if (chatLog) { chatLog.style.backgroundColor = 'rgba(156, 39, 176, 0.4)'; chatLog.style.transition = 'background-color 0s'; setTimeout(() => { chatLog.style.transition = 'background-color 0.5s ease'; chatLog.style.backgroundColor = 'transparent'; }, 150); } } catch (e) {} };
 window.startSpectate = function(targetId) {
     if (!targetId || !socket) return;
     socket.emit('requestSpectate', targetId);
@@ -5279,7 +5292,7 @@ if (hitPet) {
     else if (m.monsterKey.includes('3') || m.monsterKey.includes('dragon')) sfxFile = 'splash';
 
     let hitSound = new Audio(`music/${sfxFile}.mp3`);
-    hitSound.volume = 0.4;
+    hitSound.volume = (window.gameVolume != null ? window.gameVolume : 0.5) * 0.8;
     hitSound.play().catch(e => {});
 });
 
@@ -5288,7 +5301,7 @@ if (hitPet) {
         // 🐂 MINOTAUR CHARGE ANIMATION
         if (data.skillName === 'Charge') {
             let hitSound = new Audio('music/charge.mp3');
-            hitSound.volume = 0.6;
+            hitSound.volume = (window.gameVolume != null ? window.gameVolume : 0.5);
             hitSound.play().catch(e => {});
 
             const mEl = document.getElementById('mob_' + data.monsterId);
@@ -8208,8 +8221,8 @@ window.toggleSettingsMenu = function() {
         // Sync volume slider with current volume
         const slider = document.getElementById('settings-volume-slider');
         const display = document.getElementById('settings-vol-display');
-        if (slider) slider.value = window.gameVolume || 0.5;
-        if (display) display.innerText = Math.round((window.gameVolume || 0.5) * 100) + '%';
+        if (slider) slider.value = (window.gameVolume != null ? window.gameVolume : 0.5);
+        if (display) display.innerText = Math.round((window.gameVolume != null ? window.gameVolume : 0.5) * 100) + '%';
         
         // Sync HQ button
         const hqBtn = document.getElementById('settings-hq-btn');
@@ -8279,7 +8292,7 @@ window.closeTutorialVideo = function() {
     if (video) { video.pause(); video.currentTime = 0; video.onended = null; }
     if (overlay) overlay.style.display = 'none';
     // Restore BGM volume
-    if (window.currentBGM) window.currentBGM.volume = window.gameVolume || 0.5;
+    if (window.currentBGM) window.currentBGM.volume = (window.gameVolume != null ? window.gameVolume : 0.5);
 };
 
 // Close Game — Show confirmation, then disconnect and return to auth screen
