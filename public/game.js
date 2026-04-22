@@ -3460,7 +3460,11 @@ window.adminGiveCustomItem = function() {
 // 7. INPUTS, CHAT & SOCIAL LOGIC
 // ==========================================
 window.getPlayerById = function(id) { if (!id) return null; if (id === game.player.id) return game.player; return game.remotePlayers[id] || null; }
-window.goFullscreen = function() { if (!document.fullscreenElement && document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch(e => console.warn("Fullscreen blocked by browser until interaction.")); } };
+window.goFullscreen = function() { 
+    if (!window.electronAPI && !document.fullscreenElement && document.documentElement.requestFullscreen) { 
+        document.documentElement.requestFullscreen().catch(e => console.warn("Fullscreen blocked by browser until interaction.")); 
+    } 
+};
 window.switchAuth = function(target) { document.getElementById('login-form').style.display = target === 'login' ? 'block' : 'none'; document.getElementById('register-form').style.display = target === 'register' ? 'block' : 'none'; window.playBGM('loginmenu'); };
 window.attemptLogin = function() { 
     const u = document.getElementById('login-user').value.trim(); 
@@ -4346,16 +4350,18 @@ socket.on('mailList', (mails) => {
         else socket.emit('characterSelect', user);
     });
    socket.on('authError', (msg) => {
-    // Show the error message
-    if (dom.log) dom.log.innerText = msg;
-    else alert(msg);
+    // Show the error message so the user actually sees it on the login screen
+    alert(msg);
     
     // 🛡️ THE FIX: Force the inputs to wake back up!
     document.getElementById('login-user').disabled = false;
     document.getElementById('login-pass').disabled = false;
     
-    // Optional: Hide loading screens just in case it got stuck
+    // Hide loading screens just in case it got stuck
     document.getElementById('loading-screen').style.display = 'none';
+    
+    // Bring them back to the login page
+    document.getElementById('auth-screen').classList.add('active');
 });
 
 socket.on('forcedLogout', (msg) => {
@@ -8236,7 +8242,7 @@ window.toggleSettingsMenu = function() {
         // Sync fullscreen button
         const fsBtn = document.getElementById('settings-fullscreen-btn');
         if (fsBtn) {
-            const isFS = !!document.fullscreenElement;
+            const isFS = window.electronAPI ? !!window.isElectronFS : !!document.fullscreenElement;
             fsBtn.innerText = isFS ? 'Full Screen: ON' : 'Full Screen: OFF';
             fsBtn.style.background = isFS ? '#4CAF50' : '#333';
         }
@@ -8245,20 +8251,35 @@ window.toggleSettingsMenu = function() {
 
 // Full Screen Toggle (PC Only)
 window.toggleFullScreen = function() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(function(){});
+    if (window.electronAPI) {
+        window.electronAPI.toggleFullScreen();
     } else {
-        document.exitFullscreen().catch(function(){});
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(function(){});
+        } else {
+            document.exitFullscreen().catch(function(){});
+        }
+        setTimeout(function() {
+            const fsBtn = document.getElementById('settings-fullscreen-btn');
+            if (fsBtn) {
+                const isFS = !!document.fullscreenElement;
+                fsBtn.innerText = isFS ? 'Full Screen: ON' : 'Full Screen: OFF';
+                fsBtn.style.background = isFS ? '#4CAF50' : '#333';
+            }
+        }, 500);
     }
-    setTimeout(function() {
+};
+
+if (window.electronAPI) {
+    window.electronAPI.onFsChanged((isFS) => {
+        window.isElectronFS = isFS;
         const fsBtn = document.getElementById('settings-fullscreen-btn');
         if (fsBtn) {
-            const isFS = !!document.fullscreenElement;
             fsBtn.innerText = isFS ? 'Full Screen: ON' : 'Full Screen: OFF';
             fsBtn.style.background = isFS ? '#4CAF50' : '#333';
         }
-    }, 500);
-};
+    });
+}
 
 // High Quality Mode Toggle (wraps existing toggleLowEndMode)
 window.toggleHighQuality = function() {
