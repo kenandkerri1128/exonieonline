@@ -2366,6 +2366,7 @@ window.customPrompt = function(message, callback) {
 
     // Clean up function to prevent double-firing
     const cleanup = () => {
+        if (document.activeElement) document.activeElement.blur();
         modal.style.display = 'none';
         btnOk.onclick = null;
         btnCancel.onclick = null;
@@ -3581,7 +3582,7 @@ window.inspectTargetPlayer = function() { if (!activeTargetPlayerId) return; doc
 window.inviteTargetToParty = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('partyInvite', { targetId: activeTargetPlayerId }); dom.log.innerText = `Party invite sent to ${activeTargetPlayerId}.`; }; 
 let pendingRaidInvite = null;
 window.inviteTargetToRaid = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('raidInvite', { targetId: activeTargetPlayerId }); };
-window.respondRaidInvite = function(accept) { document.getElementById('raid-invite-dialog').style.display = 'none'; if (pendingRaidInvite) { if(socket) socket.emit('raidInviteResponse', { fromId: pendingRaidInvite, accept }); pendingRaidInvite = null; } };
+window.respondRaidInvite = function(accept) { if(document.activeElement) document.activeElement.blur(); document.getElementById('raid-invite-dialog').style.display = 'none'; if (pendingRaidInvite) { if(socket) socket.emit('raidInviteResponse', { fromId: pendingRaidInvite, accept }); pendingRaidInvite = null; } };
 window.leaveRaid = function() { if(confirm('Are you sure you want to disband the Raid Team?')) { if(socket) socket.emit('leaveRaid'); } };
 window.requestTrade = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('tradeRequest', { targetId: activeTargetPlayerId }); dom.log.innerText = `Trade request sent to ${activeTargetPlayerId}.`; }; 
 window.closeInspect = function() { dom.inspect.style.display = 'none'; };
@@ -3602,9 +3603,9 @@ if(socket) socket.emit('playerTeleported', { mapId: 'town', x: game.player.x, y:
                             }
                         }, isGrouped ? 3000 : 300);
                     }); }); }, 500); } };
-window.respondInvite = function(accept) { document.getElementById('invite-dialog').style.display = 'none'; if (pendingPartyInvite) { if(socket) socket.emit('partyInviteResponse', { fromId: pendingPartyInvite, accept }); pendingPartyInvite = null; } }; 
-window.respondTrade = function(accept) { document.getElementById('trade-dialog').style.display = 'none'; if (pendingTradeInvite) { if(socket) socket.emit('tradeInviteResponse', { fromId: pendingTradeInvite, accept }); if (accept) { tradeTarget = pendingTradeInvite; inTradeMode = true; document.getElementById('trade-target-name').innerText = tradeTarget; document.getElementById('trade-screen').style.display = 'block'; window.renderTradeSlots(); window.renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.log.innerText = "Trade declined."; } pendingTradeInvite = null; } }; 
-window.closeTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade cancelled."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); if(socket) socket.emit('tradeCancel'); }; 
+window.respondInvite = function(accept) { if(document.activeElement) document.activeElement.blur(); document.getElementById('invite-dialog').style.display = 'none'; if (pendingPartyInvite) { if(socket) socket.emit('partyInviteResponse', { fromId: pendingPartyInvite, accept }); pendingPartyInvite = null; } }; 
+window.respondTrade = function(accept) { if(document.activeElement) document.activeElement.blur(); document.getElementById('trade-dialog').style.display = 'none'; if (pendingTradeInvite) { if(socket) socket.emit('tradeInviteResponse', { fromId: pendingTradeInvite, accept }); if (accept) { tradeTarget = pendingTradeInvite; inTradeMode = true; document.getElementById('trade-target-name').innerText = tradeTarget; document.getElementById('trade-screen').style.display = 'block'; window.renderTradeSlots(); window.renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.log.innerText = "Trade declined."; } pendingTradeInvite = null; } }; 
+window.closeTrade = function() { if(document.activeElement) document.activeElement.blur(); inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade cancelled."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); if(socket) socket.emit('tradeCancel'); }; 
 window.confirmTrade = function() { if(socket) socket.emit('requestConfirmTrade'); };
 window.addTradeItem = function(invIndex) { 
     if (!inTradeMode) return; 
@@ -6138,6 +6139,7 @@ if (socket) {
 }
 
 window.respondGuildInvite = function(accept) {
+    if (document.activeElement) document.activeElement.blur();
     document.getElementById('guild-invite-dialog').style.display = 'none';
     if (accept && pendingGuildInvite) {
         socket.emit('joinGuild', pendingGuildInvite);
