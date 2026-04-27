@@ -1687,7 +1687,7 @@ function pickTarget(m, instId, now) {
         let closestPet = null; let petDist = Infinity;
         for (const petId in world.pets) {
             const pet = world.pets[petId];
-            if (pet.isDrone) continue; // ⚙️ THE FIX: AI completely ignores the drone!
+            if (pet.isDrone || pet.isStunned) continue; // ⚙️ THE FIX: AI completely ignores the drone and stunned minions!
             const dist = Math.hypot(pet.x - mcx, pet.y - mcy);
             // 🛡️ THE FIX: Added hasLineOfSight check so monsters ignore pets behind walls
             if (dist <= m.chaseRadius && dist < petDist && hasLineOfSight(instId, mcx, mcy, pet.x, pet.y)) {
@@ -2699,22 +2699,8 @@ io.on('connection', (socket) => {
                         }
                     }
                 }
-            }
-
-            if (skillId === 'ber3') {
-                p.immortalUntil = now + 10000;
-            }
-
-            if (skillId === 'bld2') {
-                p.parryUntil = now + 10000;
-            }
-            // 🌀 NERFED: Shadow Step now gives 80% Damage Reduction instead of full invulnerability
-            if (skillId === 'phs1') {
-                p.damageReduction = 0.80;
-                p.damageReductionUntil = now + 2000;
-            }
-            // 🛡️ GAMMA SHIELD: Re-shield retry for late-syncing pets (e.g. Golem Busters)
-            if (skillId === 'tech2') {
+                
+                // 🛡️ GAMMA SHIELD: Re-shield retry for late-syncing pets (e.g. Golem Busters)
                 const retryShieldPid = pid;
                 const retryShieldHp = shieldHp;
                 const retryShieldHeal = tickHeal;
@@ -2729,6 +2715,19 @@ io.on('connection', (socket) => {
                         }
                     }
                 }, 500);
+            }
+
+            if (skillId === 'ber3') {
+                p.immortalUntil = now + 10000;
+            }
+
+            if (skillId === 'bld2') {
+                p.parryUntil = now + 10000;
+            }
+            // 🌀 NERFED: Shadow Step now gives 80% Damage Reduction instead of full invulnerability
+            if (skillId === 'phs1') {
+                p.damageReduction = 0.80;
+                p.damageReductionUntil = now + 2000;
             }
 
             if (skillId === 'sum3') {
@@ -3662,11 +3661,13 @@ io.on('connection', (socket) => {
                         isDrone: !!data.isDrone, // ⚙️ FIX: Tell the server this is an untargetable drone!
                         isGolemBuster: !!data.isGolemBuster,
                         isMinion: !!data.isMinion, // 🐾 Golden Slime Minion
-                        minionSkillId: data.minionSkillId || null
+                        minionSkillId: data.minionSkillId || null,
+                        isStunned: !!data.isStunned
                     };
                 } else {
                     world.pets[data.id].x = data.x;
                     world.pets[data.id].y = data.y;
+                    world.pets[data.id].isStunned = !!data.isStunned;
                 }
             }
             else { delete world.pets[data.id]; }
