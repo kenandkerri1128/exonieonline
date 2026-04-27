@@ -3742,6 +3742,19 @@ io.on('connection', (socket) => {
             let pClass = p.baseStats?.playerClass;
             let hitCount = 1;
 
+            // 🐾 MINION SKILL BYPASS LOGIC
+            let isMinionSkill = false;
+            let originalCooldown = null;
+            if (payload.isMinion && payload.skillId !== 'pet' && payload.skillId !== 'basic') {
+                isMinionSkill = true;
+                const skillObj = MINION_ELIGIBLE_SKILLS.find(s => s.id === payload.skillId);
+                if (skillObj) {
+                    pClass = skillObj.className; 
+                    originalCooldown = p.skillCooldowns[payload.skillId] || 0;
+                    p.skillCooldowns[payload.skillId] = 0; 
+                }
+            }
+
             // 🌀 PHANTOM STRIKER: Craftiness (Lv 75) - CD Reset
             if (pClass === 'Phantom Striker' && p.level >= 75 && payload.skillId === 'basic') {
                 if (Math.random() < 0.25) {
@@ -3893,6 +3906,12 @@ io.on('connection', (socket) => {
                     }
                 }
                 hitCount = 1;
+            }
+
+            if (isMinionSkill) {
+                trueDmg = 500;
+                if (originalCooldown !== null) p.skillCooldowns[payload.skillId] = originalCooldown;
+                else delete p.skillCooldowns[payload.skillId];
             }
 
             // 🌟 LEVEL 75 AoE LOGIC & BIG BOSS
@@ -7316,10 +7335,42 @@ io.on('connection', (socket) => {
             if (!p) return;
 
             const item = p.inventory[data.targetIndex];
-            if (!item || !item.aura) return;
+            if (!item) return;
+            if (!item.aura && !item.minion) return;
 
             const emptySlot = p.inventory.findIndex(i => i === null);
             if (emptySlot === -1) return socket.emit('systemMessage', "Inventory full! Cannot extract.");
+
+            if (item.minion) {
+                // 🐾 MINION EXTRACTION
+                let minionStone = {
+                    id: Date.now() + Math.random(),
+                    name: "Golden Slime Minion",
+                    type: "minion",
+                    rarity: "Divine",
+                    color: "#FFD700",
+                    sprite: "minion_golden_slime",
+                    skillId: item.minion.skillId || null,
+                    skillName: item.minion.skillName || null,
+                    description: "A loyal Golden Slime. Apply to a weapon to summon it in battle. Use a Skill Treat to teach it a skill.",
+                    quantity: 1
+                };
+
+                item.name = item.originalName || item.name.replace(` [Golden Slime]`, "");
+                delete item.minion;
+                delete item.originalName;
+
+                p.inventory[emptySlot] = minionStone;
+
+                socket.emit('syncInventory', p.inventory);
+                socket.emit('systemMessage', "Minion extracted safely!");
+
+                if (p.equips && p.equips['weapon'] && p.equips['weapon'].id === item.id) {
+                    socket.emit('inventoryItemUsed', { inventory: p.inventory, equips: p.equips });
+                }
+                supabase.from('Exonians').update({ inventory: p.inventory, equips: p.equips }).eq('character_name', p.id).then(() => { });
+                return;
+            }
 
             const AURA_DATA = {
                 'lightning': { name: 'Lightning', color: '#00ffff' },
@@ -8288,6 +8339,19 @@ io.on('connection', (socket) => {
             let pClass = p.baseStats?.playerClass;
             let hitCount = 1;
 
+            // 🐾 MINION SKILL BYPASS LOGIC
+            let isMinionSkill = false;
+            let originalCooldown = null;
+            if (payload.isMinion && payload.skillId !== 'pet' && payload.skillId !== 'basic') {
+                isMinionSkill = true;
+                const skillObj = MINION_ELIGIBLE_SKILLS.find(s => s.id === payload.skillId);
+                if (skillObj) {
+                    pClass = skillObj.className; 
+                    originalCooldown = p.skillCooldowns[payload.skillId] || 0;
+                    p.skillCooldowns[payload.skillId] = 0; 
+                }
+            }
+
             // 🌀 PHANTOM STRIKER: Craftiness Reset PvP
             if (pClass === 'Phantom Striker' && p.level >= 75 && payload.skillId === 'basic') {
                 if (Math.random() < 0.25) {
@@ -8423,6 +8487,12 @@ io.on('connection', (socket) => {
                     }
                 }
                 hitCount = 1;
+            }
+
+            if (isMinionSkill) {
+                trueDmg = 500;
+                if (originalCooldown !== null) p.skillCooldowns[payload.skillId] = originalCooldown;
+                else delete p.skillCooldowns[payload.skillId];
             }
 
             // 🌟 LEVEL 75 AoE LOGIC FOR PVP (Ice Splash & Big Explosion)
