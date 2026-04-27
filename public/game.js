@@ -100,6 +100,51 @@ const socket = io(serverUrl, {
 // 🔔 OPTIONAL: Log to console if the internet flickers
 socket.on('reconnect_attempt', () => {
     console.log("Internet connection unstable. Attempting to reconnect...");
+    let dcMessage = document.getElementById('dc-message-overlay');
+    if (dcMessage) {
+        let pTag = dcMessage.querySelectorAll('p')[1];
+        if(pTag) pTag.innerText = "Attempting to reconnect...";
+    }
+});
+
+// 🔌 SHOW DISCONNECT MESSAGE TO PLAYER
+socket.on('disconnect', (reason) => {
+    console.log("Disconnected from server:", reason);
+    
+    // Don't show if the tab was intentionally locked out by multi-boxing protection
+    if (document.body.innerHTML.includes("Game Already Open")) return;
+
+    let dcMessage = document.getElementById('dc-message-overlay');
+    if (!dcMessage) {
+        dcMessage = document.createElement('div');
+        dcMessage.id = 'dc-message-overlay';
+        dcMessage.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);color:white;display:flex;justify-content:center;align-items:center;z-index:999999;flex-direction:column;font-family:sans-serif;backdrop-filter:blur(5px);';
+        dcMessage.innerHTML = `
+            <div style="text-align:center; animation: dcPulse 2s infinite;">
+                <h1 style="color:#f44336; font-size:40px; margin-bottom:10px; text-shadow:0 0 10px #f44336;">📡 Connection Lost</h1>
+                <p style="font-size:20px; color:#ccc; max-width:80%; margin:0 auto;">You have been disconnected from the server.</p>
+                <p style="font-size:16px; color:#888; margin-top:20px;">Waiting for network to stabilize...</p>
+            </div>
+            <style>
+                @keyframes dcPulse {
+                    0% { opacity: 1; }
+                    50% { opacity: 0.5; }
+                    100% { opacity: 1; }
+                }
+            </style>
+        `;
+        document.body.appendChild(dcMessage);
+    }
+    dcMessage.style.display = 'flex';
+});
+
+// 🔌 HIDE DISCONNECT MESSAGE ON RECONNECT
+socket.on('connect', () => {
+    console.log("Connected to server!");
+    let dcMessage = document.getElementById('dc-message-overlay');
+    if (dcMessage) {
+        dcMessage.style.display = 'none';
+    }
 });
 let currentShopItem = null; // 🛡️ GLOBAL TRACKER FOR THE SHOP
 window.isProcessingShop = false; // Anti-Spam Lock
