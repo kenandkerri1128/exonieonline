@@ -1054,7 +1054,7 @@ function generateDungeonLoot(m) {
                     id: Date.now() + Math.random(),
                     name: "Golden Slime Minion",
                     type: "minion",
-                    rarity: "Godly",
+                    rarity: "Divine",
                     color: "#FFD700",
                     sprite: "minion_golden_slime",
                     skillId: null,
@@ -1069,7 +1069,7 @@ function generateDungeonLoot(m) {
                     id: Date.now() + Math.random(),
                     name: `${pick.name} Skill Treat`,
                     type: "skilltreat",
-                    rarity: "Legendary",
+                    rarity: "Divine",
                     color: "#E040FB",
                     skillId: pick.id,
                     skillName: pick.name,
@@ -3736,8 +3736,8 @@ io.on('connection', (socket) => {
             } else if (payload.skillId === 'pet' && payload.isGolemBuster) {
                 trueDmg = Math.floor(getServerMagicAttack(p) * 1.0);
             } else if (payload.skillId === 'pet' && payload.isMinion) {
-                // 🐾 MINION: 1-100 pure damage (ignores defense entirely)
-                trueDmg = Math.floor(Math.random() * 100) + 1;
+                // 🐾 MINION: 500 pure damage (ignores defense entirely)
+                trueDmg = 500;
             }
             let pClass = p.baseStats?.playerClass;
             let hitCount = 1;
@@ -3885,8 +3885,8 @@ io.on('connection', (socket) => {
                     if (pet.isClone) multiplier = 2.5; // 🛡️ BUFFED: Clones now deal 250% ATK!
 
                     if (pet.isMinion) {
-                        // 🐾 MINION PvE: 1-100 pure damage
-                        trueDmg = Math.floor(Math.random() * 100) + 1;
+                        // 🐾 MINION PvE: 500 pure damage
+                        trueDmg = 500;
                     } else {
                         let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
                         trueDmg = Math.floor(sourceAtk * multiplier);
@@ -4019,12 +4019,12 @@ io.on('connection', (socket) => {
 
                                     // DYNAMIC TITLE TIER: Save highest Dungeon 2 difficulty cleared
                                     const d2Diff = p.d2Difficulty || 'Normal';
-                                    const diffRank = { 'Normal': 0, 'Hard': 1, 'Extreme': 2 };
+                                    const diffRank = { 'Normal': 1, 'Hard': 2, 'Extreme': 3 };
                                     const allD2Players = playersInInstance(p.instanceId);
                                     allD2Players.forEach(d2p => {
                                         if (!d2p.baseStats) d2p.baseStats = {};
                                         const currentRank = diffRank[d2p.baseStats.d2HighestDifficulty] || 0;
-                                        const newRank = diffRank[d2Diff] || 0;
+                                        const newRank = diffRank[d2Diff] || 1;
                                         if (newRank > currentRank) {
                                             d2p.baseStats.d2HighestDifficulty = d2Diff;
                                             // Immediately recalculate their title prefix
@@ -4041,6 +4041,14 @@ io.on('connection', (socket) => {
                                                 const d2sid = findSocketIdByPlayerId(d2p.id);
                                                 if (d2sid) io.to(d2sid).emit('titleUnlocked', updatedTitle);
                                             }
+                                            
+                                            // 🌍 BROADCAST FIRST TIME CLEARS
+                                            if (currentRank === 0) {
+                                                io.emit('systemMessage', `[WORLD] 🏆 <span style="color:#FFD700; font-weight:bold;">${d2p.name}</span> has cleared Dungeon 2 for the first time!`);
+                                            } else {
+                                                io.emit('systemMessage', `[WORLD] 🏆 <span style="color:#FFD700; font-weight:bold;">${d2p.name}</span> has cleared Dungeon 2 on ${d2Diff} difficulty for the first time!`);
+                                            }
+                                            
                                             supabase.from('Exonians').update({ base_stats: d2p.baseStats }).eq('character_name', d2p.id).then(() => { });
                                         }
                                     });
@@ -7047,6 +7055,44 @@ io.on('connection', (socket) => {
                 socket.emit('systemMessage', "Inventory full!");
             }
         });
+
+        // 🐾 ADMIN: Spawn Minion
+        socket.on('adminSpawnMinion', async () => {
+            const p = onlinePlayers[socket.id];
+            if (!p || !isAdmin(p.id)) return;
+            const inv = p.inventory || [];
+            const emptySlot = inv.findIndex(i => i === null);
+            if (emptySlot !== -1) {
+                const minionItem = { id: Date.now() + Math.random(), name: "Golden Slime Minion", type: 'minion', rarity: 'Divine', color: '#FFD700', description: "A loyal Golden Slime. Applies to your weapon.", quantity: 1, skillId: null, skillName: null };
+                inv[emptySlot] = minionItem;
+                p.inventory = inv;
+                await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
+                socket.emit('syncInventory', p.inventory);
+                socket.emit('systemMessage', `[Admin] Spawned Golden Slime Minion!`);
+            } else {
+                socket.emit('systemMessage', "Inventory full!");
+            }
+        });
+
+        // 🎓 ADMIN: Spawn Skill Treat
+        socket.on('adminSpawnSkillTreat', async (data) => {
+            const p = onlinePlayers[socket.id];
+            if (!p || !isAdmin(p.id)) return;
+            const skillObj = MINION_ELIGIBLE_SKILLS.find(s => s.id === data.skillId);
+            if (!skillObj) return;
+            const inv = p.inventory || [];
+            const emptySlot = inv.findIndex(i => i === null);
+            if (emptySlot !== -1) {
+                const treatItem = { id: Date.now() + Math.random(), name: `Skill Treat: ${skillObj.name}`, type: 'skilltreat', rarity: 'Divine', color: '#E040FB', description: `Teaches ${skillObj.name} to a Minion.`, quantity: 1, skillId: skillObj.id, skillName: skillObj.name, className: skillObj.className };
+                inv[emptySlot] = treatItem;
+                p.inventory = inv;
+                await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
+                socket.emit('syncInventory', p.inventory);
+                socket.emit('systemMessage', `[Admin] Spawned Skill Treat: ${skillObj.name}!`);
+            } else {
+                socket.emit('systemMessage', "Inventory full!");
+            }
+        });
         // 👑 ADMIN: RESET ALL DUNGEON ENTRIES
         socket.on('adminResetDungeons', async (targetName) => {
             const p = onlinePlayers[socket.id];
@@ -8369,8 +8415,8 @@ io.on('connection', (socket) => {
                     if (pet.isClone) multiplier = 2.5; // 🛡️ BUFFED: Clones now deal 250% ATK!
 
                     if (pet.isMinion) {
-                        // 🐾 MINION PvP: 1-100 pure damage
-                        trueDmg = Math.floor(Math.random() * 100) + 1;
+                        // 🐾 MINION PvP: 500 pure damage
+                        trueDmg = 500;
                     } else {
                         let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
                         trueDmg = Math.floor(sourceAtk * multiplier);
