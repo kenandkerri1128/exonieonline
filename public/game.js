@@ -5394,6 +5394,9 @@ socket.on('revivalJuiceUsed', (data) => {
     if (game.player.activePets) {
         hitPet = game.player.activePets.find(p => p.id === targetId);
     }
+    if (!hitPet && window._activeMinion && window._activeMinion.id === targetId) {
+        hitPet = window._activeMinion;
+    }
 
 if (hitPet) {
         const serverAtk = Number(data.atk || 25);
@@ -5415,6 +5418,18 @@ if (hitPet) {
         
         hitPet.hp -= actualDmg;
         window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, actualDmg, '#ff0000');
+
+        // 🐾 MINION DEATH & STUN LOGIC
+        if (window._activeMinion && hitPet.id === window._activeMinion.id && hitPet.hp <= 0 && !hitPet.isStunned) {
+            hitPet.isStunned = true;
+            hitPet.stunUntil = Date.now() + 180000; // 3 minutes
+            hitPet.hp = window.getMaxHp() || 100; // Instantly restore to prevent multiple triggers
+            window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, "STUNNED!", '#ffeb3b');
+            
+            if (hitPet.dom) {
+                hitPet.dom.classList.add('minion-stunned');
+            }
+        }
     } else if (targetId === game.player.id) {
         game.player.currentHp = Math.max(0, data.newHp);
         if (data.damage > 0) {
@@ -8596,6 +8611,14 @@ window.executeCloseGame = function() {
             0%, 100% { transform: translateY(0) scaleY(1); }
             50% { transform: translateY(-4px) scaleY(0.92); }
         }
+        .minion-stunned {
+            filter: grayscale(100%) opacity(0.7);
+            animation: minionStun 2s ease-in-out infinite !important;
+        }
+        @keyframes minionStun {
+            0%, 100% { transform: translateY(10px) scaleY(0.5) scaleX(1.1); }
+            50% { transform: translateY(10px) scaleY(0.6) scaleX(1.05); }
+        }
         .minion-tooltip {
             position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
             background: rgba(0,0,0,0.85); color: #FFD700; border: 1px solid #FFD700;
@@ -8648,7 +8671,11 @@ window.executeCloseGame = function() {
             y: game.player.y,
             skillId: minionData.skillId,
             skillName: minionData.skillName,
-            lastAttackTs: 0
+            lastAttackTs: 0,
+            hp: window.getMaxHp() || 100,
+            maxHp: window.getMaxHp() || 100,
+            isStunned: false,
+            stunUntil: 0
         };
         
         window._activeMinion = minion;
@@ -8676,6 +8703,33 @@ window.executeCloseGame = function() {
         const minion = window._activeMinion;
         if (!minion || !game.isRunning || game.isGhost) return;
         
+        const now = Date.now();
+        
+        // 🐾 STUN LOGIC
+        if (minion.isStunned) {
+            if (now > minion.stunUntil) {
+                minion.isStunned = false;
+                minion.hp = window.getMaxHp() || 100;
+                minion.maxHp = window.getMaxHp() || 100;
+                if (minion.dom) {
+                    minion.dom.classList.remove('minion-stunned');
+                }
+                window.spawnDamageText(minion.x + 15, minion.y - 10, "RECOVERED!", '#4caf50');
+            } else {
+                // Keep syncing the stun state so server ignores it
+                if (!minion.lastSyncTs || now - minion.lastSyncTs > 500) {
+                    minion.lastSyncTs = now;
+                    if (socket) {
+                        socket.emit('syncPet', {
+                            id: minion.id, x: Math.round(minion.x), y: Math.round(minion.y), 
+                            alive: true, isMinion: true, minionSkillId: minion.skillId, isStunned: true
+                        });
+                    }
+                }
+                return; // Do not move or attack
+            }
+        }
+
         const px = game.player.x;
         const py = game.player.y;
         
@@ -8699,7 +8753,6 @@ window.executeCloseGame = function() {
         }
 
         // Sync position to server (throttle to every 500ms)
-        const now = Date.now();
         if (!minion.lastSyncTs || now - minion.lastSyncTs > 500) {
             minion.lastSyncTs = now;
             if (socket) {
