@@ -2784,7 +2784,7 @@ if(item.type === 'gem') return html + `<span style="color:#00ffff;"><em>${item.d
         } else {
             html += `<span style="color:#888;">u{1F4A4} No skill learned yet</span><br>`;
         }
-        html += `<span style="color:#aaa;">u{1F4A5} DMG: 1-100 (Pure)</span><br>`;
+        html += `<span style="color:#aaa;">u{1F4A5} DMG: 500 (Pure)</span><br>`;
         html += `<span style="color:#4CAF50;">[TRADEABLE]</span>`;
         return html;
     }
@@ -3589,6 +3589,17 @@ window.adminGiveCustomItem = function() {
     
     // 🛡️ THE FIX: Request the item from the server so it gets validated and saved!
     if (socket) socket.emit('adminSpawnItem', { rarity: r, type: t, level: l, enhanceLevel: e }); 
+}
+
+// 🐾 ADMIN: Spawn Golden Slime Minion
+window.adminSpawnMinion = function() {
+    if (socket) socket.emit('adminSpawnMinion');
+}
+
+// 🎓 ADMIN: Spawn Skill Treat
+window.adminSpawnSkillTreat = function() {
+    let skillId = document.getElementById('admin-skilltreat-select').value;
+    if (socket) socket.emit('adminSpawnSkillTreat', { skillId: skillId });
 }
 
 // ==========================================
@@ -8616,7 +8627,7 @@ window.executeCloseGame = function() {
         tooltip.className = 'minion-tooltip';
         tooltip.innerHTML = `🐾 ${minionData.name || 'Golden Slime'}<br>` +
             (minionData.skillName ? `⚡ Skill: ${minionData.skillName}` : '💤 No skill learned') +
-            `<br>💥 DMG: 1-100 (Pure)`;
+            `<br>💥 DMG: 500 (Pure)`;
         el.appendChild(tooltip);
         
         document.getElementById('world').appendChild(el);
