@@ -487,6 +487,27 @@ function isAdmin(username) {
     return ADMINS.includes(username);
 }
 const playerParty = {};
+const bossRespawnScheduled = new Set(); // 🛡️ Prevents duplicate boss respawn messages
+
+// 🐾 MINION SYSTEM: Eligible Active Skills (excludes summoning skills)
+const MINION_ELIGIBLE_SKILLS = [
+    { id: 'heal1', name: 'Holy Light', className: 'Healer' },
+    { id: 'heal3', name: 'Purification', className: 'Healer' },
+    { id: 'ice1', name: 'Icicle Spear', className: 'Ice Master' },
+    { id: 'ice3', name: 'Icicle Storm', className: 'Ice Master' },
+    { id: 'ber1', name: 'Callout!', className: 'Berserker' },
+    { id: 'ber3', name: 'Immortal', className: 'Berserker' },
+    { id: 'bld2', name: 'Parry', className: 'Blademaster' },
+    { id: 'bld3', name: 'Mega Slash', className: 'Blademaster' },
+    { id: 'snp2', name: 'Silver Bullet', className: 'Sniper' },
+    { id: 'snp3', name: 'Killshot', className: 'Sniper' },
+    { id: 'exp1', name: 'Molotov', className: 'Explosives Expert' },
+    { id: 'exp3', name: 'Go Boom!', className: 'Explosives Expert' },
+    { id: 'phs1', name: 'Shadow Step', className: 'Phantom Striker' },
+    { id: 'phs3', name: 'Blink Stab', className: 'Phantom Striker' },
+    { id: 'nin1', name: 'Smoke Bomb', className: 'Ninja Assassin' },
+    { id: 'tech2', name: 'Gamma Shield', className: 'Tech Genius' }
+];
 
 // Helper to easily grab all 8 players across the 2 merged parties
 function getRaidMembers(raidId) {
@@ -1020,6 +1041,45 @@ function generateDungeonLoot(m) {
         }
         return item;
     }
+
+    // 🐾 MINION & SKILL TREAT DROPS (Dungeon 2 Only — BOTTOM of loot priority!)
+    if (m.instanceId && m.instanceId.includes('dungeon2') && m.category === 'floor_boss') {
+        const diff = m.d2Difficulty || 'Normal';
+        const dropChance = diff === 'Extreme' ? 0.15 : (diff === 'Hard' ? 0.05 : 0.01);
+
+        if (Math.random() < dropChance) {
+            if (Math.random() < 0.5) {
+                // 🐾 Golden Slime Minion
+                return {
+                    id: Date.now() + Math.random(),
+                    name: "Golden Slime Minion",
+                    type: "minion",
+                    rarity: "Godly",
+                    color: "#FFD700",
+                    sprite: "minion_golden_slime",
+                    skillId: null,
+                    skillName: null,
+                    description: "A loyal Golden Slime. Apply to a weapon to summon it in battle. Use a Skill Treat to teach it a skill.",
+                    quantity: 1
+                };
+            } else {
+                // 🎓 Random Skill Treat
+                const pick = MINION_ELIGIBLE_SKILLS[Math.floor(Math.random() * MINION_ELIGIBLE_SKILLS.length)];
+                return {
+                    id: Date.now() + Math.random(),
+                    name: `${pick.name} Skill Treat`,
+                    type: "skilltreat",
+                    rarity: "Legendary",
+                    color: "#E040FB",
+                    skillId: pick.id,
+                    skillName: pick.name,
+                    className: pick.className,
+                    description: `Teach your Minion the ${pick.name} skill (${pick.className}). Cannot be changed once applied.`,
+                    quantity: 1
+                };
+            }
+        }
+    }
 }
 function generateLoot(monster) {
     // 🌟 1. GOLDEN SLIME CUSTOM LOOT TABLE (KEEP ORIGINAL)
@@ -1391,8 +1451,11 @@ function ensureWorldFromMapData(instanceId, mapData) {
                                     worlds[instanceId].monsters[newMobId] = newBoss;
                                     io.to(instanceId).emit('monsterSpawned', serializeMonster(newBoss));
 
-                                    // 🛑 THE FIX: Add the announcement back, but ONLY for Floor Bosses!
-                                    io.emit('systemMessage', `The ${rawMapId.toUpperCase()} Boss has respawned!`);
+                                    // 🛡️ FIXED: Only announce for valid floor maps (not town/neutralzone/battlefield)
+                                    if (rawMapId && !['town', 'neutralzone', 'battlefield'].includes(rawMapId) && !bossRespawnScheduled.has(rawMapId)) {
+                                        io.emit('systemMessage', `The ${rawMapId.toUpperCase()} Boss has respawned!`);
+                                    }
+                                    bossRespawnScheduled.delete(rawMapId);
                                 }
                             }, remaining);
 
@@ -1767,6 +1830,11 @@ function updateMonsterAI(instId, m, now) {
                         if (pDist <= aoeRadius) {
                             let damage = Math.max(1, m.atk - getServerDefense(p)); // 🛡️ Changed to 'let' so we can absorb it
 
+                            // 🌀 SHADOW STEP: 80% Damage Reduction
+                            if (p.damageReduction && p.damageReductionUntil && now < p.damageReductionUntil) {
+                                damage = Math.max(1, Math.floor(damage * (1 - p.damageReduction)));
+                            }
+
                             // 🛡️ GAMMA SHIELD ABSORPTION (Earthquake)
                             if (p.gammaShield && p.gammaShield.hp > 0) {
                                 if (damage >= p.gammaShield.hp) {
@@ -1880,6 +1948,11 @@ function updateMonsterAI(instId, m, now) {
                         if (px >= minX && px <= maxX && py >= minY && py <= maxY) {
                             let damage = Math.max(1, Math.floor(m.atk * 1.5) - getServerDefense(p)); // 1.5x Multiplier
 
+                            // 🌀 SHADOW STEP: 80% Damage Reduction
+                            if (p.damageReduction && p.damageReductionUntil && now < p.damageReductionUntil) {
+                                damage = Math.max(1, Math.floor(damage * (1 - p.damageReduction)));
+                            }
+
                             // 🛡️ GAMMA SHIELD ABSORPTION (Charge)
                             if (p.gammaShield && p.gammaShield.hp > 0) {
                                 if (damage >= p.gammaShield.hp) {
@@ -1975,6 +2048,11 @@ function updateMonsterAI(instId, m, now) {
             const isDragon = m.originalKey && m.originalKey.includes('dragon');
             let baseDamage = m.atk - getServerDefense(victim);
             let damage = Math.max(1, baseDamage);
+
+            // 🌀 SHADOW STEP: 80% Damage Reduction
+            if (victim.damageReduction && victim.damageReductionUntil && now < victim.damageReductionUntil) {
+                damage = Math.max(1, Math.floor(damage * (1 - victim.damageReduction)));
+            }
 
             // 🐉 DRAGON PASSIVE: Armor Piercing (Adds Level Difference directly to Damage)
             if (isDragon && m.level > victim.level) {
@@ -2558,7 +2636,7 @@ io.on('connection', (socket) => {
                 sum3: { className: 'Summoner', name: 'Enhance!', unlock: 50, cd: 100000, auraColor: 'blue' },
 
                 ice1: { className: 'Ice Master', name: 'Icicle Spear', unlock: 1, cd: 25000, auraColor: 'blue' },
-                ice3: { className: 'Ice Master', name: 'Icicle Storm', unlock: 50, cd: 100000, auraColor: 'blue' },
+                ice3: { className: 'Ice Master', name: 'Icicle Storm', unlock: 50, cd: 110000, auraColor: 'blue' },
 
                 ber1: { className: 'Berserker', name: 'Callout!', unlock: 1, cd: 14000, auraColor: 'red' },
                 ber3: { className: 'Berserker', name: 'Immortal', unlock: 50, cd: 100000, auraColor: 'red' },
@@ -2630,10 +2708,29 @@ io.on('connection', (socket) => {
             if (skillId === 'bld2') {
                 p.parryUntil = now + 10000;
             }
-            // 👇 THE FIX: 2-Second Immunity (Untargetable/I-Frames) for Phantom Striker Blink
+            // 🌀 NERFED: Shadow Step now gives 80% Damage Reduction instead of full invulnerability
             if (skillId === 'phs1') {
-                p.untargetableUntil = now + 2000;
+                p.damageReduction = 0.80;
+                p.damageReductionUntil = now + 2000;
             }
+            // 🛡️ GAMMA SHIELD: Re-shield retry for late-syncing pets (e.g. Golem Busters)
+            if (skillId === 'tech2') {
+                const retryShieldPid = pid;
+                const retryShieldHp = shieldHp;
+                const retryShieldHeal = tickHeal;
+                setTimeout(() => {
+                    if (worlds[p.instanceId] && worlds[p.instanceId].pets) {
+                        for (let petId in worlds[p.instanceId].pets) {
+                            let pet = worlds[p.instanceId].pets[petId];
+                            if ((pet.ownerId === p.id || (retryShieldPid && parties[retryShieldPid] && parties[retryShieldPid].members.has(pet.ownerId))) && !pet.gammaShield) {
+                                pet.gammaShield = { hp: retryShieldHp, heal: retryShieldHeal };
+                                io.to(p.instanceId).emit('applyGammaShield', { targetId: petId, isPet: true, hp: retryShieldHp });
+                            }
+                        }
+                    }
+                }, 500);
+            }
+
             if (skillId === 'sum3') {
                 const world = worlds[p.instanceId];
                 if (world && world.pets) {
@@ -2688,6 +2785,15 @@ io.on('connection', (socket) => {
             // 🛑 DEAD PORTAL FIX: Removed teleportGrace so portals aren't locked for 4 seconds after spawning!
             if (p.isLoadingMap) return;
 
+            // ⚠️ ZONE ENTRY WARNINGS: Neutral Zone (PvP) and Battlefield (difficulty)
+            if (data.targetMapId === 'neutralzone' && !data._confirmed) {
+                return socket.emit('confirmPortalEntry', {
+                    portalId: data.portalId,
+                    targetMapId: data.targetMapId,
+                    message: '⚠️ You are entering the Neutral Zone — a PvP zone. Other players can attack you here. Continue?'
+                });
+            }
+
             // 🛡️ BATTLEFIELD BLOCKER: Checks if boss is alive BEFORE letting them use the portal
             if (data.targetMapId === 'battlefield') {
                 const bfWorld = worlds['battlefield'];
@@ -2695,6 +2801,13 @@ io.on('connection', (socket) => {
                 if (!boss || !boss.alive) {
                     p.currentPortal = null;
                     return socket.emit('systemMessage', 'No threat outside the castle yet.');
+                }
+                if (!data._confirmed) {
+                    return socket.emit('confirmPortalEntry', {
+                        portalId: data.portalId,
+                        targetMapId: data.targetMapId,
+                        message: '⚠️ The Battlefield is a very difficult zone. It is recommended to bring a party before entering. Continue?'
+                    });
                 }
             }
 
@@ -2722,29 +2835,62 @@ io.on('connection', (socket) => {
                 p.isWaitingForTeam = true;
                 socket.emit('teleportApproved', data);
             } else {
-                const party = parties[pid];
-                let allReady = true;
-                for (const memberId of party.members) {
-                    const mp = getPlayerById(memberId);
-                    if (mp && mp.instanceId === p.instanceId && mp.currentPortal !== data.portalId && !mp.isGhost) {
-                        allReady = false; break;
-                    }
-                }
-                if (allReady) {
-                    for (const memberId of party.members) {
-                        const msid = findSocketIdByPlayerId(memberId);
+                const rid = partyRaid[pid];
+
+                if (rid && raids[rid]) {
+                    // ⚔️ RAID MODE: Check ALL members across BOTH parties
+                    const allRaidMembers = getRaidMembers(rid);
+                    let allReady = true;
+
+                    for (const memberId of allRaidMembers) {
                         const mp = getPlayerById(memberId);
-                        if (msid && mp) {
-                            mp.isLoadingMap = true;
-                            mp.isWaitingForTeam = true;
-                            io.to(msid).emit('teleportApproved', data);
+                        if (mp && mp.instanceId === p.instanceId && mp.currentPortal !== data.portalId && !mp.isGhost) {
+                            allReady = false;
+                            break;
                         }
                     }
+
+                    if (allReady) {
+                        for (const memberId of allRaidMembers) {
+                            const msid = findSocketIdByPlayerId(memberId);
+                            const mp = getPlayerById(memberId);
+                            if (msid && mp) {
+                                mp.isLoadingMap = true;
+                                mp.isWaitingForTeam = true;
+                                io.to(msid).emit('teleportApproved', data);
+                            }
+                        }
+                    } else {
+                        socket.emit('partyError', 'Waiting for all alive Raid Team members to gather on the portal...');
+                    }
                 } else {
-                    socket.emit('partyError', 'Waiting for all alive party members to gather on the portal...');
+                    // Normal party (no raid) — existing logic
+                    const party = parties[pid];
+                    let allReady = true;
+                    for (const memberId of party.members) {
+                        const mp = getPlayerById(memberId);
+                        if (mp && mp.instanceId === p.instanceId && mp.currentPortal !== data.portalId && !mp.isGhost) {
+                            allReady = false; break;
+                        }
+                    }
+                    if (allReady) {
+                        for (const memberId of party.members) {
+                            const msid = findSocketIdByPlayerId(memberId);
+                            const mp = getPlayerById(memberId);
+                            if (msid && mp) {
+                                mp.isLoadingMap = true;
+                                mp.isWaitingForTeam = true;
+                                io.to(msid).emit('teleportApproved', data);
+                            }
+                        }
+                    } else {
+                        socket.emit('partyError', 'Waiting for all alive party members to gather on the portal...');
+                    }
                 }
             }
         });
+
+        // ⚠️ ZONE WARNING CONFIRM: Handled client-side — client re-emits 'portalStep' with _confirmed: true
 
         socket.on('portalLeave', () => { const p = onlinePlayers[socket.id]; if (p) p.currentPortal = null; });
         // ==========================================
@@ -3501,7 +3647,7 @@ io.on('connection', (socket) => {
             if (data.alive) {
                 let myPetCount = Object.values(world.pets).filter(pet => pet.ownerId === p.id).length;
                 // 🛡️ THE FIX: Check if we are at the pet limit. But if it's an existing pet moving, let it sync!
-                if (myPetCount >= 3 && !world.pets[data.id]) return;
+                if (myPetCount >= 4 && !world.pets[data.id]) return; // 🐾 Raised to 4 for Minion support
 
                 // 🛡️ THE REAL FIX: Don't overwrite the pet if it already exists! Just update X and Y.
                 // This ensures the `enhancedUntil` buff and attack cooldowns are never deleted!
@@ -3514,7 +3660,9 @@ io.on('connection', (socket) => {
                         isClone: !!data.isClone,
                         isBigBoss: !!data.isBigBoss,
                         isDrone: !!data.isDrone, // ⚙️ FIX: Tell the server this is an untargetable drone!
-                        isGolemBuster: !!data.isGolemBuster
+                        isGolemBuster: !!data.isGolemBuster,
+                        isMinion: !!data.isMinion, // 🐾 Golden Slime Minion
+                        minionSkillId: data.minionSkillId || null
                     };
                 } else {
                     world.pets[data.id].x = data.x;
@@ -3580,9 +3728,16 @@ io.on('connection', (socket) => {
             let trueDmg = Math.floor(serverAtkPwr * (0.9 + Math.random() * 0.2));
 
             if (payload.skillId === 'tech1') {
-                trueDmg = Math.floor(getServerTotalStat(p, 'int') * 1.0);
+                let isCrit = Math.random() < 0.20;
+                trueDmg = Math.floor(getServerTotalStat(p, 'int') * (isCrit ? 2.0 : 1.0));
+                if (isCrit) {
+                    socket.emit('droneCritical', { monsterId: payload.monsterId });
+                }
             } else if (payload.skillId === 'pet' && payload.isGolemBuster) {
                 trueDmg = Math.floor(getServerMagicAttack(p) * 1.0);
+            } else if (payload.skillId === 'pet' && payload.isMinion) {
+                // 🐾 MINION: 1-100 pure damage (ignores defense entirely)
+                trueDmg = Math.floor(Math.random() * 100) + 1;
             }
             let pClass = p.baseStats?.playerClass;
             let hitCount = 1;
@@ -3727,10 +3882,15 @@ io.on('connection', (socket) => {
                     // 🟢 NORMAL SLIMES & 🥷 SHADOW CLONES: % Scaling
                     let multiplier = 0.25;
                     if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0;
-                    if (pet.isClone) multiplier = 2.0; // 🛡️ BUFF: Clones now deal 200% ATK!
+                    if (pet.isClone) multiplier = 2.5; // 🛡️ BUFFED: Clones now deal 250% ATK!
 
-                    let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
-                    trueDmg = Math.floor(sourceAtk * multiplier);
+                    if (pet.isMinion) {
+                        // 🐾 MINION PvE: 1-100 pure damage
+                        trueDmg = Math.floor(Math.random() * 100) + 1;
+                    } else {
+                        let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
+                        trueDmg = Math.floor(sourceAtk * multiplier);
+                    }
                 }
                 hitCount = 1;
             }
@@ -4281,12 +4441,13 @@ io.on('connection', (socket) => {
                                 });
 
                                 targetMob.respawnDelayMs = -1;
-                                io.emit('systemMessage', `[WORLD] ${p.mapId.toUpperCase()} Boss Defeated!`);
+                                io.emit('systemMessage', `[WORLD] ${floorId.toUpperCase()} Boss Defeated!`);
                                 // 🌟 THE MISSING LINK: Instantly push the 24-hour timer to the people currently in the room!
                                 io.to(p.instanceId).emit('bossCooldownActive', { remaining: 24 * 60 * 60 * 1000 });
 
                                 // 🌟 AUTOMATIC CLEANUP & SPAWN SCHEDULE 🌟
                                 const fullCooldown = 24 * 60 * 60 * 1000; // 24 Hours in milliseconds
+                                bossRespawnScheduled.add(floorId); // 🛡️ Prevent duplicate messages
 
                                 setTimeout(async () => {
                                     // Automatically delete from Supabase exactly 24h later
@@ -4301,11 +4462,13 @@ io.on('connection', (socket) => {
                                         const nm = spawnMonster(p.instanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
                                         worlds[p.instanceId].monsters[targetMob.id] = nm;
                                         io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
-                                        //🛑 THE FIX: Restrict to Floor Boss and use the clean map name!
-                                        if (targetMob.category === "floor_boss") {
-                                            io.emit('systemMessage', `The ${p.mapId.toUpperCase()} Boss has respawned!`);
+                                        //🛡️ FIXED: Only announce for valid floor maps, prevent duplicates
+                                        const safeRespawnMap = p.mapId;
+                                        if (safeRespawnMap && !['town', 'neutralzone', 'battlefield'].includes(safeRespawnMap) && targetMob.category === "floor_boss") {
+                                            io.emit('systemMessage', `The ${safeRespawnMap.toUpperCase()} Boss has respawned!`);
                                         }
                                     }
+                                    bossRespawnScheduled.delete(floorId);
                                 }, fullCooldown);
                             }
 
@@ -5770,7 +5933,13 @@ io.on('connection', (socket) => {
                 if (worlds[lateInstId]) {
                     socket.emit('monsterState', Object.values(worlds[lateInstId].monsters).map(serializeMonster));
                 }
-            }, 3000);
+            }, 5000);
+            // 🛡️ THIRD ATTEMPT: For slow mobile connections
+            setTimeout(() => {
+                if (worlds[lateInstId]) {
+                    socket.emit('monsterState', Object.values(worlds[lateInstId].monsters).map(serializeMonster));
+                }
+            }, 8000);
 
             supabase.from('Exonians').update({ map_id: p.mapId, pos_x: p.x, pos_y: p.y }).eq('character_name', currentUser).then(() => { });
 
@@ -7026,6 +7195,75 @@ io.on('connection', (socket) => {
             socket.emit('systemMessage', `Successfully embedded ${gem.name} into your ${targetAcc.name}!`);
             supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(() => { });
         });
+
+        // 🐾 MINION SYSTEM: Apply Minion to Weapon
+        socket.on('requestApplyMinion', (data) => {
+            const p = onlinePlayers[socket.id];
+            if (!p) return;
+
+            const minion = p.inventory[data.minionIndex];
+            const targetWeapon = p.inventory[data.targetIndex];
+
+            if (!minion || minion.type !== 'minion') return socket.emit('systemMessage', 'Invalid minion item.');
+            if (!targetWeapon || !['weapon', 'sword', 'staff', 'gun', 'dagger', 'pendant', 'touchpad'].includes(targetWeapon.type)) {
+                return socket.emit('systemMessage', 'You can only apply Minions to weapons!');
+            }
+            if (targetWeapon.minion) return socket.emit('systemMessage', 'This weapon already has a Minion attached! Extract it first.');
+
+            // Apply the minion to the weapon
+            targetWeapon.minion = {
+                name: minion.name,
+                sprite: minion.sprite || 'minion_golden_slime',
+                skillId: minion.skillId || null,
+                skillName: minion.skillName || null
+            };
+            targetWeapon.originalName = targetWeapon.originalName || targetWeapon.name;
+            targetWeapon.name = `${targetWeapon.name} [Golden Slime]`;
+
+            // Consume the minion item
+            minion.quantity = (minion.quantity || 1) - 1;
+            if (minion.quantity <= 0) p.inventory[data.minionIndex] = null;
+
+            socket.emit('syncInventory', p.inventory);
+            socket.emit('systemMessage', `Applied Golden Slime Minion to your weapon!`);
+
+            // Update if currently equipped
+            if (p.equips) {
+                for (let slot in p.equips) {
+                    if (p.equips[slot] && p.equips[slot].id === targetWeapon.id) {
+                        p.equips[slot] = targetWeapon;
+                        socket.emit('inventoryItemUsed', { inventory: p.inventory, equips: p.equips });
+                    }
+                }
+            }
+            supabase.from('Exonians').update({ inventory: p.inventory, equips: p.equips }).eq('character_name', p.id).then(() => { });
+        });
+
+        // 🎓 MINION SYSTEM: Apply Skill Treat to a Minion in Inventory
+        socket.on('requestApplySkillTreat', (data) => {
+            const p = onlinePlayers[socket.id];
+            if (!p) return;
+
+            const treat = p.inventory[data.treatIndex];
+            const targetMinion = p.inventory[data.targetIndex];
+
+            if (!treat || treat.type !== 'skilltreat') return socket.emit('systemMessage', 'Invalid Skill Treat.');
+            if (!targetMinion || targetMinion.type !== 'minion') return socket.emit('systemMessage', 'You can only use Skill Treats on Minion items!');
+            if (targetMinion.skillId) return socket.emit('systemMessage', 'This Minion already has a skill! It cannot be changed.');
+
+            // Teach the minion
+            targetMinion.skillId = treat.skillId;
+            targetMinion.skillName = treat.skillName;
+            targetMinion.description = `A loyal Golden Slime with ${treat.skillName}. Apply to a weapon to summon it in battle.`;
+
+            // Consume the treat
+            treat.quantity = (treat.quantity || 1) - 1;
+            if (treat.quantity <= 0) p.inventory[data.treatIndex] = null;
+
+            socket.emit('syncInventory', p.inventory);
+            socket.emit('systemMessage', `Your Minion learned ${treat.skillName}!`);
+            supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id).then(() => { });
+        });
         // 🛡️ SECURE AURA EXTRACTION (Optimized)
         socket.on('requestExtractAura', (data) => {
             const p = onlinePlayers[socket.id];
@@ -8128,10 +8366,15 @@ io.on('connection', (socket) => {
                     // 🟢 NORMAL SLIMES & 🥷 SHADOW CLONES PvP: % Scaling
                     let multiplier = 0.25;
                     if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0;
-                    if (pet.isClone) multiplier = 2.0; // 🛡️ BUFF: Clones now deal 200% ATK!
+                    if (pet.isClone) multiplier = 2.5; // 🛡️ BUFFED: Clones now deal 250% ATK!
 
-                    let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
-                    trueDmg = Math.floor(sourceAtk * multiplier);
+                    if (pet.isMinion) {
+                        // 🐾 MINION PvP: 1-100 pure damage
+                        trueDmg = Math.floor(Math.random() * 100) + 1;
+                    } else {
+                        let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
+                        trueDmg = Math.floor(sourceAtk * multiplier);
+                    }
                 }
                 hitCount = 1;
             }
