@@ -8685,11 +8685,11 @@ window.executeCloseGame = function() {
         const dist = Math.hypot(dx, dy);
         
         if (dist > 80) {
-            minion.x += (dx / dist) * 3;
-            minion.y += (dy / dist) * 3;
+            minion.x += (dx / dist) * 12;
+            minion.y += (dy / dist) * 12;
         } else if (dist > 30) {
-            minion.x += (dx / dist) * 1.5;
-            minion.y += (dy / dist) * 1.5;
+            minion.x += (dx / dist) * 6;
+            minion.y += (dy / dist) * 6;
         }
         
         // Update DOM position
@@ -8697,10 +8697,25 @@ window.executeCloseGame = function() {
             minion.dom.style.left = (minion.x - (game.camera?.x || 0)) + 'px';
             minion.dom.style.top = (minion.y - (game.camera?.y || 0)) + 'px';
         }
+
+        // Sync position to server (throttle to every 500ms)
+        const now = Date.now();
+        if (!minion.lastSyncTs || now - minion.lastSyncTs > 500) {
+            minion.lastSyncTs = now;
+            if (socket) {
+                socket.emit('syncPet', {
+                    id: minion.id,
+                    x: Math.round(minion.x), 
+                    y: Math.round(minion.y),
+                    alive: true,
+                    isMinion: true,
+                    minionSkillId: minion.skillId
+                });
+            }
+        }
         
         // Attack nearest monster (every 1.5 seconds)
-        const now = Date.now();
-        if (now - minion.lastAttackTs < 1500) return;
+        if (now - (minion.lastAttackTs || 0) < 1500) return;
         
         if (!game.monsters || game.monsters.length === 0) return;
         
@@ -8730,15 +8745,6 @@ window.executeCloseGame = function() {
                 petId: minion.id,
                 isMinion: true
             });
-            
-            // Sync position
-            socket.emit('syncPet', {
-                id: minion.id,
-                x: minion.x, y: minion.y,
-                alive: true,
-                isMinion: true,
-                minionSkillId: minion.skillId
-            });
         }
-    }, 200);
+    }, 50);
 })();
