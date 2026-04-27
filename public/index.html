@@ -166,6 +166,34 @@
     <option value="aura_void">Void Pet</option>
 </select><button class="btn selected" onclick="window.adminGiveCustomItem()">Spawn</button></div></div>
 
+<div class="panel-section" style="padding:10px; border-color:#FFD700;">
+    <h4 style="color:#FFD700">🐾 Minion & Skill Treats</h4>
+    <div class="admin-tool-row">
+        <button class="btn" style="background:#FFD700; color:#000; font-weight:bold; flex:1;" onclick="window.adminSpawnMinion()">Spawn Golden Slime Minion</button>
+    </div>
+    <div class="admin-tool-row" style="margin-top:10px;">
+        <select id="admin-skilltreat-select" style="width:100%; padding:5px; margin-bottom:5px;">
+            <option value="heal1">Holy Light (Healer)</option>
+            <option value="heal3">Purification (Healer)</option>
+            <option value="ice1">Icicle Spear (Ice Master)</option>
+            <option value="ice3">Icicle Storm (Ice Master)</option>
+            <option value="ber1">Callout! (Berserker)</option>
+            <option value="ber3">Immortal (Berserker)</option>
+            <option value="bld2">Parry (Blademaster)</option>
+            <option value="bld3">Mega Slash (Blademaster)</option>
+            <option value="snp2">Silver Bullet (Sniper)</option>
+            <option value="snp3">Killshot (Sniper)</option>
+            <option value="exp1">Molotov (Explosives Expert)</option>
+            <option value="exp3">Go Boom! (Explosives Expert)</option>
+            <option value="phs1">Shadow Step (Phantom Striker)</option>
+            <option value="phs3">Blink Stab (Phantom Striker)</option>
+            <option value="nin1">Smoke Bomb (Ninja Assassin)</option>
+            <option value="tech2">Gamma Shield (Tech Genius)</option>
+        </select>
+        <button class="btn" style="background:#E040FB; border-color:#9c27b0; flex:1; color:#fff; font-weight:bold;" onclick="window.adminSpawnSkillTreat()">Spawn Skill Treat</button>
+    </div>
+</div>
+
 <div class="panel-section" style="padding:10px; border-color:#E040FB;">
     <h4 style="color:#E040FB">Raid Control</h4>
     <div class="admin-tool-row">
