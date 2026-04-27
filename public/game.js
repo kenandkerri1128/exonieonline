@@ -8717,12 +8717,13 @@ window.executeCloseGame = function() {
         // Attack nearest monster (every 1.5 seconds)
         if (now - (minion.lastAttackTs || 0) < 1500) return;
         
-        if (!game.monsters || game.monsters.length === 0) return;
+        if (!game.monsters || Object.keys(game.monsters).length === 0) return;
         
         let nearestMob = null;
         let nearestDist = 200; // Attack range
         
-        for (let m of game.monsters) {
+        for (let mId in game.monsters) {
+            let m = game.monsters[mId];
             if (!m.alive) continue;
             const md = Math.hypot(minion.x - (m.x + m.width / 2), minion.y - (m.y + m.height / 2));
             if (md < nearestDist) {
