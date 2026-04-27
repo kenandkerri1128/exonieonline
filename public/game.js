@@ -1,4 +1,27 @@
 // ==========================================
+// 🚨 GLOBAL ERROR HANDLER: Prevents black screens from uncaught errors
+// ==========================================
+window.onerror = function(msg, src, line, col, err) {
+    console.error('[EXONIE ERROR]', msg, src, line, col, err);
+    try {
+        const ls = document.getElementById('loading-screen');
+        if (ls) ls.style.display = 'none';
+        window.isLoading = false;
+        window.isTransitioning = false;
+        const log = document.getElementById('log');
+        if (log) log.innerText = 'An error occurred. If the screen is stuck, press ESC and click Close Game.';
+    } catch(e) {}
+};
+window.addEventListener('unhandledrejection', function(event) {
+    console.error('[EXONIE PROMISE ERROR]', event.reason);
+    try {
+        const ls = document.getElementById('loading-screen');
+        if (ls) ls.style.display = 'none';
+        window.isLoading = false;
+        window.isTransitioning = false;
+    } catch(e) {}
+});
+// ==========================================
 // 📱 FORCE LANDSCAPE FULLSCREEN ON MOBILE
 // ==========================================
 if (!window.__exonie_landscape_init) {
@@ -2752,7 +2775,28 @@ window.getItemTooltip = function(item) {
     if(item.type === 'material') return html + `<span style="color:#aaa;"><em>${item.description}</em></span>`; 
 if(item.type === 'gem') return html + `<span style="color:#00ffff;"><em>${item.description}</em></span><br>`;
     if(item.type === 'potion') return html + `Heals 100 HP`; 
-    if(item.type === 'consumable') return html + `<span style="color:#ffeb3b;"><em>${item.description}</em></span>`;
+    
+    // u{1F43E} MINION ITEM TOOLTIP
+    if(item.type === 'minion') {
+        html += `<span style="color:#FFD700;"><em>${item.description || 'A Golden Slime Minion.'}</em></span><br>`;
+        if (item.skillName) {
+            html += `<span style="color:#E040FB; font-weight:bold;">⚡ Skill: ${item.skillName}</span><br>`;
+        } else {
+            html += `<span style="color:#888;">u{1F4A4} No skill learned yet</span><br>`;
+        }
+        html += `<span style="color:#aaa;">u{1F4A5} DMG: 1-100 (Pure)</span><br>`;
+        html += `<span style="color:#4CAF50;">[TRADEABLE]</span>`;
+        return html;
+    }
+
+    // u{1F393} SKILL TREAT TOOLTIP
+    if(item.type === 'skilltreat') {
+        html += `<span style="color:#E040FB;"><em>${item.description || 'Teaches a skill to a Minion.'}</em></span><br>`;
+        html += `<span style="color:#FFD700; font-weight:bold;">u{1F4DC} ${item.skillName} (${item.className})</span><br>`;
+        html += `<span style="color:#4CAF50;">[TRADEABLE]</span>`;
+        return html;
+    }
+    if(item.type === 'consumable') return html + `<span style="color:#ffeb3b;"><em>${item.description}</em></span>`;
 
     // 💎 THE FIX: Visual indicator for Power Gem Sockets
     if (['necklace', 'ring', 'earrings'].includes(item.type)) {
@@ -2768,7 +2812,16 @@ if(item.type === 'gem') return html + `<span style="color:#00ffff;"><em>${item.d
     }
 
     if(item.fixedStat) { for(let key in item.fixedStat) html += `+${item.fixedStat[key]} ${key.toUpperCase()}<br>`; }
-    if(item.randomStat) { for(let key in item.randomStat) html += `<span style="color:#4CAF50;">+${item.randomStat[key]} ${key.toUpperCase()} (Bonus)</span><br>`; } 
+        // u{1F43E} WEAPON MINION INFO
+    if(item.minion) {
+        html += `<br><span style="color:#FFD700; font-weight:bold;">u{1F43E} Minion: ${item.minion.name || 'Golden Slime'}</span><br>`;
+        if (item.minion.skillName) {
+            html += `<span style="color:#E040FB;">⚡ Skill: ${item.minion.skillName}</span><br>`;
+        } else {
+            html += `<span style="color:#888;">u{1F4A4} No skill</span><br>`;
+        }
+    }
+        if(item.randomStat) { for(let key in item.randomStat) html += `<span style="color:#4CAF50;">+${item.randomStat[key]} ${key.toUpperCase()} (Bonus)</span><br>`; } 
     return html; 
 }
 
@@ -2867,6 +2920,26 @@ window.renderInventory = function() {
                 slot.style.border = "1px dashed #E040FB";
                 slot.onclick = (e) => window.openForgerStatSelect(i, e);
             }
+            // 🐾 MINION: Select weapon target
+            else if (window.isApplyingMinion) {
+                slot.style.border = "1px dashed #FFD700";
+                slot.onclick = (e) => {
+                    e.stopPropagation();
+                    if (socket) socket.emit('requestApplyMinion', { minionIndex: activeInvIndex, targetIndex: i });
+                    window.isApplyingMinion = false;
+                    window.renderInventory();
+                };
+            }
+            // 🎓 SKILL TREAT: Select minion target
+            else if (window.isApplyingSkillTreat) {
+                slot.style.border = "1px dashed #E040FB";
+                slot.onclick = (e) => {
+                    e.stopPropagation();
+                    if (socket) socket.emit('requestApplySkillTreat', { treatIndex: activeInvIndex, targetIndex: i });
+                    window.isApplyingSkillTreat = false;
+                    window.renderInventory();
+                };
+            }
             else { 
                 slot.style.borderBottom = `3px solid ${item.color || '#fff'}`; 
                 slot.onclick = (e) => {
@@ -2910,6 +2983,10 @@ window.openItemAction = function(index, e) {
         document.getElementById('ctx-btn-equip').innerText = "Socket Gem";
         window.isApplyingAura = true; // Reusing the aura selection border logic
         dom.log.innerText = `Select an Accessory (Necklace, Ring, Earrings) to socket the gem!`;
+    } else if (item.type === 'minion') {
+        document.getElementById('ctx-btn-equip').innerText = "Apply to Weapon";
+    } else if (item.type === 'skilltreat') {
+        document.getElementById('ctx-btn-equip').innerText = "Apply to Minion";
     } else {
         document.getElementById('ctx-btn-equip').innerText = (item.type === 'potion' || item.type === 'consumable') ? "Use" : (item.type === 'material' ? "Enhance" : (item.type === 'aura' ? (isPet ? "Equip Pet" : "Apply Aura") : (item.type === 'forger' ? "Use Forger" : "Equip")));
     }
@@ -3006,6 +3083,18 @@ window.actionEquip = function(e) {
         dom.log.innerText = `Select an equipment piece to reroll its stats!`;
         window.renderInventory();
         
+    // 🐾 MINION: Enter weapon-selection mode
+    } else if (item.type === 'minion') {
+        window.isApplyingMinion = true;
+        dom.log.innerText = `Select a Weapon to apply the Minion!`;
+        window.renderInventory();
+
+    // 🎓 SKILL TREAT: Enter minion-selection mode
+    } else if (item.type === 'skilltreat') {
+        window.isApplyingSkillTreat = true;
+        dom.log.innerText = `Select a Minion item to teach it this skill!`;
+        window.renderInventory();
+
     } else { 
         window.useItem(activeInvIndex); 
     } 
@@ -3744,7 +3833,7 @@ window.addEventListener('keydown', (e) => {
         if (e.key !== 'Enter' && e.key !== 'Escape') return; 
     }
     // SETTINGS MENU: ESC key toggles settings on desktop
-    if (e.key === 'Escape') { e.preventDefault(); window.toggleSettingsMenu(); return; }
+    if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); window.toggleSettingsMenu(); return; }
     if (e.key === 'Enter') { 
         if (dom.game.classList.contains('active')) {
             if (isChatting) { 
@@ -3797,9 +3886,7 @@ function setKeyState(e, isDown) {
                 dom.world.classList.toggle('admin-active', window.adminMode); 
                 if(dom.log) dom.log.innerText = window.adminMode ? "Admin Mode ON" : "Admin Mode OFF"; 
                 if(typeof window.buildCollisionLayers === 'function') window.buildCollisionLayers(); 
-            } else { 
-                if(dom.log) dom.log.innerText = "null"; 
-            } 
+            } // Non-admins: silently ignored 
         } 
         if (key === '3') {
             if (!window.isLoading && !window.adminMode && typeof window.usePotionHotkey === 'function') window.usePotionHotkey();
@@ -4093,6 +4180,17 @@ let targetMapId = 'town';
                         }
                         window.isLoading = false;
                         window.isTransitioning = false;
+
+                        // 🛡️ LOADING SCREEN SAFETY TIMEOUT: Force-remove after 15 seconds
+                        window.__loadSafetyTimer = setTimeout(() => {
+                            const ls = document.getElementById('loading-screen');
+                            if (ls && ls.style.display !== 'none') {
+                                ls.style.display = 'none';
+                                window.isLoading = false;
+                                window.isTransitioning = false;
+                                console.warn('[SAFETY] Loading screen force-removed after 15s timeout.');
+                            }
+                        }, 15000);
                         dom.game.classList.add('active');
                     game.isRunning = true;
                     
@@ -4106,7 +4204,7 @@ let targetMapId = 'town';
 
                     // 🎥 TUTORIAL CHECK: Play video OR play normal BGM
                     if (game.player.baseStats && !game.player.baseStats.watchedTutorial) {
-                        window.playTutorialVideo();
+                        window.playTutorialVideo(false); // false = non-skippable first login
                     } else {
                         // Make sure the game screen is already visible before showing Town UI + BGM
                         setTimeout(() => {
@@ -4622,6 +4720,15 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
 window.playBGM(window.routeMapMusic ? window.routeMapMusic(tp.mapId) : nextTrack);
 window.showMapAnnouncement(tp.mapId);
 
+// 🐾 MINION: Spawn or despawn based on new map
+if (typeof window.spawnMinion === 'function') {
+    if (tp.mapId === 'town') {
+        window.despawnMinion();
+    } else {
+        setTimeout(() => window.spawnMinion(), 1000);
+    }
+}
+
 if (tp.spectateTarget) {
     window.isSpectating = true;
     window.spectateTargetId = tp.spectateTarget;
@@ -4678,6 +4785,19 @@ if (tp.spectateTarget) {
         }
     });
 });
+
+    // ⚠️ ZONE ENTRY WARNING: Server asks client to confirm before entering dangerous zones
+    socket.on('confirmPortalEntry', (data) => {
+        if (confirm(data.message)) {
+            // Player confirmed — re-send portalStep with _confirmed flag
+            socket.emit('portalStep', {
+                portalId: data.portalId,
+                targetMapId: data.targetMapId,
+                _confirmed: true
+            });
+        }
+    });
+
     socket.on('teleportApproved', (tp) => { 
     window.isTransitioning = true; // 🛡️ NETWORK LOCK: Ignore old map data
         let nextMapId = tp.targetMapId || 'town'; 
@@ -6557,6 +6677,19 @@ socket.on('applyGammaShield', (data) => {
         }
     });
 
+    // ⚡ GADGET DRONE CRITICAL: Red Laser VFX
+    socket.on('droneCritical', (data) => {
+        const mob = game.monsters.find(m => m.id === data.monsterId);
+        if (mob) {
+            // Create a brief red flash effect
+            const flash = document.createElement('div');
+            flash.style.cssText = `position:absolute; left:${mob.x - game.camera.x}px; top:${mob.y - game.camera.y - 20}px; color:#ff1744; font-weight:bold; font-size:16px; font-family:sans-serif; text-shadow: 0 0 8px #ff0000; z-index:9999; pointer-events:none;`;
+            flash.innerText = '⚡ CRITICAL!';
+            document.getElementById('world').appendChild(flash);
+            setTimeout(() => flash.remove(), 800);
+        }
+    });
+
     socket.on('attackEvaded', (data) => {
         let msg = data.type === 'dodge' ? "DODGE!" : (data.type === 'parry' ? "PARRY!" : "MISS");
         let color = data.type === 'dodge' ? "#00E5FF" : (data.type === 'parry' ? "#ffeb3b" : "#aaaaaa");
@@ -6729,7 +6862,8 @@ window.addEventListener('keydown', (e) => {
     }
 });
 // 🎥 DYNAMIC TUTORIAL VIDEO PLAYER (CRASH-FREE VERSION)
-window.playTutorialVideo = function() {
+window.playTutorialVideo = function(allowSkip) {
+    if (typeof allowSkip === 'undefined') allowSkip = true; // Default: skippable when re-watching from Settings
     // 🔇 1. Stop background music immediately
     if (typeof currentBGM !== 'undefined' && currentBGM) {
         currentBGM.pause();
@@ -6771,7 +6905,10 @@ window.playTutorialVideo = function() {
                 
                 const skipBtn = document.createElement('button');
                 skipBtn.innerText = 'SKIP / CLOSE TUTORIAL';
+                skipBtn.id = 'tutorial-skip-btn';
                 skipBtn.style.cssText = 'margin-top:20px; padding:12px 24px; background:#f44336; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold; font-size:16px; box-shadow:0 0 10px red; text-transform: uppercase;';
+                // 🛡️ NON-SKIPPABLE: Hide skip button for first-time logins
+                if (!allowSkip) skipBtn.style.display = 'none';
                 
                 const closeTutorial = () => {
                     vid.pause();
@@ -8298,6 +8435,7 @@ window.toggleSettingsMenu = function() {
 
 // Full Screen Toggle (PC Only)
 window.toggleFullScreen = function() {
+    window._userToggledFS = true; // 🛡️ Mark that the user initiated this toggle
     if (window.electronAPI) {
         window.electronAPI.toggleFullScreen();
     } else {
@@ -8316,6 +8454,14 @@ window.toggleFullScreen = function() {
         }, 500);
     }
 };
+
+// 🛡️ FULLSCREEN PROTECTION: Re-enter fullscreen if ESC accidentally triggered the browser's exit
+document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && !window._userToggledFS && !window.electronAPI) {
+        document.documentElement.requestFullscreen().catch(() => {});
+    }
+    window._userToggledFS = false;
+});
 
 if (window.electronAPI) {
     window.electronAPI.onFsChanged((isFS) => {
@@ -8382,20 +8528,191 @@ window.executeCloseGame = function() {
     // Stop all audio
     if (window.currentBGM) { window.currentBGM.pause(); window.currentBGM.currentTime = 0; }
     
-    // Return to auth screen (stays inside the game)
-    const gameScreen = document.getElementById('game-screen');
-    const authScreen = document.getElementById('auth-screen');
+    // 🛡️ KILL THE GAME PROCESS (not just return to login)
     const confirmModal = document.getElementById('close-game-confirm');
-    
-    if (gameScreen) gameScreen.classList.remove('active');
-    if (authScreen) authScreen.classList.add('active');
     if (confirmModal) confirmModal.style.display = 'none';
     
-    // Reset HUD state
-    const hudElements = ['inventory-screen', 'stat-screen', 'skill-screen', 'friends-screen', 
-                         'shop-screen', 'mailbox-screen', 'trade-screen', 'inspect-screen'];
-    hudElements.forEach(function(id) {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-    });
+    // Try native close first (works on Electron which triggers app.quit())
+    window.close();
+    
+    // Capacitor mobile fallback
+    if (navigator.app && navigator.app.exitApp) {
+        navigator.app.exitApp();
+    }
+    
+    // If window.close() doesn't work (some browsers), fall back to login
+    setTimeout(() => {
+        const gameScreen = document.getElementById('game-screen');
+        const authScreen = document.getElementById('auth-screen');
+        if (gameScreen) gameScreen.classList.remove('active');
+        if (authScreen) authScreen.classList.add('active');
+    }, 500);
 };
+
+// ==========================================
+// 🐾 MINION SYSTEM: Client-Side Golden Slime
+// ==========================================
+(function() {
+    // Inject minion CSS
+    const minionCSS = document.createElement('style');
+    minionCSS.innerHTML = `
+        .minion-golden-slime {
+            position: absolute; width: 32px; height: 32px;
+            background: radial-gradient(circle, #FFD700 40%, #FFA000 80%, #FF6F00);
+            border-radius: 50% 50% 45% 45%;
+            box-shadow: 0 0 12px #FFD700, 0 0 25px rgba(255,215,0,0.4);
+            z-index: 500; cursor: pointer;
+            transition: left 0.2s linear, top 0.2s linear;
+            animation: minionBounce 0.8s ease-in-out infinite;
+        }
+        .minion-golden-slime::after {
+            content: ''; position: absolute;
+            top: 8px; left: 8px;
+            width: 6px; height: 6px;
+            background: white; border-radius: 50%;
+            box-shadow: 10px 0 0 white;
+        }
+        @keyframes minionBounce {
+            0%, 100% { transform: translateY(0) scaleY(1); }
+            50% { transform: translateY(-4px) scaleY(0.92); }
+        }
+        .minion-tooltip {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.85); color: #FFD700; border: 1px solid #FFD700;
+            border-radius: 6px; padding: 6px 10px; font-size: 11px; font-family: sans-serif;
+            white-space: nowrap; pointer-events: none; z-index: 9999;
+            box-shadow: 0 0 10px rgba(255,215,0,0.3); display: none;
+        }
+        .minion-golden-slime:hover .minion-tooltip { display: block; }
+    `;
+    document.head.appendChild(minionCSS);
+
+    window._activeMinion = null;
+
+    // 🐾 Spawn minion when entering a map (called after teleport)
+    window.spawnMinion = function() {
+        // Remove any existing minion
+        window.despawnMinion();
+
+        // Check if the player's weapon has a minion
+        const weapon = game.player.equips?.weapon;
+        if (!weapon || !weapon.minion) return;
+        
+        // Don't spawn in town
+        const currentMap = (typeof safeMapData !== 'undefined' && safeMapData.id) ? safeMapData.id : 'town';
+        if (currentMap === 'town') return;
+
+        const minionData = weapon.minion;
+        const minionId = 'minion_' + Date.now();
+        
+        // Create DOM element
+        const el = document.createElement('div');
+        el.className = 'minion-golden-slime';
+        el.style.left = game.player.x + 'px';
+        el.style.top = game.player.y + 'px';
+        
+        // Tooltip with skill info
+        const tooltip = document.createElement('div');
+        tooltip.className = 'minion-tooltip';
+        tooltip.innerHTML = `🐾 ${minionData.name || 'Golden Slime'}<br>` +
+            (minionData.skillName ? `⚡ Skill: ${minionData.skillName}` : '💤 No skill learned') +
+            `<br>💥 DMG: 1-100 (Pure)`;
+        el.appendChild(tooltip);
+        
+        document.getElementById('world').appendChild(el);
+        
+        const minion = {
+            id: minionId,
+            dom: el,
+            x: game.player.x,
+            y: game.player.y,
+            skillId: minionData.skillId,
+            skillName: minionData.skillName,
+            lastAttackTs: 0
+        };
+        
+        window._activeMinion = minion;
+        
+        // Sync with server
+        if (socket) socket.emit('syncPet', {
+            id: minionId,
+            x: minion.x, y: minion.y,
+            alive: true,
+            isMinion: true,
+            minionSkillId: minionData.skillId
+        });
+    };
+
+    window.despawnMinion = function() {
+        if (window._activeMinion) {
+            if (window._activeMinion.dom) window._activeMinion.dom.remove();
+            if (socket) socket.emit('syncPet', { id: window._activeMinion.id, alive: false });
+            window._activeMinion = null;
+        }
+    };
+
+    // 🐾 Minion AI Loop: Follow player, attack nearest monster
+    setInterval(() => {
+        const minion = window._activeMinion;
+        if (!minion || !game.isRunning || game.isGhost) return;
+        
+        const px = game.player.x;
+        const py = game.player.y;
+        
+        // Follow player (stay within 80px)
+        const dx = px - minion.x;
+        const dy = py - minion.y;
+        const dist = Math.hypot(dx, dy);
+        
+        if (dist > 80) {
+            minion.x += (dx / dist) * 3;
+            minion.y += (dy / dist) * 3;
+        } else if (dist > 30) {
+            minion.x += (dx / dist) * 1.5;
+            minion.y += (dy / dist) * 1.5;
+        }
+        
+        // Update DOM position
+        if (minion.dom) {
+            minion.dom.style.left = (minion.x - (game.camera?.x || 0)) + 'px';
+            minion.dom.style.top = (minion.y - (game.camera?.y || 0)) + 'px';
+        }
+        
+        // Attack nearest monster (every 1.5 seconds)
+        const now = Date.now();
+        if (now - minion.lastAttackTs < 1500) return;
+        
+        if (!game.monsters || game.monsters.length === 0) return;
+        
+        let nearestMob = null;
+        let nearestDist = 200; // Attack range
+        
+        for (let m of game.monsters) {
+            if (!m.alive) continue;
+            const md = Math.hypot(minion.x - (m.x + m.width / 2), minion.y - (m.y + m.height / 2));
+            if (md < nearestDist) {
+                nearestDist = md;
+                nearestMob = m;
+            }
+        }
+        
+        if (nearestMob && socket) {
+            minion.lastAttackTs = now;
+            socket.emit('attackMonster', {
+                monsterId: nearestMob.id,
+                skillId: 'pet',
+                petId: minion.id,
+                isMinion: true
+            });
+            
+            // Sync position
+            socket.emit('syncPet', {
+                id: minion.id,
+                x: minion.x, y: minion.y,
+                alive: true,
+                isMinion: true,
+                minionSkillId: minion.skillId
+            });
+        }
+    }, 200);
+})();
