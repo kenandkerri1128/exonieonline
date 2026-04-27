@@ -8730,18 +8730,43 @@ window.executeCloseGame = function() {
             }
         }
 
+        let nearestMob = null;
+        let nearestDist = 400; // Aggro range
+
+        if (game.monsters && Object.keys(game.monsters).length > 0) {
+            for (let mId in game.monsters) {
+                let m = game.monsters[mId];
+                if (!m.alive) continue;
+                const md = Math.hypot(minion.x - (m.x + m.width / 2), minion.y - (m.y + m.height / 2));
+                if (md < nearestDist) {
+                    nearestDist = md;
+                    nearestMob = m;
+                }
+            }
+        }
+
         const px = game.player.x;
         const py = game.player.y;
         
-        // Follow player (stay within 80px)
-        const dx = px - minion.x;
-        const dy = py - minion.y;
+        // 🐾 MOVEMENT LOGIC: Chase monster if in range, otherwise follow player
+        let targetX = px;
+        let targetY = py;
+        let stopDist = 80;
+
+        if (nearestMob) {
+            targetX = nearestMob.x + (nearestMob.width / 2);
+            targetY = nearestMob.y + (nearestMob.height / 2);
+            stopDist = 40; // Get close to attack
+        }
+
+        const dx = targetX - minion.x;
+        const dy = targetY - minion.y;
         const dist = Math.hypot(dx, dy);
         
-        if (dist > 80) {
+        if (dist > stopDist) {
             minion.x += (dx / dist) * 12;
             minion.y += (dy / dist) * 12;
-        } else if (dist > 30) {
+        } else if (dist > stopDist / 2 && !nearestMob) {
             minion.x += (dx / dist) * 6;
             minion.y += (dy / dist) * 6;
         }
@@ -8757,12 +8782,8 @@ window.executeCloseGame = function() {
             minion.lastSyncTs = now;
             if (socket) {
                 socket.emit('syncPet', {
-                    id: minion.id,
-                    x: Math.round(minion.x), 
-                    y: Math.round(minion.y),
-                    alive: true,
-                    isMinion: true,
-                    minionSkillId: minion.skillId
+                    id: minion.id, x: Math.round(minion.x), y: Math.round(minion.y), 
+                    alive: true, isMinion: true, minionSkillId: minion.skillId
                 });
             }
         }
@@ -8770,22 +8791,8 @@ window.executeCloseGame = function() {
         // Attack nearest monster (every 1.5 seconds)
         if (now - (minion.lastAttackTs || 0) < 1500) return;
         
-        if (!game.monsters || Object.keys(game.monsters).length === 0) return;
-        
-        let nearestMob = null;
-        let nearestDist = 200; // Attack range
-        
-        for (let mId in game.monsters) {
-            let m = game.monsters[mId];
-            if (!m.alive) continue;
-            const md = Math.hypot(minion.x - (m.x + m.width / 2), minion.y - (m.y + m.height / 2));
-            if (md < nearestDist) {
-                nearestDist = md;
-                nearestMob = m;
-            }
-        }
-        
-        if (nearestMob && socket) {
+        // Only attack if within actual attack range (150px)
+        if (nearestMob && nearestDist <= 150 && socket) {
             minion.lastAttackTs = now;
             
             let castSkill = 'pet';
