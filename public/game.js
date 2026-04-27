@@ -2991,8 +2991,12 @@ window.openItemAction = function(index, e) {
         document.getElementById('ctx-btn-equip').innerText = (item.type === 'potion' || item.type === 'consumable') ? "Use" : (item.type === 'material' ? "Enhance" : (item.type === 'aura' ? (isPet ? "Equip Pet" : "Apply Aura") : (item.type === 'forger' ? "Use Forger" : "Equip")));
     }
     document.getElementById('ctx-btn-sell').style.display = isShopping ? 'block' : 'none';
-    document.getElementById('ctx-btn-extract-aura').style.display = ((item.type === 'armor' || item.type === 'leggings') && item.aura) ? 'block' : 'none';
-    
+    const canExtractAura = (item.type === 'armor' || item.type === 'leggings') && item.aura;
+    const canExtractMinion = item.type === 'weapon' && item.minion;
+    const extractBtn = document.getElementById('ctx-btn-extract-aura');
+    extractBtn.style.display = (canExtractAura || canExtractMinion) ? 'block' : 'none';
+    if (canExtractMinion) extractBtn.innerText = "Extract Minion";
+    else if (canExtractAura) extractBtn.innerText = "Extract Aura/Pet";
     // Show Split button only if there is a stack
     document.getElementById('ctx-btn-split').style.display = (item.quantity && item.quantity > 1) ? 'block' : 'none';
 
@@ -4179,8 +4183,11 @@ let targetMapId = 'town';
                         socket.off('requestMapSync');
                         socket.on('requestMapSync', (req) => {
                             window.loadMapScript(req.mapId, () => {
-                                let mapPayload = Object.assign({}, window.MapDatabase[req.mapId], { instanceId: req.instanceId });
+                                safeMapData = window.MapDatabase[req.mapId] || {};
+                                safeMapData.id = req.mapId;
+                                let mapPayload = Object.assign({}, safeMapData, { instanceId: req.instanceId });
                                 socket.emit('syncMapData', mapPayload);
+                                if (typeof window.spawnMinion === 'function') window.spawnMinion();
                             });
                         });
                     } catch (renderErr) { console.error("Render crash caught, bypassing:", renderErr); }
@@ -4191,6 +4198,7 @@ let targetMapId = 'town';
                         }
                         window.isLoading = false;
                         window.isTransitioning = false;
+                        if (typeof window.spawnMinion === 'function') window.spawnMinion();
 
                         // 🛡️ LOADING SCREEN SAFETY TIMEOUT: Force-remove after 15 seconds
                         window.__loadSafetyTimer = setTimeout(() => {
@@ -4350,6 +4358,7 @@ socket.on('mailList', (mails) => {
             game.player.equips = data.equips;
             if (typeof window.updateEquipmentDisplay === 'function') window.updateEquipmentDisplay();
             if (typeof window.updateSkillMenu === 'function') window.updateSkillMenu();
+            if (typeof window.spawnMinion === 'function') window.spawnMinion();
         }
 
         if (data.classReset) {
@@ -8709,9 +8718,15 @@ window.executeCloseGame = function() {
         
         if (nearestMob && socket) {
             minion.lastAttackTs = now;
+            
+            let castSkill = 'pet';
+            if (minion.skillId && Math.random() < 0.20) {
+                castSkill = minion.skillId;
+            }
+
             socket.emit('attackMonster', {
                 monsterId: nearestMob.id,
-                skillId: 'pet',
+                skillId: castSkill,
                 petId: minion.id,
                 isMinion: true
             });
