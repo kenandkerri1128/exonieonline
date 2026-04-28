@@ -3905,7 +3905,8 @@ io.on('connection', (socket) => {
                 p.skillCooldowns['phs3'] = now + getReducedCd(p, 30000);
 
             } else if (payload.skillId === 'fox_bite') {
-                trueDmg = 100;
+                let petType = p.equips?.leggings?.aura;
+                trueDmg = (petType === 'wisp') ? 100 : 500;
             } else if (payload.skillId === 'bld3') {
                 if (pClass !== 'Blademaster') return;
                 if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && !isAdmin(p.id)) return;
@@ -4053,7 +4054,7 @@ io.on('connection', (socket) => {
                 setTimeout(() => {
                     targets.forEach(targetMob => {
                         if (!targetMob.alive) return;
-                        const dmg = Math.max(1, trueDmg - (targetMob.def || 0));
+                        const dmg = payload.skillId === 'fox_bite' ? trueDmg : Math.max(1, trueDmg - (targetMob.def || 0));
                         targetMob.currentHp -= dmg; if (targetMob.currentHp < 0) targetMob.currentHp = 0;
                         targetMob.threatTable[p.id] = (targetMob.threatTable[p.id] || 0) + dmg;
 
@@ -8549,7 +8550,8 @@ io.on('connection', (socket) => {
                 p.skillCooldowns['phs3'] = now + getReducedCd(p, 30000);
 
             } else if (payload.skillId === 'fox_bite') {
-                trueDmg = 100;
+                let petType = p.equips?.leggings?.aura;
+                trueDmg = (petType === 'wisp') ? 100 : 500;
             } else if (payload.skillId === 'bld3') {
                 if (pClass !== 'Blademaster') return;
                 if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && !isAdmin(p.id)) return;
@@ -8645,7 +8647,7 @@ io.on('connection', (socket) => {
                 setTimeout(() => {
                     targetPlayers.forEach(tp => {
                         if (tp.isGhost || tp.mapId !== 'neutralzone') return;
-                        let dmg = payload.skillId === 'fox_bite' ? 100 : Math.max(1, trueDmg - getServerDefense(tp));
+                        let dmg = payload.skillId === 'fox_bite' ? trueDmg : Math.max(1, trueDmg - getServerDefense(tp));
 
                         // 🛡️ GAMMA SHIELD ABSORPTION (PvP)
                         if (tp.gammaShield && tp.gammaShield.hp > 0) {
