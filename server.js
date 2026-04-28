@@ -2709,7 +2709,7 @@ io.on('connection', (socket) => {
                         }
                     }
                 }
-                
+
                 // 🛡️ GAMMA SHIELD: Re-shield retry for late-syncing pets (e.g. Golem Busters)
                 const retryShieldPid = pid;
                 const retryShieldHp = shieldHp;
@@ -3714,7 +3714,7 @@ io.on('connection', (socket) => {
             const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return;
             if (p.mapId === 'town') return;
             const now = Date.now();
-            
+
             // 🐾 MINION DEBUG LOG (temporary)
             if (payload.isMinion) {
                 const world = worlds[p.instanceId];
@@ -3785,9 +3785,9 @@ io.on('connection', (socket) => {
                 isMinionSkill = true;
                 const skillObj = MINION_ELIGIBLE_SKILLS.find(s => s.id === payload.skillId);
                 if (skillObj) {
-                    pClass = skillObj.className; 
+                    pClass = skillObj.className;
                     originalCooldown = p.skillCooldowns[payload.skillId] || 0;
-                    p.skillCooldowns[payload.skillId] = 0; 
+                    p.skillCooldowns[payload.skillId] = 0;
                 }
             }
 
@@ -3893,7 +3893,7 @@ io.on('connection', (socket) => {
                 p.skillCooldowns['phs3'] = now + getReducedCd(p, 30000);
 
             } else if (payload.skillId === 'fox_bite') {
-                trueDmg = 1;
+                trueDmg = 100;
             } else if (payload.skillId === 'bld3') {
                 if (pClass !== 'Blademaster') return;
                 if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && !isAdmin(p.id)) return;
@@ -4162,14 +4162,14 @@ io.on('connection', (socket) => {
                                                 const d2sid = findSocketIdByPlayerId(d2p.id);
                                                 if (d2sid) io.to(d2sid).emit('titleUnlocked', updatedTitle);
                                             }
-                                            
+
                                             // 🌍 BROADCAST FIRST TIME CLEARS
                                             if (currentRank === 0) {
                                                 io.emit('systemMessage', `[WORLD] 🏆 <span style="color:#FFD700; font-weight:bold;">${d2p.name}</span> has cleared Dungeon 2 for the first time!`);
                                             } else {
                                                 io.emit('systemMessage', `[WORLD] 🏆 <span style="color:#FFD700; font-weight:bold;">${d2p.name}</span> has cleared Dungeon 2 on ${d2Diff} difficulty for the first time!`);
                                             }
-                                            
+
                                             supabase.from('Exonians').update({ base_stats: d2p.baseStats }).eq('character_name', d2p.id).then(() => { });
                                         }
                                     });
@@ -8448,9 +8448,9 @@ io.on('connection', (socket) => {
                 isMinionSkill = true;
                 const skillObj = MINION_ELIGIBLE_SKILLS.find(s => s.id === payload.skillId);
                 if (skillObj) {
-                    pClass = skillObj.className; 
+                    pClass = skillObj.className;
                     originalCooldown = p.skillCooldowns[payload.skillId] || 0;
-                    p.skillCooldowns[payload.skillId] = 0; 
+                    p.skillCooldowns[payload.skillId] = 0;
                 }
             }
 
@@ -8537,7 +8537,7 @@ io.on('connection', (socket) => {
                 p.skillCooldowns['phs3'] = now + getReducedCd(p, 30000);
 
             } else if (payload.skillId === 'fox_bite') {
-                trueDmg = 1;
+                trueDmg = 100;
             } else if (payload.skillId === 'bld3') {
                 if (pClass !== 'Blademaster') return;
                 if (p.skillCooldowns['heavyAttack'] && now < p.skillCooldowns['heavyAttack'] && !isAdmin(p.id)) return;
@@ -8633,8 +8633,7 @@ io.on('connection', (socket) => {
                 setTimeout(() => {
                     targetPlayers.forEach(tp => {
                         if (tp.isGhost || tp.mapId !== 'neutralzone') return;
-
-                        let dmg = payload.skillId === 'fox_bite' ? 1 : Math.max(1, trueDmg - getServerDefense(tp));
+                        let dmg = payload.skillId === 'fox_bite' ? 100 : Math.max(1, trueDmg - getServerDefense(tp));
 
                         // 🛡️ GAMMA SHIELD ABSORPTION (PvP)
                         if (tp.gammaShield && tp.gammaShield.hp > 0) {
