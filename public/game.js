@@ -7104,59 +7104,77 @@ if (socket) {
         modal.id = 'cosmetic-preview-modal';
         modal.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 50%, #16213e 100%); border:2px solid #4fc3f7; padding:20px 30px; z-index:9500; width:280px; border-radius:12px; box-shadow:0 0 40px rgba(79,195,247,0.3), inset 0 0 60px rgba(0,0,0,0.5); color:white; text-align:center; font-family:sans-serif;';
 
-        // Get player's current appearance data
-        const skin = window.charData?.skinColor || 'flesh';
-        const hairStyle = window.charData?.hairStyle || '1';
-        const hairColor = window.charData?.hairColor || 'black';
-        const skinFilter = ({ 'flesh': 'sepia(1) hue-rotate(-25deg) saturate(2.5) brightness(1.1)', 'yellow': 'sepia(1) hue-rotate(15deg) saturate(3) brightness(1.2)', 'green': 'sepia(1) hue-rotate(75deg) saturate(2) brightness(1)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2) brightness(1)', 'white': 'grayscale(1) brightness(1.8) contrast(0.9)' })[skin] || '';
-        const hairFilter = ({ 'black': 'brightness(0.15)', 'brown': 'sepia(0.6) brightness(0.5)', 'blonde': 'sepia(0.5) saturate(2) hue-rotate(20deg) brightness(1.4)', 'red': 'sepia(1) hue-rotate(-10deg) saturate(3) brightness(0.7)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2.5) brightness(0.6)', 'green': 'sepia(1) hue-rotate(90deg) saturate(2) brightness(0.6)', 'white': 'brightness(2) contrast(0.7) grayscale(1)', 'purple': 'sepia(1) hue-rotate(230deg) saturate(3) brightness(0.6)' })[hairColor] || 'brightness(0.15)';
+        let previewContent = '';
 
-        // Get equipped gear sprites
-        let wpnSprite = game.player.equips?.weapon?.sprite?.replace('starter','basic') || null;
-        let armorSprite = game.player.equips?.armor?.sprite || null;
-        let leggingsSprite = game.player.equips?.leggings?.sprite || null;
+        if (type === 'pet') {
+            // 🐾 PET PREVIEW: Show only the pet, large and centered
+            let petHtml = '';
+            let petClass = '';
 
-        // Determine preview aura class
-        let auraClass = '';
-        let currentAura = game.player.equips?.armor?.aura || null;
+            if (cosmId === 'fox') {
+                petClass = 'pet-fox';
+                petHtml = `<div class="tail"></div><div class="leg leg1"></div><div class="leg leg2"></div><div class="leg leg3"></div><div class="leg leg4"></div><div class="head"><div class="ear"></div></div>`;
+            } else if (cosmId === 'owl') {
+                petClass = 'pet-owl';
+                petHtml = `<div class="wing wing-l"></div><div class="wing wing-r"></div><div class="eyes"><div class="eye"></div><div class="eye"></div></div><div class="beak"></div>`;
+            } else if (cosmId === 'egg') {
+                petClass = 'pet-egg';
+                petHtml = '';
+            } else if (cosmId === 'void') {
+                petClass = 'pet-void';
+                petHtml = `<div class="mini-wraith"><div class="w-eye left"></div><div class="w-eye right"></div><div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div></div>`;
+            } else if (cosmId === 'wisp') {
+                petClass = 'pet-wisp';
+                petHtml = '';
+            }
 
-        if (type === 'aura') {
-            auraClass = `aura-${cosmId}`; // Preview overrides existing
-        } else if (currentAura) {
-            auraClass = `aura-${currentAura}`; // Keep existing for pet preview
-        }
+            previewContent = `
+                <div style="position:relative; width:140px; height:140px; margin:0 auto 15px auto; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle, rgba(79,195,247,0.1) 0%, transparent 70%); border-radius:50%;">
+                    <div class="${petClass}" style="position:relative; transform:scale(3);">${petHtml}</div>
+                </div>
+                <div style="color:#aaa; font-size:11px; margin-bottom:12px;">This pet will follow you in battle.</div>
+            `;
 
-        // Build pet HTML for preview
-        let petHtml = '';
-        let petClass = '';
-        let currentPet = game.player.equips?.leggings?.aura || null;
-        let petToShow = type === 'pet' ? cosmId : currentPet;
+        } else if (type === 'aura') {
+            // ✨ AURA PREVIEW: Show the player character with the aura applied
+            const skin = window.charData?.skinColor || 'flesh';
+            const hairStyle = window.charData?.hairStyle || '1';
+            const hairColor = window.charData?.hairColor || 'black';
+            const skinFilter = ({ 'flesh': 'sepia(1) hue-rotate(-25deg) saturate(2.5) brightness(1.1)', 'yellow': 'sepia(1) hue-rotate(15deg) saturate(3) brightness(1.2)', 'green': 'sepia(1) hue-rotate(75deg) saturate(2) brightness(1)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2) brightness(1)', 'white': 'grayscale(1) brightness(1.8) contrast(0.9)' })[skin] || '';
+            const hairFilter = ({ 'black': 'brightness(0.15)', 'brown': 'sepia(0.6) brightness(0.5)', 'blonde': 'sepia(0.5) saturate(2) hue-rotate(20deg) brightness(1.4)', 'red': 'sepia(1) hue-rotate(-10deg) saturate(3) brightness(0.7)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2.5) brightness(0.6)', 'green': 'sepia(1) hue-rotate(90deg) saturate(2) brightness(0.6)', 'white': 'brightness(2) contrast(0.7) grayscale(1)', 'purple': 'sepia(1) hue-rotate(230deg) saturate(3) brightness(0.6)' })[hairColor] || 'brightness(0.15)';
 
-        if (petToShow === 'fox') {
-            petClass = 'pet-fox';
-            petHtml = `<div class="tail"></div><div class="leg leg1"></div><div class="leg leg2"></div><div class="leg leg3"></div><div class="leg leg4"></div><div class="head"><div class="ear"></div></div>`;
-        } else if (petToShow === 'owl') {
-            petClass = 'pet-owl';
-            petHtml = `<div class="wing wing-l"></div><div class="wing wing-r"></div><div class="eyes"><div class="eye"></div><div class="eye"></div></div><div class="beak"></div>`;
-        } else if (petToShow === 'egg') {
-            petClass = 'pet-egg';
-            petHtml = '';
-        } else if (petToShow === 'void') {
-            petClass = 'pet-void';
-            petHtml = `<div class="mini-wraith"><div class="w-eye left"></div><div class="w-eye right"></div><div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div></div>`;
-        } else if (petToShow === 'wisp') {
-            petClass = 'pet-wisp';
-            petHtml = '';
-        }
+            let wpnSprite = game.player.equips?.weapon?.sprite?.replace('starter','basic') || null;
+            let armorSprite = game.player.equips?.armor?.sprite || null;
+            let leggingsSprite = game.player.equips?.leggings?.sprite || null;
 
-        let hairDisplay = hairStyle === 'none' ? 'none' : 'block';
-        let hairSrc = hairStyle === 'none' ? '' : `animation/avatar_hair${hairStyle}.png`;
+            let auraClass = `aura-${cosmId}`;
 
-        // Weapon rarity glow class
-        let wRarity = game.player.equips?.weapon?.rarity || '';
-        let wpnAuraClass = '';
-        if (wRarity && !['Starter', 'Basic', 'Rare', 'Unique'].includes(wRarity)) {
-            wpnAuraClass = `weapon-aura-${wRarity.toLowerCase()}`;
+            // Only render hair img if not 'none'
+            let hairImgHtml = '';
+            if (hairStyle !== 'none') {
+                hairImgHtml = `<img class="avatar-layer layer-hair" src="animation/avatar_hair${hairStyle}.png" style="display:block; filter:${hairFilter}; opacity:1;">`;
+            }
+
+            let wRarity = game.player.equips?.weapon?.rarity || '';
+            let wpnAuraClass = '';
+            if (wRarity && !['Starter', 'Basic', 'Rare', 'Unique'].includes(wRarity)) {
+                wpnAuraClass = `weapon-aura-${wRarity.toLowerCase()}`;
+            }
+
+            previewContent = `
+                <div style="position:relative; width:120px; height:160px; margin:0 auto 15px auto; background:radial-gradient(circle, rgba(79,195,247,0.08) 0%, transparent 70%); border-radius:12px;">
+                    <div class="player-avatar-container avatar-rig" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) scale(2); width:48px; height:96px;">
+                        <div class="cosmetic-aura ${auraClass}" style="display:block;"></div>
+                        ${hairImgHtml}
+                        <img class="avatar-layer layer-head" src="animation/avatar_head.png" style="filter:${skinFilter}; opacity:1;">
+                        <img class="avatar-layer layer-body" src="animation/avatar_idlefront.png" style="filter:${skinFilter}; opacity:1;">
+                        ${leggingsSprite ? `<img class="avatar-layer layer-leggings" src="armor/${leggingsSprite}.png" style="display:block; opacity:1;">` : ''}
+                        ${armorSprite ? `<img class="avatar-layer layer-armor" src="armor/${armorSprite}.png" style="display:block; opacity:1;">` : ''}
+                        ${wpnSprite ? `<img class="avatar-layer layer-weapon ${wpnAuraClass}" src="weapon/${wpnSprite}.png" style="display:block; opacity:1;">` : ''}
+                    </div>
+                </div>
+                <div style="color:#aaa; font-size:11px; margin-bottom:12px;">This is how you'll look with this aura equipped.</div>
+            `;
         }
 
         modal.innerHTML = `
@@ -7165,19 +7183,7 @@ if (socket) {
                 <button onclick="document.getElementById('cosmetic-preview-modal').remove()" style="background:none; border:none; color:#888; font-size:20px; cursor:pointer; padding:0 5px; line-height:1;">&times;</button>
             </div>
             <div style="color:#E040FB; font-weight:bold; font-size:14px; margin-bottom:15px; text-shadow:0 0 8px rgba(224,64,251,0.4);">${itemName}</div>
-            <div style="position:relative; width:120px; height:160px; margin:0 auto 15px auto; background:radial-gradient(circle, rgba(79,195,247,0.08) 0%, transparent 70%); border-radius:12px;">
-                <div class="player-avatar-container avatar-rig" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) scale(2); width:48px; height:96px;">
-                    <div class="cosmetic-aura ${auraClass}" style="display:${auraClass ? 'block' : 'none'};"></div>
-                    <img class="avatar-layer layer-hair" src="${hairSrc}" style="display:${hairDisplay}; filter:${hairFilter}; opacity:1;">
-                    <img class="avatar-layer layer-head" src="animation/avatar_head.png" style="filter:${skinFilter}; opacity:1;">
-                    <img class="avatar-layer layer-body" src="animation/avatar_idlefront.png" style="filter:${skinFilter}; opacity:1;">
-                    ${leggingsSprite ? `<img class="avatar-layer layer-leggings" src="armor/${leggingsSprite}.png" style="display:block; opacity:1;">` : ''}
-                    ${armorSprite ? `<img class="avatar-layer layer-armor" src="armor/${armorSprite}.png" style="display:block; opacity:1;">` : ''}
-                    ${wpnSprite ? `<img class="avatar-layer layer-weapon ${wpnAuraClass}" src="weapon/${wpnSprite}.png" style="display:block; opacity:1;">` : ''}
-                </div>
-                ${petToShow ? `<div class="${petClass}" style="position:absolute; bottom:10px; right:-5px; transform:scale(1.2) scaleX(-1);">${petHtml}</div>` : ''}
-            </div>
-            <div style="color:#aaa; font-size:11px; margin-bottom:12px;">This is how you'll look with this cosmetic equipped.</div>
+            ${previewContent}
             <button class="btn" style="background:#333; width:100%; padding:10px; color:#4fc3f7; border-color:#4fc3f7; font-weight:bold;" onclick="document.getElementById('cosmetic-preview-modal').remove()">Close Preview</button>
         `;
 
@@ -8896,9 +8902,26 @@ window.executeCloseGame = function() {
         if (nearestMob && nearestDist <= 200 && socket) {
             minion.lastAttackTs = now;
             
+            // 🐾 MINION SKILL COOLDOWN MAP (matches original class cooldowns)
+            const MINION_SKILL_CDS = {
+                'heal1': 20000, 'heal3': 100000,
+                'ice1': 25000, 'ice3': 110000,
+                'ber1': 14000, 'ber3': 100000,
+                'bld2': 13000, 'bld3': 50000,
+                'snp2': 5000, 'snp3': 50000,
+                'exp1': 12000, 'exp3': 30000,
+                'phs1': 5000, 'phs3': 30000,
+                'nin1': 10000, 'tech2': 100000
+            };
+
             let castSkill = 'pet';
-            if (minion.skillId && Math.random() < 0.20) {
-                castSkill = minion.skillId;
+            if (minion.skillId) {
+                const skillCd = MINION_SKILL_CDS[minion.skillId] || 30000;
+                const skillReady = !minion.skillCooldownUntil || now >= minion.skillCooldownUntil;
+                if (skillReady) {
+                    castSkill = minion.skillId;
+                    minion.skillCooldownUntil = now + skillCd;
+                }
             }
 
             socket.emit('attackMonster', {
@@ -8912,6 +8935,11 @@ window.executeCloseGame = function() {
             if (minion.dom) {
                 minion.dom.style.filter = 'brightness(2)';
                 setTimeout(() => { if (minion.dom) minion.dom.style.filter = ''; }, 150);
+            }
+
+            // ⚡ Skill cast visual indicator
+            if (castSkill !== 'pet' && minion.skillName) {
+                window.spawnDamageText(minion.x + 15, minion.y - 20, `⚡ ${minion.skillName}`, '#4fc3f7');
             }
         }
     }, 50);
