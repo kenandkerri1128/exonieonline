@@ -3689,7 +3689,17 @@ io.on('connection', (socket) => {
             const p = onlinePlayers[socket.id]; if (!p || p.isGhost) return;
             if (p.mapId === 'town') return;
             const now = Date.now();
-            if (p.frozenUntil && now < p.frozenUntil) return; // ❄️ Frozen players cannot attack!
+            
+            // 🐾 MINION DEBUG LOG (temporary)
+            if (payload.isMinion) {
+                const world = worlds[p.instanceId];
+                const petExists = world && world.pets && world.pets[payload.petId];
+                const mobExists = world && world.monsters && world.monsters[payload.monsterId];
+                console.log(`[MINION] Attack from ${p.name}: skill=${payload.skillId}, petId=${payload.petId}, petExists=${!!petExists}, mobExists=${!!mobExists}, frozen=${!!(p.frozenUntil && now < p.frozenUntil)}`);
+            }
+
+            // ❄️ Frozen players cannot attack — but minions can!
+            if (p.frozenUntil && now < p.frozenUntil && !payload.isMinion) return;
 
             // 👇 STRICT ANTI-CHEAT (NO MORE BURSTS) 👇
             if (payload.skillId === 'basic') {
@@ -3878,7 +3888,8 @@ io.on('connection', (socket) => {
                 p.skillCooldowns['ice3'] = now + getReducedCd(p, 98000);
 
             } else if (payload.skillId === 'pet') {
-                const world = worlds[p.instanceId];
+                // 🐾 PET/MINION ATTACK BLOCK
+                if (!world.pets) return;
                 const pet = world.pets[payload.petId];
 
                 if (!pet) return;
@@ -3886,20 +3897,17 @@ io.on('connection', (socket) => {
                 pet.lastAttackTs = now;
 
                 if (pet.isBigBoss) {
-                    // 👑 BIG BOSS PvP/PvE: Fixed Damage
-                    let bossAtk = 450; // Base Floor Boss 1
+                    let bossAtk = 450;
                     if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) {
-                        bossAtk = 1800; // x4 Multiplier
+                        bossAtk = 1800;
                     }
                     trueDmg = bossAtk;
                 } else {
-                    // 🟢 NORMAL SLIMES & 🥷 SHADOW CLONES: % Scaling
                     let multiplier = 0.25;
                     if (pet.enhancedUntil && Date.now() < pet.enhancedUntil) multiplier = 1.0;
-                    if (pet.isClone) multiplier = 2.5; // 🛡️ BUFFED: Clones now deal 250% ATK!
+                    if (pet.isClone) multiplier = 2.5;
 
                     if (pet.isMinion) {
-                        // 🐾 MINION PvE: 500 pure damage
                         trueDmg = 500;
                     } else {
                         let sourceAtk = pet.isClone ? getServerAttackPower(p) : getServerMagicAttack(p);
