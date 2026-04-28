@@ -3060,6 +3060,18 @@ io.on('connection', (socket) => {
                         console.log(`[SECURITY] Blocked ${username} - Email Cap Reached for ${user.email}`);
                         return socket.emit('authError', 'Connection Limit: Max 4 accounts per email.');
                     }
+
+                    // 🛡️ IP + PASSWORD CAP: Max 4 simultaneous logins sharing the SAME IP AND the SAME password
+                    let sameIpPwCount = 0;
+                    for (const [sid, op] of Object.entries(onlinePlayers)) {
+                        if (sid !== socket.id && op._loginIp === clientIp && op._loginPw === password) {
+                            sameIpPwCount++;
+                        }
+                    }
+                    if (sameIpPwCount >= 4) {
+                        console.log(`[SECURITY] Blocked ${username} - IP+Password Cap Reached (IP: ${clientIp}, ${sameIpPwCount} already online)`);
+                        return socket.emit('authError', 'Sub character spamming detected. Please try again later.');
+                    }
                 }
                 // 3. THE ULTIMATE KICK ENGINE & MULTI-BOX PREVENTER: Checks Device Limits & Usernames
                 let oldSocketId = null;
@@ -3153,6 +3165,7 @@ io.on('connection', (socket) => {
                 socket.email = user.email;
                 socket.clientIp = clientIp; // Save the IP to the socket for cleanup
                 socket.deviceId = data.deviceId || 'unknown_device'; // 🛡️ Store Device ID in memory to block alt parties!
+                socket._loginPw = password; // 🛡️ IP+PW cap check (never sent to client)
 
                 // Add +1 to the connection tallies (unless they are an admin)
                 if (!isAdmin(username)) {
@@ -3352,6 +3365,8 @@ io.on('connection', (socket) => {
 
             // 🛡️ THE UI FIX: Calculate the true totals immediately!
             let playerRef = onlinePlayers[socket.id];
+            playerRef._loginIp = socket.clientIp || '';
+            playerRef._loginPw = socket._loginPw || '';
 
             playerRef.totalStats = {
                 hp: getServerTotalStat(playerRef, 'hp'),
