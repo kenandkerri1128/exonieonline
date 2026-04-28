@@ -7185,8 +7185,8 @@ if (socket) {
             }
 
             previewContent = `
-                <div style="position:relative; width:140px; height:140px; margin:0 auto 15px auto; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle, rgba(79,195,247,0.1) 0%, transparent 70%); border-radius:50%;">
-                    <div class="${petClass}" style="position:relative; transform:scale(3);">${petHtml}</div>
+                <div style="position:relative; width:140px; height:140px; margin:0 auto 15px auto; background:radial-gradient(circle, rgba(79,195,247,0.1) 0%, transparent 70%); border-radius:50%; overflow:visible;">
+                    <div class="${petClass}" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) scale(4); pointer-events:none;">${petHtml}</div>
                 </div>
                 <div style="color:#aaa; font-size:11px; margin-bottom:12px;">This pet will follow you in battle.</div>
             `;
