@@ -1134,7 +1134,8 @@ window.attemptAttack = function(silent) {
 
         let mCenterX = m.x + (m.width/2); let mCenterY = m.y + (m.height/2); 
         let dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY); 
-        if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
+        let effectiveRadius = attackRadius + Math.max(0, (m.width / 2) - 20); // 🛡️ BIG BOSS FIX: Increase range for large monsters
+        if(dist <= effectiveRadius && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
     }
 
     // Check Players (ONLY in Neutral Zone)
@@ -7186,8 +7187,8 @@ if (socket) {
 
             previewContent = `
                 <div style="position:relative; width:120px; height:160px; margin:0 auto 15px auto; background:radial-gradient(circle, rgba(79,195,247,0.08) 0%, transparent 70%); border-radius:12px; display:flex; justify-content:center; align-items:center;">
-                    <div style="transform: scale(4); display:flex; justify-content:center; align-items:center;">
-                        <div class="${petClass}" style="position:relative !important; left:0 !important; top:0 !important; bottom:auto !important; right:auto !important; margin:0 !important; pointer-events:none;">${petHtml}</div>
+                    <div style="transform: scale(4); display:flex; justify-content:center; align-items:center; width:20px; height:20px;">
+                        <div class="${petClass}" style="position:relative !important; left:auto !important; top:auto !important; bottom:auto !important; right:auto !important; margin:0 !important; pointer-events:none; transform:none !important; animation:none !important;">${petHtml}</div>
                     </div>
                 </div>
                 <div style="color:#aaa; font-size:11px; margin-bottom:12px;">This pet will follow you in battle.</div>
