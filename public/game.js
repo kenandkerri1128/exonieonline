@@ -7043,15 +7043,15 @@ if (socket) {
 
         if (data.state === 'shop_open') {
             const items = [
-                { id: 'aura_easter', name: 'Easter Aura Stone', priceGems: 15, desc: 'Tradeable Seasonal Cosmetic: A beautiful pastel aura that shifts colors.', isSeasonal: true },
-                { id: 'pet_egg', name: 'Easter Egg Pet', priceGems: 15, desc: 'Tradeable Seasonal Cosmetic: A cute floating Easter Egg that follows you.', isSeasonal: true },
+                { id: 'aura_easter', name: 'Easter Aura Stone', priceGems: 15, desc: 'Tradeable Seasonal Cosmetic: A beautiful pastel aura that shifts colors.', isSeasonal: true, previewType: 'aura', previewId: 'easter' },
+                { id: 'pet_egg', name: 'Easter Egg Pet', priceGems: 15, desc: 'Tradeable Seasonal Cosmetic: A cute floating Easter Egg that follows you.', isSeasonal: true, previewType: 'pet', previewId: 'egg' },
                 { id: 'name_change', name: 'Name Change Ticket', priceGems: 15, desc: 'Permanently changes your character name. (Cannot be undone)' },
                 { id: 'edit_char', name: 'Appearance Reroll Ticket', priceGems: 15, desc: 'Re-open the character creator to change your hair, skin color, and style.' },
-                { id: 'pet_fox', name: 'Spirit Fox Pet', priceGems: 10, desc: 'A loyal fire-fox companion that follows you and attacks enemies.' },
-                { id: 'pet_owl', name: 'Night Owl Pet', priceGems: 10, desc: 'A mysterious owl that flies by your side.' },
-                { id: 'aura_blaze', name: 'Blaze Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a burning red flame effect.' },
-                { id: 'aura_liquid', name: 'Liquid Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a flowing water effect.' },
-                { id: 'aura_nature', name: 'Nature Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a leaf and vine effect.' },
+                { id: 'pet_fox', name: 'Spirit Fox Pet', priceGems: 10, desc: 'A loyal fire-fox companion that follows you and attacks enemies.', previewType: 'pet', previewId: 'fox' },
+                { id: 'pet_owl', name: 'Night Owl Pet', priceGems: 10, desc: 'A mysterious owl that flies by your side.', previewType: 'pet', previewId: 'owl' },
+                { id: 'aura_blaze', name: 'Blaze Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a burning red flame effect.', previewType: 'aura', previewId: 'blaze' },
+                { id: 'aura_liquid', name: 'Liquid Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a flowing water effect.', previewType: 'aura', previewId: 'liquid' },
+                { id: 'aura_nature', name: 'Nature Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a leaf and vine effect.', previewType: 'aura', previewId: 'nature' },
                 { id: 'divine_pack', name: 'Divine Stone Bundle (x5)', priceGems: 10, desc: 'Contains 5 Divine Enhancement Stones. Works on any level.' },
                 { id: 'revival_pack', name: 'Revival Juice Bundle (x10)', priceGems: 5, desc: 'Contains 10 Revival Juices. Revive instantly on the spot.' }
             ];
@@ -7063,10 +7063,16 @@ if (socket) {
                 let border = i.isSeasonal ? 'border: 2px solid #FFD700; box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.15);' : 'border: 1px solid #444;';
                 let tag = i.isSeasonal ? ' <span style="font-size:11px; color:#fff;">🐰 (Seasonal)</span>' : '';
 
+                let previewBtn = '';
+                if (i.previewType) {
+                    previewBtn = `<button class="btn" style="background:#1a1a2e; padding:8px 10px; font-size:14px; color:#4fc3f7; border-color:#4fc3f7; font-weight:bold; cursor:pointer; min-width:40px;" onclick="window.openCosmeticPreview('${i.previewType}', '${i.previewId}', '${i.name}')" title="Preview">👁️</button>`;
+                }
+
                 html += `<div style="background:#222; ${border} padding:10px; border-radius:6px; margin-bottom:10px; text-align:left;">
                             <div style="color:${nameColor}; font-weight:bold; font-size:15px; ${shadow}">${i.name}${tag}</div>
                             <div style="color:#aaa; font-size:12px; margin-bottom:8px;">${i.desc}</div>
                             <div style="display:flex; justify-content:space-between; align-items:center; gap:5px;">
+                                ${previewBtn}
                                 <button class="btn" style="background:#333; padding:8px 10px; font-size:14px; color:#E040FB; border-color:#9c27b0; flex:1; font-weight:bold; cursor:pointer; box-shadow: 0 0 5px #9c27b0;" onclick="window.buyWithGems('${i.id}', '${i.name}', ${i.priceGems})">💎 Buy for ${i.priceGems} Exo Gems</button>
                             </div>
                          </div>`;
@@ -7087,6 +7093,96 @@ if (socket) {
         `;
         modal.innerHTML = html;
     });
+
+    // 👁️ COSMETIC PREVIEW WINDOW
+    window.openCosmeticPreview = function(type, cosmId, itemName) {
+        // Remove existing preview
+        let existing = document.getElementById('cosmetic-preview-modal');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'cosmetic-preview-modal';
+        modal.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 50%, #16213e 100%); border:2px solid #4fc3f7; padding:20px 30px; z-index:9500; width:280px; border-radius:12px; box-shadow:0 0 40px rgba(79,195,247,0.3), inset 0 0 60px rgba(0,0,0,0.5); color:white; text-align:center; font-family:sans-serif;';
+
+        // Get player's current appearance data
+        const skin = window.charData?.skinColor || 'flesh';
+        const hairStyle = window.charData?.hairStyle || '1';
+        const hairColor = window.charData?.hairColor || 'black';
+        const skinFilter = ({ 'flesh': 'sepia(1) hue-rotate(-25deg) saturate(2.5) brightness(1.1)', 'yellow': 'sepia(1) hue-rotate(15deg) saturate(3) brightness(1.2)', 'green': 'sepia(1) hue-rotate(75deg) saturate(2) brightness(1)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2) brightness(1)', 'white': 'grayscale(1) brightness(1.8) contrast(0.9)' })[skin] || '';
+        const hairFilter = ({ 'black': 'brightness(0.15)', 'brown': 'sepia(0.6) brightness(0.5)', 'blonde': 'sepia(0.5) saturate(2) hue-rotate(20deg) brightness(1.4)', 'red': 'sepia(1) hue-rotate(-10deg) saturate(3) brightness(0.7)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2.5) brightness(0.6)', 'green': 'sepia(1) hue-rotate(90deg) saturate(2) brightness(0.6)', 'white': 'brightness(2) contrast(0.7) grayscale(1)', 'purple': 'sepia(1) hue-rotate(230deg) saturate(3) brightness(0.6)' })[hairColor] || 'brightness(0.15)';
+
+        // Get equipped gear sprites
+        let wpnSprite = game.player.equips?.weapon?.sprite?.replace('starter','basic') || null;
+        let armorSprite = game.player.equips?.armor?.sprite || null;
+        let leggingsSprite = game.player.equips?.leggings?.sprite || null;
+
+        // Determine preview aura class
+        let auraClass = '';
+        let currentAura = game.player.equips?.armor?.aura || null;
+
+        if (type === 'aura') {
+            auraClass = `aura-${cosmId}`; // Preview overrides existing
+        } else if (currentAura) {
+            auraClass = `aura-${currentAura}`; // Keep existing for pet preview
+        }
+
+        // Build pet HTML for preview
+        let petHtml = '';
+        let petClass = '';
+        let currentPet = game.player.equips?.leggings?.aura || null;
+        let petToShow = type === 'pet' ? cosmId : currentPet;
+
+        if (petToShow === 'fox') {
+            petClass = 'pet-fox';
+            petHtml = `<div class="tail"></div><div class="leg leg1"></div><div class="leg leg2"></div><div class="leg leg3"></div><div class="leg leg4"></div><div class="head"><div class="ear"></div></div>`;
+        } else if (petToShow === 'owl') {
+            petClass = 'pet-owl';
+            petHtml = `<div class="wing wing-l"></div><div class="wing wing-r"></div><div class="eyes"><div class="eye"></div><div class="eye"></div></div><div class="beak"></div>`;
+        } else if (petToShow === 'egg') {
+            petClass = 'pet-egg';
+            petHtml = '';
+        } else if (petToShow === 'void') {
+            petClass = 'pet-void';
+            petHtml = `<div class="mini-wraith"><div class="w-eye left"></div><div class="w-eye right"></div><div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div></div>`;
+        } else if (petToShow === 'wisp') {
+            petClass = 'pet-wisp';
+            petHtml = '';
+        }
+
+        let hairDisplay = hairStyle === 'none' ? 'none' : 'block';
+        let hairSrc = hairStyle === 'none' ? '' : `animation/avatar_hair${hairStyle}.png`;
+
+        // Weapon rarity glow class
+        let wRarity = game.player.equips?.weapon?.rarity || '';
+        let wpnAuraClass = '';
+        if (wRarity && !['Starter', 'Basic', 'Rare', 'Unique'].includes(wRarity)) {
+            wpnAuraClass = `weapon-aura-${wRarity.toLowerCase()}`;
+        }
+
+        modal.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(79,195,247,0.3); padding-bottom:10px;">
+                <h3 style="margin:0; color:#4fc3f7; font-size:16px; text-shadow:0 0 10px rgba(79,195,247,0.5);">👁️ Cosmetic Preview</h3>
+                <button onclick="document.getElementById('cosmetic-preview-modal').remove()" style="background:none; border:none; color:#888; font-size:20px; cursor:pointer; padding:0 5px; line-height:1;">&times;</button>
+            </div>
+            <div style="color:#E040FB; font-weight:bold; font-size:14px; margin-bottom:15px; text-shadow:0 0 8px rgba(224,64,251,0.4);">${itemName}</div>
+            <div style="position:relative; width:120px; height:160px; margin:0 auto 15px auto; background:radial-gradient(circle, rgba(79,195,247,0.08) 0%, transparent 70%); border-radius:12px;">
+                <div class="player-avatar-container avatar-rig" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) scale(2); width:48px; height:96px;">
+                    <div class="cosmetic-aura ${auraClass}" style="display:${auraClass ? 'block' : 'none'};"></div>
+                    <img class="avatar-layer layer-hair" src="${hairSrc}" style="display:${hairDisplay}; filter:${hairFilter}; opacity:1;">
+                    <img class="avatar-layer layer-head" src="animation/avatar_head.png" style="filter:${skinFilter}; opacity:1;">
+                    <img class="avatar-layer layer-body" src="animation/avatar_idlefront.png" style="filter:${skinFilter}; opacity:1;">
+                    ${leggingsSprite ? `<img class="avatar-layer layer-leggings" src="armor/${leggingsSprite}.png" style="display:block; opacity:1;">` : ''}
+                    ${armorSprite ? `<img class="avatar-layer layer-armor" src="armor/${armorSprite}.png" style="display:block; opacity:1;">` : ''}
+                    ${wpnSprite ? `<img class="avatar-layer layer-weapon ${wpnAuraClass}" src="weapon/${wpnSprite}.png" style="display:block; opacity:1;">` : ''}
+                </div>
+                ${petToShow ? `<div class="${petClass}" style="position:absolute; bottom:10px; right:-5px; transform:scale(1.2) scaleX(-1);">${petHtml}</div>` : ''}
+            </div>
+            <div style="color:#aaa; font-size:11px; margin-bottom:12px;">This is how you'll look with this cosmetic equipped.</div>
+            <button class="btn" style="background:#333; width:100%; padding:10px; color:#4fc3f7; border-color:#4fc3f7; font-weight:bold;" onclick="document.getElementById('cosmetic-preview-modal').remove()">Close Preview</button>
+        `;
+
+        document.body.appendChild(modal);
+    };
 
   socket.on('gemPurchaseSuccess', (data) => {
         let balEl = document.getElementById('ui-gem-balance');
