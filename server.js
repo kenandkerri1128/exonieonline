@@ -2198,6 +2198,11 @@ setInterval(() => {
             }
 
             // 4. Send this highly customized list ONLY to this specific player's socket
+            // 🛡️ PERFORMANCE FIX: Skip sending empty arrays 10x a second if they already have 0 monsters!
+            if (visibleMonsters.length === 0 && p._lastMonsterCount === 0) {
+                continue;
+            }
+            p._lastMonsterCount = visibleMonsters.length;
             io.to(p.socketId).emit('monsterState', visibleMonsters);
         }
     }
@@ -2990,8 +2995,15 @@ io.on('connection', (socket) => {
                 const clientIp = socket.handshake.headers['x-forwarded-for']?.split(',')[0] || socket.handshake.address;
                 const safeDeviceId = deviceId || 'unknown_device';
 
-                // 🔓 MOBILE FIX: Removed IP and Device limits for character creation.
-                // Players can create accounts freely, but Login and Party connection limits will still prevent multi-boxing abuse.
+                // 🛡️ STRICT LIMIT: Max 4 accounts per IP + Password combo
+                const { count: ipPwCount } = await supabase.from('Exonians')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('ip_address', clientIp)
+                    .eq('password', password);
+
+                if (ipPwCount >= 4) {
+                    return socket.emit('authError', 'Registration Limit: Maximum of 4 accounts allowed with this IP and Password combination.');
+                }
 
                 const { data: existingUser } = await supabase.from('Exonians').select('character_name').eq('character_name', username).maybeSingle();
                 if (existingUser) return socket.emit('authError', 'Username is already taken!');
