@@ -1134,8 +1134,7 @@ window.attemptAttack = function(silent) {
 
         let mCenterX = m.x + (m.width/2); let mCenterY = m.y + (m.height/2); 
         let dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY); 
-        let effectiveRadius = attackRadius + Math.max(0, (m.width / 2) - 20); // 🛡️ BIG BOSS FIX: Increase range for large monsters
-        if(dist <= effectiveRadius && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
+        if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
     }
 
     // Check Players (ONLY in Neutral Zone)
