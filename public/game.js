@@ -8791,8 +8791,13 @@ window.executeCloseGame = function() {
         // Attack nearest monster (every 1.5 seconds)
         if (now - (minion.lastAttackTs || 0) < 1500) return;
         
-        // Only attack if within actual attack range (150px)
-        if (nearestMob && nearestDist <= 150 && socket) {
+        // Recalculate distance after movement
+        if (nearestMob) {
+            nearestDist = Math.hypot(minion.x - (nearestMob.x + nearestMob.width / 2), minion.y - (nearestMob.y + nearestMob.height / 2));
+        }
+
+        // Only attack if within actual attack range (200px)
+        if (nearestMob && nearestDist <= 200 && socket) {
             minion.lastAttackTs = now;
             
             let castSkill = 'pet';
@@ -8806,6 +8811,12 @@ window.executeCloseGame = function() {
                 petId: minion.id,
                 isMinion: true
             });
+
+            // 🐾 Visual attack feedback: flash the minion
+            if (minion.dom) {
+                minion.dom.style.filter = 'brightness(2)';
+                setTimeout(() => { if (minion.dom) minion.dom.style.filter = ''; }, 150);
+            }
         }
     }, 50);
 })();
