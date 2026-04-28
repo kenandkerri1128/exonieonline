@@ -5400,9 +5400,28 @@ socket.on('revivalJuiceUsed', (data) => {
 
 if (hitPet) {
         const serverAtk = Number(data.atk || 25);
-        const petDef = hitPet.isBigBoss || hitPet.isGolemBuster ? window.getDefense() : Math.floor(window.getDefense() * 0.25);
-        let actualDmg = Math.max(1, serverAtk - petDef);
+        let petDefBase = hitPet.isBigBoss || hitPet.isGolemBuster ? window.getDefense() : Math.floor(window.getDefense() * 0.25);
         
+        // 📢 BER1 (Callout!) Defense Multiplier
+        if (hitPet.defenseMultiplier && hitPet.defenseUntil && Date.now() < hitPet.defenseUntil) {
+            petDefBase = Math.floor(petDefBase * hitPet.defenseMultiplier);
+        }
+        
+        let actualDmg = Math.max(1, serverAtk - petDefBase);
+        
+        // 🗡️ BLD2 (Parry): 70% block chance
+        if (hitPet.parryUntil && Date.now() < hitPet.parryUntil) {
+            if (Math.random() < 0.70) {
+                window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, "PARRY!", '#4fc3f7');
+                return;
+            }
+        }
+
+        // 🌀 PHS1 (Shadow Step): 80% DR
+        if (hitPet.damageReduction && hitPet.damageReductionUntil && Date.now() < hitPet.damageReductionUntil) {
+            actualDmg = Math.max(1, Math.floor(actualDmg * (1 - hitPet.damageReduction)));
+        }
+
        // 🛡️ ABSORB SHIELD FOR PET
         if (hitPet.gammaShieldHp && hitPet.gammaShieldHp > 0) {
             if (actualDmg >= hitPet.gammaShieldHp) {
@@ -5417,6 +5436,14 @@ if (hitPet) {
         }
         
         hitPet.hp -= actualDmg;
+
+        // 🛡️ BER3 (Immortal): Cannot drop below 1 HP
+        if (hitPet.immortalUntil && Date.now() < hitPet.immortalUntil && hitPet.hp < 1) {
+            hitPet.hp = 1;
+            window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, "IMMORTAL!", '#FFD700');
+            return;
+        }
+
         window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, actualDmg, '#ff0000');
 
         // 🐾 MINION DEATH & STUN LOGIC
@@ -5502,6 +5529,35 @@ if (hitPet) {
     hitSound.volume = (window.gameVolume != null ? window.gameVolume : 0.5) * 0.8;
     hitSound.play().catch(e => {});
 });
+
+    // 🐾 MINION SKILL EFFECT SYNC
+    socket.on('minionSkillEffect', (data) => {
+        const minion = window._activeMinion;
+        if (!minion || minion.id !== data.petId) return;
+        const now = Date.now();
+
+        if (data.skillId === 'ber3' && data.duration) {
+            minion.immortalUntil = now + data.duration;
+            window.spawnDamageText(minion.x + 15, minion.y - 20, '🛡️ IMMORTAL!', '#FFD700');
+        }
+        if (data.skillId === 'ber1' && data.defenseMultiplier && data.duration) {
+            minion.defenseMultiplier = data.defenseMultiplier;
+            minion.defenseUntil = now + data.duration;
+            window.spawnDamageText(minion.x + 15, minion.y - 20, '📢 TAUNT! DEFx3', '#ffeb3b');
+        }
+        if (data.skillId === 'bld2' && data.duration) {
+            minion.parryUntil = now + data.duration;
+            window.spawnDamageText(minion.x + 15, minion.y - 20, '🗡️ PARRY!', '#4fc3f7');
+        }
+        if (data.skillId === 'phs1' && data.damageReduction && data.duration) {
+            minion.damageReduction = data.damageReduction;
+            minion.damageReductionUntil = now + data.duration;
+            window.spawnDamageText(minion.x + 15, minion.y - 20, '🌀 SHADOW STEP!', '#00E5FF');
+        }
+        if (data.skillId === 'heal1' || data.skillId === 'heal3') {
+            window.spawnDamageText(minion.x + 15, minion.y - 20, '💚 HEAL!', '#4CAF50');
+        }
+    });
 
     socket.on('monsterSkill', (data) => { 
         if (window.isTransitioning || window.isLoading) return;
