@@ -1684,6 +1684,16 @@ function pickTarget(m, instId, now) {
 
     const world = worlds[instId];
     if (world && world.pets) {
+        // 📢 TAUNT: If monster is taunted, prioritize that pet
+        if (m.tauntTarget && m.tauntUntil && now < m.tauntUntil && world.pets[m.tauntTarget]) {
+            const tauntPet = world.pets[m.tauntTarget];
+            if (!tauntPet.isStunned) {
+                return { id: tauntPet.id, isPet: true, x: tauntPet.x, y: tauntPet.y };
+            }
+        } else if (m.tauntUntil && now >= m.tauntUntil) {
+            delete m.tauntTarget; delete m.tauntUntil;
+        }
+
         let closestPet = null; let petDist = Infinity;
         for (const petId in world.pets) {
             const pet = world.pets[petId];
@@ -3778,14 +3788,14 @@ io.on('connection', (socket) => {
             }
 
             // ⚔️ PHANTOM STRIKER: Sleight of Hand (Lv 25) - Double Hit
-            if (pClass === 'Phantom Striker' && p.level >= 25 && payload.skillId !== 'pet' && Math.random() < 0.50) {
+            if (!isMinionSkill && pClass === 'Phantom Striker' && p.level >= 25 && payload.skillId !== 'pet' && Math.random() < 0.50) {
                 hitCount = 2;
                 // 🛡️ THE FIX: Only you see this trigger now
                 socket.emit('systemMessage', `<span style="color:#ffffff; font-weight:bold;">🗡️ Sleight of Hand triggered a double attack!</span>`);
             }
 
             // 🎯 SNIPER: Dual Bullet (Lv 75)
-            if (pClass === 'Sniper' && p.level >= 75 && payload.skillId !== 'pet' && Math.random() < 0.50) {
+            if (!isMinionSkill && pClass === 'Sniper' && p.level >= 75 && payload.skillId !== 'pet' && Math.random() < 0.50) {
                 hitCount *= 2;
             }
 
@@ -3921,11 +3931,79 @@ io.on('connection', (socket) => {
                 trueDmg = 500;
                 if (originalCooldown !== null) p.skillCooldowns[payload.skillId] = originalCooldown;
                 else delete p.skillCooldowns[payload.skillId];
+                hitCount = 1; // 🛡️ Minion never gets multi-hit from passives
+
+                // 🐾 MINION SKILL EFFECTS (applied to the pet, not the player)
+                const mPet = world.pets ? world.pets[payload.petId] : null;
+                const mSkill = payload.skillId;
+
+                // ⚕️ HEAL1/HEAL3: Heal all nearby players
+                if ((mSkill === 'heal1' || mSkill === 'heal3') && mPet) {
+                    const healAmt = mSkill === 'heal3' ? 200 : 100;
+                    for (let sid in onlinePlayers) {
+                        const mp = onlinePlayers[sid];
+                        if (mp && !mp.isGhost && mp.instanceId === p.instanceId) {
+                            const dist = Math.hypot((mPet.x || 0) - (mp.x || 0), (mPet.y || 0) - (mp.y || 0));
+                            if (dist <= 400) {
+                                let memberMaxHp = getServerTotalStat(mp, 'hp') || 100;
+                                mp.currentHp = Math.min(memberMaxHp, (mp.currentHp || memberMaxHp) + healAmt);
+                                const msid = findSocketIdByPlayerId(mp.id);
+                                if (msid) io.to(msid).emit('healReceived', { newHp: mp.currentHp, maxHp: memberMaxHp });
+                            }
+                        }
+                    }
+                }
+
+                // 🛡️ BER3 (Immortal): Minion cannot die for 10 seconds
+                if (mSkill === 'ber3' && mPet) {
+                    mPet.immortalUntil = Date.now() + 10000;
+                }
+
+                // 📢 BER1 (Callout!): Taunt all nearby monsters + triple defense
+                if (mSkill === 'ber1' && mPet) {
+                    mPet.defenseMultiplier = 3;
+                    mPet.defenseUntil = Date.now() + 10000;
+                    // Taunt: force nearby monsters to target the minion
+                    for (let mId in world.monsters) {
+                        const mob = world.monsters[mId];
+                        if (mob.alive && Math.hypot((mPet.x || 0) - mob.x, (mPet.y || 0) - mob.y) <= 400) {
+                            mob.tauntTarget = payload.petId;
+                            mob.tauntUntil = Date.now() + 10000;
+                        }
+                    }
+                }
+
+                // 🗡️ BLD2 (Parry): Minion blocks all damage for 10 seconds
+                if (mSkill === 'bld2' && mPet) {
+                    mPet.parryUntil = Date.now() + 10000;
+                }
+
+                // 🌀 PHS1 (Shadow Step): 80% damage reduction for 2 seconds
+                if (mSkill === 'phs1' && mPet) {
+                    mPet.damageReduction = 0.80;
+                    mPet.damageReductionUntil = Date.now() + 2000;
+                }
+
+                // 🛡️ TECH2 (Gamma Shield): Shield the minion
+                if (mSkill === 'tech2' && mPet) {
+                    const shieldHp = Math.max(10, getServerTotalStat(p, 'int') || 10);
+                    mPet.gammaShield = { hp: shieldHp, heal: 0 };
+                    io.to(p.instanceId).emit('applyGammaShield', { targetId: payload.petId, isPet: true, hp: shieldHp });
+                }
+
+                // 📡 SYNC: Tell the client to apply the skill effect to the minion
+                socket.emit('minionSkillEffect', {
+                    petId: payload.petId,
+                    skillId: mSkill,
+                    defenseMultiplier: mSkill === 'ber1' ? 3 : undefined,
+                    duration: mSkill === 'ber3' ? 10000 : mSkill === 'ber1' ? 10000 : mSkill === 'bld2' ? 10000 : mSkill === 'phs1' ? 2000 : undefined,
+                    damageReduction: mSkill === 'phs1' ? 0.80 : undefined
+                });
             }
 
-            // 🌟 LEVEL 75 AoE LOGIC & BIG BOSS
+            // 🌟 LEVEL 75 AoE LOGIC & BIG BOSS (disabled for minion skills)
             let targets = [m];
-            if (p.level >= 75) {
+            if (p.level >= 75 && !isMinionSkill) {
                 if (pClass === 'Ice Master' && (payload.skillId === 'ice1' || payload.skillId === 'ice3')) {
                     targets = Object.values(world.monsters).filter(mob => mob.alive && Math.hypot(mob.x - m.x, mob.y - m.y) <= 300);
                 }
@@ -3953,12 +4031,12 @@ io.on('connection', (socket) => {
                         targetMob.threatTable[p.id] = (targetMob.threatTable[p.id] || 0) + dmg;
 
                         let didFreeze = false;
-                        if (pClass === 'Ice Master' && p.level >= 25 && (payload.skillId === 'basic' || payload.skillId === 'ice1' || payload.skillId === 'ice3')) {
+                        if (!isMinionSkill && pClass === 'Ice Master' && p.level >= 25 && (payload.skillId === 'basic' || payload.skillId === 'ice1' || payload.skillId === 'ice3')) {
                             if (Math.random() < 0.25) { targetMob.frozenUntil = Date.now() + 3000; didFreeze = true; }
                         }
 
                         // 🩸 BLADEMASTER: Sharp Edge (Lv 75)
-                        if (pClass === 'Blademaster' && p.level >= 75 && Math.random() < 0.25 && payload.skillId !== 'pet') {
+                        if (!isMinionSkill && pClass === 'Blademaster' && p.level >= 75 && Math.random() < 0.25 && payload.skillId !== 'pet') {
                             const bleedDmg = Math.max(1, Math.floor(serverAtkPwr * 0.15));
                             let ticks = 0;
                             const bleedInt = setInterval(() => {
