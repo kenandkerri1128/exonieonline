@@ -356,9 +356,8 @@
         <span style="color:#ffeb3b;">I</span> - Inventory &nbsp; <span style="color:#ffeb3b;">P</span> - Stats<br>
         <span style="color:#ffeb3b;">K</span> - Skills &nbsp; <span style="color:#ffeb3b;">F</span> - Friends<br>
         <span style="color:#ffeb3b;">M</span> - Mailbox &nbsp; <span style="color:#ffeb3b;">G</span> - Guild<br>
-        <span style="color:#ffeb3b;">J</span> - Shop &nbsp; <span style="color:#ffeb3b;">Enter</span> - Chat<br>
-        <span style="color:#ffeb3b;">1 / 2</span> - Skills &nbsp; <span style="color:#ffeb3b;">3</span> - Potion<br>
-        <span style="color:#ffeb3b;">ESC</span> - Settings
+        <span style="color:#ffeb3b;">J</span> - Shop &nbsp; <span style="color:#ffeb3b;">V</span> - Companions<br>
+        <span style="color:#ffeb3b;">Enter</span> - Chat &nbsp; <span style="color:#ffeb3b;">ESC</span> - Settings
       </div>
     </div>
 
@@ -407,6 +406,102 @@
     <button class="btn" style="background:#555;width:100px;padding:10px;font-size:16px;" onclick="document.getElementById('close-game-confirm').style.display='none'">No</button>
   </div>
 </div>
+
+<!-- ==========================================
+     🎉 EVENT PORTAL: COMPANION EVENT (MAY)
+     ========================================== -->
+
+<!-- EVENT PORTAL FULL-SCREEN UI -->
+<div id="event-portal-screen" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background: linear-gradient(180deg, rgba(0,0,0,0.97) 0%, rgba(20,10,30,0.98) 100%); z-index:99998; flex-direction:column; justify-content:center; align-items:center; backdrop-filter:blur(8px); overflow-y:auto; padding:20px; box-sizing:border-box;">
+    <div style="text-align:center; max-width:600px; width:90%;">
+        <h1 style="color:#ffea00; font-size:46px; text-shadow: 0 0 30px #ff9800, 0 0 60px #ffea00; margin-bottom:5px; letter-spacing:4px; font-family:Cinzel,serif;">⚔️ EVENT PORTAL ⚔️</h1>
+        <h2 style="color:#E040FB; font-size:28px; margin-top:0; margin-bottom:20px; text-shadow: 0 0 15px #E040FB;">May Event: Companion Dungeon</h2>
+        <div style="background:rgba(255,255,255,0.05); border:1px solid #444; border-radius:10px; padding:20px; margin-bottom:30px; text-align:left;">
+            <p style="color:#ccc; font-size:16px; line-height:1.6; margin:0;">
+                🏔️ <strong style="color:#ffeb3b;">The Cave</strong> has been discovered beneath the Maze of Exonie! Survive the relentless waves of Minotaurs for <strong style="color:#f44336;">60 seconds</strong> and prove your worth.
+            </p>
+            <p style="color:#aaa; font-size:14px; line-height:1.5; margin-top:12px; margin-bottom:0;">
+                ✨ Surviving grants a chance to find <strong style="color:#ffea00;">Divine ID Pieces</strong> — collect <strong>10</strong> to trade for a powerful <strong style="color:#E040FB;">Companion</strong> that fights alongside you!
+            </p>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:15px; margin-bottom:25px;">
+            <button class="btn" style="padding:18px 50px; font-size:22px; background:linear-gradient(135deg, #4CAF50, #2E7D32); border:2px solid #4CAF50; color:#fff; cursor:pointer; border-radius:8px; box-shadow: 0 0 20px rgba(76,175,80,0.5); font-weight:bold; letter-spacing:2px;" onclick="window.startEventDungeon()">⚔️ ENTER THE CAVE</button>
+            <button class="btn" style="padding:18px 50px; font-size:22px; background:linear-gradient(135deg, #E040FB, #9C27B0); border:2px solid #E040FB; color:#fff; cursor:pointer; border-radius:8px; box-shadow: 0 0 20px rgba(224,64,251,0.5); font-weight:bold; letter-spacing:2px;" onclick="window.openEventRewards()">🎁 REWARDS</button>
+        </div>
+        <button class="btn" style="background:#333; border:1px solid #555; padding:10px 30px; color:#aaa; cursor:pointer; font-size:14px;" onclick="window.closeEventPortal()">Close & Leave</button>
+    </div>
+</div>
+
+<!-- EVENT REWARDS PANEL (Overlay on top of portal screen) -->
+<div id="event-rewards-panel" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.9); z-index:99999; flex-direction:column; justify-content:center; align-items:center; backdrop-filter:blur(5px); overflow-y:auto; padding:20px; box-sizing:border-box;">
+    <div style="max-width:550px; width:90%; background:rgba(20,20,30,0.98); border:2px solid #E040FB; border-radius:12px; padding:25px; box-shadow:0 0 40px rgba(224,64,251,0.3);">
+        <h2 style="color:#E040FB; text-align:center; margin-top:0; font-size:28px; text-shadow: 0 0 15px #E040FB;">🎁 Event Rewards</h2>
+        <p style="color:#aaa; text-align:center; font-size:13px; margin-bottom:20px;">Collect 10 ID Pieces from the Cave and trade them for a Companion Token!</p>
+
+        <!-- Berserker -->
+        <div style="background:rgba(244,67,54,0.08); border:1px solid #f44336; border-radius:8px; padding:15px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div style="color:#f44336; font-weight:bold; font-size:18px;">Berserker Companion</div>
+                <div style="color:#888; font-size:12px;">Tanker — Draws aggro and absorbs damage</div>
+                <div style="color:#ffea00; font-size:13px; margin-top:4px;">ID Pieces: <span id="event-piece-count-Berserker">0/10</span></div>
+            </div>
+            <button id="event-trade-btn-Berserker" class="btn" style="background:#f44336; border-color:#d32f2f; padding:10px 20px; font-weight:bold; opacity:0.4; cursor:not-allowed;" disabled onclick="window.tradeEventReward('Berserker')">TRADE</button>
+        </div>
+
+        <!-- Healer -->
+        <div style="background:rgba(76,175,80,0.08); border:1px solid #4CAF50; border-radius:8px; padding:15px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div style="color:#4CAF50; font-weight:bold; font-size:18px;">Healer Companion</div>
+                <div style="color:#888; font-size:12px;">Support — Heals you from the backline</div>
+                <div style="color:#ffea00; font-size:13px; margin-top:4px;">ID Pieces: <span id="event-piece-count-Healer">0/10</span></div>
+            </div>
+            <button id="event-trade-btn-Healer" class="btn" style="background:#4CAF50; border-color:#388e3c; padding:10px 20px; font-weight:bold; opacity:0.4; cursor:not-allowed;" disabled onclick="window.tradeEventReward('Healer')">TRADE</button>
+        </div>
+
+        <!-- Ice Master -->
+        <div style="background:rgba(33,150,243,0.08); border:1px solid #2196F3; border-radius:8px; padding:15px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div style="color:#2196F3; font-weight:bold; font-size:18px;">Ice Master Companion</div>
+                <div style="color:#888; font-size:12px;">DPS — Ranged attacker from the backline</div>
+                <div style="color:#ffea00; font-size:13px; margin-top:4px;">ID Pieces: <span id="event-piece-count-IceMaster">0/10</span></div>
+            </div>
+            <button id="event-trade-btn-IceMaster" class="btn" style="background:#2196F3; border-color:#0b7dda; padding:10px 20px; font-weight:bold; opacity:0.4; cursor:not-allowed;" disabled onclick="window.tradeEventReward('Ice Master')">TRADE</button>
+        </div>
+
+        <button class="btn" style="width:100%; margin-top:15px; background:#333; border-color:#555; padding:10px; font-size:14px;" onclick="window.closeEventRewards()">Back</button>
+    </div>
+</div>
+
+<!-- EVENT DUNGEON TIMER -->
+<div id="event-dungeon-timer" style="display:none; position:fixed; top:80px; left:50%; transform:translateX(-50%); font-size:36px; font-weight:700; color:#ffeb3b; text-shadow: 0 0 15px #ff9800, 2px 2px 0 #000; z-index:5000; pointer-events:none; letter-spacing:2px;">⏳ 60s</div>
+
+<!-- COMPANION LIST UI (V Key) -->
+<div id="companion-list-screen" class="movable-window" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:380px; background:rgba(20,20,20,0.98); border:2px solid #E040FB; border-radius:10px; padding:20px; z-index:2600; box-shadow:0 0 30px rgba(224,64,251,0.4); max-height:70vh; overflow-y:auto;">
+    <div class="window-drag-handle" style="color:#E040FB; font-size:22px;">🐾 Companions</div>
+    <div id="companion-list-body">
+        <p style="text-align:center; color:#aaa; margin-top:30px;">You have no companions yet.<br><span style="font-size:12px; color:#666;">Obtain Companion Tokens from the Event Portal to recruit one!</span></p>
+    </div>
+    <button class="btn btn-large" style="margin-top:15px; padding:10px; background:#555; border-color:#555;" onclick="window.toggleCompanionList()">Close (V)</button>
+</div>
+
+<!-- COMPANION DETAIL PANEL -->
+<div id="companion-detail-panel" class="movable-window" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:420px; background:rgba(20,20,20,0.98); border:2px solid #ffeb3b; border-radius:10px; padding:20px; z-index:2700; box-shadow:0 0 30px rgba(255,235,59,0.3); max-height:80vh; overflow-y:auto;">
+    <div class="window-drag-handle" style="color:#ffeb3b; font-size:20px;">Companion Details</div>
+    <div id="companion-detail-body"></div>
+    <button class="btn btn-large" style="margin-top:15px; padding:10px; background:#555; border-color:#555;" onclick="window.closeCompanionDetail()">Back</button>
+</div>
+
+<!-- MOBILE COMPANION BUTTON -->
+<style>
+#mobile-companion-btn { display:none; position:absolute; right:140px; bottom:115px; width:40px; height:40px; background:rgba(0,0,0,0.7); border-radius:8px; font-size:20px; justify-content:center; align-items:center; z-index:9999; pointer-events:auto; cursor:pointer; opacity:0.7; border:2px solid #E040FB; color:#E040FB; box-shadow: 0 0 10px rgba(224,64,251,0.3); }
+#mobile-companion-btn:active { opacity:1; background:rgba(0,0,0,0.9); transform:scale(0.9); }
+@media (pointer:coarse),(max-width:950px){ #mobile-companion-btn { display:flex !important; } }
+</style>
+<div id="mobile-companion-btn" onclick="window.toggleCompanionList()">🐾</div>
+
+<!-- EVENT SCRIPTS -->
+<script src="event_cave.js"></script>
+<script src="event_may.js"></script>
 
 </body>
 </html>
