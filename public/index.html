@@ -414,18 +414,18 @@
 <!-- EVENT PORTAL FULL-SCREEN UI -->
 <div id="event-portal-screen" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background: linear-gradient(180deg, rgba(0,0,0,0.97) 0%, rgba(20,10,30,0.98) 100%); z-index:99998; flex-direction:column; justify-content:center; align-items:center; backdrop-filter:blur(8px); overflow-y:auto; padding:20px; box-sizing:border-box;">
     <div style="text-align:center; max-width:600px; width:90%;">
-        <h1 style="color:#ffea00; font-size:46px; text-shadow: 0 0 30px #ff9800, 0 0 60px #ffea00; margin-bottom:5px; letter-spacing:4px; font-family:Cinzel,serif;">⚔️ EVENT PORTAL ⚔️</h1>
+        <h1 style="color:#ffea00; font-size:46px; text-shadow: 0 0 30px #ff9800, 0 0 60px #ffea00; margin-bottom:5px; letter-spacing:4px; font-family:Cinzel,serif;">EVENT PORTAL</h1>
         <h2 style="color:#E040FB; font-size:28px; margin-top:0; margin-bottom:20px; text-shadow: 0 0 15px #E040FB;">May Event: Companion Dungeon</h2>
         <div style="background:rgba(255,255,255,0.05); border:1px solid #444; border-radius:10px; padding:20px; margin-bottom:30px; text-align:left;">
             <p style="color:#ccc; font-size:16px; line-height:1.6; margin:0;">
-                🏔️ <strong style="color:#ffeb3b;">The Cave</strong> has been discovered beneath the Maze of Exonie! Survive the relentless waves of Minotaurs for <strong style="color:#f44336;">60 seconds</strong> and prove your worth.
+                <strong style="color:#ffeb3b;">The Cave</strong> has been discovered beneath the Maze of Exonie! Survive the relentless waves of Minotaurs for <strong style="color:#f44336;">60 seconds</strong> and prove your worth.
             </p>
             <p style="color:#aaa; font-size:14px; line-height:1.5; margin-top:12px; margin-bottom:0;">
-                ✨ Surviving grants a chance to find <strong style="color:#ffea00;">Divine ID Pieces</strong> — collect <strong>10</strong> to trade for a powerful <strong style="color:#E040FB;">Companion</strong> that fights alongside you!
+                Surviving grants a chance to find <strong style="color:#ffea00;">Divine ID Pieces</strong> — collect <strong>10</strong> to trade for a powerful <strong style="color:#E040FB;">Companion</strong> that fights alongside you!
             </p>
         </div>
         <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:15px; margin-bottom:25px;">
-            <button class="btn" style="padding:18px 50px; font-size:22px; background:linear-gradient(135deg, #4CAF50, #2E7D32); border:2px solid #4CAF50; color:#fff; cursor:pointer; border-radius:8px; box-shadow: 0 0 20px rgba(76,175,80,0.5); font-weight:bold; letter-spacing:2px;" onclick="window.startEventDungeon()">⚔️ ENTER THE CAVE</button>
+            <button class="btn" style="padding:18px 50px; font-size:22px; background:linear-gradient(135deg, #4CAF50, #2E7D32); border:2px solid #4CAF50; color:#fff; cursor:pointer; border-radius:8px; box-shadow: 0 0 20px rgba(76,175,80,0.5); font-weight:bold; letter-spacing:2px;" onclick="window.startEventDungeon()">ENTER THE CAVE</button>
             <button class="btn" style="padding:18px 50px; font-size:22px; background:linear-gradient(135deg, #E040FB, #9C27B0); border:2px solid #E040FB; color:#fff; cursor:pointer; border-radius:8px; box-shadow: 0 0 20px rgba(224,64,251,0.5); font-weight:bold; letter-spacing:2px;" onclick="window.openEventRewards()">🎁 REWARDS</button>
         </div>
         <button class="btn" style="background:#333; border:1px solid #555; padding:10px 30px; color:#aaa; cursor:pointer; font-size:14px;" onclick="window.closeEventPortal()">Close & Leave</button>
@@ -435,7 +435,7 @@
 <!-- EVENT REWARDS PANEL (Overlay on top of portal screen) -->
 <div id="event-rewards-panel" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.9); z-index:99999; flex-direction:column; justify-content:center; align-items:center; backdrop-filter:blur(5px); overflow-y:auto; padding:20px; box-sizing:border-box;">
     <div style="max-width:550px; width:90%; background:rgba(20,20,30,0.98); border:2px solid #E040FB; border-radius:12px; padding:25px; box-shadow:0 0 40px rgba(224,64,251,0.3);">
-        <h2 style="color:#E040FB; text-align:center; margin-top:0; font-size:28px; text-shadow: 0 0 15px #E040FB;">🎁 Event Rewards</h2>
+        <h2 style="color:#E040FB; text-align:center; margin-top:0; font-size:28px; text-shadow: 0 0 15px #E040FB;">Event Rewards</h2>
         <p style="color:#aaa; text-align:center; font-size:13px; margin-bottom:20px;">Collect 10 ID Pieces from the Cave and trade them for a Companion Token!</p>
 
         <!-- Berserker -->
