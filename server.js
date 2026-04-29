@@ -9411,7 +9411,7 @@ io.on('connection', (socket) => {
                 const survived = !pp.isGhost;
                 let drop = null;
                 if (survived) {
-                    if (Math.random() < 0.01) {
+                    if (Math.random() < 0.05) { // Increased to 5% drop rate
                         const types = ['Berserker', 'Healer', 'Ice Master'];
                         const chosen = types[Math.floor(Math.random() * types.length)];
                         drop = {
