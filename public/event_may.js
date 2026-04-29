@@ -329,6 +329,21 @@
             const log = document.getElementById('game-log');
 
             if (data.survived) {
+                // Massive glowing victory text
+                const vText = document.createElement('div');
+                vText.innerHTML = `<h1 style="font-size:80px; margin:0; text-shadow:0 0 30px #ffea00, 4px 4px 0 #000; letter-spacing: 5px; animation: pulseText 1s infinite alternate;">EVENT CLEAR!</h1>`;
+                vText.style.position = 'fixed';
+                vText.style.top = '40%';
+                vText.style.left = '50%';
+                vText.style.transform = 'translate(-50%, -50%)';
+                vText.style.textAlign = 'center';
+                vText.style.color = '#ffea00';
+                vText.style.zIndex = '9999';
+                document.body.appendChild(vText);
+                
+                // Remove text after 4 seconds
+                setTimeout(() => { vText.remove(); }, 4000);
+
                 if (data.drop) {
                     if (log) log.innerHTML = `<span style="color:#ffea00; font-weight:bold;">🎉 You survived! You found a ${data.drop.name}!</span>`;
                 } else {
