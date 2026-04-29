@@ -5982,6 +5982,20 @@ io.on('connection', (socket) => {
             const p = onlinePlayers[socket.id];
             if (!onlinePlayers[socket.id]) return;
 
+            // 🎉 EVENT DUNGEON: Skip instance reassignment — server already assigned the custom instance
+            if (p.eventDungeonActive && data.mapId === 'event_cave') {
+                p.expectedMapId = null;
+                p.isLoadingMap = false;
+                p.isWaitingForTeam = false;
+                // Send existing monsters in this instance to the client
+                if (worlds[p.instanceId] && worlds[p.instanceId].monsters) {
+                    Object.values(worlds[p.instanceId].monsters).forEach(m => {
+                        if (m.alive) socket.emit('monsterSpawned', serializeMonster(m));
+                    });
+                }
+                return;
+            }
+
             // 🛑 ANTI-CHEAT: THE BOUNCER
             if (data.mapId === 'trainingtavern' || String(data.mapId).startsWith('dungeon') || data.mapId === 'hauntedhouse') {
                 // 🛡️ THE FIX: If they are ALREADY in the map, ignore the duplicate lag signal!
@@ -9362,7 +9376,7 @@ io.on('connection', (socket) => {
                         const chosen = types[Math.floor(Math.random() * types.length)];
                         drop = {
                             id: Date.now() + Math.random(),
-                            name: ` ID Piece`,
+                            name: `${chosen} ID Piece`,
                             type: 'material', rarity: 'Divine', color: '#ffea00', level: 1,
                             description: `A fragment of a ${chosen}'s identity. Collect 10 to summon a ${chosen} Companion.`,
                             quantity: 1
