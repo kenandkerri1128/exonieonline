@@ -2023,7 +2023,8 @@ window.cleanupMap = function() {
         game.player.activePets.forEach(pet => { if(pet.dom) pet.dom.remove(); }); 
         game.player.activePets = []; 
     } 
-    if (localBossTimer) clearInterval(localBossTimer);
+    if (typeof window.despawnCompanionEntities === 'function') window.despawnCompanionEntities();
+    if (localBossTimer) clearInterval(localBossTimer);
     // u{1F6E1}uFE0F INTERVAL LEAK FIX: Kill orphaned dungeon & tavern timers on map change
     if (typeof dungeonTimerInt !== 'undefined' && dungeonTimerInt) { clearInterval(dungeonTimerInt); dungeonTimerInt = null; }
     if (typeof tavernTimerInt !== 'undefined' && tavernTimerInt) { clearInterval(tavernTimerInt); tavernTimerInt = null; }
@@ -2057,7 +2058,8 @@ window.forceUnstuck = function() {
 };
 window.showMapAnnouncement = function(mapId) { 
     if (!mapId) return;
-    let cleanName = String(mapId).replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase()); 
+    const nameOverrides = { 'event_cave': 'Cave' };
+    let cleanName = nameOverrides[mapId] || String(mapId).replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase()); 
     const permName = document.getElementById('permanent-map-name'); 
     if (permName) { permName.innerText = cleanName; permName.style.display = 'block'; } 
     const annContainer = document.getElementById('map-announcement'); 
@@ -2525,6 +2527,7 @@ window.routeMapMusic = function(mapId) {
 
     // 1. Hardcoded Exceptions
     if (mId.includes('dungeon2')) return 'bossfight2'; // 🎵 DUNGEON 2 UNIQUE BGM
+    if (mId === 'event_cave') return 'bossfight'; // 🎉 EVENT CAVE BGM
     if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon')) return 'bossfight';
     if (mId.includes('floor')) return 'floors';
     if (mId.includes('home')) return 'home'; 
@@ -2987,6 +2990,8 @@ window.openItemAction = function(index, e) {
         document.getElementById('ctx-btn-equip').innerText = "Apply to Weapon";
     } else if (item.type === 'skilltreat') {
         document.getElementById('ctx-btn-equip').innerText = "Apply to Minion";
+    } else if (item.type === 'companion_token') {
+        document.getElementById('ctx-btn-equip').innerText = "Activate";
     } else {
         document.getElementById('ctx-btn-equip').innerText = (item.type === 'potion' || item.type === 'consumable') ? "Use" : (item.type === 'material' ? "Enhance" : (item.type === 'aura' ? (isPet ? "Equip Pet" : "Apply Aura") : (item.type === 'forger' ? "Use Forger" : "Equip")));
     }
@@ -3098,6 +3103,10 @@ window.actionEquip = function(e) {
         window.isApplyingSkillTreat = true;
         dom.log.innerText = `Select a Minion item to teach it this skill!`;
         window.renderInventory();
+
+    // 🐾 COMPANION TOKEN: Activate to recruit companion
+    } else if (item.type === 'companion_token') {
+        if (socket) socket.emit('activateCompanionToken', { inventoryIndex: activeInvIndex });
 
     } else { 
         window.useItem(activeInvIndex); 
@@ -3893,6 +3902,7 @@ function setKeyState(e, isDown) {
         if (key === 'j' && typeof window.openShop === 'function') window.openShop(); 
         if (key === 'm' && typeof window.toggleMailbox === 'function') window.toggleMailbox(); 
         if (key === 'g' && typeof window.openGuildUI === 'function') window.openGuildUI();
+        if (key === 'v' && typeof window.toggleCompanionList === 'function') window.toggleCompanionList();
         if (key === 'c' && typeof window.openRealMoneyShop === 'function') window.openRealMoneyShop();
         if (key === 'o') {
             if (window.isAdmin(game.player.name)) { 
@@ -4139,6 +4149,8 @@ if(socket) {
             // 🛡️ THE FIX: Guarantee the client initializes all 6 equip slots on login
             const defaultEquips = { weapon: null, armor: null, leggings: null, necklace: null, ring: null, earrings: null };
             game.player.equips = Object.assign({}, defaultEquips, userData.equips || {});
+            // 🐾 Load companions from database
+            game.player.companions = Array.isArray(userData.companions) ? userData.companions : [];
             window.charData.skinColor = userData.skin_color || 'flesh'; 
             window.charData.hairColor = userData.hair_color || 'black'; 
             window.charData.hairStyle = userData.hair_style || '1'; 
@@ -4822,6 +4834,15 @@ if (tp.spectateTarget) {
     window.isTransitioning = true; // 🛡️ NETWORK LOCK: Ignore old map data
         let nextMapId = tp.targetMapId || 'town'; 
         
+        // 🎉 EVENT PORTAL: Intercept event_cave to show Event UI
+        if (nextMapId === 'event_cave') {
+            game.player.currentPortal = null;
+            window.isEventUIOpen = true;
+            game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false;
+            window.openEventPortal();
+            return; // Stop standard teleport
+        }
+
         // 🏰 NEW: Dungeon 1 Group Entry Logic
         if (nextMapId === 'dungeon1') {
             game.player.currentPortal = null;
@@ -5698,7 +5719,8 @@ let localBossTimer = null;
 
     socket.on('bossCooldownActive', (data) => {
         // Clear any old timers if we switch rooms
-        if (localBossTimer) clearInterval(localBossTimer);
+        if (typeof window.despawnCompanionEntities === 'function') window.despawnCompanionEntities();
+    if (localBossTimer) clearInterval(localBossTimer);
         
         let remaining = data.remaining;
         
