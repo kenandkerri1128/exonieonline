@@ -7008,6 +7008,12 @@ window.addEventListener('keydown', (e) => {
 // 🎥 DYNAMIC TUTORIAL VIDEO PLAYER (CRASH-FREE VERSION)
 window.playTutorialVideo = function(allowSkip) {
     if (typeof allowSkip === 'undefined') allowSkip = true; // Default: skippable when re-watching from Settings
+    
+    // Close settings if open
+    const settingsMenu = document.getElementById('settings-menu');
+    if (settingsMenu) settingsMenu.style.display = 'none';
+    window.isSettingsOpen = false;
+
     // 🔇 1. Stop background music immediately
     if (typeof currentBGM !== 'undefined' && currentBGM) {
         currentBGM.pause();
@@ -7043,9 +7049,10 @@ window.playTutorialVideo = function(allowSkip) {
                 const vid = document.createElement('video');
                 vid.id = 'tutorial-video';
                 vid.src = videoUrl; 
-                vid.controls = true;
+                vid.controls = allowSkip; // 🛡️ NON-SKIPPABLE: Remove seek bar for new players
                 vid.autoplay = true;
-                vid.style.cssText = 'max-width:100%; max-height:85%; background:black; outline:none; box-shadow: 0 0 20px #2196F3; border-radius: 8px;';
+                vid.style.cssText = 'max-width:100%; max-height:85%; background:black; outline:none; box-shadow: 0 0 20px #2196F3; border-radius: 8px; cursor: pointer;';
+                vid.onclick = () => { if (vid.paused) vid.play(); else vid.pause(); };
                 
                 const skipBtn = document.createElement('button');
                 skipBtn.innerText = 'SKIP / CLOSE TUTORIAL';
@@ -8733,30 +8740,6 @@ window.toggleHighQuality = function() {
     }
 };
 
-// Watch Tutorial — Plays tutorial.mp4 and mutes BGM
-window.playTutorialVideo = function() {
-    window.toggleSettingsMenu(); // Close settings first
-    const overlay = document.getElementById('tutorial-overlay');
-    const video = document.getElementById('tutorial-video');
-    if (overlay) overlay.style.display = 'flex';
-    if (video) { video.currentTime = 0; video.play().catch(function(){}); }
-    // Mute BGM during tutorial playback
-    if (window.currentBGM) window.currentBGM.volume = 0;
-    
-    // Auto-restore when video ends
-    if (video) {
-        video.onended = function() { window.closeTutorialVideo(); };
-    }
-};
-
-window.closeTutorialVideo = function() {
-    const overlay = document.getElementById('tutorial-overlay');
-    const video = document.getElementById('tutorial-video');
-    if (video) { video.pause(); video.currentTime = 0; video.onended = null; }
-    if (overlay) overlay.style.display = 'none';
-    // Restore BGM volume
-    if (window.currentBGM) window.currentBGM.volume = (window.gameVolume != null ? window.gameVolume : 0.5);
-};
 
 // Close Game — Show confirmation, then disconnect and return to auth screen
 window.confirmCloseGame = function() {
