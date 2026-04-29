@@ -1050,10 +1050,10 @@ var townMapData = {
             "w": 34,
             "h": 17,
             "portalId": "Q",
-            "targetMapId": "dungeon1",
+            "targetMapId": "event_cave",
             "targetX": 960,
             "targetY": 960
         }
     ]
 };
-if(typeof window !== 'undefined') window['townMapData'] = townMapData;
+if (typeof window !== 'undefined') window['townMapData'] = townMapData;
