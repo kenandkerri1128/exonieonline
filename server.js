@@ -1571,8 +1571,8 @@ function spawnMonster(instId, entityId, originalKey, cfg) {
     let monsterKey = originalKey; // 🌟 Store the original key to prevent mutations!
     let stats = MonsterDatabase[monsterKey] || MonsterDatabase["common_mobs1"];
 
-    // 🌟 1% CHANCE TO OVERRIDE ANY COMMON MOB WITH THE GOLDEN SLIME
-    if (stats.category === "common_mobs" && monsterKey !== "common_mobs_golden") {
+    // 🌟 1% CHANCE TO OVERRIDE ANY COMMON MOB WITH THE GOLDEN SLIME (not in events)
+    if (stats.category === "common_mobs" && monsterKey !== "common_mobs_golden" && !String(instId).startsWith('event_')) {
         if (Math.random() < 0.0003) {
             monsterKey = "common_mobs_golden";
             stats = MonsterDatabase["common_mobs_golden"];
@@ -2129,6 +2129,39 @@ function updateMonsterAI(instId, m, now) {
                 io.to(instId).emit('breakGammaShield', { targetId: victim.id });
 
                 io.to(instId).emit('remotePlayerGhosted', victim.id);
+
+                // 🎉 EVENT DUNGEON DEATH = INSTANT GAME OVER
+                if (victim.eventDungeonActive) {
+                    victim.eventDungeonActive = false;
+                    const eventWorld = worlds[instId];
+                    if (eventWorld) {
+                        if (eventWorld.failTimer) clearTimeout(eventWorld.failTimer);
+                        if (eventWorld.commonInterval) clearInterval(eventWorld.commonInterval);
+                        if (eventWorld.bossInterval) clearInterval(eventWorld.bossInterval);
+                    }
+                    if (victimSid) {
+                        io.to(victimSid).emit('eventDungeonTimerStop');
+                        io.to(victimSid).emit('eventDungeonResult', { survived: false, drop: null });
+                        io.to(victimSid).emit('systemMessage', '<span style="color:#f44336; font-weight:bold;">GAME OVER! You were defeated in the Cave...</span>');
+                    }
+                    setTimeout(() => {
+                        victim.isGhost = false;
+                        victim.currentHp = getServerTotalStat(victim, 'hp') || 100;
+                        victim.mapId = 'town'; victim.x = 960; victim.y = 1000;
+                        victim.instanceId = getInstanceId(victim.id, 'town');
+                        victim.isLoadingMap = false; victim.isWaitingForTeam = false;
+                        if (victimSid) {
+                            const vs = io.sockets.sockets.get(victimSid);
+                            if (vs) {
+                                vs.leave(instId);
+                                vs.join(victim.instanceId);
+                                vs.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
+                            }
+                        }
+                        if (worlds[instId]) delete worlds[instId];
+                    }, 5000);
+                    return; // Skip normal death screen
+                }
 
                 if (!pid || !parties[pid]) {
                     if (victimSid) io.to(victimSid).emit('showDeathScreen');
@@ -4238,6 +4271,12 @@ io.on('connection', (socket) => {
                                         }, 4000);
                                     });
                                 }
+                            }
+
+                            // 🎉 EVENT MOB: Skip all rewards (no EXP, gold, loot)
+                            if (m.isEventMob) {
+                                io.to(p.instanceId).emit('monsterState', Object.values(worlds[p.instanceId].monsters).map(serializeMonster));
+                                return;
                             }
 
                             // 1. Process EXP & Gold First
@@ -7065,9 +7104,9 @@ io.on('connection', (socket) => {
             if (!p) return;
             if (!p.isGhost) return;
 
-            // ⚔️ TAVERN & DUNGEON 2 ANTI-CHEAT: Block Revival Juice
-            if (p.mapId === 'trainingtavern' || String(p.mapId).startsWith('dungeon2')) {
-                return socket.emit('systemMessage', 'Revival Juice is forbidden here! Only a Healer can save you.');
+            // ⚔️ TAVERN, DUNGEON 2 & EVENT CAVE ANTI-CHEAT: Block Revival Juice
+            if (p.mapId === 'trainingtavern' || String(p.mapId).startsWith('dungeon2') || p.mapId === 'event_cave') {
+                return socket.emit('systemMessage', 'Revival Juice is forbidden here!');
             }
 
             const inv = Array.isArray(p.inventory) ? p.inventory : [];
@@ -9336,7 +9375,7 @@ io.on('connection', (socket) => {
             socket.emit('eventDungeonTimerStart', { durationMs: 60000 });
 
             let spawnCount = 0;
-            const eventLevel = Math.max(10, Math.min(150, p.level || 10));
+            const eventLevel = 50; // Fixed level 50 for event
 
             const commonInterval = setInterval(() => {
                 if (!worlds[newInstId]) { clearInterval(commonInterval); return; }
@@ -9345,9 +9384,13 @@ io.on('connection', (socket) => {
                 const spawnX = 200 + Math.random() * 1500;
                 const spawnY = 300 + Math.random() * 800;
                 const newMob = spawnMonster(newInstId, mobId, 'common_minotaur', { spawnArea: { minX: spawnX, minY: spawnY }, level: eventLevel });
+                // Event mobs: no drops, no EXP, no gold, no golden slime
+                newMob.expYield = 0; newMob.goldYield = 0; newMob.isEventMob = true;
+                newMob.category = 'event_mob';
                 worlds[newInstId].monsters[mobId] = newMob;
                 io.to(newInstId).emit('monsterSpawned', serializeMonster(newMob));
             }, 1000);
+            worlds[newInstId].commonInterval = commonInterval;
 
             let miniBossCount = 0;
             const bossInterval = setInterval(() => {
@@ -9357,9 +9400,13 @@ io.on('connection', (socket) => {
                 const spawnX = 400 + Math.random() * 1100;
                 const spawnY = 300 + Math.random() * 800;
                 const newMob = spawnMonster(newInstId, mobId, 'mini_boss_minotaur', { spawnArea: { minX: spawnX, minY: spawnY }, level: eventLevel });
+                // Event mobs: no drops, no EXP, no gold, no golden slime
+                newMob.expYield = 0; newMob.goldYield = 0; newMob.isEventMob = true;
+                newMob.category = 'event_mob';
                 worlds[newInstId].monsters[mobId] = newMob;
                 io.to(newInstId).emit('monsterSpawned', serializeMonster(newMob));
             }, 10000);
+            worlds[newInstId].bossInterval = bossInterval;
 
             worlds[newInstId].failTimer = setTimeout(() => {
                 clearInterval(commonInterval);
@@ -9391,7 +9438,18 @@ io.on('connection', (socket) => {
                         }
                     }
                 }
+                // Show clear result message
+                if (survived) {
+                    if (drop) {
+                        socket.emit('systemMessage', `<span style="color:#ffea00; font-weight:bold;">You survived the Cave! You found a <span style="color:#E040FB;">${drop.name}</span>!</span>`);
+                    } else {
+                        socket.emit('systemMessage', '<span style="color:#4CAF50; font-weight:bold;">You survived the Cave! No drops this time. Better luck next run!</span>');
+                    }
+                } else {
+                    socket.emit('systemMessage', '<span style="color:#f44336; font-weight:bold;">You were defeated in the Cave... Try again!</span>');
+                }
                 socket.emit('eventDungeonResult', { survived, drop });
+                // 5-second delay so player can read the message before teleporting
                 setTimeout(() => {
                     socket.leave(newInstId);
                     pp.mapId = 'town'; pp.x = 960; pp.y = 1000;
@@ -9403,7 +9461,7 @@ io.on('connection', (socket) => {
                         if (worlds[newInstId].failTimer) clearTimeout(worlds[newInstId].failTimer);
                         delete worlds[newInstId];
                     }
-                }, 3000);
+                }, 5000);
             }, 60000);
         });
 
