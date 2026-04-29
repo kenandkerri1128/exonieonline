@@ -9,12 +9,6 @@ var townMapData = {
     "floorBossSpawns": [],
     "collisions": [
         {
-            "x": 562,
-            "y": 432,
-            "w": 231,
-            "h": 158
-        },
-        {
             "x": 788,
             "y": 407,
             "w": 104,
@@ -919,6 +913,36 @@ var townMapData = {
             "y": 1127,
             "w": 55,
             "h": 130
+        },
+        {
+            "x": 561,
+            "y": 449,
+            "w": 64,
+            "h": 144
+        },
+        {
+            "x": 586,
+            "y": 453,
+            "w": 172,
+            "h": 91
+        },
+        {
+            "x": 667,
+            "y": 432,
+            "w": 95,
+            "h": 27
+        },
+        {
+            "x": 668,
+            "y": 542,
+            "w": 87,
+            "h": 54
+        },
+        {
+            "x": 612,
+            "y": 527,
+            "w": 74,
+            "h": 47
         }
     ],
     "teleports": [
@@ -1019,6 +1043,16 @@ var townMapData = {
             "targetMapId": "battlefield",
             "targetX": 960,
             "targetY": 1000
+        },
+        {
+            "x": 629,
+            "y": 576,
+            "w": 34,
+            "h": 17,
+            "portalId": "Q",
+            "targetMapId": "dungeon1",
+            "targetX": 960,
+            "targetY": 960
         }
     ]
 };
