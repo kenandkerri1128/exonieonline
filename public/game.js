@@ -5719,8 +5719,7 @@ let localBossTimer = null;
 
     socket.on('bossCooldownActive', (data) => {
         // Clear any old timers if we switch rooms
-        if (typeof window.despawnCompanionEntities === 'function') window.despawnCompanionEntities();
-    if (localBossTimer) clearInterval(localBossTimer);
+        if (localBossTimer) clearInterval(localBossTimer);
         
         let remaining = data.remaining;
         
