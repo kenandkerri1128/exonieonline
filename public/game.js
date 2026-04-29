@@ -5765,14 +5765,46 @@ let localBossTimer = null;
         }, 1000);
     });
     socket.on('monsterSpawned', (m) => { 
-        if (window.isTransitioning || window.isLoading || !m || safeMapData.id === 'town') return; 
-        
-        // 🛡️ THE BLEED FIX: Block delayed network packets from the old room!
-        if (Date.now() - (window.mapLoadTimestamp || 0) < 2000) return;
+        if (!m || safeMapData.id === 'town') return;
+        // Skip bleed-fix delay for event dungeons so spawns render immediately
+        const isEventMap = safeMapData.id === 'event_cave';
+        if (!isEventMap && (window.isTransitioning || window.isLoading)) return;
+        if (!isEventMap && Date.now() - (window.mapLoadTimestamp || 0) < 2000) return;
 
+        // Re-use monsterState rendering for full DOM creation
         game.monsters[m.id] = m; 
-        const mEl = document.getElementById('mob_' + m.id); 
-        if(mEl) mEl.style.display = 'flex'; 
+        const existing = document.getElementById('mob_' + m.id);
+        if (existing) { existing.style.display = 'flex'; return; }
+
+        // Trigger full render by injecting into monsterState pipeline
+        const fakeState = [m];
+        socket.emit = socket.emit; // no-op, just ensuring scope
+        // Manually create the monster DOM (same logic as monsterState)
+        let mEl = document.createElement('div'); mEl.id = 'mob_' + m.id; mEl.className = 'entity monster-container'; mEl.style.position = 'absolute'; mEl.style.cursor = 'crosshair'; mEl.style.zIndex = '50'; mEl.style.display = 'flex'; mEl.style.justifyContent = 'center'; mEl.style.alignItems = 'flex-end';
+        
+        let spriteHtml = '';
+        if (m.monsterKey.includes('golem')) {
+            spriteHtml = `<div class="monster-sprite-layer golem-base"><div class="g-head"><div class="g-eye"></div><div class="g-eye"></div></div><div class="g-arm-l"></div><div class="g-arm-r"></div><div class="g-leg-l"></div><div class="g-leg-r"></div></div>`;
+        } else if (m.monsterKey.includes('wraith')) {
+            spriteHtml = `<div class="monster-sprite-layer wraith-base"><div class="w-eye left"></div><div class="w-eye right"></div><div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div></div>`;
+        } else if (m.monsterKey.includes('minotaur')) {
+            spriteHtml = `<div class="monster-sprite-layer minotaur-base">
+                <div class="m-head"><div class="m-horn-l"></div><div class="m-horn-r"></div><div class="m-eye-l"></div><div class="m-eye-r"></div><div class="m-snout"><div class="m-ring"></div></div></div>
+                <div class="m-body"></div><div class="m-arm-l"><div class="m-axe"></div></div><div class="m-arm-r"></div>
+                <div class="m-leg-l"></div><div class="m-leg-r"></div></div>`;
+        } else if (m.monsterKey.includes('dragon')) {
+            spriteHtml = `<div class="monster-sprite-layer dragon-base"><div class="d-wing-l"></div><div class="d-wing-r"></div><div class="d-body"></div><div class="d-chest"></div><div class="d-head"><div class="d-horn-l"></div><div class="d-horn-r"></div><div class="d-eye-l"></div><div class="d-eye-r"></div><div class="d-snout"></div></div><div class="d-foot-l"></div><div class="d-foot-r"></div></div>`;
+        } else {
+            spriteHtml = `<div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div>`;
+        }
+
+        mEl.innerHTML = `<div class="name-tag mob-name">${m.name} Lv.${m.level || 5}</div>${spriteHtml}<div class="monster-ui-layer" style="position:absolute; top:-20px; left:0; width:100%; pointer-events:none;"><div class="bar-container" style="height:5px; border-radius:0; margin-bottom:0;"><div class="hp-fill monster-hp-fill" style="background-color:#f44336; height:100%; width:100%;"></div></div></div>`;
+        mEl.dataset.monsterkey = m.monsterKey;
+        mEl.style.setProperty('--mob-color', m.cssColor || '#9c27b0'); 
+        mEl.style.setProperty('--mob-border', m.cssBorder || '#4E342E');
+        mEl.addEventListener('pointerdown', (e) => { e.stopPropagation(); if(!window.isLoading){ window.attemptAttackTarget = m.id; window.attemptAttack(false); } });
+        mEl.style.left = m.x + 'px'; mEl.style.top = m.y + 'px'; mEl.style.width = (m.width || 40) + 'px'; mEl.style.height = (m.height || 40) + 'px';
+        dom.world.appendChild(mEl);
     });
     socket.on('lootDropped', (item) => { 
         if (!item) return;
