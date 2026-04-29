@@ -3372,7 +3372,8 @@ io.on('connection', (socket) => {
                 tauntBuffUntil: 0,
                 attackTokens: 3,
                 lastTokenRefill: Date.now(),
-                skillCooldowns: {}
+                skillCooldowns: {},
+                companions: safeUser.companions || []
             };
 
             // 🛡️ THE UI FIX: Calculate the true totals immediately!
@@ -3509,7 +3510,8 @@ io.on('connection', (socket) => {
                 map_id: p.mapId,
                 inventory: p.inventory,
                 equips: p.equips,
-                guild_details: p.guild_details // 🛡️ Save Guild state!
+                guild_details: p.guild_details, // 🛡️ Save Guild state!
+                companions: p.companions || []
             }).eq('character_name', currentUser);
 
             const pid = playerParty[p.id];
@@ -4267,6 +4269,35 @@ io.on('connection', (socket) => {
 
                                 targetPlayer.exp += finalExp;
                                 targetPlayer.gold += goldAmount;
+
+                                // 🐾 COMPANION EXP SHARING: Companions get 50% of player's EXP
+                                // Only when player is NOT in a party
+                                const tpPartyId = playerParty[targetPlayer.id];
+                                if (!tpPartyId && targetPlayer.companions && targetPlayer.companions.length > 0) {
+                                    const compExp = Math.ceil(finalExp * 0.5);
+                                    let companyLeveledUp = false;
+                                    targetPlayer.companions.forEach(comp => {
+                                        if (!comp || comp.level >= 150) return;
+                                        comp.exp += compExp;
+                                        while (comp.exp >= comp.maxExp && comp.level < 150) {
+                                            comp.exp -= comp.maxExp;
+                                            comp.level++;
+                                            comp.maxExp += (comp.level >= 80 ? 100000 : comp.level >= 71 ? 10000 : comp.level >= 61 ? 7500 : comp.level >= 51 ? 5000 : comp.level >= 41 ? 1500 : comp.level >= 31 ? 1000 : comp.level >= 21 ? 750 : comp.level >= 11 ? 500 : 100);
+                                            comp.baseStats.hp += 10;
+                                            comp.baseStats.atk += 2;
+                                            comp.baseStats.def += 1;
+                                            comp.baseStats.str += 2;
+                                            comp.baseStats.int += 2;
+                                            comp.maxHp = comp.baseStats.hp;
+                                            comp.currentHp = comp.maxHp;
+                                            companyLeveledUp = true;
+                                        }
+                                    });
+                                    if (companyLeveledUp && targetSid) {
+                                        io.to(targetSid).emit('companionUpdated', { companions: targetPlayer.companions });
+                                        io.to(targetSid).emit('systemMessage', '<span style="color:#E040FB;">🐾 Your companion leveled up!</span>');
+                                    }
+                                }
 
                                 let leveledUp = false;
                                 while (targetPlayer.exp >= targetPlayer.maxExp && targetPlayer.level < 150) {
@@ -9623,6 +9654,435 @@ function initiateDungeon2Stage(instId, mapId, difficulty) {
         }, 20 * 60 * 1000);
     }
 }
+
+// ==========================================
+// 🎉 MAY EVENT: COMPANION EVENT SYSTEM
+// ==========================================
+
+// 🎉 EVENT DUNGEON: 60-Second Survival Wave
+        socket.on('startEventDungeon', async () => {
+            const p = onlinePlayers[socket.id];
+            if (!p || p.isGhost) return;
+
+            // Anti-spam lock
+            if (p.isStartingInstance) return;
+            p.isStartingInstance = true;
+            setTimeout(() => { if (onlinePlayers[socket.id]) onlinePlayers[socket.id].isStartingInstance = false; }, 3000);
+
+            // Solo only — no party in event dungeon
+            const targetMapId = 'event_cave';
+            const newInstId = `event_cave_${p.id}_${Date.now()}`;
+
+            p.teleportGrace = Date.now() + 4000;
+            p.expectedMapId = targetMapId;
+            p.isLoadingMap = true;
+            p.isWaitingForTeam = true;
+            p.eventDungeonActive = true;
+
+            socket.emit('closeDungeonUI');
+
+            // Join the new instance room
+            if (p.instanceId) socket.leave(p.instanceId);
+            p.instanceId = newInstId;
+            p.mapId = targetMapId;
+            p.x = 960;
+            p.y = 1000;
+            socket.join(newInstId);
+
+            socket.emit('forceTeleport', { mapId: targetMapId, x: 960, y: 1000 });
+            socket.emit('systemMessage', '<span style="color:#ffea00; font-weight:bold;">⚔️ Entering the Cave... Survive for 60 seconds!</span>');
+
+            // Build instance
+            if (!worlds[newInstId]) worlds[newInstId] = { monsters: {}, pets: {}, collisions: [], teleports: [] };
+            worlds[newInstId].monsters = {};
+
+            // Use dungeon1 collisions (hardcoded — client-side file has no module.exports)
+            worlds[newInstId].collisions = [
+                { x: -1, y: 124, w: 54, h: 1200 },
+                { x: 68, y: 1240, w: 1931, h: 84 },
+                { x: 68, y: 1122, w: 40, h: 100 },
+                { x: 1915, y: 44, w: 342, h: 1196 },
+                { x: 1875, y: 1176, w: 33, h: 42 },
+                { x: 91, y: 51, w: 1817, h: 187 },
+                { x: 71, y: 258, w: 44, h: 51 },
+                { x: 1859, y: 267, w: 49, h: 55 }
+            ];
+
+            // Start the timer
+            socket.emit('eventDungeonTimerStart', { durationMs: 60000 });
+
+            let spawnCount = 0;
+            const eventLevel = Math.max(10, Math.min(150, p.level || 10));
+
+            // Common minotaur every 1 second
+            const commonInterval = setInterval(() => {
+                if (!worlds[newInstId]) { clearInterval(commonInterval); return; }
+                spawnCount++;
+                const mobId = `event_cm_${spawnCount}`;
+                const spawnX = 200 + Math.random() * 1500;
+                const spawnY = 300 + Math.random() * 800;
+                const newMob = spawnMonster(newInstId, mobId, 'common_minotaur', { spawnArea: { minX: spawnX, minY: spawnY }, level: eventLevel });
+                worlds[newInstId].monsters[mobId] = newMob;
+                io.to(newInstId).emit('monsterSpawned', serializeMonster(newMob));
+            }, 1000);
+
+            // Mini boss minotaur every 10 seconds
+            let miniBossCount = 0;
+            const bossInterval = setInterval(() => {
+                if (!worlds[newInstId]) { clearInterval(bossInterval); return; }
+                miniBossCount++;
+                const mobId = `event_mb_${miniBossCount}`;
+                const spawnX = 400 + Math.random() * 1100;
+                const spawnY = 300 + Math.random() * 800;
+                const newMob = spawnMonster(newInstId, mobId, 'mini_boss_minotaur', { spawnArea: { minX: spawnX, minY: spawnY }, level: eventLevel });
+                worlds[newInstId].monsters[mobId] = newMob;
+                io.to(newInstId).emit('monsterSpawned', serializeMonster(newMob));
+            }, 10000);
+
+            // After 60 seconds: Determine result
+            worlds[newInstId].failTimer = setTimeout(() => {
+                clearInterval(commonInterval);
+                clearInterval(bossInterval);
+
+                const pp = onlinePlayers[socket.id];
+                if (!pp) { delete worlds[newInstId]; return; }
+
+                pp.eventDungeonActive = false;
+
+                socket.emit('eventDungeonTimerStop');
+
+                // Check if player survived (not ghost)
+                const survived = !pp.isGhost;
+                let drop = null;
+
+                if (survived) {
+                    // 1% chance for a Divine ID Piece
+                    if (Math.random() < 0.01) {
+                        const types = ['Berserker', 'Healer', 'Ice Master'];
+                        const chosen = types[Math.floor(Math.random() * types.length)];
+                        drop = {
+                            id: Date.now() + Math.random(),
+                            name: `${chosen} ID Piece`,
+                            type: 'material',
+                            rarity: 'Divine',
+                            color: '#ffea00',
+                            level: 1,
+                            description: `A fragment of a ${chosen}'s identity. Collect 10 to summon a ${chosen} Companion.`,
+                            quantity: 1
+                        };
+
+                        // Add to inventory
+                        if (pp.inventory.length < 40) {
+                            pp.inventory.push(drop);
+                            supabase.from('Exonians').update({ inventory: pp.inventory }).eq('character_name', pp.id);
+                            socket.emit('syncInventory', pp.inventory);
+                        } else {
+                            socket.emit('systemMessage', 'Inventory full! The ID Piece was lost.');
+                            drop = null;
+                        }
+                    }
+                }
+
+                socket.emit('eventDungeonResult', { survived, drop });
+
+                // Teleport back to town
+                setTimeout(() => {
+                    socket.leave(newInstId);
+                    pp.mapId = 'town';
+                    pp.x = 960; pp.y = 1000;
+                    pp.instanceId = getInstanceId(pp.id, 'town');
+                    pp.isLoadingMap = false;
+                    pp.isWaitingForTeam = false;
+                    socket.join(pp.instanceId);
+                    socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
+
+                    // Cleanup instance
+                    if (worlds[newInstId]) {
+                        if (worlds[newInstId].failTimer) clearTimeout(worlds[newInstId].failTimer);
+                        delete worlds[newInstId];
+                    }
+                }, 3000);
+            }, 60000);
+        });
+
+        // 🎁 TRADE EVENT REWARD: 10 ID Pieces → Companion Token Item
+        socket.on('tradeEventReward', async (data) => {
+            const p = onlinePlayers[socket.id];
+            if (!p || !data || !data.companionClass) return;
+
+            const validClasses = ['Berserker', 'Healer', 'Ice Master'];
+            if (!validClasses.includes(data.companionClass)) return;
+
+            const pieceName = `${data.companionClass} ID Piece`;
+            const pieces = p.inventory.filter(i => i && i.name === pieceName);
+
+            if (pieces.length < 10) {
+                return socket.emit('systemMessage', `You need 10 ${pieceName}s to trade. You have ${pieces.length}.`);
+            }
+
+            // Remove 10 pieces from inventory
+            let removed = 0;
+            p.inventory = p.inventory.filter(i => {
+                if (removed >= 10) return true;
+                if (i && i.name === pieceName) { removed++; return false; }
+                return true;
+            });
+
+            // Add Companion Token to inventory
+            const tokenItem = {
+                id: Date.now() + Math.random(),
+                name: `${data.companionClass} Companion Token`,
+                type: 'companion_token',
+                companionClass: data.companionClass,
+                rarity: 'Divine',
+                color: '#E040FB',
+                level: 1,
+                description: `Use this token from your inventory to activate a ${data.companionClass} Companion!`,
+                quantity: 1
+            };
+
+            if (p.inventory.length < 40) {
+                p.inventory.push(tokenItem);
+            } else {
+                return socket.emit('systemMessage', 'Inventory full! Cannot receive the Companion Token.');
+            }
+
+            await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
+            socket.emit('eventRewardTraded', { inventory: p.inventory, itemName: tokenItem.name });
+        });
+
+        // 🐾 ACTIVATE COMPANION TOKEN: Item → Companion saved to Supabase
+        socket.on('activateCompanionToken', async (data) => {
+            const p = onlinePlayers[socket.id];
+            if (!p || !data || typeof data.inventoryIndex !== 'number') return;
+
+            const item = p.inventory[data.inventoryIndex];
+            if (!item || item.type !== 'companion_token') {
+                return socket.emit('systemMessage', 'That is not a Companion Token.');
+            }
+
+            // Check cap
+            const companions = p.companions || [];
+            if (companions.length >= 2) {
+                return socket.emit('systemMessage', 'You already have 2 companions! Max reached.');
+            }
+
+            const companionClass = item.companionClass;
+            const classColors = { 'Berserker': '#f44336', 'Healer': '#4CAF50', 'Ice Master': '#2196F3' };
+            const classWeapons = { 'Berserker': 'sword', 'Healer': 'pendant', 'Ice Master': 'staff' };
+
+            // Create companion object
+            const newCompanion = {
+                id: Date.now() + Math.random(),
+                name: `${companionClass} Companion`,
+                class: companionClass,
+                level: 1,
+                exp: 0,
+                maxExp: 200,
+                skinColor: 'white',
+                hairColor: 'white',
+                hairStyle: '1',
+                equips: { weapon: null, armor: null, leggings: null, necklace: null, ring: null, earrings: null },
+                currentHp: 100,
+                maxHp: 100,
+                baseStats: { hp: 100, atk: 10, def: 5, str: 5, int: 5, spd: 3 }
+            };
+
+            companions.push(newCompanion);
+            p.companions = companions;
+
+            // Remove token from inventory
+            p.inventory.splice(data.inventoryIndex, 1);
+
+            // Save to Supabase
+            await supabase.from('Exonians').update({
+                companions: p.companions,
+                inventory: p.inventory
+            }).eq('character_name', p.id);
+
+            socket.emit('companionActivated', {
+                companions: p.companions,
+                inventory: p.inventory,
+                companionName: newCompanion.name
+            });
+        });
+
+        // 🐾 COMPANION EQUIP ITEM
+        socket.on('equipCompanionItem', async (data) => {
+            const p = onlinePlayers[socket.id];
+            if (!p || !data) return;
+
+            const { companionIndex, inventoryIndex, slot } = data;
+            if (!p.companions || !p.companions[companionIndex]) return;
+            if (!p.inventory[inventoryIndex]) return;
+
+            const validSlots = ['weapon', 'armor', 'leggings', 'necklace', 'ring', 'earrings'];
+            if (!validSlots.includes(slot)) return;
+
+            const item = p.inventory[inventoryIndex];
+            const comp = p.companions[companionIndex];
+
+            // Validate item type matches slot
+            const weaponTypes = ['sword', 'staff', 'pendant', 'gun', 'dagger', 'touchpad'];
+            if (slot === 'weapon' && !weaponTypes.some(w => item.type === w || (item.sprite && item.sprite.includes(w)))) {
+                return socket.emit('systemMessage', 'This item cannot be equipped in the weapon slot.');
+            }
+            if (slot === 'armor' && item.type !== 'armor') return socket.emit('systemMessage', 'This is not armor.');
+            if (slot === 'leggings' && item.type !== 'leggings') return socket.emit('systemMessage', 'These are not leggings.');
+            if (slot === 'necklace' && item.type !== 'necklace') return socket.emit('systemMessage', 'This is not a necklace.');
+            if (slot === 'ring' && item.type !== 'ring') return socket.emit('systemMessage', 'This is not a ring.');
+            if (slot === 'earrings' && item.type !== 'earrings') return socket.emit('systemMessage', 'These are not earrings.');
+
+            // Unequip existing item if any
+            if (comp.equips[slot]) {
+                p.inventory.push(comp.equips[slot]);
+            }
+
+            // Equip new item
+            comp.equips[slot] = item;
+            p.inventory.splice(inventoryIndex, 1);
+
+            // Save
+            await supabase.from('Exonians').update({
+                companions: p.companions,
+                inventory: p.inventory
+            }).eq('character_name', p.id);
+
+            socket.emit('companionUpdated', { companions: p.companions, inventory: p.inventory });
+        });
+
+        // 🐾 COMPANION UNEQUIP ITEM
+        socket.on('unequipCompanionItem', async (data) => {
+            const p = onlinePlayers[socket.id];
+            if (!p || !data) return;
+
+            const { companionIndex, slot } = data;
+            if (!p.companions || !p.companions[companionIndex]) return;
+
+            const comp = p.companions[companionIndex];
+            if (!comp.equips || !comp.equips[slot]) return;
+
+            if (p.inventory.length >= 40) {
+                return socket.emit('systemMessage', 'Inventory full! Cannot unequip.');
+            }
+
+            p.inventory.push(comp.equips[slot]);
+            comp.equips[slot] = null;
+
+            await supabase.from('Exonians').update({
+                companions: p.companions,
+                inventory: p.inventory
+            }).eq('character_name', p.id);
+
+            socket.emit('companionUpdated', { companions: p.companions, inventory: p.inventory });
+        });
+
+        // 🐾 COMPANION ATTACK: Companion deals damage to a monster
+        socket.on('companionAttack', (data) => {
+            const p = onlinePlayers[socket.id];
+            if (!p || !data || typeof data.companionIndex !== 'number') return;
+            if (!p.companions || !p.companions[data.companionIndex]) return;
+
+            const comp = p.companions[data.companionIndex];
+            const world = worlds[p.instanceId];
+            if (!world || !world.monsters) return;
+
+            const m = world.monsters[data.monsterId];
+            if (!m || m.currentHp <= 0) return;
+
+            // Cooldown check (server-side)
+            const now = Date.now();
+            const cdKey = `_compAtkCd_${data.companionIndex}`;
+            const cdMs = comp.class === 'Berserker' ? 1000 : comp.class === 'Ice Master' ? 1500 : 2000;
+            if (p[cdKey] && now - p[cdKey] < cdMs) return;
+            p[cdKey] = now;
+
+            // Distance check
+            const dist = Math.hypot((p.x || 0) - (m.x || 0), (p.y || 0) - (m.y || 0));
+            if (dist > 500) return; // Leash range
+
+            // Calculate damage based on companion stats + equips
+            let compAtk = comp.baseStats.atk || 10;
+            let compStr = comp.baseStats.str || 5;
+            let compInt = comp.baseStats.int || 5;
+
+            // Add equipment stat bonuses
+            if (comp.equips) {
+                for (const slot in comp.equips) {
+                    const eq = comp.equips[slot];
+                    if (!eq || !eq.stats) continue;
+                    compAtk += eq.stats.atk || eq.stats.attack || 0;
+                    compStr += eq.stats.str || 0;
+                    compInt += eq.stats.int || 0;
+                }
+            }
+
+            let damage = 0;
+            if (comp.class === 'Berserker') {
+                // STR-based melee damage
+                damage = compAtk + Math.floor(compStr * 1.5) + comp.level * 2;
+            } else if (comp.class === 'Ice Master') {
+                // INT-based magic damage
+                damage = compAtk + Math.floor(compInt * 2) + comp.level * 2;
+            } else {
+                damage = compAtk + comp.level;
+            }
+
+            // Apply variance (±10%)
+            damage = Math.floor(damage * (0.9 + Math.random() * 0.2));
+            damage = Math.max(1, damage);
+
+            m.currentHp -= damage;
+
+            io.to(p.instanceId).emit('monsterDamaged', {
+                monsterId: data.monsterId,
+                damage: damage,
+                currentHp: m.currentHp,
+                maxHp: m.maxHp,
+                source: 'companion'
+            });
+
+            // Monster death is handled by existing tick/hit logic
+            if (m.currentHp <= 0) {
+                m.alive = false;
+                io.to(p.instanceId).emit('monsterDied', { monsterId: data.monsterId });
+            }
+        });
+
+        // 🐾 COMPANION HEAL: Healer companion heals the player
+        socket.on('companionHeal', (data) => {
+            const p = onlinePlayers[socket.id];
+            if (!p || p.isGhost || !data || typeof data.companionIndex !== 'number') return;
+            if (!p.companions || !p.companions[data.companionIndex]) return;
+
+            const comp = p.companions[data.companionIndex];
+            if (comp.class !== 'Healer') return;
+
+            // Cooldown check
+            const now = Date.now();
+            const cdKey = `_compHealCd_${data.companionIndex}`;
+            if (p[cdKey] && now - p[cdKey] < 2500) return;
+            p[cdKey] = now;
+
+            // Calculate heal amount based on companion INT + level
+            let compInt = comp.baseStats.int || 5;
+            if (comp.equips) {
+                for (const slot in comp.equips) {
+                    const eq = comp.equips[slot];
+                    if (!eq || !eq.stats) continue;
+                    compInt += eq.stats.int || 0;
+                }
+            }
+
+            let healAmt = Math.floor(compInt * 2) + comp.level * 3 + 50;
+            healAmt = Math.max(10, healAmt);
+
+            const maxHp = getServerTotalStat(p, 'hp') || 100;
+            p.currentHp = Math.min(maxHp, (p.currentHp || 0) + healAmt);
+
+            socket.emit('playerHealed', { id: p.id, amount: healAmt, currentHp: p.currentHp });
+            io.to(p.instanceId).emit('playerHealed', { id: p.id, amount: healAmt, currentHp: p.currentHp });
+        });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, "0.0.0.0", () => console.log(`Exonie server running on port ${PORT} (0.0.0.0)`));
