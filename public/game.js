@@ -119,7 +119,7 @@ const socket = io(serverUrl, {
     reconnectionDelayMax: 5000,    
     timeout: 20000,                
 });
-
+window.socket = socket; // Expose globally for event scripts
 // 🔔 OPTIONAL: Log to console if the internet flickers
 socket.on('reconnect_attempt', () => {
     console.log("Internet connection unstable. Attempting to reconnect...");
