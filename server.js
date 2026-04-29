@@ -1979,7 +1979,6 @@ function updateMonsterAI(instId, m, now) {
                             p.frozenUntil = now + 3000; // 🛡️ THE FIX: 3 Second Stun!
 
                             io.to(instId).emit('monsterAttack', { monsterId: m.id, targetId: p.id, targetX: px, targetY: py, atk: m.atk, damage: damage, newHp: p.currentHp });
-                            io.to(instId).emit('systemMessage', `<span style="color:#ffeb3b;">⚡ ${p.name} was STUNNED by a Minotaur Charge!</span>`);
                             io.to(instId).emit('playerStunned', { targetId: p.id, duration: 3000 }); // 🛡️ THE FIX: Send the freeze command to the client!
 
                             // Death Check
@@ -3842,8 +3841,6 @@ io.on('connection', (socket) => {
             if (pClass === 'Phantom Striker' && p.level >= 75 && payload.skillId === 'basic') {
                 if (Math.random() < 0.25) {
                     for (let key in p.skillCooldowns) p.skillCooldowns[key] = 0;
-                    // 🛡️ THE FIX: Only you see this reset now
-                    socket.emit('systemMessage', `<span style="color:#00E5FF; font-weight:bold;">🌀 Your Craftiness reset your skill cooldowns!</span>`);
                     const msid = findSocketIdByPlayerId(p.id);
                     if (msid) io.to(msid).emit('cdReset');
                 }
@@ -3852,8 +3849,6 @@ io.on('connection', (socket) => {
             // ⚔️ PHANTOM STRIKER: Sleight of Hand (Lv 25) - Double Hit
             if (!isMinionSkill && pClass === 'Phantom Striker' && p.level >= 25 && payload.skillId !== 'pet' && Math.random() < 0.50) {
                 hitCount = 2;
-                // 🛡️ THE FIX: Only you see this trigger now
-                socket.emit('systemMessage', `<span style="color:#ffffff; font-weight:bold;">🗡️ Sleight of Hand triggered a double attack!</span>`);
             }
 
             // 🎯 SNIPER: Dual Bullet (Lv 75)
@@ -8555,7 +8550,6 @@ io.on('connection', (socket) => {
             if (pClass === 'Phantom Striker' && p.level >= 75 && payload.skillId === 'basic') {
                 if (Math.random() < 0.25) {
                     for (let key in p.skillCooldowns) p.skillCooldowns[key] = 0;
-                    socket.emit('systemMessage', `<span style="color:#00E5FF; font-weight:bold;">🌀 Your Craftiness reset your skill cooldowns!</span>`);
                     const msid = findSocketIdByPlayerId(p.id);
                     if (msid) io.to(msid).emit('cdReset');
                 }
@@ -8564,7 +8558,6 @@ io.on('connection', (socket) => {
             // ⚔️ PHANTOM STRIKER: Sleight of Hand PvP
             if (pClass === 'Phantom Striker' && p.level >= 25 && payload.skillId !== 'pet' && Math.random() < 0.50) {
                 hitCount = 2;
-                socket.emit('systemMessage', `<span style="color:#ffffff; font-weight:bold;">🗡️ Sleight of Hand triggered a double attack!</span>`);
             }
 
             // 🔫 SKILL DAMAGE LOGIC FOR PVP
