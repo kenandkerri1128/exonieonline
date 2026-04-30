@@ -9090,10 +9090,15 @@ window.executeCloseGame = function() {
         rig.className = 'player-avatar-container avatar-rig';
         rig.style.cssText = 'position:relative; width:48px; height:96px;';
 
+        const hair = new Image(); hair.className = 'avatar-layer layer-hair';
         const head = new Image(); head.className = 'avatar-layer layer-head'; head.src = 'animation/avatar_head.png';
         const body = new Image(); body.className = 'avatar-layer layer-body'; body.src = 'animation/avatar_idlefront.png';
-        const hair = new Image(); hair.className = 'avatar-layer layer-hair';
+        const leggings = new Image(); leggings.className = 'avatar-layer layer-leggings';
+        const armor = new Image(); armor.className = 'avatar-layer layer-armor';
+        const weapon = new Image(); weapon.className = 'avatar-layer layer-weapon';
+
         hair.src = `animation/avatar_hair${comp.hairStyle || '1'}.png`;
+        if (comp.hairStyle === 'none') hair.style.display = 'none';
 
         const skinFilters = window.skinFilters || {};
         const hairFilters = window.hairFilters || {};
@@ -9101,16 +9106,36 @@ window.executeCloseGame = function() {
         body.style.filter = skinFilters[comp.skinColor] || skinFilters['white'] || '';
         hair.style.filter = hairFilters[comp.hairColor] || hairFilters['white'] || '';
 
-        rig.appendChild(body);
-        rig.appendChild(head);
-        rig.appendChild(hair);
-
-        const weapon = new Image(); weapon.className = 'avatar-layer layer-weapon';
         weapon.style.display = 'none';
         if (comp.equips && comp.equips.weapon && comp.equips.weapon.sprite) {
             weapon.style.display = 'block';
             weapon.src = `weapon/${comp.equips.weapon.sprite.replace('starter', 'basic')}.png`;
+            const wRarity = comp.equips.weapon.rarity;
+            if (wRarity && !['Starter', 'Basic', 'Rare', 'Unique'].includes(wRarity)) {
+                weapon.classList.add(`weapon-aura-${wRarity.toLowerCase()}`);
+            }
         }
+
+        leggings.style.display = 'none';
+        if (comp.equips && comp.equips.leggings && comp.equips.leggings.sprite) {
+            leggings.style.display = 'block';
+            leggings.src = `armor/${comp.equips.leggings.sprite}.png`;
+        }
+
+        armor.style.display = 'none';
+        if (comp.equips && comp.equips.armor && comp.equips.armor.sprite) {
+            armor.style.display = 'block';
+            armor.src = `armor/${comp.equips.armor.sprite}.png`;
+        }
+
+        hair.style.opacity = '1'; head.style.opacity = '1'; body.style.opacity = '1'; 
+        leggings.style.opacity = '1'; armor.style.opacity = '1'; weapon.style.opacity = '1';
+
+        rig.appendChild(hair);
+        rig.appendChild(head);
+        rig.appendChild(body);
+        rig.appendChild(leggings);
+        rig.appendChild(armor);
         rig.appendChild(weapon);
 
         container.appendChild(rig);
@@ -9137,7 +9162,7 @@ window.executeCloseGame = function() {
         `;
         container.appendChild(glow);
 
-        return { container, rig, body, weapon, hpFill };
+        return { container, rig, body, weapon, leggings, armor, hpFill };
     }
 
     // --- SPAWN COMPANIONS (mirrors spawnMinion exactly) ---
@@ -9306,10 +9331,17 @@ window.executeCloseGame = function() {
             c.dom.style.top = c.y + 'px';
             if (c.rig) c.rig.style.transform = c.facingRight ? '' : 'scaleX(-1)';
 
-            const walkSrc = c.isAttacking ? 'animation/avatar_attack.png' : 'animation/avatar_walkfront.png';
-            if (c.bodyImg && c.currentBodySrc !== walkSrc) {
-                c.bodyImg.src = walkSrc;
-                c.currentBodySrc = walkSrc;
+            const isMoving = Math.hypot(c.x - (c.prevX || c.x), c.y - (c.prevY || c.y)) > 0.5;
+            c.prevX = c.x; c.prevY = c.y;
+
+            const pulseActive = (Math.floor(Date.now() / 250) % 2 === 0);
+            let bodySrc = 'animation/avatar_idlefront.png';
+            if (c.isAttacking) bodySrc = 'animation/avatar_attack.png';
+            else if (isMoving && pulseActive) bodySrc = 'animation/avatar_walk.png';
+
+            if (c.bodyImg && c.currentBodySrc !== bodySrc) {
+                c.bodyImg.src = bodySrc;
+                c.currentBodySrc = bodySrc;
             }
 
             if (c.hpFill) {
