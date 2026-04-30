@@ -1,4 +1,27 @@
 // ==========================================
+// 🚨 GLOBAL ERROR HANDLER: Prevents black screens from uncaught errors
+// ==========================================
+window.onerror = function(msg, src, line, col, err) {
+    console.error('[EXONIE ERROR]', msg, src, line, col, err);
+    try {
+        const ls = document.getElementById('loading-screen');
+        if (ls) ls.style.display = 'none';
+        window.isLoading = false;
+        window.isTransitioning = false;
+        const log = document.getElementById('log');
+        if (log) log.innerText = 'An error occurred. If the screen is stuck, press ESC and click Close Game.';
+    } catch(e) {}
+};
+window.addEventListener('unhandledrejection', function(event) {
+    console.error('[EXONIE PROMISE ERROR]', event.reason);
+    try {
+        const ls = document.getElementById('loading-screen');
+        if (ls) ls.style.display = 'none';
+        window.isLoading = false;
+        window.isTransitioning = false;
+    } catch(e) {}
+});
+// ==========================================
 // 📱 FORCE LANDSCAPE FULLSCREEN ON MOBILE
 // ==========================================
 if (!window.__exonie_landscape_init) {
@@ -96,10 +119,55 @@ const socket = io(serverUrl, {
     reconnectionDelayMax: 5000,    
     timeout: 20000,                
 });
-
+window.socket = socket; // Expose globally for event scripts
 // 🔔 OPTIONAL: Log to console if the internet flickers
 socket.on('reconnect_attempt', () => {
     console.log("Internet connection unstable. Attempting to reconnect...");
+    let dcMessage = document.getElementById('dc-message-overlay');
+    if (dcMessage) {
+        let pTag = dcMessage.querySelectorAll('p')[1];
+        if(pTag) pTag.innerText = "Attempting to reconnect...";
+    }
+});
+
+// 🔌 SHOW DISCONNECT MESSAGE TO PLAYER
+socket.on('disconnect', (reason) => {
+    console.log("Disconnected from server:", reason);
+    
+    // Don't show if the tab was intentionally locked out by multi-boxing protection
+    if (document.body.innerHTML.includes("Game Already Open")) return;
+
+    let dcMessage = document.getElementById('dc-message-overlay');
+    if (!dcMessage) {
+        dcMessage = document.createElement('div');
+        dcMessage.id = 'dc-message-overlay';
+        dcMessage.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);color:white;display:flex;justify-content:center;align-items:center;z-index:999999;flex-direction:column;font-family:sans-serif;backdrop-filter:blur(5px);';
+        dcMessage.innerHTML = `
+            <div style="text-align:center; animation: dcPulse 2s infinite;">
+                <h1 style="color:#f44336; font-size:40px; margin-bottom:10px; text-shadow:0 0 10px #f44336;">📡 Connection Lost</h1>
+                <p style="font-size:20px; color:#ccc; max-width:80%; margin:0 auto;">You have been disconnected from the server.</p>
+                <p style="font-size:16px; color:#888; margin-top:20px;">Waiting for network to stabilize...</p>
+            </div>
+            <style>
+                @keyframes dcPulse {
+                    0% { opacity: 1; }
+                    50% { opacity: 0.5; }
+                    100% { opacity: 1; }
+                }
+            </style>
+        `;
+        document.body.appendChild(dcMessage);
+    }
+    dcMessage.style.display = 'flex';
+});
+
+// 🔌 HIDE DISCONNECT MESSAGE ON RECONNECT
+socket.on('connect', () => {
+    console.log("Connected to server!");
+    let dcMessage = document.getElementById('dc-message-overlay');
+    if (dcMessage) {
+        dcMessage.style.display = 'none';
+    }
 });
 let currentShopItem = null; // 🛡️ GLOBAL TRACKER FOR THE SHOP
 window.isProcessingShop = false; // Anti-Spam Lock
@@ -1955,7 +2023,9 @@ window.cleanupMap = function() {
         game.player.activePets.forEach(pet => { if(pet.dom) pet.dom.remove(); }); 
         game.player.activePets = []; 
     } 
-    if (localBossTimer) clearInterval(localBossTimer);
+    if (typeof window.despawnCompanionEntities === 'function') window.despawnCompanionEntities();
+    window._forceCompanionRespawn = true;
+    if (localBossTimer) clearInterval(localBossTimer);
     // u{1F6E1}uFE0F INTERVAL LEAK FIX: Kill orphaned dungeon & tavern timers on map change
     if (typeof dungeonTimerInt !== 'undefined' && dungeonTimerInt) { clearInterval(dungeonTimerInt); dungeonTimerInt = null; }
     if (typeof tavernTimerInt !== 'undefined' && tavernTimerInt) { clearInterval(tavernTimerInt); tavernTimerInt = null; }
@@ -1989,7 +2059,8 @@ window.forceUnstuck = function() {
 };
 window.showMapAnnouncement = function(mapId) { 
     if (!mapId) return;
-    let cleanName = String(mapId).replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase()); 
+    const nameOverrides = { 'event_cave': 'Cave' };
+    let cleanName = nameOverrides[mapId] || String(mapId).replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase()); 
     const permName = document.getElementById('permanent-map-name'); 
     if (permName) { permName.innerText = cleanName; permName.style.display = 'block'; } 
     const annContainer = document.getElementById('map-announcement'); 
@@ -2175,23 +2246,23 @@ window.spawnSkillText = function(x, y, text, color) {
     
     anim.onfinish = () => txt.remove();
 };
-window.spawnSpark = function(x, y) { 
-    // 🚀 DOM CAP: Max 20 sparks on screen to prevent mobile lag
-    const existing = dom.world.querySelectorAll('.spark');
-    if (existing.length > 20) existing[0].remove();
-    const spark = document.createElement('div'); spark.className = 'spark'; spark.style.left = (x + (Math.random() * 20 - 10)) + 'px'; spark.style.top = (y + (Math.random() * 20 - 10)) + 'px'; dom.world.appendChild(spark); setTimeout(() => spark.remove(), 300); 
-}
 window.spawnWhiteSplash = function(x, y) { 
     // 🚀 DOM CAP: Max 15 splashes on screen to prevent mobile lag
     const existing = dom.world.querySelectorAll('.white-splash');
     if (existing.length > 15) existing[0].remove();
     const splash = document.createElement('div'); splash.className = 'white-splash'; splash.style.left = x + 'px'; splash.style.top = y + 'px'; dom.world.appendChild(splash); setTimeout(() => splash.remove(), 300); 
 }
-window.shootLaser = function(startX, startY, endX, endY) {
+window.spawnSpark = function(x, y) { 
+    // 🚀 DOM CAP: Max 20 sparks on screen to prevent mobile lag
+    const existing = dom.world.querySelectorAll('.spark');
+    if (existing.length > 20) existing[0].remove();
+    const spark = document.createElement('div'); spark.className = 'spark'; spark.style.left = (x + (Math.random() * 20 - 10)) + 'px'; spark.style.top = (y + (Math.random() * 20 - 10)) + 'px'; dom.world.appendChild(spark); setTimeout(() => spark.remove(), 300); 
+}
+window.shootLaser = function(startX, startY, endX, endY, color = '#00E5FF') {
     const laser = document.createElement('div');
     const length = Math.hypot(endX - startX, endY - startY);
     const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
-    laser.style.cssText = `position:absolute; background:#00E5FF; height:4px; width:${length}px; left:${startX}px; top:${startY}px; transform-origin:0 50%; transform:rotate(${angle}deg); box-shadow:0 0 10px #00E5FF, 0 0 20px #00E5FF; z-index:100; pointer-events:none; opacity:1; transition:opacity 0.2s;`;
+    laser.style.cssText = `position:absolute; background:${color}; height:4px; width:${length}px; left:${startX}px; top:${startY}px; transform-origin:0 50%; transform:rotate(${angle}deg); box-shadow:0 0 10px ${color}, 0 0 20px ${color}; z-index:100; pointer-events:none; opacity:1; transition:opacity 0.2s;`;
     dom.world.appendChild(laser);
     // 🚀 AUDIO POOL: Reuses pooled Audio instead of creating new Audio() every shot
     let sfx = window._getSFX('lightning');
@@ -2366,6 +2437,7 @@ window.customPrompt = function(message, callback) {
 
     // Clean up function to prevent double-firing
     const cleanup = () => {
+        if (document.activeElement) document.activeElement.blur();
         modal.style.display = 'none';
         btnOk.onclick = null;
         btnCancel.onclick = null;
@@ -2456,6 +2528,7 @@ window.routeMapMusic = function(mapId) {
 
     // 1. Hardcoded Exceptions
     if (mId.includes('dungeon2')) return 'bossfight2'; // 🎵 DUNGEON 2 UNIQUE BGM
+    if (mId === 'event_cave') return 'bossfight'; // 🎉 EVENT CAVE BGM
     if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon')) return 'bossfight';
     if (mId.includes('floor')) return 'floors';
     if (mId.includes('home')) return 'home'; 
@@ -2706,7 +2779,28 @@ window.getItemTooltip = function(item) {
     if(item.type === 'material') return html + `<span style="color:#aaa;"><em>${item.description}</em></span>`; 
 if(item.type === 'gem') return html + `<span style="color:#00ffff;"><em>${item.description}</em></span><br>`;
     if(item.type === 'potion') return html + `Heals 100 HP`; 
-    if(item.type === 'consumable') return html + `<span style="color:#ffeb3b;"><em>${item.description}</em></span>`;
+    
+    // u{1F43E} MINION ITEM TOOLTIP
+    if(item.type === 'minion') {
+        html += `<span style="color:#FFD700;"><em>${item.description || 'A Golden Slime Minion.'}</em></span><br>`;
+        if (item.skillName) {
+            html += `<span style="color:#E040FB; font-weight:bold;">⚡ Skill: ${item.skillName}</span><br>`;
+        } else {
+            html += `<span style="color:#888;">u{1F4A4} No skill learned yet</span><br>`;
+        }
+        html += `<span style="color:#aaa;">u{1F4A5} DMG: 500 (Pure)</span><br>`;
+        html += `<span style="color:#4CAF50;">[TRADEABLE]</span>`;
+        return html;
+    }
+
+    // u{1F393} SKILL TREAT TOOLTIP
+    if(item.type === 'skilltreat') {
+        html += `<span style="color:#E040FB;"><em>${item.description || 'Teaches a skill to a Minion.'}</em></span><br>`;
+        html += `<span style="color:#FFD700; font-weight:bold;">u{1F4DC} ${item.skillName} (${item.className})</span><br>`;
+        html += `<span style="color:#4CAF50;">[TRADEABLE]</span>`;
+        return html;
+    }
+    if(item.type === 'consumable') return html + `<span style="color:#ffeb3b;"><em>${item.description}</em></span>`;
 
     // 💎 THE FIX: Visual indicator for Power Gem Sockets
     if (['necklace', 'ring', 'earrings'].includes(item.type)) {
@@ -2722,7 +2816,16 @@ if(item.type === 'gem') return html + `<span style="color:#00ffff;"><em>${item.d
     }
 
     if(item.fixedStat) { for(let key in item.fixedStat) html += `+${item.fixedStat[key]} ${key.toUpperCase()}<br>`; }
-    if(item.randomStat) { for(let key in item.randomStat) html += `<span style="color:#4CAF50;">+${item.randomStat[key]} ${key.toUpperCase()} (Bonus)</span><br>`; } 
+        // u{1F43E} WEAPON MINION INFO
+    if(item.minion) {
+        html += `<br><span style="color:#FFD700; font-weight:bold;">u{1F43E} Minion: ${item.minion.name || 'Golden Slime'}</span><br>`;
+        if (item.minion.skillName) {
+            html += `<span style="color:#E040FB;">⚡ Skill: ${item.minion.skillName}</span><br>`;
+        } else {
+            html += `<span style="color:#888;">u{1F4A4} No skill</span><br>`;
+        }
+    }
+        if(item.randomStat) { for(let key in item.randomStat) html += `<span style="color:#4CAF50;">+${item.randomStat[key]} ${key.toUpperCase()} (Bonus)</span><br>`; } 
     return html; 
 }
 
@@ -2821,6 +2924,26 @@ window.renderInventory = function() {
                 slot.style.border = "1px dashed #E040FB";
                 slot.onclick = (e) => window.openForgerStatSelect(i, e);
             }
+            // 🐾 MINION: Select weapon target
+            else if (window.isApplyingMinion) {
+                slot.style.border = "1px dashed #FFD700";
+                slot.onclick = (e) => {
+                    e.stopPropagation();
+                    if (socket) socket.emit('requestApplyMinion', { minionIndex: activeInvIndex, targetIndex: i });
+                    window.isApplyingMinion = false;
+                    window.renderInventory();
+                };
+            }
+            // 🎓 SKILL TREAT: Select minion target
+            else if (window.isApplyingSkillTreat) {
+                slot.style.border = "1px dashed #E040FB";
+                slot.onclick = (e) => {
+                    e.stopPropagation();
+                    if (socket) socket.emit('requestApplySkillTreat', { treatIndex: activeInvIndex, targetIndex: i });
+                    window.isApplyingSkillTreat = false;
+                    window.renderInventory();
+                };
+            }
             else { 
                 slot.style.borderBottom = `3px solid ${item.color || '#fff'}`; 
                 slot.onclick = (e) => {
@@ -2834,6 +2957,11 @@ window.renderInventory = function() {
                 }; 
            }
             let nameSpan = document.createElement('span');
+            nameSpan.style.display = '-webkit-box';
+            nameSpan.style.webkitLineClamp = '4';
+            nameSpan.style.webkitBoxOrient = 'vertical';
+            nameSpan.style.overflow = 'hidden';
+            nameSpan.style.wordBreak = 'break-word';
             nameSpan.innerText = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name;
             if (item.rarity === 'Divine') nameSpan.className = 'rarity-divine-text';
             slot.appendChild(nameSpan);
@@ -2864,12 +2992,22 @@ window.openItemAction = function(index, e) {
         document.getElementById('ctx-btn-equip').innerText = "Socket Gem";
         window.isApplyingAura = true; // Reusing the aura selection border logic
         dom.log.innerText = `Select an Accessory (Necklace, Ring, Earrings) to socket the gem!`;
+    } else if (item.type === 'minion') {
+        document.getElementById('ctx-btn-equip').innerText = "Apply to Weapon";
+    } else if (item.type === 'skilltreat') {
+        document.getElementById('ctx-btn-equip').innerText = "Apply to Minion";
+    } else if (item.type === 'companion_token') {
+        document.getElementById('ctx-btn-equip').innerText = "Activate";
     } else {
         document.getElementById('ctx-btn-equip').innerText = (item.type === 'potion' || item.type === 'consumable') ? "Use" : (item.type === 'material' ? "Enhance" : (item.type === 'aura' ? (isPet ? "Equip Pet" : "Apply Aura") : (item.type === 'forger' ? "Use Forger" : "Equip")));
     }
     document.getElementById('ctx-btn-sell').style.display = isShopping ? 'block' : 'none';
-    document.getElementById('ctx-btn-extract-aura').style.display = ((item.type === 'armor' || item.type === 'leggings') && item.aura) ? 'block' : 'none';
-    
+    const canExtractAura = (item.type === 'armor' || item.type === 'leggings') && item.aura;
+    const canExtractMinion = item.type === 'weapon' && item.minion;
+    const extractBtn = document.getElementById('ctx-btn-extract-aura');
+    extractBtn.style.display = (canExtractAura || canExtractMinion) ? 'block' : 'none';
+    if (canExtractMinion) extractBtn.innerText = "Extract Minion";
+    else if (canExtractAura) extractBtn.innerText = "Extract Aura/Pet";
     // Show Split button only if there is a stack
     document.getElementById('ctx-btn-split').style.display = (item.quantity && item.quantity > 1) ? 'block' : 'none';
 
@@ -2960,6 +3098,22 @@ window.actionEquip = function(e) {
         dom.log.innerText = `Select an equipment piece to reroll its stats!`;
         window.renderInventory();
         
+    // 🐾 MINION: Enter weapon-selection mode
+    } else if (item.type === 'minion') {
+        window.isApplyingMinion = true;
+        dom.log.innerText = `Select a Weapon to apply the Minion!`;
+        window.renderInventory();
+
+    // 🎓 SKILL TREAT: Enter minion-selection mode
+    } else if (item.type === 'skilltreat') {
+        window.isApplyingSkillTreat = true;
+        dom.log.innerText = `Select a Minion item to teach it this skill!`;
+        window.renderInventory();
+
+    // 🐾 COMPANION TOKEN: Activate to recruit companion
+    } else if (item.type === 'companion_token') {
+        if (socket) socket.emit('activateCompanionToken', { inventoryIndex: activeInvIndex });
+
     } else { 
         window.useItem(activeInvIndex); 
     } 
@@ -3456,6 +3610,17 @@ window.adminGiveCustomItem = function() {
     if (socket) socket.emit('adminSpawnItem', { rarity: r, type: t, level: l, enhanceLevel: e }); 
 }
 
+// 🐾 ADMIN: Spawn Golden Slime Minion
+window.adminSpawnMinion = function() {
+    if (socket) socket.emit('adminSpawnMinion');
+}
+
+// 🎓 ADMIN: Spawn Skill Treat
+window.adminSpawnSkillTreat = function() {
+    let skillId = document.getElementById('admin-skilltreat-select').value;
+    if (socket) socket.emit('adminSpawnSkillTreat', { skillId: skillId });
+}
+
 // ==========================================
 // 7. INPUTS, CHAT & SOCIAL LOGIC
 // ==========================================
@@ -3581,7 +3746,7 @@ window.inspectTargetPlayer = function() { if (!activeTargetPlayerId) return; doc
 window.inviteTargetToParty = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('partyInvite', { targetId: activeTargetPlayerId }); dom.log.innerText = `Party invite sent to ${activeTargetPlayerId}.`; }; 
 let pendingRaidInvite = null;
 window.inviteTargetToRaid = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('raidInvite', { targetId: activeTargetPlayerId }); };
-window.respondRaidInvite = function(accept) { document.getElementById('raid-invite-dialog').style.display = 'none'; if (pendingRaidInvite) { if(socket) socket.emit('raidInviteResponse', { fromId: pendingRaidInvite, accept }); pendingRaidInvite = null; } };
+window.respondRaidInvite = function(accept) { if(document.activeElement) document.activeElement.blur(); document.getElementById('raid-invite-dialog').style.display = 'none'; if (pendingRaidInvite) { if(socket) socket.emit('raidInviteResponse', { fromId: pendingRaidInvite, accept }); pendingRaidInvite = null; } };
 window.leaveRaid = function() { if(confirm('Are you sure you want to disband the Raid Team?')) { if(socket) socket.emit('leaveRaid'); } };
 window.requestTrade = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('tradeRequest', { targetId: activeTargetPlayerId }); dom.log.innerText = `Trade request sent to ${activeTargetPlayerId}.`; }; 
 window.closeInspect = function() { dom.inspect.style.display = 'none'; };
@@ -3602,9 +3767,9 @@ if(socket) socket.emit('playerTeleported', { mapId: 'town', x: game.player.x, y:
                             }
                         }, isGrouped ? 3000 : 300);
                     }); }); }, 500); } };
-window.respondInvite = function(accept) { document.getElementById('invite-dialog').style.display = 'none'; if (pendingPartyInvite) { if(socket) socket.emit('partyInviteResponse', { fromId: pendingPartyInvite, accept }); pendingPartyInvite = null; } }; 
-window.respondTrade = function(accept) { document.getElementById('trade-dialog').style.display = 'none'; if (pendingTradeInvite) { if(socket) socket.emit('tradeInviteResponse', { fromId: pendingTradeInvite, accept }); if (accept) { tradeTarget = pendingTradeInvite; inTradeMode = true; document.getElementById('trade-target-name').innerText = tradeTarget; document.getElementById('trade-screen').style.display = 'block'; window.renderTradeSlots(); window.renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.log.innerText = "Trade declined."; } pendingTradeInvite = null; } }; 
-window.closeTrade = function() { inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade cancelled."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); if(socket) socket.emit('tradeCancel'); }; 
+window.respondInvite = function(accept) { if(document.activeElement) document.activeElement.blur(); document.getElementById('invite-dialog').style.display = 'none'; if (pendingPartyInvite) { if(socket) socket.emit('partyInviteResponse', { fromId: pendingPartyInvite, accept }); pendingPartyInvite = null; } }; 
+window.respondTrade = function(accept) { if(document.activeElement) document.activeElement.blur(); document.getElementById('trade-dialog').style.display = 'none'; if (pendingTradeInvite) { if(socket) socket.emit('tradeInviteResponse', { fromId: pendingTradeInvite, accept }); if (accept) { tradeTarget = pendingTradeInvite; inTradeMode = true; document.getElementById('trade-target-name').innerText = tradeTarget; document.getElementById('trade-screen').style.display = 'block'; window.renderTradeSlots(); window.renderInventory(); dom.invScreen.style.display = 'block'; } else { dom.log.innerText = "Trade declined."; } pendingTradeInvite = null; } }; 
+window.closeTrade = function() { if(document.activeElement) document.activeElement.blur(); inTradeMode = false; document.getElementById('trade-screen').style.display = 'none'; dom.log.innerText = "Trade cancelled."; tradeMyItems.forEach(item => { if (item) window.addLoot(item); }); tradeMyItems = [null, null, null]; document.getElementById('trade-my-gold').value = 0; tradeTheirItems = [null, null, null]; document.getElementById('trade-their-gold').innerText = "0"; window.renderInventory(); if(socket) socket.emit('tradeCancel'); }; 
 window.confirmTrade = function() { if(socket) socket.emit('requestConfirmTrade'); };
 window.addTradeItem = function(invIndex) { 
     if (!inTradeMode) return; 
@@ -3698,7 +3863,7 @@ window.addEventListener('keydown', (e) => {
         if (e.key !== 'Enter' && e.key !== 'Escape') return; 
     }
     // SETTINGS MENU: ESC key toggles settings on desktop
-    if (e.key === 'Escape') { e.preventDefault(); window.toggleSettingsMenu(); return; }
+    if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); window.toggleSettingsMenu(); return; }
     if (e.key === 'Enter') { 
         if (dom.game.classList.contains('active')) {
             if (isChatting) { 
@@ -3743,6 +3908,7 @@ function setKeyState(e, isDown) {
         if (key === 'j' && typeof window.openShop === 'function') window.openShop(); 
         if (key === 'm' && typeof window.toggleMailbox === 'function') window.toggleMailbox(); 
         if (key === 'g' && typeof window.openGuildUI === 'function') window.openGuildUI();
+        if (key === 'v' && typeof window.toggleCompanionList === 'function') window.toggleCompanionList();
         if (key === 'c' && typeof window.openRealMoneyShop === 'function') window.openRealMoneyShop();
         if (key === 'o') {
             if (window.isAdmin(game.player.name)) { 
@@ -3751,9 +3917,7 @@ function setKeyState(e, isDown) {
                 dom.world.classList.toggle('admin-active', window.adminMode); 
                 if(dom.log) dom.log.innerText = window.adminMode ? "Admin Mode ON" : "Admin Mode OFF"; 
                 if(typeof window.buildCollisionLayers === 'function') window.buildCollisionLayers(); 
-            } else { 
-                if(dom.log) dom.log.innerText = "null"; 
-            } 
+            } // Non-admins: silently ignored 
         } 
         if (key === '3') {
             if (!window.isLoading && !window.adminMode && typeof window.usePotionHotkey === 'function') window.usePotionHotkey();
@@ -3796,7 +3960,7 @@ if (window.isMobileUI()) {
 }
 window.closeShop = function() { isShopping = false; document.getElementById('shop-screen').style.display = 'none'; if (isInventoryOpen && typeof window.renderInventory === 'function') window.renderInventory(); }
 window.updatePotionPrice = function() { let qty = parseInt(document.getElementById('shop-potion-qty').value) || 1; if (qty < 1) { qty = 1; document.getElementById('shop-potion-qty').value = 1; } document.getElementById('shop-potion-buy-btn').innerText = (qty * 25) + " Gold"; }
-window.updateStonePrice = function() { let lvl = parseInt(document.getElementById('shop-stone-level').value) || 10; let rarity = document.getElementById('shop-stone-rarity').value || 'Basic'; let qty = parseInt(document.getElementById('shop-stone-qty').value) || 1; if (qty < 1) { qty = 1; document.getElementById('shop-stone-qty').value = 1; } let basePrice = lvl * 15; let rMult = { "Basic": 1, "Rare": 3, "Unique": 8, "Legendary": 20, "Godly": 50 }[rarity] || 1; let totalCost = basePrice * rMult * qty; document.getElementById('shop-stone-buy-btn').innerText = totalCost + " Gold"; }
+window.updateStonePrice = function() { let lvl = parseInt(document.getElementById('shop-stone-level').value) || 10; if (lvl < 1) { lvl = 1; document.getElementById('shop-stone-level').value = 1; } if (lvl > 100) { lvl = 100; document.getElementById('shop-stone-level').value = 100; } let rarity = document.getElementById('shop-stone-rarity').value || 'Basic'; let qty = parseInt(document.getElementById('shop-stone-qty').value) || 1; if (qty < 1) { qty = 1; document.getElementById('shop-stone-qty').value = 1; } let basePrice = lvl * 15; let rMult = { "Basic": 1, "Rare": 3, "Unique": 8, "Legendary": 20, "Godly": 50 }[rarity] || 1; let totalCost = basePrice * rMult * qty; document.getElementById('shop-stone-buy-btn').innerText = totalCost + " Gold"; }
 window.buyItem = function(type) {
     let qty = 1;
     let payload = { type: type };
@@ -3991,6 +4155,8 @@ if(socket) {
             // 🛡️ THE FIX: Guarantee the client initializes all 6 equip slots on login
             const defaultEquips = { weapon: null, armor: null, leggings: null, necklace: null, ring: null, earrings: null };
             game.player.equips = Object.assign({}, defaultEquips, userData.equips || {});
+            // 🐾 Load companions from database
+            game.player.companions = Array.isArray(userData.companions) ? userData.companions : [];
             window.charData.skinColor = userData.skin_color || 'flesh'; 
             window.charData.hairColor = userData.hair_color || 'black'; 
             window.charData.hairStyle = userData.hair_style || '1'; 
@@ -4035,8 +4201,12 @@ let targetMapId = 'town';
                         socket.off('requestMapSync');
                         socket.on('requestMapSync', (req) => {
                             window.loadMapScript(req.mapId, () => {
-                                let mapPayload = Object.assign({}, window.MapDatabase[req.mapId], { instanceId: req.instanceId });
+                                safeMapData = window.MapDatabase[req.mapId] || {};
+                                safeMapData.id = req.mapId;
+                                let mapPayload = Object.assign({}, safeMapData, { instanceId: req.instanceId });
                                 socket.emit('syncMapData', mapPayload);
+                                if (typeof window.spawnMinion === 'function') window.spawnMinion();
+                                if (typeof window.spawnCompanionEntities === 'function') setTimeout(() => window.spawnCompanionEntities(), 1200);
                             });
                         });
                     } catch (renderErr) { console.error("Render crash caught, bypassing:", renderErr); }
@@ -4047,6 +4217,19 @@ let targetMapId = 'town';
                         }
                         window.isLoading = false;
                         window.isTransitioning = false;
+                        if (typeof window.spawnMinion === 'function') window.spawnMinion();
+                        if (typeof window.spawnCompanionEntities === 'function') setTimeout(() => window.spawnCompanionEntities(), 1200);
+
+                        // 🛡️ LOADING SCREEN SAFETY TIMEOUT: Force-remove after 15 seconds
+                        window.__loadSafetyTimer = setTimeout(() => {
+                            const ls = document.getElementById('loading-screen');
+                            if (ls && ls.style.display !== 'none') {
+                                ls.style.display = 'none';
+                                window.isLoading = false;
+                                window.isTransitioning = false;
+                                console.warn('[SAFETY] Loading screen force-removed after 15s timeout.');
+                            }
+                        }, 15000);
                         dom.game.classList.add('active');
                     game.isRunning = true;
                     
@@ -4060,7 +4243,7 @@ let targetMapId = 'town';
 
                     // 🎥 TUTORIAL CHECK: Play video OR play normal BGM
                     if (game.player.baseStats && !game.player.baseStats.watchedTutorial) {
-                        window.playTutorialVideo();
+                        window.playTutorialVideo(false); // false = non-skippable first login
                     } else {
                         // Make sure the game screen is already visible before showing Town UI + BGM
                         setTimeout(() => {
@@ -4195,6 +4378,7 @@ socket.on('mailList', (mails) => {
             game.player.equips = data.equips;
             if (typeof window.updateEquipmentDisplay === 'function') window.updateEquipmentDisplay();
             if (typeof window.updateSkillMenu === 'function') window.updateSkillMenu();
+            if (typeof window.spawnMinion === 'function') window.spawnMinion();
         }
 
         if (data.classReset) {
@@ -4576,6 +4760,23 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
 window.playBGM(window.routeMapMusic ? window.routeMapMusic(tp.mapId) : nextTrack);
 window.showMapAnnouncement(tp.mapId);
 
+// 🐾 MINION: Spawn or despawn based on new map
+if (typeof window.spawnMinion === 'function') {
+    if (tp.mapId === 'town') {
+        window.despawnMinion();
+    } else {
+        setTimeout(() => window.spawnMinion(), 1000);
+    }
+}
+// 🐾 COMPANION: Spawn or despawn based on new map (same logic as minion)
+if (typeof window.spawnCompanionEntities === 'function') {
+    if (tp.mapId === 'town') {
+        window.despawnCompanionEntities();
+    } else {
+        setTimeout(() => window.spawnCompanionEntities(), 1200);
+    }
+}
+
 if (tp.spectateTarget) {
     window.isSpectating = true;
     window.spectateTargetId = tp.spectateTarget;
@@ -4632,10 +4833,32 @@ if (tp.spectateTarget) {
         }
     });
 });
+
+    // ⚠️ ZONE ENTRY WARNING: Server asks client to confirm before entering dangerous zones
+    socket.on('confirmPortalEntry', (data) => {
+        if (confirm(data.message)) {
+            // Player confirmed — re-send portalStep with _confirmed flag
+            socket.emit('portalStep', {
+                portalId: data.portalId,
+                targetMapId: data.targetMapId,
+                _confirmed: true
+            });
+        }
+    });
+
     socket.on('teleportApproved', (tp) => { 
     window.isTransitioning = true; // 🛡️ NETWORK LOCK: Ignore old map data
         let nextMapId = tp.targetMapId || 'town'; 
         
+        // 🎉 EVENT PORTAL: Intercept event_cave to show Event UI
+        if (nextMapId === 'event_cave') {
+            game.player.currentPortal = null;
+            window.isEventUIOpen = true;
+            game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false;
+            window.openEventPortal();
+            return; // Stop standard teleport
+        }
+
         // 🏰 NEW: Dungeon 1 Group Entry Logic
         if (nextMapId === 'dungeon1') {
             game.player.currentPortal = null;
@@ -4720,6 +4943,9 @@ if (tp.spectateTarget) {
                 let ls = document.getElementById('loading-screen'); if (ls) ls.style.display = 'none';
                 let ts = document.getElementById('map-transition'); if (ts) { ts.style.opacity = '0'; setTimeout(() => ts.style.display='none', 1000); }
                 if (typeof safeMapData !== 'undefined' && safeMapData.id) { window.playBGM(window.routeMapMusic(safeMapData.id)); try { window.showMapAnnouncement(safeMapData.id); } catch(e){} }
+                // 🐾 MINION + COMPANION: Spawn after portal transition completes
+                if (typeof window.spawnMinion === 'function') setTimeout(() => window.spawnMinion(), 500);
+                if (typeof window.spawnCompanionEntities === 'function') setTimeout(() => window.spawnCompanionEntities(), 800);
             }
         }, isGrouped ? 3000 : 300);
     }); 
@@ -5208,12 +5434,34 @@ socket.on('revivalJuiceUsed', (data) => {
     if (game.player.activePets) {
         hitPet = game.player.activePets.find(p => p.id === targetId);
     }
+    if (!hitPet && window._activeMinion && window._activeMinion.id === targetId) {
+        hitPet = window._activeMinion;
+    }
 
 if (hitPet) {
         const serverAtk = Number(data.atk || 25);
-        const petDef = hitPet.isBigBoss || hitPet.isGolemBuster ? window.getDefense() : Math.floor(window.getDefense() * 0.25);
-        let actualDmg = Math.max(1, serverAtk - petDef);
+        let petDefBase = hitPet.isBigBoss || hitPet.isGolemBuster ? window.getDefense() : Math.floor(window.getDefense() * 0.25);
         
+        // 📢 BER1 (Callout!) Defense Multiplier
+        if (hitPet.defenseMultiplier && hitPet.defenseUntil && Date.now() < hitPet.defenseUntil) {
+            petDefBase = Math.floor(petDefBase * hitPet.defenseMultiplier);
+        }
+        
+        let actualDmg = Math.max(1, serverAtk - petDefBase);
+        
+        // 🗡️ BLD2 (Parry): 70% block chance
+        if (hitPet.parryUntil && Date.now() < hitPet.parryUntil) {
+            if (Math.random() < 0.70) {
+                window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, "PARRY!", '#4fc3f7');
+                return;
+            }
+        }
+
+        // 🌀 PHS1 (Shadow Step): 80% DR
+        if (hitPet.damageReduction && hitPet.damageReductionUntil && Date.now() < hitPet.damageReductionUntil) {
+            actualDmg = Math.max(1, Math.floor(actualDmg * (1 - hitPet.damageReduction)));
+        }
+
        // 🛡️ ABSORB SHIELD FOR PET
         if (hitPet.gammaShieldHp && hitPet.gammaShieldHp > 0) {
             if (actualDmg >= hitPet.gammaShieldHp) {
@@ -5228,7 +5476,27 @@ if (hitPet) {
         }
         
         hitPet.hp -= actualDmg;
+
+        // 🛡️ BER3 (Immortal): Cannot drop below 1 HP
+        if (hitPet.immortalUntil && Date.now() < hitPet.immortalUntil && hitPet.hp < 1) {
+            hitPet.hp = 1;
+            window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, "IMMORTAL!", '#FFD700');
+            return;
+        }
+
         window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, actualDmg, '#ff0000');
+
+        // 🐾 MINION DEATH & STUN LOGIC
+        if (window._activeMinion && hitPet.id === window._activeMinion.id && hitPet.hp <= 0 && !hitPet.isStunned) {
+            hitPet.isStunned = true;
+            hitPet.stunUntil = Date.now() + 180000; // 3 minutes
+            hitPet.hp = window.getMaxHp() || 100; // Instantly restore to prevent multiple triggers
+            window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, "STUNNED!", '#ffeb3b');
+            
+            if (hitPet.dom) {
+                hitPet.dom.classList.add('minion-stunned');
+            }
+        }
     } else if (targetId === game.player.id) {
         game.player.currentHp = Math.max(0, data.newHp);
         if (data.damage > 0) {
@@ -5301,6 +5569,35 @@ if (hitPet) {
     hitSound.volume = (window.gameVolume != null ? window.gameVolume : 0.5) * 0.8;
     hitSound.play().catch(e => {});
 });
+
+    // 🐾 MINION SKILL EFFECT SYNC
+    socket.on('minionSkillEffect', (data) => {
+        const minion = window._activeMinion;
+        if (!minion || minion.id !== data.petId) return;
+        const now = Date.now();
+
+        if (data.skillId === 'ber3' && data.duration) {
+            minion.immortalUntil = now + data.duration;
+            window.spawnDamageText(minion.x + 15, minion.y - 20, '🛡️ IMMORTAL!', '#FFD700');
+        }
+        if (data.skillId === 'ber1' && data.defenseMultiplier && data.duration) {
+            minion.defenseMultiplier = data.defenseMultiplier;
+            minion.defenseUntil = now + data.duration;
+            window.spawnDamageText(minion.x + 15, minion.y - 20, '📢 TAUNT! DEFx3', '#ffeb3b');
+        }
+        if (data.skillId === 'bld2' && data.duration) {
+            minion.parryUntil = now + data.duration;
+            window.spawnDamageText(minion.x + 15, minion.y - 20, '🗡️ PARRY!', '#4fc3f7');
+        }
+        if (data.skillId === 'phs1' && data.damageReduction && data.duration) {
+            minion.damageReduction = data.damageReduction;
+            minion.damageReductionUntil = now + data.duration;
+            window.spawnDamageText(minion.x + 15, minion.y - 20, '🌀 SHADOW STEP!', '#00E5FF');
+        }
+        if (data.skillId === 'heal1' || data.skillId === 'heal3') {
+            window.spawnDamageText(minion.x + 15, minion.y - 20, '💚 HEAL!', '#4CAF50');
+        }
+    });
 
     socket.on('monsterSkill', (data) => { 
         if (window.isTransitioning || window.isLoading) return;
@@ -5487,14 +5784,46 @@ let localBossTimer = null;
         }, 1000);
     });
     socket.on('monsterSpawned', (m) => { 
-        if (window.isTransitioning || window.isLoading || !m || safeMapData.id === 'town') return; 
-        
-        // 🛡️ THE BLEED FIX: Block delayed network packets from the old room!
-        if (Date.now() - (window.mapLoadTimestamp || 0) < 2000) return;
+        if (!m || safeMapData.id === 'town') return;
+        // Skip bleed-fix delay for event dungeons so spawns render immediately
+        const isEventMap = safeMapData.id === 'event_cave';
+        if (!isEventMap && (window.isTransitioning || window.isLoading)) return;
+        if (!isEventMap && Date.now() - (window.mapLoadTimestamp || 0) < 2000) return;
 
+        // Re-use monsterState rendering for full DOM creation
         game.monsters[m.id] = m; 
-        const mEl = document.getElementById('mob_' + m.id); 
-        if(mEl) mEl.style.display = 'flex'; 
+        const existing = document.getElementById('mob_' + m.id);
+        if (existing) { existing.style.display = 'flex'; return; }
+
+        // Trigger full render by injecting into monsterState pipeline
+        const fakeState = [m];
+        socket.emit = socket.emit; // no-op, just ensuring scope
+        // Manually create the monster DOM (same logic as monsterState)
+        let mEl = document.createElement('div'); mEl.id = 'mob_' + m.id; mEl.className = 'entity monster-container'; mEl.style.position = 'absolute'; mEl.style.cursor = 'crosshair'; mEl.style.zIndex = '50'; mEl.style.display = 'flex'; mEl.style.justifyContent = 'center'; mEl.style.alignItems = 'flex-end';
+        
+        let spriteHtml = '';
+        if (m.monsterKey.includes('golem')) {
+            spriteHtml = `<div class="monster-sprite-layer golem-base"><div class="g-head"><div class="g-eye"></div><div class="g-eye"></div></div><div class="g-arm-l"></div><div class="g-arm-r"></div><div class="g-leg-l"></div><div class="g-leg-r"></div></div>`;
+        } else if (m.monsterKey.includes('wraith')) {
+            spriteHtml = `<div class="monster-sprite-layer wraith-base"><div class="w-eye left"></div><div class="w-eye right"></div><div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div></div>`;
+        } else if (m.monsterKey.includes('minotaur')) {
+            spriteHtml = `<div class="monster-sprite-layer minotaur-base">
+                <div class="m-head"><div class="m-horn-l"></div><div class="m-horn-r"></div><div class="m-eye-l"></div><div class="m-eye-r"></div><div class="m-snout"><div class="m-ring"></div></div></div>
+                <div class="m-body"></div><div class="m-arm-l"><div class="m-axe"></div></div><div class="m-arm-r"></div>
+                <div class="m-leg-l"></div><div class="m-leg-r"></div></div>`;
+        } else if (m.monsterKey.includes('dragon')) {
+            spriteHtml = `<div class="monster-sprite-layer dragon-base"><div class="d-wing-l"></div><div class="d-wing-r"></div><div class="d-body"></div><div class="d-chest"></div><div class="d-head"><div class="d-horn-l"></div><div class="d-horn-r"></div><div class="d-eye-l"></div><div class="d-eye-r"></div><div class="d-snout"></div></div><div class="d-foot-l"></div><div class="d-foot-r"></div></div>`;
+        } else {
+            spriteHtml = `<div class="monster-sprite-layer" style="width:100%; height:100%; background-size:contain; background-repeat:no-repeat; background-position:bottom;"></div>`;
+        }
+
+        mEl.innerHTML = `<div class="name-tag mob-name">${m.name} Lv.${m.level || 5}</div>${spriteHtml}<div class="monster-ui-layer" style="position:absolute; top:-20px; left:0; width:100%; pointer-events:none;"><div class="bar-container" style="height:5px; border-radius:0; margin-bottom:0;"><div class="hp-fill monster-hp-fill" style="background-color:#f44336; height:100%; width:100%;"></div></div></div>`;
+        mEl.dataset.monsterkey = m.monsterKey;
+        mEl.style.setProperty('--mob-color', m.cssColor || '#9c27b0'); 
+        mEl.style.setProperty('--mob-border', m.cssBorder || '#4E342E');
+        mEl.addEventListener('pointerdown', (e) => { e.stopPropagation(); if(!window.isLoading){ window.attemptAttackTarget = m.id; window.attemptAttack(false); } });
+        mEl.style.left = m.x + 'px'; mEl.style.top = m.y + 'px'; mEl.style.width = (m.width || 40) + 'px'; mEl.style.height = (m.height || 40) + 'px';
+        dom.world.appendChild(mEl);
     });
     socket.on('lootDropped', (item) => { 
         if (!item) return;
@@ -6138,6 +6467,7 @@ if (socket) {
 }
 
 window.respondGuildInvite = function(accept) {
+    if (document.activeElement) document.activeElement.blur();
     document.getElementById('guild-invite-dialog').style.display = 'none';
     if (accept && pendingGuildInvite) {
         socket.emit('joinGuild', pendingGuildInvite);
@@ -6510,6 +6840,27 @@ socket.on('applyGammaShield', (data) => {
         }
     });
 
+    // ⚡ GADGET DRONE CRITICAL: Red Laser VFX
+    socket.on('droneCritical', (data) => {
+        const mob = game.monsters[data.monsterId];
+        if (mob) {
+            // Find drone
+            let drone = game.player.activePets ? game.player.activePets.find(p => p.isDrone) : null;
+            if (drone) {
+                window.shootLaser(drone.x, drone.y, mob.x + (mob.width||48)/2, mob.y + (mob.height||96)/2, '#ff1744');
+            } else {
+                window.shootLaser(game.player.x, game.player.y, mob.x + (mob.width||48)/2, mob.y + (mob.height||96)/2, '#ff1744');
+            }
+            
+            // Create a brief red flash effect
+            const flash = document.createElement('div');
+            flash.style.cssText = `position:absolute; left:${mob.x - game.camera.x}px; top:${mob.y - game.camera.y - 20}px; color:#ff1744; font-weight:bold; font-size:16px; font-family:sans-serif; text-shadow: 0 0 8px #ff0000; z-index:9999; pointer-events:none;`;
+            flash.innerText = '⚡ CRITICAL!';
+            document.getElementById('world').appendChild(flash);
+            setTimeout(() => flash.remove(), 800);
+        }
+    });
+
     socket.on('attackEvaded', (data) => {
         let msg = data.type === 'dodge' ? "DODGE!" : (data.type === 'parry' ? "PARRY!" : "MISS");
         let color = data.type === 'dodge' ? "#00E5FF" : (data.type === 'parry' ? "#ffeb3b" : "#aaaaaa");
@@ -6682,7 +7033,14 @@ window.addEventListener('keydown', (e) => {
     }
 });
 // 🎥 DYNAMIC TUTORIAL VIDEO PLAYER (CRASH-FREE VERSION)
-window.playTutorialVideo = function() {
+window.playTutorialVideo = function(allowSkip) {
+    if (typeof allowSkip === 'undefined') allowSkip = true; // Default: skippable when re-watching from Settings
+    
+    // Close settings if open
+    const settingsMenu = document.getElementById('settings-menu');
+    if (settingsMenu) settingsMenu.style.display = 'none';
+    window.isSettingsOpen = false;
+
     // 🔇 1. Stop background music immediately
     if (typeof currentBGM !== 'undefined' && currentBGM) {
         currentBGM.pause();
@@ -6718,13 +7076,17 @@ window.playTutorialVideo = function() {
                 const vid = document.createElement('video');
                 vid.id = 'tutorial-video';
                 vid.src = videoUrl; 
-                vid.controls = true;
+                vid.controls = allowSkip; // 🛡️ NON-SKIPPABLE: Remove seek bar for new players
                 vid.autoplay = true;
-                vid.style.cssText = 'max-width:100%; max-height:85%; background:black; outline:none; box-shadow: 0 0 20px #2196F3; border-radius: 8px;';
+                vid.style.cssText = 'max-width:100%; max-height:85%; background:black; outline:none; box-shadow: 0 0 20px #2196F3; border-radius: 8px; cursor: pointer;';
+                vid.onclick = () => { if (vid.paused) vid.play(); else vid.pause(); };
                 
                 const skipBtn = document.createElement('button');
                 skipBtn.innerText = 'SKIP / CLOSE TUTORIAL';
+                skipBtn.id = 'tutorial-skip-btn';
                 skipBtn.style.cssText = 'margin-top:20px; padding:12px 24px; background:#f44336; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold; font-size:16px; box-shadow:0 0 10px red; text-transform: uppercase;';
+                // 🛡️ NON-SKIPPABLE: Hide skip button for first-time logins
+                if (!allowSkip) skipBtn.style.display = 'none';
                 
                 const closeTutorial = () => {
                     vid.pause();
@@ -6824,15 +7186,15 @@ if (socket) {
 
         if (data.state === 'shop_open') {
             const items = [
-                { id: 'aura_easter', name: 'Easter Aura Stone', priceGems: 15, desc: 'Tradeable Seasonal Cosmetic: A beautiful pastel aura that shifts colors.', isSeasonal: true },
-                { id: 'pet_egg', name: 'Easter Egg Pet', priceGems: 15, desc: 'Tradeable Seasonal Cosmetic: A cute floating Easter Egg that follows you.', isSeasonal: true },
+                { id: 'aura_easter', name: 'Easter Aura Stone', priceGems: 15, desc: 'Tradeable Seasonal Cosmetic: A beautiful pastel aura that shifts colors.', isSeasonal: true, previewType: 'aura', previewId: 'easter' },
+                { id: 'pet_egg', name: 'Easter Egg Pet', priceGems: 15, desc: 'Tradeable Seasonal Cosmetic: A cute floating Easter Egg that follows you.', isSeasonal: true, previewType: 'pet', previewId: 'egg' },
                 { id: 'name_change', name: 'Name Change Ticket', priceGems: 15, desc: 'Permanently changes your character name. (Cannot be undone)' },
                 { id: 'edit_char', name: 'Appearance Reroll Ticket', priceGems: 15, desc: 'Re-open the character creator to change your hair, skin color, and style.' },
-                { id: 'pet_fox', name: 'Spirit Fox Pet', priceGems: 10, desc: 'A loyal fire-fox companion that follows you and attacks enemies.' },
-                { id: 'pet_owl', name: 'Night Owl Pet', priceGems: 10, desc: 'A mysterious owl that flies by your side.' },
-                { id: 'aura_blaze', name: 'Blaze Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a burning red flame effect.' },
-                { id: 'aura_liquid', name: 'Liquid Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a flowing water effect.' },
-                { id: 'aura_nature', name: 'Nature Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a leaf and vine effect.' },
+                { id: 'pet_fox', name: 'Spirit Fox Pet', priceGems: 10, desc: 'A loyal fire-fox companion that follows you and attacks enemies.', previewType: 'pet', previewId: 'fox' },
+                { id: 'pet_owl', name: 'Night Owl Pet', priceGems: 10, desc: 'A mysterious owl that flies by your side.', previewType: 'pet', previewId: 'owl' },
+                { id: 'aura_blaze', name: 'Blaze Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a burning red flame effect.', previewType: 'aura', previewId: 'blaze' },
+                { id: 'aura_liquid', name: 'Liquid Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a flowing water effect.', previewType: 'aura', previewId: 'liquid' },
+                { id: 'aura_nature', name: 'Nature Aura Stone', priceGems: 10, desc: 'Cosmetic: Infuses your armor with a leaf and vine effect.', previewType: 'aura', previewId: 'nature' },
                 { id: 'divine_pack', name: 'Divine Stone Bundle (x5)', priceGems: 10, desc: 'Contains 5 Divine Enhancement Stones. Works on any level.' },
                 { id: 'revival_pack', name: 'Revival Juice Bundle (x10)', priceGems: 5, desc: 'Contains 10 Revival Juices. Revive instantly on the spot.' }
             ];
@@ -6844,10 +7206,16 @@ if (socket) {
                 let border = i.isSeasonal ? 'border: 2px solid #FFD700; box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.15);' : 'border: 1px solid #444;';
                 let tag = i.isSeasonal ? ' <span style="font-size:11px; color:#fff;">🐰 (Seasonal)</span>' : '';
 
+                let previewBtn = '';
+                if (i.previewType) {
+                    previewBtn = `<button class="btn" style="background:#1a1a2e; padding:8px 10px; font-size:14px; color:#4fc3f7; border-color:#4fc3f7; font-weight:bold; cursor:pointer; min-width:40px;" onclick="window.openCosmeticPreview('${i.previewType}', '${i.previewId}', '${i.name}')" title="Preview">👁️</button>`;
+                }
+
                 html += `<div style="background:#222; ${border} padding:10px; border-radius:6px; margin-bottom:10px; text-align:left;">
                             <div style="color:${nameColor}; font-weight:bold; font-size:15px; ${shadow}">${i.name}${tag}</div>
                             <div style="color:#aaa; font-size:12px; margin-bottom:8px;">${i.desc}</div>
                             <div style="display:flex; justify-content:space-between; align-items:center; gap:5px;">
+                                ${previewBtn}
                                 <button class="btn" style="background:#333; padding:8px 10px; font-size:14px; color:#E040FB; border-color:#9c27b0; flex:1; font-weight:bold; cursor:pointer; box-shadow: 0 0 5px #9c27b0;" onclick="window.buyWithGems('${i.id}', '${i.name}', ${i.priceGems})">💎 Buy for ${i.priceGems} Exo Gems</button>
                             </div>
                          </div>`;
@@ -6868,6 +7236,104 @@ if (socket) {
         `;
         modal.innerHTML = html;
     });
+
+    // 👁️ COSMETIC PREVIEW WINDOW
+    window.openCosmeticPreview = function(type, cosmId, itemName) {
+        // Remove existing preview
+        let existing = document.getElementById('cosmetic-preview-modal');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'cosmetic-preview-modal';
+        modal.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 50%, #16213e 100%); border:2px solid #4fc3f7; padding:20px 30px; z-index:9500; width:280px; border-radius:12px; box-shadow:0 0 40px rgba(79,195,247,0.3), inset 0 0 60px rgba(0,0,0,0.5); color:white; text-align:center; font-family:sans-serif;';
+
+        let previewContent = '';
+
+        if (type === 'pet') {
+            // 🐾 PET PREVIEW: Show only the pet, large and centered
+            let petHtml = '';
+            let petClass = '';
+
+            if (cosmId === 'fox') {
+                petClass = 'pet-fox';
+                petHtml = `<div class="tail"></div><div class="leg leg1"></div><div class="leg leg2"></div><div class="leg leg3"></div><div class="leg leg4"></div><div class="head"><div class="ear"></div></div>`;
+            } else if (cosmId === 'owl') {
+                petClass = 'pet-owl';
+                petHtml = `<div class="wing wing-l"></div><div class="wing wing-r"></div><div class="eyes"><div class="eye"></div><div class="eye"></div></div><div class="beak"></div>`;
+            } else if (cosmId === 'egg') {
+                petClass = 'pet-egg';
+                petHtml = '';
+            } else if (cosmId === 'void') {
+                petClass = 'pet-void';
+                petHtml = `<div class="mini-wraith"><div class="w-eye left"></div><div class="w-eye right"></div><div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div></div>`;
+            } else if (cosmId === 'wisp') {
+                petClass = 'pet-wisp';
+                petHtml = '';
+            }
+
+            previewContent = `
+                <div style="position:relative; width:120px; height:160px; margin:0 auto 15px auto; background:radial-gradient(circle, rgba(79,195,247,0.08) 0%, transparent 70%); border-radius:12px; display:flex; justify-content:center; align-items:center;">
+                    <div style="transform: scale(4); display:flex; justify-content:center; align-items:center; width:20px; height:20px;">
+                        <div class="${petClass}" style="position:relative !important; left:auto !important; top:auto !important; bottom:auto !important; right:auto !important; margin:0 !important; pointer-events:none; transform:none !important; animation:none !important;">${petHtml}</div>
+                    </div>
+                </div>
+                <div style="color:#aaa; font-size:11px; margin-bottom:12px;">This pet will follow you in battle.</div>
+            `;
+
+        } else if (type === 'aura') {
+            // ✨ AURA PREVIEW: Show the player character with the aura applied
+            const skin = window.charData?.skinColor || 'flesh';
+            const hairStyle = window.charData?.hairStyle || '1';
+            const hairColor = window.charData?.hairColor || 'black';
+            const skinFilter = ({ 'flesh': 'sepia(1) hue-rotate(-25deg) saturate(2.5) brightness(1.1)', 'yellow': 'sepia(1) hue-rotate(15deg) saturate(3) brightness(1.2)', 'green': 'sepia(1) hue-rotate(75deg) saturate(2) brightness(1)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2) brightness(1)', 'white': 'grayscale(1) brightness(1.8) contrast(0.9)' })[skin] || '';
+            const hairFilter = ({ 'black': 'brightness(0.15)', 'brown': 'sepia(0.6) brightness(0.5)', 'blonde': 'sepia(0.5) saturate(2) hue-rotate(20deg) brightness(1.4)', 'red': 'sepia(1) hue-rotate(-10deg) saturate(3) brightness(0.7)', 'blue': 'sepia(1) hue-rotate(180deg) saturate(2.5) brightness(0.6)', 'green': 'sepia(1) hue-rotate(90deg) saturate(2) brightness(0.6)', 'white': 'brightness(2) contrast(0.7) grayscale(1)', 'purple': 'sepia(1) hue-rotate(230deg) saturate(3) brightness(0.6)' })[hairColor] || 'brightness(0.15)';
+
+            let wpnSprite = game.player.equips?.weapon?.sprite?.replace('starter','basic') || null;
+            let armorSprite = game.player.equips?.armor?.sprite || null;
+            let leggingsSprite = game.player.equips?.leggings?.sprite || null;
+
+            let auraClass = `aura-${cosmId}`;
+
+            // Only render hair img if not 'none'
+            let hairImgHtml = '';
+            if (hairStyle !== 'none') {
+                hairImgHtml = `<img class="avatar-layer layer-hair" src="animation/avatar_hair${hairStyle}.png" style="display:block; filter:${hairFilter}; opacity:1;">`;
+            }
+
+            let wRarity = game.player.equips?.weapon?.rarity || '';
+            let wpnAuraClass = '';
+            if (wRarity && !['Starter', 'Basic', 'Rare', 'Unique'].includes(wRarity)) {
+                wpnAuraClass = `weapon-aura-${wRarity.toLowerCase()}`;
+            }
+
+            previewContent = `
+                <div style="position:relative; width:120px; height:160px; margin:0 auto 15px auto; background:radial-gradient(circle, rgba(79,195,247,0.08) 0%, transparent 70%); border-radius:12px;">
+                    <div class="player-avatar-container avatar-rig" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) scale(2); width:48px; height:96px;">
+                        <div class="cosmetic-aura ${auraClass}" style="display:block;"></div>
+                        ${hairImgHtml}
+                        <img class="avatar-layer layer-head" src="animation/avatar_head.png" style="filter:${skinFilter}; opacity:1;">
+                        <img class="avatar-layer layer-body" src="animation/avatar_idlefront.png" style="filter:${skinFilter}; opacity:1;">
+                        ${leggingsSprite ? `<img class="avatar-layer layer-leggings" src="armor/${leggingsSprite}.png" style="display:block; opacity:1;">` : ''}
+                        ${armorSprite ? `<img class="avatar-layer layer-armor" src="armor/${armorSprite}.png" style="display:block; opacity:1;">` : ''}
+                        ${wpnSprite ? `<img class="avatar-layer layer-weapon ${wpnAuraClass}" src="weapon/${wpnSprite}.png" style="display:block; opacity:1;">` : ''}
+                    </div>
+                </div>
+                <div style="color:#aaa; font-size:11px; margin-bottom:12px;">This is how you'll look with this aura equipped.</div>
+            `;
+        }
+
+        modal.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(79,195,247,0.3); padding-bottom:10px;">
+                <h3 style="margin:0; color:#4fc3f7; font-size:16px; text-shadow:0 0 10px rgba(79,195,247,0.5);">👁️ Cosmetic Preview</h3>
+                <button onclick="document.getElementById('cosmetic-preview-modal').remove()" style="background:none; border:none; color:#888; font-size:20px; cursor:pointer; padding:0 5px; line-height:1;">&times;</button>
+            </div>
+            <div style="color:#E040FB; font-weight:bold; font-size:14px; margin-bottom:15px; text-shadow:0 0 8px rgba(224,64,251,0.4);">${itemName}</div>
+            ${previewContent}
+            <button class="btn" style="background:#333; width:100%; padding:10px; color:#4fc3f7; border-color:#4fc3f7; font-weight:bold;" onclick="document.getElementById('cosmetic-preview-modal').remove()">Close Preview</button>
+        `;
+
+        document.body.appendChild(modal);
+    };
 
   socket.on('gemPurchaseSuccess', (data) => {
         let balEl = document.getElementById('ui-gem-balance');
@@ -8251,6 +8717,7 @@ window.toggleSettingsMenu = function() {
 
 // Full Screen Toggle (PC Only)
 window.toggleFullScreen = function() {
+    window._userToggledFS = true; // 🛡️ Mark that the user initiated this toggle
     if (window.electronAPI) {
         window.electronAPI.toggleFullScreen();
     } else {
@@ -8269,6 +8736,14 @@ window.toggleFullScreen = function() {
         }, 500);
     }
 };
+
+// 🛡️ FULLSCREEN PROTECTION: Re-enter fullscreen if ESC accidentally triggered the browser's exit
+document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && !window._userToggledFS && !window.electronAPI) {
+        document.documentElement.requestFullscreen().catch(() => {});
+    }
+    window._userToggledFS = false;
+});
 
 if (window.electronAPI) {
     window.electronAPI.onFsChanged((isFS) => {
@@ -8292,30 +8767,6 @@ window.toggleHighQuality = function() {
     }
 };
 
-// Watch Tutorial — Plays tutorial.mp4 and mutes BGM
-window.playTutorialVideo = function() {
-    window.toggleSettingsMenu(); // Close settings first
-    const overlay = document.getElementById('tutorial-overlay');
-    const video = document.getElementById('tutorial-video');
-    if (overlay) overlay.style.display = 'flex';
-    if (video) { video.currentTime = 0; video.play().catch(function(){}); }
-    // Mute BGM during tutorial playback
-    if (window.currentBGM) window.currentBGM.volume = 0;
-    
-    // Auto-restore when video ends
-    if (video) {
-        video.onended = function() { window.closeTutorialVideo(); };
-    }
-};
-
-window.closeTutorialVideo = function() {
-    const overlay = document.getElementById('tutorial-overlay');
-    const video = document.getElementById('tutorial-video');
-    if (video) { video.pause(); video.currentTime = 0; video.onended = null; }
-    if (overlay) overlay.style.display = 'none';
-    // Restore BGM volume
-    if (window.currentBGM) window.currentBGM.volume = (window.gameVolume != null ? window.gameVolume : 0.5);
-};
 
 // Close Game — Show confirmation, then disconnect and return to auth screen
 window.confirmCloseGame = function() {
@@ -8335,20 +8786,588 @@ window.executeCloseGame = function() {
     // Stop all audio
     if (window.currentBGM) { window.currentBGM.pause(); window.currentBGM.currentTime = 0; }
     
-    // Return to auth screen (stays inside the game)
-    const gameScreen = document.getElementById('game-screen');
-    const authScreen = document.getElementById('auth-screen');
+    // 🛡️ KILL THE GAME PROCESS (not just return to login)
     const confirmModal = document.getElementById('close-game-confirm');
-    
-    if (gameScreen) gameScreen.classList.remove('active');
-    if (authScreen) authScreen.classList.add('active');
     if (confirmModal) confirmModal.style.display = 'none';
     
-    // Reset HUD state
-    const hudElements = ['inventory-screen', 'stat-screen', 'skill-screen', 'friends-screen', 
-                         'shop-screen', 'mailbox-screen', 'trade-screen', 'inspect-screen'];
-    hudElements.forEach(function(id) {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-    });
+    // Try native close first (works on Electron which triggers app.quit())
+    window.close();
+    
+    // Capacitor mobile fallback
+    if (navigator.app && navigator.app.exitApp) {
+        navigator.app.exitApp();
+    }
+    
+    // If window.close() doesn't work (some browsers), fall back to login
+    setTimeout(() => {
+        const gameScreen = document.getElementById('game-screen');
+        const authScreen = document.getElementById('auth-screen');
+        if (gameScreen) gameScreen.classList.remove('active');
+        if (authScreen) authScreen.classList.add('active');
+    }, 500);
 };
+
+// ==========================================
+// 🐾 MINION SYSTEM: Client-Side Golden Slime
+// ==========================================
+(function() {
+    // Inject minion CSS
+    const minionCSS = document.createElement('style');
+    minionCSS.innerHTML = `
+        .minion-golden-slime {
+            position: absolute; width: 32px; height: 32px;
+            background: radial-gradient(circle, #FFD700 40%, #FFA000 80%, #FF6F00);
+            border-radius: 50% 50% 45% 45%;
+            box-shadow: 0 0 12px #FFD700, 0 0 25px rgba(255,215,0,0.4);
+            z-index: 500; cursor: pointer;
+            transition: left 0.2s linear, top 0.2s linear;
+            animation: minionBounce 0.8s ease-in-out infinite;
+        }
+        .minion-golden-slime::after {
+            content: ''; position: absolute;
+            top: 8px; left: 8px;
+            width: 6px; height: 6px;
+            background: white; border-radius: 50%;
+            box-shadow: 10px 0 0 white;
+        }
+        @keyframes minionBounce {
+            0%, 100% { transform: translateY(0) scaleY(1); }
+            50% { transform: translateY(-4px) scaleY(0.92); }
+        }
+        .minion-stunned {
+            filter: grayscale(100%) opacity(0.7);
+            animation: minionStun 2s ease-in-out infinite !important;
+        }
+        @keyframes minionStun {
+            0%, 100% { transform: translateY(10px) scaleY(0.5) scaleX(1.1); }
+            50% { transform: translateY(10px) scaleY(0.6) scaleX(1.05); }
+        }
+        .minion-tooltip {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.85); color: #FFD700; border: 1px solid #FFD700;
+            border-radius: 6px; padding: 6px 10px; font-size: 11px; font-family: sans-serif;
+            white-space: nowrap; pointer-events: none; z-index: 9999;
+            box-shadow: 0 0 10px rgba(255,215,0,0.3); display: none;
+        }
+        .minion-golden-slime:hover .minion-tooltip { display: block; }
+    `;
+    document.head.appendChild(minionCSS);
+
+    window._activeMinion = null;
+
+    // 🐾 Spawn minion when entering a map (called after teleport)
+    window.spawnMinion = function() {
+        // Remove any existing minion
+        window.despawnMinion();
+
+        // Check if the player's weapon has a minion
+        const weapon = game.player.equips?.weapon;
+        if (!weapon || !weapon.minion) return;
+        
+        // Don't spawn in town
+        const currentMap = (typeof safeMapData !== 'undefined' && safeMapData.id) ? safeMapData.id : 'town';
+        if (currentMap === 'town') return;
+
+        const minionData = weapon.minion;
+        const minionId = 'minion_' + Date.now();
+        
+        // Create DOM element
+        const el = document.createElement('div');
+        el.className = 'minion-golden-slime';
+        el.style.left = game.player.x + 'px';
+        el.style.top = game.player.y + 'px';
+        
+        // Tooltip with skill info
+        const tooltip = document.createElement('div');
+        tooltip.className = 'minion-tooltip';
+        tooltip.innerHTML = `🐾 ${minionData.name || 'Golden Slime'}<br>` +
+            (minionData.skillName ? `⚡ Skill: ${minionData.skillName}` : '💤 No skill learned') +
+            `<br>💥 DMG: 500 (Pure)`;
+        el.appendChild(tooltip);
+        
+        document.getElementById('world').appendChild(el);
+        
+        const minion = {
+            id: minionId,
+            dom: el,
+            x: game.player.x,
+            y: game.player.y,
+            skillId: minionData.skillId,
+            skillName: minionData.skillName,
+            lastAttackTs: 0,
+            hp: window.getMaxHp() || 100,
+            maxHp: window.getMaxHp() || 100,
+            isStunned: false,
+            stunUntil: 0
+        };
+        
+        window._activeMinion = minion;
+        
+        // Sync with server
+        if (socket) socket.emit('syncPet', {
+            id: minionId,
+            x: minion.x, y: minion.y,
+            alive: true,
+            isMinion: true,
+            minionSkillId: minionData.skillId
+        });
+    };
+
+    window.despawnMinion = function() {
+        if (window._activeMinion) {
+            if (window._activeMinion.dom) window._activeMinion.dom.remove();
+            if (socket) socket.emit('syncPet', { id: window._activeMinion.id, alive: false });
+            window._activeMinion = null;
+        }
+    };
+
+    // 🐾 Minion AI Loop: Follow player, attack nearest monster
+    setInterval(() => {
+        const minion = window._activeMinion;
+        if (!minion || !game.isRunning || game.isGhost) return;
+        
+        const now = Date.now();
+        
+        // 🐾 STUN LOGIC
+        if (minion.isStunned) {
+            if (now > minion.stunUntil) {
+                minion.isStunned = false;
+                minion.hp = window.getMaxHp() || 100;
+                minion.maxHp = window.getMaxHp() || 100;
+                if (minion.dom) {
+                    minion.dom.classList.remove('minion-stunned');
+                }
+                window.spawnDamageText(minion.x + 15, minion.y - 10, "RECOVERED!", '#4caf50');
+            } else {
+                // Keep syncing the stun state so server ignores it
+                if (!minion.lastSyncTs || now - minion.lastSyncTs > 500) {
+                    minion.lastSyncTs = now;
+                    if (socket) {
+                        socket.emit('syncPet', {
+                            id: minion.id, x: Math.round(minion.x), y: Math.round(minion.y), 
+                            alive: true, isMinion: true, minionSkillId: minion.skillId, isStunned: true
+                        });
+                    }
+                }
+                return; // Do not move or attack
+            }
+        }
+
+        let nearestMob = null;
+        let nearestDist = 400; // Aggro range
+
+        if (game.monsters && Object.keys(game.monsters).length > 0) {
+            for (let mId in game.monsters) {
+                let m = game.monsters[mId];
+                if (!m.alive) continue;
+                const md = Math.hypot(minion.x - (m.x + m.width / 2), minion.y - (m.y + m.height / 2));
+                if (md < nearestDist) {
+                    nearestDist = md;
+                    nearestMob = m;
+                }
+            }
+        }
+
+        const px = game.player.x;
+        const py = game.player.y;
+        
+        // 🐾 MOVEMENT LOGIC: Chase monster if in range, otherwise follow player
+        let targetX = px;
+        let targetY = py;
+        let stopDist = 80;
+
+        if (nearestMob) {
+            targetX = nearestMob.x + (nearestMob.width / 2);
+            targetY = nearestMob.y + (nearestMob.height / 2);
+            stopDist = 40; // Get close to attack
+        }
+
+        const dx = targetX - minion.x;
+        const dy = targetY - minion.y;
+        const dist = Math.hypot(dx, dy);
+        
+        if (dist > stopDist) {
+            minion.x += (dx / dist) * 12;
+            minion.y += (dy / dist) * 12;
+        } else if (dist > stopDist / 2 && !nearestMob) {
+            minion.x += (dx / dist) * 6;
+            minion.y += (dy / dist) * 6;
+        }
+        
+        // Update DOM position
+        if (minion.dom) {
+            minion.dom.style.left = (minion.x - (game.camera?.x || 0)) + 'px';
+            minion.dom.style.top = (minion.y - (game.camera?.y || 0)) + 'px';
+        }
+
+        // Sync position to server (throttle to every 500ms)
+        if (!minion.lastSyncTs || now - minion.lastSyncTs > 500) {
+            minion.lastSyncTs = now;
+            if (socket) {
+                socket.emit('syncPet', {
+                    id: minion.id, x: Math.round(minion.x), y: Math.round(minion.y), 
+                    alive: true, isMinion: true, minionSkillId: minion.skillId
+                });
+            }
+        }
+        
+        // Attack nearest monster (every 1.5 seconds)
+        if (now - (minion.lastAttackTs || 0) < 1500) return;
+        
+        // Recalculate distance after movement
+        if (nearestMob) {
+            nearestDist = Math.hypot(minion.x - (nearestMob.x + nearestMob.width / 2), minion.y - (nearestMob.y + nearestMob.height / 2));
+        }
+
+        // Only attack if within actual attack range (200px)
+        if (nearestMob && nearestDist <= 200 && socket) {
+            minion.lastAttackTs = now;
+            
+            // 🐾 MINION SKILL COOLDOWN MAP (matches original class cooldowns)
+            const MINION_SKILL_CDS = {
+                'heal1': 20000, 'heal3': 100000,
+                'ice1': 25000, 'ice3': 110000,
+                'ber1': 14000, 'ber3': 100000,
+                'bld2': 13000, 'bld3': 50000,
+                'snp2': 5000, 'snp3': 50000,
+                'exp1': 12000, 'exp3': 30000,
+                'phs1': 5000, 'phs3': 30000,
+                'nin1': 10000, 'tech2': 100000
+            };
+
+            let castSkill = 'pet';
+            if (minion.skillId) {
+                const skillCd = MINION_SKILL_CDS[minion.skillId] || 30000;
+                const skillReady = !minion.skillCooldownUntil || now >= minion.skillCooldownUntil;
+                if (skillReady) {
+                    castSkill = minion.skillId;
+                    minion.skillCooldownUntil = now + skillCd;
+                }
+            }
+
+            socket.emit('attackMonster', {
+                monsterId: nearestMob.id,
+                skillId: castSkill,
+                petId: minion.id,
+                isMinion: true
+            });
+
+            // 🐾 Visual attack feedback: flash the minion
+            if (minion.dom) {
+                minion.dom.style.filter = 'brightness(2)';
+                setTimeout(() => { if (minion.dom) minion.dom.style.filter = ''; }, 150);
+            }
+
+            // ⚡ Skill cast visual indicator
+            // ⚡ Skill cast visual indicator
+            if (castSkill !== 'pet' && minion.skillName) {
+                window.spawnDamageText(minion.x + 15, minion.y - 20, `⚡ ${minion.skillName}`, '#4fc3f7');
+            }
+        }
+    }, 50);
+})();
+
+// ==========================================
+// 🐾 COMPANION SYSTEM (same pattern as Minion above)
+// ==========================================
+(function() {
+    window._activeCompanions = [];
+
+    const COMP_CLASS_COLORS = { 'Berserker': '#f44336', 'Healer': '#4CAF50', 'Ice Master': '#2196F3' };
+    const COMP_CLASS_ATTACK_RANGE = { 'Berserker': 60, 'Healer': 250, 'Ice Master': 200 };
+    const COMP_CLASS_ATTACK_CD = { 'Berserker': 1200, 'Healer': 3000, 'Ice Master': 1800 };
+    const COMP_FOLLOW_SPEED = 0.08;
+    const COMP_CHASE_SPEED = 0.12;
+
+    // --- CREATE COMPANION DOM ELEMENT ---
+    function createCompanionDOM(comp, idx) {
+        const color = COMP_CLASS_COLORS[comp.class] || '#fff';
+
+        const container = document.createElement('div');
+        container.className = 'companion-entity';
+        container.id = `companion_${idx}`;
+        container.style.cssText = `
+            position: absolute; width: 48px; height: 96px; z-index: 103;
+            pointer-events: none; transition: none;
+        `;
+
+        const rig = document.createElement('div');
+        rig.className = 'player-avatar-container avatar-rig';
+        rig.style.cssText = 'position:relative; width:48px; height:96px;';
+
+        const hair = new Image(); hair.className = 'avatar-layer layer-hair';
+        const head = new Image(); head.className = 'avatar-layer layer-head'; head.src = 'animation/avatar_head.png';
+        const body = new Image(); body.className = 'avatar-layer layer-body'; body.src = 'animation/avatar_idlefront.png';
+        const weapon = new Image(); weapon.className = 'avatar-layer layer-weapon';
+
+        hair.src = `animation/avatar_hair${comp.hairStyle || '1'}.png`;
+        if (comp.hairStyle === 'none') hair.style.display = 'none';
+
+        const skinFilters = window.skinFilters || {};
+        const hairFilters = window.hairFilters || {};
+        head.style.filter = skinFilters[comp.skinColor] || skinFilters['white'] || '';
+        body.style.filter = skinFilters[comp.skinColor] || skinFilters['white'] || '';
+        hair.style.filter = hairFilters[comp.hairColor] || hairFilters['white'] || '';
+
+        weapon.style.display = 'none';
+        if (comp.equips && comp.equips.weapon && comp.equips.weapon.sprite) {
+            weapon.style.display = 'block';
+            weapon.src = `weapon/${comp.equips.weapon.sprite.replace('starter', 'basic')}.png`;
+            const wRarity = comp.equips.weapon.rarity;
+            if (wRarity && !['Starter', 'Basic', 'Rare', 'Unique'].includes(wRarity)) {
+                weapon.classList.add(`weapon-aura-${wRarity.toLowerCase()}`);
+            }
+        }
+
+        hair.style.opacity = '1'; head.style.opacity = '1'; body.style.opacity = '1'; weapon.style.opacity = '1';
+
+        rig.appendChild(hair);
+        rig.appendChild(head);
+        rig.appendChild(body);
+        rig.appendChild(weapon);
+
+        container.appendChild(rig);
+
+        const nameTag = document.createElement('div');
+        nameTag.className = 'name-tag';
+        nameTag.style.cssText = `color:${color}; font-size:11px; text-shadow: 0 0 5px ${color}; pointer-events:none;`;
+        nameTag.innerText = `🐾 ${comp.name || comp.class}`;
+        container.appendChild(nameTag);
+
+        const hpBar = document.createElement('div');
+        hpBar.style.cssText = 'position:absolute; top:-8px; left:4px; width:40px; height:4px; background:rgba(0,0,0,0.7); border-radius:2px; overflow:hidden;';
+        const hpFill = document.createElement('div');
+        hpFill.className = 'comp-hp-fill';
+        hpFill.style.cssText = `width:100%; height:100%; background:${color}; transition: width 0.3s;`;
+        hpBar.appendChild(hpFill);
+        container.appendChild(hpBar);
+
+        const glow = document.createElement('div');
+        glow.style.cssText = `
+            position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%);
+            width: 30px; height: 8px; border-radius: 50%;
+            background: ${color}; opacity: 0.3; filter: blur(4px);
+        `;
+        container.appendChild(glow);
+
+        return { container, rig, body, weapon, hpFill };
+    }
+
+    // --- SPAWN COMPANIONS (mirrors spawnMinion exactly) ---
+    window.spawnCompanionEntities = function() {
+        window.despawnCompanionEntities();
+
+        const companions = game.player?.companions;
+        if (!companions || companions.length === 0) return;
+
+        // Same logic as minion: block only town
+        const currentMap = (typeof safeMapData !== 'undefined' && safeMapData.id) ? safeMapData.id : 'town';
+        if (currentMap === 'town') return;
+
+        // Don't spawn if player is in a party
+        if (game.party && game.party.members && game.party.members.length > 1) return;
+
+        companions.forEach((comp, idx) => {
+            const elements = createCompanionDOM(comp, idx);
+            const px = (game.player.x || 960) + (idx === 0 ? -60 : 60);
+            const py = (game.player.y || 1000) + 10;
+
+            elements.container.style.left = px + 'px';
+            elements.container.style.top = py + 'px';
+            dom.world.appendChild(elements.container);
+
+            window._activeCompanions.push({
+                idx: idx,
+                comp: comp,
+                dom: elements.container,
+                rig: elements.rig,
+                bodyImg: elements.body,
+                weaponImg: elements.weapon,
+                hpFill: elements.hpFill,
+                x: px,
+                y: py,
+                lastAttack: 0,
+                lastHeal: 0,
+                facingRight: idx === 1,
+                currentBodySrc: '',
+                isAttacking: false
+            });
+        });
+    };
+
+    window.despawnCompanionEntities = function() {
+        window._activeCompanions.forEach(c => {
+            if (c.dom && c.dom.parentNode) c.dom.parentNode.removeChild(c.dom);
+        });
+        window._activeCompanions = [];
+    };
+
+    // --- COMPANION AI (runs every frame) ---
+    window.updateCompanionAI = function() {
+        if (!game || !game.player || game.isGhost) return;
+        if (window._activeCompanions.length === 0) return;
+
+        if (game.party && game.party.members && game.party.members.length > 1) {
+            window.despawnCompanionEntities();
+            return;
+        }
+
+        const now = Date.now();
+        const playerX = game.player.x || 0;
+        const playerY = game.player.y || 0;
+
+        window._activeCompanions.forEach((c, cIdx) => {
+            const comp = c.comp;
+            const cls = comp.class;
+            const atkRange = COMP_CLASS_ATTACK_RANGE[cls] || 80;
+            const atkCd = COMP_CLASS_ATTACK_CD[cls] || 1500;
+
+            // --- FIND TARGET ---
+            let targetMob = null;
+            if (cls !== 'Healer') {
+                const detectRange = cls === 'Berserker' ? 250 : 350;
+                let closestDist = Infinity;
+                for (const mid in game.monsters) {
+                    const m = game.monsters[mid];
+                    if (!m || !m.alive) continue;
+                    const dist = Math.hypot(m.x - c.x, m.y - c.y);
+                    if (dist < detectRange && dist < closestDist) {
+                        closestDist = dist;
+                        targetMob = m;
+                    }
+                }
+            }
+
+            // --- MOVEMENT ---
+            if (targetMob && cls !== 'Healer') {
+                const dist = Math.hypot(targetMob.x - c.x, targetMob.y - c.y);
+                if (dist > atkRange) {
+                    c.x += (targetMob.x - c.x) * COMP_CHASE_SPEED;
+                    c.y += (targetMob.y - c.y) * COMP_CHASE_SPEED;
+                }
+                c.facingRight = targetMob.x > c.x;
+            } else {
+                const offsetX = cIdx === 0 ? -60 : 60;
+                const offsetY = 10;
+                const targetX = playerX + offsetX;
+                const targetY = playerY + offsetY;
+                const followDist = Math.hypot(targetX - c.x, targetY - c.y);
+
+                if (followDist > 10) {
+                    c.x += (targetX - c.x) * COMP_FOLLOW_SPEED;
+                    c.y += (targetY - c.y) * COMP_FOLLOW_SPEED;
+                }
+
+                const playerDist = Math.hypot(playerX - c.x, playerY - c.y);
+                if (playerDist > 400) {
+                    c.x = playerX + offsetX;
+                    c.y = playerY + offsetY;
+                }
+
+                c.facingRight = playerX > c.x;
+            }
+
+            // --- ATTACK ---
+            if (targetMob && cls !== 'Healer' && now - c.lastAttack > atkCd) {
+                const dist = Math.hypot(targetMob.x - c.x, targetMob.y - c.y);
+                if (dist <= atkRange + 30) {
+                    c.lastAttack = now;
+                    c.isAttacking = true;
+                    setTimeout(() => { c.isAttacking = false; }, 300);
+
+                    if (socket) {
+                        socket.emit('companionAttack', {
+                            companionIndex: c.idx,
+                            monsterId: targetMob.id
+                        });
+                    }
+
+                    if (cls === 'Ice Master') {
+                        // Ice projectile
+                        const proj = document.createElement('div');
+                        proj.style.cssText = `position:absolute; left:${c.x+24}px; top:${c.y+40}px; width:8px; height:8px; border-radius:50%; background:#2196F3; box-shadow:0 0 10px #2196F3, 0 0 20px #2196F3; z-index:200; pointer-events:none; transition:left 0.3s linear, top 0.3s linear;`;
+                        dom.world.appendChild(proj);
+                        requestAnimationFrame(() => { proj.style.left = (targetMob.x+24)+'px'; proj.style.top = (targetMob.y+24)+'px'; });
+                        setTimeout(() => proj.remove(), 400);
+                    }
+                }
+            }
+
+            // --- HEALER: Heal player ---
+            if (cls === 'Healer' && now - c.lastHeal > atkCd) {
+                const pHp = game.player.currentHp || 0;
+                const pMaxHp = window.getMaxHp ? window.getMaxHp() : 100;
+                if (pHp < pMaxHp * 0.8) {
+                    c.lastHeal = now;
+                    c.isAttacking = true;
+                    setTimeout(() => { c.isAttacking = false; }, 300);
+
+                    if (socket) {
+                        socket.emit('companionHeal', { companionIndex: c.idx });
+                    }
+
+                    // Green heal pulse
+                    const heal = document.createElement('div');
+                    heal.style.cssText = `position:absolute; left:${playerX+4}px; top:${playerY}px; width:40px; height:40px; border-radius:50%; border:2px solid #4CAF50; background:rgba(76,175,80,0.15); box-shadow:0 0 20px rgba(76,175,80,0.4); z-index:200; pointer-events:none; animation:compHealPulse 0.6s ease-out forwards;`;
+                    dom.world.appendChild(heal);
+                    setTimeout(() => heal.remove(), 700);
+                }
+            }
+
+            // --- UPDATE DOM ---
+            c.dom.style.left = c.x + 'px';
+            c.dom.style.top = c.y + 'px';
+            if (c.rig) c.rig.style.transform = c.facingRight ? 'scaleX(1)' : 'scaleX(-1)';
+
+            const isMoving = Math.hypot(c.x - (c.prevX || c.x), c.y - (c.prevY || c.y)) > 0.5;
+            c.prevX = c.x; c.prevY = c.y;
+
+            const pulseActive = (Math.floor(Date.now() / 250) % 2 === 0);
+            let bodySrc = 'animation/avatar_idlefront.png';
+            if (c.isAttacking) bodySrc = 'animation/avatar_attack.png';
+            else if (isMoving && pulseActive) bodySrc = 'animation/avatar_walk.png';
+
+            if (c.bodyImg && c.currentBodySrc !== bodySrc) {
+                c.bodyImg.src = bodySrc;
+                c.currentBodySrc = bodySrc;
+            }
+
+            if (c.hpFill) {
+                const hpPct = comp.maxHp > 0 ? Math.max(0, (comp.currentHp / comp.maxHp) * 100) : 100;
+                c.hpFill.style.width = hpPct + '%';
+            }
+        });
+    };
+
+    // Inject companion CSS
+    const compCSS = document.createElement('style');
+    compCSS.textContent = `
+        @keyframes compHealPulse {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+        .companion-entity { image-rendering: pixelated; }
+    `;
+    document.head.appendChild(compCSS);
+
+    // 🐾 COMPANION GAME LOOP: Runs on rAF, handles map detection + AI
+    setInterval(() => {
+        if (!game || !game.player) return;
+
+        // Check if DOM nodes were lost (map transition wiped them)
+        if (window._activeCompanions.length > 0 && !document.body.contains(window._activeCompanions[0].dom)) {
+            window._activeCompanions = [];
+        }
+
+        // If no companions are active and we're not in town, try spawning
+        if (window._activeCompanions.length === 0) {
+            const currentMap = (typeof safeMapData !== 'undefined' && safeMapData.id) ? safeMapData.id : 'town';
+            if (currentMap !== 'town' && !window.isLoading && !window.isTransitioning) {
+                window.spawnCompanionEntities();
+            }
+        }
+
+        // Run AI
+        window.updateCompanionAI();
+    }, 50);
+})();
