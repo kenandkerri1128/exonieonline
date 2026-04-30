@@ -9529,15 +9529,24 @@ io.on('connection', (socket) => {
                 return socket.emit('systemMessage', 'You already have 2 companions! Max reached.');
             }
             const companionClass = item.companionClass;
-            const newCompanion = {
-                id: Date.now() + Math.random(),
-                name: `${companionClass} Companion`,
-                class: companionClass, level: 1, exp: 0, maxExp: 200,
-                skinColor: 'white', hairColor: 'white', hairStyle: '1',
-                equips: { weapon: null, armor: null, leggings: null, necklace: null, ring: null, earrings: null },
-                currentHp: 100, maxHp: 100,
-                baseStats: { hp: 100, atk: 10, def: 5, str: 5, int: 5, spd: 3 }
-            };
+            let newCompanion;
+            
+            if (item.savedCompanionData) {
+                newCompanion = item.savedCompanionData;
+                newCompanion.id = Date.now() + Math.random(); // Give fresh ID
+                // Ensure equips object exists
+                if (!newCompanion.equips) newCompanion.equips = { weapon: null, armor: null, leggings: null, necklace: null, ring: null, earrings: null };
+            } else {
+                newCompanion = {
+                    id: Date.now() + Math.random(),
+                    name: `${companionClass} Companion`,
+                    class: companionClass, level: 1, exp: 0, maxExp: 200,
+                    skinColor: 'white', hairColor: 'white', hairStyle: '1',
+                    equips: { weapon: null, armor: null, leggings: null, necklace: null, ring: null, earrings: null },
+                    currentHp: 100, maxHp: 100,
+                    baseStats: { hp: 100, atk: 10, def: 5, str: 5, int: 5, spd: 3 }
+                };
+            }
             companions.push(newCompanion);
             p.companions = companions;
             p.inventory.splice(data.inventoryIndex, 1);
@@ -9576,6 +9585,67 @@ io.on('connection', (socket) => {
             comp.equips[slot] = null;
             await supabase.from('Exonians').update({ companions: p.companions, inventory: p.inventory }).eq('character_name', p.id);
             socket.emit('companionUpdated', { companions: p.companions, inventory: p.inventory });
+        });
+
+        // 🐾 UNEQUIP COMPANION (Return to token)
+        socket.on('unequipCompanion', async (data) => {
+            const p = onlinePlayers[socket.id];
+            if (!p || !data || typeof data.companionIndex !== 'number') return;
+            const comp = p.companions[data.companionIndex];
+            if (!comp) return;
+
+            // Gather equipped items
+            const itemsToReturn = [];
+            if (comp.equips) {
+                for (const slot in comp.equips) {
+                    if (comp.equips[slot]) itemsToReturn.push(comp.equips[slot]);
+                }
+            }
+
+            // Check inventory capacity
+            const emptySlots = p.inventory.filter(i => i === null).length + (40 - p.inventory.length);
+            const requiredSlots = itemsToReturn.length + 1; // 1 for the token itself
+            if (emptySlots < requiredSlots) {
+                return socket.emit('systemMessage', `Inventory full! Need ${requiredSlots} empty slots to unequip the companion and its gear.`);
+            }
+
+            // Clear equips from the companion data (since they are returning to inventory)
+            const savedCompData = JSON.parse(JSON.stringify(comp));
+            if (savedCompData.equips) {
+                for (const slot in savedCompData.equips) {
+                    savedCompData.equips[slot] = null;
+                }
+            }
+
+            // Create token
+            const tokenItem = {
+                id: Date.now() + Math.random(),
+                name: `${comp.class} Companion Token (Lv.${comp.level})`,
+                type: 'companion_token', 
+                companionClass: comp.class,
+                rarity: 'Divine', color: '#E040FB', level: comp.level,
+                description: `Use this token to reactivate your Level ${comp.level} ${comp.class} Companion!`,
+                quantity: 1,
+                savedCompanionData: savedCompData
+            };
+
+            // Push gear and token
+            itemsToReturn.forEach(i => {
+                let emptySlotIdx = p.inventory.findIndex(inv => inv === null);
+                if (emptySlotIdx !== -1) p.inventory[emptySlotIdx] = i;
+                else p.inventory.push(i);
+            });
+            
+            let emptySlotIdx = p.inventory.findIndex(inv => inv === null);
+            if (emptySlotIdx !== -1) p.inventory[emptySlotIdx] = tokenItem;
+            else p.inventory.push(tokenItem);
+
+            // Remove from active list
+            p.companions.splice(data.companionIndex, 1);
+
+            await supabase.from('Exonians').update({ companions: p.companions, inventory: p.inventory }).eq('character_name', p.id);
+            socket.emit('companionUnequipped', { companions: p.companions, inventory: p.inventory });
+            socket.emit('systemMessage', `${comp.name || comp.class + ' Companion'} has returned to your inventory.`);
         });
 
         // 🐾 COMPANION ATTACK: Companion deals damage to a monster
