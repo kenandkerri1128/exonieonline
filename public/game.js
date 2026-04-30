@@ -2957,6 +2957,11 @@ window.renderInventory = function() {
                 }; 
            }
             let nameSpan = document.createElement('span');
+            nameSpan.style.display = '-webkit-box';
+            nameSpan.style.webkitLineClamp = '4';
+            nameSpan.style.webkitBoxOrient = 'vertical';
+            nameSpan.style.overflow = 'hidden';
+            nameSpan.style.wordBreak = 'break-word';
             nameSpan.innerText = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name;
             if (item.rarity === 'Divine') nameSpan.className = 'rarity-divine-text';
             slot.appendChild(nameSpan);
@@ -9312,7 +9317,7 @@ window.executeCloseGame = function() {
             // --- UPDATE DOM ---
             c.dom.style.left = c.x + 'px';
             c.dom.style.top = c.y + 'px';
-            if (c.rig) c.rig.style.transform = c.facingRight ? '' : 'scaleX(-1)';
+            if (c.rig) c.rig.style.transform = c.facingRight ? 'scaleX(1)' : 'scaleX(-1)';
 
             const isMoving = Math.hypot(c.x - (c.prevX || c.x), c.y - (c.prevY || c.y)) > 0.5;
             c.prevX = c.x; c.prevY = c.y;
