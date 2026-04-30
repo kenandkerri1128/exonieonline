@@ -9475,6 +9475,12 @@ io.on('connection', (socket) => {
                 return socket.emit('systemMessage', `You need 10 ${pieceName}s to trade. You have ${totalPieces}.`);
             }
             
+            // Fix: Check for inventory space BEFORE deducting
+            let emptySlotIdx = p.inventory.findIndex(i => i === null);
+            if (emptySlotIdx === -1 && p.inventory.length >= 40) {
+                return socket.emit('systemMessage', 'Inventory full! Cannot receive the Companion Token.');
+            }
+            
             let amtToDeduct = 10;
             for (let i = 0; i < p.inventory.length; i++) {
                 if (amtToDeduct <= 0) break;
@@ -9497,11 +9503,15 @@ io.on('connection', (socket) => {
                 description: `Use this token from your inventory to activate a ${data.companionClass} Companion!`,
                 quantity: 1
             };
-            if (p.inventory.length < 40) {
+            
+            // Fix: Place in existing empty slot if available, otherwise push if < 40
+            emptySlotIdx = p.inventory.findIndex(i => i === null);
+            if (emptySlotIdx !== -1) {
+                p.inventory[emptySlotIdx] = tokenItem;
+            } else if (p.inventory.length < 40) {
                 p.inventory.push(tokenItem);
-            } else {
-                return socket.emit('systemMessage', 'Inventory full! Cannot receive the Companion Token.');
             }
+            
             await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
             socket.emit('eventRewardTraded', { inventory: p.inventory, itemName: tokenItem.name });
         });
