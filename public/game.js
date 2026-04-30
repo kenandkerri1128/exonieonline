@@ -9054,9 +9054,300 @@ window.executeCloseGame = function() {
             }
 
             // ⚡ Skill cast visual indicator
+            // ⚡ Skill cast visual indicator
             if (castSkill !== 'pet' && minion.skillName) {
                 window.spawnDamageText(minion.x + 15, minion.y - 20, `⚡ ${minion.skillName}`, '#4fc3f7');
             }
         }
+    }, 50);
+})();
+
+// ==========================================
+// 🐾 COMPANION SYSTEM (same pattern as Minion above)
+// ==========================================
+(function() {
+    window._activeCompanions = [];
+
+    const COMP_CLASS_COLORS = { 'Berserker': '#f44336', 'Healer': '#4CAF50', 'Ice Master': '#2196F3' };
+    const COMP_CLASS_ATTACK_RANGE = { 'Berserker': 60, 'Healer': 250, 'Ice Master': 200 };
+    const COMP_CLASS_ATTACK_CD = { 'Berserker': 1200, 'Healer': 3000, 'Ice Master': 1800 };
+    const COMP_FOLLOW_SPEED = 0.08;
+    const COMP_CHASE_SPEED = 0.12;
+
+    // --- CREATE COMPANION DOM ELEMENT ---
+    function createCompanionDOM(comp, idx) {
+        const color = COMP_CLASS_COLORS[comp.class] || '#fff';
+
+        const container = document.createElement('div');
+        container.className = 'companion-entity';
+        container.id = `companion_${idx}`;
+        container.style.cssText = `
+            position: absolute; width: 48px; height: 96px; z-index: 103;
+            pointer-events: none; transition: none;
+        `;
+
+        const rig = document.createElement('div');
+        rig.className = 'player-avatar-container avatar-rig';
+        rig.style.cssText = 'position:relative; width:48px; height:96px;';
+
+        const head = new Image(); head.className = 'avatar-layer layer-head'; head.src = 'animation/avatar_head.png';
+        const body = new Image(); body.className = 'avatar-layer layer-body'; body.src = 'animation/avatar_idlefront.png';
+        const hair = new Image(); hair.className = 'avatar-layer layer-hair';
+        hair.src = `animation/avatar_hair${comp.hairStyle || '1'}.png`;
+
+        const skinFilters = window.skinFilters || {};
+        const hairFilters = window.hairFilters || {};
+        head.style.filter = skinFilters[comp.skinColor] || skinFilters['white'] || '';
+        body.style.filter = skinFilters[comp.skinColor] || skinFilters['white'] || '';
+        hair.style.filter = hairFilters[comp.hairColor] || hairFilters['white'] || '';
+
+        rig.appendChild(body);
+        rig.appendChild(head);
+        rig.appendChild(hair);
+
+        const weapon = new Image(); weapon.className = 'avatar-layer layer-weapon';
+        weapon.style.display = 'none';
+        if (comp.equips && comp.equips.weapon && comp.equips.weapon.sprite) {
+            weapon.style.display = 'block';
+            weapon.src = `weapon/${comp.equips.weapon.sprite.replace('starter', 'basic')}.png`;
+        }
+        rig.appendChild(weapon);
+
+        container.appendChild(rig);
+
+        const nameTag = document.createElement('div');
+        nameTag.className = 'name-tag';
+        nameTag.style.cssText = `color:${color}; font-size:11px; text-shadow: 0 0 5px ${color}; pointer-events:none;`;
+        nameTag.innerText = `🐾 ${comp.name || comp.class}`;
+        container.appendChild(nameTag);
+
+        const hpBar = document.createElement('div');
+        hpBar.style.cssText = 'position:absolute; top:-8px; left:4px; width:40px; height:4px; background:rgba(0,0,0,0.7); border-radius:2px; overflow:hidden;';
+        const hpFill = document.createElement('div');
+        hpFill.className = 'comp-hp-fill';
+        hpFill.style.cssText = `width:100%; height:100%; background:${color}; transition: width 0.3s;`;
+        hpBar.appendChild(hpFill);
+        container.appendChild(hpBar);
+
+        const glow = document.createElement('div');
+        glow.style.cssText = `
+            position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%);
+            width: 30px; height: 8px; border-radius: 50%;
+            background: ${color}; opacity: 0.3; filter: blur(4px);
+        `;
+        container.appendChild(glow);
+
+        return { container, rig, body, weapon, hpFill };
+    }
+
+    // --- SPAWN COMPANIONS (mirrors spawnMinion exactly) ---
+    window.spawnCompanionEntities = function() {
+        window.despawnCompanionEntities();
+
+        const companions = game.player?.companions;
+        if (!companions || companions.length === 0) return;
+
+        // Same logic as minion: block only town
+        const currentMap = (typeof safeMapData !== 'undefined' && safeMapData.id) ? safeMapData.id : 'town';
+        if (currentMap === 'town') return;
+
+        // Don't spawn if player is in a party
+        if (game.party && game.party.members && game.party.members.length > 1) return;
+
+        companions.forEach((comp, idx) => {
+            const elements = createCompanionDOM(comp, idx);
+            const px = (game.player.x || 960) + (idx === 0 ? -60 : 60);
+            const py = (game.player.y || 1000) + 10;
+
+            elements.container.style.left = px + 'px';
+            elements.container.style.top = py + 'px';
+            dom.world.appendChild(elements.container);
+
+            window._activeCompanions.push({
+                idx: idx,
+                comp: comp,
+                dom: elements.container,
+                rig: elements.rig,
+                bodyImg: elements.body,
+                weaponImg: elements.weapon,
+                hpFill: elements.hpFill,
+                x: px,
+                y: py,
+                lastAttack: 0,
+                lastHeal: 0,
+                facingRight: idx === 1,
+                currentBodySrc: '',
+                isAttacking: false
+            });
+        });
+    };
+
+    window.despawnCompanionEntities = function() {
+        window._activeCompanions.forEach(c => {
+            if (c.dom && c.dom.parentNode) c.dom.parentNode.removeChild(c.dom);
+        });
+        window._activeCompanions = [];
+    };
+
+    // --- COMPANION AI (runs every frame) ---
+    window.updateCompanionAI = function() {
+        if (!game || !game.player || game.isGhost) return;
+        if (window._activeCompanions.length === 0) return;
+
+        if (game.party && game.party.members && game.party.members.length > 1) {
+            window.despawnCompanionEntities();
+            return;
+        }
+
+        const now = Date.now();
+        const playerX = game.player.x || 0;
+        const playerY = game.player.y || 0;
+
+        window._activeCompanions.forEach((c, cIdx) => {
+            const comp = c.comp;
+            const cls = comp.class;
+            const atkRange = COMP_CLASS_ATTACK_RANGE[cls] || 80;
+            const atkCd = COMP_CLASS_ATTACK_CD[cls] || 1500;
+
+            // --- FIND TARGET ---
+            let targetMob = null;
+            if (cls !== 'Healer') {
+                const detectRange = cls === 'Berserker' ? 250 : 350;
+                let closestDist = Infinity;
+                for (const mid in game.monsters) {
+                    const m = game.monsters[mid];
+                    if (!m || !m.alive) continue;
+                    const dist = Math.hypot(m.x - c.x, m.y - c.y);
+                    if (dist < detectRange && dist < closestDist) {
+                        closestDist = dist;
+                        targetMob = m;
+                    }
+                }
+            }
+
+            // --- MOVEMENT ---
+            if (targetMob && cls !== 'Healer') {
+                const dist = Math.hypot(targetMob.x - c.x, targetMob.y - c.y);
+                if (dist > atkRange) {
+                    c.x += (targetMob.x - c.x) * COMP_CHASE_SPEED;
+                    c.y += (targetMob.y - c.y) * COMP_CHASE_SPEED;
+                }
+                c.facingRight = targetMob.x > c.x;
+            } else {
+                const offsetX = cIdx === 0 ? -60 : 60;
+                const offsetY = 10;
+                const targetX = playerX + offsetX;
+                const targetY = playerY + offsetY;
+                const followDist = Math.hypot(targetX - c.x, targetY - c.y);
+
+                if (followDist > 10) {
+                    c.x += (targetX - c.x) * COMP_FOLLOW_SPEED;
+                    c.y += (targetY - c.y) * COMP_FOLLOW_SPEED;
+                }
+
+                const playerDist = Math.hypot(playerX - c.x, playerY - c.y);
+                if (playerDist > 400) {
+                    c.x = playerX + offsetX;
+                    c.y = playerY + offsetY;
+                }
+
+                c.facingRight = playerX > c.x;
+            }
+
+            // --- ATTACK ---
+            if (targetMob && cls !== 'Healer' && now - c.lastAttack > atkCd) {
+                const dist = Math.hypot(targetMob.x - c.x, targetMob.y - c.y);
+                if (dist <= atkRange + 30) {
+                    c.lastAttack = now;
+                    c.isAttacking = true;
+                    setTimeout(() => { c.isAttacking = false; }, 300);
+
+                    if (socket) {
+                        socket.emit('companionAttack', {
+                            companionIndex: c.idx,
+                            monsterId: targetMob.id
+                        });
+                    }
+
+                    if (cls === 'Ice Master') {
+                        // Ice projectile
+                        const proj = document.createElement('div');
+                        proj.style.cssText = `position:absolute; left:${c.x+24}px; top:${c.y+40}px; width:8px; height:8px; border-radius:50%; background:#2196F3; box-shadow:0 0 10px #2196F3, 0 0 20px #2196F3; z-index:200; pointer-events:none; transition:left 0.3s linear, top 0.3s linear;`;
+                        dom.world.appendChild(proj);
+                        requestAnimationFrame(() => { proj.style.left = (targetMob.x+24)+'px'; proj.style.top = (targetMob.y+24)+'px'; });
+                        setTimeout(() => proj.remove(), 400);
+                    }
+                }
+            }
+
+            // --- HEALER: Heal player ---
+            if (cls === 'Healer' && now - c.lastHeal > atkCd) {
+                const pHp = game.player.currentHp || 0;
+                const pMaxHp = window.getMaxHp ? window.getMaxHp() : 100;
+                if (pHp < pMaxHp * 0.8) {
+                    c.lastHeal = now;
+                    c.isAttacking = true;
+                    setTimeout(() => { c.isAttacking = false; }, 300);
+
+                    if (socket) {
+                        socket.emit('companionHeal', { companionIndex: c.idx });
+                    }
+
+                    // Green heal pulse
+                    const heal = document.createElement('div');
+                    heal.style.cssText = `position:absolute; left:${playerX+4}px; top:${playerY}px; width:40px; height:40px; border-radius:50%; border:2px solid #4CAF50; background:rgba(76,175,80,0.15); box-shadow:0 0 20px rgba(76,175,80,0.4); z-index:200; pointer-events:none; animation:compHealPulse 0.6s ease-out forwards;`;
+                    dom.world.appendChild(heal);
+                    setTimeout(() => heal.remove(), 700);
+                }
+            }
+
+            // --- UPDATE DOM ---
+            c.dom.style.left = c.x + 'px';
+            c.dom.style.top = c.y + 'px';
+            if (c.rig) c.rig.style.transform = c.facingRight ? '' : 'scaleX(-1)';
+
+            const walkSrc = c.isAttacking ? 'animation/avatar_attack.png' : 'animation/avatar_walkfront.png';
+            if (c.bodyImg && c.currentBodySrc !== walkSrc) {
+                c.bodyImg.src = walkSrc;
+                c.currentBodySrc = walkSrc;
+            }
+
+            if (c.hpFill) {
+                const hpPct = comp.maxHp > 0 ? Math.max(0, (comp.currentHp / comp.maxHp) * 100) : 100;
+                c.hpFill.style.width = hpPct + '%';
+            }
+        });
+    };
+
+    // Inject companion CSS
+    const compCSS = document.createElement('style');
+    compCSS.textContent = `
+        @keyframes compHealPulse {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+        .companion-entity { image-rendering: pixelated; }
+    `;
+    document.head.appendChild(compCSS);
+
+    // 🐾 COMPANION GAME LOOP: Runs on rAF, handles map detection + AI
+    setInterval(() => {
+        if (!game || !game.player) return;
+
+        // Check if DOM nodes were lost (map transition wiped them)
+        if (window._activeCompanions.length > 0 && !document.body.contains(window._activeCompanions[0].dom)) {
+            window._activeCompanions = [];
+        }
+
+        // If no companions are active and we're not in town, try spawning
+        if (window._activeCompanions.length === 0) {
+            const currentMap = (typeof safeMapData !== 'undefined' && safeMapData.id) ? safeMapData.id : 'town';
+            if (currentMap !== 'town' && !window.isLoading && !window.isTransitioning) {
+                window.spawnCompanionEntities();
+            }
+        }
+
+        // Run AI
+        window.updateCompanionAI();
     }, 50);
 })();
