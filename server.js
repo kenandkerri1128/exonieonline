@@ -3105,14 +3105,14 @@ io.on('connection', (socket) => {
                         return socket.emit('authError', 'Connection Limit: Max 4 accounts per email.');
                     }
 
-                    // 🛡️ IP + PASSWORD CAP: Max 4 simultaneous logins sharing the SAME IP AND the SAME password
+                    // 🛡️ IP + PASSWORD CAP: Max 2 simultaneous logins sharing the SAME IP AND the SAME password
                     let sameIpPwCount = 0;
                     for (const [sid, op] of Object.entries(onlinePlayers)) {
                         if (sid !== socket.id && op._loginIp === clientIp && op._loginPw === password) {
                             sameIpPwCount++;
                         }
                     }
-                    if (sameIpPwCount >= 4) {
+                    if (sameIpPwCount >= 2) {
                         console.log(`[SECURITY] Blocked ${username} - IP+Password Cap Reached (IP: ${clientIp}, ${sameIpPwCount} already online)`);
                         return socket.emit('authError', 'Sub character spamming detected. Please try again later.');
                     }
