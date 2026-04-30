@@ -446,9 +446,9 @@
         body.style.filter = skinFilters[comp.skinColor] || skinFilters['white'] || '';
         hair.style.filter = hairFilters[comp.hairColor] || hairFilters['white'] || '';
 
-        rig.appendChild(hair);
-        rig.appendChild(head);
         rig.appendChild(body);
+        rig.appendChild(head);
+        rig.appendChild(hair);
 
         // Weapon layer
         const weapon = new Image(); weapon.className = 'avatar-layer layer-weapon';
@@ -751,11 +751,22 @@
         }
 
         const currentMap = window.game.player.mapId || window.safeMapData?.id || '';
+        let needsRespawn = false;
 
         // Respawn companions if map changed or if they're not spawned
         if (currentMap !== _lastCompanionMapId) {
             _lastCompanionMapId = currentMap;
+            needsRespawn = true;
+        }
 
+        // Also respawn if the map was re-drawn (e.g. instance change) and DOM nodes were lost
+        if (!needsRespawn && window._activeCompanions.length > 0) {
+            if (!document.body.contains(window._activeCompanions[0].dom)) {
+                needsRespawn = true;
+            }
+        }
+
+        if (needsRespawn) {
             // Don't spawn in loading or on login screen
             if (currentMap && currentMap !== '') {
                 setTimeout(() => {
