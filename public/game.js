@@ -9093,8 +9093,6 @@ window.executeCloseGame = function() {
         const hair = new Image(); hair.className = 'avatar-layer layer-hair';
         const head = new Image(); head.className = 'avatar-layer layer-head'; head.src = 'animation/avatar_head.png';
         const body = new Image(); body.className = 'avatar-layer layer-body'; body.src = 'animation/avatar_idlefront.png';
-        const leggings = new Image(); leggings.className = 'avatar-layer layer-leggings';
-        const armor = new Image(); armor.className = 'avatar-layer layer-armor';
         const weapon = new Image(); weapon.className = 'avatar-layer layer-weapon';
 
         hair.src = `animation/avatar_hair${comp.hairStyle || '1'}.png`;
@@ -9116,26 +9114,11 @@ window.executeCloseGame = function() {
             }
         }
 
-        leggings.style.display = 'none';
-        if (comp.equips && comp.equips.leggings && comp.equips.leggings.sprite) {
-            leggings.style.display = 'block';
-            leggings.src = `armor/${comp.equips.leggings.sprite}.png`;
-        }
-
-        armor.style.display = 'none';
-        if (comp.equips && comp.equips.armor && comp.equips.armor.sprite) {
-            armor.style.display = 'block';
-            armor.src = `armor/${comp.equips.armor.sprite}.png`;
-        }
-
-        hair.style.opacity = '1'; head.style.opacity = '1'; body.style.opacity = '1'; 
-        leggings.style.opacity = '1'; armor.style.opacity = '1'; weapon.style.opacity = '1';
+        hair.style.opacity = '1'; head.style.opacity = '1'; body.style.opacity = '1'; weapon.style.opacity = '1';
 
         rig.appendChild(hair);
         rig.appendChild(head);
         rig.appendChild(body);
-        rig.appendChild(leggings);
-        rig.appendChild(armor);
         rig.appendChild(weapon);
 
         container.appendChild(rig);
@@ -9162,7 +9145,7 @@ window.executeCloseGame = function() {
         `;
         container.appendChild(glow);
 
-        return { container, rig, body, weapon, leggings, armor, hpFill };
+        return { container, rig, body, weapon, hpFill };
     }
 
     // --- SPAWN COMPANIONS (mirrors spawnMinion exactly) ---
