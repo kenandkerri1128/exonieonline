@@ -500,9 +500,9 @@
         // 🐾 Only show companions in PvE combat areas (not towns/homes/solo)
         const currentMap = window.game.player.mapId || window.safeMapData?.id || '';
         const isPvEArea = currentMap.includes('floor') || currentMap.includes('dungeon') ||
-            currentMap === 'battlefield' || currentMap === 'hauntedhouse' ||
-            currentMap === 'event_cave' || currentMap === 'neutralzone' ||
-            currentMap === 'trainingtavern';
+            currentMap.includes('mazetrial') || currentMap === 'battlefield' || 
+            currentMap === 'hauntedhouse' || currentMap === 'event_cave' || 
+            currentMap === 'neutralzone' || currentMap === 'trainingtavern';
         if (!isPvEArea) return;
 
         // Don't spawn if player is in a party
@@ -763,15 +763,24 @@
         if (!needsRespawn && window._activeCompanions.length > 0) {
             if (!document.body.contains(window._activeCompanions[0].dom)) {
                 needsRespawn = true;
+                window._activeCompanions = []; // PREVENT TIMEOUT SPAM
             }
         }
 
-        if (needsRespawn) {
-            // Don't spawn in loading or on login screen
+        if (needsRespawn && !window._isSpawningComps) {
+            window._isSpawningComps = true;
             if (currentMap && currentMap !== '') {
-                setTimeout(() => {
-                    window.spawnCompanionEntities();
-                }, 1000); // Delay to let map fully load
+                const checkAndSpawn = () => {
+                    if (window.isLoading || window.isTransitioning || game.player.isTeleporting) {
+                        setTimeout(checkAndSpawn, 500);
+                    } else {
+                        window.spawnCompanionEntities();
+                        window._isSpawningComps = false;
+                    }
+                };
+                setTimeout(checkAndSpawn, 500);
+            } else {
+                window._isSpawningComps = false;
             }
         }
 
