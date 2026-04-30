@@ -497,13 +497,9 @@
         const companions = window.game?.player?.companions;
         if (!companions || companions.length === 0) return;
 
-        // 🐾 Only show companions in PvE combat areas (not towns/homes/solo)
-        const currentMap = window.safeMapData?.id || window.game.player?.mapId || '';
-        const isPvEArea = currentMap.includes('floor') || currentMap.includes('dungeon') ||
-            currentMap.includes('mazetrial') || currentMap === 'battlefield' || 
-            currentMap === 'hauntedhouse' || currentMap === 'event_cave' || 
-            currentMap === 'neutralzone' || currentMap === 'trainingtavern';
-        if (!isPvEArea) return;
+        // 🐾 Only show companions in PvE areas (same logic as minion: block only town)
+        const currentMap = (typeof safeMapData !== 'undefined' && safeMapData.id) ? safeMapData.id : 'town';
+        if (currentMap === 'town') return;
 
         // Don't spawn if player is in a party
         if (window.game.party && window.game.party.members && window.game.party.members.length > 1) return;
@@ -750,7 +746,7 @@
             return;
         }
 
-        const currentMap = window.safeMapData?.id || window.game.player?.mapId || '';
+        const currentMap = (typeof safeMapData !== 'undefined' && safeMapData.id) ? safeMapData.id : 'town';
         let needsRespawn = false;
 
         // Respawn companions if map changed or if they're not spawned
