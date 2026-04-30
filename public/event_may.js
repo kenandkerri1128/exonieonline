@@ -498,7 +498,7 @@
         if (!companions || companions.length === 0) return;
 
         // 🐾 Only show companions in PvE combat areas (not towns/homes/solo)
-        const currentMap = window.game.player.mapId || window.safeMapData?.id || '';
+        const currentMap = window.safeMapData?.id || window.game.player?.mapId || '';
         const isPvEArea = currentMap.includes('floor') || currentMap.includes('dungeon') ||
             currentMap.includes('mazetrial') || currentMap === 'battlefield' || 
             currentMap === 'hauntedhouse' || currentMap === 'event_cave' || 
@@ -750,7 +750,7 @@
             return;
         }
 
-        const currentMap = window.game.player.mapId || window.safeMapData?.id || '';
+        const currentMap = window.safeMapData?.id || window.game.player?.mapId || '';
         let needsRespawn = false;
 
         // Respawn companions if map changed or if they're not spawned
@@ -765,6 +765,11 @@
                 needsRespawn = true;
                 window._activeCompanions = []; // PREVENT TIMEOUT SPAM
             }
+        }
+        
+        if (window._forceCompanionRespawn) {
+            window._forceCompanionRespawn = false;
+            needsRespawn = true;
         }
 
         if (needsRespawn && !window._isSpawningComps) {
