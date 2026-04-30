@@ -508,7 +508,7 @@
         // Don't spawn if player is in a party
         if (window.game.party && window.game.party.members && window.game.party.members.length > 1) return;
 
-        const world = document.getElementById('game-world');
+        const world = document.getElementById('world');
         if (!world) return;
 
         companions.forEach((comp, idx) => {
