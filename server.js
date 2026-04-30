@@ -3811,7 +3811,7 @@ io.on('connection', (socket) => {
 
             if (payload.skillId === 'tech1') {
                 let isCrit = Math.random() < 0.50;
-                trueDmg = Math.floor(getServerTotalStat(p, 'int') * (isCrit ? 2.0 : 1.0));
+                trueDmg = Math.floor(getServerTotalStat(p, 'int') * (isCrit ? 1.5 : 1.0));
                 if (isCrit) {
                     socket.emit('droneCritical', { monsterId: payload.monsterId });
                 }
