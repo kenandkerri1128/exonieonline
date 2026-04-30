@@ -9465,16 +9465,30 @@ io.on('connection', (socket) => {
             const validClasses = ['Berserker', 'Healer', 'Ice Master'];
             if (!validClasses.includes(data.companionClass)) return;
             const pieceName = `${data.companionClass} ID Piece`;
-            const pieces = p.inventory.filter(i => i && i.name === pieceName);
-            if (pieces.length < 10) {
-                return socket.emit('systemMessage', `You need 10 ${pieceName}s to trade. You have ${pieces.length}.`);
-            }
-            let removed = 0;
-            p.inventory = p.inventory.filter(i => {
-                if (removed >= 10) return true;
-                if (i && i.name === pieceName) { removed++; return false; }
-                return true;
+            
+            let totalPieces = 0;
+            p.inventory.forEach(i => {
+                if (i && i.name === pieceName) totalPieces += (i.quantity || 1);
             });
+            
+            if (totalPieces < 10) {
+                return socket.emit('systemMessage', `You need 10 ${pieceName}s to trade. You have ${totalPieces}.`);
+            }
+            
+            let amtToDeduct = 10;
+            for (let i = 0; i < p.inventory.length; i++) {
+                if (amtToDeduct <= 0) break;
+                if (p.inventory[i] && p.inventory[i].name === pieceName) {
+                    if ((p.inventory[i].quantity || 1) > amtToDeduct) {
+                        p.inventory[i].quantity -= amtToDeduct;
+                        amtToDeduct = 0;
+                    } else {
+                        amtToDeduct -= (p.inventory[i].quantity || 1);
+                        p.inventory[i] = null;
+                    }
+                }
+            }
+            
             const tokenItem = {
                 id: Date.now() + Math.random(),
                 name: `${data.companionClass} Companion Token`,
