@@ -4201,6 +4201,7 @@ let targetMapId = 'town';
                                 let mapPayload = Object.assign({}, safeMapData, { instanceId: req.instanceId });
                                 socket.emit('syncMapData', mapPayload);
                                 if (typeof window.spawnMinion === 'function') window.spawnMinion();
+                                if (typeof window.spawnCompanionEntities === 'function') setTimeout(() => window.spawnCompanionEntities(), 1200);
                             });
                         });
                     } catch (renderErr) { console.error("Render crash caught, bypassing:", renderErr); }
@@ -4212,6 +4213,7 @@ let targetMapId = 'town';
                         window.isLoading = false;
                         window.isTransitioning = false;
                         if (typeof window.spawnMinion === 'function') window.spawnMinion();
+                        if (typeof window.spawnCompanionEntities === 'function') setTimeout(() => window.spawnCompanionEntities(), 1200);
 
                         // 🛡️ LOADING SCREEN SAFETY TIMEOUT: Force-remove after 15 seconds
                         window.__loadSafetyTimer = setTimeout(() => {
@@ -4761,6 +4763,14 @@ if (typeof window.spawnMinion === 'function') {
         setTimeout(() => window.spawnMinion(), 1000);
     }
 }
+// 🐾 COMPANION: Spawn or despawn based on new map (same logic as minion)
+if (typeof window.spawnCompanionEntities === 'function') {
+    if (tp.mapId === 'town') {
+        window.despawnCompanionEntities();
+    } else {
+        setTimeout(() => window.spawnCompanionEntities(), 1200);
+    }
+}
 
 if (tp.spectateTarget) {
     window.isSpectating = true;
@@ -4928,6 +4938,9 @@ if (tp.spectateTarget) {
                 let ls = document.getElementById('loading-screen'); if (ls) ls.style.display = 'none';
                 let ts = document.getElementById('map-transition'); if (ts) { ts.style.opacity = '0'; setTimeout(() => ts.style.display='none', 1000); }
                 if (typeof safeMapData !== 'undefined' && safeMapData.id) { window.playBGM(window.routeMapMusic(safeMapData.id)); try { window.showMapAnnouncement(safeMapData.id); } catch(e){} }
+                // 🐾 MINION + COMPANION: Spawn after portal transition completes
+                if (typeof window.spawnMinion === 'function') setTimeout(() => window.spawnMinion(), 500);
+                if (typeof window.spawnCompanionEntities === 'function') setTimeout(() => window.spawnCompanionEntities(), 800);
             }
         }, isGrouped ? 3000 : 300);
     }); 
