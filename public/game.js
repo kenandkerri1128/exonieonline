@@ -2024,6 +2024,7 @@ window.cleanupMap = function() {
         game.player.activePets = []; 
     } 
     if (typeof window.despawnCompanionEntities === 'function') window.despawnCompanionEntities();
+    window._forceCompanionRespawn = true;
     if (localBossTimer) clearInterval(localBossTimer);
     // u{1F6E1}uFE0F INTERVAL LEAK FIX: Kill orphaned dungeon & tavern timers on map change
     if (typeof dungeonTimerInt !== 'undefined' && dungeonTimerInt) { clearInterval(dungeonTimerInt); dungeonTimerInt = null; }
@@ -2245,23 +2246,23 @@ window.spawnSkillText = function(x, y, text, color) {
     
     anim.onfinish = () => txt.remove();
 };
-window.spawnSpark = function(x, y) { 
-    // 🚀 DOM CAP: Max 20 sparks on screen to prevent mobile lag
-    const existing = dom.world.querySelectorAll('.spark');
-    if (existing.length > 20) existing[0].remove();
-    const spark = document.createElement('div'); spark.className = 'spark'; spark.style.left = (x + (Math.random() * 20 - 10)) + 'px'; spark.style.top = (y + (Math.random() * 20 - 10)) + 'px'; dom.world.appendChild(spark); setTimeout(() => spark.remove(), 300); 
-}
 window.spawnWhiteSplash = function(x, y) { 
     // 🚀 DOM CAP: Max 15 splashes on screen to prevent mobile lag
     const existing = dom.world.querySelectorAll('.white-splash');
     if (existing.length > 15) existing[0].remove();
     const splash = document.createElement('div'); splash.className = 'white-splash'; splash.style.left = x + 'px'; splash.style.top = y + 'px'; dom.world.appendChild(splash); setTimeout(() => splash.remove(), 300); 
 }
-window.shootLaser = function(startX, startY, endX, endY) {
+window.spawnSpark = function(x, y) { 
+    // 🚀 DOM CAP: Max 20 sparks on screen to prevent mobile lag
+    const existing = dom.world.querySelectorAll('.spark');
+    if (existing.length > 20) existing[0].remove();
+    const spark = document.createElement('div'); spark.className = 'spark'; spark.style.left = (x + (Math.random() * 20 - 10)) + 'px'; spark.style.top = (y + (Math.random() * 20 - 10)) + 'px'; dom.world.appendChild(spark); setTimeout(() => spark.remove(), 300); 
+}
+window.shootLaser = function(startX, startY, endX, endY, color = '#00E5FF') {
     const laser = document.createElement('div');
     const length = Math.hypot(endX - startX, endY - startY);
     const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
-    laser.style.cssText = `position:absolute; background:#00E5FF; height:4px; width:${length}px; left:${startX}px; top:${startY}px; transform-origin:0 50%; transform:rotate(${angle}deg); box-shadow:0 0 10px #00E5FF, 0 0 20px #00E5FF; z-index:100; pointer-events:none; opacity:1; transition:opacity 0.2s;`;
+    laser.style.cssText = `position:absolute; background:${color}; height:4px; width:${length}px; left:${startX}px; top:${startY}px; transform-origin:0 50%; transform:rotate(${angle}deg); box-shadow:0 0 10px ${color}, 0 0 20px ${color}; z-index:100; pointer-events:none; opacity:1; transition:opacity 0.2s;`;
     dom.world.appendChild(laser);
     // 🚀 AUDIO POOL: Reuses pooled Audio instead of creating new Audio() every shot
     let sfx = window._getSFX('lightning');
@@ -6825,6 +6826,14 @@ socket.on('applyGammaShield', (data) => {
     socket.on('droneCritical', (data) => {
         const mob = game.monsters.find(m => m.id === data.monsterId);
         if (mob) {
+            // Find drone
+            let drone = game.player.activePets ? game.player.activePets.find(p => p.isDrone) : null;
+            if (drone) {
+                window.shootLaser(drone.x, drone.y, mob.x + (mob.width||48)/2, mob.y + (mob.height||96)/2, '#ff1744');
+            } else {
+                window.shootLaser(game.player.x, game.player.y, mob.x + (mob.width||48)/2, mob.y + (mob.height||96)/2, '#ff1744');
+            }
+            
             // Create a brief red flash effect
             const flash = document.createElement('div');
             flash.style.cssText = `position:absolute; left:${mob.x - game.camera.x}px; top:${mob.y - game.camera.y - 20}px; color:#ff1744; font-weight:bold; font-size:16px; font-family:sans-serif; text-shadow: 0 0 8px #ff0000; z-index:9999; pointer-events:none;`;
