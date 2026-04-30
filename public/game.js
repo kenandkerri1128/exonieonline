@@ -6824,7 +6824,7 @@ socket.on('applyGammaShield', (data) => {
 
     // ⚡ GADGET DRONE CRITICAL: Red Laser VFX
     socket.on('droneCritical', (data) => {
-        const mob = game.monsters.find(m => m.id === data.monsterId);
+        const mob = game.monsters[data.monsterId];
         if (mob) {
             // Find drone
             let drone = game.player.activePets ? game.player.activePets.find(p => p.isDrone) : null;
