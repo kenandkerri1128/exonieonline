@@ -62,7 +62,10 @@
 
         const types = ['Berserker', 'Healer', 'Ice Master'];
         types.forEach(type => {
-            const count = inv.filter(i => i && i.name === `${type} ID Piece`).length;
+            let count = 0;
+            inv.forEach(i => {
+                if (i && i.name === `${type} ID Piece`) count += (i.quantity || 1);
+            });
             const el = document.getElementById(`event-piece-count-${type.replace(/\s/g, '')}`);
             if (el) el.innerText = `${count}/10`;
 
