@@ -404,18 +404,13 @@
         window.addEventListener('load', setupEventSocketListeners);
     }
 
-    // ==========================================
-    // 🐾 PHASE 3: COMPANION AI & COMBAT
-    // ==========================================
+    // 🐾 COMPANION SYSTEM: Moved to game.js for proper safeMapData access
 
-    // Active companion entities rendered in the world
-    window._activeCompanions = [];
+})();
 
-    const COMP_CLASS_COLORS = { 'Berserker': '#f44336', 'Healer': '#4CAF50', 'Ice Master': '#2196F3' };
-    const COMP_CLASS_ATTACK_RANGE = { 'Berserker': 60, 'Healer': 250, 'Ice Master': 200 };
-    const COMP_CLASS_ATTACK_CD = { 'Berserker': 1200, 'Healer': 3000, 'Ice Master': 1800 };
-    const COMP_FOLLOW_SPEED = 0.08;
-    const COMP_CHASE_SPEED = 0.12;
+
+
+
 
     // --- CREATE COMPANION DOM ELEMENT ---
     function createCompanionDOM(comp, idx) {
