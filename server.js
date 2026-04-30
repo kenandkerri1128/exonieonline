@@ -3810,7 +3810,7 @@ io.on('connection', (socket) => {
             let trueDmg = Math.floor(serverAtkPwr * (0.9 + Math.random() * 0.2));
 
             if (payload.skillId === 'tech1') {
-                let isCrit = Math.random() < 0.20;
+                let isCrit = Math.random() < 0.50;
                 trueDmg = Math.floor(getServerTotalStat(p, 'int') * (isCrit ? 2.0 : 1.0));
                 if (isCrit) {
                     socket.emit('droneCritical', { monsterId: payload.monsterId });
@@ -9317,11 +9317,11 @@ io.on('connection', (socket) => {
             initiateDungeon2Stage(newInstId, targetMapId, data.difficulty);
         });
 
-// ==========================================
-// 🎉 MAY EVENT: COMPANION EVENT SYSTEM
-// ==========================================
+        // ==========================================
+        // 🎉 MAY EVENT: COMPANION EVENT SYSTEM
+        // ==========================================
 
-// 🎉 EVENT DUNGEON: 60-Second Survival Wave
+        // 🎉 EVENT DUNGEON: 60-Second Survival Wave
         socket.on('startEventDungeon', async () => {
             const p = onlinePlayers[socket.id];
             if (!p || p.isGhost) return;
@@ -9465,22 +9465,22 @@ io.on('connection', (socket) => {
             const validClasses = ['Berserker', 'Healer', 'Ice Master'];
             if (!validClasses.includes(data.companionClass)) return;
             const pieceName = `${data.companionClass} ID Piece`;
-            
+
             let totalPieces = 0;
             p.inventory.forEach(i => {
                 if (i && i.name === pieceName) totalPieces += (i.quantity || 1);
             });
-            
+
             if (totalPieces < 10) {
                 return socket.emit('systemMessage', `You need 10 ${pieceName}s to trade. You have ${totalPieces}.`);
             }
-            
+
             // Fix: Check for inventory space BEFORE deducting
             let emptySlotIdx = p.inventory.findIndex(i => i === null);
             if (emptySlotIdx === -1 && p.inventory.length >= 40) {
                 return socket.emit('systemMessage', 'Inventory full! Cannot receive the Companion Token.');
             }
-            
+
             let amtToDeduct = 10;
             for (let i = 0; i < p.inventory.length; i++) {
                 if (amtToDeduct <= 0) break;
@@ -9494,7 +9494,7 @@ io.on('connection', (socket) => {
                     }
                 }
             }
-            
+
             const tokenItem = {
                 id: Date.now() + Math.random(),
                 name: `${data.companionClass} Companion Token`,
@@ -9503,7 +9503,7 @@ io.on('connection', (socket) => {
                 description: `Use this token from your inventory to activate a ${data.companionClass} Companion!`,
                 quantity: 1
             };
-            
+
             // Fix: Place in existing empty slot if available, otherwise push if < 40
             emptySlotIdx = p.inventory.findIndex(i => i === null);
             if (emptySlotIdx !== -1) {
@@ -9511,7 +9511,7 @@ io.on('connection', (socket) => {
             } else if (p.inventory.length < 40) {
                 p.inventory.push(tokenItem);
             }
-            
+
             await supabase.from('Exonians').update({ inventory: p.inventory }).eq('character_name', p.id);
             socket.emit('eventRewardTraded', { inventory: p.inventory, itemName: tokenItem.name });
         });
