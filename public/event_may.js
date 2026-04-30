@@ -270,6 +270,12 @@
             </div>
 
             <div style="font-size:11px; color:#666; text-align:center;">Drag items from your inventory to equip. Click an equipped item to unequip.</div>
+
+            <div style="margin-top: 20px; text-align: center;">
+                <button onclick="window.unequipCompanion(${idx})" style="background:#f44336; color:#fff; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:12px; transition:0.2s;" onmouseover="this.style.background='#d32f2f';" onmouseout="this.style.background='#f44336';">
+                    ❌ Return to Token
+                </button>
+            </div>
         `;
     };
 
@@ -294,16 +300,16 @@
         });
     };
 
-    window.unequipCompanionItem = function(companionIdx, slot) {
-        const companions = window.game?.player?.companions || [];
-        const comp = companions[companionIdx];
-        if (!comp || !comp.equips || !comp.equips[slot]) return;
-
+    window.unequipCompanionItem = function(companionIndex, slot) {
         if (!window.socket) return;
-        window.socket.emit('unequipCompanionItem', {
-            companionIndex: companionIdx,
-            slot: slot
-        });
+        window.socket.emit('unequipCompanionItem', { companionIndex, slot });
+    };
+
+    window.unequipCompanion = function(companionIndex) {
+        if (!window.socket) return;
+        if (confirm("Are you sure you want to unequip this Companion? It will be converted into a token in your inventory. Any equipped gear will also be unequipped.")) {
+            window.socket.emit('unequipCompanion', { companionIndex });
+        }
     };
 
     // ==========================================
@@ -384,15 +390,38 @@
         socket.on('companionUpdated', (data) => {
             if (window.game && window.game.player) {
                 window.game.player.companions = data.companions;
-                if (data.inventory) window.game.player.inventory = data.inventory;
+                window.game.player.inventory = data.inventory;
+                window.renderCompanionList();
+                
+                const panel = document.getElementById('companion-detail-panel');
+                if (panel && panel.style.display === 'block') {
+                    const idx = parseInt(panel.dataset.companionIndex);
+                    if (!isNaN(idx)) {
+                        window.openCompanionDetail(idx);
+                    }
+                }
+                
+                if (window.renderInventory) window.renderInventory();
+                if (typeof window.spawnCompanionEntities === 'function') {
+                    window.spawnCompanionEntities();
+                }
             }
-            if (typeof window.renderInventory === 'function') window.renderInventory();
-            if (typeof window.renderCompanionList === 'function') window.renderCompanionList();
-            // Re-render detail if open
-            const panel = document.getElementById('companion-detail-panel');
-            if (panel && panel.style.display === 'block') {
-                const idx = parseInt(panel.dataset.companionIndex || '0');
-                window.openCompanionDetail(idx);
+        });
+
+        // 🐾 COMPANION UNEQUIPPED
+        socket.on('companionUnequipped', (data) => {
+            if (window.game && window.game.player) {
+                window.game.player.companions = data.companions;
+                window.game.player.inventory = data.inventory;
+                
+                const panel = document.getElementById('companion-detail-panel');
+                if (panel) panel.style.display = 'none';
+
+                window.renderCompanionList();
+                if (window.renderInventory) window.renderInventory();
+                if (typeof window.spawnCompanionEntities === 'function') {
+                    window.spawnCompanionEntities();
+                }
             }
         });
     }
