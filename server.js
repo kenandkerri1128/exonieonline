@@ -1139,7 +1139,7 @@ function generateLoot(monster) {
     if (monster.category === "common_mobs") {
         if (roll < 0.0009) {
             return { id: Date.now() + Math.random(), name: "Revival Juice", type: "consumable", rarity: "Unique", color: RARITY_COLORS["Unique"], description: "Revives you instantly.", quantity: 1 };
-        } else if (roll < 0.0018) {
+        } else if (roll < 0.0080) {
             return { id: Date.now() + Math.random(), name: "Small Gold Bar", type: "material", rarity: "Unique", color: "#9c27b0", sellPrice: 10000, description: "A small bar of pure gold. Sell for 10,000 Gold.", quantity: 1 };
         }
     }
