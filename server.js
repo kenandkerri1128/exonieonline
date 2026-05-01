@@ -1212,52 +1212,52 @@ function generateTavernLoot(level, rarity) {
 // SCALED MONSTER DATABASE
 // ==========================================
 const MonsterDatabase = {
-    "common_mobs1": { name: "Slime", category: "common_mobs", level: 5, maxHp: 100, atk: 15, def: 0, speed: 2.5, expYield: 25, goldYield: 1, aggroRadius: 250, chaseRadius: 400, attackRange: 55, width: 40, height: 40, respawnDelay: 10000, cssColor: '#ff69b4', cssBorder: '#c71585' },
+    "common_mobs1": { name: "Slime", category: "common_mobs", level: 5, maxHp: 100, atk: 15, def: 0, speed: 2.5, expYield: 125, goldYield: 1, aggroRadius: 250, chaseRadius: 400, attackRange: 55, width: 40, height: 40, respawnDelay: 10000, cssColor: '#ff69b4', cssBorder: '#c71585' },
     // 🌟 THE GOLDEN SLIME
     "common_mobs_golden": { name: "Golden Slime", category: "common_mobs", level: 5, maxHp: 100, atk: 15, def: 0, speed: 4.0, expYield: 500, goldYield: 1500, aggroRadius: 250, chaseRadius: 500, attackRange: 55, width: 40, height: 40, respawnDelay: 10000, cssColor: '#ffd700', cssBorder: '#b8860b' },
-    "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 15500, atk: 250, def: 35, speed: 2.8, expYield: 500, goldYield: 3, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
-    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 35000, atk: 450, def: 100, speed: 3.5, expYield: 3000, goldYield: 5, aggroRadius: 500, chaseRadius: 700, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' },
+    "mini_boss1": { name: "Orc Slime", category: "mini_boss", level: 15, maxHp: 15500, atk: 250, def: 35, speed: 2.8, expYield: 1500, goldYield: 3, aggroRadius: 350, chaseRadius: 500, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#2196F3', cssBorder: '#0b7dda' },
+    "floor_boss1": { name: "Dragon Slime", category: "floor_boss", level: 25, maxHp: 35000, atk: 450, def: 100, speed: 3.5, expYield: 13000, goldYield: 5, aggroRadius: 500, chaseRadius: 700, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#f44336', cssBorder: '#b71c1c' },
     // ==================
     // TYPE 2: BATS (Fast, Squishy, Melee)
     // ==================
-    "common_mobs2": { name: "Shadow Bat", category: "common_mobs", level: 5, maxHp: 160, atk: 35, def: 0, speed: 4.5, expYield: 30, goldYield: 1, aggroRadius: 300, chaseRadius: 500, attackRange: 55, width: 40, height: 40, respawnDelay: 10000, cssColor: '#1a1a1a', cssBorder: 'none' },
-    "mini_boss2": { name: "Vampire Bat", category: "mini_boss", level: 15, maxHp: 13700, atk: 280, def: 5, speed: 5.0, expYield: 600, goldYield: 3, aggroRadius: 400, chaseRadius: 600, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#8a2be2', cssBorder: 'none' },
-    "floor_boss2": { name: "Bloodwing Terror", category: "floor_boss", level: 25, maxHp: 35500, atk: 530, def: 35, speed: 6.0, expYield: 3500, goldYield: 5, aggroRadius: 600, chaseRadius: 800, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#d32f2f', cssBorder: 'none' },
+    "common_mobs2": { name: "Shadow Bat", category: "common_mobs", level: 5, maxHp: 160, atk: 35, def: 0, speed: 4.5, expYield: 130, goldYield: 1, aggroRadius: 300, chaseRadius: 500, attackRange: 55, width: 40, height: 40, respawnDelay: 10000, cssColor: '#1a1a1a', cssBorder: 'none' },
+    "mini_boss2": { name: "Vampire Bat", category: "mini_boss", level: 15, maxHp: 13700, atk: 280, def: 5, speed: 5.0, expYield: 1600, goldYield: 3, aggroRadius: 400, chaseRadius: 600, attackRange: 90, width: 60, height: 60, respawnDelay: 120000, cssColor: '#8a2be2', cssBorder: 'none' },
+    "floor_boss2": { name: "Bloodwing Terror", category: "floor_boss", level: 25, maxHp: 35500, atk: 530, def: 35, speed: 6.0, expYield: 13500, goldYield: 5, aggroRadius: 600, chaseRadius: 800, attackRange: 130, width: 100, height: 100, respawnDelay: -1, cssColor: '#d32f2f', cssBorder: 'none' },
 
     // ==================
     // TYPE 3: FIRE ELEMENTALS (Glass Cannons, Ranged)
     // ==================
-    "common_mobs3": { name: "Fire Sprite", category: "common_mobs", level: 5, maxHp: 180, atk: 50, def: 0, speed: 2.5, expYield: 35, goldYield: 1, aggroRadius: 350, chaseRadius: 500, attackRange: 200, width: 40, height: 40, respawnDelay: 10000, cssColor: '#f44336', cssBorder: 'none' },
-    "mini_boss3": { name: "Inferno Core", category: "mini_boss", level: 15, maxHp: 14200, atk: 320, def: 25, speed: 2.8, expYield: 700, goldYield: 3, aggroRadius: 450, chaseRadius: 650, attackRange: 250, width: 60, height: 60, respawnDelay: 120000, cssColor: '#ff9800', cssBorder: 'none' },
-    "floor_boss3": { name: "Astral Blaze", category: "floor_boss", level: 25, maxHp: 37500, atk: 600, def: 75, speed: 3.5, expYield: 4000, goldYield: 5, aggroRadius: 800, chaseRadius: 900, attackRange: 300, width: 100, height: 100, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #2196F3, #ff9800)', cssBorder: 'none' },
+    "common_mobs3": { name: "Fire Sprite", category: "common_mobs", level: 5, maxHp: 180, atk: 50, def: 0, speed: 2.5, expYield: 135, goldYield: 1, aggroRadius: 350, chaseRadius: 500, attackRange: 200, width: 40, height: 40, respawnDelay: 10000, cssColor: '#f44336', cssBorder: 'none' },
+    "mini_boss3": { name: "Inferno Core", category: "mini_boss", level: 15, maxHp: 14200, atk: 320, def: 25, speed: 2.8, expYield: 1700, goldYield: 3, aggroRadius: 450, chaseRadius: 650, attackRange: 250, width: 60, height: 60, respawnDelay: 120000, cssColor: '#ff9800', cssBorder: 'none' },
+    "floor_boss3": { name: "Astral Blaze", category: "floor_boss", level: 25, maxHp: 37500, atk: 600, def: 75, speed: 3.5, expYield: 14000, goldYield: 5, aggroRadius: 800, chaseRadius: 900, attackRange: 300, width: 100, height: 100, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #2196F3, #ff9800)', cssBorder: 'none' },
 
     // ==================
     // TYPE 4: STONE GOLEMS (Massive Tanks, Slow, High Defense)
     // ==================
-    "common_golem": { name: "Stone Golem", category: "common_mobs", level: 10, maxHp: 400, atk: 45, def: 20, speed: 1.5, expYield: 60, goldYield: 1, aggroRadius: 200, chaseRadius: 350, attackRange: 60, width: 50, height: 50, respawnDelay: 12000, cssColor: '#795548', cssBorder: '#4E342E' },
+    "common_golem": { name: "Stone Golem", category: "common_mobs", level: 10, maxHp: 400, atk: 45, def: 20, speed: 1.5, expYield: 160, goldYield: 1, aggroRadius: 200, chaseRadius: 350, attackRange: 60, width: 50, height: 50, respawnDelay: 12000, cssColor: '#795548', cssBorder: '#4E342E' },
     "mini_boss_golem": { name: "Obsidian Behemoth", category: "mini_boss", level: 15, maxHp: 28000, atk: 350, def: 75, speed: 1.8, expYield: 1200, goldYield: 3, aggroRadius: 300, chaseRadius: 450, attackRange: 90, width: 80, height: 80, respawnDelay: 120000, cssColor: '#424242', cssBorder: '#212121' },
-    "floor_boss_golem": { name: "Titan of the Deep", category: "floor_boss", level: 25, maxHp: 100000, atk: 350, def: 350, speed: 2.2, expYield: 6000, goldYield: 5, aggroRadius: 400, chaseRadius: 600, attackRange: 140, width: 120, height: 120, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #5D4037, #212121)', cssBorder: '#3E2723' },
+    "floor_boss_golem": { name: "Titan of the Deep", category: "floor_boss", level: 25, maxHp: 100000, atk: 350, def: 350, speed: 2.2, expYield: 16000, goldYield: 5, aggroRadius: 400, chaseRadius: 600, attackRange: 140, width: 120, height: 120, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #5D4037, #212121)', cssBorder: '#3E2723' },
 
     // ==================
     // TYPE 5: SPECTRAL WRAITHS (Ethereal, Fast, Ranged Assassins)
     // ==================
-    "common_wraith": { name: "Spectral Wraith", category: "common_mobs", level: 10, maxHp: 150, atk: 75, def: 0, speed: 4.8, expYield: 65, goldYield: 1, aggroRadius: 400, chaseRadius: 600, attackRange: 250, width: 40, height: 40, respawnDelay: 10000, cssColor: 'rgba(156, 39, 176, 0.7)', cssBorder: '#7B1FA2' },
+    "common_wraith": { name: "Spectral Wraith", category: "common_mobs", level: 10, maxHp: 150, atk: 75, def: 0, speed: 4.8, expYield: 165, goldYield: 1, aggroRadius: 400, chaseRadius: 600, attackRange: 250, width: 40, height: 40, respawnDelay: 10000, cssColor: 'rgba(156, 39, 176, 0.7)', cssBorder: '#7B1FA2' },
     "mini_boss_wraith": { name: "Soul Reaper", category: "mini_boss", level: 15, maxHp: 11000, atk: 480, def: 10, speed: 5.5, expYield: 1300, goldYield: 3, aggroRadius: 500, chaseRadius: 700, attackRange: 300, width: 60, height: 60, respawnDelay: 120000, cssColor: 'rgba(103, 58, 183, 0.8)', cssBorder: '#512DA8' },
-    "floor_boss_wraith": { name: "The Void King", category: "floor_boss", level: 25, maxHp: 45000, atk: 800, def: 100, speed: 6.5, expYield: 6500, goldYield: 5, aggroRadius: 700, chaseRadius: 1000, attackRange: 350, width: 100, height: 100, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #4A148C, #000000)', cssBorder: '#311B92' },
+    "floor_boss_wraith": { name: "The Void King", category: "floor_boss", level: 25, maxHp: 45000, atk: 800, def: 100, speed: 6.5, expYield: 16500, goldYield: 5, aggroRadius: 700, chaseRadius: 1000, attackRange: 350, width: 100, height: 100, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #4A148C, #000000)', cssBorder: '#311B92' },
 
     // ==================
     // TYPE 6: MINOTAURS (Brute Force, Charging Tanks)
     // ==================
-    "common_minotaur": { name: "Minotaur Grunt", category: "common_mobs", level: 10, maxHp: 600, atk: 65, def: 15, speed: 2.0, expYield: 80, goldYield: 2, aggroRadius: 300, chaseRadius: 450, attackRange: 60, width: 60, height: 60, respawnDelay: 12000, cssColor: '#795548', cssBorder: '#3E2723' },
+    "common_minotaur": { name: "Minotaur Grunt", category: "common_mobs", level: 10, maxHp: 600, atk: 65, def: 15, speed: 2.0, expYield: 180, goldYield: 2, aggroRadius: 300, chaseRadius: 450, attackRange: 60, width: 60, height: 60, respawnDelay: 12000, cssColor: '#795548', cssBorder: '#3E2723' },
     "mini_boss_minotaur": { name: "Gorehorn", category: "mini_boss", level: 15, maxHp: 30000, atk: 450, def: 60, speed: 2.5, expYield: 1800, goldYield: 4, aggroRadius: 400, chaseRadius: 550, attackRange: 90, width: 90, height: 90, respawnDelay: 120000, cssColor: '#5D4037', cssBorder: '#212121' },
     "floor_boss_minotaur": { name: "Asterion The Labyrinth King", category: "floor_boss", level: 25, maxHp: 150000, atk: 550, def: 400, speed: 3.0, expYield: 8500, goldYield: 6, aggroRadius: 500, chaseRadius: 700, attackRange: 140, width: 140, height: 140, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #4E342E, #b71c1c)', cssBorder: '#b71c1c' },
 
     // ==================
     // TYPE 7: DRAGONS (Armor Piercing, Fire Breathing)
     // ==================
-    "common_dragon": { name: "Dragon Whelp", category: "common_mobs", level: 12, maxHp: 400, atk: 85, def: 10, speed: 3.5, expYield: 90, goldYield: 3, aggroRadius: 400, chaseRadius: 600, attackRange: 200, width: 50, height: 50, respawnDelay: 12000, cssColor: '#f44336', cssBorder: '#FF9800' },
+    "common_dragon": { name: "Dragon Whelp", category: "common_mobs", level: 12, maxHp: 400, atk: 85, def: 10, speed: 3.5, expYield: 190, goldYield: 3, aggroRadius: 400, chaseRadius: 600, attackRange: 200, width: 50, height: 50, respawnDelay: 12000, cssColor: '#f44336', cssBorder: '#FF9800' },
     "mini_boss_dragon": { name: "Drake of Embers", category: "mini_boss", level: 15, maxHp: 28000, atk: 500, def: 30, speed: 4.0, expYield: 2000, goldYield: 4, aggroRadius: 500, chaseRadius: 700, attackRange: 250, width: 80, height: 80, respawnDelay: 120000, cssColor: '#d32f2f', cssBorder: '#FFeb3b' },
-    "floor_boss_dragon": { name: "Ignis The Ancient", category: "floor_boss", level: 25, maxHp: 180000, atk: 800, def: 500, speed: 4.5, expYield: 9500, goldYield: 8, aggroRadius: 700, chaseRadius: 900, attackRange: 300, width: 160, height: 160, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #b71c1c, #FF9800)', cssBorder: '#FFD700' }
+    "floor_boss_dragon": { name: "Ignis The Ancient", category: "floor_boss", level: 25, maxHp: 180000, atk: 800, def: 500, speed: 4.5, expYield: 19500, goldYield: 8, aggroRadius: 700, chaseRadius: 900, attackRange: 300, width: 160, height: 160, respawnDelay: -1, cssColor: 'linear-gradient(45deg, #b71c1c, #FF9800)', cssBorder: '#FFD700' }
 };
 
 function findSocketIdByPlayerId(playerId) { for (const sid of Object.keys(onlinePlayers)) { if (onlinePlayers[sid]?.id === playerId) return sid; } return null; }
