@@ -4618,10 +4618,11 @@ io.on('connection', (socket) => {
                                     }
                                 }
 
+                                const originalInstanceId = p.instanceId;
                                 // 🥾 4. Auto-kick back to town
                                 setTimeout(() => {
                                     const checkP = onlinePlayers[socket.id];
-                                    if (checkP && checkP.instanceId === p.instanceId) {
+                                    if (checkP && checkP.instanceId === originalInstanceId) {
                                         checkP.mapId = 'town';
                                         checkP.x = 960; checkP.y = 1000;
                                         checkP.instanceId = getInstanceId(p.id, 'town');
@@ -4638,6 +4639,7 @@ io.on('connection', (socket) => {
                             // 🛡️ THE FIX: Added neutralzone and battlefield to the ignore list so they don't double-save!
                             if (targetMob.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && p.mapId !== 'neutralzone' && p.mapId !== 'battlefield' && !String(p.instanceId).startsWith('mazetrial_')) {
                                 const floorId = p.mapId;
+                                const originalInstanceId = p.instanceId;
                                 const deathTime = Date.now();
 
                                 // 🛡️ BULLETPROOF DB SAVE: Manually check if it exists instead of relying on upsert
@@ -4652,7 +4654,7 @@ io.on('connection', (socket) => {
                                 targetMob.respawnDelayMs = -1;
                                 io.emit('systemMessage', `[WORLD] ${floorId.toUpperCase()} Boss Defeated!`);
                                 // 🌟 THE MISSING LINK: Instantly push the 24-hour timer to the people currently in the room!
-                                io.to(p.instanceId).emit('bossCooldownActive', { remaining: 24 * 60 * 60 * 1000 });
+                                io.to(originalInstanceId).emit('bossCooldownActive', { remaining: 24 * 60 * 60 * 1000 });
 
                                 // 🌟 AUTOMATIC CLEANUP & SPAWN SCHEDULE 🌟
                                 const fullCooldown = 24 * 60 * 60 * 1000; // 24 Hours in milliseconds
@@ -4663,16 +4665,16 @@ io.on('connection', (socket) => {
                                     await supabase.from('boss_timers').delete().eq('boss_id', floorId);
 
                                     // If players are waiting in the room, spawn it instantly!
-                                    if (worlds[p.instanceId]) {
+                                    if (worlds[originalInstanceId]) {
                                         const cfg = {
                                             spawnArea: { minX: targetMob.homeX, maxX: targetMob.homeX, minY: targetMob.homeY, maxY: targetMob.homeY },
                                             level: targetMob.level
                                         };
-                                        const nm = spawnMonster(p.instanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
-                                        worlds[p.instanceId].monsters[targetMob.id] = nm;
-                                        io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
+                                        const nm = spawnMonster(originalInstanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
+                                        worlds[originalInstanceId].monsters[targetMob.id] = nm;
+                                        io.to(originalInstanceId).emit('monsterSpawned', serializeMonster(nm));
                                         //🛡️ FIX #3: Block boss respawn announcements for ALL instanced/private maps
-                                        const safeRespawnMap = p.mapId;
+                                        const safeRespawnMap = floorId;
                                         const noAnnounceMaps2 = ['town', 'neutralzone', 'battlefield', 'hauntedhouse', 'trainingtavern'];
                                         const isDungeonMap2 = String(safeRespawnMap).startsWith('dungeon') || String(safeRespawnMap).startsWith('mazetrial');
                                         if (safeRespawnMap && !noAnnounceMaps2.includes(safeRespawnMap) && !isDungeonMap2 && targetMob.category === "floor_boss") {
@@ -4685,22 +4687,23 @@ io.on('connection', (socket) => {
 
                             // Normal Respawn Logic (🛡️ THE BULLETPROOF FIX: Strictly block Maze Trials using instanceId!)
                             if (targetMob.respawnDelayMs !== -1 && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !String(p.instanceId).startsWith('mazetrial_')) {
+                                const originalInstanceId = p.instanceId;
                                 let respawnTimerId = setTimeout(() => {
                                     const cfg = {
                                         spawnArea: { minX: targetMob.homeX, maxX: targetMob.homeX, minY: targetMob.homeY, maxY: targetMob.homeY },
                                         level: targetMob.level
                                     };
-                                    const nm = spawnMonster(p.instanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
-                                    if (worlds[p.instanceId]) {
-                                        worlds[p.instanceId].monsters[targetMob.id] = nm;
-                                        io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
+                                    const nm = spawnMonster(originalInstanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
+                                    if (worlds[originalInstanceId]) {
+                                        worlds[originalInstanceId].monsters[targetMob.id] = nm;
+                                        io.to(originalInstanceId).emit('monsterSpawned', serializeMonster(nm));
                                     }
                                 }, targetMob.respawnDelayMs || 10000);
 
                                 // 🐛 THE FIX: Track the timer so we can kill it if the room empties!
-                                if (worlds[p.instanceId]) {
-                                    if (!worlds[p.instanceId].respawnTimers) worlds[p.instanceId].respawnTimers = [];
-                                    worlds[p.instanceId].respawnTimers.push(respawnTimerId);
+                                if (worlds[originalInstanceId]) {
+                                    if (!worlds[originalInstanceId].respawnTimers) worlds[originalInstanceId].respawnTimers = [];
+                                    worlds[originalInstanceId].respawnTimers.push(respawnTimerId);
                                 }
                             }
                         }
