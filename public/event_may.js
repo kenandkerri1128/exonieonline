@@ -90,7 +90,7 @@
         // Check companion cap (max 2) — server will also validate
         const companions = window.game?.player?.companions || [];
         if (companions.length >= 2) {
-            const log = document.getElementById('game-log');
+            const log = document.getElementById('combat-log');
             if (log) log.innerText = 'You already have 2 companions! You cannot activate more.';
             return;
         }
@@ -335,7 +335,7 @@
         // Event Dungeon Result
         socket.on('eventDungeonResult', (data) => {
             window.stopEventTimer();
-            const log = document.getElementById('game-log');
+            const log = document.getElementById('combat-log');
 
             if (data.survived) {
                 // Massive glowing victory text
@@ -370,7 +370,7 @@
             }
             window.updateEventRewardCounts();
             if (typeof window.renderInventory === 'function') window.renderInventory();
-            const log = document.getElementById('game-log');
+            const log = document.getElementById('combat-log');
             if (log) log.innerHTML = `<span style="color:#ffea00; font-weight:bold;">🎉 You received a ${data.itemName}! Use it from your inventory to activate your companion.</span>`;
         });
 
@@ -382,7 +382,7 @@
             }
             if (typeof window.renderInventory === 'function') window.renderInventory();
             if (typeof window.renderCompanionList === 'function') window.renderCompanionList();
-            const log = document.getElementById('game-log');
+            const log = document.getElementById('combat-log');
             if (log) log.innerHTML = `<span style="color:#ffea00; font-weight:bold;">🎉 ${data.companionName} has been activated! Press V to view your companions.</span>`;
         });
 
