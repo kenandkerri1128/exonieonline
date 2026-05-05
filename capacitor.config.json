@@ -9,6 +9,15 @@
   },
   "android": {
     "allowMixedContent": true,
-    "webContentsDebuggingEnabled": false
+    "webContentsDebuggingEnabled": false,
+    "backgroundColor": "#000000",
+    "fullscreen": true
+  },
+  "plugins": {
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#000000",
+      "overlaysWebView": true
+    }
   }
 }
