@@ -1378,7 +1378,7 @@ function gameLoop(ts) {
                         }
                     }
                 }
-            } else {
+                } else {
                 let targetX, targetY;
                 if (p.isBigBoss || p.isGolemBuster) {
                     targetX = p.homeX || p.x;
@@ -1404,12 +1404,12 @@ function gameLoop(ts) {
                 p.dom.remove(); game.player.activePets.splice(idx, 1);
                 if(socket) socket.emit('syncPet', { id: p.id, alive: false });
             } else {
-                if (Math.random() < 0.05 && socket) socket.emit('syncPet', { id: p.id, x: p.x, y: p.y, alive: true });
+                if (Math.random() < 0.05 && socket) socket.emit('syncPet', { id: p.id, x: p.x, y: p.y, alive: true, isDrone: !!p.isDrone });
             }
         });
     }
 
-    // --- ðŸ¾ UNIVERSAL PET LOGIC ---
+    // --- 🐾 UNIVERSAL PET LOGIC ---
     let petOwners = [];
     const VALID_PETS = ['fox', 'owl', 'wisp', 'egg', 'void'];
     
@@ -1418,29 +1418,29 @@ function gameLoop(ts) {
         petOwners.push({ id: game.player.id, targetX: game.player.x, targetY: game.player.y, facingRight: window.facingRight, type: myPet });
         
        // Auto Attack Logic
-        if (Date.now() - window.lastFoxAttack > 1500) {
-            let closestMob = null; let closestPlayer = null; let minD = Infinity;
-            let pCenterX = game.player.x + 24; let pCenterY = game.player.y + 48;
-            for(let mId in game.monsters) { 
-                let m = game.monsters[mId]; if(!m.alive) continue; 
-                let mEl = document.getElementById('mob_' + m.id);
-                if (mEl && mEl.style.opacity === '0') continue; // ðŸ›¡ï¸ THE FOG FIX: Fox won't bite the dark
+        if (Date.now() - window.lastFoxAttack > 1500) {
+            let closestMob = null; let closestPlayer = null; let minD = Infinity;
+            let pCenterX = game.player.x + 24; let pCenterY = game.player.y + 48;
+            for(let mId in game.monsters) { 
+                let m = game.monsters[mId]; if(!m.alive) continue; 
+                let mEl = document.getElementById('mob_' + m.id);
+                if (mEl && mEl.style.opacity === '0') continue; // 🛡️ THE FOG FIX: Fox won't bite the dark
 
-                let dist = Math.hypot(pCenterX - (m.x+m.width/2), pCenterY - (m.y+m.height/2)); 
-                if(dist <= 150 && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
-            }
-            
-            // š”ï¸ FOX PVP: Look for non-party players if in Neutral Zone!
-            if (safeMapData.id === 'neutralzone') {
-                for (let rId in game.remotePlayers) {
-                    let rp = game.remotePlayers[rId];
-                    if (rp.isGhost || (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id))) continue;
-                    if (rp.dom && rp.dom.style.opacity === '0') continue; // ðŸ›¡ï¸ THE FOG FIX
+                let dist = Math.hypot(pCenterX - (m.x+m.width/2), pCenterY - (m.y+m.height/2)); 
+                if(dist <= 150 && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
+            }
+            
+            // ⚔️ FOX PVP: Look for non-party players if in Neutral Zone!
+            if (safeMapData.id === 'neutralzone') {
+                for (let rId in game.remotePlayers) {
+                    let rp = game.remotePlayers[rId];
+                    if (rp.isGhost || (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id))) continue;
+                    if (rp.dom && rp.dom.style.opacity === '0') continue; // 🛡️ THE FOG FIX
 
-                    let dist = Math.hypot(pCenterX - (rp.x + 24), pCenterY - (rp.y + 48));
-                    if (dist <= 150 && dist < minD) { minD = dist; closestPlayer = rp; closestMob = null; }
-                }
-            }
+                    let dist = Math.hypot(pCenterX - (rp.x + 24), pCenterY - (rp.y + 48));
+                    if (dist <= 150 && dist < minD) { minD = dist; closestPlayer = rp; closestMob = null; }
+                }
+            }
             
             let finalTarget = closestMob || closestPlayer;
             if (finalTarget && window.activeFoxes[game.player.id]) {
@@ -1507,7 +1507,7 @@ function gameLoop(ts) {
         }
         
         let pData = window.activeFoxes[owner.id];
-        // ðŸ›¡ï¸ THE FIX: Increased offset so the pet floats significantly farther away
+        // 🛡️ THE FIX: Increased offset so the pet floats significantly farther away
         let offsetX = owner.facingRight ? -45 : 45; 
         let targetX = owner.targetX + 24 + offsetX; 
         
@@ -1529,7 +1529,7 @@ function gameLoop(ts) {
         
         petEl.style.left = pData.x + 'px';
         petEl.style.top = pData.y + 'px';
-        // ðŸ›¡ï¸ THE FIX: Translate MUST come before ScaleX in CSS, otherwise the -50% shifts it into your head!
+        // 🛡️ THE FIX: Translate MUST come before ScaleX in CSS, otherwise the -50% shifts it into your head!
         petEl.style.transform = owner.facingRight ? 'translate(-50%, -50%) scaleX(-1)' : 'translate(-50%, -50%) scaleX(1)';
     });
 
@@ -1542,7 +1542,7 @@ function gameLoop(ts) {
         }
     });
 
-    // ðŸŒ€ PORTAL PROXIMITY ANIMATION: Light up portals when the player gets near
+    // 🌀 PORTAL PROXIMITY ANIMATION: Light up portals when the player gets near
     const portalZones = document.querySelectorAll('.portal-zone');
     const playerCenterX = game.player.x + 24; const playerCenterY = game.player.y + 48;
     portalZones.forEach(pz => {
@@ -1571,7 +1571,7 @@ function gameLoop(ts) {
         const uiTimer = document.getElementById('portal-timer-ui'); const uiSec = document.getElementById('portal-timer-sec');
 
        if (onPortal) { 
-// ðŸª MERCHANT INTERCEPT: Portal E
+// 🚪 MERCHANT INTERCEPT: Portal E
             if (onPortal.portalId === 'E') {
                 game.player.currentPortal = null;
                 game.player.y += 15; // Bounce back safely
@@ -1580,7 +1580,7 @@ function gameLoop(ts) {
                 document.getElementById('merchant-modal').style.display = 'block';
                 return;
             }
-           // ðŸ—ºï¸ MAZE GUIDE INTERCEPT: Portal F
+           // 🗺️ MAZE GUIDE INTERCEPT: Portal F
             if (onPortal.portalId === 'F') {
                 game.player.currentPortal = null;
                 game.player.y += 15; // Bounce back safely
@@ -1588,7 +1588,7 @@ function gameLoop(ts) {
                 window.openMazeGuide();
                 return;
             }
-           // ðŸ¡ HOME FOR SALE INTERCEPT: Portal G
+           // 🏠 HOME FOR SALE INTERCEPT: Portal G
             if (onPortal.portalId === 'G' && (!game.player.baseStats || !game.player.baseStats.hasHome)) {
                 game.player.currentPortal = null;
                 game.player.y += 15; // Bounce them back so they don't get stuck in the portal
@@ -1596,7 +1596,7 @@ function gameLoop(ts) {
                 window.openHomeSaleUI();
                 return; // Stop the teleport
             }
-           // ðŸ§° HOME STORAGE INTERCEPT: Portal I
+           // 📦 HOME STORAGE INTERCEPT: Portal I
             if (onPortal.portalId === 'I') {
                 game.player.currentPortal = null;
                 game.player.y += 15; // Bounce back safely
@@ -1604,7 +1604,7 @@ function gameLoop(ts) {
                 window.openStorageUI();
                 return;
             }
-           // ðŸ‘» HAUNTED HOUSE INTERCEPT: Portal J
+           // 👻 HAUNTED HOUSE INTERCEPT: Portal J
             if (onPortal.portalId === 'J') {
                 game.player.currentPortal = null;
                 game.player.y += 15; // Bounce back safely
@@ -1612,15 +1612,15 @@ function gameLoop(ts) {
                 window.openHauntedHouseUI();
                 return;
             }
-          // ðŸ° GUILD BASE INTERCEPT: Portal K
-            if (onPortal.portalId === 'K') {
-                game.player.currentPortal = null;
-                game.player.y += 15; 
-                game.player.teleportCooldown = 2000;
-                window.openGuildUI();
-                return;
-            }
-          // ðŸ“œ DAILY MISSIONS INTERCEPT: Portal M
+          // 🏰 GUILD BASE INTERCEPT: Portal K
+            if (onPortal.portalId === 'K') {
+                game.player.currentPortal = null;
+                game.player.y += 15; 
+                game.player.teleportCooldown = 2000;
+                window.openGuildUI();
+                return;
+            }
+          // 📜 DAILY MISSIONS INTERCEPT: Portal M
             if (onPortal.portalId === 'M') {
                 game.player.currentPortal = null;
                 game.player.y += 15; // Bounce back safely
@@ -1628,7 +1628,7 @@ function gameLoop(ts) {
                 window.openDailyMissionsUI();
                 return;
             }
-            // ðŸ¦‡ DUNGEON 2 INTERCEPT: Portal N
+            // 🦇 DUNGEON 2 INTERCEPT: Portal N
             if (onPortal.portalId === 'N') {
                 game.player.currentPortal = null;
                 game.player.y += 15; // Bounce back safely
@@ -1636,13 +1636,13 @@ function gameLoop(ts) {
                 window.openDungeon2UI();
                 return;
             }
-          // š”ï¸ TAVERN INTERCEPT: Portal A
+          // 🍻 TAVERN INTERCEPT: Portal A
             if (onPortal.portalId === 'A') {
                 game.player.currentPortal = null;
-                game.player.y += 15; // ðŸ›¡ï¸ Push player backward so the modal doesn't infinitely loop
+                game.player.y += 15; // 🛡️ Push player backward so the modal doesn't infinitely loop
                 game.player.teleportCooldown = 2000;
                 
-               // ðŸ“… Sync UI Reset Check dynamically before showing entries
+               // 📅 Sync UI Reset Check dynamically before showing entries
                 const now = new Date();
                 let dayOfWeek = now.getUTCDay(); // Strict UTC Day
                 let daysSinceMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
@@ -1663,7 +1663,7 @@ function gameLoop(ts) {
                 return;
             }
 
-            // ðŸ›¡ï¸ THE FIX: Ignore the portal entirely if they just teleported onto it!
+            // 🛡️ THE FIX: Ignore the portal entirely if they just teleported onto it!
             if (game.player.currentPortal !== onPortal.portalId && game.player.currentPortal !== 'JUST_SPAWNED') { 
                 game.player.currentPortal = onPortal.portalId; 
                 game.player.portalEntryTime = Date.now(); 
@@ -1686,12 +1686,12 @@ function gameLoop(ts) {
     dom.playerContainer.style.left = game.player.x + 'px'; 
     dom.playerContainer.style.top = game.player.y + 'px'; 
 
-   // ðŸŒ«ï¸ OPTIMIZED FOG OF WAR (Runs every 6 frames to save CPU on mobile)
+   // 💨 OPTIMIZED FOG OF WAR (Runs every 6 frames to save CPU on mobile)
     window.fowFrameCount = (window.fowFrameCount || 0) + 1;
     const fow = document.getElementById('fow-canvas');
     if (fow && window.fowFrameCount % 6 === 0) {
         const ctx = fow.getContext('2d', { alpha: true });
-        // ðŸ›¡ï¸ THE FIX: Removed the low-perf check so the math ALWAYS runs and hides enemies behind walls!
+        // 🛡️ THE FIX: Removed the low-perf check so the math ALWAYS runs and hides enemies behind walls!
         if (safeMapData.id !== 'town' && !String(safeMapData.id).includes('home') && !String(safeMapData.id).includes('guildbase') && !game.isGhost) {
             fow.classList.add('active');
             ctx.clearRect(0, 0, 2000, 1333);
@@ -1712,7 +1712,7 @@ function gameLoop(ts) {
 
             if (safeMapData.collisions) {
                 safeMapData.collisions.forEach(box => {
-                    // ðŸ›¡ï¸ OPTIMIZATION: Skip walls more than 1000px away
+                    // 🛡️ OPTIMIZATION: Skip walls more than 1000px away
                     if (Math.abs(box.x - px) > 1000 || Math.abs(box.y - py) > 1000) return;
                     
                     // If overlapping a wall, nudge the light out so it doesn't get trapped
@@ -1774,13 +1774,13 @@ function gameLoop(ts) {
             ctx.fill(visionPath);
 
             // 4. Check if Monsters are standing inside the light (OPTIMIZED DOM UPDATES)
-            for (let mId in game.monsters) {
-                const m = game.monsters[mId];
-                if (!m.alive) continue;
-                const mEl = document.getElementById('mob_' + mId);
-                if (!mEl) continue;
-                
-                const isVisible = ctx.isPointInPath(visionPath, m.x + (m.width/2), m.y + (m.height/2));
+            for (let mId in game.monsters) {
+                const m = game.monsters[mId];
+                if (!m.alive) continue;
+                const mEl = document.getElementById('mob_' + mId);
+                if (!mEl) continue;
+                
+                const isVisible = ctx.isPointInPath(visionPath, m.x + (m.width/2), m.y + (m.height/2));
                 if (isVisible) {
                     if (mEl.style.opacity !== '1') {
                         mEl.style.opacity = '1';
@@ -1792,13 +1792,13 @@ function gameLoop(ts) {
                         mEl.style.pointerEvents = 'none';
                     }
                 }
-            }
+            }
 
-            // 5. Hide Remote Players behind walls too!
-            for (let rId in game.remotePlayers) {
-                const rp = game.remotePlayers[rId];
-                if (rp && rp.dom) {
-                    const isVisible = ctx.isPointInPath(visionPath, rp.x + 24, rp.y + 48);
+            // 5. Hide Remote Players behind walls too!
+            for (let rId in game.remotePlayers) {
+                const rp = game.remotePlayers[rId];
+                if (rp && rp.dom) {
+                    const isVisible = ctx.isPointInPath(visionPath, rp.x + 24, rp.y + 48);
                     if (isVisible) {
                         if (rp.dom.style.opacity !== '1') {
                             rp.dom.style.opacity = '1';
@@ -1810,29 +1810,29 @@ function gameLoop(ts) {
                             rp.dom.style.pointerEvents = 'none';
                         }
                     }
-                }
-            }
+                }
+            }
 
-        } else {
-            fow.classList.remove('active'); 
-            ctx.clearRect(0, 0, 2000, 1333); 
-            // Reveal all monsters if fog is off
-            for (let mId in game.monsters) {
-                const mEl = document.getElementById('mob_' + mId);
+        } else {
+            fow.classList.remove('active'); 
+            ctx.clearRect(0, 0, 2000, 1333); 
+            // Reveal all monsters if fog is off
+            for (let mId in game.monsters) {
+                const mEl = document.getElementById('mob_' + mId);
                 if (mEl && mEl.style.opacity !== '1') {
                     mEl.style.opacity = '1';
                     mEl.style.pointerEvents = 'auto';
                 }
-            }
-            // Reveal all players if fog is off
-            for (let rId in game.remotePlayers) {
-                const rp = game.remotePlayers[rId];
+            }
+            // Reveal all players if fog is off
+            for (let rId in game.remotePlayers) {
+                const rp = game.remotePlayers[rId];
                 if (rp && rp.dom && rp.dom.style.opacity !== '1') {
                     rp.dom.style.opacity = '1';
                     rp.dom.style.pointerEvents = 'auto';
                 }
-            }
-        }
+            }
+        }
     }
 
     let camTargetX = game.player.x; let camTargetY = game.player.y;
@@ -1862,7 +1862,7 @@ function gameLoop(ts) {
     const desiredState = isAttacking ? 'attack' : (isMoving ? 'walk' : 'idle'); 
     const netNow = Date.now();
     let lastNetTs = window.lastNetTs || 0; let lastSentState = window.lastSentState || 'idle';
-    // ðŸš€ MOBILE FIX: Throttled from 60ms to 100ms (~10 updates/sec) to halve network traffic on cellular
+    // 🚀 MOBILE FIX: Throttled from 60ms to 100ms (~10 updates/sec) to halve network traffic on cellular
     if (netNow - lastNetTs >= 100 || desiredState !== lastSentState) { 
         window.lastNetTs = netNow; window.lastSentState = desiredState; 
         if(socket) socket.emit('playerMoved', { x: game.player.x, y: game.player.y, state: desiredState, facingRight: window.facingRight, weaponSprite: game.player.equips?.weapon?.sprite || null });
@@ -1872,12 +1872,12 @@ function gameLoop(ts) {
 // 4. MAP & SYSTEM UTILS
 // ==========================================
 window.loadMapScript = function(mapId, callback) {
-    // ðŸš€ SMART CACHE LEVEL 1: If we already loaded this map during this session, load it instantly from memory!
+    // 🚀 SMART CACHE LEVEL 1: If we already loaded this map during this session, load it instantly from memory!
     if (window.MapDatabase[mapId] && window.MapDatabase[mapId].collisions) {
         return callback();
     }
 
-    // ðŸš€ SMART CACHE LEVEL 2: Removed the "?v=Date.now()" development cache-buster.
+    // 🚀 SMART CACHE LEVEL 2: Removed the "?v=Date.now()" development cache-buster.
     // Steam and Android's native engines will now permanently cache this file and ONLY download it again if you update the server!
     let scriptName = (mapId === 'town' ? 'townmap.js' : mapId + '.js');
     
@@ -1889,7 +1889,7 @@ window.loadMapScript = function(mapId, callback) {
         if (typeof window[varName] !== 'undefined') window.MapDatabase[mapId] = JSON.parse(JSON.stringify(window[varName])); 
         else window.MapDatabase[mapId] = fallbackMap; 
         callback(); 
-        // ðŸš€ PREDICTIVE PRELOAD: Silently load adjacent maps while idle
+        // 🚀 PREDICTIVE PRELOAD: Silently load adjacent maps while idle
         if (typeof window.prefetchAdjacentMaps === 'function') window.prefetchAdjacentMaps(mapId);
     };
     
@@ -1907,7 +1907,7 @@ window.resolveAsset = function(path) {
     return path; 
 };
 // ==========================================
-// ðŸš€ PREDICTIVE MAP PREFETCHING
+// 🚀 PREDICTIVE MAP PREFETCHING
 // ==========================================
 window._preloadedScripts = {};
 window.prefetchMapScript = function(mapId) {
@@ -1938,7 +1938,7 @@ window.prefetchAdjacentMaps = function(currentMapId) {
     window.prefetchMapScript('town');
 };
 // ==========================================
-// ðŸŽ¬ SCREEN SHAKE ON DAMAGE
+// 🎥 SCREEN SHAKE ON DAMAGE
 // ==========================================
 window.screenShake = function(intensity, durationMs) {
     if (document.body.classList.contains('low-perf')) return;
@@ -1965,7 +1965,7 @@ window.preloadMapAssets = function(mapData, callback) {
     const mapPath = mapData?.image ? String(mapData.image) : 'town_map.png';
 
     // ==========================================
-    // ðŸ–¥ï¸ðŸ“± 100% FULLY NATIVE MODE (0-Second Loads)
+    // 🖥️📱 100% FULLY NATIVE MODE (0-Second Loads)
     // ==========================================
     try {
         let assetsToLoad = [
@@ -2014,7 +2014,7 @@ window.preloadMapAssets = function(mapData, callback) {
             if (loaderFill) loaderFill.style.width = (loadedCount / totalToLoad) * 100 + '%';
             if (loadedCount >= totalToLoad) fireCallback();
         };
-        // ðŸ›¡ï¸ SAFETY NET: Force-proceed after 3s so players are never stuck on a black screen
+        // 🛡️ SAFETY NET: Force-proceed after 3s so players are never stuck on a black screen
         setTimeout(fireCallback, 3000);
 
         if (totalToLoad === 0) {
@@ -2024,14 +2024,14 @@ window.preloadMapAssets = function(mapData, callback) {
                 if (originalSrc.endsWith('.mp3')) {
                     const audio = new Audio();
                     audio.oncanplaythrough = checkDone;
-                    // ðŸ›¡ï¸ FULLY NATIVE FIX: If a sound is missing locally, skip it instantly.
+                    // 🛡️ FULLY NATIVE FIX: If a sound is missing locally, skip it instantly.
                     audio.onerror = checkDone; 
                     audio.src = originalSrc; 
                     audio.load();
                 } else {
                     const img = new Image();
                     img.onload = checkDone;
-                    // ðŸ›¡ï¸ FULLY NATIVE FIX: If an image is missing locally, skip it instantly.
+                    // 🛡️ FULLY NATIVE FIX: If an image is missing locally, skip it instantly.
                     img.onerror = checkDone; 
                     img.src = originalSrc; 
                 }
@@ -2045,29 +2045,29 @@ window.preloadMapAssets = function(mapData, callback) {
     }
 };
 window.cleanupMap = function() { 
-    Object.keys(game.remotePlayers).forEach(id => window.removeRemotePlayer(id)); 
-    document.querySelectorAll('.monster-container, .pet-slime').forEach(el => el.remove()); 
-    game.monsters = {}; 
-    if (game.player.activePets) { 
-        game.player.activePets.forEach(pet => { if(pet.dom) pet.dom.remove(); }); 
-        game.player.activePets = []; 
-    } 
-    if (typeof window.despawnCompanionEntities === 'function') window.despawnCompanionEntities();
+    Object.keys(game.remotePlayers).forEach(id => window.removeRemotePlayer(id)); 
+    document.querySelectorAll('.monster-container, .pet-slime').forEach(el => el.remove()); 
+    game.monsters = {}; 
+    if (game.player.activePets) { 
+        game.player.activePets.forEach(pet => { if(pet.dom) pet.dom.remove(); }); 
+        game.player.activePets = []; 
+    } 
+    if (typeof window.despawnCompanionEntities === 'function') window.despawnCompanionEntities();
     window._forceCompanionRespawn = true;
     if (localBossTimer) clearInterval(localBossTimer);
-    // u{1F6E1}uFE0F INTERVAL LEAK FIX: Kill orphaned dungeon & tavern timers on map change
-    if (typeof dungeonTimerInt !== 'undefined' && dungeonTimerInt) { clearInterval(dungeonTimerInt); dungeonTimerInt = null; }
-    if (typeof tavernTimerInt !== 'undefined' && tavernTimerInt) { clearInterval(tavernTimerInt); tavernTimerInt = null; }
-    let t = document.getElementById('world-boss-timer'); 
-    if (t) t.remove();
-    // u{1F6E1}uFE0F TIMER UI CLEANUP: Hide leftover timer UIs from previous map
-    let dtUI = document.getElementById('dungeon-timer-ui'); if (dtUI) dtUI.style.display = 'none';
-    let ttUI = document.getElementById('tavern-timer-ui'); if (ttUI) ttUI.style.display = 'none';
+    // 🛡️ INTERVAL LEAK FIX: Kill orphaned dungeon & tavern timers on map change
+    if (typeof dungeonTimerInt !== 'undefined' && dungeonTimerInt) { clearInterval(dungeonTimerInt); dungeonTimerInt = null; }
+    if (typeof tavernTimerInt !== 'undefined' && tavernTimerInt) { clearInterval(tavernTimerInt); tavernTimerInt = null; }
+    let t = document.getElementById('world-boss-timer'); 
+    if (t) t.remove();
+    // 🛡️ TIMER UI CLEANUP: Hide leftover timer UIs from previous map
+    let dtUI = document.getElementById('dungeon-timer-ui'); if (dtUI) dtUI.style.display = 'none';
+    let ttUI = document.getElementById('tavern-timer-ui'); if (ttUI) ttUI.style.display = 'none';
 
-    // ðŸ›¡ï¸ LATENCY SHIELD: Mark the exact millisecond we wiped the map
+    // 🛡️ LATENCY SHIELD: Mark the exact millisecond we wiped the map
     window.mapLoadTimestamp = Date.now();
 
-    // ðŸ›¡ï¸ SPAWN SAFETY: Nudge player out of walls if they spawned inside one
+    // 🛡️ SPAWN SAFETY: Nudge player out of walls if they spawned inside one
     if (typeof window.isColliding === 'function' && window.isColliding(game.player.x, game.player.y)) {
         for (let nudge = 10; nudge <= 100; nudge += 10) {
             if (!window.isColliding(game.player.x, game.player.y - nudge)) { game.player.y -= nudge; break; }
@@ -2097,12 +2097,12 @@ window.showMapAnnouncement = function(mapId) {
     if (annContainer && annText) { annText.innerText = cleanName; annContainer.style.opacity = '1'; setTimeout(() => { annContainer.style.opacity = '0'; }, 3000); } 
 };
 // ==========================================
-// ðŸ›¡ï¸ ANTI-TUNNEL COLLISION ENGINE
+// 🛡️ ANTI-TUNNEL COLLISION ENGINE
 // ==========================================
 // Math Explanation:
 // The old system checked if the player's FINAL position overlapped a wall.
 // If a lag spike made moveSpeed = 12.5px but the wall was only 10px thick,
-// the final position was PAST the wall €” no overlap detected €” player clips through.
+// the final position was PAST the wall — no overlap detected — player clips through.
 //
 // The new system uses "Sub-Stepped Swept AABB":
 // 1. VELOCITY VECTOR: We know the player wants to move (velX, velY) pixels this frame.
@@ -2115,11 +2115,11 @@ window.showMapAnnouncement = function(mapId) {
 //    player's hitbox touches the wall and place them there. No 1px gaps, no jitter.
 //
 // Performance: On a normal 60fps frame (delta=1), moveSpeed=5px which is already
-// under the 4px step size, so it runs as a SINGLE step €” same cost as the old system.
+// under the 4px step size, so it runs as a SINGLE step — same cost as the old system.
 // Sub-stepping only activates during actual lag spikes.
 // ==========================================
 
-// ðŸ›¡ï¸ Original isColliding €” preserved for portals, skills, and external callers
+// 🛡️ Original isColliding — preserved for portals, skills, and external callers
 window.isColliding = function(targetX, targetY) { 
     const hitX = targetX + (game.player.width - game.player.w) / 2; 
     const hitY = targetY + game.player.height - game.player.h; 
@@ -2131,7 +2131,7 @@ window.isColliding = function(targetX, targetY) {
     return false; 
 }
 
-// ðŸ›¡ï¸ SWEPT AABB: Check a hitbox at (px, py) against a single wall box.
+// 🛡️ SWEPT AABB: Check a hitbox at (px, py) against a single wall box.
 // Returns the largest safe "time" (0 to 1) along the velocity vector before collision.
 // If no collision, returns 1.0 (full movement is safe).
 window._sweepAABB = function(px, py, pw, ph, velX, velY, box) {
@@ -2167,20 +2167,20 @@ window._sweepAABB = function(px, py, pw, ph, velX, velY, box) {
     return Math.max(0, tEnter);
 };
 
-// ðŸš€ THE ANTI-TUNNEL MOVEMENT ENGINE
+// 🚀 THE ANTI-TUNNEL MOVEMENT ENGINE
 // Called every frame instead of the old canMoveX/canMoveY check.
 window._moveWithCollision = function(velX, velY) {
     const p = game.player;
     const cols = safeMapData.collisions || [];
 
-    // ðŸ›¡ï¸ STUCK ESCAPE HATCH: If the player is already inside a wall, let them move freely to escape
+    // 🛡️ STUCK ESCAPE HATCH: If the player is already inside a wall, let them move freely to escape
     if (window.isColliding(p.x, p.y)) {
         p.x += velX;
         p.y += velY;
         return;
     }
 
-    // ðŸš€ SUB-STEPPING: Divide the movement into safe chunks of max 4px
+    // 🚀 SUB-STEPPING: Divide the movement into safe chunks of max 4px
     // 4px = half the minimum wall thickness (player.w = 24, walls vary 8-32px)
     const MAX_STEP = 4;
     const totalDist = Math.sqrt(velX * velX + velY * velY);
@@ -2202,7 +2202,7 @@ window._moveWithCollision = function(velX, velY) {
     }
 };
 
-// ðŸ›¡ï¸ RESOLVE A SINGLE SUB-STEP: Axis-separated swept collision with edge clamping
+// 🛡️ RESOLVE A SINGLE SUB-STEP: Axis-separated swept collision with edge clamping
 window._resolveStep = function(svx, svy, cols) {
     const p = game.player;
     // Calculate the foot hitbox origin from the player's sprite position
@@ -2221,7 +2221,7 @@ window._resolveStep = function(svx, svy, cols) {
         }
 
         if (bestT < 1.0) {
-            // ðŸ“Œ EDGE CLAMP: Move to the exact wall edge, then nudge 0.1px back to prevent overlap
+            // 📍 EDGE CLAMP: Move to the exact wall edge, then nudge 0.1px back to prevent overlap
             p.x += svx * bestT - Math.sign(svx) * 0.1;
         } else {
             p.x += svx;
@@ -2248,13 +2248,13 @@ window._resolveStep = function(svx, svy, cols) {
 };
 
 window.spawnDamageText = function(x, y, amount, color) { 
-    // ðŸš€ DOM CAP: Max 30 damage texts on screen to prevent mobile lag
+    // 🚀 DOM CAP: Max 30 damage texts on screen to prevent mobile lag
     const existing = dom.world.querySelectorAll('.damage-text');
     if (existing.length > 30) existing[0].remove();
     const txt = document.createElement('div'); txt.className = 'damage-text'; txt.innerText = amount; let jitterX = (Math.random() * 40) - 20; let jitterY = (Math.random() * 20) - 10; txt.style.left = (x - 10 + jitterX) + 'px'; txt.style.top = (y + jitterY) + 'px'; txt.style.color = color; dom.world.appendChild(txt); setTimeout(() => txt.remove(), 1000); 
 }
 
-// ðŸŒŸ YOUR NEW FUNCTION GOES HERE ðŸŒŸ
+// 🌟 YOUR NEW FUNCTION GOES HERE 🌟
 window.spawnSkillText = function(x, y, text, color) {
     const txt = document.createElement('div');
     txt.className = 'damage-text'; 
@@ -2276,13 +2276,13 @@ window.spawnSkillText = function(x, y, text, color) {
     anim.onfinish = () => txt.remove();
 };
 window.spawnWhiteSplash = function(x, y) { 
-    // ðŸš€ DOM CAP: Max 15 splashes on screen to prevent mobile lag
+    // 🚀 DOM CAP: Max 15 splashes on screen to prevent mobile lag
     const existing = dom.world.querySelectorAll('.white-splash');
     if (existing.length > 15) existing[0].remove();
     const splash = document.createElement('div'); splash.className = 'white-splash'; splash.style.left = x + 'px'; splash.style.top = y + 'px'; dom.world.appendChild(splash); setTimeout(() => splash.remove(), 300); 
 }
 window.spawnSpark = function(x, y) { 
-    // ðŸš€ DOM CAP: Max 20 sparks on screen to prevent mobile lag
+    // 🚀 DOM CAP: Max 20 sparks on screen to prevent mobile lag
     const existing = dom.world.querySelectorAll('.spark');
     if (existing.length > 20) existing[0].remove();
     const spark = document.createElement('div'); spark.className = 'spark'; spark.style.left = (x + (Math.random() * 20 - 10)) + 'px'; spark.style.top = (y + (Math.random() * 20 - 10)) + 'px'; dom.world.appendChild(spark); setTimeout(() => spark.remove(), 300); 
@@ -2293,7 +2293,7 @@ window.shootLaser = function(startX, startY, endX, endY, color = '#00E5FF') {
     const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
     laser.style.cssText = `position:absolute; background:${color}; height:4px; width:${length}px; left:${startX}px; top:${startY}px; transform-origin:0 50%; transform:rotate(${angle}deg); box-shadow:0 0 10px ${color}, 0 0 20px ${color}; z-index:100; pointer-events:none; opacity:1; transition:opacity 0.2s;`;
     dom.world.appendChild(laser);
-    // ðŸš€ AUDIO POOL: Reuses pooled Audio instead of creating new Audio() every shot
+    // 🚀 AUDIO POOL: Reuses pooled Audio instead of creating new Audio() every shot
     let sfx = window._getSFX('lightning');
     sfx.volume = (window.gameVolume != null ? window.gameVolume : 0.5) * 0.6; sfx.play().catch(()=>{});
     setTimeout(() => laser.style.opacity = '0', 50);
@@ -2365,7 +2365,7 @@ window.shootFoxFire = function(startX, startY, endX, endY, petType) {
 }
 
 window.updateAnimationFrames = function(state) {
-    // ðŸ›¡ï¸ REVERT: ONLY read the actual cosmetic aura applied to the armor!
+    // 🛡️ REVERT: ONLY read the actual cosmetic aura applied to the armor!
     let currentAura = game.player.equips?.armor?.aura || null;
 
     let cAuraEl = document.getElementById('player-cosmetic-aura');
@@ -2373,7 +2373,7 @@ window.updateAnimationFrames = function(state) {
     if (cAuraEl) { 
         // Reset classes
         cAuraEl.className = 'cosmetic-aura'; 
-        // ðŸ‘‡ THE FIX: Specifically apply the highest tier class
+        // 👇 THE FIX: Specifically apply the highest tier class
         if (currentAura) {
             cAuraEl.classList.add(`aura-${currentAura}`);
         }
@@ -2395,7 +2395,7 @@ window.updateAnimationFrames = function(state) {
         let wpnSrc = `weapon/${wpn}${(state === 'attack' && isAtk && !wpn.includes('pendant')) ? '_attack' : ''}.png`; 
         if (game.player.currentWeaponSrc !== wpnSrc) { dom.playerWeapon.src = wpnSrc; game.player.currentWeaponSrc = wpnSrc; } 
         
-    // ðŸ›¡ï¸ DYNAMIC AURA FIX: Automatically supports ANY new rarity you invent!
+    // 🛡️ DYNAMIC AURA FIX: Automatically supports ANY new rarity you invent!
         dom.playerWeapon.className = 'avatar-layer layer-weapon'; // Wipes old classes clean
         let wRarity = game.player.equips?.weapon?.rarity;
         if (wRarity && !['Starter', 'Basic', 'Rare', 'Unique'].includes(wRarity)) {
@@ -2411,7 +2411,7 @@ window.updateAnimationFrames = function(state) {
 window.showAura = function(color) { const aura = document.getElementById('player-aura'); aura.className = `aura aura-${color}`; aura.style.animation = 'none'; void aura.offsetWidth; aura.style.animation = 'aura-burst 0.6s ease-out forwards'; }
 window.lastVoiceTime = 0;
 window.playVoice = function(className) { 
-    // ðŸ›¡ï¸ STRICT AUDIO FIX: Prevent skill voice overlap
+    // 🛡️ STRICT AUDIO FIX: Prevent skill voice overlap
     let now = Date.now();
     if (now - window.lastVoiceTime < 500) return; 
     window.lastVoiceTime = now;
@@ -2422,7 +2422,7 @@ window.playVoice = function(className) {
     audio.volume = (window.gameVolume != null ? window.gameVolume : 0.5); 
     audio.play().catch(e => {}); 
 }
-// ðŸŽµ THE FIX: BOSS MUSIC ENGINE
+// 🎵 THE FIX: BOSS MUSIC ENGINE
 window.bossBgmTimeout = null;
 window.revertBGM = function() {
     let isBossMap = safeMapData.id === 'trainingtavern' || safeMapData.id === 'hauntedhouse' || String(safeMapData.id).includes('dungeon');
@@ -4530,7 +4530,7 @@ socket.on('mailList', (mails) => {
 
     window.sendVerificationCode = function() {
         const email = document.getElementById('verify-email-input').value.trim();
-        if (!email || !email.includes('@')) return alert("Please enter a valid email.");
+        if (!email || !email.includes('@')) return window.customPrompt("Please enter a valid email.", function(){});
         
         socket.emit('requestEmailLink', { username: pendingVerifyUsername, email: email });
         document.getElementById('verify-email-input').disabled = true;
@@ -4538,7 +4538,7 @@ socket.on('mailList', (mails) => {
 
     window.submitVerificationCode = function() {
         const code = document.getElementById('verify-code-input').value.trim();
-        if (code.length !== 6) return alert("Code must be 6 digits.");
+        if (code.length !== 6) return window.customPrompt("Code must be 6 digits.", function(){});
         
         socket.emit('verifyEmailCode', { username: pendingVerifyUsername, code: code });
     };
@@ -4549,13 +4549,13 @@ socket.on('mailList', (mails) => {
     });
 
     socket.on('emailError', (msg) => {
-        alert(msg);
+        window.customPrompt(msg, function(){});
         document.getElementById('verify-email-input').disabled = false;
     });
 
     socket.on('emailVerifiedSuccess', (user) => {
         document.getElementById('email-verify-screen').style.display = 'none';
-        alert("Email successfully linked! Welcome to Exonie. PLEASE REFRESH YOUR GAME");
+        window.customPrompt("Email successfully linked! Welcome to Exonie. PLEASE REFRESH YOUR GAME", function(){});
         
         // Push them forward in the login pipeline
         if (!global.playerFriends) global.playerFriends = {};
@@ -4566,7 +4566,7 @@ socket.on('mailList', (mails) => {
     });
    socket.on('authError', (msg) => {
     // Show the error message so the user actually sees it on the login screen
-    alert(msg);
+    window.customPrompt(msg, function(){});
     
     // ðŸ›¡ï¸ THE FIX: Force the inputs to wake back up!
     document.getElementById('login-user').disabled = false;
@@ -4580,12 +4580,12 @@ socket.on('mailList', (mails) => {
 });
 
 socket.on('forcedLogout', (msg) => {
-    alert(msg || 'You were logged out because this account was opened elsewhere.');
+    window.customPrompt(msg || 'You were logged out because this account was opened elsewhere.', function(){});
     localStorage.removeItem('exonie_user');
     localStorage.removeItem('exonie_pass');
     location.reload();
 });
-    socket.on('registerSuccess', (username) => { alert("Registration successful! Please log in."); window.switchAuth('login'); document.getElementById('loading-screen').style.display = 'none'; document.getElementById('auth-screen').classList.add('active'); });
+    socket.on('registerSuccess', (username) => { window.customPrompt("Registration successful! Please log in.", function(){}); window.switchAuth('login'); document.getElementById('loading-screen').style.display = 'none'; document.getElementById('auth-screen').classList.add('active'); });
     socket.on('characterSelect', (userData) => { document.getElementById('loading-screen').style.display = 'none'; document.getElementById('select-name-display').innerText = userData.character_name; document.getElementById('select-level-display').innerText = `Level ${userData.level || 1}`; const selBody = document.getElementById('select-body'), selHead = document.getElementById('select-head'), selHair = document.getElementById('select-hair'), selWeapon = document.getElementById('select-weapon'); selBody.style.filter = skinFilters[userData.skin_color || 'flesh']; selHead.style.filter = skinFilters[userData.skin_color || 'flesh']; if (userData.hair_style === 'none' || !userData.hair_style) selHair.style.display = 'none'; else { selHair.style.display = 'block'; selHair.src = `animation/avatar_hair${userData.hair_style}.png`; selHair.style.filter = hairFilters[userData.hair_color || 'black']; } if (userData.equips?.weapon?.sprite) { selWeapon.style.display = 'block'; selWeapon.src = `weapon/${userData.equips.weapon.sprite.replace('starter', 'basic')}.png`; } else { selWeapon.style.display = 'none'; } selBody.style.opacity = '1'; selHead.style.opacity = '1'; selHair.style.opacity = '1'; selWeapon.style.opacity = '1'; document.getElementById('select-screen').classList.add('active'); game.cachedUserData = userData; });
     socket.on('mapPlayersList', (players) => { for (const id in game.remotePlayers) window.removeRemotePlayer(id); (players || []).forEach(p => window.addRemotePlayer(p)); });
     socket.on('remotePlayerJoined', (p) => window.addRemotePlayer(p));
@@ -5934,7 +5934,7 @@ if (typeof socket !== 'undefined' && socket) {
             // 4. Confirm success to the server so it marks is_used = TRUE
             socket.emit('confirmCodeOpened', { codeId: data.codeId });
         } else {
-            alert("Error: Could not retrieve the promo code. Please try again.");
+            window.customPrompt("Error: Could not retrieve the promo code. Please try again.", function(){});
         }
     });
 }
@@ -6533,7 +6533,7 @@ window.createGuild = function() {
         if (name && name.trim().length > 2 && name.trim().length <= 15) {
             socket.emit('createGuild', name.trim());
         } else if (name) {
-            alert("Guild name must be between 3 and 15 characters.");
+            window.customPrompt("Guild name must be between 3 and 15 characters.", function(){});
         }
     });
 };
@@ -7416,7 +7416,7 @@ if (socket) {
     });
 
     socket.on('receiptFailed', (errorMsg) => {
-        alert("Purchase verification failed: " + errorMsg);
+        window.customPrompt("Purchase verification failed: " + errorMsg, function(){});
         window.openRealMoneyShop();
     });
 }
@@ -7448,7 +7448,7 @@ window.verifySteamPurchase = async function(orderId) {
         const data = await res.json();
         
         if (!data.success) {
-            alert("Transaction failed or not yet authorized: " + (data.error || data.message));
+            window.customPrompt("Transaction failed or not yet authorized: " + (data.error || data.message), function(){});
             window.openRealMoneyShop();
         } else {
             // Success! The server will socket 'gemPurchaseSuccess' to update your balance.
@@ -7459,7 +7459,7 @@ window.verifySteamPurchase = async function(orderId) {
             `;
         }
     } catch (err) {
-        alert("Error verifying purchase: " + err.message);
+        window.customPrompt("Error verifying purchase: " + err.message, function(){});
         window.openRealMoneyShop();
     }
 };
@@ -7469,7 +7469,7 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
     if (modal) modal.innerHTML = '<h2 style="color:#E040FB; margin-top: 20px;">Connecting to Store...</h2>';
 
     const abortPurchase = (msg) => {
-        alert(msg);
+        window.customPrompt(msg, function(){});
         if (modal) modal.style.display = 'none'; 
         if (socket) socket.emit('requestShopAccess'); 
     };
@@ -7585,7 +7585,7 @@ if (window.electronAPI && window.electronAPI.onMicroTxnAuthorizationResponse) {
             const data = await res.json();
             
             if (!data.success) {
-                alert("Transaction failed: " + (data.error || data.message));
+                window.customPrompt("Transaction failed: " + (data.error || data.message), function(){});
                 window.openRealMoneyShop();
             } else {
                 // Success! The server will socket 'gemPurchaseSuccess' to update your balance.
@@ -7596,7 +7596,7 @@ if (window.electronAPI && window.electronAPI.onMicroTxnAuthorizationResponse) {
                 `;
             }
         } catch (err) {
-            alert("Error verifying purchase: " + err.message);
+            window.customPrompt("Error verifying purchase: " + err.message, function(){});
             window.openRealMoneyShop();
         }
     });
@@ -7620,12 +7620,12 @@ window.addEventListener('StorePurchaseSuccess', async (event) => {
             });
             const data = await res.json();
             if (!data.success) {
-                alert("Transaction failed: " + data.message);
+                window.customPrompt("Transaction failed: " + data.message, function(){});
                 window.openRealMoneyShop();
             }
             // Success logic is handled by the socket 'gemPurchaseSuccess' auto-updating the UI
         } catch (err) {
-            alert("Error verifying purchase: " + err.message);
+            window.customPrompt("Error verifying purchase: " + err.message, function(){});
             window.openRealMoneyShop();
         }
     } else if (socket) {
@@ -8721,7 +8721,7 @@ document.addEventListener('deviceready', () => {
         });
 
         store.error((err) => {
-            alert("Google Play Error: " + err.message);
+            window.customPrompt("Google Play Error: " + err.message, function(){});
             window.openRealMoneyShop(); // Un-freeze the UI
         });
 
