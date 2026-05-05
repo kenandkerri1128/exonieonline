@@ -553,6 +553,111 @@ updateAndBroadcastTopTavern();
 setInterval(updateAndBroadcastTopTavern, 60000);
 
 // ==========================================
+// 🏆 MONTHLY TAVERN REWARDS
+// ==========================================
+async function processMonthlyTavernRewards() {
+    try {
+        // Prevent duplicate sending by checking if we already sent the reward for the CURRENT month
+        const currentMonthYear = new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' });
+        const validationMessage = `in the Training Tavern for ${currentMonthYear}`;
+
+        // Fetch recent mail to see if the reward was already sent this month
+        const { data: recentMail } = await supabase.from('System_Mail')
+            .select('message_text')
+            .ilike('message_text', `%${validationMessage}%`)
+            .limit(1);
+
+        if (recentMail && recentMail.length > 0) {
+            // Already processed this month
+            return;
+        }
+
+        console.log(`[MONTHLY TAVERN] Processing rewards for ${currentMonthYear}...`);
+        
+        // Fetch top 3 players
+        const { data } = await supabase.from('Tavern_Leaderboard').select('character_name, mob_type, mob_level, time_taken').limit(1000);
+        let sorted = (data || []).sort((a, b) => {
+            const w = { 'floor_boss': 3, 'mini_boss': 2, 'common_mobs': 1 };
+            let aW = w[a.mob_type] || 0; let bW = w[b.mob_type] || 0;
+            if (aW !== bW) return bW - aW;
+            if (a.mob_level !== b.mob_level) return b.mob_level - a.mob_level;
+            return a.time_taken - b.time_taken;
+        });
+
+        let uniqueTop3 = [];
+        for (let row of sorted) {
+            if (!uniqueTop3.includes(row.character_name)) uniqueTop3.push(row.character_name);
+            if (uniqueTop3.length === 3) break;
+        }
+
+        if (uniqueTop3.length === 0) {
+            // No one to reward, but we still clear it just in case
+            await supabase.from('Tavern_Leaderboard').delete().neq('character_name', '00000000000000000000');
+            return;
+        }
+
+        // Send Rewards
+        for (let i = 0; i < uniqueTop3.length; i++) {
+            let playerName = uniqueTop3[i];
+            let rewardItem = null;
+            let rank = i + 1;
+            
+            if (rank === 1) {
+                rewardItem = { id: Date.now() + Math.random(), name: "Huge Nugget", type: "material", rarity: "Divine", color: "#ffea00", description: "A massive chunk of pure gold. Sell for 500,000 Gold.", quantity: 5 };
+            } else if (rank === 2) {
+                rewardItem = { id: Date.now() + Math.random(), name: "Huge Nugget", type: "material", rarity: "Divine", color: "#ffea00", description: "A massive chunk of pure gold. Sell for 500,000 Gold.", quantity: 1 };
+            } else if (rank === 3) {
+                rewardItem = { id: Date.now() + Math.random(), name: "Big Gold Bar", type: "material", rarity: "Legendary", color: "#f44336", description: "A heavy bar of pure gold. Sell for 250,000 Gold.", quantity: 2 };
+            }
+            
+            if (rewardItem) {
+                await supabase.from('System_Mail').insert([{
+                    recipient_name: playerName,
+                    message_text: `Congratulations! You ranked ${rank} ${validationMessage}! Here is your reward.`,
+                    attached_item: JSON.stringify(rewardItem),
+                    is_claimed: false
+                }]);
+                
+                // If findSocketIdByPlayerId exists, we can notify them live
+                if (typeof findSocketIdByPlayerId === 'function') {
+                    const tsid = findSocketIdByPlayerId(playerName);
+                    if (tsid) {
+                        io.to(tsid).emit('getMail');
+                        io.to(tsid).emit('systemMessage', `Your Rank ${rank} Training Tavern monthly reward has arrived!`);
+                    }
+                }
+            }
+        }
+
+        // Delete all records in Training Tavern
+        console.log("[MONTHLY TAVERN] Deleting all records...");
+        await supabase.from('Tavern_Leaderboard').delete().neq('character_name', '00000000000000000000');
+        
+        // Update top players broadcast
+        global.topTavernPlayers = [];
+        io.emit('topTavernPlayers', global.topTavernPlayers);
+        console.log("[MONTHLY TAVERN] Rewards sent and leaderboard cleared.");
+    } catch(err) {
+        console.error("Monthly Tavern Reward Error:", err);
+    }
+}
+
+// Check every hour (3600000 ms)
+setInterval(() => {
+    const now = new Date();
+    // Only run if it's the 1st of the month
+    if (now.getDate() === 1) {
+        processMonthlyTavernRewards();
+    }
+}, 60 * 60 * 1000);
+
+// Also run once on startup just in case we booted up on the 1st and missed the hour check
+if (new Date().getDate() === 1) {
+    setTimeout(processMonthlyTavernRewards, 5000);
+}
+
+
+// ==========================================
 // LOOT, GOLD & STAT GENERATION ENGINE
 // ==========================================
 const STAT_TYPES = ['attack', 'magic', 'defense', 'speed', 'int', 'str', 'hp'];
@@ -1451,8 +1556,10 @@ function ensureWorldFromMapData(instanceId, mapData) {
                                     worlds[instanceId].monsters[newMobId] = newBoss;
                                     io.to(instanceId).emit('monsterSpawned', serializeMonster(newBoss));
 
-                                    // 🛡️ FIXED: Only announce for valid floor maps (not town/neutralzone/battlefield)
-                                    if (rawMapId && !['town', 'neutralzone', 'battlefield'].includes(rawMapId) && !bossRespawnScheduled.has(rawMapId)) {
+                                    // 🛡️ FIX #3: Block boss respawn announcements for ALL instanced/private maps
+                                    const noAnnounceMaps = ['town', 'neutralzone', 'battlefield', 'hauntedhouse', 'trainingtavern'];
+                                    const isDungeonMap = rawMapId.startsWith('dungeon') || rawMapId.startsWith('mazetrial');
+                                    if (rawMapId && !noAnnounceMaps.includes(rawMapId) && !isDungeonMap && !bossRespawnScheduled.has(rawMapId)) {
                                         io.emit('systemMessage', `The ${rawMapId.toUpperCase()} Boss has respawned!`);
                                     }
                                     bossRespawnScheduled.delete(rawMapId);
@@ -4616,10 +4723,11 @@ io.on('connection', (socket) => {
                                     }
                                 }
 
+                                const originalInstanceId = p.instanceId;
                                 // 🥾 4. Auto-kick back to town
                                 setTimeout(() => {
                                     const checkP = onlinePlayers[socket.id];
-                                    if (checkP && checkP.instanceId === p.instanceId) {
+                                    if (checkP && checkP.instanceId === originalInstanceId) {
                                         checkP.mapId = 'town';
                                         checkP.x = 960; checkP.y = 1000;
                                         checkP.instanceId = getInstanceId(p.id, 'town');
@@ -4636,6 +4744,7 @@ io.on('connection', (socket) => {
                             // 🛡️ THE FIX: Added neutralzone and battlefield to the ignore list so they don't double-save!
                             if (targetMob.category === "floor_boss" && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && p.mapId !== 'neutralzone' && p.mapId !== 'battlefield' && !String(p.instanceId).startsWith('mazetrial_')) {
                                 const floorId = p.mapId;
+                                const originalInstanceId = p.instanceId;
                                 const deathTime = Date.now();
 
                                 // 🛡️ BULLETPROOF DB SAVE: Manually check if it exists instead of relying on upsert
@@ -4650,7 +4759,7 @@ io.on('connection', (socket) => {
                                 targetMob.respawnDelayMs = -1;
                                 io.emit('systemMessage', `[WORLD] ${floorId.toUpperCase()} Boss Defeated!`);
                                 // 🌟 THE MISSING LINK: Instantly push the 24-hour timer to the people currently in the room!
-                                io.to(p.instanceId).emit('bossCooldownActive', { remaining: 24 * 60 * 60 * 1000 });
+                                io.to(originalInstanceId).emit('bossCooldownActive', { remaining: 24 * 60 * 60 * 1000 });
 
                                 // 🌟 AUTOMATIC CLEANUP & SPAWN SCHEDULE 🌟
                                 const fullCooldown = 24 * 60 * 60 * 1000; // 24 Hours in milliseconds
@@ -4661,17 +4770,19 @@ io.on('connection', (socket) => {
                                     await supabase.from('boss_timers').delete().eq('boss_id', floorId);
 
                                     // If players are waiting in the room, spawn it instantly!
-                                    if (worlds[p.instanceId]) {
+                                    if (worlds[originalInstanceId]) {
                                         const cfg = {
                                             spawnArea: { minX: targetMob.homeX, maxX: targetMob.homeX, minY: targetMob.homeY, maxY: targetMob.homeY },
                                             level: targetMob.level
                                         };
-                                        const nm = spawnMonster(p.instanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
-                                        worlds[p.instanceId].monsters[targetMob.id] = nm;
-                                        io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
-                                        //🛡️ FIXED: Only announce for valid floor maps, prevent duplicates
-                                        const safeRespawnMap = p.mapId;
-                                        if (safeRespawnMap && !['town', 'neutralzone', 'battlefield'].includes(safeRespawnMap) && targetMob.category === "floor_boss") {
+                                        const nm = spawnMonster(originalInstanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
+                                        worlds[originalInstanceId].monsters[targetMob.id] = nm;
+                                        io.to(originalInstanceId).emit('monsterSpawned', serializeMonster(nm));
+                                        //🛡️ FIX #3: Block boss respawn announcements for ALL instanced/private maps
+                                        const safeRespawnMap = floorId;
+                                        const noAnnounceMaps2 = ['town', 'neutralzone', 'battlefield', 'hauntedhouse', 'trainingtavern'];
+                                        const isDungeonMap2 = String(safeRespawnMap).startsWith('dungeon') || String(safeRespawnMap).startsWith('mazetrial');
+                                        if (safeRespawnMap && !noAnnounceMaps2.includes(safeRespawnMap) && !isDungeonMap2 && targetMob.category === "floor_boss") {
                                             io.emit('systemMessage', `The ${safeRespawnMap.toUpperCase()} Boss has respawned!`);
                                         }
                                     }
@@ -4681,22 +4792,23 @@ io.on('connection', (socket) => {
 
                             // Normal Respawn Logic (🛡️ THE BULLETPROOF FIX: Strictly block Maze Trials using instanceId!)
                             if (targetMob.respawnDelayMs !== -1 && !String(p.mapId).startsWith('dungeon') && p.mapId !== 'trainingtavern' && p.mapId !== 'hauntedhouse' && !String(p.instanceId).startsWith('mazetrial_')) {
+                                const originalInstanceId = p.instanceId;
                                 let respawnTimerId = setTimeout(() => {
                                     const cfg = {
                                         spawnArea: { minX: targetMob.homeX, maxX: targetMob.homeX, minY: targetMob.homeY, maxY: targetMob.homeY },
                                         level: targetMob.level
                                     };
-                                    const nm = spawnMonster(p.instanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
-                                    if (worlds[p.instanceId]) {
-                                        worlds[p.instanceId].monsters[targetMob.id] = nm;
-                                        io.to(p.instanceId).emit('monsterSpawned', serializeMonster(nm));
+                                    const nm = spawnMonster(originalInstanceId, targetMob.id, targetMob.originalKey || targetMob.monsterKey, cfg);
+                                    if (worlds[originalInstanceId]) {
+                                        worlds[originalInstanceId].monsters[targetMob.id] = nm;
+                                        io.to(originalInstanceId).emit('monsterSpawned', serializeMonster(nm));
                                     }
                                 }, targetMob.respawnDelayMs || 10000);
 
                                 // 🐛 THE FIX: Track the timer so we can kill it if the room empties!
-                                if (worlds[p.instanceId]) {
-                                    if (!worlds[p.instanceId].respawnTimers) worlds[p.instanceId].respawnTimers = [];
-                                    worlds[p.instanceId].respawnTimers.push(respawnTimerId);
+                                if (worlds[originalInstanceId]) {
+                                    if (!worlds[originalInstanceId].respawnTimers) worlds[originalInstanceId].respawnTimers = [];
+                                    worlds[originalInstanceId].respawnTimers.push(respawnTimerId);
                                 }
                             }
                         }
@@ -6150,6 +6262,15 @@ io.on('connection', (socket) => {
             }
             // 🛡️ LATE SPAWN CATCH: Re-emit monster state after async DB checks complete
             const lateInstId = p.instanceId;
+            // 🛡️ FIX #4: Extra early catch for Maze Trial instances (bosses must appear!)
+            if (String(lateInstId).startsWith('mazetrial_')) {
+                setTimeout(() => {
+                    if (worlds[lateInstId] && p.instanceId === lateInstId) {
+                        const mobs = Object.values(worlds[lateInstId].monsters).map(serializeMonster);
+                        if (mobs.length > 0) socket.emit('monsterState', mobs);
+                    }
+                }, 2000);
+            }
             setTimeout(() => {
                 if (worlds[lateInstId]) {
                     socket.emit('monsterState', Object.values(worlds[lateInstId].monsters).map(serializeMonster));
@@ -9421,7 +9542,14 @@ io.on('connection', (socket) => {
                             description: `A fragment of a ${chosen}'s identity. Collect 10 to summon a ${chosen} Companion.`,
                             quantity: 1
                         };
-                        if (pp.inventory.length < 40) {
+                        // 🛡️ FIX #2 (CRITICAL): Use findIndex for proper slot placement!
+                        // inventory.push() was adding to index 20+ which is INVISIBLE in the 20-slot UI.
+                        const emptyPieceSlot = pp.inventory.findIndex(i => i === null);
+                        if (emptyPieceSlot !== -1) {
+                            pp.inventory[emptyPieceSlot] = drop;
+                            supabase.from('Exonians').update({ inventory: pp.inventory }).eq('character_name', pp.id);
+                            socket.emit('syncInventory', pp.inventory);
+                        } else if (pp.inventory.length < 20) {
                             pp.inventory.push(drop);
                             supabase.from('Exonians').update({ inventory: pp.inventory }).eq('character_name', pp.id);
                             socket.emit('syncInventory', pp.inventory);
