@@ -9572,11 +9572,14 @@ io.on('connection', (socket) => {
                 socket.emit('eventDungeonResult', { survived, drop });
                 // 5-second delay so player can read the message before teleporting
                 setTimeout(() => {
+                    const latestP = onlinePlayers[socket.id];
+                    if (!latestP || latestP.mapId === 'town') return; // They already clicked Respawn or left
+
                     socket.leave(newInstId);
-                    pp.mapId = 'town'; pp.x = 960; pp.y = 1000;
-                    pp.instanceId = getInstanceId(pp.id, 'town');
-                    pp.isLoadingMap = false; pp.isWaitingForTeam = false;
-                    socket.join(pp.instanceId);
+                    latestP.mapId = 'town'; latestP.x = 960; latestP.y = 1000;
+                    latestP.instanceId = getInstanceId(latestP.id, 'town');
+                    latestP.isLoadingMap = false; latestP.isWaitingForTeam = false;
+                    socket.join(latestP.instanceId);
                     socket.emit('forceTeleport', { mapId: 'town', x: 960, y: 1000 });
                     if (worlds[newInstId]) {
                         if (worlds[newInstId].failTimer) clearTimeout(worlds[newInstId].failTimer);
