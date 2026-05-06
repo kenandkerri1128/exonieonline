@@ -1,5 +1,5 @@
 // ==========================================
-// ðŸš¨ GLOBAL ERROR HANDLER: Prevents black screens from uncaught errors
+// 🚨 GLOBAL ERROR HANDLER: Prevents black screens from uncaught errors
 // ==========================================
 window.onerror = function(msg, src, line, col, err) {
     console.error('[EXONIE ERROR]', msg, src, line, col, err);
@@ -8,7 +8,7 @@ window.onerror = function(msg, src, line, col, err) {
         if (ls) ls.style.display = 'none';
         window.isLoading = false;
         window.isTransitioning = false;
-        // ðŸ›¡ï¸ FIX #1: Reset chat state on error so players can still type!
+        // 🛡️ FIX #1: Reset chat state on error so players can still type!
         if (typeof isChatting !== 'undefined') isChatting = false;
         const chatBox = document.getElementById('chat-input-container');
         if (chatBox) chatBox.style.display = 'none';
@@ -25,13 +25,13 @@ window.addEventListener('unhandledrejection', function(event) {
         if (ls) ls.style.display = 'none';
         window.isLoading = false;
         window.isTransitioning = false;
-        // ðŸ›¡ï¸ FIX #1: Reset chat state on promise errors too!
+        // 🛡️ FIX #1: Reset chat state on promise errors too!
         if (typeof isChatting !== 'undefined') isChatting = false;
         const chatBox = document.getElementById('chat-input-container');
         if (chatBox) chatBox.style.display = 'none';
     } catch(e) {}
 });
-// ðŸ›¡ï¸ FIX #1: Safety net €” auto-reset stuck isChatting every 5 seconds
+// 🛡️ FIX #1: Safety net €” auto-reset stuck isChatting every 5 seconds
 setInterval(() => {
     try {
         if (typeof isChatting !== 'undefined' && isChatting) {
@@ -44,12 +44,12 @@ setInterval(() => {
     } catch(e) {}
 }, 5000);
 // ==========================================
-// ðŸ“± FORCE LANDSCAPE FULLSCREEN ON MOBILE
+// 📱 FORCE LANDSCAPE FULLSCREEN ON MOBILE
 // ==========================================
 if (!window.__exonie_landscape_init) {
     window.__exonie_landscape_init = true;
     
-    // ðŸš€ Attempt fullscreen + landscape lock on first user interaction
+    // 🚀 Attempt fullscreen + landscape lock on first user interaction
     const forceLandscapeFullscreen = () => {
         const doc = document.documentElement;
         
@@ -76,7 +76,7 @@ if (!window.__exonie_landscape_init) {
     document.addEventListener('deviceready', forceLandscapeFullscreen, { once: true });
 }
 // ==========================================
-// ðŸš¨ EMERGENCY MOBILE APP FIX (NO REBUILD NEEDED)
+// 🚨 EMERGENCY MOBILE APP FIX (NO REBUILD NEEDED)
 // ==========================================
 if (!window.__exonie_cleaned) {
     window.__exonie_cleaned = true;
@@ -101,7 +101,7 @@ if (!window.__exonie_cleaned) {
     document.head.appendChild(cssFix);
 }
 // ==========================================
-// ðŸ›¡ï¸ ANTI-MULTI-BOXING: TAB LOCK
+// 🛡️ ANTI-MULTI-BOXING: TAB LOCK
 // ==========================================
 const exonieChannel = new BroadcastChannel('exonie_game_instance');
 exonieChannel.postMessage('game_opened');
@@ -117,16 +117,16 @@ exonieChannel.onmessage = (event) => {
 // ==========================================
 // 1. CORE VARIABLES & SETUP
 // ==========================================
-// ðŸŒ AUTO-DETECTS TEST OR LIVE SERVER + MOBILE RECONNECTS
-let serverUrl = 'https://exonieonline.onrender.com'; // ðŸ“± Default to Live (for Mobile Apps without a web origin)
+// 🌐 AUTO-DETECTS TEST OR LIVE SERVER + MOBILE RECONNECTS
+let serverUrl = 'https://exonieonline.onrender.com'; // 📱 Default to Live (for Mobile Apps without a web origin)
 
-// ðŸ›¡ï¸ THE ROUTER FIX: Check if we are running on the Test Server or Local Computer
+// 🛡️ THE ROUTER FIX: Check if we are running on the Test Server or Local Computer
 if (typeof window !== 'undefined' && window.location) {
     const host = window.location.hostname;
     if (host.includes('testexonie')) {
         serverUrl = 'https://testexonie.onrender.com'; // Route to the Render test backend
     } else if ((host === 'localhost' || host === '127.0.0.1') && window.currentPlatform === 'web') {
-        // ðŸ›‘ CAPACITOR FIX: Only use localhost:3000 if we are CERTAIN we're on a PC browser
+        // 🛑 CAPACITOR FIX: Only use localhost:3000 if we are CERTAIN we're on a PC browser
         // Check for Capacitor indicators to avoid false positives on mobile
         if (!window.Capacitor && !navigator.userAgent.includes('Capacitor')) {
             serverUrl = 'http://localhost:3000'; 
@@ -134,7 +134,7 @@ if (typeof window !== 'undefined' && window.location) {
     }
 }
 const socket = io(serverUrl, {
-    transports: ['websocket', 'polling'], // ðŸš€ THE MOBILE FIX: Forces high-speed connection
+    transports: ['websocket', 'polling'], // 🚀 THE MOBILE FIX: Forces high-speed connection
     reconnection: true,            
     reconnectionAttempts: 10,      
     reconnectionDelay: 2000,       
@@ -142,7 +142,7 @@ const socket = io(serverUrl, {
     timeout: 20000,                
 });
 window.socket = socket; // Expose globally for event scripts
-// ðŸ”” OPTIONAL: Log to console if the internet flickers
+// 🔔 OPTIONAL: Log to console if the internet flickers
 socket.on('reconnect_attempt', () => {
     console.log("Internet connection unstable. Attempting to reconnect...");
     let dcMessage = document.getElementById('dc-message-overlay');
@@ -152,7 +152,7 @@ socket.on('reconnect_attempt', () => {
     }
 });
 
-// ðŸ”Œ FIX #7: SHOW DISCONNECT MESSAGE €” Delayed & Less Intrusive
+// 🔌 FIX #7: SHOW DISCONNECT MESSAGE €” Delayed & Less Intrusive
 let _dcOverlayTimer = null;
 let _dcFailCount = 0;
 socket.on('disconnect', (reason) => {
@@ -163,7 +163,7 @@ socket.on('disconnect', (reason) => {
 
     _dcFailCount++;
 
-    // ðŸ›¡ï¸ FIX #7: Only show after 3 seconds delay €” brief reconnects won't flash the overlay
+    // 🛡️ FIX #7: Only show after 3 seconds delay €” brief reconnects won't flash the overlay
     if (_dcOverlayTimer) clearTimeout(_dcOverlayTimer);
     _dcOverlayTimer = setTimeout(() => {
         // If already reconnected during the delay, don't show
@@ -173,10 +173,10 @@ socket.on('disconnect', (reason) => {
         if (!dcMessage) {
             dcMessage = document.createElement('div');
             dcMessage.id = 'dc-message-overlay';
-            // ðŸ›¡ï¸ FIX #7: Small top banner instead of fullscreen blackout
+            // 🛡️ FIX #7: Small top banner instead of fullscreen blackout
             dcMessage.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:rgba(30,30,30,0.95);color:white;display:flex;justify-content:center;align-items:center;z-index:999999;font-family:sans-serif;padding:12px 20px;gap:15px;transition:opacity 0.5s;';
             dcMessage.innerHTML = `
-                <span style="color:#f44336; font-size:18px; font-weight:bold; text-shadow:0 0 8px #f44336;">ðŸ“¡ Connection Lost</span>
+                <span style="color:#f44336; font-size:18px; font-weight:bold; text-shadow:0 0 8px #f44336;">📡 Connection Lost</span>
                 <span style="font-size:14px; color:#ccc;">Attempting to reconnect...</span>
             `;
             document.body.appendChild(dcMessage);
@@ -186,10 +186,10 @@ socket.on('disconnect', (reason) => {
     }, 3000);
 });
 
-// ðŸ”Œ HIDE DISCONNECT MESSAGE ON RECONNECT
+// 🔌 HIDE DISCONNECT MESSAGE ON RECONNECT
 socket.on('connect', () => {
     console.log("Connected to server!");
-    // ðŸ›¡ï¸ FIX #7: Cancel pending overlay timer
+    // 🛡️ FIX #7: Cancel pending overlay timer
     if (_dcOverlayTimer) { clearTimeout(_dcOverlayTimer); _dcOverlayTimer = null; }
     _dcFailCount = 0;
     let dcMessage = document.getElementById('dc-message-overlay');
@@ -198,7 +198,7 @@ socket.on('connect', () => {
         setTimeout(() => { if (dcMessage) dcMessage.style.display = 'none'; }, 500);
     }
 });
-let currentShopItem = null; // ðŸ›¡ï¸ GLOBAL TRACKER FOR THE SHOP
+let currentShopItem = null; // 🛡️ GLOBAL TRACKER FOR THE SHOP
 window.isProcessingShop = false; // Anti-Spam Lock
 let activeChatTab = 'local';
 let isMailboxOpen = false, isChatting = false, isInventoryOpen = false, isSkillOpen = false, isShopping = false, localBossTimer = null, isEnhancing = false, isApplyingAura = false;
@@ -210,12 +210,12 @@ let tradeMyItems = [null,null,null], tradeTheirItems = [null,null,null], lastVit
 let isDrawing = false, startX = 0, startY = 0, currentBox = null, drawType = 'collision';
 let currentBGM = null, currentTrackName = "", activeTargetPlayerId = null;
 
-// ðŸ›¡ï¸ THE FIX: Game Loop & FPS Cap Variables
+// 🛡️ THE FIX: Game Loop & FPS Cap Variables
 let currentAnimationId = null;
 let lastFrameTime = 0;
 const fpsInterval = 1000 / 60; // Caps the game at 60 FPS so 144Hz monitors aren't twice as fast!
 
-// ðŸ‘‘ GLOBAL ADMIN LIST (Keep this matched with server.js!)
+// 👑 GLOBAL ADMIN LIST (Keep this matched with server.js!)
 window.ADMINS = ['Kei', 'Jubs4DaWin', 'BigBoss'];
 window.isAdmin = function(name) { return window.ADMINS.includes(name); };
 
@@ -323,7 +323,7 @@ rankStyle.innerHTML = `
    }
     
    .weapon-aura-divine {
-        /* ðŸ‘‘ INSANE BLINDING GLOW */
+        /* 👑 INSANE BLINDING GLOW */
         filter: drop-shadow(0 0 10px #ffffff) drop-shadow(0 0 20px #ffea00) drop-shadow(0 0 40px #ff9800) brightness(2) contrast(1.2) !important;
         animation: divinePulseExtreme 0.8s infinite alternate ease-in-out;
     }
@@ -332,7 +332,7 @@ rankStyle.innerHTML = `
         100% { filter: drop-shadow(0 0 15px #ffffff) drop-shadow(0 0 30px #ffea00) drop-shadow(0 0 60px #ff5722) brightness(2.5) contrast(1.3); }
     }
     
-    /* ðŸ‘‘ SPARKLING GOLDEN TEXT FOR INVENTORY & TOOLTIPS */
+    /* 👑 SPARKLING GOLDEN TEXT FOR INVENTORY & TOOLTIPS */
     .rarity-divine-text {
         color: #ffea00 !important;
         text-shadow: 0 0 5px #fff, 0 0 10px #ffea00, 0 0 20px #ff9800 !important;
@@ -343,9 +343,9 @@ rankStyle.innerHTML = `
         100% { filter: brightness(1.5); text-shadow: 0 0 8px #fff, 0 0 15px #ffea00, 0 0 25px #ff9800; }
     }
 
-    /* ðŸ‘¼ NEW: AURA OF THE DIVINE (ROYAL TIER) - REFINED */
+    /* 👼 NEW: AURA OF THE DIVINE (ROYAL TIER) - REFINED */
     .cosmetic-aura.aura-divine {
-        display: block !important; /* ðŸ‘‘ FORCES VISIBILITY */
+        display: block !important; /* 👑 FORCES VISIBILITY */
         position: absolute !important;
         inset: 0 !important;
         background: none !important; /* Removes the ugly wide circle */
@@ -409,11 +409,11 @@ rankStyle.innerHTML = `
 `;
 document.head.appendChild(rankStyle);
 // ==========================================
-// ðŸ‰ MONSTER CSS (FINALIZED MINOTAUR & SCALED DRAGON)
+// 🐉 MONSTER CSS (FINALIZED MINOTAUR & SCALED DRAGON)
 // ==========================================
 const monsterStyle = document.createElement('style');
 monsterStyle.innerHTML = `
-    /* --- ðŸ‚ MINOTAUR (Exact Golem structure with separate head) --- */
+    /* --- 🐂 MINOTAUR (Exact Golem structure with separate head) --- */
     .minotaur-base { position:relative; width:100%; height:100%; display:flex; justify-content:center; }
     
     /* Head is distinct and on top of body */
@@ -454,55 +454,55 @@ monsterStyle.innerHTML = `
     .minotaur-base.floor_boss .m-eye-l, .minotaur-base.floor_boss .m-eye-r { background:#ff9800; box-shadow:0 0 10px #ff9800; }
     .minotaur-base.floor_boss .m-axe::before { background: #111; border-color: #ff9800; }
 
-   /* --- ðŸ‰ NATIVE DRAGON CSS (COLOR-FORCED GEOMETRY) --- */
+   /* --- 🐉 NATIVE DRAGON CSS (COLOR-FORCED GEOMETRY) --- */
     .dragon-base { 
         position:relative; width:100%; height:100%; display:flex; justify-content:center; align-items:center; 
-        /* ðŸ›¡ï¸ FALLBACK COLORS: Guarantees it can never be transparent! */
+        /* 🛡️ FALLBACK COLORS: Guarantees it can never be transparent! */
         --d-col: #F97100; --d-bor: #530800; --d-wing: #E23401; --d-chest: #DBD5C5; --d-eye: #FBC614; --d-horn: #530800;
     }
 
-    /* ðŸŽ¨ Tier Colors (Overrides the fallbacks based on category) */
+    /* 🎨 Tier Colors (Overrides the fallbacks based on category) */
     .dragon-base.common_mobs { --d-col: #4caf50; --d-bor: #1b5e20; --d-wing: #2e7d32; --d-chest: #c8e6c9; --d-eye: #ffeb3b; --d-horn: #1b5e20; }
     .dragon-base.mini_boss { --d-col: #F97100; --d-bor: #530800; --d-wing: #E23401; --d-chest: #DBD5C5; --d-eye: #FBC614; --d-horn: #530800; }
     .dragon-base.floor_boss { --d-col: #aa00ff; --d-bor: #000000; --d-wing: #6200ea; --d-chest: #00e5ff; --d-eye: #00e5ff; --d-horn: #311b92; filter: drop-shadow(0 0 15px #aa00ff); }
 
-    /* ðŸª¨ Body */
+    /* 🪨 Body */
     .dragon-base .d-body { position: absolute; bottom: 20%; width: 50%; height: 45%; background-color: var(--d-col) !important; border: 3px solid #000; z-index: 2; border-radius: 10px 10px 20px 20px; box-shadow: inset 0 -10px rgba(0,0,0,0.3); }
 
-    /* ðŸ’Ž The Signature Diamond Chest */
+    /* 💎 The Signature Diamond Chest */
     .dragon-base .d-chest { position: absolute; top: 35%; width: 35%; height: 35%; background-color: var(--d-chest) !important; transform: rotate(45deg); border: 3px solid #000; z-index: 4; box-shadow: inset 0 -5px rgba(0,0,0,0.2); }
 
-    /* ðŸ‰ Head & Snout */
+    /* 🐉 Head & Snout */
     .dragon-base .d-head { position: absolute; top: 10%; width: 45%; height: 35%; background-color: var(--d-col) !important; border: 3px solid #000; z-index: 5; border-radius: 10px 10px 30px 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.5); display:flex; justify-content:center; }
     .dragon-base .d-snout { position: absolute; bottom: -5px; width: 40%; height: 30%; background-color: var(--d-horn) !important; border: 2px solid #000; border-radius: 50%; }
 
-    /* ðŸ˜  Angry Eyes */
+    /* 😠 Angry Eyes */
     .dragon-base .d-eye-l, .dragon-base .d-eye-r { position: absolute; top: 30%; width: 25%; height: 15%; background-color: var(--d-eye) !important; border-radius: 50%; box-shadow: 0 0 5px var(--d-eye); border:1px solid #000; }
     .dragon-base .d-eye-l { left: 10%; transform: rotate(20deg); }
     .dragon-base .d-eye-r { right: 10%; transform: rotate(-20deg); }
     
-    /* ðŸ—¡ï¸ Pointy Horns */
+    /* 🗡️ Pointy Horns */
     .dragon-base .d-horn-l, .dragon-base .d-horn-r { position: absolute; top: -30%; width: 20%; height: 50%; background-color: var(--d-horn) !important; z-index: -1; border: 2px solid #000; }
     .dragon-base .d-horn-l { left: -5%; border-radius: 100% 0 0 0; transform: rotate(-30deg); }
     .dragon-base .d-horn-r { right: -5%; border-radius: 0 100% 0 0; transform: rotate(30deg); }
 
-    /* ðŸ¦‡ Segmented Wings */
+    /* 🦇 Segmented Wings */
     .dragon-base .d-wing-l, .dragon-base .d-wing-r { position: absolute; top: 5%; width: 70%; height: 60%; background-color: var(--d-wing) !important; border: 3px solid #000; z-index: 1; box-shadow: inset 0 -10px rgba(0,0,0,0.3); }
     .dragon-base .d-wing-l { left: -40%; border-radius: 100% 0 50% 0; transform: rotate(-15deg); }
     .dragon-base .d-wing-r { right: -40%; border-radius: 0 100% 0 50%; transform: rotate(15deg); }
 
-    /* ðŸ¾ Claws/Feet */
+    /* 🐾 Claws/Feet */
     .dragon-base .d-foot-l, .dragon-base .d-foot-r { position: absolute; bottom: 10%; width: 20%; height: 15%; background-color: var(--d-horn) !important; border: 3px solid #000; z-index: 1; border-radius: 50% 50% 10px 10px; }
     .dragon-base .d-foot-l { left: 15%; transform: rotate(10deg); }
     .dragon-base .d-foot-r { right: 15%; transform: rotate(-10deg); }
 `;
 document.head.appendChild(monsterStyle);
 // ==========================================
-// ðŸš€ LOW-END MODE CSS OPTIMIZATIONS
+// 🚀 LOW-END MODE CSS OPTIMIZATIONS
 // ==========================================
 const perfStyle = document.createElement('style');
 perfStyle.innerHTML = `
-    /* ðŸ›‘ Disable Weapon Glows & Animations */
+    /* 🛑 Disable Weapon Glows & Animations */
     body.low-perf .weapon-aura-legendary,
     body.low-perf .weapon-aura-godly,
     body.low-perf .weapon-aura-divine {
@@ -510,16 +510,16 @@ perfStyle.innerHTML = `
         animation: none !important;
     }
     
-    /* ðŸ›‘ Completely Hide Normal Cosmetic Armor Auras, BUT KEEP DIVINE WINGS */
+    /* 🛑 Completely Hide Normal Cosmetic Armor Auras, BUT KEEP DIVINE WINGS */
     body.low-perf .cosmetic-aura:not(.aura-divine),
     body.low-perf .aura:not(.aura-divine) {
         display: none !important;
     }
 
-    /* ðŸ‘‘ Optimize Divine Aura for Low-End (Keep Wings & Basic Gold Aura) */
+    /* 👑 Optimize Divine Aura for Low-End (Keep Wings & Basic Gold Aura) */
     body.low-perf .avatar-rig:has(.aura-divine) {
         animation: none !important;
-        filter: drop-shadow(0 0 5px #ffea00) !important; /* ðŸŒŸ THE FIX: A single, lightweight static gold outline */
+        filter: drop-shadow(0 0 5px #ffea00) !important; /* 🌟 THE FIX: A single, lightweight static gold outline */
     }
     body.low-perf .cosmetic-aura.aura-divine::before {
         box-shadow: -2px 0 4px #ffea00 !important; /* Tiny, cheap glow for left wing */
@@ -528,7 +528,7 @@ perfStyle.innerHTML = `
         box-shadow: 2px 0 4px #ffea00 !important; /* Tiny, cheap glow for right wing */
     }
 
-    /* ðŸ›‘ Strip Expensive Shadows from Projectiles & Effects */
+    /* 🛑 Strip Expensive Shadows from Projectiles & Effects */
     body.low-perf .magic-orb,
     body.low-perf .monster-fireball,
     body.low-perf .fox-fireball,
@@ -539,7 +539,7 @@ perfStyle.innerHTML = `
         filter: none !important;
     }
 
-    /* ðŸ›‘ Strip Glows from Pets & Clones */
+    /* 🛑 Strip Glows from Pets & Clones */
     body.low-perf .pet-wisp,
     body.low-perf .pet-owl,
     body.low-perf .pet-fox,
@@ -548,7 +548,7 @@ perfStyle.innerHTML = `
         filter: none !important;
     }
 
-    /* ðŸ›‘ Flatten Leaderboard Nameplates */
+    /* 🛑 Flatten Leaderboard Nameplates */
     body.low-perf .rank-1-name,
     body.low-perf .rank-2-name,
     body.low-perf .rank-3-name {
@@ -557,7 +557,7 @@ perfStyle.innerHTML = `
         text-shadow: 1px 1px 0 #000 !important; 
     }
 
-    /* ðŸ›‘ Hide Fog of War Canvas Completely (Massive CPU Saver) */
+    /* 🛑 Hide Fog of War Canvas Completely (Massive CPU Saver) */
     body.low-perf #fow-canvas {
         display: none !important;
     }
@@ -681,7 +681,7 @@ window.renderSkillScreen = function() {
         else if (spriteStr.includes('pendant')) wpnType = 'pendant';
         else if (spriteStr.includes('gun')) wpnType = 'gun';
         else if (spriteStr.includes('dagger')) wpnType = 'dagger';
-        else if (spriteStr.includes('touchpad')) wpnType = 'touchpad'; // ðŸ’» ADDED TOUCHPAD
+        else if (spriteStr.includes('touchpad')) wpnType = 'touchpad'; // 💻 ADDED TOUCHPAD
     }
 
     if (!pClass || !CLASSES[pClass]) {
@@ -760,7 +760,7 @@ window.updateSkillMenu = function() {
         else if (spriteStr.includes('pendant')) wpnType = 'pendant';
         else if (spriteStr.includes('gun')) wpnType = 'gun';
         else if (spriteStr.includes('dagger')) wpnType = 'dagger';
-        else if (spriteStr.includes('touchpad')) wpnType = 'touchpad'; // ðŸ’» ADDED TOUCHPAD
+        else if (spriteStr.includes('touchpad')) wpnType = 'touchpad'; // 💻 ADDED TOUCHPAD
     }
 
     // š™ï¸ TECH GENIUS: Auto-spawn or despawn the Gadget Drone based on class!
@@ -823,7 +823,7 @@ window.updatePotionHotbar();
 }
 
 window.executeSkill = function(skillId, className) {
-    // ðŸ›¡ï¸ STUN FIX: Block Skill Usage
+    // 🛡️ STUN FIX: Block Skill Usage
     if (game.player.frozenUntil && Date.now() < game.player.frozenUntil) { if(dom.log) dom.log.innerText = "You are stunned!"; return; }
     if (safeMapData.id === 'town') { if(dom.log) dom.log.innerText = "You cannot use skills in Town!"; return; }
     
@@ -831,7 +831,7 @@ window.executeSkill = function(skillId, className) {
     if (!skillObj) return; 
     
     if (Date.now() < skillObj.cooldownReadyAt) {
-        // ðŸŽ® INPUT BUFFER: Queue the skill for up to 300ms so it fires the instant CD ends
+        // 🎮 INPUT BUFFER: Queue the skill for up to 300ms so it fires the instant CD ends
         if (skillObj.cooldownReadyAt - Date.now() < 300) {
             setTimeout(() => window.executeSkill(skillId, className), skillObj.cooldownReadyAt - Date.now());
         } else {
@@ -864,7 +864,7 @@ window.executeSkill = function(skillId, className) {
     if (typeof window.playSFX === 'function') window.playSFX(wpnSprite);
     if (typeof window.spawnSkillText === 'function') window.spawnSkillText(game.player.x + 24, game.player.y - 20, skillObj.name, '#00E5FF');
 
-    // ðŸ›¡ï¸ NON-TARGETED SKILLS 
+    // 🛡️ NON-TARGETED SKILLS 
     if (skillId === 'phs1') {
         let step = window.facingRight ? 10 : -10;
         let maxSteps = 18; 
@@ -932,7 +932,7 @@ if (skillId === 'sum1') {
         if (!game.player.activePets) game.player.activePets = [];
         let count = game.player.level >= 25 ? 2 : 1;
         
-        // ðŸŸ¢ NORMAL SLIMES: 25% of Player HP
+        // 🟢 NORMAL SLIMES: 25% of Player HP
         for (let i=0; i<count; i++) {
             let petId = Date.now() + i;
             let pEl = document.createElement('div'); pEl.className = 'pet-slime';
@@ -952,7 +952,7 @@ if (skillId === 'sum1') {
             bEl.innerHTML = '<div class="pet-hp-bar" style="top:-15px;"><div class="pet-hp-fill" id="pet-hp"></div></div>';
             bEl.style.left = game.player.x + 'px'; bEl.style.top = game.player.y + 'px';
             
-            // ðŸŒŸ BIG BOSS STYLING: White, 100x100
+            // 🌟 BIG BOSS STYLING: White, 100x100
             bEl.style.width = '100px';
             bEl.style.height = '100px';
             bEl.style.backgroundColor = '#ffffff';
@@ -962,7 +962,7 @@ if (skillId === 'sum1') {
             
             dom.world.appendChild(bEl);
             
-            // ðŸ›¡ï¸ SCALES WITH PLAYER: x5 HP
+            // 🛡️ SCALES WITH PLAYER: x5 HP
             let bossHp = window.getMaxHp() * 5; 
             let bossPet = { id: bossId, dom: bEl, x: game.player.x, y: game.player.y, homeX: game.player.x, homeY: game.player.y, hp: bossHp, maxHp: bossHp, skillRef: game.player.activeSkills.find(s=>s.id==='sum1'), isBigBoss: true };
             game.player.activePets.push(bossPet);
@@ -1009,7 +1009,7 @@ if (skillId === 'sum1') {
         return;
     }
     
-    // ðŸ›¡ï¸ TARGETED SKILLS (REQUIRES A TARGET!)
+    // 🛡️ TARGETED SKILLS (REQUIRES A TARGET!)
     if (skillId === 'ice1' || skillId === 'ice3' || skillId === 'bld3' || skillId.startsWith('snp') || skillId.startsWith('exp') || skillId === 'phs3' || skillId === 'nin1') {
         let closestMob = null; let closestPlayer = null; let minD = Infinity; 
         const pCenterX = game.player.x + 24; const pCenterY = game.player.y + 48; 
@@ -1021,7 +1021,7 @@ if (skillId === 'sum1') {
         for(let mId in game.monsters) { 
             let m = game.monsters[mId]; if(!m.alive) continue; 
             let mEl = document.getElementById('mob_' + mId);
-            if (mEl && mEl.style.opacity === '0') continue; // ðŸ›¡ï¸ THE FOG FIX: Cannot target hidden monsters!
+            if (mEl && mEl.style.opacity === '0') continue; // 🛡️ THE FOG FIX: Cannot target hidden monsters!
 
             let dist = Math.hypot(pCenterX - (m.x+m.width/2), pCenterY - (m.y+m.height/2)); 
             if(dist <= attackRadius && dist < minD) { minD = dist; closestMob = m; closestPlayer = null; } 
@@ -1033,7 +1033,7 @@ if (skillId === 'sum1') {
                 let rp = game.remotePlayers[rId];
                 if (rp.isGhost || rp.isHiddenAdmin) continue; 
                 if (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id)) continue;
-                if (rp.dom && rp.dom.style.opacity === '0') continue; // ðŸ›¡ï¸ THE FOG FIX: Cannot target hidden players!
+                if (rp.dom && rp.dom.style.opacity === '0') continue; // 🛡️ THE FOG FIX: Cannot target hidden players!
 
                 let dist = Math.hypot(pCenterX - (rp.x + 24), pCenterY - (rp.y + 48));
                 if (dist <= attackRadius && dist < minD) { minD = dist; closestPlayer = rp; closestMob = null; }
@@ -1131,10 +1131,10 @@ if (skillId === 'sum1') {
 };
 
 window.attemptAttack = function(silent) {
-    // ðŸ›¡ï¸ STUN FIX: Block Basic Attacks
+    // 🛡️ STUN FIX: Block Basic Attacks
     if (game.player.frozenUntil && Date.now() < game.player.frozenUntil) return;
     if (safeMapData.id === 'town') { if (!silent && dom.log) dom.log.innerText = "You cannot attack in Town!"; return; }
-    // ðŸ›‘ ATTACKS UNLOCKED: Fight instantly
+    // 🛑 ATTACKS UNLOCKED: Fight instantly
     if (game.player.currentHp <= 0 || isInventoryOpen || window.adminMode || game.isGhost) return;
     if (attackCooldownActive) return; 
     
@@ -1159,7 +1159,7 @@ window.attemptAttack = function(silent) {
     for(let mId in game.monsters) { 
         let m = game.monsters[mId]; if(!m.alive) continue; 
         let mEl = document.getElementById('mob_' + mId);
-        if (mEl && mEl.style.opacity === '0') continue; // ðŸ›¡ï¸ THE FOG FIX: Cannot auto-attack hidden monsters!
+        if (mEl && mEl.style.opacity === '0') continue; // 🛡️ THE FOG FIX: Cannot auto-attack hidden monsters!
 
         let mCenterX = m.x + (m.width/2); let mCenterY = m.y + (m.height/2); 
         let dist = Math.hypot(pCenterX - mCenterX, pCenterY - mCenterY); 
@@ -1185,7 +1185,7 @@ window.attemptAttack = function(silent) {
                 let rp = game.remotePlayers[rId];
                 if (rp.isGhost || rp.isHiddenAdmin) continue; 
                 if (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id)) continue;
-                if (rp.dom && rp.dom.style.opacity === '0') continue; // ðŸ›¡ï¸ THE FOG FIX
+                if (rp.dom && rp.dom.style.opacity === '0') continue; // 🛡️ THE FOG FIX
 
                 let rpCenterX = rp.x + 24; let rpCenterY = rp.y + 48;
                 let dist = Math.hypot(pCenterX - rpCenterX, pCenterY - rpCenterY);
@@ -1218,12 +1218,12 @@ window.attemptAttack = function(silent) {
     setTimeout(() => { isAttacking = false; }, 500); setTimeout(() => { attackCooldownActive = false; }, 800);
 };
 function gameLoop(ts) {
-    // ðŸ›¡ï¸ THE FIX: Keep track of animation ID to prevent Ghost Loops
+    // 🛡️ THE FIX: Keep track of animation ID to prevent Ghost Loops
     currentAnimationId = requestAnimationFrame(gameLoop);
 
     if (!game.isRunning) return;
 
-    // ðŸ›¡ï¸ THE FIX: Delta Time 60 FPS Cap
+    // 🛡️ THE FIX: Delta Time 60 FPS Cap
     if (!ts) ts = performance.now();
     const elapsed = ts - lastFrameTime;
     if (elapsed < fpsInterval) return; 
@@ -1239,7 +1239,7 @@ function gameLoop(ts) {
         if(typeof window.leaveParty === 'function') window.leaveParty();
     }
 
-   // ðŸ›¡ï¸ THE DELTA TIME FIX: Normalizes movement so 30Hz, 60Hz, and 120Hz phones move at the EXACT same speed.
+   // 🛡️ THE DELTA TIME FIX: Normalizes movement so 30Hz, 60Hz, and 120Hz phones move at the EXACT same speed.
    const now = performance.now();
    const delta = (now - (window.lastPhysTs || now)) / 16.666; 
    window.lastPhysTs = now;
@@ -1248,15 +1248,15 @@ function gameLoop(ts) {
    let nextY = game.player.y; 
    let isMoving = false; 
    
-   // ðŸš€ ANTI-TUNNEL: No cap needed anymore €” sub-stepping handles any delta safely
+   // 🚀 ANTI-TUNNEL: No cap needed anymore €” sub-stepping handles any delta safely
    const moveSpeed = 5 * delta; 
 
    let isFrozen = (game.player.frozenUntil && Date.now() < game.player.frozenUntil);
    
-   // ðŸ›‘ SPAWN LOCK: Prevents hyper-fast phones from instantly walking into exit portals before collisions load!
+   // 🛑 SPAWN LOCK: Prevents hyper-fast phones from instantly walking into exit portals before collisions load!
    let isSpawning = (Date.now() - (window.mapLoadTimestamp || 0) < 1500);
 
-   // ðŸ›‘ PARTY WAIT FIX: Allow movement while waiting on the portal! Only lock when the black loading screen drops.
+   // 🛑 PARTY WAIT FIX: Allow movement while waiting on the portal! Only lock when the black loading screen drops.
    let canInputMove = (!isChatting && !window.isTransitioning && !window.isLoading && !window.isDungeonUIOpen && !isFrozen && !isSpawning);
     
     if (game.isGhost) {
@@ -1264,7 +1264,7 @@ function gameLoop(ts) {
         else { let anyAlive = game.party.members.some(m => !m.isGhost && m.id !== game.player.id); if (!anyAlive) canInputMove = false; }
     }
 
-    // ðŸ›¡ï¸ ANTI-TUNNEL: Calculate desired velocity BEFORE applying it
+    // 🛡️ ANTI-TUNNEL: Calculate desired velocity BEFORE applying it
     let velX = 0, velY = 0;
     if (canInputMove) {
         if (game.keys.w) { velY -= moveSpeed; isMoving = true; }
@@ -1279,7 +1279,7 @@ function gameLoop(ts) {
             game.player.x += velX;
             game.player.y += velY;
         } else if (typeof window._moveWithCollision === 'function') {
-            // ðŸš€ THE NEW ANTI-TUNNEL MOVEMENT ENGINE
+            // 🚀 THE NEW ANTI-TUNNEL MOVEMENT ENGINE
             window._moveWithCollision(velX, velY);
         } else {
             // Fallback: old-style check (should never happen)
@@ -1301,7 +1301,7 @@ function gameLoop(ts) {
             let targetMob = Object.values(game.monsters).find(m => {
                 if (!m.alive) return false;
                 let mEl = document.getElementById('mob_' + m.id);
-                if (mEl && mEl.style.opacity === '0') return false; // ðŸ›¡ï¸ THE FOG FIX: Pets won't attack the dark
+                if (mEl && mEl.style.opacity === '0') return false; // 🛡️ THE FOG FIX: Pets won't attack the dark
                 return Math.hypot(m.x-p.x, m.y-p.y) < 300;
             });
             let targetPlayer = null;
@@ -1310,7 +1310,7 @@ function gameLoop(ts) {
             if (!targetMob && safeMapData.id === 'neutralzone') {
                 targetPlayer = Object.values(game.remotePlayers).find(rp => {
                     if (rp.isGhost) return false;
-                    if (rp.dom && rp.dom.style.opacity === '0') return false; // ðŸ›¡ï¸ THE FOG FIX
+                    if (rp.dom && rp.dom.style.opacity === '0') return false; // 🛡️ THE FOG FIX
                     if (game.party && game.party.members && game.party.members.some(pm => pm.id === rp.id)) return false;
                     return Math.hypot(rp.x - p.x, rp.y - p.y) < 300;
                 });
@@ -1325,7 +1325,7 @@ function gameLoop(ts) {
             p.x += (targetX - p.x) * 0.15;
             p.y += (targetY - p.y) * 0.15;
 
-            // ðŸ›‘ THE FIX: Stop shooting if the player is a ghost!
+            // 🛑 THE FIX: Stop shooting if the player is a ghost!
             if (game.isGhost) return;
 
             if (finalTarget) {
@@ -2442,7 +2442,7 @@ window.triggerBossBGM = function(monster) {
     window.bossBgmTimeout = setTimeout(window.revertBGM, 10000); 
 };
 // ==========================================
-// ðŸŽ¨ UNIVERSAL CUSTOM PROMPT ENGINE
+// 🎨 UNIVERSAL CUSTOM PROMPT ENGINE
 // ==========================================
 window.customPrompt = function(message, callback) {
     const modal = document.getElementById('custom-prompt-modal');
@@ -2459,7 +2459,7 @@ window.customPrompt = function(message, callback) {
     modal.style.display = 'flex';
     inputEl.focus();
 
-    // ðŸ›¡ï¸ THE UI LAYER FIX: Force the prompt to the absolute front so movable windows don't cover it!
+    // 🛡️ THE UI LAYER FIX: Force the prompt to the absolute front so movable windows don't cover it!
     if (typeof window.bringWindowToFront === 'function') {
         window.bringWindowToFront(modal);
     }
@@ -2499,7 +2499,7 @@ window.customPrompt = function(message, callback) {
     };
 };
 // ==========================================
-// ðŸŽµ GLOBAL AUDIO & VOLUME ENGINE
+// 🎵 GLOBAL AUDIO & VOLUME ENGINE
 // ==========================================
 // 1. Load saved volume, safeguard against old "50" values instead of "0.5"
 window.gameVolume = localStorage.getItem('exonie_bgm_vol') !== null ? parseFloat(localStorage.getItem('exonie_bgm_vol')) : 0.5;
@@ -2540,7 +2540,7 @@ document.addEventListener('input', (e) => {
         
         if (window.currentBGM) window.currentBGM.volume = newVol;
         
-        // ðŸ”Š MASTER VOLUME FIX: Also push volume to ALL cached SFX pool audio objects
+        // 🔊 MASTER VOLUME FIX: Also push volume to ALL cached SFX pool audio objects
         if (window._sfxPool) {
             Object.keys(window._sfxPool).forEach(key => {
                 let pool = window._sfxPool[key];
@@ -2550,14 +2550,14 @@ document.addEventListener('input', (e) => {
     }
 });
 
-// ðŸ§­ MASTER MUSIC ROUTER: Decides which song to play based on Map ID
+// 🧭 MASTER MUSIC ROUTER: Decides which song to play based on Map ID
 window.routeMapMusic = function(mapId) {
     if (!mapId) return 'town';
     let mId = String(mapId).toLowerCase();
 
     // 1. Hardcoded Exceptions
-    if (mId.includes('dungeon2')) return 'bossfight2'; // ðŸŽµ DUNGEON 2 UNIQUE BGM
-    if (mId === 'event_cave') return 'bossfight'; // ðŸŽ‰ EVENT CAVE BGM
+    if (mId.includes('dungeon2')) return 'bossfight2'; // 🎵 DUNGEON 2 UNIQUE BGM
+    if (mId === 'event_cave') return 'bossfight'; // 🎉 EVENT CAVE BGM
     if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon')) return 'bossfight';
     if (mId.includes('floor')) return 'floors';
     if (mId.includes('home')) return 'home'; 
@@ -2594,7 +2594,7 @@ window.playBGM = function(trackName) {
     newAudio.loop = true;
     newAudio.volume = window.gameVolume; 
     
-    // ðŸš¨ THE DYNAMIC FALLBACK: If the map's custom .mp3 is missing, default to Town!
+    // 🚨 THE DYNAMIC FALLBACK: If the map's custom .mp3 is missing, default to Town!
     newAudio.onerror = function() {
         if (trackName !== 'town') {
             console.warn(`[AUDIO] Missing file ${finalUrl}. Falling back to town.mp3!`);
@@ -2610,7 +2610,7 @@ window.playBGM = function(trackName) {
     });
 };
 window.lastSFXTime = 0;
-// ðŸš€ AUDIO POOL: Reuses 3 Audio objects per sound instead of creating new ones every attack
+// 🚀 AUDIO POOL: Reuses 3 Audio objects per sound instead of creating new ones every attack
 window._sfxPool = {};
 window._getSFX = function(name) {
     if (!window._sfxPool[name]) {
@@ -2629,7 +2629,7 @@ window._getSFX = function(name) {
     return audio;
 };
 window.playSFX = function(weaponSprite) { 
-    // ðŸ›¡ï¸ STRICT AUDIO FIX: Prevent sound overlap without touching combat logic
+    // 🛡️ STRICT AUDIO FIX: Prevent sound overlap without touching combat logic
     let now = Date.now();
     if (now - window.lastSFXTime < 400) return; 
     window.lastSFXTime = now;
@@ -2664,13 +2664,13 @@ window.sanitizeEquippedItem = function(item, expectedSlot) {
 
     const clean = JSON.parse(JSON.stringify(item));
 
-    // ðŸ›¡ï¸ REMOVED: The frontend MAX_ENHANCE clamp is gone. It just reads whatever the item has.
+    // 🛡️ REMOVED: The frontend MAX_ENHANCE clamp is gone. It just reads whatever the item has.
     clean.enhanceLevel = Number(clean.enhanceLevel || 0);
 
     if (!clean.fixedStat || typeof clean.fixedStat !== 'object') clean.fixedStat = {};
     if (!clean.randomStat || typeof clean.randomStat !== 'object') clean.randomStat = {};
 
-    // ðŸ›¡ï¸ THE MIGRATION FIX: Client-side stat conversion
+    // 🛡️ THE MIGRATION FIX: Client-side stat conversion
     if (clean.stats) {
         const statMap = { atk: 'attack', matk: 'magic', def: 'defense', spd: 'speed', hp: 'hp', int: 'int', str: 'str' };
         for (let oldKey in statMap) {
@@ -2706,7 +2706,7 @@ window.getTotalStat = function(statName) {
         if (typeof eq.randomStat[statName] === 'number') base += eq.randomStat[statName];
     });
 
-    // ðŸ›¡ï¸ TERMINOLOGY SYNC: Apply Class Passives to Frontend UI
+    // 🛡️ TERMINOLOGY SYNC: Apply Class Passives to Frontend UI
     const pClass = game.player.baseStats.playerClass;
 
     // Berserker: Bulk Up! (Lv.25+) -> +25% Base HP and Defense
@@ -2719,7 +2719,7 @@ window.getTotalStat = function(statName) {
         base += Math.floor((Number(game.player.baseStats.attack) || 0) * 0.25);
     }
 
-    // ðŸ›¡ï¸ DYNAMIC UI GUILD BOOST: Applies +2% per level to ALL frontend stats instantly!
+    // 🛡️ DYNAMIC UI GUILD BOOST: Applies +2% per level to ALL frontend stats instantly!
     if (game.player && game.player.guild_details && game.player.guild_details.level > 0) {
         base += Math.floor(base * (game.player.guild_details.level * 0.02));
     }
@@ -2729,7 +2729,7 @@ window.getTotalStat = function(statName) {
 window.getAttackPower = function() { return window.getTotalStat('attack') + Math.floor(window.getTotalStat('str') / 2); }; 
 window.getMagicAttack = function() { return window.getTotalStat('magic') + Math.floor(window.getTotalStat('int') / 2); }; 
 window.getMaxHp = function() { return window.getTotalStat('hp'); }; 
-// ðŸ›¡ï¸ RESTORED & SECURED: Visual Sync Poke for Party UI
+// 🛡️ RESTORED & SECURED: Visual Sync Poke for Party UI
 window.emitVitalsIfNeeded = function(force = false) {
     if (!game.player || !socket) return;
     
@@ -2752,7 +2752,7 @@ window.getBaseStat = function(lvl) { if (lvl >= 50) { let extraTicks = Math.floo
 window.addLoot = function(item) {
     if (!item) return;
 
-    // ðŸ›¡ï¸ YOUR LOOT FILTER STAYS HERE: Checks the UI boxes first!
+    // 🛡️ YOUR LOOT FILTER STAYS HERE: Checks the UI boxes first!
     if (!window.acceptsLootRarity(item)) {
         if (dom.log) dom.log.innerText = `Ignored ${item.rarity || 'Basic'} drop: ${item.name}`;
         return;
@@ -2768,7 +2768,7 @@ window.addLoot = function(item) {
             dom.log.innerText = `Looted: ${item.name} (x${game.player.inventory[existingIndex].quantity})!`;
             if (isInventoryOpen) window.renderInventory();
             
-            // ðŸ›¡ï¸ THE FIX: Removed the hardcoded rarity block. If the filter allowed it, SAVE IT.
+            // 🛡️ THE FIX: Removed the hardcoded rarity block. If the filter allowed it, SAVE IT.
             DatabaseManager.savePlayerData(game.player);
             return;
         }
@@ -2781,7 +2781,7 @@ window.addLoot = function(item) {
         dom.log.innerText = `Looted: ${item.name}!`;
         if (isInventoryOpen) window.renderInventory();
         
-        // ðŸ›¡ï¸ THE FIX: Removed the hardcoded rarity block. If the filter allowed it, SAVE IT.
+        // 🛡️ THE FIX: Removed the hardcoded rarity block. If the filter allowed it, SAVE IT.
         DatabaseManager.savePlayerData(game.player);
     } else {
         dom.log.innerText = `Inventory full! Lost ${item.name}.`;
@@ -2793,12 +2793,12 @@ window.getItemTooltip = function(item) {
     let nameClass = item.rarity === "Godly" ? "rarity-godly" : (item.rarity === "Divine" ? "rarity-divine-text" : "");
     let html = `<strong class="${nameClass}" style="color:${item.color}; font-size: 13px;">${item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name}</strong><br><span style="color:#888;">Lv. ${item.level || 1} ${item.rarity || 'Normal'}</span><br>`; 
     
-   // ðŸ’° SELL PRICE DISPLAY (For Gold Bars and high-value loot)
+   // 💰 SELL PRICE DISPLAY (For Gold Bars and high-value loot)
     if (item.sellPrice) {
         html += `<span style="color:#FFD700; font-weight:bold; font-size:14px; text-shadow: 0 0 5px rgba(255,215,0,0.5);">Value: ${item.sellPrice.toLocaleString()} Gold</span><br>`;
     }
 
-    // ðŸ›¡ï¸ Trade/Untradeable tags
+    // 🛡️ Trade/Untradeable tags
     if ((item.rarity === 'Godly' || item.rarity === 'Divine') && item.enhanceLevel > 0) {
         html += `<span style="color:#f44336; font-size:11px; font-weight:bold; letter-spacing:1px;">[UNTRADEABLE]</span><br>`;
     } else if (item.type === 'aura' && (item.isSeasonal || String(item.name).includes('Easter'))) {
@@ -2831,7 +2831,7 @@ if(item.type === 'gem') return html + `<span style="color:#00ffff;"><em>${item.d
     }
     if(item.type === 'consumable') return html + `<span style="color:#ffeb3b;"><em>${item.description}</em></span>`;
 
-    // ðŸ’Ž THE FIX: Visual indicator for Power Gem Sockets
+    // 💎 THE FIX: Visual indicator for Power Gem Sockets
     if (['necklace', 'ring', 'earrings'].includes(item.type)) {
         let maxGems = { "Basic": 1, "Rare": 1, "Unique": 2, "Legendary": 3, "Godly": 4, "Divine": 5 }[item.rarity] || 0;
         if (maxGems > 0) {
@@ -2929,7 +2929,7 @@ window.renderInventory = function() {
     for (let i = 0; i < inv.length; i++) {
         const slot = document.createElement('div'); slot.className = 'inv-slot'; const item = inv[i];
         
-        // ðŸŽ’ MAKE SLOT DRAGGABLE AND DROPPABLE
+        // 🎒 MAKE SLOT DRAGGABLE AND DROPPABLE
         slot.draggable = true;
         slot.ondragstart = (e) => { e.dataTransfer.setData('text/plain', i); };
         slot.ondragover = (e) => { e.preventDefault(); };
@@ -2942,7 +2942,7 @@ window.renderInventory = function() {
             else if (window.isStorageOpen) { 
                 slot.style.border = "1px dashed #E040FB"; 
                 slot.onclick = () => { if(socket) socket.emit('transferToStorage', i); }; 
-            } // ðŸ§° ADDED THIS BLOCK FOR STORAGE
+            } // 🧰 ADDED THIS BLOCK FOR STORAGE
             else if (window.isApplyingAura) {
                 slot.style.border = "1px dashed #00ffff"; 
                 slot.onclick = (e) => {
@@ -2954,7 +2954,7 @@ window.renderInventory = function() {
                 slot.style.border = "1px dashed #E040FB";
                 slot.onclick = (e) => window.openForgerStatSelect(i, e);
             }
-            // ðŸ¾ MINION: Select weapon target
+            // 🐾 MINION: Select weapon target
             else if (window.isApplyingMinion) {
                 slot.style.border = "1px dashed #FFD700";
                 slot.onclick = (e) => {
@@ -2964,7 +2964,7 @@ window.renderInventory = function() {
                     window.renderInventory();
                 };
             }
-            // ðŸŽ“ SKILL TREAT: Select minion target
+            // 🎓 SKILL TREAT: Select minion target
             else if (window.isApplyingSkillTreat) {
                 slot.style.border = "1px dashed #E040FB";
                 slot.onclick = (e) => {
@@ -2978,7 +2978,7 @@ window.renderInventory = function() {
                 slot.style.borderBottom = `3px solid ${item.color || '#fff'}`; 
                 slot.onclick = (e) => {
                 // --- LINES AFTER ---
-                    // ðŸ”— SHIFT+CLICK TO LINK ITEM
+                    // 🔗 SHIFT+CLICK TO LINK ITEM
                     if (e.shiftKey) {
                         window.linkItemToChat(i);
                     } else {
@@ -3122,25 +3122,25 @@ window.actionEquip = function(e) {
         dom.log.innerText = `Select an Accessory (Necklace, Ring, Earrings) to socket the gem!`;
         window.renderInventory();
     
-    // ðŸŒŸ THE FIX: Intercept the Forger and turn on the selection mode!
+    // 🌟 THE FIX: Intercept the Forger and turn on the selection mode!
     } else if (item.type === 'forger') {
         window.isApplyingForger = true;
         dom.log.innerText = `Select an equipment piece to reroll its stats!`;
         window.renderInventory();
         
-    // ðŸ¾ MINION: Enter weapon-selection mode
+    // 🐾 MINION: Enter weapon-selection mode
     } else if (item.type === 'minion') {
         window.isApplyingMinion = true;
         dom.log.innerText = `Select a Weapon to apply the Minion!`;
         window.renderInventory();
 
-    // ðŸŽ“ SKILL TREAT: Enter minion-selection mode
+    // 🎓 SKILL TREAT: Enter minion-selection mode
     } else if (item.type === 'skilltreat') {
         window.isApplyingSkillTreat = true;
         dom.log.innerText = `Select a Minion item to teach it this skill!`;
         window.renderInventory();
 
-    // ðŸ¾ COMPANION TOKEN: Activate to recruit companion
+    // 🐾 COMPANION TOKEN: Activate to recruit companion
     } else if (item.type === 'companion_token') {
         if (socket) socket.emit('activateCompanionToken', { inventoryIndex: activeInvIndex });
 
@@ -3202,7 +3202,7 @@ window.actionThrow = function(e) {
     activeInvIndex = -1;
 }
 
-// ðŸ›¡ï¸ THE CRISP INVENTORY FIX: Move logic to server
+// 🛡️ THE CRISP INVENTORY FIX: Move logic to server
 window.unequipItem = function(slot) {
     if (!game.player.equips || !game.player.equips[slot]) return;
 
@@ -3238,7 +3238,7 @@ window.useItem = function(index) {
     const item = game.player.inventory[index];
     if (!item) return;
 
-    // ðŸ›¡ï¸ THE FIX: Block ghosts from using items (except Revival Juice!)
+    // 🛡️ THE FIX: Block ghosts from using items (except Revival Juice!)
     if (game.isGhost && item.name !== "Revival Juice") {
         if (dom.log) dom.log.innerText = "You cannot use items while dead!";
         return;
@@ -3264,8 +3264,8 @@ window.useItem = function(index) {
     window.potionCooldownReadyAt = Date.now() + 5000;
     if (typeof window.updateHotbarCooldowns === 'function') window.updateHotbarCooldowns();
 
-    // ðŸŒŸ OPTIMISTIC UI: heal locally too, so maze HP bar moves instantly
-    // ðŸ›¡ï¸ CORRUPTION FIX: Hardcode 100 here as well!
+    // 🌟 OPTIMISTIC UI: heal locally too, so maze HP bar moves instantly
+    // 🛡️ CORRUPTION FIX: Hardcode 100 here as well!
     const healAmount = 100;
     const trueMaxHp = window.getMaxHp() || 100;
     game.player.currentHp = Math.min(trueMaxHp, (game.player.currentHp || 0) + healAmount);
@@ -3278,8 +3278,8 @@ window.useItem = function(index) {
     if (typeof isInventoryOpen !== 'undefined' && isInventoryOpen && typeof window.renderInventory === 'function') window.renderInventory();
 }
 
-    // ðŸ›¡ï¸ THE FIX: Let the server handle ALL usable items instantly!
-   // ðŸ›¡ï¸ THE FIX: Let the server handle ALL usable items instantly!
+    // 🛡️ THE FIX: Let the server handle ALL usable items instantly!
+   // 🛡️ THE FIX: Let the server handle ALL usable items instantly!
     if (['potion', 'consumable', 'weapon', 'armor', 'leggings', 'necklace', 'ring', 'earrings'].includes(item.type)) {
         if (item.name === "Revival Juice") {
             window.useRevivalJuice(index);
@@ -3344,7 +3344,7 @@ window.attemptEnhance = function(targetIndex, e) {
         isEnhancing = false; window.renderInventory(); return; 
     } 
     
-    // ðŸ›¡ï¸ THE FIX: Divine Enhancement Stones ignore the level check!
+    // 🛡️ THE FIX: Divine Enhancement Stones ignore the level check!
     let isDivineMatch = (stone.rarity === 'Divine' && targetItem.rarity === 'Divine' && stone.name === 'Divine Enhancement Stone');
     let isNormalMatch = (stone.rarity === targetItem.rarity && stone.level === targetItem.level && stone.name !== 'Divine Enhancement Stone');
     
@@ -3359,7 +3359,7 @@ window.attemptEnhance = function(targetIndex, e) {
 }
 window.updateEquipmentDisplay = function() { 
     try { 
-        // ðŸ›¡ï¸ DYNAMIC SPRITE FIX: Force weapon sprite to match rarity perfectly!
+        // 🛡️ DYNAMIC SPRITE FIX: Force weapon sprite to match rarity perfectly!
         if (game.player.equips?.weapon?.sprite && game.player.equips?.weapon?.rarity) {
             let w = game.player.equips.weapon;
             let baseType = 'sword';
@@ -3368,12 +3368,12 @@ window.updateEquipmentDisplay = function() {
             else if (rawLower.includes('pendant')) baseType = 'pendant';
             else if (rawLower.includes('gun')) baseType = 'gun';
             else if (rawLower.includes('dagger')) baseType = 'dagger';
-            else if (rawLower.includes('touchpad')) baseType = 'touchpad'; // ðŸ’» ADDED TOUCHPAD
+            else if (rawLower.includes('touchpad')) baseType = 'touchpad'; // 💻 ADDED TOUCHPAD
             
             let rarityStr = String(w.rarity).toLowerCase();
             if (rarityStr === 'starter') rarityStr = 'basic';
             
-            w.sprite = `${rarityStr}${baseType}`; // ðŸ›¡ï¸ FIX: Forces 'divinesword', 'godlygun', etc.
+            w.sprite = `${rarityStr}${baseType}`; // 🛡️ FIX: Forces 'divinesword', 'godlygun', etc.
         }
 
         const buildDisplayStr = (item) => item ? (item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name) : 'None';
@@ -3411,7 +3411,7 @@ window.updateUI = function() {
             window.renderPartyUI(); 
         }
     } 
-    // ðŸ† THE FIX: Keep the rank aura active every time the UI refreshes
+    // 🏆 THE FIX: Keep the rank aura active every time the UI refreshes
     if (typeof window.updateNameplateRanks === 'function') window.updateNameplateRanks();
 }
 window.updatePotionHotbar = function() {
@@ -3449,7 +3449,7 @@ window.checkLevelUp = function() { if(game.player.level >= 150) return; while(ga
 // 6. ADMIN & MAP TOOLS
 // ==========================================
 window.buildCollisionLayers = function() { const layer = document.getElementById('collision-layers'); if (!layer) return; layer.innerHTML = ''; const cols = safeMapData.collisions || []; cols.forEach(box => { const div = document.createElement('div'); div.className = 'collision-box'; div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px'; layer.appendChild(div); }); const tps = safeMapData.teleports || []; tps.forEach(box => { const div = document.createElement('div'); div.className = 'collision-box portal-zone'; div.setAttribute('data-portal-id', box.portalId || ''); div.style.left = box.x + 'px'; div.style.top = box.y + 'px'; div.style.width = box.w + 'px'; div.style.height = box.h + 'px';
-    // ðŸŒ€ PORTAL FLUID ANIMATION LAYERS (Invisible until player proximity triggers portal-active)
+    // 🌀 PORTAL FLUID ANIMATION LAYERS (Invisible until player proximity triggers portal-active)
     let pFluid = document.createElement('div'); pFluid.className = 'portal-fluid'; div.appendChild(pFluid);
     let pInner = document.createElement('div'); pInner.className = 'portal-fluid-inner'; div.appendChild(pInner);
     let pShimmer = document.createElement('div'); pShimmer.className = 'portal-shimmer'; div.appendChild(pShimmer);
@@ -3497,7 +3497,7 @@ dom.world.addEventListener('mousedown', (e) => {
         return; 
     } 
 
-    // ðŸŒŸ Z / X / C MONSTER SPAWNERS ðŸŒŸ
+    // 🌟 Z / X / C MONSTER SPAWNERS 🌟
     if (e.button === 0 && (game.keys.z || game.keys.x || game.keys.c)) {
         const mKey = document.getElementById('admin-monster-key').value;
         const mLvl = parseInt(document.getElementById('admin-monster-level').value) || 5;
@@ -3627,7 +3627,7 @@ window.copyAdminData = function() { let mapId = safeMapData.id || 'town'; let va
 window.adminSetPlayerLevel = function() { 
     let newLvl = parseInt(document.getElementById('admin-player-level').value) || 1; 
     
-    // ðŸ›¡ï¸ THE FIX: Send the request to the server. The server verifies if you are Kei!
+    // 🛡️ THE FIX: Send the request to the server. The server verifies if you are Kei!
     if (socket) socket.emit('adminSetLevel', newLvl);
 }
 window.adminGiveCustomItem = function() { 
@@ -3636,16 +3636,16 @@ window.adminGiveCustomItem = function() {
     let l = parseInt(document.getElementById('admin-item-level').value) || 1; 
     let e = parseInt(document.getElementById('admin-item-enhance').value) || 0; 
     
-    // ðŸ›¡ï¸ THE FIX: Request the item from the server so it gets validated and saved!
+    // 🛡️ THE FIX: Request the item from the server so it gets validated and saved!
     if (socket) socket.emit('adminSpawnItem', { rarity: r, type: t, level: l, enhanceLevel: e }); 
 }
 
-// ðŸ¾ ADMIN: Spawn Golden Slime Minion
+// 🐾 ADMIN: Spawn Golden Slime Minion
 window.adminSpawnMinion = function() {
     if (socket) socket.emit('adminSpawnMinion');
 }
 
-// ðŸŽ“ ADMIN: Spawn Skill Treat
+// 🎓 ADMIN: Spawn Skill Treat
 window.adminSpawnSkillTreat = function() {
     let skillId = document.getElementById('admin-skilltreat-select').value;
     if (socket) socket.emit('adminSpawnSkillTreat', { skillId: skillId });
@@ -3666,7 +3666,7 @@ window.attemptLogin = function() {
     const p = document.getElementById('login-pass').value; 
     if (!u || !p) return; 
 
-    // ðŸ›¡ï¸ GENERATE OR FETCH DEVICE ID
+    // 🛡️ GENERATE OR FETCH DEVICE ID
     let deviceId = localStorage.getItem('exonie_device_id');
     if (!deviceId) {
         deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
@@ -3686,7 +3686,7 @@ window.attemptRegister = function() {
     const p = document.getElementById('reg-pass').value; 
     if (!u || !p) return; 
 
-    // ðŸ›¡ï¸ GENERATE OR FETCH DEVICE ID
+    // 🛡️ GENERATE OR FETCH DEVICE ID
     let deviceId = localStorage.getItem('exonie_device_id');
     if (!deviceId) {
         deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
@@ -3698,7 +3698,7 @@ window.attemptRegister = function() {
     document.getElementById('auth-screen').classList.remove('active'); 
     document.getElementById('loading-screen').style.display = 'flex'; 
     
-    // ðŸ›¡ï¸ THE FIX: Send the deviceId to the server!
+    // 🛡️ THE FIX: Send the deviceId to the server!
     if(socket) socket.emit('register', { username: u, password: p, deviceId: deviceId }); 
     
     window.playBGM('loginmenu'); 
@@ -3711,7 +3711,7 @@ window.enterGameWorld = function() {
     document.getElementById('loading-text').innerText = "Entering Exonie..."; 
     document.getElementById('loading-screen').style.display = 'flex'; 
     
-    // ðŸ›¡ï¸ UNLOCKS AUDIO: Bypasses the browser's autoplay block by linking to your click
+    // 🛡️ UNLOCKS AUDIO: Bypasses the browser's autoplay block by linking to your click
     let unlockAudio = new Audio(); 
     unlockAudio.play().catch(()=>{}); 
 
@@ -3780,16 +3780,16 @@ window.respondRaidInvite = function(accept) { if(document.activeElement) documen
 window.leaveRaid = function() { if(confirm('Are you sure you want to disband the Raid Team?')) { if(socket) socket.emit('leaveRaid'); } };
 window.requestTrade = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('tradeRequest', { targetId: activeTargetPlayerId }); dom.log.innerText = `Trade request sent to ${activeTargetPlayerId}.`; }; 
 window.closeInspect = function() { dom.inspect.style.display = 'none'; };
-// ðŸ›¡ï¸ FIX #6: leaveParty just emits to server and resets UI. Server's forceTeleport handles the map change.
+// 🛡️ FIX #6: leaveParty just emits to server and resets UI. Server's forceTeleport handles the map change.
 window.leaveParty = function() { if(socket) socket.emit('leaveParty'); dom.partyPanel.style.display = 'none'; dom.partyMembers.innerHTML = ''; game.party = null; dom.log.innerText = "You left the party. Returning to town..."; }; /* OLD DUPLICATE MAP LOAD REMOVED €” server forceTeleport handles it */
 window._leavePartyLegacy = function() { /* DISABLED €” kept for reference */ if (safeMapData.id !== 'town') { const transScreen = document.getElementById('map-transition'); document.getElementById('transition-text').innerText = `Entering town...`; transScreen.style.display = 'flex'; setTimeout(() => { transScreen.style.opacity = '1'; }, 10); game.player.teleportCooldown = 4000; setTimeout(() => { window.loadMapScript('town', () => { safeMapData = window.MapDatabase['town']; game.player.x = safeMapData.spawnX || 960; game.player.y = safeMapData.spawnY || 1000; window.preloadMapAssets(safeMapData, () => { dom.world.style.backgroundImage = `url('${safeMapData.image}')`; window.buildCollisionLayers(); window.cleanupMap(); 
 if(socket) socket.emit('playerTeleported', { mapId: 'town', x: game.player.x, y: game.player.y, mapData: safeMapData });
                         
-                        let isGrouped = false; // ðŸ›‘ DISABLED PARTY WAITING
+                        let isGrouped = false; // 🛑 DISABLED PARTY WAITING
                         document.getElementById('transition-text').innerText = isGrouped ? "Waiting for team to load..." : "Loading Map...";
                         if(socket) socket.emit('clientFinishedLoadingMap');
 
-                        // ðŸ›¡ï¸ INDESTRUCTIBLE FAIL-SAFE: Drops the screen automatically!
+                        // 🛡️ INDESTRUCTIBLE FAIL-SAFE: Drops the screen automatically!
                         setTimeout(() => {
                             if (!isGrouped || window.isLoading) {
                                 window.isLoading = false; window.isTransitioning = false; game.player.isTeleporting = false;
@@ -3808,13 +3808,13 @@ window.addTradeItem = function(invIndex) {
     const item = game.player.inventory[invIndex]; 
     if (!item) return; 
     
-    // ðŸ° THE FIX: Allow Seasonal cosmetics/pets to bypass the trade lock!
+    // 🐰 THE FIX: Allow Seasonal cosmetics/pets to bypass the trade lock!
     if (item.type === 'aura' && !item.isSeasonal && !String(item.name).includes('Easter')) { 
         dom.log.innerText = "Normal cosmetics and pets cannot be traded!"; 
         return; 
     }
     
-    // ðŸ›¡ï¸ THE FIX: Prevent adding bound gear to trade window
+    // 🛡️ THE FIX: Prevent adding bound gear to trade window
     if ((item.rarity === 'Godly' || item.rarity === 'Divine') && item.enhanceLevel > 0) {
         dom.log.innerText = "Enhanced Godly and Divine gear cannot be traded!"; return;
     }
@@ -3889,8 +3889,8 @@ const chatInputDom = document.getElementById('chat-input'); const chatContainerD
 chatInputDom.addEventListener('blur', () => { isChatting = false; chatContainerDom.style.display = 'none'; });
 
 window.addEventListener('keydown', (e) => {
-    // ðŸ›¡ï¸ THE FIX: If the player is typing in a box, let them type!
-    // ðŸ’¬ CHAT FIX: Do NOT block the 'Enter' key, otherwise chat breaks!
+    // 🛡️ THE FIX: If the player is typing in a box, let them type!
+    // 💬 CHAT FIX: Do NOT block the 'Enter' key, otherwise chat breaks!
     if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
         if (e.key !== 'Enter' && e.key !== 'Escape') return; 
     }
@@ -3904,7 +3904,7 @@ window.addEventListener('keydown', (e) => {
                     if (window.adminMode && msg.startsWith('/a ')) { 
                         socket.emit('adminBroadcast', { text: msg.substring(3) }); 
                     } else { 
-                        // ðŸ›¡ï¸ Standard Chat (Server will automatically route this to party chat box if you are in a party!)
+                        // 🛡️ Standard Chat (Server will automatically route this to party chat box if you are in a party!)
                         if (activeChatTab === 'world') {
                             socket.emit('worldChatMessage', { text: msg });
                         } else {
@@ -3934,7 +3934,7 @@ function setKeyState(e, isDown) {
     if (isDown) { 
         if (key === 'p' && typeof window.toggleStats === 'function') window.toggleStats(); 
         if (key === 'l') window.toggleLeaderboard();
-        // ðŸ›¡ï¸ INVENTORY KEY
+        // 🛡️ INVENTORY KEY
         if (key === 'i' && typeof window.toggleInventory === 'function') window.toggleInventory(); 
         if (key === 'k' && typeof window.toggleSkillScreen === 'function') window.toggleSkillScreen(); 
         if (key === 'j' && typeof window.openShop === 'function') window.openShop(); 
@@ -4031,7 +4031,7 @@ window.addRemotePlayer = function(pData) {
         // š”ï¸ NEUTRAL ZONE: Clicking a player attacks them!
         if (safeMapData.id === 'neutralzone') {
             if (!window.isLoading) {
-                // ðŸ›¡ï¸ THE FIX: Tell the game EXACTLY who we are trying to shoot before firing!
+                // 🛡️ THE FIX: Tell the game EXACTLY who we are trying to shoot before firing!
                 window.activeTargetPlayerId = pData.id; 
                 window.attemptAttack(false);
             }
@@ -4068,7 +4068,7 @@ window.addRemotePlayer = function(pData) {
     head.style.filter = skinFilters[skin] || skinFilters['flesh']; body.style.filter = skinFilters[skin] || skinFilters['flesh']; hair.style.filter = hairFilters[hairColor] || hairFilters['black'];
     weapon.style.display = 'none';
   const cAura = document.createElement('div'); cAura.className = 'cosmetic-aura';
-    // ðŸ›¡ï¸ REVERT: Only read the actual cosmetic aura, don't let weapons hijack it!
+    // 🛡️ REVERT: Only read the actual cosmetic aura, don't let weapons hijack it!
     if (pData.spriteData && pData.spriteData.aura) cAura.classList.add(`aura-${pData.spriteData.aura}`);
     rig.appendChild(cAura);
     hair.style.opacity = '1'; head.style.opacity = '1'; body.style.opacity = '1'; weapon.style.opacity = '1';
@@ -4082,7 +4082,7 @@ window.addRemotePlayer = function(pData) {
         weapon.src = `weapon/${fixedWpn}.png`; 
         game.remotePlayers[pData.id].currentWeaponSrc = weapon.src; 
         
-    // ðŸ›¡ï¸ DYNAMIC AURA FIX: Automatically supports ANY new rarity for other players!
+    // 🛡️ DYNAMIC AURA FIX: Automatically supports ANY new rarity for other players!
        weapon.className = 'avatar-layer layer-weapon';
        let rWpn = fixedWpn.toLowerCase();
        ['sword', 'staff', 'pendant', 'gun', 'dagger', 'touchpad'].forEach(bt => {
@@ -4095,7 +4095,7 @@ window.addRemotePlayer = function(pData) {
        });
     }
     
-    // ðŸŒŸ Refresh shines when someone new walks into the room!
+    // 🌟 Refresh shines when someone new walks into the room!
     window.updateNameplateRanks();
 };
 window.removeRemotePlayer = function(id) { const p = game.remotePlayers[id]; if (p && p.dom) p.dom.remove(); delete game.remotePlayers[id]; };
@@ -4109,7 +4109,7 @@ if(socket) {
         window.updateNameplateRanks();
     });
 
-    // ðŸ›¡ï¸ THE FIX: Global Formatter for Titles & Guilds (with White Border!)
+    // 🛡️ THE FIX: Global Formatter for Titles & Guilds (with White Border!)
     window.formatTitleAndGuild = function(title, guildName) {
         let tHtml = `<div style="text-align: center; width: 100%;">`;
         // DYNAMIC TITLE TIER: Color-code title based on prefix
@@ -4135,7 +4135,7 @@ if(socket) {
         }
     });
 
-    // ðŸ›¡ï¸ THE FIX: Instantly redraws your own nameplate when joining/leaving a guild!
+    // 🛡️ THE FIX: Instantly redraws your own nameplate when joining/leaving a guild!
     socket.on('updateLocalGuildTag', (gName) => {
         if (!game.player.spriteData) game.player.spriteData = {};
         game.player.spriteData.guildName = gName;
@@ -4154,16 +4154,16 @@ if(socket) {
             if(document.getElementById('player-name-tag')) document.getElementById('player-name-tag').innerHTML = myNameHtml; 
             if(document.getElementById('ui-name-display')) document.getElementById('ui-name-display').innerHTML = myNameHtml;
             
-         // ðŸ›¡ï¸ THE FIX: Tell the client to remember the title AND Guild sent from the database!
+         // 🛡️ THE FIX: Tell the client to remember the title AND Guild sent from the database!
             game.player.title = userData.title || null;
             if (!game.player.spriteData) game.player.spriteData = {};
             game.player.spriteData.title = userData.title || null;
             game.player.spriteData.guildName = userData.guild_details ? userData.guild_details.name : null;
 
-            // ðŸ›¡ï¸ THE MISSING LINK: We MUST save the actual guild object so the frontend stat math knows your guild level!
+            // 🛡️ THE MISSING LINK: We MUST save the actual guild object so the frontend stat math knows your guild level!
             game.player.guild_details = userData.guild_details || null;
 
-            // ðŸ›¡ï¸ APPLY TITLE & GUILD ON LOGIN
+            // 🛡️ APPLY TITLE & GUILD ON LOGIN
             if(document.getElementById('player-title-tag')) {
                 document.getElementById('player-title-tag').innerHTML = window.formatTitleAndGuild(game.player.spriteData.title, game.player.spriteData.guildName);
             }
@@ -4173,20 +4173,20 @@ if(socket) {
             game.player.maxExp = userData.max_exp || 200;
             game.player.gold = userData.gold || 0; 
             
-            // ðŸ›¡ï¸ THE MISSING LINK: Save the guild details to the client's RAM!
+            // 🛡️ THE MISSING LINK: Save the guild details to the client's RAM!
             game.player.guild_details = userData.guild_details || null;
 
             game.player.baseStats = (typeof userData.base_stats === 'object' && userData.base_stats !== null) ? userData.base_stats : { hp: 100, attack: 5, magic: 5, defense: 2, speed: 1, str: 10, int: 10, playerClass: null }; 
             
-            // ðŸ›¡ï¸ THE UI FIX: Accept the fully buffed stats from the server so the frontend matches!
+            // 🛡️ THE UI FIX: Accept the fully buffed stats from the server so the frontend matches!
             game.player.totalStats = userData.totalStats || game.player.baseStats;
 
             if (game.player.baseStats.playerClass && (!CLASSES || !CLASSES[game.player.baseStats.playerClass])) { game.player.baseStats.playerClass = null; }
             game.player.inventory = Array.isArray(userData.inventory) ? userData.inventory : new Array(20).fill(null);
-            // ðŸ›¡ï¸ THE FIX: Guarantee the client initializes all 6 equip slots on login
+            // 🛡️ THE FIX: Guarantee the client initializes all 6 equip slots on login
             const defaultEquips = { weapon: null, armor: null, leggings: null, necklace: null, ring: null, earrings: null };
             game.player.equips = Object.assign({}, defaultEquips, userData.equips || {});
-            // ðŸ¾ Load companions from database
+            // 🐾 Load companions from database
             game.player.companions = Array.isArray(userData.companions) ? userData.companions : [];
             window.charData.skinColor = userData.skin_color || 'flesh'; 
             window.charData.hairColor = userData.hair_color || 'black'; 
@@ -4242,7 +4242,7 @@ let targetMapId = 'town';
                         });
                     } catch (renderErr) { console.error("Render crash caught, bypassing:", renderErr); }
                     
-                   // ðŸ›¡ï¸ GUARANTEE THESE RUN EVEN IF THE UI CRASHES
+                   // 🛡️ GUARANTEE THESE RUN EVEN IF THE UI CRASHES
                     if (document.getElementById('loading-screen')) {
                             document.getElementById('loading-screen').style.display = 'none';
                         }
@@ -4251,7 +4251,7 @@ let targetMapId = 'town';
                         if (typeof window.spawnMinion === 'function') window.spawnMinion();
                         if (typeof window.spawnCompanionEntities === 'function') setTimeout(() => window.spawnCompanionEntities(), 1200);
 
-                        // ðŸ›¡ï¸ LOADING SCREEN SAFETY TIMEOUT: Force-remove after 15 seconds
+                        // 🛡️ LOADING SCREEN SAFETY TIMEOUT: Force-remove after 15 seconds
                         window.__loadSafetyTimer = setTimeout(() => {
                             const ls = document.getElementById('loading-screen');
                             if (ls && ls.style.display !== 'none') {
@@ -4264,27 +4264,27 @@ let targetMapId = 'town';
                         dom.game.classList.add('active');
                     game.isRunning = true;
                     
-                    // ðŸ›¡ï¸ THE FIX: Show the chat box ONLY when the game is fully loaded!
+                    // 🛡️ THE FIX: Show the chat box ONLY when the game is fully loaded!
                     const pChatBox = document.getElementById('persistent-chat-box');
                     if (pChatBox) pChatBox.style.display = 'flex';
 
-                    // ðŸ›¡ï¸ THE FIX: Kills any "Ghost Loops" from impatient double-clicking before starting!
+                    // 🛡️ THE FIX: Kills any "Ghost Loops" from impatient double-clicking before starting!
                     if (currentAnimationId) cancelAnimationFrame(currentAnimationId);
                     if (typeof gameLoop !== 'undefined') currentAnimationId = requestAnimationFrame(gameLoop);
 
-                    // ðŸŽ¥ TUTORIAL CHECK: Play video OR play normal BGM
+                    // 🎥 TUTORIAL CHECK: Play video OR play normal BGM
                     if (game.player.baseStats && !game.player.baseStats.watchedTutorial) {
                         window.playTutorialVideo(false); // false = non-skippable first login
                     } else {
                         // Make sure the game screen is already visible before showing Town UI + BGM
                         setTimeout(() => {
-                            // ðŸŽµ Fix: Use the router so login music is correct for Home/Guild
+                            // 🎵 Fix: Use the router so login music is correct for Home/Guild
                     window.playBGM(window.routeMapMusic(safeMapData.id));
                             try { window.showMapAnnouncement(safeMapData.id || 'town'); } catch(e) {}
                         }, 120);
                     }
 
-                    // ðŸ“§ ðŸ›¡ï¸ Check for mail contents immediately on login
+                    // 📧 🛡️ Check for mail contents immediately on login
                     socket.emit('getMail'); 
                     socket.emit('requestNews');  
                 });
@@ -4296,7 +4296,7 @@ socket.on('mailList', (mails) => {
         
         const unreadCount = (mails || []).length;
         
-        // ðŸ”” DYNAMIC NOTIFICATION BADGE
+        // 🔔 DYNAMIC NOTIFICATION BADGE
         let notifBadge = document.getElementById('global-mail-notif');
         if (!notifBadge) {
             notifBadge = document.createElement('div');
@@ -4381,7 +4381,7 @@ socket.on('mailList', (mails) => {
     socket.on('sellSuccess', (data) => { game.player.gold = data.newGold; game.player.inventory = data.inventory; dom.log.innerText = `Item sold for ${data.price} Gold.`; window.updateUI(); window.renderInventory(); });
     socket.on('syncInventory', (serverInventory) => { game.player.inventory = serverInventory; window.updateEquipmentDisplay(); window.renderInventory(); });
     
-    // ðŸ›¡ï¸ DYNAMIC GUILD SYNC: Updates your local player data the exact moment the guild levels up!
+    // 🛡️ DYNAMIC GUILD SYNC: Updates your local player data the exact moment the guild levels up!
     socket.on('syncGuildDetails', (details) => {
         if (game.player) {
             game.player.guild_details = details;
@@ -4390,7 +4390,7 @@ socket.on('mailList', (mails) => {
         }
     });
 
- // ðŸŒŸ THE FIX: The Brand New Listener so your Potions actually move the red bar!
+ // 🌟 THE FIX: The Brand New Listener so your Potions actually move the red bar!
     socket.on('playerVitals', (data) => {
         if (!data) return;
         if (typeof data.currentHp === 'number') game.player.currentHp = data.currentHp;
@@ -4433,7 +4433,7 @@ socket.on('mailList', (mails) => {
     });
     socket.on('needsCharacterCreation', (username) => { document.getElementById('loading-screen').style.display = 'none'; document.getElementById('char-name-input').value = username; document.getElementById('creation-screen').classList.add('active'); });
     socket.on('rareLootBroadcast', (data) => { 
-        // ðŸ›¡ï¸ THE FIX: Restrict Announcements
+        // 🛡️ THE FIX: Restrict Announcements
         let isMe = (data.playerName === game.player.name);
         let isInMyParty = game.party && game.party.members && game.party.members.some(m => m.name === data.playerName);
         let isDivine = (data.rarity === 'Divine');
@@ -4465,7 +4465,7 @@ socket.on('mailList', (mails) => {
         ann.className = 'loot-announcement'; 
         ann.style.borderColor = data.color || '#fff'; 
         ann.style.boxShadow = `0 0 20px ${data.color}`; 
-        // ðŸ›¡ï¸ THE FIX: Apply Divine Sparkle to the text AND the announcement box!
+        // 🛡️ THE FIX: Apply Divine Sparkle to the text AND the announcement box!
     let glowClass = data.rarity === 'Divine' ? 'rarity-divine-text' : (data.rarity === 'Godly' ? 'rarity-godly' : '');
     
     if (data.rarity === 'Divine') {
@@ -4478,16 +4478,16 @@ socket.on('mailList', (mails) => {
         
         ann.innerHTML = `<div style="color: #e0e0e0; font-size: 16px; margin-bottom: 5px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 2px 2px 4px #000;">${data.playerName} just got</div><div style="color: ${data.color}; font-size: 28px; font-weight: bold; -webkit-text-stroke: 1px black; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 15px ${data.color};" class="${glowClass}">${data.itemName} ${lvlText}</div>`; 
         
-        // ðŸŒŸ THE FIX: 'prepend' puts the newest drop at the very top instead of the bottom
+        // 🌟 THE FIX: 'prepend' puts the newest drop at the very top instead of the bottom
         container.prepend(ann);
 
-        // ðŸ—‘ï¸ THE FIX: Delete the element from the game after the 3-second animation finishes!
+        // 🗑️ THE FIX: Delete the element from the game after the 3-second animation finishes!
         setTimeout(() => {
             if (ann) ann.remove();
         }, 3000);
     });
    // ==========================================
-    // ðŸ“§ EMAIL UI HANDLING
+    // 📧 EMAIL UI HANDLING
     // ==========================================
     let pendingVerifyUsername = "";
 
@@ -4568,7 +4568,7 @@ socket.on('mailList', (mails) => {
     // Show the error message so the user actually sees it on the login screen
     window.customPrompt(msg, function(){});
     
-    // ðŸ›¡ï¸ THE FIX: Force the inputs to wake back up!
+    // 🛡️ THE FIX: Force the inputs to wake back up!
     document.getElementById('login-user').disabled = false;
     document.getElementById('login-pass').disabled = false;
     
@@ -4590,7 +4590,7 @@ socket.on('forcedLogout', (msg) => {
     socket.on('mapPlayersList', (players) => { for (const id in game.remotePlayers) window.removeRemotePlayer(id); (players || []).forEach(p => window.addRemotePlayer(p)); });
     socket.on('remotePlayerJoined', (p) => window.addRemotePlayer(p));
     socket.on('remotePlayerLeft', (id) => window.removeRemotePlayer(id));
-    // ðŸ›¡ï¸ DYNAMIC DEATH SCREEN LOGIC
+    // 🛡️ DYNAMIC DEATH SCREEN LOGIC
     window.renderDeathScreen = function(canRespawn) {
         const ds = document.getElementById('death-screen');
         if (!ds) return;
@@ -4639,8 +4639,8 @@ socket.on('forcedLogout', (msg) => {
             game.player.currentHp = 0;
             dom.playerContainer.style.opacity = '0.5';
             
-            // ðŸ›¡ï¸ THE FIX: Check locally if we are solo so the Return to Town button shows up instantly!
-            let isGrouped = false; // ðŸ›‘ DISABLED PARTY WAITING
+            // 🛡️ THE FIX: Check locally if we are solo so the Return to Town button shows up instantly!
+            let isGrouped = false; // 🛑 DISABLED PARTY WAITING
             window.renderDeathScreen(!isGrouped);
             window.updateUI();
         } else {
@@ -4651,10 +4651,10 @@ socket.on('forcedLogout', (msg) => {
         window.renderPartyUI(); 
     });
 
-   // ðŸŒŸ THE FIX: Wake the client up when the server says we revived!
+   // 🌟 THE FIX: Wake the client up when the server says we revived!
     socket.on('playerRevived', (data) => {
         if (data.id === game.player.id) {
-            game.isGhost = false; // ðŸ›‘ THIS WAS THE CULPRIT!
+            game.isGhost = false; // 🛑 THIS WAS THE CULPRIT!
             game.player.currentHp = data.currentHp;
             dom.playerContainer.style.opacity = '1';
             
@@ -4675,7 +4675,7 @@ socket.on('forcedLogout', (msg) => {
         game.player.inventory = data.inventory;
         game.player.currentHp = data.currentHp;
         
-        game.isGhost = false; // ðŸ›‘ Clear the local ghost lock!
+        game.isGhost = false; // 🛑 Clear the local ghost lock!
         dom.playerContainer.style.opacity = '1';
         
         const ds = document.getElementById('death-screen');
@@ -4691,7 +4691,7 @@ socket.on('forcedLogout', (msg) => {
         let formatted = '<span style="color:#ff9800;"><b>[W]</b> ' + data.id + ': ' + data.text + '</span>';
         window.addWorldChat(formatted);
     });
-    socket.on('friendsListUpdate', (friendsList) => { const container = document.getElementById('friends-list-container'); container.innerHTML = ''; if (!friendsList || friendsList.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Your friends list is empty.</p>'; return; } friendsList.forEach(f => { const row = document.createElement('div'); row.className = 'friend-row'; let lvlColor = f.online ? '#ffd700' : '#888'; let levelHtml = `<span style="color:${lvlColor}; font-size:12px; margin-left: 5px;">(Lv.${f.level})</span>`; let classFmt = f.pClass ? `<span style="color:#aaa; font-size:11px;">${f.pClass}</span>` : `<span style="color:#555; font-size:11px;">Novice</span>`; let mapFmt = f.online ? `<span style="color:#2196F3; font-size:11px;">[${f.mapId || 'Town'}]</span>` : ''; let spectateBtn = (window.isAdmin(game.player.name) && f.online) ? `<button class="dm-btn" style="background:#f44336; margin-bottom:5px;" onclick="window.startSpectate('${f.id}')">ðŸ‘ï¸ Spectate</button>` : ''; row.innerHTML = `<div class="friend-info" style="flex-direction:column; align-items:flex-start; gap:2px;"><div style="display:flex; align-items:center; gap:5px;"><div class="status-dot ${f.online ? 'online' : 'offline'}"></div>${f.id} ${levelHtml}</div><div style="margin-left: 17px; display:flex; gap: 8px;">${classFmt} ${mapFmt}</div></div><div style="display:flex; flex-direction:column;">${spectateBtn}<button class="dm-btn" onclick="window.promptDM('${f.id}')">DM</button></div>`; container.appendChild(row); }); });
+    socket.on('friendsListUpdate', (friendsList) => { const container = document.getElementById('friends-list-container'); container.innerHTML = ''; if (!friendsList || friendsList.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Your friends list is empty.</p>'; return; } friendsList.forEach(f => { const row = document.createElement('div'); row.className = 'friend-row'; let lvlColor = f.online ? '#ffd700' : '#888'; let levelHtml = `<span style="color:${lvlColor}; font-size:12px; margin-left: 5px;">(Lv.${f.level})</span>`; let classFmt = f.pClass ? `<span style="color:#aaa; font-size:11px;">${f.pClass}</span>` : `<span style="color:#555; font-size:11px;">Novice</span>`; let mapFmt = f.online ? `<span style="color:#2196F3; font-size:11px;">[${f.mapId || 'Town'}]</span>` : ''; let spectateBtn = (window.isAdmin(game.player.name) && f.online) ? `<button class="dm-btn" style="background:#f44336; margin-bottom:5px;" onclick="window.startSpectate('${f.id}')">👁️ Spectate</button>` : ''; row.innerHTML = `<div class="friend-info" style="flex-direction:column; align-items:flex-start; gap:2px;"><div style="display:flex; align-items:center; gap:5px;"><div class="status-dot ${f.online ? 'online' : 'offline'}"></div>${f.id} ${levelHtml}</div><div style="margin-left: 17px; display:flex; gap: 8px;">${classFmt} ${mapFmt}</div></div><div style="display:flex; flex-direction:column;">${spectateBtn}<button class="dm-btn" onclick="window.promptDM('${f.id}')">DM</button></div>`; container.appendChild(row); }); });
     socket.on('receiveDM', (data) => { 
         let formatted = `<span style="color:#E040FB;">[DM] ${data.from}: ${data.message}</span>`;
         window.addPersistentChat(formatted); dom.log.innerHTML = formatted; 
@@ -4702,7 +4702,7 @@ socket.on('forcedLogout', (msg) => {
         let formatted = `<span style="color:#ffeb3b;">[System] ${msg}</span>`;
         window.addPersistentChat(formatted); dom.log.innerHTML = formatted; 
 
-        // ðŸŒ WORLD CHAT MIRROR: If this is a world-level announcement, also show it in the World chat tab!
+        // 🌐 WORLD CHAT MIRROR: If this is a world-level announcement, also show it in the World chat tab!
         let msgUpper = String(msg).toUpperCase();
         let isWorldAnnouncement = (
             msgUpper.includes('[WORLD]') ||
@@ -4740,10 +4740,10 @@ socket.on('partyItemLink', (data) => {
         if (dom.log) dom.log.innerHTML = html;
     });
 socket.on('forceTeleport', (tp) => {
-    window.isTransitioning = true; // ðŸ›¡ï¸ NETWORK LOCK: Ignore old map data
+    window.isTransitioning = true; // 🛡️ NETWORK LOCK: Ignore old map data
     game.player.teleportCooldown = 2000; 
     game.player.isTeleporting = false;
-    // ðŸ›¡ï¸ THE FIX: This string locks the portal under their feet until they walk away!
+    // 🛡️ THE FIX: This string locks the portal under their feet until they walk away!
     game.player.currentPortal = 'JUST_SPAWNED'; 
     window.isDungeonUIOpen = false;
     if (document.getElementById('dungeon-timer-ui')) document.getElementById('dungeon-timer-ui').style.display = 'none';
@@ -4752,9 +4752,9 @@ socket.on('forceTeleport', (tp) => {
         safeMapData = window.MapDatabase[tp.mapId];
         safeMapData.id = tp.mapId;
 
-        // ðŸ›¡ï¸ THE FIX: We MUST preload the new map assets so the images download and the loading screen hides!
+        // 🛡️ THE FIX: We MUST preload the new map assets so the images download and the loading screen hides!
         window.preloadMapAssets(safeMapData, () => {
-            // ðŸ›¡ï¸ FIX #6: ALWAYS use the coordinates the server sent. Never snap to portal 1.
+            // 🛡️ FIX #6: ALWAYS use the coordinates the server sent. Never snap to portal 1.
             // This prevents Unstuck/Leave Party from teleporting to the wrong location.
             game.player.x = tp.x || 960;
             game.player.y = tp.y || 1000;
@@ -4762,7 +4762,7 @@ socket.on('forceTeleport', (tp) => {
             window.cleanupMap();
             dom.world.style.backgroundImage = `url('${safeMapData.image}')`;
             window.buildCollisionLayers();
-// ðŸŽµ DYNAMIC MUSIC SELECTOR: Routes music based on map type
+// 🎵 DYNAMIC MUSIC SELECTOR: Routes music based on map type
 let nextTrack = 'town'; // Default
 let mId = String(tp.mapId || tp.targetMapId || 'town').toLowerCase();
 
@@ -4771,18 +4771,18 @@ if (mId === 'trainingtavern' || mId === 'hauntedhouse' || mId.includes('dungeon'
 } else if (mId.includes('floor')) {
     nextTrack = 'floors';
 } else if (mId.includes('home')) {
-    nextTrack = 'home'; // ðŸ  Plays music/home.mp3
+    nextTrack = 'home'; // 🏠 Plays music/home.mp3
 } else if (mId === 'guildbase') {
-    nextTrack = 'guild'; // ðŸ° Plays music/guild.mp3
+    nextTrack = 'guild'; // 🏰 Plays music/guild.mp3
 } else if (mId === 'battlefield') {
     nextTrack = 'battlefield'; // š”ï¸ Plays music/battlefield.mp3
 }
 
-// ðŸŽµ Update Music using the new Router
+// 🎵 Update Music using the new Router
 window.playBGM(window.routeMapMusic ? window.routeMapMusic(tp.mapId) : nextTrack);
 window.showMapAnnouncement(tp.mapId);
 
-// ðŸ¾ MINION: Spawn or despawn based on new map
+// 🐾 MINION: Spawn or despawn based on new map
 if (typeof window.spawnMinion === 'function') {
     if (tp.mapId === 'town') {
         window.despawnMinion();
@@ -4790,7 +4790,7 @@ if (typeof window.spawnMinion === 'function') {
         setTimeout(() => window.spawnMinion(), 1000);
     }
 }
-// ðŸ¾ COMPANION: Spawn or despawn based on new map (same logic as minion)
+// 🐾 COMPANION: Spawn or despawn based on new map (same logic as minion)
 if (typeof window.spawnCompanionEntities === 'function') {
     if (tp.mapId === 'town') {
         window.despawnCompanionEntities();
@@ -4818,11 +4818,11 @@ if (tp.spectateTarget) {
     socket.emit('playerTeleported', { mapId: tp.mapId, x: game.player.x, y: game.player.y, mapData: safeMapData });
 }
 
-            let isGrouped = false; // ðŸ›‘ DISABLED PARTY WAITING
+            let isGrouped = false; // 🛑 DISABLED PARTY WAITING
             document.getElementById('loading-text').innerText = isGrouped ? "Waiting for team to load..." : "Loading Map...";
             if (socket) socket.emit('clientFinishedLoadingMap');
 
-            // ðŸ›¡ï¸ INDESTRUCTIBLE FAIL-SAFE: Drops the screen automatically!
+            // 🛡️ INDESTRUCTIBLE FAIL-SAFE: Drops the screen automatically!
             setTimeout(() => {
                 if (!isGrouped || window.isLoading) {
                     window.isLoading = false; window.isTransitioning = false; game.player.isTeleporting = false;
@@ -4834,11 +4834,11 @@ if (tp.spectateTarget) {
         });
     });
     
-    // ðŸ›¡ï¸ SYNC FIX: Master Listener to drop the curtain when the server says everyone is ready!
+    // 🛡️ SYNC FIX: Master Listener to drop the curtain when the server says everyone is ready!
     socket.on('releaseLoadingScreen', () => {
         window.isLoading = false;
         window.isTransitioning = false;
-        game.player.isTeleporting = false; // ðŸ›‘ UNLOCKS MOVEMENT!
+        game.player.isTeleporting = false; // 🛑 UNLOCKS MOVEMENT!
 
         const ls = document.getElementById('loading-screen');
         if (ls) ls.style.display = 'none';
@@ -4873,10 +4873,10 @@ if (tp.spectateTarget) {
     });
 
     socket.on('teleportApproved', (tp) => { 
-    window.isTransitioning = true; // ðŸ›¡ï¸ NETWORK LOCK: Ignore old map data
+    window.isTransitioning = true; // 🛡️ NETWORK LOCK: Ignore old map data
         let nextMapId = tp.targetMapId || 'town'; 
         
-        // ðŸŽ‰ EVENT PORTAL: Intercept event_cave to show Event UI
+        // 🎉 EVENT PORTAL: Intercept event_cave to show Event UI
         if (nextMapId === 'event_cave') {
             game.player.currentPortal = null;
             window.isEventUIOpen = true;
@@ -4885,13 +4885,13 @@ if (tp.spectateTarget) {
             return; // Stop standard teleport
         }
 
-        // ðŸ° NEW: Dungeon 1 Group Entry Logic
+        // 🏰 NEW: Dungeon 1 Group Entry Logic
         if (nextMapId === 'dungeon1') {
             game.player.currentPortal = null;
             window.isDungeonUIOpen = true;
             game.keys.w = false; game.keys.a = false; game.keys.s = false; game.keys.d = false;
 
-            // ðŸ“… Sync Dungeon UI Reset Check dynamically before showing entries
+            // 📅 Sync Dungeon UI Reset Check dynamically before showing entries
             const now = new Date();
             let dayOfWeek = now.getUTCDay();
             let daysSinceMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
@@ -4931,13 +4931,13 @@ if (tp.spectateTarget) {
         setTimeout(() => { 
             window.loadMapScript(nextMapId, () => { 
                 safeMapData = window.MapDatabase[nextMapId]; 
-                safeMapData.id = nextMapId; // ðŸ›¡ï¸ CRITICAL FIX: FORCES MAP ID TO UPDATE SO MONSTERS RENDER!
-                // ðŸ›¡ï¸ THE FIX: Lock the portal under the player's feet so they don't bounce back out!
+                safeMapData.id = nextMapId; // 🛡️ CRITICAL FIX: FORCES MAP ID TO UPDATE SO MONSTERS RENDER!
+                // 🛡️ THE FIX: Lock the portal under the player's feet so they don't bounce back out!
                 game.player.currentPortal = 'JUST_SPAWNED';
                 game.player.teleportCooldown = 4000;
                 
                 let targetId;
-                // ðŸ›¡ï¸ THE FIX: Skip pairing math if this is a fast-travel Maze Guide jump!
+                // 🛡️ THE FIX: Skip pairing math if this is a fast-travel Maze Guide jump!
                 if (tp.exactTarget) {
                     targetId = tp.portalId;
                 } else if (typeof tp.portalId === 'number') {
@@ -4958,18 +4958,18 @@ if (tp.spectateTarget) {
                     
               if(socket) socket.emit('playerTeleported', { mapId: nextMapId, x: game.player.x, y: game.player.y, mapData: safeMapData }); 
         
-        let isGrouped = false; // ðŸ›‘ DISABLED PARTY WAITING
+        let isGrouped = false; // 🛑 DISABLED PARTY WAITING
         document.getElementById('transition-text').innerText = isGrouped ? "Waiting for team to load..." : "Loading Map...";
         if (socket) socket.emit('clientFinishedLoadingMap');
 
-        // ðŸ›¡ï¸ INDESTRUCTIBLE FAIL-SAFE: Drops the screen automatically!
+        // 🛡️ INDESTRUCTIBLE FAIL-SAFE: Drops the screen automatically!
         setTimeout(() => {
             if (!isGrouped || window.isLoading) {
                 window.isLoading = false; window.isTransitioning = false; game.player.isTeleporting = false;
                 let ls = document.getElementById('loading-screen'); if (ls) ls.style.display = 'none';
                 let ts = document.getElementById('map-transition'); if (ts) { ts.style.opacity = '0'; setTimeout(() => ts.style.display='none', 1000); }
                 if (typeof safeMapData !== 'undefined' && safeMapData.id) { window.playBGM(window.routeMapMusic(safeMapData.id)); try { window.showMapAnnouncement(safeMapData.id); } catch(e){} }
-                // ðŸ¾ MINION + COMPANION: Spawn after portal transition completes
+                // 🐾 MINION + COMPANION: Spawn after portal transition completes
                 if (typeof window.spawnMinion === 'function') setTimeout(() => window.spawnMinion(), 500);
                 if (typeof window.spawnCompanionEntities === 'function') setTimeout(() => window.spawnCompanionEntities(), 800);
             }
@@ -4984,7 +4984,7 @@ if (tp.spectateTarget) {
             let wpnSrc = `weapon/${fixedWpn}${(data.state === 'attack' && isAtk && !fixedWpn.includes('pendant')) ? '_attack' : ''}.png`; 
             if (p.currentWeaponSrc !== wpnSrc) { p.weapon.src = wpnSrc; p.currentWeaponSrc = wpnSrc; } 
             if (!p.spriteData) p.spriteData = {}; p.spriteData.weapon = fixedWpn; 
-// ðŸ›¡ï¸ DYNAMIC AURA FIX: Live updating for new rarities!
+// 🛡️ DYNAMIC AURA FIX: Live updating for new rarities!
            p.weapon.className = 'avatar-layer layer-weapon';
            let rWpn = fixedWpn.toLowerCase();
            ['sword', 'staff', 'pendant', 'gun', 'dagger'].forEach(bt => {
@@ -5003,7 +5003,7 @@ if (tp.spectateTarget) {
       }
    const cAuraEl = p.rig.querySelector('.cosmetic-aura'); 
        if (cAuraEl) {
-           // ðŸ›¡ï¸ REVERT: Restore the normal cosmetic aura logic
+           // 🛡️ REVERT: Restore the normal cosmetic aura logic
            cAuraEl.className = data.spriteData?.aura ? `cosmetic-aura aura-${data.spriteData.aura}` : 'cosmetic-aura';
        }
        const titleEl = p.dom.querySelector('.title-tag');
@@ -5023,7 +5023,7 @@ if (tp.spectateTarget) {
         dom.inspectTitle.innerText = `Inspect: ${data.name || data.id || "Unknown"}`; 
         const equips = data.equips || {}; 
         
-        // ðŸ›¡ï¸ THE FIX: Added Necklace, Ring, and Earrings to the Inspect Window!
+        // 🛡️ THE FIX: Added Necklace, Ring, and Earrings to the Inspect Window!
         const slots = [ 
             { key: 'weapon', label: 'Weapon' }, 
             { key: 'armor', label: 'Armor' }, 
@@ -5040,7 +5040,7 @@ if (tp.spectateTarget) {
             const displayName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name; 
             let html = `<div class="inspect-title"><div class="inspect-item-name ${nameClass}" style="color:${rarityColor};">${displayName}</div><div class="inspect-sub">Lv.${item.level || 1} ${item.rarity || "Unknown"}</div></div><div class="inspect-stat">`; 
 
-            // ðŸ’Ž THE FIX: Visual indicator for Inspect Menu
+            // 💎 THE FIX: Visual indicator for Inspect Menu
             if (['necklace', 'ring', 'earrings'].includes(item.type)) {
                 let maxGems = { "Basic": 1, "Rare": 1, "Unique": 2, "Legendary": 3, "Godly": 4, "Divine": 5 }[item.rarity] || 0;
                 if (maxGems > 0) {
@@ -5184,7 +5184,7 @@ socket.on('tradeDone', (data) => {
    window.justLeveledUp = false;
 
     socket.on('receiveExp', (data) => { 
-        // ðŸ›¡ï¸ THE UI DESYNC FIX: If the server just forced a level up, the exact leftover EXP is already calculated perfectly.
+        // 🛡️ THE UI DESYNC FIX: If the server just forced a level up, the exact leftover EXP is already calculated perfectly.
         // We skip adding data.amount so the UI bar doesn't "double dip" and overfill visually!
         if (window.justLeveledUp) {
             window.justLeveledUp = false; // Consume the flag
@@ -5198,7 +5198,7 @@ socket.on('tradeDone', (data) => {
     });
 
     socket.on('serverLevelUp', (data) => {
-        window.justLeveledUp = true; // ðŸ›¡ï¸ Tell receiveExp to ignore its addition
+        window.justLeveledUp = true; // 🛡️ Tell receiveExp to ignore its addition
         
         game.player.level = data.level;
         game.player.exp = data.exp;
@@ -5241,7 +5241,7 @@ socket.on('tradeDone', (data) => {
                     petEl.innerHTML = '<div class="pet-hp-bar"><div class="pet-hp-fill" style="width:100%"></div></div>'; 
                 }
 
-                // ðŸŒŸ BIG BOSS REMOTE SYNC STYLING
+                // 🌟 BIG BOSS REMOTE SYNC STYLING
                 if (data.petData.isBigBoss) {
                     petEl.style.width = '100px';
                     petEl.style.height = '100px';
@@ -5342,7 +5342,7 @@ socket.on('revivalJuiceUsed', (data) => {
             void aura.offsetWidth; 
             aura.style.animation = 'aura-burst 0.6s ease-out forwards'; 
 
-            // ðŸŒŸ THE FIX: Play remote player's weapon SFX and show floating text
+            // 🌟 THE FIX: Play remote player's weapon SFX and show floating text
             if (typeof window.playSFX === 'function') window.playSFX(data.weaponSprite);
             if (data.skillName && typeof window.spawnSkillText === 'function') {
                 window.spawnSkillText(p.x + 24, p.y - 20, data.skillName, '#00E5FF');
@@ -5351,14 +5351,14 @@ socket.on('revivalJuiceUsed', (data) => {
     });
     
   socket.on('monsterState', (monsters) => {
-        // ðŸ›¡ï¸ FIX #5: Block monster rendering on ALL safe maps (no spawns), not just town
+        // 🛡️ FIX #5: Block monster rendering on ALL safe maps (no spawns), not just town
         const SAFE_MAPS = ['town', 'home', 'guildbase'];
         if (window.isTransitioning || window.isLoading || !Array.isArray(monsters) || SAFE_MAPS.includes(safeMapData.id)) return;
         const currentIds = new Set();
         monsters.forEach(m => {
             currentIds.add(m.id); let mEl = document.getElementById('mob_' + m.id);
             if (!mEl) {
-                // ðŸš€ MONSTER POOL: Try to reuse a hidden element of the same type before creating new DOM
+                // 🚀 MONSTER POOL: Try to reuse a hidden element of the same type before creating new DOM
                 const pooled = dom.world.querySelector(`.monster-container[data-pooled="true"][data-monsterkey="${m.monsterKey}"]`);
                 if (pooled) {
                     mEl = pooled;
@@ -5368,14 +5368,14 @@ socket.on('revivalJuiceUsed', (data) => {
                 } else {
                 mEl = document.createElement('div'); mEl.id = 'mob_' + m.id; mEl.className = 'entity monster-container'; mEl.style.position = 'absolute'; mEl.style.cursor = 'crosshair'; mEl.style.zIndex = '50'; mEl.style.display = 'flex'; mEl.style.justifyContent = 'center'; mEl.style.alignItems = 'flex-end';
                 
-             // ðŸŽ¨ BUILD THE HTML FOR OUR CUSTOM CSS MONSTERS
+             // 🎨 BUILD THE HTML FOR OUR CUSTOM CSS MONSTERS
                 let spriteHtml = '';
                 if (m.monsterKey.includes('golem')) {
                     spriteHtml = `<div class="monster-sprite-layer golem-base"><div class="g-head"><div class="g-eye"></div><div class="g-eye"></div></div><div class="g-arm-l"></div><div class="g-arm-r"></div><div class="g-leg-l"></div><div class="g-leg-r"></div></div>`;
                 } else if (m.monsterKey.includes('wraith')) {
                     spriteHtml = `<div class="monster-sprite-layer wraith-base"><div class="w-eye left"></div><div class="w-eye right"></div><div class="w-particles"><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div><div class="w-p"></div></div></div>`;
                 } else if (m.monsterKey.includes('minotaur')) {
-                    // ðŸ‚ MINOTAUR: Exact Golem body, but with horns and an axe
+                    // 🐂 MINOTAUR: Exact Golem body, but with horns and an axe
                     spriteHtml = `<div class="monster-sprite-layer minotaur-base">
                         <div class="m-head">
                             <div class="m-horn-l"></div><div class="m-horn-r"></div>
@@ -5388,7 +5388,7 @@ socket.on('revivalJuiceUsed', (data) => {
                         <div class="m-leg-l"></div><div class="m-leg-r"></div>
                     </div>`;
               } else if (m.monsterKey.includes('dragon')) {
-                    // ðŸ‰ DRAGON: Bulletproof Geometric Skeleton (Native CSS)
+                    // 🐉 DRAGON: Bulletproof Geometric Skeleton (Native CSS)
                     spriteHtml = `<div class="monster-sprite-layer dragon-base">
                         <div class="d-wing-l"></div><div class="d-wing-r"></div>
                         <div class="d-body"></div>
@@ -5418,7 +5418,7 @@ socket.on('revivalJuiceUsed', (data) => {
                 mEl.style.setProperty('--mob-color', m.cssColor || '#9c27b0'); 
                 mEl.style.setProperty('--mob-border', m.cssBorder || '#4E342E');
                 
-                // ðŸ›¡ï¸ THE DEFINER: This injects the exact category (e.g. 'mini_boss') into the CSS class!
+                // 🛡️ THE DEFINER: This injects the exact category (e.g. 'mini_boss') into the CSS class!
                 let safeCategory = m.category || 'common_mobs';
                 
                 if (m.monsterKey.includes('golem')) {
@@ -5442,11 +5442,11 @@ socket.on('revivalJuiceUsed', (data) => {
                 }
             } 
         });
-        // ðŸš€ MONSTER POOL: Hide dead monsters instead of removing them (saves GC pressure)
+        // 🚀 MONSTER POOL: Hide dead monsters instead of removing them (saves GC pressure)
         Object.keys(game.monsters).forEach(id => { if (!currentIds.has(id)) { let staleEl = document.getElementById('mob_' + id); if (staleEl) { staleEl.style.display = 'none'; staleEl.dataset.pooled = 'true'; staleEl.id = ''; } delete game.monsters[id]; } });
     });
 
-// ðŸ›¡ï¸ STUN FIX: Receive the stun from the server
+// 🛡️ STUN FIX: Receive the stun from the server
     socket.on('playerStunned', (data) => {
         if (data.targetId === game.player.id) {
             game.player.frozenUntil = Date.now() + data.duration;
@@ -5470,14 +5470,14 @@ if (hitPet) {
         const serverAtk = Number(data.atk || 25);
         let petDefBase = hitPet.isBigBoss || hitPet.isGolemBuster ? window.getDefense() : Math.floor(window.getDefense() * 0.25);
         
-        // ðŸ“¢ BER1 (Callout!) Defense Multiplier
+        // 📢 BER1 (Callout!) Defense Multiplier
         if (hitPet.defenseMultiplier && hitPet.defenseUntil && Date.now() < hitPet.defenseUntil) {
             petDefBase = Math.floor(petDefBase * hitPet.defenseMultiplier);
         }
         
         let actualDmg = Math.max(1, serverAtk - petDefBase);
         
-        // ðŸ—¡ï¸ BLD2 (Parry): 70% block chance
+        // 🗡️ BLD2 (Parry): 70% block chance
         if (hitPet.parryUntil && Date.now() < hitPet.parryUntil) {
             if (Math.random() < 0.70) {
                 window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, "PARRY!", '#4fc3f7');
@@ -5485,15 +5485,15 @@ if (hitPet) {
             }
         }
 
-        // ðŸŒ€ PHS1 (Shadow Step): 80% DR
+        // 🌀 PHS1 (Shadow Step): 80% DR
         if (hitPet.damageReduction && hitPet.damageReductionUntil && Date.now() < hitPet.damageReductionUntil) {
             actualDmg = Math.max(1, Math.floor(actualDmg * (1 - hitPet.damageReduction)));
         }
 
-       // ðŸ›¡ï¸ ABSORB SHIELD FOR PET
+       // 🛡️ ABSORB SHIELD FOR PET
         if (hitPet.gammaShieldHp && hitPet.gammaShieldHp > 0) {
             if (actualDmg >= hitPet.gammaShieldHp) {
-                actualDmg = 0; // ðŸ›¡ï¸ STURDY FIX: The shield absorbs the ENTIRE hit!
+                actualDmg = 0; // 🛡️ STURDY FIX: The shield absorbs the ENTIRE hit!
                 hitPet.gammaShieldHp = 0;
                 let s = hitPet.dom.querySelector('.gamma-shield');
                 if (s) { s.style.animation = 'shatter 0.3s forwards'; setTimeout(()=>s.remove(), 300); }
@@ -5505,7 +5505,7 @@ if (hitPet) {
         
         hitPet.hp -= actualDmg;
 
-        // ðŸ›¡ï¸ BER3 (Immortal): Cannot drop below 1 HP
+        // 🛡️ BER3 (Immortal): Cannot drop below 1 HP
         if (hitPet.immortalUntil && Date.now() < hitPet.immortalUntil && hitPet.hp < 1) {
             hitPet.hp = 1;
             window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, "IMMORTAL!", '#FFD700');
@@ -5514,7 +5514,7 @@ if (hitPet) {
 
         window.spawnDamageText(hitPet.x + 15, hitPet.y - 10, actualDmg, '#ff0000');
 
-        // ðŸ¾ MINION DEATH & STUN LOGIC
+        // 🐾 MINION DEATH & STUN LOGIC
         if (window._activeMinion && hitPet.id === window._activeMinion.id && hitPet.hp <= 0 && !hitPet.isStunned) {
             hitPet.isStunned = true;
             hitPet.stunUntil = Date.now() + 180000; // 3 minutes
@@ -5530,7 +5530,7 @@ if (hitPet) {
         if (data.damage > 0) {
             window.spawnDamageText(game.player.x + 24, game.player.y - 10, data.damage, '#f44336');
             window.spawnSpark(game.player.x + 24, game.player.y + 48);
-            // ðŸŽ¬ SCREEN SHAKE: Intensity scales with damage percentage
+            // 🎬 SCREEN SHAKE: Intensity scales with damage percentage
             let dmgPct = data.damage / (window.getMaxHp() || 1);
             if (dmgPct > 0.05) window.screenShake(Math.min(8, dmgPct * 30), 200);
         }
@@ -5564,7 +5564,7 @@ if (hitPet) {
         ty = hitPet.y + 15;
     }
 
-    // ðŸ‰ The Fix: Both Fire Elementals and Dragons use the Fireball animation
+    // 🐉 The Fix: Both Fire Elementals and Dragons use the Fireball animation
     const isElemental = m.monsterKey && (String(m.monsterKey).includes('3') || String(m.monsterKey).includes('dragon'));
     const mcx = m.x + (m.width / 2);
     const mcy = m.y + (m.height / 2);
@@ -5598,7 +5598,7 @@ if (hitPet) {
     hitSound.play().catch(e => {});
 });
 
-    // ðŸ¾ MINION SKILL EFFECT SYNC
+    // 🐾 MINION SKILL EFFECT SYNC
     socket.on('minionSkillEffect', (data) => {
         const minion = window._activeMinion;
         if (!minion || minion.id !== data.petId) return;
@@ -5606,30 +5606,30 @@ if (hitPet) {
 
         if (data.skillId === 'ber3' && data.duration) {
             minion.immortalUntil = now + data.duration;
-            window.spawnDamageText(minion.x + 15, minion.y - 20, 'ðŸ›¡ï¸ IMMORTAL!', '#FFD700');
+            window.spawnDamageText(minion.x + 15, minion.y - 20, '🛡️ IMMORTAL!', '#FFD700');
         }
         if (data.skillId === 'ber1' && data.defenseMultiplier && data.duration) {
             minion.defenseMultiplier = data.defenseMultiplier;
             minion.defenseUntil = now + data.duration;
-            window.spawnDamageText(minion.x + 15, minion.y - 20, 'ðŸ“¢ TAUNT! DEFx3', '#ffeb3b');
+            window.spawnDamageText(minion.x + 15, minion.y - 20, '📢 TAUNT! DEFx3', '#ffeb3b');
         }
         if (data.skillId === 'bld2' && data.duration) {
             minion.parryUntil = now + data.duration;
-            window.spawnDamageText(minion.x + 15, minion.y - 20, 'ðŸ—¡ï¸ PARRY!', '#4fc3f7');
+            window.spawnDamageText(minion.x + 15, minion.y - 20, '🗡️ PARRY!', '#4fc3f7');
         }
         if (data.skillId === 'phs1' && data.damageReduction && data.duration) {
             minion.damageReduction = data.damageReduction;
             minion.damageReductionUntil = now + data.duration;
-            window.spawnDamageText(minion.x + 15, minion.y - 20, 'ðŸŒ€ SHADOW STEP!', '#00E5FF');
+            window.spawnDamageText(minion.x + 15, minion.y - 20, '🌀 SHADOW STEP!', '#00E5FF');
         }
         if (data.skillId === 'heal1' || data.skillId === 'heal3') {
-            window.spawnDamageText(minion.x + 15, minion.y - 20, 'ðŸ’š HEAL!', '#4CAF50');
+            window.spawnDamageText(minion.x + 15, minion.y - 20, '💚 HEAL!', '#4CAF50');
         }
     });
 
     socket.on('monsterSkill', (data) => { 
         if (window.isTransitioning || window.isLoading) return;
-        // ðŸ‚ MINOTAUR CHARGE ANIMATION
+        // 🐂 MINOTAUR CHARGE ANIMATION
         if (data.skillName === 'Charge') {
             let hitSound = new Audio('music/charge.mp3');
             hitSound.volume = (window.gameVolume != null ? window.gameVolume : 0.5);
@@ -5653,7 +5653,7 @@ if (hitPet) {
             gameContainer.classList.add('screen-shake'); 
             setTimeout(() => gameContainer.classList.remove('screen-shake'), 500); 
             
-            // ðŸ—¿ Trigger Golem Slam visual when Earthquake fires
+            // 🗿 Trigger Golem Slam visual when Earthquake fires
             const mEl = document.getElementById('mob_' + data.monsterId);
             if (mEl) {
                 const spriteLayer = mEl.querySelector('.golem-base');
@@ -5670,7 +5670,7 @@ if (hitPet) {
             ring.style.width = (data.radius * 2) + 'px'; 
             ring.style.height = (data.radius * 2) + 'px'; 
             
-            // ðŸ›¡ï¸ THE FIX: Color the enemy boss earthquake BLUE so it stands out!
+            // 🛡️ THE FIX: Color the enemy boss earthquake BLUE so it stands out!
             if (data.color === 'blue') {
                 ring.style.border = '4px solid #2196F3';
                 ring.style.boxShadow = '0 0 30px #2196F3, inset 0 0 30px #2196F3';
@@ -5696,7 +5696,7 @@ socket.on('playerHit', (data) => {
             game.player.currentHp = data.newHp;
             window.spawnDamageText(game.player.x + 24, game.player.y - 10, data.damage, '#f44336');
             window.spawnSpark(game.player.x + 24, game.player.y + 48);
-            // ðŸŽ¬ SCREEN SHAKE: PvP hit feedback
+            // 🎬 SCREEN SHAKE: PvP hit feedback
             let dmgPct = data.damage / (window.getMaxHp() || 1);
             if (dmgPct > 0.05) window.screenShake(Math.min(8, dmgPct * 30), 200);
             window.updateUI();
@@ -5709,10 +5709,10 @@ socket.on('playerHit', (data) => {
    socket.on('monsterHit', (data) => { 
         if (window.isTransitioning || window.isLoading || !data || !game.monsters[data.monsterId]) return;
         const m = game.monsters[data.monsterId]; 
-        window.triggerBossBGM(m); // ðŸŽµ TRIGGER BOSS MUSIC
+        window.triggerBossBGM(m); // 🎵 TRIGGER BOSS MUSIC
         m.currentHp = data.newHp; m.maxHp = data.maxHp || m.maxHp; 
         const mCenterX = m.x + (m.width / 2); const mCenterY = m.y + (m.height / 2); 
-        // ðŸŽ¨ DAMAGE TYPE COLORS: White=normal, Cyan=magic, Gold=crit, Red=bleed
+        // 🎨 DAMAGE TYPE COLORS: White=normal, Cyan=magic, Gold=crit, Red=bleed
         let dmgColor = '#fff';
         if (data.isCritical) dmgColor = '#FFD700';
         else if (data.isPendant) dmgColor = '#00E5FF';
@@ -5744,14 +5744,14 @@ socket.on('playerHit', (data) => {
     });
     socket.on('monsterDied', (data) => { if (window.isTransitioning || window.isLoading || !data || !game.monsters[data.monsterId]) return; const deadMob = game.monsters[data.monsterId]; deadMob.alive = false; const mEl = document.getElementById('mob_' + data.monsterId); if(mEl) mEl.style.display = 'none'; 
 
-// ðŸŽµ STOP BOSS MUSIC IF IT WAS A BOSS
+// 🎵 STOP BOSS MUSIC IF IT WAS A BOSS
         if (deadMob.category === 'floor_boss' || deadMob.category === 'mini_boss') {
             window.revertBGM();
         }
 
 window.updateUI(); });
 
-    // ðŸ›‘ Wipes old monsters off the screen during map transitions so they don't bleed into new floors!
+    // 🛑 Wipes old monsters off the screen during map transitions so they don't bleed into new floors!
     socket.on('clearLocalMonsters', () => {
         if (typeof game !== 'undefined' && game.monsters) {
             for (let id in game.monsters) {
@@ -5812,7 +5812,7 @@ let localBossTimer = null;
         }, 1000);
     });
     socket.on('monsterSpawned', (m) => { 
-        // ðŸ›¡ï¸ FIX #5: Block monster spawning on ALL safe maps, not just town
+        // 🛡️ FIX #5: Block monster spawning on ALL safe maps, not just town
         const SAFE_SPAWN_MAPS = ['town', 'home', 'guildbase'];
         if (!m || SAFE_SPAWN_MAPS.includes(safeMapData.id)) return;
         // Skip bleed-fix delay for event dungeons so spawns render immediately
@@ -5857,7 +5857,7 @@ let localBossTimer = null;
     });
     socket.on('lootDropped', (item) => { 
         if (!item) return;
-        // ðŸ›¡ï¸ THE FIX: Only update the text! The item is already safely handled by syncInventory.
+        // 🛡️ THE FIX: Only update the text! The item is already safely handled by syncInventory.
         let qtyStr = item.quantity > 1 ? ` (x${item.quantity})` : '';
         if (dom && dom.log) dom.log.innerText = `Looted: ${item.name}${qtyStr}!`; 
     });                  
@@ -5890,7 +5890,7 @@ window.toggleLowEndMode = function(isAuto = false) {
 if (lowEndMode) { document.body.classList.add('low-perf'); setTimeout(() => { const btn = document.getElementById('low-perf-btn'); if (btn) { btn.innerText = "Low-End Mode: ON"; btn.style.background = "#4CAF50"; } }, 1000); }
 
 // ==========================================
-// ðŸŽŸï¸ CLOSED BETA DOWNLOAD LOGIC (Google Play Redeem)
+// 🎟️ CLOSED BETA DOWNLOAD LOGIC (Google Play Redeem)
 // ==========================================
 window.addEventListener('click', (e) => { 
     if (e.target.id === 'install-btn') { 
@@ -5919,7 +5919,7 @@ if (typeof socket !== 'undefined' && socket) {
                 if (warning) warning.style.display = 'block';
             }
 
-            // 2. ðŸ›¡ï¸ CONSTRUCT THE PLAY STORE URL
+            // 2. 🛡️ CONSTRUCT THE PLAY STORE URL
             // If the server didn't already format it with 'http', build the Google Play link
             let finalUrl = rawCode.startsWith('http') ? rawCode : 'https://play.google.com/redeem?code=' + rawCode;
 
@@ -5955,7 +5955,7 @@ window.showNextNews = function() {
 };
 window.closeWelcomeMessage = function() { window.showNextNews(); };
 // ==========================================
-// ðŸ° DUNGEON 1 & POWER GEM SYSTEM
+// 🏰 DUNGEON 1 & POWER GEM SYSTEM
 // ==========================================
 window.closeDungeonUI = function() {
     const ui = document.getElementById('dungeon-screen');
@@ -5975,7 +5975,7 @@ window.closeDungeonUI = function() {
 };
 
 window.startDungeon = function(difficulty) {
-    // ðŸ›¡ï¸ EXTREME MODE LEVEL CHECK (Client-Side)
+    // 🛡️ EXTREME MODE LEVEL CHECK (Client-Side)
     if (difficulty === 'Extreme' && game.player.level < 50 && !window.isAdmin(game.player.name)) {
         if (dom.log) dom.log.innerText = "You must be Level 50 to enter Extreme difficulty.";
         return;
@@ -5988,7 +5988,7 @@ window.startDungeon = function(difficulty) {
         return; 
     }
 
-    // ðŸ›¡ï¸ THE FIX: Optimistic UI Update. Instantly deduct visually so it says 6/7 next time!
+    // 🛡️ THE FIX: Optimistic UI Update. Instantly deduct visually so it says 6/7 next time!
     if (!window.isAdmin(game.player.name)) {
         game.player.baseStats.dungeonEntries = currentEntries - 1;
         let entryText = document.getElementById('dungeon-entries-text');
@@ -6013,10 +6013,10 @@ window.attemptApplyGem = function(targetIndex, e) {
 }
 
 if (socket) {
-    // ðŸ›¡ï¸ THE FIX: This forces the party members to un-freeze and accept the teleport!
+    // 🛡️ THE FIX: This forces the party members to un-freeze and accept the teleport!
     socket.on('closeDungeonUI', () => {
         window.closeDungeonUI();
-        window.isDungeonUIOpen = false; // ðŸ›‘ REMOVED the code that was instantly deleting the loading screen!
+        window.isDungeonUIOpen = false; // 🛑 REMOVED the code that was instantly deleting the loading screen!
     });
 let dungeonTimerInt = null;
     socket.on('dungeonTimerStart', (data) => {
@@ -6062,7 +6062,7 @@ let dungeonTimerInt = null;
         setTimeout(() => { vText.remove(); }, 4000);
     });
 }
-    // ðŸ›¡ï¸ SYSTEM UTILITIES
+    // 🛡️ SYSTEM UTILITIES
 window.logout = function() {
     localStorage.removeItem('exonie_user');
     localStorage.removeItem('exonie_pass');
@@ -6106,12 +6106,12 @@ window.clampWindowToViewport = function(el) {
 
 window.enableMobileWindowControls = function(el) {
     if (!el) return;
-    // ðŸ›¡ï¸ FIX #8: Allow re-binding if listeners were lost (modal recreation, Electron)
+    // 🛡️ FIX #8: Allow re-binding if listeners were lost (modal recreation, Electron)
     // Only skip if ALREADY has working listeners attached to THIS specific element
     if (el.dataset.mobileWindowReady === '1' && el._dragListenersBound) return;
     el.dataset.mobileWindowReady = '1';
 
-    // ðŸ›¡ï¸ FIX #8: Try .window-drag-handle first, then fallback to any header/title element
+    // 🛡️ FIX #8: Try .window-drag-handle first, then fallback to any header/title element
     let handle = el.querySelector('.window-drag-handle');
     if (!handle) handle = el.querySelector('.window-header, .modal-header, [data-drag-handle]');
 
@@ -6200,7 +6200,7 @@ window.enableMobileWindowControls = function(el) {
         startDrag(e.clientX, e.clientY, e.pointerId);
 
         if (handle.setPointerCapture) {
-            try { handle.setPointerCapture(e.pointerId); } catch(err) {} // ðŸ›¡ï¸ FIX #8: Electron can throw on capture
+            try { handle.setPointerCapture(e.pointerId); } catch(err) {} // 🛡️ FIX #8: Electron can throw on capture
         }
 
         e.preventDefault();
@@ -6228,7 +6228,7 @@ window.enableMobileWindowControls = function(el) {
         e.stopPropagation();
     });
 
-    // ðŸ›¡ï¸ FIX #8: Fallback mouse events for Electron/Steam where pointer events can fail
+    // 🛡️ FIX #8: Fallback mouse events for Electron/Steam where pointer events can fail
     handle.addEventListener('mousedown', function(e) {
         if (el.style.display === 'none') return;
         if (e.button !== 0) return;
@@ -6314,15 +6314,15 @@ window.addEventListener('resize', function() {
 });
 
 // ==========================================
-// ðŸ›¡ï¸ SYSTEM UTILITIES & MAILBOX ENGINE
+// 🛡️ SYSTEM UTILITIES & MAILBOX ENGINE
 // ==========================================
 // ==========================================
-// ðŸ° GUILD SYSTEM UI ENGINE
+// 🏰 GUILD SYSTEM UI ENGINE
 // ==========================================
 window.openGuildUI = function() {
     let modal = document.getElementById('guild-modal');
 
-    // ðŸ›¡ï¸ THE TOGGLE FIX: If it's already open, close it and stop!
+    // 🛡️ THE TOGGLE FIX: If it's already open, close it and stop!
     if (modal && modal.style.display === 'block') {
         modal.style.display = 'none';
         return;
@@ -6363,7 +6363,7 @@ if (socket) {
             let myRole = data.myRole || 'Member';
             const roleLevel = { 'Master': 4, 'Vice Master': 3, 'Captain': 2, 'Member': 1 };
             
-            // ðŸ§® DYNAMIC GUILD MATH
+            // 🧮 DYNAMIC GUILD MATH
             let currentLevel = data.guildLevel || 0;
             let statBoost = currentLevel * 2;
             let expBoost = currentLevel * 2;
@@ -6372,7 +6372,7 @@ if (socket) {
             let html = `
                 <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #4CAF50;">
                     <h2 style="margin:0; color:#4CAF50; pointer-events:none; display:flex; justify-content:space-between; align-items:center;">
-                        <span>ðŸ° ${d.name} <span style="font-size:14px; color:#FFD700;">(Lv. ${currentLevel})</span></span>
+                        <span>🏰 ${d.name} <span style="font-size:14px; color:#FFD700;">(Lv. ${currentLevel})</span></span>
                         <span style="font-size:12px; color:#aaa;">${data.members.length}/${maxMembers}</span>
                     </h2>
                 </div>
@@ -6388,7 +6388,7 @@ if (socket) {
                 </div>
             `;
 
-            // ðŸ‘‘ LEVEL UP BUTTON (Master Only)
+            // 👑 LEVEL UP BUTTON (Master Only)
             if (myRole === 'Master') {
                 if (currentLevel < 10) {
                     html += `<button onclick="socket.emit('requestGuildLevelUp')" style="width:100%; padding:8px; margin-bottom:10px; background:linear-gradient(45deg, #FF9800, #FF5722); color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">¬†ï¸ Level Up Guild (1,000,000 G)</button>`;
@@ -6397,7 +6397,7 @@ if (socket) {
                 }
             }
 
-            // ðŸ“‹ MEMBER LIST + KICK BUTTONS + ROLES
+            // 📋 MEMBER LIST + KICK BUTTONS + ROLES
             html += `<div style="background:#111; padding:10px; border:1px solid #333; height:120px; overflow-y:auto; margin-bottom:10px; text-align:left;">`;
             data.members.forEach(m => {
                 let actionHtml = `<span>${m.role}</span>`;
@@ -6417,7 +6417,7 @@ if (socket) {
                               (myRole === 'Vice Master' && targetLvl <= 2);
 
                 html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid #222;">
-                            <span style="font-size:12px; color: ${m.online ? '#fff' : '#777'};">${m.online ? 'ðŸŸ¢' : 'šª'} ${m.name}</span>
+                            <span style="font-size:12px; color: ${m.online ? '#fff' : '#777'};">${m.online ? '🟢' : 'šª'} ${m.name}</span>
                             <div style="display:flex; gap:5px; align-items:center;">
                                 ${actionHtml}
                                 ${canKick ? `<button onclick="if(confirm('Kick ${m.name}?')) socket.emit('guildKick', '${m.name}')" style="background:#f44336; color:white; border:none; padding:2px 5px; font-size:9px; cursor:pointer; border-radius:3px;">KICK</button>` : ''}
@@ -6426,7 +6426,7 @@ if (socket) {
             });
             html += `</div>`;
 
-            // ðŸ“© APPLICANTS (Master/Vice Master only)
+            // 📩 APPLICANTS (Master/Vice Master only)
             if (roleLevel[myRole] >= 3) {
                 html += `<h4 style="margin:5px 0; font-size:12px; color:#aaa; text-align:left;">Pending Applicants</h4>
                          <div style="background:#111; padding:5px; border:1px solid #333; height:60px; overflow-y:auto; margin-bottom:10px;">`;
@@ -6446,7 +6446,7 @@ if (socket) {
                 html += `</div>`;
             }
 
-            // ðŸ”˜ ACTIONS
+            // 🔘 ACTIONS
             html += `<div style="display:flex; gap:5px; margin-bottom:5px;">
                         <button class="btn" style="background:#2196F3; flex:1; font-size:13px; padding:8px;" onclick="window.donateGuild()">Donate Gold</button>
                         <button class="btn" style="background:#f44336; flex:1; font-size:13px; padding:8px;" onclick="if(confirm('Are you sure you want to leave this guild?')) socket.emit('guildLeave')">Leave Guild</button>
@@ -6467,7 +6467,7 @@ if (socket) {
         } else {
             let html = `
                 <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #4CAF50;">
-                    <h2 style="margin:0; color:#4CAF50; pointer-events:none;">ðŸ° Guild Registry</h2>
+                    <h2 style="margin:0; color:#4CAF50; pointer-events:none;">🏰 Guild Registry</h2>
                 </div>
                 <button class="btn" style="background:#FF9800; width:100%; margin-bottom:15px; font-weight:bold; padding:12px;" onclick="window.createGuild()">Establish Guild (1M Gold)</button>
                 <h3 style="color:#aaa; font-size:14px; border-bottom:1px solid #333; padding-bottom:5px;">Open Guilds</h3>
@@ -6492,7 +6492,7 @@ if (socket) {
     });
 }
 
-// ðŸŒŸ GUILD INVITE UI INJECTION
+// 🌟 GUILD INVITE UI INJECTION
 if (!document.getElementById('guild-invite-dialog')) {
     let gModal = document.createElement('div');
     gModal.id = 'guild-invite-dialog';
@@ -6569,7 +6569,7 @@ window.enterGuildBase = function() {
     // Send a secure map ID that the server knows how to instance privately!
     socket.emit('forceTeleport', { mapId: 'guildbase', x: 960, y: 1000 });
 };
-// ðŸ—ºï¸ MAZE GUIDE & FAST TRAVEL ENGINE
+// 🗺️ MAZE GUIDE & FAST TRAVEL ENGINE
 window.openMazeGuide = function() {
     if (game.party && game.party.members && game.party.members.length > 1) {
         if (game.party.leaderId !== game.player.id) {
@@ -6587,7 +6587,7 @@ window.openMazeGuide = function() {
         document.body.appendChild(modal);
     }
 
-    let html = '<h2 style="margin-top:0; color:#2196F3;">ðŸ—ºï¸ Maze Guide</h2>';
+    let html = '<h2 style="margin-top:0; color:#2196F3;">🗺️ Maze Guide</h2>';
     html += '<p style="font-size:12px; color:#aaa; margin-bottom:20px;">Choose your destination.</p>';
     
     html += '<button class="btn" style="width:100%; margin-bottom:10px; padding:12px; font-weight:bold; font-size:16px; background:#4CAF50;" onclick="window.openFastTravelUI()"> Fast Travel</button>';
@@ -6617,7 +6617,7 @@ window.openFastTravelUI = function() {
     }
 
     let modal = document.getElementById('maze-guide-modal');
-    let html = '<h2 style="margin-top:0; color:#4CAF50;">ðŸš€ Fast Travel</h2>';
+    let html = '<h2 style="margin-top:0; color:#4CAF50;">🚀 Fast Travel</h2>';
     html += '<p style="font-size:12px; color:#aaa;">Select a conquered floor to fast-travel.</p>';
     html += '<div style="max-height:300px; overflow-y:auto; margin-bottom:15px; padding-right:5px;">';
     
@@ -6649,7 +6649,7 @@ window.openMazeTrialsUI = function() {
 };
 
 window.requestMazeTrial = function(floorNum) {
-    // ðŸ›¡ï¸ LEVEL GATE: Warn solo players level 45 and below
+    // 🛡️ LEVEL GATE: Warn solo players level 45 and below
     const isSolo = !game.party || !game.party.members || game.party.members.length <= 1;
     const isLowLevel = game.player.level <= 45;
 
@@ -6674,13 +6674,13 @@ window.requestMazeTrial = function(floorNum) {
     if (socket) socket.emit('requestMazeTrial', { targetFloor: floorNum });
 };
 
-// ðŸ›¡ï¸ MAZE TRIAL: Confirmed entry after warning
+// 🛡️ MAZE TRIAL: Confirmed entry after warning
 window.confirmMazeTrial = function(floorNum) {
     document.getElementById('maze-guide-modal').style.display = 'none';
     if (socket) socket.emit('requestMazeTrial', { targetFloor: floorNum });
 };
 
-// ðŸ›¡ï¸ THE FIX: Added the missing Fast Travel client-side function!
+// 🛡️ THE FIX: Added the missing Fast Travel client-side function!
 window.requestMazeTeleport = function(floorNum) {
     document.getElementById('maze-guide-modal').style.display = 'none';
     if (socket) socket.emit('requestMazeTeleport', { targetFloor: floorNum });
@@ -6689,14 +6689,14 @@ window.requestMazeTeleport = function(floorNum) {
 // š”ï¸ TAVERN & LEADERBOARD LOGIC
 // ==========================================
 window.startTavern = function() {
-// ðŸ›¡ï¸ LEVEL 50 LOCK
+// 🛡️ LEVEL 50 LOCK
     if (game.player.level < 50 && !window.isAdmin(game.player.name)) {
         if (dom.log) dom.log.innerText = "You must be at least Level 50 to enter the Training Tavern.";
         document.getElementById('tavern-modal').style.display = 'none';
         return;
     }
 
-// ðŸ›¡ï¸ PARTY CHECK: Strictly Solo
+// 🛡️ PARTY CHECK: Strictly Solo
     if (game.party && game.party.members && game.party.members.length > 1) {
         if (dom.log) dom.log.innerText = "Solo Challenge! You must leave your party to enter the Tavern.";
         document.getElementById('tavern-modal').style.display = 'none';
@@ -6705,7 +6705,7 @@ window.startTavern = function() {
     let type = document.getElementById('tavern-mob-type').value;
     let lvl = parseInt(document.getElementById('tavern-level').value) || 10;
     
-    // ðŸ›¡ï¸ THE FIX: Prevent entering if out of entries to stop infinite loading screen!
+    // 🛡️ THE FIX: Prevent entering if out of entries to stop infinite loading screen!
     let currentEntries = game.player.baseStats?.tavernEntries !== undefined ? game.player.baseStats.tavernEntries : 5;
     if (currentEntries <= 0 && !window.isAdmin(game.player.name)) {
         if (dom.log) dom.log.innerText = "You have no Tavern entries left this week. Resets Monday.";
@@ -6720,7 +6720,7 @@ window.startTavern = function() {
 
     if (socket) socket.emit('startTavern', { mobType: type, level: lvl });
     
-    // ðŸ›¡ï¸ UI FIX: Force close ALL windows instantly
+    // 🛡️ UI FIX: Force close ALL windows instantly
     document.getElementById('tavern-modal').style.display = 'none';
     isInventoryOpen = false; dom.invScreen.style.display = 'none';
     isSkillOpen = false; dom.skillScreen.style.display = 'none';
@@ -6732,7 +6732,7 @@ window.startTavern = function() {
     document.getElementById('inv-context-menu').style.display = 'none';
     document.getElementById('player-context-menu').style.display = 'none';
 
-    // ðŸ›¡ï¸ UI FIX: Smooth fake loading bar that finishes right as the boss spawns
+    // 🛡️ UI FIX: Smooth fake loading bar that finishes right as the boss spawns
     document.getElementById('loading-text').innerText = "Entering Tavern...";
     const loaderFill = document.getElementById('loader-fill');
     if (loaderFill) { 
@@ -6753,7 +6753,7 @@ let tavernTimerInt = null;
 let tavernStartTs = 0;
 if (socket) {
     socket.on('tavernTimerStart', () => {
-        // ðŸ›¡ï¸ THE FIX: Lift the curtain and unlock the player exactly as the boss spawns!
+        // 🛡️ THE FIX: Lift the curtain and unlock the player exactly as the boss spawns!
         document.getElementById('loading-screen').style.display = 'none';
         window.isLoading = false;
 
@@ -6773,7 +6773,7 @@ if (socket) {
         setTimeout(() => { document.getElementById('tavern-timer-ui').style.display = 'none'; }, 5000);
     });
 
-    // ðŸ† EPIC VICTORY SCREEN GENERATOR
+    // 🏆 EPIC VICTORY SCREEN GENERATOR
     socket.on('tavernVictory', (data) => {
         clearInterval(tavernTimerInt); // Double tap the timer just in case
         
@@ -6787,7 +6787,7 @@ if (socket) {
         vText.innerHTML = `
             <h1 style="font-size:80px; margin:0; text-shadow:0 0 30px #FFD700, 4px 4px 0 #000; letter-spacing: 5px;">VICTORY</h1>
             <h2 style="font-size:40px; margin:0; color:#fff; text-shadow:2px 2px 0 #000;">Time: ${(data.time/1000).toFixed(2)}s</h2>
-            ${data.isNewBest ? '<h3 style="color:#4CAF50; font-size:32px; margin-top:15px; text-shadow:0 0 15px #4CAF50, 2px 2px 0 #000; animation: pulseText 1s infinite alternate;">ðŸ† NEW PERSONAL BEST! ðŸ†</h3>' : ''}
+            ${data.isNewBest ? '<h3 style="color:#4CAF50; font-size:32px; margin-top:15px; text-shadow:0 0 15px #4CAF50, 2px 2px 0 #000; animation: pulseText 1s infinite alternate;">🏆 NEW PERSONAL BEST! 🏆</h3>' : ''}
         `;
         vText.style.position = 'fixed';
         vText.style.top = '40%';
@@ -6931,7 +6931,7 @@ socket.on('applyGammaShield', (data) => {
     });
 
 // ==========================================
-// ðŸ’¤ AFK SCREEN LOCKER
+// 💤 AFK SCREEN LOCKER
 // ==========================================
 if (!document.getElementById('afk-lock-screen')) {
     let afkOverlay = document.createElement('div');
@@ -6966,7 +6966,7 @@ if (!document.getElementById('afk-lock-screen')) {
                 // Reset movement keys so they don't auto-run into a wall while AFK
                 for (const k in game.keys) game.keys[k] = false;
                 
-                // ðŸ›‘ THE FIX: Forcefully disable Auto-Attack and manual attack holds!
+                // 🛑 THE FIX: Forcefully disable Auto-Attack and manual attack holds!
                 autoAttackMode = false;
                 attackHeld = false;
                 if(dom.log) dom.log.innerText = `Auto-Attack: OFF (AFK Mode)`;
@@ -6982,7 +6982,7 @@ if (!document.getElementById('afk-lock-screen')) {
     window.resetAfkTimer();
 }
 // ==========================================
-// ðŸ¦‡ DUNGEON 2: ANCIENT CAVE UI
+// 🦇 DUNGEON 2: ANCIENT CAVE UI
 // ==========================================
 window.openDungeon2UI = function() {
     let modal = document.getElementById('dungeon2-modal');
@@ -6996,7 +6996,7 @@ window.openDungeon2UI = function() {
     
     modal.innerHTML = `
         <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #9c27b0;">
-            <h2 style="margin:0; color:#E040FB; pointer-events:none;">ðŸ¦‡ Ancient Cave</h2>
+            <h2 style="margin:0; color:#E040FB; pointer-events:none;">🦇 Ancient Cave</h2>
         </div>
         <p style="color:#ccc; font-size:13px; margin-bottom:15px;">A 3-stage gauntlet. Defeat the floor bosses to advance. Revival Juice is strictly forbidden here!</p>
         <p id="d2-entries-text" style="color:#ff9800; font-weight:bold; margin-bottom:15px;">Checking Entries...</p>
@@ -7016,27 +7016,27 @@ window.openDungeon2UI = function() {
     }
 
     if (game.player.baseStats) {
-        // ðŸ›¡ï¸ THE FIX: Look at dungeon2Entries instead of D1's variable!
+        // 🛡️ THE FIX: Look at dungeon2Entries instead of D1's variable!
         let d2Tickets = game.player.baseStats.dungeon2Entries !== undefined ? game.player.baseStats.dungeon2Entries : 7;
         document.getElementById('d2-entries-text').innerText = `Weekly Entries: ${d2Tickets}/7`;
     }
 };
 
 window.startDungeon2 = function(difficulty) {
-    // ðŸ›¡ï¸ THE FIX: Extreme Mode now requires Level 50!
+    // 🛡️ THE FIX: Extreme Mode now requires Level 50!
     if (difficulty === 'Extreme' && game.player.level < 50 && !window.isAdmin(game.player.name)) {
         if (dom.log) dom.log.innerText = "You must be Level 50 to enter Extreme difficulty.";
         return;
     }
 
-    // ðŸ›¡ï¸ THE FIX: Check dungeon2Entries instead of D1 entries!
+    // 🛡️ THE FIX: Check dungeon2Entries instead of D1 entries!
     let currentEntries = game.player.baseStats?.dungeon2Entries !== undefined ? game.player.baseStats.dungeon2Entries : 7;
     if (currentEntries <= 0 && !window.isAdmin(game.player.name)) {
         if (dom.log) dom.log.innerText = "You have no Ancient Cave entries left this week.";
         return; 
     }
 
-    // ðŸ›¡ï¸ OPTIMISTIC UI: Deduct the ticket locally so the UI updates instantly!
+    // 🛡️ OPTIMISTIC UI: Deduct the ticket locally so the UI updates instantly!
     if (!window.isAdmin(game.player.name)) {
         game.player.baseStats.dungeon2Entries = currentEntries - 1;
         let entryText = document.getElementById('d2-entries-text');
@@ -7074,7 +7074,7 @@ window.logout = function() {
 };
 
 window.addEventListener('keydown', (e) => {
-    // ðŸ›¡ï¸ THE FIX: If the player is typing in a box, let them type!
+    // 🛡️ THE FIX: If the player is typing in a box, let them type!
     if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
         return; 
     }
@@ -7085,7 +7085,7 @@ window.addEventListener('keydown', (e) => {
         if (typeof window.toggleMailbox === 'function') window.toggleMailbox();
     }
 });
-// ðŸŽ¥ DYNAMIC TUTORIAL VIDEO PLAYER (CRASH-FREE VERSION)
+// 🎥 DYNAMIC TUTORIAL VIDEO PLAYER (CRASH-FREE VERSION)
 window.playTutorialVideo = function(allowSkip) {
     if (typeof allowSkip === 'undefined') allowSkip = true; // Default: skippable when re-watching from Settings
     
@@ -7094,7 +7094,7 @@ window.playTutorialVideo = function(allowSkip) {
     if (settingsMenu) settingsMenu.style.display = 'none';
     window.isSettingsOpen = false;
 
-    // ðŸ”‡ 1. Stop background music immediately
+    // 🔇 1. Stop background music immediately
     if (typeof currentBGM !== 'undefined' && currentBGM) {
         currentBGM.pause();
         currentBGM.currentTime = 0;
@@ -7116,7 +7116,7 @@ window.playTutorialVideo = function(allowSkip) {
         overlay.appendChild(loadingText);
         document.body.appendChild(overlay);
 
-        // ðŸ“¥ 3. Fetch the ENTIRE video into local memory
+        // 📥 3. Fetch the ENTIRE video into local memory
         fetch('animation/tutorial.mp4')
             .then(response => {
                 if (!response.ok) throw new Error("Video file not found!");
@@ -7129,7 +7129,7 @@ window.playTutorialVideo = function(allowSkip) {
                 const vid = document.createElement('video');
                 vid.id = 'tutorial-video';
                 vid.src = videoUrl; 
-                vid.controls = allowSkip; // ðŸ›¡ï¸ NON-SKIPPABLE: Remove seek bar for new players
+                vid.controls = allowSkip; // 🛡️ NON-SKIPPABLE: Remove seek bar for new players
                 vid.autoplay = true;
                 vid.style.cssText = 'max-width:100%; max-height:85%; background:black; outline:none; box-shadow: 0 0 20px #2196F3; border-radius: 8px; cursor: pointer;';
                 vid.onclick = () => { if (vid.paused) vid.play(); else vid.pause(); };
@@ -7138,7 +7138,7 @@ window.playTutorialVideo = function(allowSkip) {
                 skipBtn.innerText = 'SKIP / CLOSE TUTORIAL';
                 skipBtn.id = 'tutorial-skip-btn';
                 skipBtn.style.cssText = 'margin-top:20px; padding:12px 24px; background:#f44336; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold; font-size:16px; box-shadow:0 0 10px red; text-transform: uppercase;';
-                // ðŸ›¡ï¸ NON-SKIPPABLE: Hide skip button for first-time logins
+                // 🛡️ NON-SKIPPABLE: Hide skip button for first-time logins
                 if (!allowSkip) skipBtn.style.display = 'none';
                 
                 const closeTutorial = () => {
@@ -7147,19 +7147,19 @@ window.playTutorialVideo = function(allowSkip) {
                     vid.load();
                     overlay.remove(); 
                     
-                    // ðŸ›¡ï¸ FIX 1: Delay the RAM wipe slightly so the browser doesn't panic and crash!
+                    // 🛡️ FIX 1: Delay the RAM wipe slightly so the browser doesn't panic and crash!
                     setTimeout(() => { URL.revokeObjectURL(videoUrl); }, 1000);
 
-                    // ðŸ›¡ï¸ FIX 2: Fire the Instant Save to Supabase!
+                    // 🛡️ FIX 2: Fire the Instant Save to Supabase!
                     if (game.player.baseStats) {
                         game.player.baseStats.watchedTutorial = true;
                     }
                     if (socket) {
-                        socket.emit('markTutorialWatched'); // ðŸ‘ˆ THIS IS THE INSTANT SAVE!
+                        socket.emit('markTutorialWatched'); // 👈 THIS IS THE INSTANT SAVE!
                     }
                     
                     setTimeout(() => {
-                        // ðŸ›¡ï¸ FIX 3: Bulletproof string checking for the Map ID
+                        // 🛡️ FIX 3: Bulletproof string checking for the Map ID
                         let mapIdStr = (typeof safeMapData !== 'undefined' && safeMapData.id) ? String(safeMapData.id) : 'town';
                         let nextTrack = window.routeMapMusic(mapIdStr);
                         
@@ -7178,7 +7178,7 @@ window.playTutorialVideo = function(allowSkip) {
             .catch(err => {
                 console.error("Tutorial fetch failed:", err);
                 if (overlay) overlay.remove();
-                // ðŸ›¡ï¸ THE SUPABASE FIX: Fire an instant, priority socket command bypassing the 600ms delay
+                // 🛡️ THE SUPABASE FIX: Fire an instant, priority socket command bypassing the 600ms delay
                     if (game.player.baseStats) {
                         game.player.baseStats.watchedTutorial = true;
                     }
@@ -7197,13 +7197,13 @@ window.playTutorialVideo = function(allowSkip) {
     }
 };
 // ==========================================
-// ðŸ’³ REAL MONEY CASH SHOP & 2FA UI
+// 💳 REAL MONEY CASH SHOP & 2FA UI
 // ==========================================
 
 window.openRealMoneyShop = function() {
     let modal = document.getElementById('rm-shop-modal');
 
-    // ðŸ›¡ï¸ THE TOGGLE FIX: If it's already open, close it and stop!
+    // 🛡️ THE TOGGLE FIX: If it's already open, close it and stop!
     if (modal && modal.style.display === 'block') {
         modal.style.display = 'none';
         return;
@@ -7229,7 +7229,7 @@ if (socket) {
 
         let html = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #444; padding-bottom:10px;">
-                <h2 style="margin:0; color:#E040FB; text-shadow: 0 0 10px #E040FB;">ðŸ’Ž Exo Emporium</h2>
+                <h2 style="margin:0; color:#E040FB; text-shadow: 0 0 10px #E040FB;">💎 Exo Emporium</h2>
                 <div style="background:#222; padding:5px 10px; border-radius:4px; border:1px solid #E040FB;">
                     <span style="color:#aaa; font-size:12px;">Balance:</span>
                     <strong id="ui-gem-balance" style="color:#E040FB; font-size:16px; margin-left:5px;">${data.exoGems || 0}</strong>
@@ -7257,11 +7257,11 @@ if (socket) {
                 let nameColor = i.isSeasonal ? '#FFD700' : '#E040FB';
                 let shadow = i.isSeasonal ? 'text-shadow: 0 0 10px #FFD700;' : '';
                 let border = i.isSeasonal ? 'border: 2px solid #FFD700; box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.15);' : 'border: 1px solid #444;';
-                let tag = i.isSeasonal ? ' <span style="font-size:11px; color:#fff;">ðŸ° (Seasonal)</span>' : '';
+                let tag = i.isSeasonal ? ' <span style="font-size:11px; color:#fff;">🐰 (Seasonal)</span>' : '';
 
                 let previewBtn = '';
                 if (i.previewType) {
-                    previewBtn = `<button class="btn" style="background:#1a1a2e; padding:8px 10px; font-size:14px; color:#4fc3f7; border-color:#4fc3f7; font-weight:bold; cursor:pointer; min-width:40px;" onclick="window.openCosmeticPreview('${i.previewType}', '${i.previewId}', '${i.name}')" title="Preview">ðŸ‘ï¸</button>`;
+                    previewBtn = `<button class="btn" style="background:#1a1a2e; padding:8px 10px; font-size:14px; color:#4fc3f7; border-color:#4fc3f7; font-weight:bold; cursor:pointer; min-width:40px;" onclick="window.openCosmeticPreview('${i.previewType}', '${i.previewId}', '${i.name}')" title="Preview">👁️</button>`;
                 }
 
                 html += `<div style="background:#222; ${border} padding:10px; border-radius:6px; margin-bottom:10px; text-align:left;">
@@ -7269,20 +7269,20 @@ if (socket) {
                             <div style="color:#aaa; font-size:12px; margin-bottom:8px;">${i.desc}</div>
                             <div style="display:flex; justify-content:space-between; align-items:center; gap:5px;">
                                 ${previewBtn}
-                                <button class="btn" style="background:#333; padding:8px 10px; font-size:14px; color:#E040FB; border-color:#9c27b0; flex:1; font-weight:bold; cursor:pointer; box-shadow: 0 0 5px #9c27b0;" onclick="window.buyWithGems('${i.id}', '${i.name}', ${i.priceGems})">ðŸ’Ž Buy for ${i.priceGems} Exo Gems</button>
+                                <button class="btn" style="background:#333; padding:8px 10px; font-size:14px; color:#E040FB; border-color:#9c27b0; flex:1; font-weight:bold; cursor:pointer; box-shadow: 0 0 5px #9c27b0;" onclick="window.buyWithGems('${i.id}', '${i.name}', ${i.priceGems})">💎 Buy for ${i.priceGems} Exo Gems</button>
                             </div>
                          </div>`;
             });
             html += `</div>`;
         }
 
-        // ðŸ’³ NATIVE PLATFORM STORE BUTTONS
+        // 💳 NATIVE PLATFORM STORE BUTTONS
         html += `
             <div style="margin-top:15px; display:flex; flex-direction:column; gap:8px;">
                 <h3 style="color:#aaa; font-size:14px; margin: 0 0 5px 0; border-bottom:1px solid #333; padding-bottom:5px;">Get More Exo Gems</h3>
                 <div style="display:flex; gap:5px;">
-                    <button class="btn" style="background:#2196F3; flex:1; font-weight:bold; padding:10px;" onclick="window.purchaseExoGems('gem_pack_50', 5000, '50 Exo Gems')">ðŸ’Ž 50 Gems</button>
-                    <button class="btn" style="background:#9c27b0; flex:1; font-weight:bold; padding:10px;" onclick="window.purchaseExoGems('gem_pack_15', 1500, '15 Exo Gems')">ðŸ’Ž 15 Gems</button>
+                    <button class="btn" style="background:#2196F3; flex:1; font-weight:bold; padding:10px;" onclick="window.purchaseExoGems('gem_pack_50', 5000, '50 Exo Gems')">💎 50 Gems</button>
+                    <button class="btn" style="background:#9c27b0; flex:1; font-weight:bold; padding:10px;" onclick="window.purchaseExoGems('gem_pack_15', 1500, '15 Exo Gems')">💎 15 Gems</button>
                 </div>
                 <button class="btn" style="background:#555; width:100%; margin-top:5px; padding:10px;" onclick="document.getElementById('rm-shop-modal').style.display='none'">Close</button>
             </div>
@@ -7290,7 +7290,7 @@ if (socket) {
         modal.innerHTML = html;
     });
 
-    // ðŸ‘ï¸ COSMETIC PREVIEW WINDOW
+    // 👁️ COSMETIC PREVIEW WINDOW
     window.openCosmeticPreview = function(type, cosmId, itemName) {
         // Remove existing preview
         let existing = document.getElementById('cosmetic-preview-modal');
@@ -7303,7 +7303,7 @@ if (socket) {
         let previewContent = '';
 
         if (type === 'pet') {
-            // ðŸ¾ PET PREVIEW: Show only the pet, large and centered
+            // 🐾 PET PREVIEW: Show only the pet, large and centered
             let petHtml = '';
             let petClass = '';
 
@@ -7377,7 +7377,7 @@ if (socket) {
 
         modal.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(79,195,247,0.3); padding-bottom:10px;">
-                <h3 style="margin:0; color:#4fc3f7; font-size:16px; text-shadow:0 0 10px rgba(79,195,247,0.5);">ðŸ‘ï¸ Cosmetic Preview</h3>
+                <h3 style="margin:0; color:#4fc3f7; font-size:16px; text-shadow:0 0 10px rgba(79,195,247,0.5);">👁️ Cosmetic Preview</h3>
                 <button onclick="document.getElementById('cosmetic-preview-modal').remove()" style="background:none; border:none; color:#888; font-size:20px; cursor:pointer; padding:0 5px; line-height:1;">&times;</button>
             </div>
             <div style="color:#E040FB; font-weight:bold; font-size:14px; margin-bottom:15px; text-shadow:0 0 8px rgba(224,64,251,0.4);">${itemName}</div>
@@ -7392,7 +7392,7 @@ if (socket) {
         let balEl = document.getElementById('ui-gem-balance');
         if (balEl) balEl.innerText = data.newGems;
         
-        // ðŸ›¡ï¸ THE CRITICAL RAM SYNC FIX
+        // 🛡️ THE CRITICAL RAM SYNC FIX
         if (!game.player.baseStats) game.player.baseStats = {};
         game.player.baseStats.exoGems = data.newGems;
         DatabaseManager.savePlayerData(game.player);
@@ -7409,7 +7409,7 @@ if (socket) {
         `;
         if (dom.log) dom.log.innerText = `Purchase Verified! Added ${data.gemsAdded} Exo Gems.`;
 
-        // ðŸ›¡ï¸ THE CRITICAL RAM SYNC FIX: Update client memory so autosave doesn't delete the gems!
+        // 🛡️ THE CRITICAL RAM SYNC FIX: Update client memory so autosave doesn't delete the gems!
         if (!game.player.baseStats) game.player.baseStats = {};
         game.player.baseStats.exoGems = data.newGems;
         DatabaseManager.savePlayerData(game.player);
@@ -7422,10 +7422,10 @@ if (socket) {
 }
 
 // ==========================================
-// ðŸ’³ PLATFORM IAP ROUTER (STEAM / GOOGLE PLAY)
+// 💳 PLATFORM IAP ROUTER (STEAM / GOOGLE PLAY)
 // ==========================================
 window.currentPlatform = 'web';
-// ðŸ›¡ï¸ THE FIX: Safer Electron detection that bypasses Context Isolation limits
+// 🛡️ THE FIX: Safer Electron detection that bypasses Context Isolation limits
 if (navigator.userAgent.toLowerCase().includes(' electron/') || (typeof process !== 'undefined' && process.versions && process.versions.electron)) {
     window.currentPlatform = 'steam'; 
 } else if (window.Capacitor || (window.cordova && window.cordova.plugins)) {
@@ -7509,7 +7509,7 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
                 if (window.electronAPI && window.electronAPI.initiateSteamPurchase) {
                     window.electronAPI.initiateSteamPurchase(data.orderId);
                     
-                    // ðŸ›¡ï¸ THE BULLETPROOF FALLBACK: Added a manual "Verify" button!
+                    // 🛡️ THE BULLETPROOF FALLBACK: Added a manual "Verify" button!
                     if (modal) modal.innerHTML = `
                         <h2 style="color:#4CAF50; margin-top: 20px;">Please authorize in the Steam Overlay!</h2>
                         <p style="color:#ccc; font-size:12px; margin-bottom:15px;">Waiting for Steam...</p>
@@ -7557,7 +7557,7 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
     }
 };
 
-// ðŸ›¡ï¸ ANTI-SOFT-LOCK & STEAM FINALIZATION
+// 🛡️ ANTI-SOFT-LOCK & STEAM FINALIZATION
 if (window.electronAPI && window.electronAPI.onMicroTxnAuthorizationResponse) {
     window.electronAPI.onMicroTxnAuthorizationResponse(async (authorized, orderId) => {
         let modal = document.getElementById('rm-shop-modal');
@@ -7570,7 +7570,7 @@ if (window.electronAPI && window.electronAPI.onMicroTxnAuthorizationResponse) {
             return;
         }
 
-        // 2. ðŸ›¡ï¸ THE FIX: User authorized the purchase! Tell the server to finalize it and give the gems.
+        // 2. 🛡️ THE FIX: User authorized the purchase! Tell the server to finalize it and give the gems.
         if (modal) modal.innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Verifying Purchase...</h2><p style="color:#ccc; font-size:12px;">Do not close the game.</p>';
         
         try {
@@ -7602,7 +7602,7 @@ if (window.electronAPI && window.electronAPI.onMicroTxnAuthorizationResponse) {
     });
 }
 
-// ðŸ“¥ LISTENS FOR THE RECEIPT FROM THE WRAPPERS
+// 📥 LISTENS FOR THE RECEIPT FROM THE WRAPPERS
 window.addEventListener('StorePurchaseSuccess', async (event) => {
     const receiptData = event.detail;
     document.getElementById('rm-shop-modal').innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Verifying Purchase...</h2>';
@@ -7643,7 +7643,7 @@ window.buyWithGems = function(itemId, name, price) {
     socket.emit('requestGemPurchase', { itemId: itemId });
 };
 // ==========================================
-// ðŸ’Ž ULTIMATE MOBILE SHOP BUTTON INJECTION
+// 💎 ULTIMATE MOBILE SHOP BUTTON INJECTION
 // ==========================================
 let shopRetryCount = 0;
 let shopInjectInterval = setInterval(() => {
@@ -7694,7 +7694,7 @@ let shopInjectInterval = setInterval(() => {
     if (shopRetryCount > 30) clearInterval(shopInjectInterval); // Stop after 30s
 }, 1000);
 // ==========================================
-// ðŸ“œ DAILY MISSIONS ENGINE
+// 📜 DAILY MISSIONS ENGINE
 // ==========================================
 window.openDailyMissionsUI = function() {
     let modal = document.getElementById('daily-missions-modal');
@@ -7725,7 +7725,7 @@ if (socket) {
 
         let html = `
             <div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-20px -20px 15px -20px; border-radius:8px 8px 0 0; border-bottom:1px solid #FF9800;">
-                <h2 style="margin:0; color:#FF9800; pointer-events:none;">ðŸ“œ Daily Mission</h2>
+                <h2 style="margin:0; color:#FF9800; pointer-events:none;">📜 Daily Mission</h2>
             </div>
         `;
 
@@ -7737,7 +7737,7 @@ if (socket) {
             
             if (data.completed) {
                 html += `<div style="background:#111; padding:15px; border:1px solid #4CAF50; border-radius:8px; margin-bottom:15px;">
-                            <h3 style="color:#4CAF50; margin:0 0 10px 0;">ðŸŽ‰ Mission Completed!</h3>
+                            <h3 style="color:#4CAF50; margin:0 0 10px 0;">🎉 Mission Completed!</h3>
                             <p style="color:#FFD700; margin:0; font-weight:bold;">Reward: ${data.reward.toLocaleString()} G</p>
                          </div>`;
                 html += `<p style="color:#888; font-size:12px;">Come back tomorrow for a new mission.</p>`;
@@ -7823,7 +7823,7 @@ window.renderDivineForge = function() {
             let borderCol = isSelected ? '#ffea00' : '#444';
             let bgCol = isSelected ? 'rgba(255, 234, 0, 0.2)' : '#222';
             
-            // ðŸ›¡ï¸ THE FIX: Removed the restrictive 'inv-slot' class and replaced it with a flexible, wide button!
+            // 🛡️ THE FIX: Removed the restrictive 'inv-slot' class and replaced it with a flexible, wide button!
             html += `<div style="border:2px solid ${borderCol}; background:${bgCol}; cursor:pointer; padding:8px 12px; border-radius:6px; font-size:13px; font-weight:bold; color:${inv[i].color}; display:inline-block; text-align:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); transition:all 0.2s ease;" onclick="window.selectForgeItem(${i})">
                         ${inv[i].enhanceLevel ? `${inv[i].name} +${inv[i].enhanceLevel}` : inv[i].name}
                      </div>`;
@@ -7843,7 +7843,7 @@ window.renderDivineForge = function() {
         else if (type === 'armor' || type === 'leggings') { reqE=1; reqR=1; reqG=1; reqB=1; reqGold=1000000; }
         else { reqE=5; reqR=2; reqG=2; reqB=2; reqGold=5000000; }
         
-       // ðŸ›¡ï¸ UI FIX: We actually need to count the Divine Essence, and use fuzzy matching!
+       // 🛡️ UI FIX: We actually need to count the Divine Essence, and use fuzzy matching!
         let cE=0, cR=0, cG=0, cB=0;
         inv.forEach(x => {
             if (!x || !x.name) return;
@@ -7893,7 +7893,7 @@ if (socket) {
 }
 
 // ==========================================
-// ðŸª„ FORGER CRAFTING & REROLL UI
+// 🪄 FORGER CRAFTING & REROLL UI
 // ==========================================
 window.isApplyingForger = false;
 
@@ -7983,7 +7983,7 @@ window.renderConsumablesCrafting = function() {
     const gCol = (game.player.gold >= reqGold) ? '#4CAF50' : '#f44336';
     let canCraftForger = (cR>=reqExo && cG>=reqExo && cB>=reqExo && cStones>=reqStones && game.player.gold >= reqGold);
 
-    let html = '<h2 style="margin-top:0; color:#E040FB; text-shadow: 0 0 10px #E040FB;">ðŸ§ª Consumables</h2>';
+    let html = '<h2 style="margin-top:0; color:#E040FB; text-shadow: 0 0 10px #E040FB;">🧪 Consumables</h2>';
     html += '<p style="font-size:12px; color:#aaa;">Craft powerful consumable items.</p>';
     
     // --- ITEM 1: STAT FORGER ---
@@ -8023,7 +8023,7 @@ if (socket) {
     });
 }
 
-// ðŸª„ HOOK INTO THE EXISTING BLACKSMITH BUTTON
+// 🪄 HOOK INTO THE EXISTING BLACKSMITH BUTTON
 setTimeout(() => {
     let merchantModal = document.getElementById('merchant-modal');
     if (merchantModal) {
@@ -8032,10 +8032,10 @@ setTimeout(() => {
             if (btn.innerText.toLowerCase().includes('blacksmith')) {
                btn.innerText = 'Blacksmith (Divine Forge)';
                 btn.onclick = window.openDivineForge;
-                // ðŸ›¡ï¸ UI FIX: Expanded width, block display, and added pointer cursor!
+                // 🛡️ UI FIX: Expanded width, block display, and added pointer cursor!
                 btn.style.cssText = 'background: linear-gradient(45deg, #ff9800, #ffea00); color: black; font-weight: bold; width: 100%; margin-bottom: 10px; box-shadow: 0 0 10px #ff9800; border: none; padding: 10px; cursor: pointer; border-radius: 4px; box-sizing: border-box; display: block;';
                 
-              // ðŸ‘‡ INJECT CONSUMABLES BUTTON RIGHT AFTER IT
+              // 👇 INJECT CONSUMABLES BUTTON RIGHT AFTER IT
                 if (!document.getElementById('btn-consumables-craft')) {
                     let consBtn = document.createElement('button');
                     consBtn.id = 'btn-consumables-craft';
@@ -8045,7 +8045,7 @@ setTimeout(() => {
                     consBtn.onclick = window.openConsumablesCrafting;
                     btn.parentNode.insertBefore(consBtn, btn.nextSibling);
                     
-                    // ðŸ‘‡ INJECT COSMETICS BUTTON RIGHT AFTER CONSUMABLES
+                    // 👇 INJECT COSMETICS BUTTON RIGHT AFTER CONSUMABLES
                     if (!document.getElementById('btn-cosmetics-craft')) {
                         let cosBtn = document.createElement('button');
                         cosBtn.id = 'btn-cosmetics-craft';
@@ -8053,7 +8053,7 @@ setTimeout(() => {
                         cosBtn.innerText = 'Cosmetics Crafting (Pets)';
                         cosBtn.style.cssText = 'background: linear-gradient(45deg, #311B92, #E040FB); color: white; font-weight: bold; width: 100%; margin-bottom: 10px; box-shadow: 0 0 10px #E040FB; border: none; padding: 10px; cursor: pointer; border-radius: 4px; display: block; box-sizing: border-box;';
                         cosBtn.onclick = window.openCosmeticsCrafting;
-                        consBtn.parentNode.insertBefore(cosBtn, consBtn.nextSibling); // ðŸ›¡ï¸ THE FIX: Attach it to consBtn instead of the deleted forgerBtn!
+                        consBtn.parentNode.insertBefore(cosBtn, consBtn.nextSibling); // 🛡️ THE FIX: Attach it to consBtn instead of the deleted forgerBtn!
                     }
                 }
                 break;
@@ -8126,7 +8126,7 @@ window.renderAhSellGrid = function() {
                 ahSelectedInvIndex = i;
                 document.getElementById('ah-selected-item-name').style.color = inv[i].color || '#fff';
                 document.getElementById('ah-selected-item-name').innerText = `Selling 1x: ${displayName}`;
-                // ðŸ›¡ï¸ THE FIX: Render the exact item stats to the seller!
+                // 🛡️ THE FIX: Render the exact item stats to the seller!
                 document.getElementById('ah-selected-item-tooltip').innerHTML = window.getItemTooltip(inv[i]);
             };
         }
@@ -8138,12 +8138,12 @@ window.ahList = function() {
     if (ahSelectedInvIndex === -1) return dom.log.innerText = "Select an item to sell first.";
     const item = game.player.inventory[ahSelectedInvIndex];
     
-    // ðŸ° THE FIX: Allow Seasonal cosmetics/pets to bypass the auction lock!
+    // 🐰 THE FIX: Allow Seasonal cosmetics/pets to bypass the auction lock!
     if (item && item.type === 'aura' && !item.isSeasonal && !String(item.name).includes('Easter')) {
         return dom.log.innerText = "Normal cosmetics and pets cannot be auctioned!";
     }
     
-    // ðŸ›¡ï¸ THE FIX: Prevent listing bound gear
+    // 🛡️ THE FIX: Prevent listing bound gear
     if (item && (item.rarity === 'Godly' || item.rarity === 'Divine') && item.enhanceLevel > 0) {
         return dom.log.innerText = "Enhanced Godly and Divine gear cannot be auctioned!";
     }
@@ -8165,7 +8165,7 @@ window.ahCancel = function(auctionId) {
     socket.emit('ah_cancel', { auctionId });
 };
 
-// ðŸ“¡ SOCKET LISTENERS FOR AUCTION HOUSE
+// 📡 SOCKET LISTENERS FOR AUCTION HOUSE
 if (socket) {
     socket.on('ah_searchResults', (results) => {
         const box = document.getElementById('ah-browse-results');
@@ -8177,7 +8177,7 @@ if (socket) {
        results.forEach(r => {
             let item = r.item_data;
             let dName = item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name;
-            let safeItemJson = encodeURIComponent(JSON.stringify(item)); // ðŸ›¡ï¸ Safely package the data
+            let safeItemJson = encodeURIComponent(JSON.stringify(item)); // 🛡️ Safely package the data
             
             html += `<div class="ah-row">
                 <div class="ah-item-info">
@@ -8233,7 +8233,7 @@ setTimeout(() => {
     }
 }, 2000);
 // ==========================================
-// ðŸ¡ PLAYER HOUSING SYSTEM
+// 🏡 PLAYER HOUSING SYSTEM
 // ==========================================
 window.openHomeSaleUI = function() {
     let modal = document.getElementById('home-sale-modal');
@@ -8246,7 +8246,7 @@ window.openHomeSaleUI = function() {
     }
     
     modal.innerHTML = `
-        <h2 style="color:#4CAF50; margin-top:0; text-shadow: 0 0 10px #4CAF50;">ðŸ¡ Home For Sale!</h2>
+        <h2 style="color:#4CAF50; margin-top:0; text-shadow: 0 0 10px #4CAF50;">🏡 Home For Sale!</h2>
         <p style="color:#ccc; font-size:14px;">Purchase your own private sanctuary. Relax, store your trophies, and invite your party over!</p>
         <div style="margin: 20px 0; padding: 15px; background: #111; border: 1px dashed #FFD700; border-radius: 8px;">
             <span style="color:#FFD700; font-size:26px; font-weight:bold; letter-spacing:1px;">1,000,000 G</span>
@@ -8272,7 +8272,7 @@ window.buyHome = function() {
     document.getElementById('home-sale-modal').innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Processing Deeds...</h2>';
 };
 // ==========================================
-// ðŸ§° HOME STORAGE SYSTEM
+// 🧰 HOME STORAGE SYSTEM
 // ==========================================
 window.openStorageUI = function() {
     window.isStorageOpen = true;
@@ -8291,12 +8291,12 @@ window.renderStorageGrid = function(storage) {
     let modal = document.getElementById('storage-modal');
     if (!modal) return;
 
-    // ðŸ›¡ï¸ THE FIX: Wrapped the title in a drag handle so the window can be grabbed and moved!
-    let html = '<div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-15px -15px 15px -15px; border-radius:8px 8px 0 0; border-bottom:1px solid #E040FB;"><h2 style="color:#E040FB; margin:0; pointer-events:none;">ðŸ§° Home Storage</h2></div>';
+    // 🛡️ THE FIX: Wrapped the title in a drag handle so the window can be grabbed and moved!
+    let html = '<div class="window-drag-handle" style="cursor:grab; padding:10px; background:#222; margin:-15px -15px 15px -15px; border-radius:8px 8px 0 0; border-bottom:1px solid #E040FB;"><h2 style="color:#E040FB; margin:0; pointer-events:none;">🧰 Home Storage</h2></div>';
     html += '<p style="font-size:12px; color:#aaa;">Click items in your Inventory to store them. Click items here to retrieve them.</p>';
     html += '<div style="display:flex; flex-wrap:wrap; gap:5px; justify-content:center; margin-bottom:15px; background:#111; padding:10px; border-radius:5px;">';
     
-    // ðŸ›¡ï¸ THE FIX: Loop 15 times to render the new 3rd row!
+    // 🛡️ THE FIX: Loop 15 times to render the new 3rd row!
     for (let i = 0; i < 15; i++) {
         let item = storage[i];
         html += `<div class="inv-slot" style="border: 2px solid ${item ? item.color || '#fff' : '#444'}; cursor: pointer; width: 60px; height: 60px;" onclick="if(socket) socket.emit('transferFromStorage', ${i})">`;
@@ -8329,7 +8329,7 @@ if (socket) {
         modal.style.display = 'block';
         window.renderStorageGrid(storage);
         
-        // ðŸ›¡ï¸ THE FIX: Removed the mobile-only check so it is draggable for EVERYONE!
+        // 🛡️ THE FIX: Removed the mobile-only check so it is draggable for EVERYONE!
         window.enableMobileWindowControls(modal);
         window.bringWindowToFront(modal);
     });
@@ -8339,7 +8339,7 @@ if (socket) {
     });
 }
 // ==========================================
-// ðŸ‘» HAUNTED HOUSE ENGINE
+// 👻 HAUNTED HOUSE ENGINE
 // ==========================================
 window.openHauntedHouseUI = function() {
     if (game.party && game.party.members && game.party.members.length > 1) {
@@ -8431,19 +8431,19 @@ if (socket) {
 }
 
 // ==========================================
-// ðŸ¥š EASTER EGG PET CSS & ANIMATIONS
+// 🥚 EASTER EGG PET CSS & ANIMATIONS
 // ==========================================
 const eggStyle = document.createElement('style');
 eggStyle.innerHTML = `
    .pet-egg {
         position: absolute;
-        /* ðŸŒŸ THE FIX: Shrunk the egg to a cuter, less intrusive size */
+        /* 🌟 THE FIX: Shrunk the egg to a cuter, less intrusive size */
         width: 22px;
         height: 30px;
         /* Perfect egg shape */
         border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
         
-        /* ðŸŒŸ THE FIX: Tightened the stripes so they still show up nicely on a smaller egg */
+        /* 🌟 THE FIX: Tightened the stripes so they still show up nicely on a smaller egg */
         background: repeating-linear-gradient(
             45deg,
             #FFB7B2 0px, #FFB7B2 6px,   /* Pastel Pink */
@@ -8452,7 +8452,7 @@ eggStyle.innerHTML = `
             #C7CEEA 18px, #C7CEEA 24px  /* Pastel Periwinkle */
         );
         
-        /* ðŸŒŸ THE FIX: Scaled down the glow slightly so it doesn't overwhelm the small body */
+        /* 🌟 THE FIX: Scaled down the glow slightly so it doesn't overwhelm the small body */
         box-shadow: 0 0 10px 3px rgba(255, 128, 171, 0.8), 
                     0 0 18px 6px rgba(255, 193, 227, 0.6), 
                     inset 0 0 6px rgba(255, 255, 255, 0.9);
@@ -8490,12 +8490,12 @@ eggStyle.innerHTML = `
         99% { transform: translateX(1px) rotate(1deg); }
         100% { transform: translate(0) rotate(0); } /* Loop back to Phase 1 */
     }
-   /* ðŸ° EASTER AURA: Supercharged Color-Shifting Glow */
+   /* 🐰 EASTER AURA: Supercharged Color-Shifting Glow */
     .avatar-rig:has(.aura-easter) {
         animation: easterColorShift 4s infinite alternate ease-in-out !important;
     }
 
-    /* ðŸ”¥ Boosted the shadows with a 3rd layer and added brightness for intensity */
+    /* 🔥 Boosted the shadows with a 3rd layer and added brightness for intensity */
     @keyframes easterColorShift {
         0% { filter: drop-shadow(0 0 10px #FFB7B2) drop-shadow(0 0 20px #FFB7B2) drop-shadow(0 0 40px #FF919D) brightness(1.4); }   
         33% { filter: drop-shadow(0 0 10px #FFFFB5) drop-shadow(0 0 20px #FFFFB5) drop-shadow(0 0 40px #FFEA00) brightness(1.4); }  
@@ -8512,7 +8512,7 @@ eggStyle.innerHTML = `
         z-index: 100 !important;
     }
 
-   /* ðŸ° EASTER AURA: Bubbling Bunny Heads */
+   /* 🐰 EASTER AURA: Bubbling Bunny Heads */
     .cosmetic-aura.aura-easter::before,
     .cosmetic-aura.aura-easter::after {
         content: '';
@@ -8580,7 +8580,7 @@ techStyle.innerHTML = `
 document.head.appendChild(techStyle);
 
 // ==========================================
-// ðŸ‘» COSMETICS CRAFTING UI
+// 👻 COSMETICS CRAFTING UI
 // ==========================================
 window.openCosmeticsCrafting = function() {
     document.getElementById('merchant-modal').style.display = 'none';
@@ -8609,7 +8609,7 @@ window.renderCosmeticsCrafting = function() {
     let canCraft = cSouls >= reqSouls;
     let col = canCraft ? '#4CAF50' : '#f44336';
 
-    let html = '<h2 style="margin-top:0; color:#E040FB; text-shadow: 0 0 10px #E040FB;">ðŸ‘» Cosmetics Crafting</h2>';
+    let html = '<h2 style="margin-top:0; color:#E040FB; text-shadow: 0 0 10px #E040FB;">👻 Cosmetics Crafting</h2>';
     html += '<p style="font-size:12px; color:#aaa;">Exchange boss materials for rare pets and cosmetics.</p>';
 
     html += '<div style="background:#222; padding:15px; border-radius:5px; margin-bottom:15px; font-size:14px; text-align:left; border: 1px solid #444;">';
@@ -8628,7 +8628,7 @@ if (socket) {
     });
 }
 // ==========================================
-// ðŸ‘» VOID PET CSS
+// 👻 VOID PET CSS
 // ==========================================
 const voidStyle = document.createElement('style');
 voidStyle.innerHTML = `
@@ -8645,7 +8645,7 @@ voidStyle.innerHTML = `
         border-radius: 50% 50% 40% 40%;
         position: relative;
         box-shadow: 0 0 15px #311B92;
-        /* ðŸ‘» THE FIX: Replaced float with the new vanish/fade animation */
+        /* 👻 THE FIX: Replaced float with the new vanish/fade animation */
         animation: voidFadeFloat 6s ease-in-out infinite;
     }
     .pet-void .w-eye {
@@ -8671,7 +8671,7 @@ voidStyle.innerHTML = `
     
     @keyframes wraithTail { 0% { transform: translateY(0); opacity: 0.8; } 100% { transform: translateY(8px); opacity: 0.1; } }
 
-    /* ðŸ‘» THE VANISHING ANIMATION */
+    /* 👻 THE VANISHING ANIMATION */
     @keyframes voidFadeFloat {
         0%   { transform: translateY(0); opacity: 1; }
         20%  { transform: translateY(-10px); opacity: 1; }
@@ -8686,7 +8686,7 @@ voidStyle.innerHTML = `
 document.head.appendChild(voidStyle);
 
 // ==========================================
-// ðŸ’³ ANDROID STORE INITIALIZATION
+// 💳 ANDROID STORE INITIALIZATION
 // ==========================================
 document.addEventListener('deviceready', () => {
     if (window.CdvPurchase) {
@@ -8706,7 +8706,7 @@ document.addEventListener('deviceready', () => {
         store.when().approved((transaction) => {
 // ==========================================
             
-            // ðŸ›¡ï¸ CORDOVA V13 BULLETPROOF TOKEN FIX
+            // 🛡️ CORDOVA V13 BULLETPROOF TOKEN FIX
             let correctPackageId = transaction.productId || (transaction.products && transaction.products.length > 0 ? transaction.products[0].id : "gem_pack_50");
             let correctToken = transaction.purchaseToken || (transaction.nativePurchase && transaction.nativePurchase.purchaseToken) || transaction.id || "test_token";
 
@@ -8727,7 +8727,7 @@ document.addEventListener('deviceready', () => {
 
         store.initialize([Platform.GOOGLE_PLAY]);
         
-        // ðŸ›‘ THE FIX: Force the app to fetch the products from Google Play!
+        // 🛑 THE FIX: Force the app to fetch the products from Google Play!
         store.update(); 
     }
 }, false);
@@ -8772,7 +8772,7 @@ window.toggleSettingsMenu = function() {
 
 // Full Screen Toggle (PC Only)
 window.toggleFullScreen = function() {
-    window._userToggledFS = true; // ðŸ›¡ï¸ Mark that the user initiated this toggle
+    window._userToggledFS = true; // 🛡️ Mark that the user initiated this toggle
     if (window.electronAPI) {
         window.electronAPI.toggleFullScreen();
     } else {
@@ -8792,7 +8792,7 @@ window.toggleFullScreen = function() {
     }
 };
 
-// ðŸ›¡ï¸ FULLSCREEN PROTECTION: Re-enter fullscreen if ESC accidentally triggered the browser's exit
+// 🛡️ FULLSCREEN PROTECTION: Re-enter fullscreen if ESC accidentally triggered the browser's exit
 document.addEventListener('fullscreenchange', () => {
     if (!document.fullscreenElement && !window._userToggledFS && !window.electronAPI) {
         document.documentElement.requestFullscreen().catch(() => {});
@@ -8841,7 +8841,7 @@ window.executeCloseGame = function() {
     // Stop all audio
     if (window.currentBGM) { window.currentBGM.pause(); window.currentBGM.currentTime = 0; }
     
-    // ðŸ›¡ï¸ KILL THE GAME PROCESS (not just return to login)
+    // 🛡️ KILL THE GAME PROCESS (not just return to login)
     const confirmModal = document.getElementById('close-game-confirm');
     if (confirmModal) confirmModal.style.display = 'none';
     
@@ -8863,7 +8863,7 @@ window.executeCloseGame = function() {
 };
 
 // ==========================================
-// ðŸ¾ MINION SYSTEM: Client-Side Golden Slime
+// 🐾 MINION SYSTEM: Client-Side Golden Slime
 // ==========================================
 (function() {
     // Inject minion CSS
@@ -8910,7 +8910,7 @@ window.executeCloseGame = function() {
 
     window._activeMinion = null;
 
-    // ðŸ¾ Spawn minion when entering a map (called after teleport)
+    // 🐾 Spawn minion when entering a map (called after teleport)
     window.spawnMinion = function() {
         // Remove any existing minion
         window.despawnMinion();
@@ -8935,9 +8935,9 @@ window.executeCloseGame = function() {
         // Tooltip with skill info
         const tooltip = document.createElement('div');
         tooltip.className = 'minion-tooltip';
-        tooltip.innerHTML = `ðŸ¾ ${minionData.name || 'Golden Slime'}<br>` +
-            (minionData.skillName ? `š¡ Skill: ${minionData.skillName}` : 'ðŸ’¤ No skill learned') +
-            `<br>ðŸ’¥ DMG: 500 (Pure)`;
+        tooltip.innerHTML = `🐾 ${minionData.name || 'Golden Slime'}<br>` +
+            (minionData.skillName ? `š¡ Skill: ${minionData.skillName}` : '💤 No skill learned') +
+            `<br>💥 DMG: 500 (Pure)`;
         el.appendChild(tooltip);
         
         document.getElementById('world').appendChild(el);
@@ -8976,14 +8976,14 @@ window.executeCloseGame = function() {
         }
     };
 
-    // ðŸ¾ Minion AI Loop: Follow player, attack nearest monster
+    // 🐾 Minion AI Loop: Follow player, attack nearest monster
     setInterval(() => {
         const minion = window._activeMinion;
         if (!minion || !game.isRunning || game.isGhost) return;
         
         const now = Date.now();
         
-        // ðŸ¾ STUN LOGIC
+        // 🐾 STUN LOGIC
         if (minion.isStunned) {
             if (now > minion.stunUntil) {
                 minion.isStunned = false;
@@ -9026,7 +9026,7 @@ window.executeCloseGame = function() {
         const px = game.player.x;
         const py = game.player.y;
         
-        // ðŸ¾ MOVEMENT LOGIC: Chase monster if in range, otherwise follow player
+        // 🐾 MOVEMENT LOGIC: Chase monster if in range, otherwise follow player
         let targetX = px;
         let targetY = py;
         let stopDist = 80;
@@ -9078,7 +9078,7 @@ window.executeCloseGame = function() {
         if (nearestMob && nearestDist <= 200 && socket) {
             minion.lastAttackTs = now;
             
-            // ðŸ¾ MINION SKILL COOLDOWN MAP (matches original class cooldowns)
+            // 🐾 MINION SKILL COOLDOWN MAP (matches original class cooldowns)
             const MINION_SKILL_CDS = {
                 'heal1': 20000, 'heal3': 100000,
                 'ice1': 25000, 'ice3': 110000,
@@ -9107,7 +9107,7 @@ window.executeCloseGame = function() {
                 isMinion: true
             });
 
-            // ðŸ¾ Visual attack feedback: flash the minion
+            // 🐾 Visual attack feedback: flash the minion
             if (minion.dom) {
                 minion.dom.style.filter = 'brightness(2)';
                 setTimeout(() => { if (minion.dom) minion.dom.style.filter = ''; }, 150);
@@ -9123,7 +9123,7 @@ window.executeCloseGame = function() {
 })();
 
 // ==========================================
-// ðŸ¾ COMPANION SYSTEM (same pattern as Minion above)
+// 🐾 COMPANION SYSTEM (same pattern as Minion above)
 // ==========================================
 (function() {
     window._activeCompanions = [];
@@ -9186,7 +9186,7 @@ window.executeCloseGame = function() {
         const nameTag = document.createElement('div');
         nameTag.className = 'name-tag';
         nameTag.style.cssText = `color:${color}; font-size:11px; text-shadow: 0 0 5px ${color}; pointer-events:none;`;
-        nameTag.innerText = `ðŸ¾ ${comp.name || comp.class}`;
+        nameTag.innerText = `🐾 ${comp.name || comp.class}`;
         container.appendChild(nameTag);
 
         const hpBar = document.createElement('div');
@@ -9405,7 +9405,7 @@ window.executeCloseGame = function() {
     `;
     document.head.appendChild(compCSS);
 
-    // ðŸ¾ COMPANION GAME LOOP: Runs on rAF, handles map detection + AI
+    // 🐾 COMPANION GAME LOOP: Runs on rAF, handles map detection + AI
     setInterval(() => {
         if (!game || !game.player) return;
 
