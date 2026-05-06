@@ -603,11 +603,11 @@ async function processMonthlyTavernRewards() {
             let rank = i + 1;
             
             if (rank === 1) {
-                rewardItem = { id: Date.now() + Math.random(), name: "Huge Nugget", type: "material", rarity: "Divine", color: "#ffea00", description: "A massive chunk of pure gold. Sell for 500,000 Gold.", quantity: 5 };
+                rewardItem = { id: Date.now() + Math.random(), name: "Huge Nugget", type: "material", rarity: "Divine", color: "#ffea00", sellPrice: 500000, description: "A massive chunk of pure gold. Sell for 500,000 Gold.", quantity: 5 };
             } else if (rank === 2) {
-                rewardItem = { id: Date.now() + Math.random(), name: "Huge Nugget", type: "material", rarity: "Divine", color: "#ffea00", description: "A massive chunk of pure gold. Sell for 500,000 Gold.", quantity: 1 };
+                rewardItem = { id: Date.now() + Math.random(), name: "Huge Nugget", type: "material", rarity: "Divine", color: "#ffea00", sellPrice: 500000, description: "A massive chunk of pure gold. Sell for 500,000 Gold.", quantity: 2 };
             } else if (rank === 3) {
-                rewardItem = { id: Date.now() + Math.random(), name: "Big Gold Bar", type: "material", rarity: "Legendary", color: "#f44336", description: "A heavy bar of pure gold. Sell for 250,000 Gold.", quantity: 2 };
+                rewardItem = { id: Date.now() + Math.random(), name: "Big Gold Bar", type: "material", rarity: "Godly", color: "#e0ffff", sellPrice: 250000, description: "A heavy bar of pure gold. Sell for 250,000 Gold.", quantity: 2 };
             }
             
             if (rewardItem) {
@@ -1227,7 +1227,7 @@ function generateLoot(monster) {
     // 💰 2. BOSS GOLD BAR INJECTION (NEW)
     // ==========================================
     if (monster.category === "floor_boss" && Math.random() < 0.10) {
-        return { id: Date.now() + Math.random(), name: "Big Gold Bar", type: "material", rarity: "Godly", color: "#e0ffff", sellPrice: 100000, description: "A heavy bar of pure gold. Sell for 100,000 Gold.", quantity: 1 };
+        return { id: Date.now() + Math.random(), name: "Big Gold Bar", type: "material", rarity: "Godly", color: "#e0ffff", sellPrice: 250000, description: "A heavy bar of pure gold. Sell for 250,000 Gold.", quantity: 1 };
     }
     if (monster.category === "mini_boss" && Math.random() < 0.05) {
         return { id: Date.now() + Math.random(), name: "Normal Gold Bar", type: "material", rarity: "Legendary", color: "#f44336", sellPrice: 25000, description: "A standard bar of pure gold. Sell for 25,000 Gold.", quantity: 1 };
