@@ -259,7 +259,8 @@ window.game = {
             Rare: true,
             Unique: true,
             Legendary: true,
-            Godly: true
+            Godly: true,
+            Divine: true
         }
     }, 
     monsters: {}, remotePlayers: {}, party: null 
@@ -706,10 +707,12 @@ window.renderSkillScreen = function() {
 }
 
 window.chooseClass = function(cName) {
-    if (!confirm(`Are you sure you want to become a ${cName}? This is permanent!`)) return;
-    if(!game.player.baseStats) game.player.baseStats = {};
-    game.player.baseStats.playerClass = cName; DatabaseManager.savePlayerData(game.player);
-    window.renderSkillScreen(); window.updateSkillMenu(); window.updateUI(); dom.log.innerText = `You are now a ${cName}!`; window.spawnSpark(game.player.x + 24, game.player.y + 48);
+    window.customConfirm(`Are you sure you want to become a ${cName}? This is permanent!`, function(accepted) {
+        if (!accepted) return;
+        if(!game.player.baseStats) game.player.baseStats = {};
+        game.player.baseStats.playerClass = cName; DatabaseManager.savePlayerData(game.player);
+        window.renderSkillScreen(); window.updateSkillMenu(); window.updateUI(); dom.log.innerText = `You are now a ${cName}!`; window.spawnSpark(game.player.x + 24, game.player.y + 48);
+    });
 }
 
 window.updateHotbarCooldowns = function() {
@@ -945,7 +948,7 @@ if (skillId === 'sum1') {
             if(socket) socket.emit('syncPet', { id: petId, x: pet.x, y: pet.y, alive: true });
         }
         
-        // šª BIG BOSS SLIME: x5 Player HP!
+        // <span style='display:inline-block;width:8px;height:8px;border-radius:50%;background:#f44336;margin-right:4px;'></span> BIG BOSS SLIME: x5 Player HP!
         if (game.player.level >= 75) {
             let bossId = Date.now() + 99;
             let bEl = document.createElement('div'); bEl.className = 'pet-slime';
@@ -2466,7 +2469,10 @@ window.customPrompt = function(message, callback) {
 
     // Clean up function to prevent double-firing
     const cleanup = () => {
-        if (document.activeElement) document.activeElement.blur();
+        // 🛡️ FIX: Only blur if focused element is INSIDE the modal, not login fields!
+        if (document.activeElement && modal.contains(document.activeElement)) {
+            document.activeElement.blur();
+        }
         modal.style.display = 'none';
         btnOk.onclick = null;
         btnCancel.onclick = null;
@@ -2497,6 +2503,106 @@ window.customPrompt = function(message, callback) {
             btnCancel.click();
         }
     };
+};
+
+// 🛡️ CUSTOM ALERT: Info-only modal with just an OK button (no input field!)
+window.customAlert = function(message, callback) {
+    const modal = document.getElementById('custom-prompt-modal');
+    const msgEl = document.getElementById('custom-prompt-msg');
+    const inputEl = document.getElementById('custom-prompt-input');
+    const btnOk = document.getElementById('custom-prompt-ok');
+    const btnCancel = document.getElementById('custom-prompt-cancel');
+
+    if (!modal) return;
+
+    msgEl.innerText = message;
+    inputEl.style.display = 'none'; // 🛡️ Hide input — this is info only!
+    btnCancel.style.display = 'none'; // 🛡️ Hide cancel — just OK!
+    modal.style.display = 'flex';
+    btnOk.focus();
+
+    if (typeof window.bringWindowToFront === 'function') {
+        window.bringWindowToFront(modal);
+    }
+
+    const cleanup = () => {
+        if (document.activeElement && modal.contains(document.activeElement)) {
+            document.activeElement.blur();
+        }
+        modal.style.display = 'none';
+        inputEl.style.display = ''; // Restore for next use
+        btnCancel.style.display = ''; // Restore for next use
+        btnOk.onclick = null;
+        document.removeEventListener('keydown', keyHandler);
+    };
+
+    const keyHandler = (e) => {
+        if (modal.style.display !== 'flex') return;
+        if (e.key === 'Enter' || e.key === 'Escape') {
+            e.preventDefault();
+            cleanup();
+            if (callback) callback();
+        }
+    };
+
+    btnOk.onclick = () => {
+        cleanup();
+        if (callback) callback();
+    };
+
+    document.addEventListener('keydown', keyHandler);
+};
+
+// 🛡️ CUSTOM CONFIRM: Yes/No modal with OK + Cancel buttons (no input field!)
+window.customConfirm = function(message, callback) {
+    const modal = document.getElementById('custom-prompt-modal');
+    const msgEl = document.getElementById('custom-prompt-msg');
+    const inputEl = document.getElementById('custom-prompt-input');
+    const btnOk = document.getElementById('custom-prompt-ok');
+    const btnCancel = document.getElementById('custom-prompt-cancel');
+
+    if (!modal) return;
+
+    msgEl.innerText = message;
+    inputEl.style.display = 'none'; // 🛡️ Hide input — this is a yes/no!
+    modal.style.display = 'flex';
+    btnOk.focus();
+
+    if (typeof window.bringWindowToFront === 'function') {
+        window.bringWindowToFront(modal);
+    }
+
+    const cleanup = () => {
+        if (document.activeElement && modal.contains(document.activeElement)) {
+            document.activeElement.blur();
+        }
+        modal.style.display = 'none';
+        inputEl.style.display = ''; // Restore for next use
+        btnOk.onclick = null;
+        btnCancel.onclick = null;
+        document.removeEventListener('keydown', keyHandler);
+    };
+
+    const keyHandler = (e) => {
+        if (modal.style.display !== 'flex') return;
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            cleanup();
+            callback(false);
+        }
+    };
+
+    btnOk.onclick = () => {
+        cleanup();
+        callback(true);
+    };
+
+    btnCancel.onclick = () => {
+        cleanup();
+        callback(false);
+    };
+
+    document.addEventListener('keydown', keyHandler);
 };
 // ==========================================
 // 🎵 GLOBAL AUDIO & VOLUME ENGINE
@@ -2813,7 +2919,7 @@ if(item.type === 'gem') return html + `<span style="color:#00ffff;"><em>${item.d
     if(item.type === 'minion') {
         html += `<span style="color:#FFD700;"><em>${item.description || 'A Golden Slime Minion.'}</em></span><br>`;
         if (item.skillName) {
-            html += `<span style="color:#E040FB; font-weight:bold;">š¡ Skill: ${item.skillName}</span><br>`;
+            html += `<span style="color:#E040FB; font-weight:bold;">✨ Skill: ${item.skillName}</span><br>`;
         } else {
             html += `<span style="color:#888;">u{1F4A4} No skill learned yet</span><br>`;
         }
@@ -2849,7 +2955,7 @@ if(item.type === 'gem') return html + `<span style="color:#00ffff;"><em>${item.d
     if(item.minion) {
         html += `<br><span style="color:#FFD700; font-weight:bold;">u{1F43E} Minion: ${item.minion.name || 'Golden Slime'}</span><br>`;
         if (item.minion.skillName) {
-            html += `<span style="color:#E040FB;">š¡ Skill: ${item.minion.skillName}</span><br>`;
+            html += `<span style="color:#E040FB;">✨ Skill: ${item.minion.skillName}</span><br>`;
         } else {
             html += `<span style="color:#888;">u{1F4A4} No skill</span><br>`;
         }
@@ -3622,7 +3728,7 @@ window.addEventListener('mouseup', (e) => {
     }
 });
 window.undoLastBox = function() { if (!window.adminMode) return; if (safeMapData.teleports?.length > 0) { safeMapData.teleports.pop(); dom.log.innerText = "Undid last teleport."; } else if (safeMapData.collisions?.length > 0) { safeMapData.collisions.pop(); dom.log.innerText = "Undid last collision."; } window.buildCollisionLayers(); window.copyAdminData(); }
-window.clearAllBoxes = function() { if (!window.adminMode || !confirm("Clear ALL boxes?")) return; safeMapData.collisions = []; safeMapData.teleports = []; safeMapData.normalSpawns = []; safeMapData.miniBossSpawns = []; safeMapData.floorBossSpawns = []; window.buildCollisionLayers(); window.copyAdminData(); dom.log.innerText = "All boxes cleared."; }
+window.clearAllBoxes = function() { if (!window.adminMode) return; window.customConfirm("Clear ALL boxes?", function(accepted) { if (!accepted) return; safeMapData.collisions = []; safeMapData.teleports = []; safeMapData.normalSpawns = []; safeMapData.miniBossSpawns = []; safeMapData.floorBossSpawns = []; window.buildCollisionLayers(); window.copyAdminData(); dom.log.innerText = "All boxes cleared."; }); }
 window.copyAdminData = function() { let mapId = safeMapData.id || 'town'; let varName = mapId === 'town' ? 'townMapData' : mapId + 'MapData'; let str = `var ${varName} = ` + JSON.stringify(safeMapData, null, 4) + `;\nif(typeof window !== 'undefined') window['${varName}'] = ${varName};`; dom.adminOutput.value = str; }
 window.adminSetPlayerLevel = function() { 
     let newLvl = parseInt(document.getElementById('admin-player-level').value) || 1; 
@@ -3777,7 +3883,7 @@ window.inviteTargetToParty = function() { if (!activeTargetPlayerId) return; doc
 let pendingRaidInvite = null;
 window.inviteTargetToRaid = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('raidInvite', { targetId: activeTargetPlayerId }); };
 window.respondRaidInvite = function(accept) { if(document.activeElement) document.activeElement.blur(); document.getElementById('raid-invite-dialog').style.display = 'none'; if (pendingRaidInvite) { if(socket) socket.emit('raidInviteResponse', { fromId: pendingRaidInvite, accept }); pendingRaidInvite = null; } };
-window.leaveRaid = function() { if(confirm('Are you sure you want to disband the Raid Team?')) { if(socket) socket.emit('leaveRaid'); } };
+window.leaveRaid = function() { window.customConfirm('Are you sure you want to disband the Raid Team?', function(accepted) { if(accepted && socket) socket.emit('leaveRaid'); }); };
 window.requestTrade = function() { if (!activeTargetPlayerId) return; document.getElementById('player-context-menu').style.display = 'none'; if(socket) socket.emit('tradeRequest', { targetId: activeTargetPlayerId }); dom.log.innerText = `Trade request sent to ${activeTargetPlayerId}.`; }; 
 window.closeInspect = function() { dom.inspect.style.display = 'none'; };
 // 🛡️ FIX #6: leaveParty just emits to server and resets UI. Server's forceTeleport handles the map change.
@@ -4530,7 +4636,7 @@ socket.on('mailList', (mails) => {
 
     window.sendVerificationCode = function() {
         const email = document.getElementById('verify-email-input').value.trim();
-        if (!email || !email.includes('@')) return window.customPrompt("Please enter a valid email.", function(){});
+        if (!email || !email.includes('@')) return window.customAlert("Please enter a valid email.");
         
         socket.emit('requestEmailLink', { username: pendingVerifyUsername, email: email });
         document.getElementById('verify-email-input').disabled = true;
@@ -4538,7 +4644,7 @@ socket.on('mailList', (mails) => {
 
     window.submitVerificationCode = function() {
         const code = document.getElementById('verify-code-input').value.trim();
-        if (code.length !== 6) return window.customPrompt("Code must be 6 digits.", function(){});
+        if (code.length !== 6) return window.customAlert("Code must be 6 digits.");
         
         socket.emit('verifyEmailCode', { username: pendingVerifyUsername, code: code });
     };
@@ -4549,13 +4655,13 @@ socket.on('mailList', (mails) => {
     });
 
     socket.on('emailError', (msg) => {
-        window.customPrompt(msg, function(){});
+        window.customAlert(msg);
         document.getElementById('verify-email-input').disabled = false;
     });
 
     socket.on('emailVerifiedSuccess', (user) => {
         document.getElementById('email-verify-screen').style.display = 'none';
-        window.customPrompt("Email successfully linked! Welcome to Exonie. PLEASE REFRESH YOUR GAME", function(){});
+        window.customAlert("Email successfully linked! Welcome to Exonie. PLEASE REFRESH YOUR GAME");
         
         // Push them forward in the login pipeline
         if (!global.playerFriends) global.playerFriends = {};
@@ -4566,7 +4672,7 @@ socket.on('mailList', (mails) => {
     });
    socket.on('authError', (msg) => {
     // Show the error message so the user actually sees it on the login screen
-    window.customPrompt(msg, function(){});
+    window.customAlert(msg);
     
     // 🛡️ THE FIX: Force the inputs to wake back up!
     document.getElementById('login-user').disabled = false;
@@ -4580,12 +4686,12 @@ socket.on('mailList', (mails) => {
 });
 
 socket.on('forcedLogout', (msg) => {
-    window.customPrompt(msg || 'You were logged out because this account was opened elsewhere.', function(){});
+    window.customAlert(msg || 'You were logged out because this account was opened elsewhere.');
     localStorage.removeItem('exonie_user');
     localStorage.removeItem('exonie_pass');
     location.reload();
 });
-    socket.on('registerSuccess', (username) => { window.customPrompt("Registration successful! Please log in.", function(){}); window.switchAuth('login'); document.getElementById('loading-screen').style.display = 'none'; document.getElementById('auth-screen').classList.add('active'); });
+    socket.on('registerSuccess', (username) => { window.customAlert("Registration successful! Please log in."); window.switchAuth('login'); document.getElementById('loading-screen').style.display = 'none'; document.getElementById('auth-screen').classList.add('active'); });
     socket.on('characterSelect', (userData) => { document.getElementById('loading-screen').style.display = 'none'; document.getElementById('select-name-display').innerText = userData.character_name; document.getElementById('select-level-display').innerText = `Level ${userData.level || 1}`; const selBody = document.getElementById('select-body'), selHead = document.getElementById('select-head'), selHair = document.getElementById('select-hair'), selWeapon = document.getElementById('select-weapon'); selBody.style.filter = skinFilters[userData.skin_color || 'flesh']; selHead.style.filter = skinFilters[userData.skin_color || 'flesh']; if (userData.hair_style === 'none' || !userData.hair_style) selHair.style.display = 'none'; else { selHair.style.display = 'block'; selHair.src = `animation/avatar_hair${userData.hair_style}.png`; selHair.style.filter = hairFilters[userData.hair_color || 'black']; } if (userData.equips?.weapon?.sprite) { selWeapon.style.display = 'block'; selWeapon.src = `weapon/${userData.equips.weapon.sprite.replace('starter', 'basic')}.png`; } else { selWeapon.style.display = 'none'; } selBody.style.opacity = '1'; selHead.style.opacity = '1'; selHair.style.opacity = '1'; selWeapon.style.opacity = '1'; document.getElementById('select-screen').classList.add('active'); game.cachedUserData = userData; });
     socket.on('mapPlayersList', (players) => { for (const id in game.remotePlayers) window.removeRemotePlayer(id); (players || []).forEach(p => window.addRemotePlayer(p)); });
     socket.on('remotePlayerJoined', (p) => window.addRemotePlayer(p));
@@ -4859,8 +4965,8 @@ if (tp.spectateTarget) {
     // š ï¸ ZONE ENTRY WARNING: Server asks client to confirm before entering dangerous zones
     socket.on('confirmPortalEntry', (data) => {
         // 🛡️ THE FIX: Using customPrompt instead of native confirm() to prevent Electron/Steam focus stealing
-        window.customPrompt(data.message + '\\nType YES to enter:', function(val) {
-            if (val && val.trim().toUpperCase() === 'YES') {
+        window.customConfirm(data.message, function(accepted) {
+            if (accepted) {
                 socket.emit('portalStep', {
                     portalId: data.portalId,
                     targetMapId: data.targetMapId,
@@ -5934,7 +6040,7 @@ if (typeof socket !== 'undefined' && socket) {
             // 4. Confirm success to the server so it marks is_used = TRUE
             socket.emit('confirmCodeOpened', { codeId: data.codeId });
         } else {
-            window.customPrompt("Error: Could not retrieve the promo code. Please try again.", function(){});
+            window.customAlert("Error: Could not retrieve the promo code. Please try again.");
         }
     });
 }
@@ -6383,17 +6489,17 @@ if (socket) {
                 </div>
 
                 <div style="display:flex; justify-content:space-around; margin-bottom: 10px; font-size:12px; background: #111; padding: 6px; border-radius: 4px; border: 1px solid #333;">
-                    <span>š”ï¸ Stats: <strong style="color:#4CAF50;">+${statBoost}%</strong></span>
-                    <span>œ¨ EXP: <strong style="color:#2196F3;">+${expBoost}%</strong></span>
+                    <span>🛡️ Stats: <strong style="color:#4CAF50;">+${statBoost}%</strong></span>
+                    <span>✨ EXP: <strong style="color:#2196F3;">+${expBoost}%</strong></span>
                 </div>
             `;
 
             // 👑 LEVEL UP BUTTON (Master Only)
             if (myRole === 'Master') {
                 if (currentLevel < 10) {
-                    html += `<button onclick="socket.emit('requestGuildLevelUp')" style="width:100%; padding:8px; margin-bottom:10px; background:linear-gradient(45deg, #FF9800, #FF5722); color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">¬†ï¸ Level Up Guild (1,000,000 G)</button>`;
+                    html += `<button onclick="socket.emit('requestGuildLevelUp')" style="width:100%; padding:8px; margin-bottom:10px; background:linear-gradient(45deg, #FF9800, #FF5722); color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">⬆️ Level Up Guild (1,000,000 G)</button>`;
                 } else {
-                    html += `<div style="text-align:center; color:#FFD700; margin-bottom:10px; font-weight:bold; font-size:12px;">­ GUILD MAX LEVEL REACHED ­</div>`;
+                    html += `<div style="text-align:center; color:#FFD700; margin-bottom:10px; font-weight:bold; font-size:12px;">🌟 GUILD MAX LEVEL REACHED 🌟</div>`;
                 }
             }
 
@@ -6417,10 +6523,10 @@ if (socket) {
                               (myRole === 'Vice Master' && targetLvl <= 2);
 
                 html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid #222;">
-                            <span style="font-size:12px; color: ${m.online ? '#fff' : '#777'};">${m.online ? '🟢' : 'šª'} ${m.name}</span>
+                            <span style="font-size:12px; color: ${m.online ? '#fff' : '#777'};">${m.online ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#4CAF50;margin-right:4px;"></span>' : '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f44336;margin-right:4px;"></span>'} ${m.name}</span>
                             <div style="display:flex; gap:5px; align-items:center;">
                                 ${actionHtml}
-                                ${canKick ? `<button onclick="if(confirm('Kick ${m.name}?')) socket.emit('guildKick', '${m.name}')" style="background:#f44336; color:white; border:none; padding:2px 5px; font-size:9px; cursor:pointer; border-radius:3px;">KICK</button>` : ''}
+                                ${canKick ? `<button onclick="window.guildKickMember('${m.name}')" style="background:#f44336; color:white; border:none; padding:2px 5px; font-size:9px; cursor:pointer; border-radius:3px;">KICK</button>` : ''}
                             </div>
                          </div>`;
             });
@@ -6435,8 +6541,8 @@ if (socket) {
                         html += `<div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:3px;">
                                     <span>${name}</span>
                                     <div>
-                                        <button onclick="socket.emit('guildHandleApplicant', {applicantName:'${name}', accept:true})" style="background:#4CAF50; color:white; border:none; padding:2px 6px; cursor:pointer;">œ”</button>
-                                        <button onclick="socket.emit('guildHandleApplicant', {applicantName:'${name}', accept:false})" style="background:#f44336; color:white; border:none; padding:2px 6px; cursor:pointer;">œ–</button>
+                                        <button onclick="socket.emit('guildHandleApplicant', {applicantName:'${name}', accept:true})" style="background:#4CAF50; color:white; border:none; padding:2px 6px; cursor:pointer;">✅</button>
+                                        <button onclick="socket.emit('guildHandleApplicant', {applicantName:'${name}', accept:false})" style="background:#f44336; color:white; border:none; padding:2px 6px; cursor:pointer;">❌</button>
                                     </div>
                                  </div>`;
                     });
@@ -6449,7 +6555,7 @@ if (socket) {
             // 🔘 ACTIONS
             html += `<div style="display:flex; gap:5px; margin-bottom:5px;">
                         <button class="btn" style="background:#2196F3; flex:1; font-size:13px; padding:8px;" onclick="window.donateGuild()">Donate Gold</button>
-                        <button class="btn" style="background:#f44336; flex:1; font-size:13px; padding:8px;" onclick="if(confirm('Are you sure you want to leave this guild?')) socket.emit('guildLeave')">Leave Guild</button>
+                        <button class="btn" style="background:#f44336; flex:1; font-size:13px; padding:8px;" onclick="window.guildLeaveConfirm()">Leave Guild</button>
                      </div>`;
             
             if (roleLevel[myRole] >= 2) {
@@ -6533,15 +6639,15 @@ window.createGuild = function() {
         if (name && name.trim().length > 2 && name.trim().length <= 15) {
             socket.emit('createGuild', name.trim());
         } else if (name) {
-            window.customPrompt("Guild name must be between 3 and 15 characters.", function(){});
+            window.customAlert("Guild name must be between 3 and 15 characters.");
         }
     });
 };
 
 window.joinGuild = function(name) {
-    if (confirm(`Join ${name}?`)) {
-        socket.emit('joinGuild', name);
-    }
+    window.customConfirm(`Join ${name}?`, function(accepted) {
+        if (accepted) socket.emit('joinGuild', name);
+    });
 };
 
 window.applyToGuild = function(gName) {
@@ -6559,15 +6665,27 @@ window.donateGuild = function() {
 };
 
 window.buyGuildBase = function() {
-    if (confirm("Spend 1,000,000 Guild Funds to purchase a Guild Base? Only the Guild Leader can do this.")) {
+    window.customConfirm("Spend 1,000,000 Guild Funds to purchase a Guild Base? Only the Guild Leader can do this.", function(accepted) {
+        if (!accepted) return;
         if (socket) socket.emit('requestBuyGuildBase');
         document.getElementById('guild-modal').innerHTML = '<h2 style="color:#FF9800; margin-top: 20px;">Purchasing Base...</h2>';
-    }
+    });
 };
 window.enterGuildBase = function() {
     document.getElementById('guild-modal').style.display = 'none';
     // Send a secure map ID that the server knows how to instance privately!
     socket.emit('forceTeleport', { mapId: 'guildbase', x: 960, y: 1000 });
+};
+// 🛡️ Guild confirmation helpers (used by inline onclick in guild UI)
+window.guildKickMember = function(memberName) {
+    window.customConfirm(`Kick ${memberName}?`, function(accepted) {
+        if (accepted) socket.emit('guildKick', memberName);
+    });
+};
+window.guildLeaveConfirm = function() {
+    window.customConfirm('Are you sure you want to leave this guild?', function(accepted) {
+        if (accepted) socket.emit('guildLeave');
+    });
 };
 // 🗺️ MAZE GUIDE & FAST TRAVEL ENGINE
 window.openMazeGuide = function() {
@@ -6633,7 +6751,7 @@ window.openFastTravelUI = function() {
 
 window.openMazeTrialsUI = function() {
     let modal = document.getElementById('maze-guide-modal');
-    let html = '<h2 style="margin-top:0; color:#E040FB;">š”ï¸ Maze Trials</h2>';
+    let html = '<h2 style="margin-top:0; color:#E040FB;">🛡️ Maze Trials</h2>';
     html += '<p style="font-size:12px; color:#aaa;">Challenge a Floor Boss in a private instance. 1 Entry per day.</p>';
     html += '<div style="max-height:300px; overflow-y:auto; margin-bottom:15px; padding-right:5px;">';
     
@@ -6893,7 +7011,7 @@ socket.on('applyGammaShield', (data) => {
         }
     });
 
-    // š¡ GADGET DRONE CRITICAL: Red Laser VFX
+    // ⚡ GADGET DRONE CRITICAL: Red Laser VFX
     socket.on('droneCritical', (data) => {
         const mob = game.monsters[data.monsterId];
         if (mob) {
@@ -6908,7 +7026,7 @@ socket.on('applyGammaShield', (data) => {
             // Create a brief red flash effect
             const flash = document.createElement('div');
             flash.style.cssText = `position:absolute; left:${mob.x - game.camera.x}px; top:${mob.y - game.camera.y - 20}px; color:#ff1744; font-weight:bold; font-size:16px; font-family:sans-serif; text-shadow: 0 0 8px #ff0000; z-index:9999; pointer-events:none;`;
-            flash.innerText = 'š¡ CRITICAL!';
+            flash.innerText = '⚡ CRITICAL!';
             document.getElementById('world').appendChild(flash);
             setTimeout(() => flash.remove(), 800);
         }
@@ -7416,7 +7534,7 @@ if (socket) {
     });
 
     socket.on('receiptFailed', (errorMsg) => {
-        window.customPrompt("Purchase verification failed: " + errorMsg, function(){});
+        window.customAlert("Purchase verification failed: " + errorMsg);
         window.openRealMoneyShop();
     });
 }
@@ -7448,7 +7566,7 @@ window.verifySteamPurchase = async function(orderId) {
         const data = await res.json();
         
         if (!data.success) {
-            window.customPrompt("Transaction failed or not yet authorized: " + (data.error || data.message), function(){});
+            window.customAlert("Transaction failed or not yet authorized: " + (data.error || data.message));
             window.openRealMoneyShop();
         } else {
             // Success! The server will socket 'gemPurchaseSuccess' to update your balance.
@@ -7459,7 +7577,7 @@ window.verifySteamPurchase = async function(orderId) {
             `;
         }
     } catch (err) {
-        window.customPrompt("Error verifying purchase: " + err.message, function(){});
+        window.customAlert("Error verifying purchase: " + err.message);
         window.openRealMoneyShop();
     }
 };
@@ -7469,7 +7587,7 @@ window.purchaseExoGems = async function(packageId, priceCents, description) {
     if (modal) modal.innerHTML = '<h2 style="color:#E040FB; margin-top: 20px;">Connecting to Store...</h2>';
 
     const abortPurchase = (msg) => {
-        window.customPrompt(msg, function(){});
+        window.customAlert(msg);
         if (modal) modal.style.display = 'none'; 
         if (socket) socket.emit('requestShopAccess'); 
     };
@@ -7585,7 +7703,7 @@ if (window.electronAPI && window.electronAPI.onMicroTxnAuthorizationResponse) {
             const data = await res.json();
             
             if (!data.success) {
-                window.customPrompt("Transaction failed: " + (data.error || data.message), function(){});
+                window.customAlert("Transaction failed: " + (data.error || data.message));
                 window.openRealMoneyShop();
             } else {
                 // Success! The server will socket 'gemPurchaseSuccess' to update your balance.
@@ -7596,7 +7714,7 @@ if (window.electronAPI && window.electronAPI.onMicroTxnAuthorizationResponse) {
                 `;
             }
         } catch (err) {
-            window.customPrompt("Error verifying purchase: " + err.message, function(){});
+            window.customAlert("Error verifying purchase: " + err.message);
             window.openRealMoneyShop();
         }
     });
@@ -7620,12 +7738,12 @@ window.addEventListener('StorePurchaseSuccess', async (event) => {
             });
             const data = await res.json();
             if (!data.success) {
-                window.customPrompt("Transaction failed: " + data.message, function(){});
+                window.customAlert("Transaction failed: " + data.message);
                 window.openRealMoneyShop();
             }
             // Success logic is handled by the socket 'gemPurchaseSuccess' auto-updating the UI
         } catch (err) {
-            window.customPrompt("Error verifying purchase: " + err.message, function(){});
+            window.customAlert("Error verifying purchase: " + err.message);
             window.openRealMoneyShop();
         }
     } else if (socket) {
@@ -7639,8 +7757,10 @@ window.addEventListener('StorePurchaseSuccess', async (event) => {
 });
 
 window.buyWithGems = function(itemId, name, price) {
-    if (!confirm(`Spend ${price} Exo Gems to purchase ${name}?`)) return;
-    socket.emit('requestGemPurchase', { itemId: itemId });
+    window.customConfirm(`Spend ${price} Exo Gems to purchase ${name}?`, function(accepted) {
+        if (!accepted) return;
+        socket.emit('requestGemPurchase', { itemId: itemId });
+    });
 };
 // ==========================================
 // 💎 ULTIMATE MOBILE SHOP BUTTON INJECTION
@@ -7778,11 +7898,114 @@ if (socket) {
 }
 
 window.acceptDailyMission = function(difficulty) {
-    if (confirm(`Accept the ${difficulty} Daily Mission? You cannot change this later today.`)) {
+    window.customConfirm(`Accept the ${difficulty} Daily Mission? You cannot change this later today.`, function(accepted) {
+        if (!accepted) return;
         if (socket) socket.emit('acceptDailyMission', difficulty);
         document.getElementById('daily-missions-modal').innerHTML = '<h2 style="color:#FF9800; margin-top: 20px;">Processing...</h2>';
-    }
+    });
 };
+
+// ==========================================
+// EVENT CAVE PORTAL & ID PIECE SYSTEM
+// ==========================================
+window.openEventPortal = function() {
+    let modal = document.getElementById('event-portal-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'event-portal-modal';
+        modal.className = 'movable-window';
+        modal.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#1a1a1a; border:2px solid #ffea00; padding:20px; z-index:9000; width:340px; border-radius:10px; box-shadow:0 0 30px #ffea00; color:white; text-align:center;';
+        document.body.appendChild(modal);
+    }
+    let html = '<h2 style="margin-top:0; color:#ffea00; text-shadow:0 0 10px #ffea00;">Event Cave</h2>';
+    html += '<p style="font-size:12px; color:#aaa; margin-bottom:15px;">Survive 60 seconds! Chance to earn <span style="color:#E040FB; font-weight:bold;">Companion ID Pieces</span>.</p>';
+    const inv = game.player.inventory || [];
+    const types = ['Berserker', 'Healer', 'Ice Master'];
+    html += '<div style="background:#111; padding:8px; border-radius:4px; margin-bottom:15px; border:1px solid #333; text-align:left; font-size:12px;">';
+    html += '<div style="color:#ffea00; font-weight:bold; margin-bottom:6px; text-align:center;">Your ID Pieces</div>';
+    types.forEach(t => {
+        let count = 0;
+        inv.forEach(i => { if (i && i.name === t + ' ID Piece') count += (i.quantity || 1); });
+        const color = t === 'Berserker' ? '#f44336' : t === 'Healer' ? '#4CAF50' : '#2196F3';
+        html += '<div style="display:flex; justify-content:space-between; padding:2px 0;"><span style="color:' + color + ';">' + t + '</span><span>' + count + '/10</span></div>';
+        if (count >= 10) {
+            html += '<button class="btn" style="width:100%; background:' + color + '; padding:5px; margin:3px 0 6px; font-size:11px;" onclick="socket.emit(\'tradeEventReward\', {companionClass:\'' + t + '\'}); document.getElementById(\'event-portal-modal\').style.display=\'none\';">Trade 10 > ' + t + ' Companion Token</button>';
+        }
+    });
+    html += '</div>';
+    html += '<button class="btn" style="width:100%; background:linear-gradient(45deg, #FF9800, #f44336); padding:12px; font-weight:bold; font-size:16px; margin-bottom:8px;" onclick="socket.emit(\'startEventDungeon\'); document.getElementById(\'event-portal-modal\').style.display=\'none\';">Enter the Cave!</button>';
+    html += '<button class="btn" style="width:100%; background:#555; padding:8px;" onclick="document.getElementById(\'event-portal-modal\').style.display=\'none\'; window.isEventUIOpen=false;">Cancel</button>';
+    modal.innerHTML = html;
+    modal.style.display = 'block';
+    if (typeof window.bringWindowToFront === 'function') window.bringWindowToFront(modal);
+};
+
+if (socket) {
+    socket.on('eventDungeonTimerStart', (data) => {
+        let timerBar = document.getElementById('event-timer-bar');
+        if (!timerBar) {
+            timerBar = document.createElement('div');
+            timerBar.id = 'event-timer-bar';
+            timerBar.style.cssText = 'position:fixed; top:10px; left:50%; transform:translateX(-50%); width:300px; height:24px; background:#333; border:2px solid #ffea00; border-radius:12px; overflow:hidden; z-index:9500;';
+            const fill = document.createElement('div');
+            fill.id = 'event-timer-fill';
+            fill.style.cssText = 'width:100%; height:100%; background:linear-gradient(90deg, #FF9800, #f44336); transition:width 0.5s linear;';
+            timerBar.appendChild(fill);
+            const label = document.createElement('div');
+            label.id = 'event-timer-label';
+            label.style.cssText = 'position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:12px; text-shadow:0 0 4px #000;';
+            label.innerText = '60s';
+            timerBar.appendChild(label);
+            document.body.appendChild(timerBar);
+        }
+        timerBar.style.display = 'block';
+        let remaining = (data.durationMs || 60000) / 1000;
+        const total = remaining;
+        window._eventTimerInterval = setInterval(() => {
+            remaining -= 0.5;
+            if (remaining <= 0) { clearInterval(window._eventTimerInterval); return; }
+            const fill = document.getElementById('event-timer-fill');
+            const label = document.getElementById('event-timer-label');
+            if (fill) fill.style.width = (remaining / total) * 100 + '%';
+            if (label) label.innerText = Math.ceil(remaining) + 's';
+        }, 500);
+    });
+    socket.on('eventDungeonTimerStop', () => {
+        if (window._eventTimerInterval) clearInterval(window._eventTimerInterval);
+        const bar = document.getElementById('event-timer-bar');
+        if (bar) bar.style.display = 'none';
+    });
+    socket.on('eventDungeonResult', (data) => {
+        if (window._eventTimerInterval) clearInterval(window._eventTimerInterval);
+        const bar = document.getElementById('event-timer-bar');
+        if (bar) bar.style.display = 'none';
+        if (data.survived && data.drop) {
+            const dropNotif = document.createElement('div');
+            dropNotif.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.9); border:2px solid #E040FB; padding:20px 30px; z-index:9999; border-radius:10px; text-align:center; color:white;';
+            dropNotif.innerHTML = '<div style="font-size:20px; color:#ffea00; margin-bottom:8px;">ID Piece Drop!</div><div style="font-size:16px; color:#E040FB; font-weight:bold;">' + data.drop.name + '</div><div style="font-size:12px; color:#aaa; margin-top:5px;">Collect 10 to summon a Companion!</div>';
+            document.body.appendChild(dropNotif);
+            setTimeout(() => dropNotif.remove(), 4000);
+        }
+        window.isEventUIOpen = false;
+    });
+    socket.on('eventRewardTraded', (data) => {
+        if (data.inventory) { game.player.inventory = data.inventory; window.renderInventory(); }
+        if (data.itemName) { window.customAlert('You received: ' + data.itemName + '! Open your inventory and use it to activate your companion.'); }
+    });
+    socket.on('companionActivated', (data) => {
+        if (data.inventory) { game.player.inventory = data.inventory; window.renderInventory(); }
+        if (data.companions) game.player.companions = data.companions;
+        if (data.companionName) { window.customAlert(data.companionName + ' has been activated! They will fight alongside you.'); }
+    });
+    socket.on('companionUpdated', (data) => {
+        if (data.inventory) { game.player.inventory = data.inventory; window.renderInventory(); }
+        if (data.companions) game.player.companions = data.companions;
+    });
+    socket.on('companionUnequipped', (data) => {
+        if (data.inventory) { game.player.inventory = data.inventory; window.renderInventory(); }
+        if (data.companions) game.player.companions = data.companions;
+    });
+}
 // ==========================================
 // š–ï¸ AUCTION HOUSE UI LOGIC
 // ==========================================
@@ -7809,7 +8032,7 @@ let forgeSelectedIndex = -1;
 window.renderDivineForge = function() {
     let modal = document.getElementById('divine-forge-modal');
     
-    let html = '<h2 style="margin-top:0; color:#ffea00; text-shadow: 0 0 10px #ffea00;">œ¨ Divine Forge</h2>';
+    let html = '<h2 style="margin-top:0; color:#ffea00; text-shadow: 0 0 10px #ffea00;">✨ Divine Forge</h2>';
     html += '<p style="font-size:12px; color:#aaa;">Select a Godly equipment to ascend it to Divine.</p>';
     html += '<div id="forge-grid" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; max-height:160px; overflow-y:auto; margin-bottom:15px; padding:10px 5px; border:1px solid #333; background:#111; align-items:flex-start;">';
     
@@ -7924,7 +8147,7 @@ window.openForgerStatSelect = function(targetIndex, e) {
         document.body.appendChild(modal);
     }
     
-    let html = '<h2 style="margin-top:0; color:#E040FB;">œ¨ Select Sub-Stat</h2>';
+    let html = '<h2 style="margin-top:0; color:#E040FB;">✨ Select Sub-Stat</h2>';
     html += `<p style="color:#aaa; font-size:12px; margin-bottom:15px;">Target: ${item.enhanceLevel ? `${item.name} +${item.enhanceLevel}` : item.name}</p>`;
     
     for (let k in item.randomStat) {
@@ -7988,7 +8211,7 @@ window.renderConsumablesCrafting = function() {
     
     // --- ITEM 1: STAT FORGER ---
     html += '<div style="background:#222; padding:10px; border-radius:5px; margin-bottom:15px; font-size:13px; text-align:left; border: 1px solid #444;">';
-    html += `<div style="color:#E040FB; font-weight:bold; font-size:16px; margin-bottom:5px; text-align:center;">œ¨ Stat Forger</div>`;
+    html += `<div style="color:#E040FB; font-weight:bold; font-size:16px; margin-bottom:5px; text-align:center;">✨ Stat Forger</div>`;
     html += '<p style="font-size:11px; color:#aaa; margin-top:0; text-align:center;">Rerolls a random sub-stat. Select rarity:</p>';
     html += `<select onchange="window.updateForgerRarity(this.value)" style="width:100%; padding:8px; margin-bottom:10px; background:#333; color:white; border:1px solid #E040FB; border-radius:4px; outline:none;">
         <option value="Basic" ${selRarity === 'Basic' ? 'selected' : ''}>Basic</option>
@@ -8156,13 +8379,17 @@ window.ahList = function() {
 };
 
 window.ahBuy = function(auctionId, price, name) {
-    if (!confirm(`Buy ${name} for ${price} Gold?`)) return;
-    socket.emit('ah_buy', { auctionId });
+    window.customConfirm(`Buy ${name} for ${price} Gold?`, function(accepted) {
+        if (!accepted) return;
+        socket.emit('ah_buy', { auctionId });
+    });
 };
 
 window.ahCancel = function(auctionId) {
-    if (!confirm(`Cancel this auction? The item will be returned to your inventory.`)) return;
-    socket.emit('ah_cancel', { auctionId });
+    window.customConfirm(`Cancel this auction? The item will be returned to your inventory.`, function(accepted) {
+        if (!accepted) return;
+        socket.emit('ah_cancel', { auctionId });
+    });
 };
 
 // 📡 SOCKET LISTENERS FOR AUCTION HOUSE
@@ -8721,7 +8948,7 @@ document.addEventListener('deviceready', () => {
         });
 
         store.error((err) => {
-            window.customPrompt("Google Play Error: " + err.message, function(){});
+            window.customAlert("Google Play Error: " + err.message);
             window.openRealMoneyShop(); // Un-freeze the UI
         });
 
@@ -8936,7 +9163,7 @@ window.executeCloseGame = function() {
         const tooltip = document.createElement('div');
         tooltip.className = 'minion-tooltip';
         tooltip.innerHTML = `🐾 ${minionData.name || 'Golden Slime'}<br>` +
-            (minionData.skillName ? `š¡ Skill: ${minionData.skillName}` : '💤 No skill learned') +
+            (minionData.skillName ? `✨ Skill: ${minionData.skillName}` : '💤 No skill learned') +
             `<br>💥 DMG: 500 (Pure)`;
         el.appendChild(tooltip);
         
@@ -9113,10 +9340,10 @@ window.executeCloseGame = function() {
                 setTimeout(() => { if (minion.dom) minion.dom.style.filter = ''; }, 150);
             }
 
-            // š¡ Skill cast visual indicator
-            // š¡ Skill cast visual indicator
+            // ✨ Skill cast visual indicator
+            // ✨ Skill cast visual indicator
             if (castSkill !== 'pet' && minion.skillName) {
-                window.spawnDamageText(minion.x + 15, minion.y - 20, `š¡ ${minion.skillName}`, '#4fc3f7');
+                window.spawnDamageText(minion.x + 15, minion.y - 20, `✨ ${minion.skillName}`, '#4fc3f7');
             }
         }
     }, 50);
