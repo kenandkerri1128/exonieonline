@@ -2913,7 +2913,7 @@ window.getItemTooltip = function(item) {
     html += `<br>`;
     if(item.type === 'material') return html + `<span style="color:#aaa;"><em>${item.description}</em></span>`; 
 if(item.type === 'gem') return html + `<span style="color:#00ffff;"><em>${item.description}</em></span><br>`;
-    if(item.type === 'potion') return html + `Heals 100 HP`; 
+    if(item.type === 'potion') return html + `Heals 10% of Max HP`; 
     
     // u{1F43E} MINION ITEM TOOLTIP
     if(item.type === 'minion') {
@@ -2944,7 +2944,7 @@ if(item.type === 'gem') return html + `<span style="color:#00ffff;"><em>${item.d
             let count = item.gemCount || 0;
             let sockets = "";
             for(let i = 0; i < maxGems; i++) {
-                sockets += (i < count) ? "™¦" : "™¢";
+                sockets += (i < count) ? '<span style="font-family:Arial,sans-serif;">\u25C6</span>' : '<span style="font-family:Arial,sans-serif;">\u25C7</span>';
             }
             html += `<span style="color:#00ffff; font-size:13px; letter-spacing:2px;">Sockets: ${sockets}</span><br>`;
         }
@@ -3371,9 +3371,9 @@ window.useItem = function(index) {
     if (typeof window.updateHotbarCooldowns === 'function') window.updateHotbarCooldowns();
 
     // 🌟 OPTIMISTIC UI: heal locally too, so maze HP bar moves instantly
-    // 🛡️ CORRUPTION FIX: Hardcode 100 here as well!
-    const healAmount = 100;
+    // 🛡️ CORRUPTION FIX: 10% MAX HP HEAL
     const trueMaxHp = window.getMaxHp() || 100;
+    const healAmount = Math.max(1, Math.floor(trueMaxHp * 0.10));
     game.player.currentHp = Math.min(trueMaxHp, (game.player.currentHp || 0) + healAmount);
 
     item.quantity = (item.quantity || 1) - 1;
@@ -5153,7 +5153,7 @@ if (tp.spectateTarget) {
                     let count = item.gemCount || 0;
                     let sockets = "";
                     for(let i = 0; i < maxGems; i++) {
-                        sockets += (i < count) ? "™¦" : "™¢";
+                        sockets += (i < count) ? '<span style="font-family:Arial,sans-serif;">\u25C6</span>' : '<span style="font-family:Arial,sans-serif;">\u25C7</span>';
                     }
                     html += `<div style="color:#00ffff; font-size:13px; margin-bottom:4px; letter-spacing:2px;">Sockets: ${sockets}</div>`;
                 }
