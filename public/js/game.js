@@ -1367,6 +1367,25 @@ export class GameApp {
                     }
                 });
 
+                this.socket.on('receiptVerified', (data) => {
+                    if (!this.player.baseStats) this.player.baseStats = {};
+                    this.player.baseStats.exoGems = data.newGems;
+                    const balEl = document.getElementById('ui-gem-balance');
+                    if (balEl) balEl.innerText = data.newGems;
+                    this.saveCharacterToAccountSlot();
+                    document.getElementById('steam-overlay-notice-modal')?.remove();
+                    if (this.ui) {
+                        this.ui.showToast(`🎉 Purchase Verified! Added ${data.gemsAdded} Exo Gems. Balance: ${data.newGems}`);
+                    }
+                    window.openRealMoneyShop();
+                });
+
+                this.socket.on('receiptFailed', (errorMsg) => {
+                    document.getElementById('steam-overlay-notice-modal')?.remove();
+                    alert("Purchase verification failed: " + errorMsg);
+                    window.openRealMoneyShop();
+                });
+
                 // 📬 System Mailbox Listeners
                 this.socket.on('mailList', (mails) => {
                     if (this.ui) this.ui.renderMailList(mails);

@@ -3,6 +3,24 @@ try {
 } catch (e) {
     // dotenv is optional in environments where variables are already injected or local fallback is used
 }
+let google = null;
+let playApi = null;
+const GOOGLE_PACKAGE_NAME = 'com.xeniegaming.exonie'; // Android App ID
+try {
+    ({ google } = require('googleapis'));
+    const authClient = new google.auth.JWT({
+        email: process.env.GOOGLE_CLIENT_EMAIL,
+        key: process.env.GOOGLE_PRIVATE_KEY ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined,
+        scopes: ['https://www.googleapis.com/auth/androidpublisher']
+    });
+    playApi = google.androidpublisher({ version: 'v3', auth: authClient });
+} catch (e) {
+    console.warn('[Store] googleapis not loaded or env not configured:', e.message);
+}
+
+const STEAM_WEB_API_KEY = '4F9B94B4338DF119CB6EE7AEBD89F0C0';
+const STEAM_APP_ID = '4579730';
+
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -11,6 +29,18 @@ const fs = require('fs');
 const axios = require('axios');
 
 const app = express();
+
+// 🔓 Universal CORS headers so Electron (file://) and Capacitor Android (https://localhost) can fetch /api/shop/*
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -1996,6 +2026,7 @@ io.on('connection', (socket) => {
 
             socket.accountIdentifier = userEmail || finalName;
             socket.characterName = finalName;
+            socket.username = finalName;
 
             const resolvedBaseStats = pData.base_stats || pData.baseStats || {};
             const initialStorage = (pData && Array.isArray(pData.storage)) ? pData.storage
@@ -4256,6 +4287,103 @@ io.on('connection', (socket) => {
         socket.emit('syncInventory', p.inventory);
         socket.emit('gemPurchaseSuccess', { newGems: p.baseStats.exoGems });
         socket.emit('systemMessage', `Successfully purchased ${deliveryItem.name}!`);
+    });
+
+    // ==========================================
+    // 💳 SECURE STORE RECEIPT VERIFICATION (2D GOOGLE PLAY / ANDROID)
+    // ==========================================
+    socket.on('verifyStoreReceipt', async (data) => {
+        const targetUsername = socket.username || socket.characterName || (onlinePlayers[socket.id] && onlinePlayers[socket.id].name) || (data && data.username);
+        if (!targetUsername) return;
+
+        const { platform, receipt, packageId } = data;
+        let isValid = false;
+        let gemsToAward = 0;
+        let googleResponse = null;
+
+        // Map your Store Package IDs to exactly how many gems they grant
+        if (packageId === 'gem_pack_50') gemsToAward = 50;
+        else if (packageId === 'gem_pack_15') gemsToAward = 15;
+        else if (packageId === 'gem_pack_75') gemsToAward = 75;
+        else if (packageId === 'gem_pack_100') gemsToAward = 100;
+        else return socket.emit('receiptFailed', "Invalid package ID.");
+
+        try {
+            if (platform === 'android') {
+                if (!playApi) throw new Error("Google Play API is not initialized on server.");
+                // 🟢 GOOGLE PLAY VERIFICATION API
+                googleResponse = await playApi.purchases.products.get({
+                    packageName: GOOGLE_PACKAGE_NAME,
+                    productId: packageId,
+                    token: receipt
+                });
+
+                // purchaseState 0 means the purchase was successfully completed and paid for!
+                if (googleResponse.data.purchaseState === 0) {
+                    isValid = true;
+                } else {
+                    throw new Error("Google Play returned purchase as unverified or canceled.");
+                }
+            } else if (platform === 'steam') {
+                throw new Error("Steam transactions route through HTTP Webhooks, not Sockets.");
+            }
+
+            // 💎 IF THE STORE SAYS IT'S REAL, GRANT THE GEMS FIRST!
+            if (isValid) {
+                const { data: user, error } = await supabase
+                    .from('Exonians')
+                    .select('base_stats')
+                    .eq('character_name', targetUsername)
+                    .single();
+
+                if (error || !user) throw new Error("Could not find user in database.");
+
+                let safeStats = user.base_stats || {};
+                let currentGems = parseInt(safeStats.exoGems) || 0;
+                let newGems = currentGems + gemsToAward;
+
+                // Update RAM if player is currently online
+                if (onlinePlayers[socket.id] && onlinePlayers[socket.id].baseStats) {
+                    onlinePlayers[socket.id].baseStats.exoGems = newGems;
+                }
+
+                // Update Supabase
+                safeStats.exoGems = newGems;
+                const { error: updateError } = await supabase
+                    .from('Exonians')
+                    .update({ base_stats: safeStats })
+                    .eq('character_name', targetUsername);
+
+                if (updateError) throw new Error("Database update failed.");
+
+                // Notify the client to update their UI
+                socket.emit('receiptVerified', { newGems: newGems, gemsAdded: gemsToAward });
+                socket.emit('gemPurchaseSuccess', { newGems: newGems });
+                console.log(`[STORE] Awarded ${gemsToAward} gems to ${targetUsername}. New Balance: ${newGems}`);
+
+                // 🛡️ THE FIX: Safely attempt to acknowledge AFTER gems are granted
+                if (platform === 'android' && googleResponse && googleResponse.data.acknowledgementState === 0) {
+                    try {
+                        await playApi.purchases.products.acknowledge({
+                            packageName: GOOGLE_PACKAGE_NAME,
+                            productId: packageId,
+                            token: receipt
+                        });
+                        console.log(`[STORE] Server acknowledged ${packageId} for ${targetUsername}`);
+                    } catch (ackErr) {
+                        console.log(`[STORE] Acknowledge skipped (likely consumed by phone): ${ackErr.message}`);
+                    }
+                }
+            }
+
+        } catch (err) {
+            console.error('[STORE ERROR]', err.message);
+            let errorMsg = err.message || "Unknown error";
+            if (errorMsg.includes("invalid_grant") || errorMsg.includes("JWT")) {
+                errorMsg = "Server Environment Variables are misconfigured (Invalid JWT Signature).";
+            }
+            socket.emit('receiptFailed', "Verification Error: " + errorMsg);
+        }
     });
 
     socket.on('disconnect', () => {

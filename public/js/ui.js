@@ -4081,14 +4081,36 @@ window.respondGuildInvite = function(accept) {
 };
 
 // ==========================================
-// 💳 STEAM MICROTRANSACTIONS ENGINE (100% 2D EXONIE REPLICATED)
+// 💳 PLATFORM IAP ROUTER (STEAM / GOOGLE PLAY — 100% 2D EXONIE COPY-PASTE)
 // ==========================================
 window.currentPlatform = 'web';
-if (navigator.userAgent.toLowerCase().includes(' electron/') || (typeof process !== 'undefined' && process.versions && process.versions.electron)) {
+// 🛡️ THE FIX: Safer Electron & Capacitor/Cordova detection that bypasses Context Isolation limits
+if (navigator.userAgent.toLowerCase().includes(' electron/') || (typeof process !== 'undefined' && process.versions && process.versions.electron) || (window.electronAPI && window.electronAPI.getSteamId)) {
     window.currentPlatform = 'steam';
-} else if (window.electronAPI && window.electronAPI.getSteamId) {
-    window.currentPlatform = 'steam';
+} else if (window.Capacitor || (window.cordova && window.cordova.plugins) || window.CdvPurchase) {
+    window.currentPlatform = 'android';
 }
+
+function getShopServerUrl() {
+    if (window.serverUrl) return window.serverUrl;
+    if (window.ExonieFlow && typeof window.ExonieFlow.getActiveServerUrl === 'function') {
+        return window.ExonieFlow.getActiveServerUrl();
+    }
+    return 'https://exonieonline.onrender.com';
+}
+
+function getActiveUsername() {
+    const game = window.game;
+    return game?.player?.name || game?.player?.character_name || game?.player?.id || 'Player';
+}
+
+function getActiveSocket() {
+    return window.game?.socket || window.exonieSocket || window.socket || null;
+}
+
+window.customAlert = window.customAlert || function(msg) {
+    alert(msg);
+};
 
 window.openRealMoneyShop = function() {
     const modal = document.getElementById('cash-shop-modal');
@@ -4100,8 +4122,9 @@ window.openRealMoneyShop = function() {
         window.game.ui.renderCashShop(window.game.ui.currentShopCategory || 'all');
     }
 
-    if (window.game?.socket && window.game.socket.connected) {
-        window.game.socket.emit('requestShopAccess');
+    const socket = getActiveSocket();
+    if (socket && socket.connected) {
+        socket.emit('requestShopAccess');
     }
 };
 
@@ -4110,7 +4133,7 @@ window.buyWithGems = function(itemId, name, priceGems) {
     const currentGems = game?.player?.baseStats?.exoGems || 0;
 
     if (currentGems < priceGems) {
-        if (confirm(`❌ Not enough Exo Gems!\n\nYou have ${currentGems} Exo Gems, but ${name} costs ${priceGems} Exo Gems.\n\nWould you like to purchase Exo Gems via Steam?`)) {
+        if (confirm(`❌ Not enough Exo Gems!\n\nYou have ${currentGems} Exo Gems, but ${name} costs ${priceGems} Exo Gems.\n\nWould you like to purchase more Exo Gems?`)) {
             const grid = document.getElementById('cash-shop-items-grid');
             if (grid) grid.scrollTop = grid.scrollHeight;
         }
@@ -4118,95 +4141,28 @@ window.buyWithGems = function(itemId, name, priceGems) {
     }
 
     if (confirm(`Spend ${priceGems} Exo Gems to purchase ${name}?`)) {
-        if (game?.socket && game.socket.connected) {
-            game.socket.emit('requestGemPurchase', { itemId: itemId });
+        const socket = getActiveSocket();
+        if (socket && socket.connected) {
+            socket.emit('requestGemPurchase', { itemId: itemId });
         } else {
             game?.ui?.showToast("⚠️ Not connected to server.");
         }
     }
 };
 
-window.purchaseExoGems = async function(packageId, priceCents, description) {
-    const game = window.game;
-    const username = game?.player?.name || 'Player';
-
-    let steamId = null;
-    if (window.electronAPI && window.electronAPI.getSteamId) {
-        try {
-            const raw = await window.electronAPI.getSteamId();
-            if (raw) {
-                const cleaned = String(raw).replace(/\D/g, '');
-                if (cleaned.length >= 17) {
-                    steamId = cleaned.substring(0, 17);
-                }
-            }
-        } catch (e) {
-            console.error("Steam ID retrieval error:", e);
-        }
-    }
-
-    // Web Browser Testing Fallback (If testing outside of Steam Electron)
-    if (!steamId) {
-        if (window.currentPlatform === 'steam') {
-            alert("Steam Error: Could not extract a valid 17-digit Steam ID from Steam Client.");
-            return;
-        }
-        // Development / browser test prompt
-        const manual = prompt("Enter 17-digit Steam ID for testing (or keep default test account):", "76561198000000001");
-        if (!manual) return;
-        steamId = manual.replace(/\D/g, '').substring(0, 17);
-    }
-
-    try {
-        game?.ui?.showToast(`Connecting to Steam Store for ${description}...`);
-        const res = await fetch('/api/shop/init', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                steamId: steamId,
-                username: username,
-                itemId: packageId,
-                amountCents: priceCents,
-                itemDescription: description || "Exo Gems"
-            })
-        });
-        const data = await res.json();
-
-        if (data.success && data.orderId) {
-            if (window.electronAPI && window.electronAPI.initiateSteamPurchase) {
-                window.electronAPI.initiateSteamPurchase(data.orderId);
-            }
-
-            // Prompt Steam overlay confirmation modal
-            const overlayModal = document.createElement('div');
-            overlayModal.id = 'steam-overlay-notice-modal';
-            overlayModal.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#0f172a; border:2px solid #00e5ff; padding:24px; border-radius:10px; z-index:99999; text-align:center; box-shadow:0 0 35px rgba(0,229,255,0.4); max-width:380px; width:90vw;';
-            overlayModal.innerHTML = `
-                <h3 style="color:#00e5ff; margin-top:0;">🛡️ Steam Authorization</h3>
-                <p style="color:#cbd5e1; font-size:0.9rem; line-height:1.5;">Please authorize your purchase in the Steam Overlay!</p>
-                <p style="color:#94a3b8; font-size:0.8rem; margin-bottom:20px;">Order ID: <b>${data.orderId}</b></p>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn" style="flex:1; background:#0284c7; color:#fff; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="window.verifySteamPurchase('${data.orderId}'); document.getElementById('steam-overlay-notice-modal')?.remove();">I Authorized Purchase</button>
-                    <button class="btn" style="flex:1; background:#dc2626; color:#fff; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="document.getElementById('steam-overlay-notice-modal')?.remove();">Cancel</button>
-                </div>
-            `;
-            document.body.appendChild(overlayModal);
-        } else {
-            alert("Steam Store Error: " + (data.error || "Initialization failed"));
-        }
-    } catch (err) {
-        alert("Steam Store Connection Failed: " + err.message);
-    }
-};
-
 window.verifySteamPurchase = async function(orderId) {
-    const game = window.game;
-    const username = game?.player?.name || 'Player';
+    const serverUrl = getShopServerUrl();
+    const username = getActiveUsername();
+    document.getElementById('steam-overlay-notice-modal')?.remove();
 
-    game?.ui?.showToast("Verifying purchase with Steam servers...");
+    const statusModal = document.createElement('div');
+    statusModal.id = 'steam-overlay-notice-modal';
+    statusModal.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#111; border:2px solid #E040FB; padding:20px; z-index:99999; width:350px; max-width:90vw; border-radius:8px; box-shadow:0 0 30px #E040FB; color:white; text-align:center; font-family:sans-serif;';
+    statusModal.innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Verifying Purchase...</h2><p style="color:#ccc; font-size:12px;">Checking with Steam servers...</p>';
+    document.body.appendChild(statusModal);
 
     try {
-        const res = await fetch('/api/shop/finalize', {
+        const res = await fetch(serverUrl + '/api/shop/finalize', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -4216,30 +4172,282 @@ window.verifySteamPurchase = async function(orderId) {
         });
         const data = await res.json();
 
-        if (data.success) {
-            game?.ui?.showToast(`🎉 Steam Purchase Verified! Added ${data.gemsAdded || 'Exo'} Gems to your account!`);
-            if (game?.socket && game.socket.connected) {
-                game.socket.emit('requestShopAccess');
-            }
+        if (!data.success) {
+            statusModal.remove();
+            window.customAlert("Transaction failed or not yet authorized: " + (data.error || data.message));
+            window.openRealMoneyShop();
         } else {
-            alert("Verification Failed: " + (data.error || "Payment not authorized or completed."));
+            // Success! The server will socket 'gemPurchaseSuccess' to update your balance.
+            statusModal.innerHTML = `
+                <h2 style="color:#4CAF50; margin-top: 20px;">Purchase Successful!</h2>
+                <p style="color:#fff;">Your Exo Gems have been added.</p>
+                <button class="btn" style="background:#555; color:#fff; width:100%; margin-top:15px; padding:10px; border:none; border-radius:6px; cursor:pointer;" onclick="document.getElementById('steam-overlay-notice-modal')?.remove(); window.openRealMoneyShop();">Back to Shop</button>
+            `;
+            const socket = getActiveSocket();
+            if (socket && socket.connected) socket.emit('requestShopAccess');
         }
     } catch (err) {
-        alert("Verification Error: " + err.message);
+        statusModal.remove();
+        window.customAlert("Error verifying purchase: " + err.message);
+        window.openRealMoneyShop();
     }
 };
 
-// 🛡️ Steam Overlay Authorization Callback Listener
+window.purchaseExoGems = async function(packageId, priceCents, description) {
+    // Re-check runtime platform in case Cordova/Capacitor/Electron finished loading after script init
+    if (navigator.userAgent.toLowerCase().includes(' electron/') || (typeof process !== 'undefined' && process.versions && process.versions.electron) || (window.electronAPI && window.electronAPI.getSteamId)) {
+        window.currentPlatform = 'steam';
+    } else if (window.Capacitor || (window.cordova && window.cordova.plugins) || window.CdvPurchase) {
+        window.currentPlatform = 'android';
+    }
+
+    const serverUrl = getShopServerUrl();
+    const username = getActiveUsername();
+    const socket = getActiveSocket();
+
+    document.getElementById('steam-overlay-notice-modal')?.remove();
+    const statusModal = document.createElement('div');
+    statusModal.id = 'steam-overlay-notice-modal';
+    statusModal.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#111; border:2px solid #E040FB; padding:20px; z-index:99999; width:350px; max-width:90vw; border-radius:8px; box-shadow:0 0 30px #E040FB; color:white; text-align:center; font-family:sans-serif;';
+    statusModal.innerHTML = '<h2 style="color:#E040FB; margin-top: 20px;">Connecting to Store...</h2>';
+    document.body.appendChild(statusModal);
+
+    const abortPurchase = (msg) => {
+        statusModal.remove();
+        window.customAlert(msg);
+        if (socket && socket.connected) socket.emit('requestShopAccess');
+    };
+
+    if (window.currentPlatform === 'steam') {
+        try {
+            let steamId = null;
+
+            if (window.electronAPI && window.electronAPI.getSteamId) {
+                let raw = await window.electronAPI.getSteamId();
+                if (raw) {
+                    let cleaned = String(raw).replace(/\D/g, '');
+                    if (cleaned.length >= 17 && cleaned.startsWith('7')) {
+                        steamId = cleaned.substring(0, 17);
+                    }
+                }
+            }
+
+            if (!steamId) {
+                return abortPurchase("Steam Error: Could not extract a valid 17-digit Steam ID.");
+            }
+
+            const response = await fetch(serverUrl + '/api/shop/init', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    steamId: steamId,
+                    username: username,
+                    itemId: packageId,
+                    amountCents: priceCents,
+                    itemDescription: description || "Exo Gems"
+                })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                if (window.electronAPI && window.electronAPI.initiateSteamPurchase) {
+                    window.electronAPI.initiateSteamPurchase(data.orderId);
+
+                    // 🛡️ THE BULLETPROOF FALLBACK: Added a manual "Verify" button!
+                    statusModal.innerHTML = `
+                        <h2 style="color:#4CAF50; margin-top: 20px;">Please authorize in the Steam Overlay!</h2>
+                        <p style="color:#ccc; font-size:12px; margin-bottom:15px;">Waiting for Steam...</p>
+                        <button class="btn" style="background:#2196F3; color:#fff; border:none; border-radius:6px; width:100%; margin-bottom:10px; padding:10px; font-weight:bold; cursor:pointer;" onclick="window.verifySteamPurchase('${data.orderId}')">I Authorized the Purchase</button>
+                        <button class="btn" style="background:#f44336; color:#fff; border:none; border-radius:6px; width:100%; padding:10px; cursor:pointer;" onclick="document.getElementById('steam-overlay-notice-modal')?.remove(); window.openRealMoneyShop();">Cancel</button>
+                    `;
+                } else {
+                    abortPurchase("Overlay Error: initiateSteamPurchase missing from preload.js.");
+                }
+            } else {
+                let errorMsg = data.error || data.message || JSON.stringify(data);
+                abortPurchase("Store Init Failed: " + errorMsg);
+            }
+        } catch (err) {
+            abortPurchase("Store Connection Error: " + err.message);
+        }
+    }
+    else if (window.currentPlatform === 'android') {
+        if (window.CdvPurchase) {
+            try {
+                const store = window.CdvPurchase.store;
+                const product = store.get(packageId);
+
+                if (!product) return abortPurchase("Error: The app could not find this product ID: " + packageId);
+
+                if (product.canPurchase) {
+                    const offer = product.getOffer ? product.getOffer() : null;
+                    if (offer) {
+                        offer.order().catch(err => abortPurchase("Order failed to open: " + err));
+                    } else {
+                        store.order(product.id).catch(err => abortPurchase("Order fallback failed: " + err));
+                    }
+                } else {
+                    abortPurchase("Google Play says you cannot purchase this item right now.");
+                }
+            } catch (e) {
+                abortPurchase("Plugin error: " + e.message);
+            }
+        } else {
+            abortPurchase("Store plugin not loaded!");
+        }
+    }
+    else {
+        abortPurchase("In-App Purchases are only available via the Steam or Android versions of Exonie!");
+    }
+};
+
+// 🛡️ ANTI-SOFT-LOCK & STEAM FINALIZATION
 if (window.electronAPI && window.electronAPI.onMicroTxnAuthorizationResponse) {
     window.electronAPI.onMicroTxnAuthorizationResponse(async (authorized, orderId) => {
-        document.getElementById('steam-overlay-notice-modal')?.remove();
-        if (authorized && orderId) {
-            window.verifySteamPurchase(orderId);
-        } else {
-            window.game?.ui?.showToast("⚠️ Steam transaction cancelled.");
+        let statusModal = document.getElementById('steam-overlay-notice-modal');
+
+        // 1. User clicked "Cancel" in the overlay
+        if (!authorized) {
+            if (statusModal) statusModal.remove();
+            window.game?.ui?.showToast("Purchase cancelled.");
+            window.openRealMoneyShop();
+            return;
+        }
+
+        // 2. 🛡️ THE FIX: User authorized the purchase! Tell the server to finalize it and give the gems.
+        if (statusModal) {
+            statusModal.innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Verifying Purchase...</h2><p style="color:#ccc; font-size:12px;">Do not close the game.</p>';
+        }
+
+        try {
+            const serverUrl = getShopServerUrl();
+            const username = getActiveUsername();
+            const res = await fetch(serverUrl + '/api/shop/finalize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    orderId: orderId,
+                    username: username
+                })
+            });
+            const data = await res.json();
+
+            if (!data.success) {
+                if (statusModal) statusModal.remove();
+                window.customAlert("Transaction failed: " + (data.error || data.message));
+                window.openRealMoneyShop();
+            } else {
+                // Success! The server will socket 'gemPurchaseSuccess' to update your balance.
+                if (statusModal) {
+                    statusModal.innerHTML = `
+                        <h2 style="color:#4CAF50; margin-top: 20px;">Purchase Successful!</h2>
+                        <p style="color:#fff;">Your Exo Gems have been added.</p>
+                        <button class="btn" style="background:#555; color:#fff; border:none; border-radius:6px; width:100%; margin-top:15px; padding:10px; cursor:pointer;" onclick="document.getElementById('steam-overlay-notice-modal')?.remove(); window.openRealMoneyShop();">Back to Shop</button>
+                    `;
+                }
+                const socket = getActiveSocket();
+                if (socket && socket.connected) socket.emit('requestShopAccess');
+            }
+        } catch (err) {
+            if (statusModal) statusModal.remove();
+            window.customAlert("Error verifying purchase: " + err.message);
+            window.openRealMoneyShop();
         }
     });
 }
+
+// 📥 LISTENS FOR THE RECEIPT FROM THE WRAPPERS
+window.addEventListener('StorePurchaseSuccess', async (event) => {
+    const receiptData = event.detail;
+    let statusModal = document.getElementById('steam-overlay-notice-modal');
+    if (statusModal) {
+        statusModal.innerHTML = '<h2 style="color:#4CAF50; margin-top: 20px;">Verifying Purchase...</h2>';
+    }
+
+    const serverUrl = getShopServerUrl();
+    const username = getActiveUsername();
+    const socket = getActiveSocket();
+
+    if (window.currentPlatform === 'steam') {
+        // Steam uses the new HTTP Finalize route
+        try {
+            const res = await fetch(serverUrl + '/api/shop/finalize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    orderId: receiptData.receiptToken, // Electron passes the order ID back here
+                    username: username // Tell the server who gets the gems!
+                })
+            });
+            const data = await res.json();
+            if (!data.success) {
+                if (statusModal) statusModal.remove();
+                window.customAlert("Transaction failed: " + (data.error || data.message));
+                window.openRealMoneyShop();
+            }
+            // Success logic is handled by the socket 'gemPurchaseSuccess' auto-updating the UI
+        } catch (err) {
+            if (statusModal) statusModal.remove();
+            window.customAlert("Error verifying purchase: " + err.message);
+            window.openRealMoneyShop();
+        }
+    } else if (socket) {
+        // Android uses the original Socket verification safely!
+        socket.emit('verifyStoreReceipt', {
+            platform: window.currentPlatform,
+            receipt: receiptData.receiptToken,
+            packageId: receiptData.packageId,
+            username: username
+        });
+    }
+});
+
+// ==========================================
+// 💳 ANDROID STORE INITIALIZATION (2D EXONIE COPY-PASTE)
+// ==========================================
+document.addEventListener('deviceready', () => {
+    window.currentPlatform = 'android';
+    if (window.CdvPurchase) {
+        const { store, ProductType, Platform } = window.CdvPurchase;
+
+        store.register([{
+            id: 'gem_pack_50',
+            type: ProductType.CONSUMABLE,
+            platform: Platform.GOOGLE_PLAY,
+        }, {
+            id: 'gem_pack_15',
+            type: ProductType.CONSUMABLE,
+            platform: Platform.GOOGLE_PLAY,
+        }]);
+
+        // When a purchase is successful, trigger the "Handshake" to the server
+        store.when().approved((transaction) => {
+            // 🛡️ CORDOVA V13 BULLETPROOF TOKEN FIX
+            let correctPackageId = transaction.productId || (transaction.products && transaction.products.length > 0 ? transaction.products[0].id : "gem_pack_50");
+            let correctToken = transaction.purchaseToken || (transaction.nativePurchase && transaction.nativePurchase.purchaseToken) || transaction.id || "test_token";
+
+            window.dispatchEvent(new CustomEvent('StorePurchaseSuccess', {
+                detail: {
+                    receiptToken: correctToken,
+                    packageId: correctPackageId
+                }
+            }));
+
+            transaction.finish();
+        });
+
+        store.error((err) => {
+            document.getElementById('steam-overlay-notice-modal')?.remove();
+            window.customAlert("Google Play Error: " + err.message);
+            window.openRealMoneyShop(); // Un-freeze the UI
+        });
+
+        store.initialize([Platform.GOOGLE_PLAY]);
+
+        // 🛑 THE FIX: Force the app to fetch the products from Google Play!
+        store.update();
+    }
+}, false);
 
 // 👁️ COSMETIC PREVIEW ENGINE (3D REALTIME DEMONSTRATION)
 window.openCosmeticPreview = function(type, cosmId, itemName, desc) {

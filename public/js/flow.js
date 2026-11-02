@@ -403,47 +403,72 @@ window.ExonieFlow = {
         });
     },
 
+    isPackagedNativeApp() {
+        if (typeof window === 'undefined') return false;
+        const ua = (navigator.userAgent || '').toLowerCase();
+        if (ua.includes(' electron/') || (typeof process !== 'undefined' && process.versions && process.versions.electron) || (window.electronAPI && window.electronAPI.getSteamId)) {
+            return true;
+        }
+        if (window.Capacitor || ua.includes('capacitor') || (window.cordova && window.cordova.plugins) || window.CdvPurchase) {
+            return true;
+        }
+        if (window.location && window.location.protocol === 'file:') {
+            return true;
+        }
+        return false;
+    },
+
     isLocalEnvironment() {
         if (typeof window === 'undefined' || !window.location) return false;
+        if (this.isPackagedNativeApp()) return false;
         const host = window.location.hostname;
-        return host === 'localhost' || host === '127.0.0.1' || window.location.protocol === 'file:';
+        const port = window.location.port;
+        return (host === 'localhost' || host === '127.0.0.1') && (port === '3003' || port === '3000');
     },
 
     getServerCandidates() {
         const list = [];
+        if (this.isPackagedNativeApp()) {
+            // Packaged Steam (Electron) & Mobile (Capacitor/Android) always connect directly to Live Server
+            list.push('https://exonieonline.onrender.com');
+            window.serverUrl = 'https://exonieonline.onrender.com';
+            return list;
+        }
         if (typeof window !== 'undefined' && window.location) {
             const origin = window.location.origin;
             const host = window.location.hostname;
             const port = window.location.port;
 
             if (origin && origin.startsWith('http')) {
-                if (host === 'localhost' || host === '127.0.0.1') {
+                if ((host === 'localhost' || host === '127.0.0.1') && (port === '3003' || port === '3000')) {
                     if (port === '3003') {
-                        list.push(origin, 'http://localhost:3000', 'https://testexonie.onrender.com');
-                    } else if (port === '3000') {
-                        list.push(origin, 'http://localhost:3003', 'https://testexonie.onrender.com');
+                        list.push(origin, 'http://localhost:3000', 'https://exonieonline.onrender.com');
                     } else {
-                        list.push('http://localhost:3003', 'http://localhost:3000', 'https://testexonie.onrender.com');
+                        list.push(origin, 'http://localhost:3003', 'https://exonieonline.onrender.com');
                     }
+                } else if (host.includes('testexonie')) {
+                    list.push('https://testexonie.onrender.com', 'https://exonieonline.onrender.com');
                 } else {
                     // Running on live cloud host (Render, Custom Domain, etc.)
-                    // Primary candidate is ALWAYS the hosting origin
-                    list.push(origin);
-                    if (!origin.includes('testexonie')) list.push('https://testexonie.onrender.com');
-                    if (!origin.includes('exonieonline')) list.push('https://exonieonline.onrender.com');
+                    list.push('https://exonieonline.onrender.com');
+                    if (origin && !list.includes(origin) && !host.includes('localhost')) {
+                        list.unshift(origin);
+                    }
                 }
             } else {
-                // file:/// protocol
-                list.push('http://localhost:3003', 'https://testexonie.onrender.com');
+                list.push('https://exonieonline.onrender.com');
             }
         } else {
-            list.push('https://testexonie.onrender.com');
+            list.push('https://exonieonline.onrender.com');
         }
+        window.serverUrl = list[0] || 'https://exonieonline.onrender.com';
         return list;
     },
 
     getActiveServerUrl() {
-        return this._activeServerUrl || (this.getServerCandidates()[0] || 'https://testexonie.onrender.com');
+        const url = this._activeServerUrl || (this.getServerCandidates()[0] || 'https://exonieonline.onrender.com');
+        window.serverUrl = url;
+        return url;
     },
 
     getSocket() {
