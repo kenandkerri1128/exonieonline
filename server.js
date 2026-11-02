@@ -1407,84 +1407,35 @@ io.on('connection', (socket) => {
 
             let matchedRows = [];
             if (supabase) {
-                let fetchError = null;
+                const candidateRows = await findAccountRows(cleanInput);
+                const cleanPw = String(password).trim();
 
-                // Step 1: If input contains '@', check email first
-                if (cleanInput.includes('@')) {
-                    const { data: byEmail, error: errEmail } = await supabase
-                        .from('Exonians')
-                        .select('*')
-                        .ilike('email', cleanInput)
-                        .eq('password', password);
-                    if (errEmail) fetchError = errEmail;
-                    if (byEmail && byEmail.length > 0) {
-                        matchedRows = byEmail;
+                if (candidateRows && candidateRows.length > 0) {
+                    const pwMatched = candidateRows.filter(r =>
+                        r && r.password !== undefined && r.password !== null &&
+                        (String(r.password) === password || String(r.password).trim() === cleanPw)
+                    );
+
+                    if (pwMatched.length > 0) {
+                        const verifiedEmail = (pwMatched[0].email || candidateRows[0].email || '').trim();
+                        if (verifiedEmail) {
+                            const { data: siblings } = await supabase
+                                .from('Exonians')
+                                .select('*')
+                                .ilike('email', verifiedEmail);
+                            if (siblings && siblings.length > 0) {
+                                matchedRows = siblings;
+                            } else {
+                                matchedRows = pwMatched;
+                            }
+                        } else {
+                            matchedRows = pwMatched;
+                        }
+                    } else {
+                        console.warn(`[LOGIN FAILED] Account found for "${cleanInput}" (${candidateRows.length} rows), but password did not match.`);
                     }
                 } else {
-                    const { data: byAutoEmail, error: errAutoEmail } = await supabase
-                        .from('Exonians')
-                        .select('*')
-                        .ilike('email', `${cleanInput}@exonie.com`)
-                        .eq('password', password);
-                    if (errAutoEmail) fetchError = errAutoEmail;
-                    if (byAutoEmail && byAutoEmail.length > 0) {
-                        matchedRows = byAutoEmail;
-                    }
-                }
-
-                // Step 2: Check exact character_name
-                if (matchedRows.length === 0) {
-                    const { data: byName, error: errName } = await supabase
-                        .from('Exonians')
-                        .select('*')
-                        .ilike('character_name', cleanInput)
-                        .eq('password', password);
-                    if (errName) fetchError = errName;
-                    if (byName && byName.length > 0) {
-                        matchedRows = byName;
-                    }
-                }
-
-                // Step 3: Check pipe-delimited character_name (multi-character slot)
-                if (matchedRows.length === 0 && !cleanInput.includes('@')) {
-                    const { data: byLike, error: errLike } = await supabase
-                        .from('Exonians')
-                        .select('*')
-                        .ilike('character_name', `%${cleanInput}%`)
-                        .eq('password', password);
-                    if (errLike) fetchError = errLike;
-                    if (byLike && byLike.length > 0) {
-                        matchedRows = byLike;
-                    }
-                }
-
-                // Step 4: Fallback check email
-                if (matchedRows.length === 0 && !cleanInput.includes('@')) {
-                    const { data: byEmailFback, error: errEmailFback } = await supabase
-                        .from('Exonians')
-                        .select('*')
-                        .ilike('email', cleanInput)
-                        .eq('password', password);
-                    if (errEmailFback) fetchError = errEmailFback;
-                    if (byEmailFback && byEmailFback.length > 0) {
-                        matchedRows = byEmailFback;
-                    }
-                }
-
-                if (matchedRows.length === 0 && fetchError) {
-                    console.error(`[LOGIN DB ERROR] ${cleanInput}:`, fetchError.message);
-                }
-
-                // If single row matched and has an email, fetch sibling 2D characters under same email
-                if (matchedRows.length === 1 && matchedRows[0].email) {
-                    const { data: siblings } = await supabase
-                        .from('Exonians')
-                        .select('*')
-                        .eq('email', matchedRows[0].email)
-                        .eq('password', password);
-                    if (siblings && siblings.length > 1) {
-                        matchedRows = siblings;
-                    }
+                    console.warn(`[LOGIN FAILED] No account found for "${cleanInput}".`);
                 }
             } else {
                 const lower = cleanInput.toLowerCase();
