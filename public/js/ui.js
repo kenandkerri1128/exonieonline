@@ -4108,7 +4108,7 @@ function getShopServerUrl() {
     if (window.ExonieFlow && typeof window.ExonieFlow.getActiveServerUrl === 'function') {
         return window.ExonieFlow.getActiveServerUrl();
     }
-    return 'https://exonieonline.onrender.com';
+    return 'https://exonie-3d.onrender.com';
 }
 
 function getActiveUsername() {

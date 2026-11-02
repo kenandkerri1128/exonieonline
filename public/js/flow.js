@@ -429,9 +429,9 @@ window.ExonieFlow = {
     getServerCandidates() {
         const list = [];
         if (this.isPackagedNativeApp()) {
-            // Packaged Steam (Electron) & Mobile (Capacitor/Android) always connect directly to Live Server
-            list.push('https://exonieonline.onrender.com');
-            window.serverUrl = 'https://exonieonline.onrender.com';
+            // Packaged Steam (Electron) & Mobile (Capacitor/Android) always connect directly to Live 3D Server
+            list.push('https://exonie-3d.onrender.com');
+            window.serverUrl = 'https://exonie-3d.onrender.com';
             return list;
         }
         if (typeof window !== 'undefined' && window.location) {
@@ -442,31 +442,29 @@ window.ExonieFlow = {
             if (origin && origin.startsWith('http')) {
                 if ((host === 'localhost' || host === '127.0.0.1') && (port === '3003' || port === '3000')) {
                     if (port === '3003') {
-                        list.push(origin, 'http://localhost:3000', 'https://exonieonline.onrender.com');
+                        list.push(origin, 'http://localhost:3000', 'https://exonie-3d.onrender.com');
                     } else {
-                        list.push(origin, 'http://localhost:3003', 'https://exonieonline.onrender.com');
+                        list.push(origin, 'http://localhost:3003', 'https://exonie-3d.onrender.com');
                     }
-                } else if (host.includes('testexonie')) {
-                    list.push('https://testexonie.onrender.com', 'https://exonieonline.onrender.com');
                 } else {
                     // Running on live cloud host (Render, Custom Domain, etc.)
-                    list.push('https://exonieonline.onrender.com');
+                    list.push('https://exonie-3d.onrender.com');
                     if (origin && !list.includes(origin) && !host.includes('localhost')) {
                         list.unshift(origin);
                     }
                 }
             } else {
-                list.push('https://exonieonline.onrender.com');
+                list.push('https://exonie-3d.onrender.com');
             }
         } else {
-            list.push('https://exonieonline.onrender.com');
+            list.push('https://exonie-3d.onrender.com');
         }
-        window.serverUrl = list[0] || 'https://exonieonline.onrender.com';
+        window.serverUrl = list[0] || 'https://exonie-3d.onrender.com';
         return list;
     },
 
     getActiveServerUrl() {
-        const url = this._activeServerUrl || (this.getServerCandidates()[0] || 'https://exonieonline.onrender.com');
+        const url = this._activeServerUrl || (this.getServerCandidates()[0] || 'https://exonie-3d.onrender.com');
         window.serverUrl = url;
         return url;
     },
