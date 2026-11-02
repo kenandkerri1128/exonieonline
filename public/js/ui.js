@@ -362,12 +362,24 @@ export class UIManager {
         const chkFullscreen = document.getElementById('chk-fullscreen');
         if (chkFullscreen) {
             chkFullscreen.onchange = (e) => {
+                if (window.electronAPI && typeof window.electronAPI.toggleFullScreen === 'function') {
+                    window.electronAPI.toggleFullScreen();
+                    window.isElectronFS = e.target.checked;
+                    return;
+                }
                 if (e.target.checked) {
                     document.documentElement.requestFullscreen?.().catch(() => {});
                 } else {
                     document.exitFullscreen?.().catch(() => {});
                 }
             };
+        }
+        if (window.electronAPI && typeof window.electronAPI.onFsChanged === 'function') {
+            window.electronAPI.onFsChanged((isFS) => {
+                window.isElectronFS = isFS;
+                const chkFs = document.getElementById('chk-fullscreen');
+                if (chkFs) chkFs.checked = !!isFS;
+            });
         }
 
         // ==========================================
@@ -2044,7 +2056,7 @@ export class UIManager {
         if (isHidden) {
             document.exitPointerLock?.();
             const chkFs = document.getElementById('chk-fullscreen');
-            if (chkFs) chkFs.checked = !!document.fullscreenElement;
+            if (chkFs) chkFs.checked = !!(document.fullscreenElement || window.isElectronFS);
         }
     }
 
